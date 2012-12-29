@@ -3,10 +3,14 @@ package us.supositi.gearshift;
 import us.supositi.gearshift.dummy.DummyContent;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.ViewPager;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.ListView;
+
+import com.slidingmenu.lib.SlidingMenu;
+import com.slidingmenu.lib.app.SlidingFragmentActivity;
 
 
 /**
@@ -25,7 +29,7 @@ import android.widget.ListView;
  * {@link TorrentListFragment.Callbacks} interface
  * to listen for item selections.
  */
-public class TorrentListActivity extends FragmentActivity
+public class TorrentListActivity extends SlidingFragmentActivity
         implements TorrentListFragment.Callbacks {
 
     /**
@@ -33,11 +37,12 @@ public class TorrentListActivity extends FragmentActivity
      * device.
      */
     private boolean mTwoPane;
+
     private ViewPager mPager;
     
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_torrent_list);
 
@@ -64,6 +69,22 @@ public class TorrentListActivity extends FragmentActivity
             ((TorrentListFragment) getSupportFragmentManager()
                     .findFragmentById(R.id.torrent_list))
                     .setActivateOnItemClick(true);
+            
+            setBehindContentView(R.layout.sliding_menu_frame);
+            /* TODO: put a proper fragment in the layout */
+            FragmentTransaction t = getSupportFragmentManager().beginTransaction();
+            t.replace(R.id.sliding_menu_frame, new TorrentListFragment());
+            t.commit();
+            
+            SlidingMenu sm = getSlidingMenu();
+            sm.setMode(SlidingMenu.LEFT);
+            sm.setTouchModeAbove(SlidingMenu.TOUCHMODE_MARGIN);
+            sm.setBehindWidthRes(R.dimen.sliding_menu_offset);
+            sm.setShadowWidthRes(R.dimen.shadow_width);
+            sm.setShadowDrawable(R.drawable.shadow);
+
+            setSlidingActionBarEnabled(false);
+            getActionBar().setDisplayHomeAsUpEnabled(true);
         }
 
         // TODO: If exposing deep links into your app, handle intents here.
@@ -101,5 +122,30 @@ public class TorrentListActivity extends FragmentActivity
         	mPager.setVisibility(View.GONE);
     		fragment.getListView().setItemChecked(position, false);
     	}
+    }
+    
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch(item.getItemId()) {
+        case android.R.id.home:
+            if (!mTwoPane || getSlidingMenu().isMenuShowing()) {
+                toggle();
+                return true;
+            }
+            
+            TorrentListFragment fragment = ((TorrentListFragment) getSupportFragmentManager()
+                    .findFragmentById(R.id.torrent_list));
+            
+            int position = fragment.getListView().getCheckedItemPosition();
+            if (position == ListView.INVALID_POSITION) {
+                toggle();
+                return true;
+            } else {
+                mPager.setVisibility(View.GONE);
+                fragment.getListView().setItemChecked(position, false);
+                return true;
+            }
+        }
+        return super.onOptionsItemSelected(item);
     }
 }
