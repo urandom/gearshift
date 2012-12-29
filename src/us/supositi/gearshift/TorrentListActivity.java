@@ -5,6 +5,8 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.view.ViewPager;
+import android.view.View;
+import android.widget.ListView;
 
 
 /**
@@ -55,6 +57,7 @@ public class TorrentListActivity extends FragmentActivity
         				.getListView().setItemChecked(position, true);
         		}
         	});
+        	mPager.setVisibility(View.GONE);
 
             // In two-pane mode, list items should be given the
             // 'activated' state when touched.
@@ -73,6 +76,7 @@ public class TorrentListActivity extends FragmentActivity
     @Override
     public void onItemSelected(String id) {
         if (mTwoPane) {
+        	mPager.setVisibility(View.VISIBLE);
         	mPager.setCurrentItem(DummyContent.ITEMS.indexOf(
         			DummyContent.ITEM_MAP.get(id)));
 
@@ -87,10 +91,15 @@ public class TorrentListActivity extends FragmentActivity
     
     @Override
     public void onBackPressed() {
-    	if (mPager.getCurrentItem() == 0) {
+    	TorrentListFragment fragment = ((TorrentListFragment) getSupportFragmentManager()
+				.findFragmentById(R.id.torrent_list));
+    	
+    	int position = fragment.getListView().getCheckedItemPosition();
+    	if (position == ListView.INVALID_POSITION) {
     		super.onBackPressed();
     	} else {
-    		mPager.setCurrentItem(mPager.getCurrentItem() - 1);
+        	mPager.setVisibility(View.GONE);
+    		fragment.getListView().setItemChecked(position, false);
     	}
     }
 }
