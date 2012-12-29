@@ -1,13 +1,14 @@
 package us.supositi.gearshift;
 
+import us.supositi.gearshift.dummy.DummyContent;
 import android.app.Activity;
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
-
-import us.supositi.gearshift.dummy.DummyContent;
 
 /**
  * A list fragment representing a list of Torrents. This fragment
@@ -126,7 +127,15 @@ public class TorrentListFragment extends ListFragment {
             outState.putInt(STATE_ACTIVATED_POSITION, mActivatedPosition);
         }
     }
-
+    
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+            Bundle savedInstanceState) {
+        View rootView = inflater.inflate(R.layout.fragment_torrent_list, container, false);
+                
+        return rootView;
+    }
+    
     /**
      * Turns on activate-on-click mode. When this mode is on, list items will be
      * given the 'activated' state when touched.
