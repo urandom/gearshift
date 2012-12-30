@@ -29,7 +29,7 @@
     <View android:id="@+id/vertical_divider"
         android:background="@drawable/shadow"
         android:layout_marginLeft="-32dp"
-        android:layout_width="32dp"
+        android:layout_width="16dp"
         android:layout_height="match_parent" />
     
 	<android.support.v4.view.ViewPager
