@@ -24,8 +24,8 @@
         android:layout_width="0dp"
         android:layout_height="match_parent"
         android:layout_weight="2"
-        android:paddingLeft="16dp"
-        android:paddingRight="16dp"
+        android:layout_marginLeft="16dp"
+        android:layout_marginRight="16dp"
         tools:layout="@android:layout/list_content" />
     
 	<android.support.v4.view.ViewPager

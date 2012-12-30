@@ -78,7 +78,7 @@ public class TorrentListActivity extends SlidingFragmentActivity
             
             SlidingMenu sm = getSlidingMenu();
             sm.setMode(SlidingMenu.LEFT);
-            sm.setTouchModeAbove(SlidingMenu.TOUCHMODE_MARGIN);
+            sm.setTouchModeAbove(SlidingMenu.TOUCHMODE_FULLSCREEN);
             sm.setBehindWidthRes(R.dimen.sliding_menu_offset);
             sm.setShadowWidthRes(R.dimen.shadow_width);
             sm.setShadowDrawable(R.drawable.shadow);
@@ -98,6 +98,7 @@ public class TorrentListActivity extends SlidingFragmentActivity
     public void onItemSelected(String id) {
         if (mTwoPane) {
         	mPager.setVisibility(View.VISIBLE);
+        	getSlidingMenu().setTouchModeAbove(SlidingMenu.TOUCHMODE_NONE);
         	mPager.setCurrentItem(DummyContent.ITEMS.indexOf(
         			DummyContent.ITEM_MAP.get(id)));
 
@@ -120,6 +121,7 @@ public class TorrentListActivity extends SlidingFragmentActivity
     		super.onBackPressed();
     	} else {
         	mPager.setVisibility(View.GONE);
+        	getSlidingMenu().setTouchModeAbove(SlidingMenu.TOUCHMODE_FULLSCREEN);
     		fragment.getListView().setItemChecked(position, false);
     	}
     }
@@ -142,6 +144,7 @@ public class TorrentListActivity extends SlidingFragmentActivity
                 return true;
             } else {
                 mPager.setVisibility(View.GONE);
+                getSlidingMenu().setTouchModeAbove(SlidingMenu.TOUCHMODE_FULLSCREEN);
                 fragment.getListView().setItemChecked(position, false);
                 return true;
             }
