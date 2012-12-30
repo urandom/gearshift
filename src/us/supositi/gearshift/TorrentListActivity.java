@@ -62,7 +62,6 @@ public class TorrentListActivity extends SlidingFragmentActivity
         				.getListView().setItemChecked(position, true);
         		}
         	});
-        	mPager.setVisibility(View.GONE);
 
             // In two-pane mode, list items should be given the
             // 'activated' state when touched.
@@ -85,6 +84,8 @@ public class TorrentListActivity extends SlidingFragmentActivity
 
             setSlidingActionBarEnabled(false);
             getActionBar().setDisplayHomeAsUpEnabled(true);
+            
+            toggleRightPane(false);
         }
 
         // TODO: If exposing deep links into your app, handle intents here.
@@ -97,8 +98,7 @@ public class TorrentListActivity extends SlidingFragmentActivity
     @Override
     public void onItemSelected(String id) {
         if (mTwoPane) {
-        	mPager.setVisibility(View.VISIBLE);
-        	getSlidingMenu().setTouchModeAbove(SlidingMenu.TOUCHMODE_NONE);
+        	toggleRightPane(true);
         	mPager.setCurrentItem(DummyContent.ITEMS.indexOf(
         			DummyContent.ITEM_MAP.get(id)));
 
@@ -120,8 +120,7 @@ public class TorrentListActivity extends SlidingFragmentActivity
     	if (position == ListView.INVALID_POSITION) {
     		super.onBackPressed();
     	} else {
-        	mPager.setVisibility(View.GONE);
-        	getSlidingMenu().setTouchModeAbove(SlidingMenu.TOUCHMODE_FULLSCREEN);
+        	toggleRightPane(false);
     		fragment.getListView().setItemChecked(position, false);
     	}
     }
@@ -143,12 +142,25 @@ public class TorrentListActivity extends SlidingFragmentActivity
                 toggle();
                 return true;
             } else {
-                mPager.setVisibility(View.GONE);
-                getSlidingMenu().setTouchModeAbove(SlidingMenu.TOUCHMODE_FULLSCREEN);
+                toggleRightPane(false);
                 fragment.getListView().setItemChecked(position, false);
                 return true;
             }
         }
         return super.onOptionsItemSelected(item);
+    }
+    
+    private void toggleRightPane(boolean show) {
+        if (!mTwoPane) return;
+        
+        if (show) {
+            mPager.setVisibility(View.VISIBLE);
+            findViewById(R.id.vertical_divider).setVisibility(View.VISIBLE);
+            getSlidingMenu().setTouchModeAbove(SlidingMenu.TOUCHMODE_NONE);
+        } else {
+            mPager.setVisibility(View.GONE);
+            findViewById(R.id.vertical_divider).setVisibility(View.GONE);
+            getSlidingMenu().setTouchModeAbove(SlidingMenu.TOUCHMODE_FULLSCREEN);
+        }
     }
 }

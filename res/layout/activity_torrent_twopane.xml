@@ -2,9 +2,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:divider="?android:attr/dividerHorizontal"
     android:orientation="horizontal"
-    android:showDividers="middle"
     tools:context=".TorrentListActivity" >
 
     <!--
@@ -27,6 +25,12 @@
         android:layout_marginLeft="16dp"
         android:layout_marginRight="16dp"
         tools:layout="@android:layout/list_content" />
+    
+    <View android:id="@+id/vertical_divider"
+        android:background="@drawable/shadow"
+        android:layout_marginLeft="-32dp"
+        android:layout_width="32dp"
+        android:layout_height="match_parent" />
     
 	<android.support.v4.view.ViewPager
 	    android:id="@+id/torrent_detail_pager"
