@@ -2,8 +2,10 @@ package us.supositi.gearshift;
 
 import java.text.MessageFormat;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.view.ContextThemeWrapper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,19 +19,23 @@ public class TorrentListMenuFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState) {
-        View root = inflater.inflate(R.layout.fragment_torrent_list_menu, container, false);
         
+        Context context = new ContextThemeWrapper(getActivity(), android.R.style.Theme_Holo);
+        LayoutInflater localInflater = inflater.cloneInContext(context);
+        
+        View root = localInflater.inflate(R.layout.fragment_torrent_list_menu, container, false);
+
         mFilterList = (ListView) root.findViewById(R.id.filter_list);
         
-        View header = inflater.inflate(R.layout.menu_list_header, mFilterList, false);
+        View header = localInflater.inflate(R.layout.menu_list_header, mFilterList, false);
         mFilterList.addHeaderView(header);
         
-        View footer = inflater.inflate(R.layout.menu_list_footer, mFilterList, false);
+        View footer = localInflater.inflate(R.layout.menu_list_footer, mFilterList, false);
         mFilterList.addFooterView(footer);
 
         /* TODO: The list items should have a count that indicates
          *  how many torrents are matched by the filter */
-        mFilterList.setAdapter(new ArrayAdapter<String>(getActivity(),
+        mFilterList.setAdapter(new ArrayAdapter<String>(context,
                 android.R.layout.simple_list_item_1,
                 android.R.id.text1,
                 getResources().getStringArray(R.array.filter_list_entries)));

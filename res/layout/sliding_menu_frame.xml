@@ -1,16 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/sliding_menu_frame"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="#333333"
     android:orientation="horizontal" >
-    
+
     <fragment
         android:id="@+id/torrent_list_menu"
         android:name="us.supositi.gearshift.TorrentListMenuFragment"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_marginLeft="16dp"
-        android:layout_marginRight="16dp" />
+        tools:layout="@layout/fragment_torrent_list_menu" />
 
 </LinearLayout>
