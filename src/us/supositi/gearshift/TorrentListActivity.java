@@ -70,10 +70,6 @@ public class TorrentListActivity extends SlidingFragmentActivity
                     .setActivateOnItemClick(true);
             
             setBehindContentView(R.layout.sliding_menu_frame);
-            /* TODO: put a proper fragment in the layout */
-            FragmentTransaction t = getSupportFragmentManager().beginTransaction();
-            t.replace(R.id.sliding_menu_frame, new TorrentListFragment());
-            t.commit();
             
             SlidingMenu sm = getSlidingMenu();
             sm.setMode(SlidingMenu.LEFT);
