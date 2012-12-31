@@ -17,5 +17,10 @@
     <string name="status">Status</string>
     <string name="speed_format">Down: {0}/{1} {2}\nUp: {3}/{4} {5}</string>
     <string name="free_space_format">Free Space: {0} {1}</string>
+    
+    <string name="refresh">Refresh</string>
+    <string name="alt_speed_label_on">Alternate speed limit on</string>
+    <string name="alt_speed_label_off">Alternate speed limit off</string>
+    <string name="alt_speed">Alternate speed limit</string>
 
 </resources>

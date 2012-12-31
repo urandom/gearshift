@@ -3,10 +3,11 @@ package us.supositi.gearshift;
 import us.supositi.gearshift.dummy.DummyContent;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.ViewPager;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.animation.AnimationUtils;
+import android.view.animation.LayoutAnimationController;
 import android.widget.ListView;
 
 import com.slidingmenu.lib.SlidingMenu;
@@ -68,21 +69,21 @@ public class TorrentListActivity extends SlidingFragmentActivity
             ((TorrentListFragment) getSupportFragmentManager()
                     .findFragmentById(R.id.torrent_list))
                     .setActivateOnItemClick(true);
-            
-            setBehindContentView(R.layout.sliding_menu_frame);
-            
-            SlidingMenu sm = getSlidingMenu();
-            sm.setMode(SlidingMenu.LEFT);
-            sm.setTouchModeAbove(SlidingMenu.TOUCHMODE_FULLSCREEN);
-            sm.setBehindWidthRes(R.dimen.sliding_menu_offset);
-            sm.setShadowWidthRes(R.dimen.shadow_width);
-            sm.setShadowDrawable(R.drawable.shadow);
 
-            setSlidingActionBarEnabled(false);
-            getActionBar().setDisplayHomeAsUpEnabled(true);
-            
             toggleRightPane(false);
         }
+        
+        setBehindContentView(R.layout.sliding_menu_frame);
+        
+        SlidingMenu sm = getSlidingMenu();
+        sm.setMode(SlidingMenu.LEFT);
+        sm.setTouchModeAbove(SlidingMenu.TOUCHMODE_FULLSCREEN);
+        sm.setBehindWidthRes(R.dimen.sliding_menu_offset);
+        sm.setShadowWidthRes(R.dimen.shadow_width);
+        sm.setShadowDrawable(R.drawable.shadow);
+
+        setSlidingActionBarEnabled(false);
+        getActionBar().setDisplayHomeAsUpEnabled(true);
 
         // TODO: If exposing deep links into your app, handle intents here.
     }
@@ -151,6 +152,10 @@ public class TorrentListActivity extends SlidingFragmentActivity
         
         if (show) {
             mPager.setVisibility(View.VISIBLE);
+/*            LayoutAnimationController controller = AnimationUtils.loadLayoutAnimation(
+                    this, R.anim.layout_slide_right);
+            mPager.setLayoutAnimation(controller);*/
+            
             findViewById(R.id.vertical_divider).setVisibility(View.VISIBLE);
             getSlidingMenu().setTouchModeAbove(SlidingMenu.TOUCHMODE_NONE);
         } else {

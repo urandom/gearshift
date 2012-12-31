@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android" >
+    <item android:id="@+id/refresh"
+        android:icon="@drawable/ic_menu_refresh"
+        android:visible="true"
+        android:showAsAction="ifRoom"
+        android:title="@string/refresh"
+        android:titleCondensed="@string/refresh"/>
+    
+    <item android:id="@+id/alt_speed"
+        android:icon="@drawable/ic_menu_alt_speed"
+        android:visible="true"
+        android:showAsAction="ifRoom"
+        android:title="@string/alt_speed_label_on"
+        android:titleCondensed="@string/alt_speed"/>
+</menu>

@@ -5,6 +5,8 @@ import android.app.Activity;
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
@@ -77,6 +79,8 @@ public class TorrentListFragment extends ListFragment {
                 android.R.layout.simple_list_item_activated_1,
                 android.R.id.text1,
                 DummyContent.ITEMS));
+        
+        setHasOptionsMenu(true);
     }
 
     @Override
@@ -134,6 +138,11 @@ public class TorrentListFragment extends ListFragment {
         View rootView = inflater.inflate(R.layout.fragment_torrent_list, container, false);
                 
         return rootView;
+    }
+    
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        inflater.inflate(R.menu.list_fragment, menu);
     }
     
     /**
