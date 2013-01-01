@@ -7,8 +7,10 @@ import android.support.v4.app.ListFragment;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
@@ -39,6 +41,8 @@ public class TorrentListFragment extends ListFragment {
      * The current activated item position. Only used on tablets.
      */
     private int mActivatedPosition = ListView.INVALID_POSITION;
+    
+    private boolean mAltSpeed = false;
 
     /**
      * A callback interface that all activities containing this fragment must
@@ -81,6 +85,8 @@ public class TorrentListFragment extends ListFragment {
                 DummyContent.ITEMS));
         
         setHasOptionsMenu(true);
+        getActivity().requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);  
+        getActivity().setProgressBarIndeterminateVisibility(true); 
     }
 
     @Override
@@ -143,6 +149,25 @@ public class TorrentListFragment extends ListFragment {
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         inflater.inflate(R.menu.list_fragment, menu);
+    }
+    
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.menu_alt_speed:
+                if (mAltSpeed) {
+                    mAltSpeed = false;
+                    item.setIcon(R.drawable.ic_menu_alt_speed_off);
+                    item.setTitle(R.string.alt_speed_label_on);
+                } else {
+                    mAltSpeed = true;
+                    item.setIcon(R.drawable.ic_menu_alt_speed_on);
+                    item.setTitle(R.string.alt_speed_label_off);
+                }
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
     }
     
     /**
