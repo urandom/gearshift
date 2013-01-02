@@ -23,4 +23,7 @@
     <string name="alt_speed_label_off">Alternate speed limit off</string>
     <string name="alt_speed">Alternate speed limit</string>
 
+    <string name="torrent_overview">Overview</string>
+    <string name="torrent_limits">Limits</string>
+    <string name="torrent_advanced">Advanced</string>
 </resources>

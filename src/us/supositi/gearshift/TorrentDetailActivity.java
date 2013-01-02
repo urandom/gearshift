@@ -21,6 +21,7 @@ import us.supositi.gearshift.TorrentDetailPagerAdapter;
  * more than a {@link TorrentDetailFragment}.
  */
 public class TorrentDetailActivity extends FragmentActivity {
+    public static final String ARG_ITEM_ID = "item_id";
 
 	private ViewPager mPager;
 	
@@ -31,6 +32,10 @@ public class TorrentDetailActivity extends FragmentActivity {
 
         // Show the Up button in the action bar.
         getActionBar().setDisplayHomeAsUpEnabled(true);
+        TorrentDetailTabListener.addTabs(this);
+        
+        mPager = (ViewPager) findViewById(R.id.torrent_detail_pager);
+        mPager.setAdapter(new TorrentDetailPagerAdapter(getSupportFragmentManager()));
 
         // savedInstanceState is non-null when there is fragment state
         // saved from previous configurations of this activity
@@ -42,11 +47,8 @@ public class TorrentDetailActivity extends FragmentActivity {
         // http://developer.android.com/guide/components/fragments.html
         //
         if (savedInstanceState == null) {
-        	mPager = (ViewPager) findViewById(R.id.torrent_detail_pager);
-        	mPager.setAdapter(new TorrentDetailPagerAdapter(getSupportFragmentManager()));
-        	
         	mPager.setCurrentItem(DummyContent.ITEMS.indexOf(
-        			DummyContent.ITEM_MAP.get(getIntent().getStringExtra(TorrentDetailFragment.ARG_ITEM_ID))));        	
+        			DummyContent.ITEM_MAP.get(getIntent().getStringExtra(ARG_ITEM_ID))));        	
         }
     }
 
@@ -69,10 +71,12 @@ public class TorrentDetailActivity extends FragmentActivity {
     
     @Override
     public void onBackPressed() {
-    	if (mPager.getCurrentItem() == 0) {
-    		super.onBackPressed();
-    	} else {
-    		mPager.setCurrentItem(mPager.getCurrentItem() - 1);
-    	}
+        if (mPager != null) {
+        	if (mPager.getCurrentItem() == 0) {
+        		super.onBackPressed();
+        	} else {
+        		mPager.setCurrentItem(mPager.getCurrentItem() - 1);
+        	}
+        }
     }
 }

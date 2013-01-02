@@ -1,13 +1,12 @@
 package us.supositi.gearshift;
 
 import us.supositi.gearshift.dummy.DummyContent;
+
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.view.ViewPager;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.animation.AnimationUtils;
-import android.view.animation.LayoutAnimationController;
 import android.widget.ListView;
 
 import com.slidingmenu.lib.SlidingMenu;
@@ -98,12 +97,11 @@ public class TorrentListActivity extends SlidingFragmentActivity
         	toggleRightPane(true);
         	mPager.setCurrentItem(DummyContent.ITEMS.indexOf(
         			DummyContent.ITEM_MAP.get(id)));
-
         } else {
             // In single-pane mode, simply start the detail activity
             // for the selected item ID.
             Intent detailIntent = new Intent(this, TorrentDetailActivity.class);
-            detailIntent.putExtra(TorrentDetailFragment.ARG_ITEM_ID, id);
+            detailIntent.putExtra(TorrentDetailActivity.ARG_ITEM_ID, id);
             startActivity(detailIntent);
         }
     }
@@ -151,17 +149,23 @@ public class TorrentListActivity extends SlidingFragmentActivity
         if (!mTwoPane) return;
         
         if (show) {
-            mPager.setVisibility(View.VISIBLE);
-/*            LayoutAnimationController controller = AnimationUtils.loadLayoutAnimation(
-                    this, R.anim.layout_slide_right);
-            mPager.setLayoutAnimation(controller);*/
-            
-            findViewById(R.id.vertical_divider).setVisibility(View.VISIBLE);
-            getSlidingMenu().setTouchModeAbove(SlidingMenu.TOUCHMODE_NONE);
+            if (mPager.getVisibility() != View.VISIBLE) {
+                TorrentDetailTabListener.addTabs(this);
+                mPager.setVisibility(View.VISIBLE);
+    /*            LayoutAnimationController controller = AnimationUtils.loadLayoutAnimation(
+                        this, R.anim.layout_slide_right);
+                mPager.setLayoutAnimation(controller);*/
+                
+                findViewById(R.id.vertical_divider).setVisibility(View.VISIBLE);
+                getSlidingMenu().setTouchModeAbove(SlidingMenu.TOUCHMODE_NONE);
+            }
         } else {
-            mPager.setVisibility(View.GONE);
-            findViewById(R.id.vertical_divider).setVisibility(View.GONE);
-            getSlidingMenu().setTouchModeAbove(SlidingMenu.TOUCHMODE_FULLSCREEN);
+            if (mPager.getVisibility() != View.GONE) {
+                getActionBar().removeAllTabs();
+                mPager.setVisibility(View.GONE);
+                findViewById(R.id.vertical_divider).setVisibility(View.GONE);
+                getSlidingMenu().setTouchModeAbove(SlidingMenu.TOUCHMODE_FULLSCREEN);
+            }
         }
     }
 }
