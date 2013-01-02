@@ -1,12 +1,14 @@
 package us.supositi.gearshift;
 
 import us.supositi.gearshift.dummy.DummyContent;
-
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.view.ViewPager;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
+import android.view.animation.AnimationUtils;
+import android.view.animation.LayoutAnimationController;
 import android.widget.ListView;
 
 import com.slidingmenu.lib.SlidingMenu;
@@ -148,22 +150,20 @@ public class TorrentListActivity extends SlidingFragmentActivity
     private void toggleRightPane(boolean show) {
         if (!mTwoPane) return;
         
+        ViewGroup panel = (ViewGroup) findViewById(R.id.torrent_detail_panel);
         if (show) {
-            if (mPager.getVisibility() != View.VISIBLE) {
+            if (panel.getVisibility() != View.VISIBLE) {
                 TorrentDetailTabListener.addTabs(this);
-                mPager.setVisibility(View.VISIBLE);
-    /*            LayoutAnimationController controller = AnimationUtils.loadLayoutAnimation(
+                panel.setVisibility(View.VISIBLE);
+                LayoutAnimationController controller = AnimationUtils.loadLayoutAnimation(
                         this, R.anim.layout_slide_right);
-                mPager.setLayoutAnimation(controller);*/
-                
-                findViewById(R.id.vertical_divider).setVisibility(View.VISIBLE);
+                panel.setLayoutAnimation(controller);
                 getSlidingMenu().setTouchModeAbove(SlidingMenu.TOUCHMODE_NONE);
             }
         } else {
-            if (mPager.getVisibility() != View.GONE) {
+            if (panel.getVisibility() != View.GONE) {
                 getActionBar().removeAllTabs();
-                mPager.setVisibility(View.GONE);
-                findViewById(R.id.vertical_divider).setVisibility(View.GONE);
+                panel.setVisibility(View.GONE);
                 getSlidingMenu().setTouchModeAbove(SlidingMenu.TOUCHMODE_FULLSCREEN);
             }
         }
