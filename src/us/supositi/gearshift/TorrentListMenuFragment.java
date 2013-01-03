@@ -39,7 +39,7 @@ public class TorrentListMenuFragment extends Fragment {
                 android.R.layout.simple_list_item_1,
                 android.R.id.text1,
                 getResources().getStringArray(R.array.filter_list_entries)));
-        
+
         return root;
     }
     

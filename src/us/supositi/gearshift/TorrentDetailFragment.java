@@ -1,12 +1,12 @@
 package us.supositi.gearshift;
 
+import us.supositi.gearshift.dummy.DummyContent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-
-import us.supositi.gearshift.dummy.DummyContent;
+import android.widget.TextView;
 
 /**
  * A fragment representing a single Torrent detail screen.
@@ -42,10 +42,12 @@ public class TorrentDetailFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.fragment_torrent_detail, container, false);
-    }
-    
-    public DummyContent.DummyItem getItem() {
-        return mItem;
+        View root = inflater.inflate(R.layout.fragment_torrent_detail, container, false);
+        
+        if (mItem != null) {
+            ((TextView) root.findViewById(R.id.torrent_detail_title)).setText(mItem.content);
+        }
+        
+        return root;
     }
 }

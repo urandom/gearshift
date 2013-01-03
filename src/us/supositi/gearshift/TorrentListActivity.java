@@ -4,6 +4,7 @@ import us.supositi.gearshift.dummy.DummyContent;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.view.ViewPager;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
@@ -33,7 +34,9 @@ import com.slidingmenu.lib.app.SlidingFragmentActivity;
  */
 public class TorrentListActivity extends SlidingFragmentActivity
         implements TorrentListFragment.Callbacks {
-
+    
+    public static final String LogTag = "GearShift";
+    
     /**
      * Whether or not the activity is in two-pane mode, i.e. running on a tablet
      * device.
@@ -41,8 +44,7 @@ public class TorrentListActivity extends SlidingFragmentActivity
     private boolean mTwoPane;
 
     private ViewPager mPager;
-    
-
+        
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -55,8 +57,10 @@ public class TorrentListActivity extends SlidingFragmentActivity
             // activity should be in two-pane mode.
             mTwoPane = true;
             
+            Log.d(LogTag, "Two Pane mode");
+            
         	mPager = (ViewPager) findViewById(R.id.torrent_detail_pager);
-        	mPager.setAdapter(new TorrentDetailPagerAdapter(getSupportFragmentManager()));
+        	mPager.setAdapter(new TorrentDetailPagerAdapter(this));
         	mPager.setOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
         		public void onPageSelected(int position) {
         			((TorrentListFragment) getSupportFragmentManager()
@@ -96,9 +100,9 @@ public class TorrentListActivity extends SlidingFragmentActivity
     @Override
     public void onItemSelected(String id) {
         if (mTwoPane) {
-        	toggleRightPane(true);
-        	mPager.setCurrentItem(DummyContent.ITEMS.indexOf(
-        			DummyContent.ITEM_MAP.get(id)));
+            toggleRightPane(true);
+            mPager.setCurrentItem(DummyContent.ITEMS.indexOf(
+                    DummyContent.ITEM_MAP.get(id)));
         } else {
             // In single-pane mode, simply start the detail activity
             // for the selected item ID.
@@ -153,7 +157,6 @@ public class TorrentListActivity extends SlidingFragmentActivity
         ViewGroup panel = (ViewGroup) findViewById(R.id.torrent_detail_panel);
         if (show) {
             if (panel.getVisibility() != View.VISIBLE) {
-                TorrentDetailTabListener.addTabs(this);
                 panel.setVisibility(View.VISIBLE);
                 LayoutAnimationController controller = AnimationUtils.loadLayoutAnimation(
                         this, R.anim.layout_slide_right);
@@ -162,7 +165,6 @@ public class TorrentListActivity extends SlidingFragmentActivity
             }
         } else {
             if (panel.getVisibility() != View.GONE) {
-                getActionBar().removeAllTabs();
                 panel.setVisibility(View.GONE);
                 getSlidingMenu().setTouchModeAbove(SlidingMenu.TOUCHMODE_FULLSCREEN);
             }

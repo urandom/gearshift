@@ -24,7 +24,7 @@ public class TorrentDetailActivity extends FragmentActivity {
     public static final String ARG_ITEM_ID = "item_id";
 
 	private ViewPager mPager;
-	
+		
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -32,10 +32,9 @@ public class TorrentDetailActivity extends FragmentActivity {
 
         // Show the Up button in the action bar.
         getActionBar().setDisplayHomeAsUpEnabled(true);
-        TorrentDetailTabListener.addTabs(this);
         
         mPager = (ViewPager) findViewById(R.id.torrent_detail_pager);
-        mPager.setAdapter(new TorrentDetailPagerAdapter(getSupportFragmentManager()));
+        mPager.setAdapter(new TorrentDetailPagerAdapter(this));
 
         // savedInstanceState is non-null when there is fragment state
         // saved from previous configurations of this activity
