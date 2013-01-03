@@ -3,6 +3,7 @@
     android:id="@+id/torrent_detail_container"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
+    android:background="@color/detail_background"
     android:padding="16dp"
     tools:context=".TorrentDetailFragment" >
     
