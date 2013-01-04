@@ -1,11 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android" >
+    
     <item android:id="@+id/menu_refresh"
         android:icon="@drawable/ic_menu_refresh"
         android:visible="true"
-        android:orderInCategory="0"
-        android:showAsAction="ifRoom|collapseActionView"
-        android:actionLayout="@layout/action_progress_bar"
+        android:showAsAction="ifRoom"
         android:title="@string/refresh"
         android:titleCondensed="@string/refresh"/>
     
@@ -15,4 +14,6 @@
         android:showAsAction="ifRoom"
         android:title="@string/alt_speed_label_on"
         android:titleCondensed="@string/alt_speed"/>
+
+    
 </menu>

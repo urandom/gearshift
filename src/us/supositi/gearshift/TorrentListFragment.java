@@ -43,6 +43,8 @@ public class TorrentListFragment extends ListFragment {
     private int mActivatedPosition = ListView.INVALID_POSITION;
     
     private boolean mAltSpeed = false;
+    
+    private boolean mRefreshing = false;
 
     /**
      * A callback interface that all activities containing this fragment must
@@ -164,6 +166,14 @@ public class TorrentListFragment extends ListFragment {
                     item.setIcon(R.drawable.ic_menu_alt_speed_on);
                     item.setTitle(R.string.alt_speed_label_off);
                 }
+                return true;
+            case R.id.menu_refresh:
+                if (mRefreshing)
+                    item.setActionView(null);
+                else
+                    item.setActionView(R.layout.action_progress_bar);
+
+                mRefreshing = !mRefreshing;
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
