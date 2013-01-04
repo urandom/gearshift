@@ -48,6 +48,43 @@ public class TorrentDetailFragment extends Fragment {
             ((TextView) root.findViewById(R.id.torrent_detail_title)).setText(mItem.content);
         }
         
+        View.OnClickListener clickListener = new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                View image;
+                View content;
+                switch(v.getId()) {
+                    case R.id.torrent_detail_overview_expander:
+                        image = v.findViewById(R.id.torrent_detail_overview_expander_image);
+                        content = getView().findViewById(R.id.torrent_detail_overview_content);
+                        break;
+                    case R.id.torrent_detail_limits_expander:
+                        image = v.findViewById(R.id.torrent_detail_limits_expander_image);
+                        content = getView().findViewById(R.id.torrent_detail_limits_content);
+                        break;
+                    case R.id.torrent_detail_advanced_expander:
+                        image = v.findViewById(R.id.torrent_detail_advanced_expander_image);
+                        content = getView().findViewById(R.id.torrent_detail_advanced_content);
+                        break;
+                    default:
+                        return;
+                }
+                
+                if (content.getVisibility() == View.GONE) {
+                    content.setVisibility(View.VISIBLE);
+                    image.setBackgroundResource(R.drawable.ic_section_collapse);
+                } else {
+                    content.setVisibility(View.GONE);
+                    image.setBackgroundResource(R.drawable.ic_section_expand);
+                }
+
+            }
+        };
+        
+        root.findViewById(R.id.torrent_detail_overview_expander).setOnClickListener(clickListener);
+        root.findViewById(R.id.torrent_detail_limits_expander).setOnClickListener(clickListener);
+        root.findViewById(R.id.torrent_detail_advanced_expander).setOnClickListener(clickListener);
+        
         return root;
     }
 }
