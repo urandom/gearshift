@@ -5,6 +5,7 @@
     android:layout_height="fill_parent"
     android:background="@color/detail_background"
     android:orientation="vertical"
+    android:padding="8dp"
     android:paddingBottom="16dp"
     android:paddingTop="16dp"
     tools:context=".TorrentDetailFragment" >
