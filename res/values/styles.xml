@@ -33,7 +33,14 @@
     
     <style name="TorrentDetailContainer">
    	    <item name="android:background">@drawable/card_background</item>
-   	    <item name="android:padding">16dp</item>
+   	    <item name="android:padding">8dp</item>
+   	    <item name="android:paddingLeft">16dp</item>
+   	    <item name="android:paddingRight">16dp</item>
+   	    <item name="android:layout_marginTop">8dp</item>
+    </style>
+    
+    <style name="TorrentDetailExpander">
+        <item name="android:textSize">20sp</item>
     </style>
 
 </resources>

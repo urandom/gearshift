@@ -4,16 +4,139 @@
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
     android:background="@color/detail_background"
-    android:paddingTop="16dp"
+    android:orientation="vertical"
     android:paddingBottom="16dp"
+    android:paddingTop="16dp"
     tools:context=".TorrentDetailFragment" >
     
 	<TextView
-	    xmlns:android="http://schemas.android.com/apk/res/android"
 	    android:id="@+id/torrent_detail_title"
 	    style="@style/TorrentTitle"
-	    android:layout_width="match_parent"
-	    android:layout_height="wrap_content" />
+	    android:layout_width="fill_parent"
+	    android:layout_height="wrap_content"
+	    android:text="Torrent title" />
+	
+	<LinearLayout
+	    style="@style/TorrentDetailContainer"
+	    android:layout_width="fill_parent"
+	    android:layout_height="wrap_content"
+	    android:orientation="vertical" >
+	    
+	    <LinearLayout
+	        android:id="@+id/torrent_detail_overview_expander"
+	        android:layout_width="fill_parent"
+	        android:layout_height="wrap_content"
+	        android:clickable="true"
+	        android:orientation="horizontal" >
 
+	        	<TextView
+	        	    style="@style/TorrentDetailExpander"
+	        	    android:layout_width="fill_parent"
+	        	    android:layout_height="wrap_content"
+	        	    android:layout_gravity="center_vertical"
+	        	    android:layout_marginRight="40dp"
+	        	    android:text="@string/torrent_overview" />
+	        	
+	        	<View
+	        	    android:layout_width="32dp"
+	        	    android:layout_height="32dp"
+	        	    android:layout_gravity="center_vertical"
+	        	    android:layout_marginLeft="-32dp"
+	        	    android:background="@drawable/ic_section_collapse" />
+	        	
+	    </LinearLayout>
+	    
+	    <LinearLayout
+	        android:id="@+id/torrent_detail_overview_content"
+	        android:layout_width="fill_parent"
+	        android:layout_height="wrap_content"
+	        android:orientation="vertical">
+	        
+	    </LinearLayout>
+	    
+	</LinearLayout>
+	
+	<LinearLayout
+	    style="@style/TorrentDetailContainer"
+	    android:layout_width="fill_parent"
+	    android:layout_height="wrap_content"
+	    android:orientation="vertical" >
+	    
+	    <LinearLayout
+	        android:id="@+id/torrent_detail_limits_expander"
+	        android:layout_width="fill_parent"
+	        android:layout_height="wrap_content"
+	        android:clickable="true"
+	        android:orientation="horizontal" >
+
+	        	<TextView
+	        	    style="@style/TorrentDetailExpander"
+	        	    android:layout_width="fill_parent"
+	        	    android:layout_height="wrap_content"
+	        	    android:layout_gravity="center_vertical"
+	        	    android:layout_marginRight="40dp"
+	        	    android:text="@string/torrent_limits" />
+	        	
+	        	<View
+	        	    android:layout_width="32dp"
+	        	    android:layout_height="32dp"
+	        	    android:layout_gravity="center_vertical"
+	        	    android:layout_marginLeft="-32dp"
+	        	    android:background="@drawable/ic_section_expand" />
+	        	
+	    </LinearLayout>
+	    
+	    <LinearLayout
+	        android:id="@+id/torrent_detail_limits_content"
+	        android:layout_width="fill_parent"
+	        android:layout_height="wrap_content"
+	        android:orientation="vertical"
+	        android:visibility="gone" >
+	        
+	    </LinearLayout>
+	    
+	</LinearLayout>
+	
+	<LinearLayout
+	    style="@style/TorrentDetailContainer"
+	    android:layout_width="fill_parent"
+	    android:layout_height="wrap_content"
+	    android:orientation="vertical" >
+	    
+	    <LinearLayout
+	        android:id="@+id/torrent_detail_advanced_expander"
+	        android:layout_width="fill_parent"
+	        android:layout_height="wrap_content"
+	        android:clickable="true"
+	        android:orientation="horizontal" >
+
+	        	<TextView
+	        	    style="@style/TorrentDetailExpander"
+	        	    android:layout_width="fill_parent"
+	        	    android:layout_height="wrap_content"
+	        	    android:layout_gravity="center_vertical"
+	        	    android:layout_marginRight="40dp"
+	        	    android:text="@string/torrent_advanced" />
+	        	
+	        	<View
+	        	    android:layout_width="32dp"
+	        	    android:layout_height="32dp"
+	        	    android:layout_gravity="center_vertical"
+	        	    android:layout_marginLeft="-32dp"
+	        	    android:background="@drawable/ic_section_expand" />
+	        	
+	    </LinearLayout>
+	    
+	    <LinearLayout
+	        android:id="@+id/torrent_detail_advanced_content"
+	        android:layout_width="fill_parent"
+	        android:layout_height="wrap_content"
+	        android:orientation="vertical"
+	        android:visibility="gone" >
+	        
+	    </LinearLayout>
+	    
+	</LinearLayout>
+	
 </LinearLayout>
     <!-- android:background="@android:drawable/dialog_holo_light_frame" -->
