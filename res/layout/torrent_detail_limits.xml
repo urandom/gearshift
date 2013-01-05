@@ -1,0 +1,169 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    style="@style/TorrentDetailContainer"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical" >
+
+    <LinearLayout
+        android:id="@+id/torrent_detail_limits_expander"
+        style="@style/TorrentDetailExpander" >
+
+        <TextView
+            style="@style/TorrentDetailExpanderText"
+            android:text="@string/torrent_limits" />
+
+        <View
+            android:id="@+id/torrent_detail_limits_expander_image"
+            style="@style/TorrentDetailExpanderImage" />
+    </LinearLayout>
+
+    <TableLayout
+        android:id="@+id/torrent_detail_limits_content"
+        style="@style/TorrentDetailContentCollapsed" >
+        
+        <TableRow
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" >
+            
+	        <TextView
+	            style="@style/TorrentDetailOverviewHeading"
+	            android:text="@string/torrent_bandwidth"
+	            android:layout_span="2" />
+        </TableRow>
+
+        <TableRow
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" >
+
+            <CheckBox
+                android:id="@+id/torrent_global_limits"
+                android:layout_span="2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/torrent_global_limits" />
+
+        </TableRow>
+
+        <TableRow
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" >
+            
+            <TextView android:text="@string/torrent_priority" />
+
+            <Spinner
+                android:id="@+id/torrent_priority"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:entries="@array/torrent_priority" />
+            
+        </TableRow>
+
+        <TableRow
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" >
+            
+            <TextView android:text="@string/torrent_queue_position" />
+
+            <TextView
+                android:id="@+id/torrent_queue_position"
+                style="@style/TorrentDetailClickable" >
+            </TextView>
+            
+        </TableRow>
+
+        <TableRow
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" >
+            
+            <TextView android:text="@string/torrent_limit_download" />
+            
+            <TextView
+                android:id="@+id/torrent_limit_download"
+                style="@style/TorrentDetailClickable" >
+            </TextView>
+            
+        </TableRow>
+        
+        <TableRow
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" >
+            
+            <TextView android:text="@string/torrent_limit_upload" />
+            
+            <TextView
+                android:id="@+id/torrent_limit_upload"
+                style="@style/TorrentDetailClickable" >
+            </TextView>
+            
+        </TableRow>
+        
+        <TableRow
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" >
+            
+	        <TextView
+	            style="@style/TorrentDetailOverviewHeading"
+	            android:text="@string/torrent_seeding"
+	            android:layout_span="2" />
+	        
+	    </TableRow>
+
+        <TableRow
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" >
+            
+            <TextView android:text="@string/torrent_seed_ratio_mode" />
+
+            <Spinner
+                android:id="@+id/torrent_seed_ratio_mode"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:entries="@array/torrent_seed_ratio_mode" />
+            
+        </TableRow>
+
+        <TableRow
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" >
+            
+            <TextView android:text="@string/torrent_seed_ratio_limit" />
+
+            <TextView
+                android:id="@+id/torrent_seed_ratio_limit"
+                style="@style/TorrentDetailClickable" >
+            </TextView>
+            
+        </TableRow>
+                   
+        <TableRow
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" >
+            
+	                
+	        <TextView
+	            style="@style/TorrentDetailOverviewHeading"
+	            android:text="@string/torrent_peers"
+	            android:layout_span="2" />
+       	</TableRow>
+
+        <TableRow
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" >
+
+            
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/torrent_peer_limit" />
+
+            <TextView
+                android:id="@+id/torrent_peer_limit"
+                style="@style/TorrentDetailClickable" >
+            </TextView>
+                
+
+        </TableRow>
+        
+    </TableLayout>
+</LinearLayout>

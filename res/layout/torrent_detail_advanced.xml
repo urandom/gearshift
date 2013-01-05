@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    style="@style/TorrentDetailContainer"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical" >
+
+    <LinearLayout
+        android:id="@+id/torrent_detail_advanced_expander"
+        style="@style/TorrentDetailExpander" >
+
+        <TextView
+            style="@style/TorrentDetailExpanderText"
+            android:text="@string/torrent_advanced" />
+
+        <View
+            android:id="@+id/torrent_detail_advanced_expander_image"
+            style="@style/TorrentDetailExpanderImage" />
+    </LinearLayout>
+
+    <TableLayout
+        android:id="@+id/torrent_detail_advanced_content"
+        style="@style/TorrentDetailContentCollapsed" >
+    </TableLayout>
+</LinearLayout>

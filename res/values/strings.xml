@@ -45,4 +45,19 @@
     <string name="torrent_privacy">Privacy:</string>
     <string name="torrent_origin">Origin:</string>
     <string name="torrent_comment">Comment:</string>
+    
+    <string name="torrent_bandwidth">Bandwidth</string>
+    <string name="torrent_global_limits">Honor global limits</string>
+    <string name="torrent_priority">Torrent priority:</string>
+    <string name="torrent_queue_position">Queue position:</string>
+    <string name="torrent_limit_download">Limit download speed (KiB/s)</string>
+    <string name="torrent_limit_upload">Limit upload speed (KiB/s)</string>
+    
+    <string name="torrent_seeding">Seeding</string>
+    <string name="torrent_seed_ratio_mode">Seed ratio mode:</string>
+    <string name="torrent_seed_ratio_limit">Seed ratio limit:</string>
+    
+    <string name="torrent_peers">Peers</string>
+    <string name="torrent_peer_limit">Peer limit:</string>
+    
 </resources>

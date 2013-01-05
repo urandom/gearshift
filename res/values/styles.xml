@@ -29,7 +29,7 @@
 	    <item name="android:shadowDx">1</item>
 	    <item name="android:shadowDy">1</item>
 	    <item name="android:shadowRadius">1</item>
-	    <item name="android:layout_width">fill_parent</item>
+	    <item name="android:layout_width">match_parent</item>
 	    <item name="android:layout_height">wrap_content</item>
     </style>
     
@@ -40,7 +40,7 @@
         
     <style name="TorrentDetailExpander">
         <item name="android:background">@drawable/list_selector_holo_light</item>
-        <item name="android:layout_width">fill_parent</item>
+        <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:clickable">true</item>
         <item name="android:orientation">horizontal</item>
@@ -55,7 +55,7 @@
         <item name="android:textStyle">bold</item>
         <item name="android:textColor">#900000</item>
         <item name="android:layout_marginRight">40dp</item>
-        <item name="android:layout_width">fill_parent</item>
+        <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:layout_gravity">center_vertical</item>
     </style>
@@ -73,7 +73,7 @@
     </style>
 
     <style name="TorrentDetailContent">
-        <item name="android:layout_width">fill_parent</item>
+        <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:orientation">vertical</item>
         <item name="android:paddingTop">4dp</item>
@@ -87,7 +87,7 @@
     </style>
     
     <style name="TorrentDetailOverviewHeading">
-        <item name="android:layout_width">fill_parent</item>
+        <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:textSize">16sp</item>
         <item name="android:textStyle">bold</item>
@@ -95,5 +95,15 @@
         <item name="android:background">@drawable/border_bottom</item>
         <item name="android:layout_marginTop">4dp</item>
         <item name="android:layout_marginBottom">8dp</item>
+        <item name="android:layout_weight">1</item>
+    </style>
+    
+    <style name="TorrentDetailClickable">
+        <item name="android:clickable">true</item>
+        <item name="android:background">@drawable/clickable_selector_holo_light</item>
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_margin">4dp</item>
+        <item name="android:padding">4dp</item>        
     </style>
 </resources>
