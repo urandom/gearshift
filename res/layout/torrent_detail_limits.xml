@@ -76,7 +76,9 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" >
             
-            <TextView android:text="@string/torrent_limit_download" />
+            <CheckBox
+                android:id="@+id/torrent_limit_download_check" 
+                android:text="@string/torrent_limit_download" />
             
             <TextView
                 android:id="@+id/torrent_limit_download"
@@ -89,7 +91,9 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" >
             
-            <TextView android:text="@string/torrent_limit_upload" />
+            <CheckBox
+                android:id="@+id/torrent_limit_upload_check"
+                android:text="@string/torrent_limit_upload" />
             
             <TextView
                 android:id="@+id/torrent_limit_upload"

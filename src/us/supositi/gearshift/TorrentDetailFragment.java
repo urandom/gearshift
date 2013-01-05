@@ -9,7 +9,8 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.NumberPicker;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.Spinner;
 import android.widget.TextView;
 
@@ -59,6 +60,26 @@ public class TorrentDetailFragment extends Fragment {
 
         }
     };
+    
+    private NumberPickerDialogFragment.OnDialogListener mDialogListener
+            = new NumberPickerDialogFragment.OnDialogListener() {
+        @Override
+        public void onOkClick(NumberPickerDialogFragment dialog) {
+            View root = getView();
+            TextView entry = (TextView) root.findViewById(dialog.getParentId());
+            
+            if (entry != null)
+                entry.setText(String.format("%d", dialog.getValue()));
+
+            switch(dialog.getParentId()) {
+                default:
+                    return;
+            }
+        }
+        @Override
+        public void onCancelClick(NumberPickerDialogFragment dialog) {
+        }
+    };
 
     /**
      * Mandatory empty constructor for the fragment manager to instantiate the
@@ -84,7 +105,7 @@ public class TorrentDetailFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState) {
-        View root = inflater.inflate(R.layout.fragment_torrent_detail, container, false);
+        final View root = inflater.inflate(R.layout.fragment_torrent_detail, container, false);
         
         if (mItem != null) {
             ((TextView) root.findViewById(R.id.torrent_detail_title)).setText(mItem.content);
@@ -97,6 +118,51 @@ public class TorrentDetailFragment extends Fragment {
 
         /* TODO: actually use whatever torrent priority is set */
         ((Spinner) root.findViewById(R.id.torrent_priority)).setSelection(mPriorityValues.indexOf("normal"));
+        
+        View.OnClickListener numberListener = new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                NumberPickerDialogFragment dialog = new NumberPickerDialogFragment();
+                String val = ((TextView) v).getText().toString();
+                
+                if (val == "")
+                    val = "0";
+                
+                /* TODO: use the torrent queue position */
+                dialog.setValue(Integer.parseInt(val))
+                    .setParentId(v.getId()).setListener(mDialogListener);
+                dialog.show(TorrentDetailFragment.this.getActivity().getSupportFragmentManager(),
+                        "NumberPickerDialogFragment");
+            }
+        };
+        root.findViewById(R.id.torrent_queue_position).setOnClickListener(numberListener);
+        root.findViewById(R.id.torrent_limit_download).setOnClickListener(numberListener);
+        root.findViewById(R.id.torrent_limit_upload).setOnClickListener(numberListener);
+        root.findViewById(R.id.torrent_seed_ratio_limit).setOnClickListener(numberListener);
+        root.findViewById(R.id.torrent_peer_limit).setOnClickListener(numberListener);
+        
+        CheckBox check = (CheckBox) root.findViewById(R.id.torrent_limit_download_check);
+        check.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {   
+                root.findViewById(R.id.torrent_limit_download).setEnabled(isChecked);
+            }
+        });
+        root.findViewById(R.id.torrent_limit_download).setEnabled(check.isChecked());
+        
+        check = (CheckBox) root.findViewById(R.id.torrent_limit_upload_check);
+        check.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {   
+                root.findViewById(R.id.torrent_limit_upload).setEnabled(isChecked);
+            }
+        });
+        root.findViewById(R.id.torrent_limit_upload).setEnabled(check.isChecked());
+        
+        /* TODO: use the torrent global limits override */
+        check = (CheckBox) root.findViewById(R.id.torrent_global_limits); 
+        check.setChecked(true);
+
                 
         return root;
     }

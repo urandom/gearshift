@@ -106,4 +106,25 @@
         <item name="android:layout_margin">4dp</item>
         <item name="android:padding">4dp</item>        
     </style>
+    
+    <style name="NumberPickerText">
+        <item name="android:textSize">56sp</item>
+        <item name="android:textAllCaps">true</item>
+        <item name="android:textColor">#bebebe</item>
+        <item name="android:fontFamily">sans-serif</item>
+        <item name="android:gravity">center</item>
+    </style>
+    
+    <style name="NumberPickerTextValue" parent="@style/NumberPickerText">
+        <item name="android:textSize">64sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:gravity">left</item>
+        <item name="android:layout_marginLeft">32dp</item>
+    </style>
+    
+    <style name="NumberPickerButton" parent="@style/NumberPickerText">
+        <item name="android:layout_width">96dp</item>
+        <item name="android:layout_height">96dp</item>        
+        <item name="android:background">@drawable/list_selector_holo_light</item>
+    </style>
 </resources>
