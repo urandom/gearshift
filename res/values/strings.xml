@@ -26,4 +26,23 @@
     <string name="torrent_overview">Overview</string>
     <string name="torrent_limits">Limits</string>
     <string name="torrent_advanced">Advanced</string>
+    
+    <string name="torrent_activity">Activity</string>
+    <string name="torrent_have">Have:</string>
+    <string name="torrent_availability">Availability:</string>
+    <string name="torrent_downloaded">Downloaded:</string>
+    <string name="torrent_uploaded">Uploaded:</string>
+    <string name="torrent_state">State:</string>
+    <string name="torrent_running_time">Running time:</string>
+    <string name="torrent_remaining_time">Remaining time:</string>
+    <string name="torrent_last_activity">Last activity:</string>
+    <string name="torrent_error">Error:</string>
+    
+    <string name="torrent_details">Details</string>
+    <string name="torrent_size">Size:</string>
+    <string name="torrent_hash">Hash:</string>
+    <string name="torrent_location">Location:</string>
+    <string name="torrent_privacy">Privacy:</string>
+    <string name="torrent_origin">Origin:</string>
+    <string name="torrent_comment">Comment:</string>
 </resources>

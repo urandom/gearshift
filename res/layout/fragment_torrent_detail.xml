@@ -1,102 +1,251 @@
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/torrent_detail_container"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
-    android:background="@color/detail_background"
-    android:orientation="vertical"
-    android:padding="8dp"
-    android:paddingBottom="16dp"
-    android:paddingTop="16dp"
-    tools:context=".TorrentDetailFragment" >
-    
-	<TextView
-	    android:id="@+id/torrent_detail_title"
-	    style="@style/TorrentTitle" />
-	
-	<LinearLayout
-	    style="@style/TorrentDetailContainer"
-	    android:layout_width="fill_parent"
-	    android:layout_height="wrap_content"
-	    android:orientation="vertical" >
-	    
-	    <LinearLayout
-	        android:id="@+id/torrent_detail_overview_expander"
-	        style="@style/TorrentDetailExpander" >
+    android:background="@color/detail_background" >
 
-	        	<TextView
-	        	    style="@style/TorrentDetailExpanderText"
-	        	    android:text="@string/torrent_overview" />
-	        	
-	        	<View
-	        	    android:id="@+id/torrent_detail_overview_expander_image"
-	        	    style="@style/TorrentDetailExpanderImageCollapse" />
-	        	
-	    </LinearLayout>
-	    
-	    <LinearLayout
-	        android:id="@+id/torrent_detail_overview_content"
-	        style="@style/TorrentDetailContent" >
-	        
-	    </LinearLayout>
-	    
-	</LinearLayout>
-	
-	<LinearLayout
-	    style="@style/TorrentDetailContainer"
-	    android:layout_width="fill_parent"
-	    android:layout_height="wrap_content"
-	    android:orientation="vertical" >
-	    
-	    <LinearLayout
-	        android:id="@+id/torrent_detail_limits_expander"
-	        style="@style/TorrentDetailExpander" >
+    <LinearLayout
+        android:id="@+id/torrent_detail_container"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="8dp"
+        android:paddingBottom="16dp"
+        android:paddingTop="16dp"
+        tools:context=".TorrentDetailFragment" >
 
-	        	<TextView
-	        	    style="@style/TorrentDetailExpanderText"
-	        	    android:text="@string/torrent_limits" />
-	        	
-	        	<View
-	        	    android:id="@+id/torrent_detail_limits_expander_image"
-	        	    style="@style/TorrentDetailExpanderImage" />
-	        	
-	    </LinearLayout>
-	    
-	    <LinearLayout
-	        android:id="@+id/torrent_detail_limits_content"
-	        style="@style/TorrentDetailContentCollapsed" >
-	        
-	    </LinearLayout>
-	    
-	</LinearLayout>
-	
-	<LinearLayout
-	    style="@style/TorrentDetailContainer"
-	    android:layout_width="fill_parent"
-	    android:layout_height="wrap_content"
-	    android:orientation="vertical" >
-	    
-	    <LinearLayout
-	        android:id="@+id/torrent_detail_advanced_expander"
-	        style="@style/TorrentDetailExpander" >
+        <TextView
+            android:id="@+id/torrent_detail_title"
+            style="@style/TorrentTitle" />
 
-	        	<TextView
-	        	    style="@style/TorrentDetailExpanderText"
-	        	    android:text="@string/torrent_advanced" />
-	        	
-	        	<View
-	        	    android:id="@+id/torrent_detail_advanced_expander_image"
-	        	    style="@style/TorrentDetailExpanderImage" />
-	        	
-	    </LinearLayout>
-	    
-	    <LinearLayout
-	        android:id="@+id/torrent_detail_advanced_content"
-	        style="@style/TorrentDetailContentCollapsed" >
-	        
-	    </LinearLayout>
-	    
-	</LinearLayout>
-	
-</LinearLayout>
-    <!-- android:background="@android:drawable/dialog_holo_light_frame" -->
+        <LinearLayout
+            style="@style/TorrentDetailContainer"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical" >
+
+            <LinearLayout
+                android:id="@+id/torrent_detail_overview_expander"
+                style="@style/TorrentDetailExpander" >
+
+                <TextView
+                    style="@style/TorrentDetailExpanderText"
+                    android:text="@string/torrent_overview" />
+
+                <View
+                    android:id="@+id/torrent_detail_overview_expander_image"
+                    style="@style/TorrentDetailExpanderImageCollapse" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/torrent_detail_overview_content"
+                style="@style/TorrentDetailContent" >
+
+                <TextView
+                    style="@style/TorrentDetailOverviewHeading"
+                    android:text="@string/torrent_activity" />
+
+                <TableLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent" >
+
+                    <TableRow
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content" >
+
+                        <TextView android:text="@string/torrent_have" />
+
+                        <TextView android:id="@+id/torrent_have" />
+                    </TableRow>
+
+                    <TableRow
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content" >
+
+                        <TextView android:text="@string/torrent_availability" />
+
+                        <TextView android:id="@+id/torrent_availability" />
+                    </TableRow>
+
+                    <TableRow
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content" >
+
+                        <TextView android:text="@string/torrent_downloaded" />
+
+                        <TextView android:id="@+id/torrent_downloaded" />
+                    </TableRow>
+
+                    <TableRow
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content" >
+
+                        <TextView android:text="@string/torrent_uploaded" />
+
+                        <TextView android:id="@+id/torrent_uploaded" />
+                    </TableRow>
+
+                    <TableRow
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content" >
+
+                        <TextView android:text="@string/torrent_state" />
+
+                        <TextView android:id="@+id/torrent_state" />
+                    </TableRow>
+
+                    <TableRow
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content" >
+
+                        <TextView android:text="@string/torrent_running_time" />
+
+                        <TextView android:id="@+id/torrent_running_time" />
+                    </TableRow>
+
+                    <TableRow
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content" >
+
+                        <TextView android:text="@string/torrent_remaining_time" />
+
+                        <TextView android:id="@+id/torrent_remaining_time" />
+                    </TableRow>
+
+                    <TableRow
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content" >
+
+                        <TextView android:text="@string/torrent_last_activity" />
+
+                        <TextView android:id="@+id/torrent_last_activity" />
+                    </TableRow>
+
+                    <TableRow
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content" >
+
+                        <TextView android:text="@string/torrent_error" />
+
+                        <TextView android:id="@+id/torrent_error" />
+                    </TableRow>                                                                                                    
+                </TableLayout>
+                
+                <TextView
+                    style="@style/TorrentDetailOverviewHeading"
+                    android:text="@string/torrent_details" />
+
+                <TableLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent" >
+
+                    <TableRow
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content" >
+
+                        <TextView android:text="@string/torrent_size" />
+
+                        <TextView android:id="@+id/torrent_size" />
+                    </TableRow>
+
+                    <TableRow
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content" >
+
+                        <TextView android:text="@string/torrent_location" />
+
+                        <TextView android:id="@+id/torrent_location" />
+                    </TableRow>
+
+                    <TableRow
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content" >
+
+                        <TextView android:text="@string/torrent_hash" />
+
+                        <TextView android:id="@+id/torrent_hash" />
+                    </TableRow>
+
+                    <TableRow
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content" >
+
+                        <TextView android:text="@string/torrent_privacy" />
+
+                        <TextView android:id="@+id/torrent_privacy" />
+                    </TableRow>
+
+                    <TableRow
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content" >
+
+                        <TextView android:text="@string/torrent_origin" />
+
+                        <TextView android:id="@+id/torrent_origin" />
+                    </TableRow>
+
+                    <TableRow
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content" >
+
+                        <TextView android:text="@string/torrent_comment" />
+
+                        <TextView android:id="@+id/torrent_comment" />
+                    </TableRow>
+                                                                                         
+                </TableLayout>
+            </LinearLayout>
+        </LinearLayout>
+
+        <LinearLayout
+            style="@style/TorrentDetailContainer"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical" >
+
+            <LinearLayout
+                android:id="@+id/torrent_detail_limits_expander"
+                style="@style/TorrentDetailExpander" >
+
+                <TextView
+                    style="@style/TorrentDetailExpanderText"
+                    android:text="@string/torrent_limits" />
+
+                <View
+                    android:id="@+id/torrent_detail_limits_expander_image"
+                    style="@style/TorrentDetailExpanderImage" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/torrent_detail_limits_content"
+                style="@style/TorrentDetailContentCollapsed" >
+            </LinearLayout>
+        </LinearLayout>
+
+        <LinearLayout
+            style="@style/TorrentDetailContainer"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical" >
+
+            <LinearLayout
+                android:id="@+id/torrent_detail_advanced_expander"
+                style="@style/TorrentDetailExpander" >
+
+                <TextView
+                    style="@style/TorrentDetailExpanderText"
+                    android:text="@string/torrent_advanced" />
+
+                <View
+                    android:id="@+id/torrent_detail_advanced_expander_image"
+                    style="@style/TorrentDetailExpanderImage" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/torrent_detail_advanced_content"
+                style="@style/TorrentDetailContentCollapsed" >
+            </LinearLayout>
+        </LinearLayout>
+    </LinearLayout>
+
+</ScrollView><!-- android:background="@android:drawable/dialog_holo_light_frame" -->
