@@ -32,7 +32,8 @@
         </activity>
         <activity
             android:name="us.supositi.gearshift.Preferences"
-            android:label="@string/settings">
+            android:label="@string/settings"
+            android:parentActivityName="us.supositi.gearshift.TorrentListActivity">
         </activity>
     </application>
 
