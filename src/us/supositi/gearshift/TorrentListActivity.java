@@ -56,9 +56,7 @@ public class TorrentListActivity extends SlidingFragmentActivity
             // res/values-sw600dp). If this view is present, then the
             // activity should be in two-pane mode.
             mTwoPane = true;
-            
-            Log.d(LogTag, "Two Pane mode");
-            
+
         	mPager = (ViewPager) findViewById(R.id.torrent_detail_pager);
         	mPager.setAdapter(new TorrentDetailPagerAdapter(this));
         	mPager.setOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {

@@ -19,14 +19,14 @@ public class NumberPickerDialogFragment extends DialogFragment {
         public void onOkClick(NumberPickerDialogFragment dialog);
         public void onCancelClick(NumberPickerDialogFragment dialog);
     }
+    protected int mInputSize = 9;
+    protected int mInputPointer = -1;
+    protected int mInput[] = new int [mInputSize];
     
     private final Button mNumbers[] = new Button [11];
     private ImageButton mDelete;
     private TextView mValue;
-    private int mInputSize = 9;
-    private int mInputPointer = -1;
-    private int mInput[] = new int [mInputSize];
-    
+
     private int mParentId;
     
     private OnDialogListener mListener;
@@ -40,13 +40,13 @@ public class NumberPickerDialogFragment extends DialogFragment {
         View root = inflater.inflate(R.layout.dialog_number_picker, null);
                     
         builder.setView(root)
-            .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+            .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int id) {
                     if (mListener != null)
                         mListener.onOkClick(NumberPickerDialogFragment.this);
                 }
-            }).setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+            }).setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
                     NumberPickerDialogFragment.this.getDialog().cancel();

@@ -15,5 +15,9 @@
         android:title="@string/alt_speed_label_on"
         android:titleCondensed="@string/alt_speed"/>
 
-    
+    <item android:id="@+id/menu_settings"
+        android:visible="true"
+        android:showAsAction="never"
+        android:title="@string/settings"
+        android:titleCondensed="@string/settings" />
 </menu>

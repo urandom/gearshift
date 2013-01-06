@@ -2,6 +2,7 @@ package us.supositi.gearshift;
 
 import us.supositi.gearshift.dummy.DummyContent;
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
 import android.view.LayoutInflater;
@@ -174,6 +175,10 @@ public class TorrentListFragment extends ListFragment {
                     item.setActionView(R.layout.action_progress_bar);
 
                 mRefreshing = !mRefreshing;
+                return true;
+            case R.id.menu_settings:
+                Intent i = new Intent(getActivity(), Preferences.class); 
+                getActivity().startActivity(i);
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
