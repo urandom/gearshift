@@ -6,9 +6,11 @@ import java.util.List;
 import us.supositi.gearshift.dummy.DummyContent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.Spinner;
@@ -158,6 +160,19 @@ public class TorrentDetailFragment extends Fragment {
             }
         });
         root.findViewById(R.id.torrent_limit_upload).setEnabled(check.isChecked());
+        
+        ((Spinner) root.findViewById(R.id.torrent_seed_ratio_mode)).setOnItemSelectedListener(
+                new AdapterView.OnItemSelectedListener() {
+                    public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
+                        String[] values = getResources().getStringArray(R.array.torrent_seed_ratio_mode_values);
+                        
+                        root.findViewById(R.id.torrent_seed_ratio_limit).setEnabled(values[pos].equals("user"));
+                    }
+                    
+                    public void onNothingSelected(AdapterView<?> parent) {
+                        
+                    }
+                });
         
         /* TODO: use the torrent global limits override */
         check = (CheckBox) root.findViewById(R.id.torrent_global_limits); 
