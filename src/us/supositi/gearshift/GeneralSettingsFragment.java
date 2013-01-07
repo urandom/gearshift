@@ -10,7 +10,7 @@ import android.preference.Preference;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
 
-public class GeneralPreferencesFragment extends PreferenceFragment implements OnSharedPreferenceChangeListener {
+public class GeneralSettingsFragment extends PreferenceFragment implements OnSharedPreferenceChangeListener {
     private SharedPreferences mSharedPrefs;
     
     private Object[][] mSummaryPrefs = {

@@ -177,7 +177,7 @@ public class TorrentListFragment extends ListFragment {
                 mRefreshing = !mRefreshing;
                 return true;
             case R.id.menu_settings:
-                Intent i = new Intent(getActivity(), Preferences.class); 
+                Intent i = new Intent(getActivity(), SettingsActivity.class); 
                 getActivity().startActivity(i);
                 return true;
             default:

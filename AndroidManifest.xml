@@ -7,6 +7,8 @@
     <uses-sdk
         android:minSdkVersion="15"
         android:targetSdkVersion="17" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+    <uses-permission android:name="android.permission.INTERNET"/>
 
     <application
         android:allowBackup="true"
@@ -31,9 +33,13 @@
                 android:value=".TorrentListActivity" />
         </activity>
         <activity
-            android:name="us.supositi.gearshift.Preferences"
+            android:name="us.supositi.gearshift.SettingsActivity"
             android:label="@string/settings"
             android:parentActivityName="us.supositi.gearshift.TorrentListActivity">
+            <intent-filter>
+		        <action android:name="android.intent.action.MANAGE_NETWORK_USAGE" />
+		        <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
         </activity>
     </application>
 

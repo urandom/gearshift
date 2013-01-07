@@ -14,7 +14,7 @@ import android.widget.ArrayAdapter;
 import android.widget.ListAdapter;
 import android.widget.TextView;
 
-public class Preferences extends PreferenceActivity {
+public class SettingsActivity extends PreferenceActivity {
     private Header mAppPreferencesHeader;
     
     private List<Header> mHeaders;
@@ -63,7 +63,7 @@ public class Preferences extends PreferenceActivity {
             mAppPreferencesHeader.title = getText(R.string.header_label_general_preferences);
             mAppPreferencesHeader.summary = null;
             mAppPreferencesHeader.iconRes = 0;
-            mAppPreferencesHeader.fragment = GeneralPreferencesFragment.class.getCanonicalName();
+            mAppPreferencesHeader.fragment = GeneralSettingsFragment.class.getCanonicalName();
             mAppPreferencesHeader.fragmentArguments = null;
         }
         return mAppPreferencesHeader;
