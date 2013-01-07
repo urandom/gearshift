@@ -49,7 +49,9 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" >
             
-            <TextView android:text="@string/torrent_priority" />
+            <TextView
+                 style="@style/TorrentDetailTextColumn"
+                 android:text="@string/torrent_priority" />
 
             <Spinner
                 android:id="@+id/torrent_priority"
@@ -63,7 +65,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" >
             
-            <TextView android:text="@string/torrent_queue_position" />
+            <TextView style="@style/TorrentDetailTextColumn"
+                 android:text="@string/torrent_queue_position" />
 
             <TextView
                 android:id="@+id/torrent_queue_position"
@@ -76,8 +79,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" >
             
-            <CheckBox
-                android:id="@+id/torrent_limit_download_check" 
+            <CheckBox style="@style/TorrentDetailTextColumn"
+                android:id="@+id/torrent_limit_download_check"
                 android:text="@string/torrent_limit_download" />
             
             <TextView
@@ -91,7 +94,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" >
             
-            <CheckBox
+            <CheckBox style="@style/TorrentDetailTextColumn"
                 android:id="@+id/torrent_limit_upload_check"
                 android:text="@string/torrent_limit_upload" />
             
@@ -117,7 +120,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" >
             
-            <TextView android:text="@string/torrent_seed_ratio_mode" />
+            <TextView style="@style/TorrentDetailTextColumn" android:text="@string/torrent_seed_ratio_mode" />
 
             <Spinner
                 android:id="@+id/torrent_seed_ratio_mode"
@@ -131,7 +134,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" >
             
-            <TextView android:text="@string/torrent_seed_ratio_limit" />
+            <TextView style="@style/TorrentDetailTextColumn" android:text="@string/torrent_seed_ratio_limit" />
 
             <TextView
                 android:id="@+id/torrent_seed_ratio_limit"
@@ -156,9 +159,7 @@
             android:layout_height="wrap_content" >
 
             
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+            <TextView style="@style/TorrentDetailTextColumn"
                 android:text="@string/torrent_peer_limit" />
 
             <TextView

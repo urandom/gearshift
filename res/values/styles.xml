@@ -80,6 +80,8 @@
         <item name="android:paddingBottom">8dp</item>
    	    <item name="android:paddingLeft">16dp</item>
    	    <item name="android:paddingRight">16dp</item>
+   	    <item name="android:shrinkColumns">0</item>
+   	    <item name="android:stretchColumns">1</item>
     </style>
     
     <style name="TorrentDetailContentCollapsed" parent="@style/TorrentDetailContent">
@@ -105,6 +107,13 @@
         <item name="android:layout_height">wrap_content</item>
         <item name="android:layout_margin">4dp</item>
         <item name="android:padding">4dp</item>        
+    </style>
+    
+    <style name="TorrentDetailTextColumn">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:paddingBottom">8dp</item>
+        <item name="android:textSize">13sp</item>
     </style>
     
     <style name="NumberPickerText">

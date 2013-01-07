@@ -3,6 +3,8 @@
 
     <string name="app_name">Gear Shift</string>
     <string name="title_torrent_detail">Torrent Detail</string>
+    
+    <string name="number_dialog_delete">Delete a digit</string>
         
     <string name="filter_header">Filters</string>
     <string name="filter_all">All</string>
@@ -51,8 +53,8 @@
     <string name="torrent_global_limits">Honor global limits</string>
     <string name="torrent_priority">Torrent priority:</string>
     <string name="torrent_queue_position">Queue position:</string>
-    <string name="torrent_limit_download">Download speed (KiB/s):</string>
-    <string name="torrent_limit_upload">Upload speed (KiB/s):</string>
+    <string name="torrent_limit_download">Download (KiB/s):</string>
+    <string name="torrent_limit_upload">Upload (KiB/s):</string>
     
     <string name="torrent_seeding">Seeding</string>
     <string name="torrent_seed_ratio_mode">Seed ratio mode:</string>

@@ -1,12 +1,11 @@
 package us.supositi.gearshift;
 
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
-import android.util.Log;
+import android.text.method.ScrollingMovementMethod;
 import android.view.ContextThemeWrapper;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -19,7 +18,7 @@ public class NumberPickerDialogFragment extends DialogFragment {
         public void onOkClick(NumberPickerDialogFragment dialog);
         public void onCancelClick(NumberPickerDialogFragment dialog);
     }
-    protected int mInputSize = 9;
+    protected int mInputSize = 10;
     protected int mInputPointer = -1;
     protected int mInput[] = new int [mInputSize];
     
@@ -69,6 +68,7 @@ public class NumberPickerDialogFragment extends DialogFragment {
         
         mDelete = (ImageButton) root.findViewById(R.id.delete);
         mValue = (TextView) root.findViewById(R.id.value);
+        mValue.setMovementMethod(new ScrollingMovementMethod());
         
         for (int i = 0; i < 11; i++) {
             mNumbers[i].setOnClickListener(new View.OnClickListener() {
@@ -117,8 +117,8 @@ public class NumberPickerDialogFragment extends DialogFragment {
         return this;
     }
     
-    public int getValue() {
-        return Integer.parseInt(mValue.getText().toString());
+    public long getValue() {
+        return Long.parseLong(mValue.getText().toString());
     }
     
     public NumberPickerDialogFragment setParentId(int id) {
@@ -137,7 +137,7 @@ public class NumberPickerDialogFragment extends DialogFragment {
         return this;
     }
     
-    private void addNumberToInput(int value) {
+    protected void addNumberToInput(int value) {
         if (value > -1 && value < 10) {
             if (mInputPointer == -1 && value == 0)
                 return;
@@ -152,7 +152,7 @@ public class NumberPickerDialogFragment extends DialogFragment {
         }
     }
     
-    private void doNumberPress(View v) {
+    protected void doNumberPress(View v) {
         int[] val = new int[2];
 
         Integer tag = (Integer) v.getTag(R.id.numbers_key);
@@ -169,7 +169,7 @@ public class NumberPickerDialogFragment extends DialogFragment {
             addNumberToInput(val[j]);
     }
     
-    private void doDeletePress(View v) {
+    protected void doDeletePress(View v) {
         if (mInputPointer >= 0) {
             for (int i = 0; i < mInputPointer; i++)
                 mInput[i] = mInput[i + 1];
@@ -180,15 +180,15 @@ public class NumberPickerDialogFragment extends DialogFragment {
         
     }
     
-    private void reset() {
+    protected void reset() {
         for (int i = 0; i < mInputSize; i++)
             mInput[i] = 0;
         mInputPointer = -1;
         updateValue();
     }
     
-    private void updateValue() {
-        int value = 0;
+    protected void updateValue() {
+        long value = 0;
         for (int i = 0; i <= mInputPointer; i++)
             value += mInput[i] * Math.pow(10.0, (double) i);
         

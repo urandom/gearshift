@@ -70,8 +70,13 @@ public class TorrentDetailFragment extends Fragment {
             View root = getView();
             TextView entry = (TextView) root.findViewById(dialog.getParentId());
             
-            if (entry != null)
-                entry.setText(String.format("%d", dialog.getValue()));
+            if (entry != null) {
+                long val = dialog.getValue();
+                if (val == 0)
+                    entry.setText("");
+                else
+                    entry.setText(String.format("%d", val));
+            }
 
             switch(dialog.getParentId()) {
                 default:
