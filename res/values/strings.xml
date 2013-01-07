@@ -53,8 +53,9 @@
     <string name="torrent_global_limits">Honor global limits</string>
     <string name="torrent_priority">Torrent priority:</string>
     <string name="torrent_queue_position">Queue position:</string>
-    <string name="torrent_limit_download">Download (KiB/s):</string>
-    <string name="torrent_limit_upload">Upload (KiB/s):</string>
+    <string name="torrent_limit_download">Limit Download Speed (KiB/s)</string>
+    <string name="torrent_limit_upload">Limit Upload Speed (KiB/s)</string>
+    <string name="torrent_limit_speed_amount">Amount:</string>
     
     <string name="torrent_seeding">Seeding</string>
     <string name="torrent_seed_ratio_mode">Seed ratio mode:</string>

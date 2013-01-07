@@ -36,7 +36,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" >
 
-            <CheckBox
+            <CheckBox style="@style/TorrentDetailTextColumn"
                 android:id="@+id/torrent_global_limits"
                 android:layout_span="2"
                 android:layout_width="wrap_content"
@@ -78,10 +78,22 @@
         <TableRow
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" >
-            
+
             <CheckBox style="@style/TorrentDetailTextColumn"
                 android:id="@+id/torrent_limit_download_check"
+                android:layout_span="2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
                 android:text="@string/torrent_limit_download" />
+
+        </TableRow>
+        
+        <TableRow
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" >
+            
+            <TextView style="@style/TorrentDetailTextColumn"
+                android:text="@string/torrent_limit_speed_amount" />
             
             <TextView
                 android:id="@+id/torrent_limit_download"
@@ -93,10 +105,22 @@
         <TableRow
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" >
-            
+
             <CheckBox style="@style/TorrentDetailTextColumn"
                 android:id="@+id/torrent_limit_upload_check"
+                android:layout_span="2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
                 android:text="@string/torrent_limit_upload" />
+
+        </TableRow>
+        
+        <TableRow
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" >
+            
+            <TextView style="@style/TorrentDetailTextColumn"
+                android:text="@string/torrent_limit_speed_amount" />
             
             <TextView
                 android:id="@+id/torrent_limit_upload"
