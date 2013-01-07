@@ -61,6 +61,19 @@
     <string name="torrent_peers">Peers</string>
     <string name="torrent_peer_limit">Peer limit:</string>
     
+    <string name="add_profile_option">Add profile</string>
     <string name="header_label_general_preferences">General</string>
     <string name="header_label_profiles">Profiles</string>
+    
+    <string name="updates">Updates</string>
+    <string name="update_active_torrents">Update active torrents only</string>
+    <string name="full_update">Full update</string>
+    <string name="full_update_summary_format">Every {0} active updates</string>
+    <string name="update_interval_dialog_title">Update interval</string>
+    <string name="update_interval">Update interval</string>
+    <string name="update_interval_summary_format">{0}</string>
+    <string name="session_update_interval">Session update interval</string>
+    <string name="torrents">Torrents</string>
+    <string name="start_paused">Start paused</string>
+    <string name="delete_local_torrent_file">Delete local .torrent file after adding</string>
 </resources>

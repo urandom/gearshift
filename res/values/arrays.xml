@@ -43,4 +43,44 @@
         <item>user</item>
         <item>infinite</item>
     </string-array>
+    
+    <string-array name="pref_full_update_entries">
+        <item>2 updates</item>
+        <item>3 updates</item>
+        <item>5 updates</item>
+        <item>10 updates</item>
+        <item>30 updates</item>
+        <item>60 updates</item>
+        <item>100 updates</item>
+    </string-array>
+    
+    <string-array name="pref_full_update_values" translatable="false">
+        <item>2</item>
+        <item>3</item>
+        <item>5</item>
+        <item>10</item>
+        <item>30</item>
+        <item>60</item>
+        <item>100</item>
+    </string-array>
+    
+    <string-array name="pref_update_interval_entries">
+        <item>Every second</item>
+        <item>2 seconds</item>
+        <item>5 seconds</item>
+        <item>10 seconds</item>
+        <item>30 seconds</item>
+        <item>Every minute</item>
+        <item>2 minutes</item>
+    </string-array>
+    
+    <string-array name="pref_update_interval_values" translatable="false">
+        <item>1</item>
+        <item>2</item>
+        <item>5</item>
+        <item>10</item>
+        <item>30</item>
+        <item>60</item>
+        <item>120</item>
+    </string-array>
 </resources>
