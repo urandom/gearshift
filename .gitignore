@@ -3,4 +3,4 @@
 .settings/
 bin/
 gen/
-libs/
+libs/android-support-v4.jar

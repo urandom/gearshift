@@ -3,8 +3,8 @@ package us.supositi.gearshift;
 import us.supositi.gearshift.dummy.DummyContent;
 import android.content.Intent;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v4.view.ViewPager;
-import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,7 +14,6 @@ import android.widget.ListView;
 
 import com.slidingmenu.lib.SlidingMenu;
 import com.slidingmenu.lib.app.SlidingFragmentActivity;
-
 
 /**
  * An activity representing a list of Torrents. This activity
@@ -49,7 +48,9 @@ public class TorrentListActivity extends SlidingFragmentActivity
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_torrent_list);
-
+        
+        PreferenceManager.setDefaultValues(this, R.xml.general_preferences, false);
+        
         if (findViewById(R.id.torrent_detail_pager) != null) {
             // The detail container view will be present only in the
             // large-screen layouts (res/values-large and

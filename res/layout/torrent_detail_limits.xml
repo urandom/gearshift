@@ -36,7 +36,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" >
 
-            <CheckBox style="@style/TorrentDetailTextColumn"
+            <CheckBox
                 android:id="@+id/torrent_global_limits"
                 android:layout_span="2"
                 android:layout_width="wrap_content"
@@ -79,7 +79,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" >
 
-            <CheckBox style="@style/TorrentDetailTextColumn"
+            <CheckBox
                 android:id="@+id/torrent_limit_download_check"
                 android:layout_span="2"
                 android:layout_width="wrap_content"
@@ -106,7 +106,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" >
 
-            <CheckBox style="@style/TorrentDetailTextColumn"
+            <CheckBox
                 android:id="@+id/torrent_limit_upload_check"
                 android:layout_span="2"
                 android:layout_width="wrap_content"

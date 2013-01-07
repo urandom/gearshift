@@ -9,7 +9,6 @@ import android.os.Bundle;
 import android.preference.Preference;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
-import android.util.Log;
 
 public class GeneralPreferencesFragment extends PreferenceFragment implements OnSharedPreferenceChangeListener {
     private SharedPreferences mSharedPrefs;
@@ -26,8 +25,8 @@ public class GeneralPreferencesFragment extends PreferenceFragment implements On
         
         mSharedPrefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
         mSummaryPrefs = new Object[][] {
-            {"full_update", getString(R.string.full_update_summary_format), "2", -1, -1},
-            {"update_interval", getString(R.string.update_interval_summary_format), "1",
+            {"full_update", getString(R.string.full_update_summary_format), -1, -1},
+            {"update_interval", getString(R.string.update_interval_summary_format),
                 R.array.pref_update_interval_values, R.array.pref_update_interval_entries},
         };
     }
@@ -66,14 +65,14 @@ public class GeneralPreferencesFragment extends PreferenceFragment implements On
                 continue;
             
             String summary = (String) mSummaryPrefs[i][1];
-            if ((Integer) mSummaryPrefs[i][3] == -1)
+            if ((Integer) mSummaryPrefs[i][2] == -1)
                 pref.setSummary(MessageFormat.format(summary,
-                        Integer.parseInt(mSharedPrefs.getString(key, (String) mSummaryPrefs[i][2]))));
+                        Integer.parseInt(mSharedPrefs.getString(key, mSharedPrefs.getString(key, null)))));
             else {
-                String[] values = getResources().getStringArray((Integer) mSummaryPrefs[i][3]);
-                String[] entries = getResources().getStringArray((Integer) mSummaryPrefs[i][4]);
+                String[] values = getResources().getStringArray((Integer) mSummaryPrefs[i][2]);
+                String[] entries = getResources().getStringArray((Integer) mSummaryPrefs[i][3]);
                 int index = Arrays.asList(values).indexOf(
-                        mSharedPrefs.getString(key, (String) mSummaryPrefs[i][2]));
+                        mSharedPrefs.getString(key, mSharedPrefs.getString(key, null)));
                 if (index > -1 && entries.length > index)
                     pref.setSummary(MessageFormat.format(summary, entries[index]));
             }
