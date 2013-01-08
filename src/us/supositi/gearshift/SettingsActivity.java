@@ -6,6 +6,7 @@ import android.content.Context;
 import android.os.Bundle;
 import android.preference.PreferenceActivity;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.View;
@@ -23,10 +24,13 @@ public class SettingsActivity extends PreferenceActivity {
     public void onBuildHeaders(List<Header> target) {
         target.clear();
         target.add(getAppPreferencesHeader());
+
+        /* TODO: Create a loader to add these */
+        Header profilesSeparator = new Header();
+        profilesSeparator.title = getText(R.string.header_label_profiles);
+        target.add(profilesSeparator);
         
-        Header profiles = new Header();
-        profiles.title = getText(R.string.header_label_profiles);
-        target.add(profiles);
+        TorrentProfile[] profiles = TorrentProfile.readProfiles(this);
         
         mHeaders = target;
     }
