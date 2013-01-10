@@ -2,11 +2,12 @@ package us.supositi.gearshift;
 
 import java.util.List;
 
+import android.app.LoaderManager;
 import android.content.Context;
+import android.content.Loader;
 import android.os.Bundle;
 import android.preference.PreferenceActivity;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.View;
@@ -15,23 +16,33 @@ import android.widget.ArrayAdapter;
 import android.widget.ListAdapter;
 import android.widget.TextView;
 
-public class SettingsActivity extends PreferenceActivity {
+public class SettingsActivity extends PreferenceActivity
+        implements LoaderManager.LoaderCallbacks<TorrentProfile[]> {
+    
     private Header mAppPreferencesHeader;
+    private Header mProfileSeparatorHeader;
+    private Header[] mProfiles = new Header[0];
     
     private List<Header> mHeaders;
+    
+    private static final int LOADER_ID = 1;
 
     @Override
     public void onBuildHeaders(List<Header> target) {
         target.clear();
         target.add(getAppPreferencesHeader());
 
-        /* TODO: Create a loader to add these */
-        Header profilesSeparator = new Header();
-        profilesSeparator.title = getText(R.string.header_label_profiles);
-        target.add(profilesSeparator);
-        
-        TorrentProfile[] profiles = TorrentProfile.readProfiles(this);
-        
+        if (mProfiles.length > 0) {
+            if (mProfileSeparatorHeader == null) {
+                mProfileSeparatorHeader = new Header();
+                mProfileSeparatorHeader.title = getText(R.string.header_label_profiles);
+            }
+            target.add(mProfileSeparatorHeader);
+            
+            for (Header profile : mProfiles)
+                target.add(profile);
+        }
+
         mHeaders = target;
     }
     
@@ -49,6 +60,8 @@ public class SettingsActivity extends PreferenceActivity {
 
         getActionBar().setDisplayHomeAsUpEnabled(true);
         getActionBar().setHomeButtonEnabled(true);
+        
+        getLoaderManager().initLoader(LOADER_ID, null, this);
     }
     
     @Override
@@ -177,6 +190,41 @@ public class SettingsActivity extends PreferenceActivity {
 
             return view;
         }
+    }
+
+    @Override
+    public Loader<TorrentProfile[]> onCreateLoader(int id, Bundle args) {
+        return new TorrentProfileLoader(this);
+    }
+
+    @Override
+    public void onLoadFinished(Loader<TorrentProfile[]> loader,
+            TorrentProfile[] profiles) {
+        if (profiles.length == 0) return;
+        
+        mProfiles = new Header[profiles.length];
+        int index = 0;
+        for (TorrentProfile profile : profiles) {
+            Header newHeader = new Header();
+            
+            newHeader.id = profile.getName().hashCode();
+            newHeader.title = profile.getName();
+            newHeader.summary = (profile.getUsername().length() > 0 ? profile.getUsername() + "@" : "")
+                    + profile.getHost() + ":" + profile.getPort();
+            
+            newHeader.fragment = GeneralSettingsFragment.class.getCanonicalName();
+            
+            mProfiles[index++] = newHeader;
+        }
+        
+        invalidateHeaders();
+    }
+
+    @Override
+    public void onLoaderReset(Loader<TorrentProfile[]> loader) {
+        mProfiles = new Header[0];
+        
+        invalidateHeaders();
     }
 
 }
