@@ -13,7 +13,8 @@ import android.preference.PreferenceManager;
 public class TorrentProfile implements Parcelable {
     private String mName;
     private String mHost;
-    private int mPort;
+    private int mPort = 9091;
+    private String mPath = "/transmission/rpc";
     private String mUsername;
     private String mPassword;
     
@@ -65,6 +66,9 @@ public class TorrentProfile implements Parcelable {
     public int getPort() {
         return mPort;
     }
+    public String getPath() {
+        return mPath;
+    }
     public String getUsername() {
         return mUsername;
     }
@@ -80,29 +84,32 @@ public class TorrentProfile implements Parcelable {
     public int getRetries() {
         return mRetries;
     }
-    public void setName(String mName) {
-        this.mName = mName;
+    public void setName(String name) {
+        mName = name;
     }
-    public void setHost(String mHost) {
-        this.mHost = mHost;
+    public void setHost(String host) {
+        mHost = host;
     }
-    public void setPort(int mPort) {
-        this.mPort = mPort;
+    public void setPort(int port) {
+        this.mPort = port;
     }
-    public void setUsername(String mUsername) {
-        this.mUsername = mUsername;
+    public void setPath(String path) {
+        mPath = path;
     }
-    public void setPassword(String mPassword) {
-        this.mPassword = mPassword;
+    public void setUsername(String username) {
+        mUsername = username;
     }
-    public void setUseSSL(boolean mUseSSL) {
-        this.mUseSSL = mUseSSL;
+    public void setPassword(String password) {
+        mPassword = password;
     }
-    public void setTimeout(int mTimeout) {
-        this.mTimeout = mTimeout;
+    public void setUseSSL(boolean useSSL) {
+        mUseSSL = useSSL;
     }
-    public void setRetries(int mRetries) {
-        this.mRetries = mRetries;
+    public void setTimeout(int timeout) {
+        mTimeout = timeout;
+    }
+    public void setRetries(int retries) {
+        mRetries = retries;
     }
     
     @Override

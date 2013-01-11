@@ -3,11 +3,50 @@
 	<PreferenceCategory android:title="@string/profile">
 	    <EditTextPreference
 	        android:key="profile_name"
-	        android:title="@string/profile_name"
 	        android:defaultValue="@string/profile_name_default"
-	        android:dialogTitle="@string/profile_name" >
-	    </EditTextPreference>
-	    
+	        android:title="@string/profile_name"
+	        android:dialogTitle="@string/profile_name" />
+	</PreferenceCategory>
+	<PreferenceCategory android:title="@string/connection">
+	    <EditTextPreference
+	        android:key="profile_host"
+	        android:title="@string/con_host"
+	        android:dialogTitle="@string/con_host" />
+	    <EditTextPreference
+	        android:key="profile_port"
+	        android:defaultValue="@string/con_port_default"
+	        android:title="@string/con_port"
+	        android:dialogTitle="@string/con_port" />
+  	    <EditTextPreference
+	        android:key="profile_path"
+	        android:defaultValue="@string/con_path_default"
+	        android:title="@string/con_path"
+	        android:dialogTitle="@string/con_path" />
+	    <EditTextPreference
+	        android:key="profile_username"
+	        android:title="@string/con_username"
+	        android:dialogTitle="@string/con_username" />
+	    <EditTextPreference
+	        android:key="profile_password"
+	        android:inputType="textPassword"
+	        android:title="@string/con_password"
+	        android:dialogTitle="@string/con_password" />
+	    <CheckBoxPreference
+	        android:key="profile_use_ssl"
+	        android:defaultValue="false"
+	        android:title="@string/con_use_ssl" />
+	    <EditTextPreference
+	        android:key="profile_timeout"
+	        android:defaultValue="@string/con_timeout_default"
+	        android:title="@string/con_timeout"
+	        android:dialogTitle="@string/con_timeout" />
+	    <ListPreference
+	        android:key="profile_retries"
+	        android:title="@string/con_retries"
+	        android:dialogTitle="@string/con_retries"
+	        android:entries="@array/pref_con_retries_entries"
+	        android:entryValues="@array/pref_con_retries_values"
+	        android:defaultValue="3" />
 	</PreferenceCategory>    
 
 </PreferenceScreen>

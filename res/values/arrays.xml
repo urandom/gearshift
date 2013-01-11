@@ -83,4 +83,21 @@
         <item>60</item>
         <item>120</item>
     </string-array>
+    
+    <string-array name="pref_con_retries_entries">
+        <item>Once</item>
+        <item>Twice</item>
+        <item>3 times</item>
+        <item>5 times</item>
+        <item>10 times</item>
+        <item>15 times</item>
+    </string-array>
+    <string-array name="pref_con_retries_values" translatable="false">
+        <item>1</item>
+        <item>2</item>
+        <item>3</item>
+        <item>5</item>
+        <item>10</item>
+        <item>15</item>
+    </string-array>
 </resources>
