@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
+	<PreferenceCategory android:title="@string/profile">
+	    <EditTextPreference
+	        android:key="profile_name"
+	        android:title="@string/profile_name"
+	        android:defaultValue="@string/profile_name_default"
+	        android:dialogTitle="@string/profile_name" >
+	    </EditTextPreference>
+	    
+	</PreferenceCategory>    
+
+</PreferenceScreen>

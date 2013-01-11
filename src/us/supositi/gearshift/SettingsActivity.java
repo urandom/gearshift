@@ -212,7 +212,11 @@ public class SettingsActivity extends PreferenceActivity
             newHeader.summary = (profile.getUsername().length() > 0 ? profile.getUsername() + "@" : "")
                     + profile.getHost() + ":" + profile.getPort();
             
-            newHeader.fragment = GeneralSettingsFragment.class.getCanonicalName();
+            newHeader.fragment = TorrentProfileSettingsFragment.class.getCanonicalName();
+            Bundle args = new Bundle();
+            args.putString(TorrentProfileSettingsFragment.ARG_PROFILE_ID, profile.getName());
+            args.putParcelableArray(TorrentProfileSettingsFragment.ARG_PROFILES, profiles);
+            newHeader.fragmentArguments = args;
             
             mProfiles[index++] = newHeader;
         }

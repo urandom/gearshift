@@ -4,21 +4,32 @@ import java.text.MessageFormat;
 import java.util.Arrays;
 
 import android.content.SharedPreferences;
+import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.os.Bundle;
 import android.preference.Preference;
+import android.preference.PreferenceFragment;
+import android.preference.PreferenceManager;
+import android.view.Menu;
+import android.view.MenuInflater;
 
-public class GeneralSettingsFragment extends BasePreferenceFragment {
+public class BasePreferenceFragment extends PreferenceFragment implements OnSharedPreferenceChangeListener {
+    protected SharedPreferences mSharedPrefs;
+    protected Object[][] mSummaryPrefs = {
+    };
+    
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         
-        addPreferencesFromResource(R.xml.general_preferences);
+        mSharedPrefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
         
-        mSummaryPrefs = new Object[][] {
-            {"full_update", getString(R.string.full_update_summary_format), -1, -1, "int"},
-            {"update_interval", getString(R.string.update_interval_summary_format),
-                R.array.pref_update_interval_values, R.array.pref_update_interval_entries, ""},
-        };
+        setHasOptionsMenu(true);
+    }
+
+    
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        menu.clear();
     }
     
     @Override
@@ -57,7 +68,10 @@ public class GeneralSettingsFragment extends BasePreferenceFragment {
             String summary = (String) mSummaryPrefs[i][1];
             if ((Integer) mSummaryPrefs[i][2] == -1)
                 pref.setSummary(MessageFormat.format(summary,
-                        Integer.parseInt(mSharedPrefs.getString(key, mSharedPrefs.getString(key, null)))));
+                    mSummaryPrefs[i][4] == "int"
+                        ? Integer.parseInt(mSharedPrefs.getString(key, mSharedPrefs.getString(key, null)))
+                        : mSharedPrefs.getString(key, mSharedPrefs.getString(key, null))
+                ));
             else {
                 String[] values = getResources().getStringArray((Integer) mSummaryPrefs[i][2]);
                 String[] entries = getResources().getStringArray((Integer) mSummaryPrefs[i][3]);

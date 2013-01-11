@@ -79,4 +79,18 @@
     <string name="torrents">Torrents</string>
     <string name="start_paused">Start paused</string>
     <string name="delete_local_torrent_file">Delete local .torrent file after adding</string>
+    
+    <string name="profile">Profile</string>
+    <string name="profile_name">Name</string>
+    <string name="profile_name_default">Default</string>
+    <string name="profile_name_summary_format">{0}</string>
+    <string name="connection">Connection</string>
+    <string name="con_host">Host</string>
+    <string name="con_port">Port</string>
+    <string name="con_username">Username</string>
+    <string name="con_password">Password</string>
+    <string name="con_path">Path</string>
+    <string name="con_use_ssl">Use SSL</string>
+    <string name="con_timeout">Timeout</string>
+    <string name="con_retries">Retries</string>
 </resources>
