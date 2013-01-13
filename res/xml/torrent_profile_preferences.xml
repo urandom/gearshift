@@ -10,6 +10,7 @@
 	<PreferenceCategory android:title="@string/connection">
 	    <EditTextPreference
 	        android:key="profile_host"
+	        android:defaultValue="@string/empty_string"
 	        android:title="@string/con_host"
 	        android:dialogTitle="@string/con_host" />
 	    <EditTextPreference
@@ -24,10 +25,12 @@
 	        android:dialogTitle="@string/con_path" />
 	    <EditTextPreference
 	        android:key="profile_username"
+	        android:defaultValue="@string/empty_string"
 	        android:title="@string/con_username"
 	        android:dialogTitle="@string/con_username" />
 	    <EditTextPreference
 	        android:key="profile_password"
+	        android:defaultValue="@string/empty_string"
 	        android:inputType="textPassword"
 	        android:title="@string/con_password"
 	        android:dialogTitle="@string/con_password" />

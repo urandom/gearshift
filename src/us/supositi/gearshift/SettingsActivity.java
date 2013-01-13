@@ -10,6 +10,7 @@ import android.preference.PreferenceActivity;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
@@ -20,10 +21,11 @@ public class SettingsActivity extends PreferenceActivity
         implements LoaderManager.LoaderCallbacks<TorrentProfile[]> {
     
     private Header mAppPreferencesHeader;
-    private Header mProfileSeparatorHeader;
-    private Header[] mProfiles = new Header[0];
+    private Header mProfileHeaderseparatorHeader;
+    private Header[] mProfileHeaders = new Header[0];
     
     private List<Header> mHeaders;
+    private TorrentProfile[] mProfiles;
     
     private static final int LOADER_ID = 1;
 
@@ -32,14 +34,14 @@ public class SettingsActivity extends PreferenceActivity
         target.clear();
         target.add(getAppPreferencesHeader());
 
-        if (mProfiles.length > 0) {
-            if (mProfileSeparatorHeader == null) {
-                mProfileSeparatorHeader = new Header();
-                mProfileSeparatorHeader.title = getText(R.string.header_label_profiles);
+        if (mProfileHeaders.length > 0) {
+            if (mProfileHeaderseparatorHeader == null) {
+                mProfileHeaderseparatorHeader = new Header();
+                mProfileHeaderseparatorHeader.title = getText(R.string.header_label_profiles);
             }
-            target.add(mProfileSeparatorHeader);
+            target.add(mProfileHeaderseparatorHeader);
             
-            for (Header profile : mProfiles)
+            for (Header profile : mProfileHeaders)
                 target.add(profile);
         }
 
@@ -67,9 +69,27 @@ public class SettingsActivity extends PreferenceActivity
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         super.onCreateOptionsMenu(menu);
-        getMenuInflater().inflate(R.menu.add_profile_option, menu);
+        if (mProfiles != null)
+            getMenuInflater().inflate(R.menu.add_profile_option, menu);
         
         return true;
+    }
+    
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch(item.getItemId()) {
+        case R.id.menu_add_profile:
+            String name = TorrentProfileSettingsFragment.class.getCanonicalName();
+            Bundle args = new Bundle();
+            args.putParcelableArray(TorrentProfileSettingsFragment.ARG_PROFILES, mProfiles);
+            if (onIsMultiPane())
+                switchToHeader(name, args);
+            else
+                startWithFragment(name, args, null, 0);
+
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
     }
     
     private Header getAppPreferencesHeader() {
@@ -200,9 +220,11 @@ public class SettingsActivity extends PreferenceActivity
     @Override
     public void onLoadFinished(Loader<TorrentProfile[]> loader,
             TorrentProfile[] profiles) {
-        if (profiles.length == 0) return;
+        mProfiles = profiles;
         
-        mProfiles = new Header[profiles.length];
+        if (profiles.length == 0) return;
+
+        mProfileHeaders = new Header[profiles.length];
         int index = 0;
         for (TorrentProfile profile : profiles) {
             Header newHeader = new Header();
@@ -218,17 +240,20 @@ public class SettingsActivity extends PreferenceActivity
             args.putParcelableArray(TorrentProfileSettingsFragment.ARG_PROFILES, profiles);
             newHeader.fragmentArguments = args;
             
-            mProfiles[index++] = newHeader;
+            mProfileHeaders[index++] = newHeader;
         }
-        
+
+        invalidateOptionsMenu();
         invalidateHeaders();
     }
 
     @Override
     public void onLoaderReset(Loader<TorrentProfile[]> loader) {
-        mProfiles = new Header[0];
+        mProfileHeaders = new Header[0];
+        mProfiles = null;
         
         invalidateHeaders();
+        invalidateOptionsMenu();
     }
 
 }

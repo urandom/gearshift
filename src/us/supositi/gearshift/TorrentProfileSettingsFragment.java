@@ -3,6 +3,7 @@ package us.supositi.gearshift;
 import android.content.SharedPreferences.Editor;
 import android.os.Bundle;
 import android.os.Parcelable;
+import android.preference.PreferenceManager;
 
 public class TorrentProfileSettingsFragment extends BasePreferenceFragment {
     public static final String ARG_PROFILE_ID = "profile_id";
@@ -39,10 +40,13 @@ public class TorrentProfileSettingsFragment extends BasePreferenceFragment {
             mProfileName = getArguments().getString(ARG_PROFILE_ID);
         }
         
-        if (mProfileName != null) {
-            Editor e = mSharedPrefs.edit();
+        Editor e = mSharedPrefs.edit();
+        TorrentProfile profile = null;
+        
+        if (mProfileName == null) {
+            e.remove("profile_name");
+        } else {
             e.putString("profile_name", mProfileName);
-            TorrentProfile profile = null;
             
             for (TorrentProfile prof : mProfiles) {
                 if (prof.getName().equals(mProfileName)) {
@@ -60,8 +64,16 @@ public class TorrentProfileSettingsFragment extends BasePreferenceFragment {
                 e.putString("profile_timeout", String.format("%d", profile.getTimeout()));
                 e.putString("profile_retries", String.format("%d", profile.getRetries()));
             }
-            
-            e.commit();
         }
+        
+        if (profile == null) {
+            e.remove("profile_host").remove("profile_port").remove("profile_path")
+                .remove("profile_username").remove("profile_password").remove("profile_use_ssl")
+                .remove("profile_timeout").remove("profile_retries");
+        }
+        
+        e.commit();
+        
+        PreferenceManager.setDefaultValues(getActivity(), R.xml.torrent_profile_preferences, true);
     }
 }
