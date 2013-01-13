@@ -9,8 +9,8 @@ public class TorrentProfileSettingsFragment extends BasePreferenceFragment {
     public static final String ARG_PROFILE_ID = "profile_id";
     public static final String ARG_PROFILES = "profiles";
     
-    private String mProfileName;
     private TorrentProfile[] mProfiles;
+    private TorrentProfile mProfile;
     
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -36,40 +36,43 @@ public class TorrentProfileSettingsFragment extends BasePreferenceFragment {
             for (int i = 0; i < parcels.length; i++)
                 mProfiles[i] = (TorrentProfile) parcels[i];
         }
+        
+        String name = null;
         if (getArguments().containsKey(ARG_PROFILE_ID)) {
-            mProfileName = getArguments().getString(ARG_PROFILE_ID);
+            name = getArguments().getString(ARG_PROFILE_ID);
         }
         
-        Editor e = mSharedPrefs.edit();
-        TorrentProfile profile = null;
-        
-        if (mProfileName == null) {
-            e.remove("profile_name");
-        } else {
-            e.putString("profile_name", mProfileName);
-            
+        if (name != null) {
             for (TorrentProfile prof : mProfiles) {
-                if (prof.getName().equals(mProfileName)) {
-                    profile = prof;
+                if (prof.getName().equals(name)) {
+                    mProfile = prof;
                     break;
                 }
             }
-            if (profile != null) {
-                e.putString("profile_host", profile.getHost());
-                e.putString("profile_port", String.format("%d", profile.getPort()));
-                e.putString("profile_path", profile.getPath());
-                e.putString("profile_username", profile.getUsername());
-                e.putString("profile_password", profile.getPassword());
-                e.putBoolean("profile_use_ssl", profile.isUseSSL());
-                e.putString("profile_timeout", String.format("%d", profile.getTimeout()));
-                e.putString("profile_retries", String.format("%d", profile.getRetries()));
-            }
         }
+    }
+    
+    @Override
+    public void onResume() {
+        super.onResume();
+
+        Editor e = mSharedPrefs.edit();
         
-        if (profile == null) {
-            e.remove("profile_host").remove("profile_port").remove("profile_path")
-                .remove("profile_username").remove("profile_password").remove("profile_use_ssl")
-                .remove("profile_timeout").remove("profile_retries");
+        e.remove("profile_name").remove("profile_host").remove("profile_port").remove("profile_path")
+            .remove("profile_username").remove("profile_password").remove("profile_use_ssl")
+            .remove("profile_timeout").remove("profile_retries");
+        
+        if (mProfile != null) {
+            e.putString("profile_name", mProfile.getName());
+            
+            e.putString("profile_host", mProfile.getHost());
+            e.putString("profile_port", String.format("%d", mProfile.getPort()));
+            e.putString("profile_path", mProfile.getPath());
+            e.putString("profile_username", mProfile.getUsername());
+            e.putString("profile_password", mProfile.getPassword());
+            e.putString("profile_timeout", String.format("%d", mProfile.getTimeout()));
+            e.putString("profile_retries", String.format("%d", mProfile.getRetries()));
+            e.putBoolean("profile_use_ssl", mProfile.isUseSSL());
         }
         
         e.commit();
