@@ -14,6 +14,7 @@ public class TorrentProfileLoader extends AsyncTaskLoader<TorrentProfile[]> {
     public TorrentProfile[] loadInBackground() {
         TorrentProfile[] profiles = TorrentProfile.readProfiles(getContext());
         
+        TorrentListActivity.logD("TPLoader: Read {0} profiles", new Object[] {profiles.length});
         return profiles;
     }
 
@@ -21,24 +22,32 @@ public class TorrentProfileLoader extends AsyncTaskLoader<TorrentProfile[]> {
     public void deliverResult(TorrentProfile[] profiles) {
         mProfiles = profiles;
         
-        if (isStarted())
+        if (isStarted()) {
+            TorrentListActivity.logD("TPLoader: Delivering results: {0} profiles", new Object[] {profiles.length});
             super.deliverResult(profiles);
+        }
     }
     
     @Override
     protected void onStartLoading() {
         super.onStartLoading();
         
+        TorrentListActivity.logD("TPLoader: onStartLoading()");
+        
         if (mProfiles != null)
             deliverResult(mProfiles);
         
-        if (takeContentChanged() || mProfiles == null)
+        if (takeContentChanged() || mProfiles == null) {
+            TorrentListActivity.logD("TPLoader: forceLoad()");
             forceLoad();
+        }
     }
     
     @Override
     protected void onStopLoading() {
         super.onStopLoading();
+        
+        TorrentListActivity.logD("TPLoader: onStopLoading()");
         cancelLoad();
     }
     
@@ -46,7 +55,9 @@ public class TorrentProfileLoader extends AsyncTaskLoader<TorrentProfile[]> {
     protected void onReset() {
         super.onReset();
         
-        cancelLoad();
+        TorrentListActivity.logD("TPLoader: onReset()");
+        
+        onStopLoading();
         
         mProfiles = null;
     }

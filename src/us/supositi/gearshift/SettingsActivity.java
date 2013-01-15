@@ -64,6 +64,8 @@ public class SettingsActivity extends PreferenceActivity
         getActionBar().setDisplayHomeAsUpEnabled(true);
         getActionBar().setHomeButtonEnabled(true);
         
+        TorrentListActivity.logD("Creating the profile loader");
+
         getLoaderManager().initLoader(LOADER_ID, null, this);
     }
     
@@ -105,6 +107,7 @@ public class SettingsActivity extends PreferenceActivity
             TorrentProfile[] profiles) {
         mProfiles = profiles;
         
+        TorrentListActivity.logD("Finished loading {0} profiles", new Object[] {profiles.length});
         if (profiles.length == 0) return;
 
         mProfileHeaders = new Header[profiles.length];
@@ -133,6 +136,8 @@ public class SettingsActivity extends PreferenceActivity
     public void onLoaderReset(Loader<TorrentProfile[]> loader) {
         mProfileHeaders = new Header[0];
         mProfiles = null;
+        
+        TorrentListActivity.logD("Received profile loader reset");
         
         invalidateHeaders();
         invalidateOptionsMenu();

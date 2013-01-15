@@ -1,10 +1,15 @@
 package us.supositi.gearshift;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.text.MessageFormat;
+
 import us.supositi.gearshift.dummy.DummyContent;
 import android.content.Intent;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.view.ViewPager;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
@@ -34,9 +39,6 @@ import com.slidingmenu.lib.app.SlidingFragmentActivity;
 public class TorrentListActivity extends SlidingFragmentActivity
         implements TorrentListFragment.Callbacks {
     
-    public static final String LogTag = "GearShift";
-    public static final boolean DEBUG = true;
-    
     /**
      * Whether or not the activity is in two-pane mode, i.e. running on a tablet
      * device.
@@ -44,7 +46,10 @@ public class TorrentListActivity extends SlidingFragmentActivity
     private boolean mTwoPane;
 
     private ViewPager mPager;
-        
+    
+    private static final boolean DEBUG = true;
+    private static final String LogTag = "GearShift";
+    
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -169,5 +174,29 @@ public class TorrentListActivity extends SlidingFragmentActivity
                 getSlidingMenu().setTouchModeAbove(SlidingMenu.TOUCHMODE_FULLSCREEN);
             }
         }
+    }
+    
+    public static void logD(String message, Object[] args) {
+        if (!DEBUG) return;
+        
+        Log.d(LogTag, MessageFormat.format(message, args));
+    }
+    
+    public static void logD(String message) {
+        if (!DEBUG) return;
+        
+        Log.d(LogTag, message);
+    }
+    
+    public static void logDTrace() {
+        if (!DEBUG) return;
+        
+        StringWriter sw = new StringWriter();
+        PrintWriter pw = new PrintWriter(sw);
+        
+        Throwable t = new Throwable();
+        
+        t.printStackTrace(pw);
+        Log.d(LogTag, sw.toString());
     }
 }

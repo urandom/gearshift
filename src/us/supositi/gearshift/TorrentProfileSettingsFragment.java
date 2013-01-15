@@ -1,12 +1,10 @@
 package us.supositi.gearshift;
 
-import java.text.MessageFormat;
-
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.SharedPreferences.Editor;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -34,10 +32,9 @@ public class TorrentProfileSettingsFragment extends BasePreferenceFragment {
         else
             mProfile = new TorrentProfile(id, getActivity());
         
-        if (TorrentListActivity.DEBUG)
-            Log.d(TorrentListActivity.LogTag, MessageFormat.format(
-                    "Editing (new ? {0}) profile {1}",
-                    new Object[] {mNew, mProfile.getId()}));
+        TorrentListActivity.logD(
+            "Editing (new ? {0}) profile {1}",
+            new Object[] {mNew, mProfile.getId()});
         
         String prefname = TorrentProfile.PREF_PREFIX + (id == null ? "temp" : id); 
         mSharedPrefs = getActivity().getSharedPreferences(
@@ -81,6 +78,23 @@ public class TorrentProfileSettingsFragment extends BasePreferenceFragment {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.done:
+                int errorRes = -1;
+                if (mSharedPrefs.getString(TorrentProfile.PREF_NAME, "").trim().equals("")) {
+                    errorRes = R.string.con_name_cannot_be_empty;
+                } else if (mSharedPrefs.getString(TorrentProfile.PREF_HOST, "").trim().equals("")) {
+                    errorRes = R.string.con_host_cannot_be_empty;
+                }
+                
+                if (errorRes != -1) {
+                    final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+                    builder.setTitle(R.string.invalid_input_title);
+                    builder.setMessage(errorRes);
+                    builder.setPositiveButton(android.R.string.ok, null);
+                    builder.show();
+                    
+                    return true;
+                }
+                
                 if (mNew) {
                     mProfile.load(mSharedPrefs);
                     mProfile.save(getActivity());
@@ -101,9 +115,9 @@ public class TorrentProfileSettingsFragment extends BasePreferenceFragment {
                     mProfile.delete(getActivity());
                     
                     mSaved = true;
+                    
+                    ((SettingsActivity) getActivity()).onProfileListChange();
                 }
-
-                ((SettingsActivity) getActivity()).onProfileListChange();
 
                 getActivity().onBackPressed();
                 return true;

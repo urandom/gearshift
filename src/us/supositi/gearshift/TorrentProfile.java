@@ -1,6 +1,5 @@
 package us.supositi.gearshift;
 
-import java.text.MessageFormat;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
@@ -13,7 +12,6 @@ import android.content.SharedPreferences.Editor;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.preference.PreferenceManager;
-import android.util.Log;
 
 public class TorrentProfile implements Parcelable, Comparable<TorrentProfile> {
     public static final String PREF_PROFILES = "profiles";
@@ -132,20 +130,19 @@ public class TorrentProfile implements Parcelable, Comparable<TorrentProfile> {
     }
     
     public void load(SharedPreferences pref) {
-        mName = pref.getString(PREF_NAME, "");
-        mHost = pref.getString(PREF_HOST, "");
+        mName = pref.getString(PREF_NAME, "").trim();
+        mHost = pref.getString(PREF_HOST, "").trim();
         mPort = Integer.parseInt(pref.getString(PREF_PORT, "-1"));
-        mPath = pref.getString(PREF_PATH, "");
-        mUsername = pref.getString(PREF_USER, "");
-        mPassword = pref.getString(PREF_PASS, "");
+        mPath = pref.getString(PREF_PATH, "").trim();
+        mUsername = pref.getString(PREF_USER, "").trim();
+        mPassword = pref.getString(PREF_PASS, "").trim();
         mUseSSL = pref.getBoolean(PREF_SSL, false);
         mTimeout = Integer.parseInt(pref.getString(PREF_TIMEOUT, "-1"));
         mRetries = Integer.parseInt(pref.getString(PREF_RETRIES, "-1"));
 
-        if (TorrentListActivity.DEBUG)
-            Log.d(TorrentListActivity.LogTag, MessageFormat.format(
-                    "Loading profile from prefs: id {0}, name {1}, host {2}, port {3}   ",
-                    new Object[] {mId, mName, mHost, mPort}));
+        TorrentListActivity.logD(
+            "Loading profile from prefs: id {0}, name {1}, host {2}, port {3}   ",
+            new Object[] {mId, mName, mHost, mPort});
     }
     
     public void save(Context context) {
@@ -164,10 +161,9 @@ public class TorrentProfile implements Parcelable, Comparable<TorrentProfile> {
         
         e.commit();
         
-        if (TorrentListActivity.DEBUG)
-            Log.d(TorrentListActivity.LogTag, MessageFormat.format(
-                    "Saving profile to prefs: id {0}, name {1}, host {2}, port {3}",
-                    new Object[] {mId, mName, mHost, mPort}));
+        TorrentListActivity.logD(
+            "Saving profile to prefs: id {0}, name {1}, host {2}, port {3}",
+            new Object[] {mId, mName, mHost, mPort});
         
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
         e = prefs.edit();
@@ -180,10 +176,9 @@ public class TorrentProfile implements Parcelable, Comparable<TorrentProfile> {
             e.putStringSet(PREF_PROFILES, ids);
             e.commit();
             
-            if (TorrentListActivity.DEBUG)
-                Log.d(TorrentListActivity.LogTag, MessageFormat.format(
-                        "Adding the profile {0} to the set of profiles",
-                        new Object[] {mId}));
+            TorrentListActivity.logD(
+                    "Adding the profile {0} to the set of profiles",
+                    new Object[] {mId});
         }
     }
     
@@ -205,16 +200,14 @@ public class TorrentProfile implements Parcelable, Comparable<TorrentProfile> {
             e.putStringSet(PREF_PROFILES, ids);
             e.commit();
             
-            if (TorrentListActivity.DEBUG)
-                Log.d(TorrentListActivity.LogTag, MessageFormat.format(
-                        "Removing the profile {0} from the set of profiles",
-                        new Object[] {mId}));
+            TorrentListActivity.logD(
+                    "Removing the profile {0} from the set of profiles",
+                    new Object[] {mId});
         }
         
-        if (TorrentListActivity.DEBUG)
-            Log.d(TorrentListActivity.LogTag, MessageFormat.format(
-                    "Deleting profile from prefs: id {0}, name {1}, host {2}, port {3}",
-                    new Object[] {mId, mName, mHost, mPort}));
+        TorrentListActivity.logD(
+                "Deleting profile from prefs: id {0}, name {1}, host {2}, port {3}",
+                new Object[] {mId, mName, mHost, mPort});
     }
 
     @Override
