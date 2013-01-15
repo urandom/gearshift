@@ -35,6 +35,7 @@ public class TorrentListActivity extends SlidingFragmentActivity
         implements TorrentListFragment.Callbacks {
     
     public static final String LogTag = "GearShift";
+    public static final boolean DEBUG = true;
     
     /**
      * Whether or not the activity is in two-pane mode, i.e. running on a tablet

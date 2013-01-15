@@ -1,60 +1,72 @@
 package us.supositi.gearshift;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
+import java.text.MessageFormat;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.UUID;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.preference.PreferenceManager;
+import android.util.Log;
 
-public class TorrentProfile implements Parcelable {
-    private String mName;
-    private String mHost;
+public class TorrentProfile implements Parcelable, Comparable<TorrentProfile> {
+    public static final String PREF_PROFILES = "profiles";
+    public static final String PREF_NAME = "profile_name";
+    public static final String PREF_HOST = "profile_host";
+    public static final String PREF_PORT = "profile_port";
+    public static final String PREF_PATH = "profile_path";
+    public static final String PREF_USER = "profile_username";
+    public static final String PREF_PASS = "profile_password";
+    public static final String PREF_SSL = "profile_use_ssl";
+    public static final String PREF_TIMEOUT = "profile_timeout";
+    public static final String PREF_RETRIES = "profile_retries";
+    public static final String PREF_PREFIX = "profile_";
+
+    
+    private final String mId;
+    private String mName = "";
+    private String mHost = "";
     private int mPort = 9091;
     private String mPath = "/transmission/rpc";
-    private String mUsername;
-    private String mPassword;
+    private String mUsername = "";
+    private String mPassword = "";
     
     private boolean mUseSSL = false;
     
     private int mTimeout = 40;
     private int mRetries = 3;
-    
+
     public static TorrentProfile[] readProfiles(Context context) {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
-        String jsonProfiles = prefs.getString("profiles", null);
+        Set<String> profile_ids = prefs.getStringSet(PREF_PROFILES, new HashSet<String>());
+        TorrentProfile[] profiles = new TorrentProfile[profile_ids.size()];
+        int index = 0;
         
-        if (jsonProfiles == null) {
-            TorrentProfile profile = new TorrentProfile();
-            profile = new TorrentProfile();
-            profile.setName("Test Profile");
-            profile.setUsername("User");
-            profile.setPassword("testP4ssw0rd");
-            profile.setHost("example.com");
-            profile.setPort(2901);
-            return new TorrentProfile[] {profile};
-        }
+        for (String id : profile_ids)
+            profiles[index++] = new TorrentProfile(id, context);
         
-        Gson gson = new GsonBuilder().create();
-        
-        TorrentProfile[] profiles = gson.fromJson(jsonProfiles, TorrentProfile[].class);
-        
+        Arrays.sort(profiles);
         return profiles;
     }
     
-    public static void writeProfiles(Context context,TorrentProfile[] profiles) {
-        Gson gson = new GsonBuilder().create();
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
-        Editor e = prefs.edit();
+    public TorrentProfile() {
+        mId = UUID.randomUUID().toString();
+    }    
+    
+    public TorrentProfile(String id, Context context) {
+        mId = id;
         
-        e.putString("profiles", gson.toJson(profiles));
-        e.commit();
+        load(context);
     }
     
-    public TorrentProfile() {
+    public String getId() {
+        return mId;        
     }
     
     public String getName() {
@@ -112,9 +124,107 @@ public class TorrentProfile implements Parcelable {
         mRetries = retries;
     }
     
+    public void load(Context context) {
+        SharedPreferences pref = context.getSharedPreferences(
+                PREF_PREFIX + mId, Activity.MODE_PRIVATE);
+        
+        load(pref);
+    }
+    
+    public void load(SharedPreferences pref) {
+        mName = pref.getString(PREF_NAME, "");
+        mHost = pref.getString(PREF_HOST, "");
+        mPort = Integer.parseInt(pref.getString(PREF_PORT, "-1"));
+        mPath = pref.getString(PREF_PATH, "");
+        mUsername = pref.getString(PREF_USER, "");
+        mPassword = pref.getString(PREF_PASS, "");
+        mUseSSL = pref.getBoolean(PREF_SSL, false);
+        mTimeout = Integer.parseInt(pref.getString(PREF_TIMEOUT, "-1"));
+        mRetries = Integer.parseInt(pref.getString(PREF_RETRIES, "-1"));
+
+        if (TorrentListActivity.DEBUG)
+            Log.d(TorrentListActivity.LogTag, MessageFormat.format(
+                    "Loading profile from prefs: id {0}, name {1}, host {2}, port {3}   ",
+                    new Object[] {mId, mName, mHost, mPort}));
+    }
+    
+    public void save(Context context) {
+        SharedPreferences pref = context.getSharedPreferences(PREF_PREFIX + mId, Activity.MODE_PRIVATE);
+        Editor e = pref.edit();
+        
+        e.putString(PREF_NAME, mName);
+        e.putString(PREF_HOST, mHost);
+        e.putString(PREF_PORT, Integer.toString(mPort));
+        e.putString(PREF_PATH, mPath);
+        e.putString(PREF_USER, mUsername);
+        e.putString(PREF_PASS, mPassword);
+        e.putBoolean(PREF_SSL, mUseSSL);
+        e.putString(PREF_TIMEOUT, Integer.toString(mTimeout));
+        e.putString(PREF_RETRIES, Integer.toString(mRetries));
+        
+        e.commit();
+        
+        if (TorrentListActivity.DEBUG)
+            Log.d(TorrentListActivity.LogTag, MessageFormat.format(
+                    "Saving profile to prefs: id {0}, name {1}, host {2}, port {3}",
+                    new Object[] {mId, mName, mHost, mPort}));
+        
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+        e = prefs.edit();
+        
+        Set<String> ids = prefs.getStringSet(PREF_PROFILES, new HashSet<String>());
+        
+        if (ids.add(mId)) {
+            e.remove(PREF_PROFILES);
+            e.commit();
+            e.putStringSet(PREF_PROFILES, ids);
+            e.commit();
+            
+            if (TorrentListActivity.DEBUG)
+                Log.d(TorrentListActivity.LogTag, MessageFormat.format(
+                        "Adding the profile {0} to the set of profiles",
+                        new Object[] {mId}));
+        }
+    }
+    
+    public void delete(Context context) {
+        SharedPreferences pref = context.getSharedPreferences(PREF_PREFIX + mId, Activity.MODE_PRIVATE);
+        Editor e = pref.edit();
+        
+        e.clear();
+        e.commit();
+        
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+        e = prefs.edit();
+
+        Set<String> ids = prefs.getStringSet(PREF_PROFILES, new HashSet<String>());
+        
+        if (ids.remove(mId)) {
+            e.remove(PREF_PROFILES);
+            e.commit();
+            e.putStringSet(PREF_PROFILES, ids);
+            e.commit();
+            
+            if (TorrentListActivity.DEBUG)
+                Log.d(TorrentListActivity.LogTag, MessageFormat.format(
+                        "Removing the profile {0} from the set of profiles",
+                        new Object[] {mId}));
+        }
+        
+        if (TorrentListActivity.DEBUG)
+            Log.d(TorrentListActivity.LogTag, MessageFormat.format(
+                    "Deleting profile from prefs: id {0}, name {1}, host {2}, port {3}",
+                    new Object[] {mId, mName, mHost, mPort}));
+    }
+
+    @Override
+    public int compareTo(TorrentProfile another) {
+        return mName.compareToIgnoreCase(another.getName());
+    }
+    
     @Override
     public String toString() {
-        return getName() + "://" + getUsername() + '@' + getHost() + ':' + getPort();
+        return mName + "://" + mUsername + '@' + mHost + ':' + mPort;
     }
 
     @Override
@@ -124,6 +234,7 @@ public class TorrentProfile implements Parcelable {
 
     @Override
     public void writeToParcel(Parcel in, int flags) {
+        in.writeString(mId);
         in.writeString(mName);
         in.writeString(mHost);
         in.writeInt(mPort);
@@ -146,6 +257,7 @@ public class TorrentProfile implements Parcelable {
     };
     
     private TorrentProfile(Parcel in) {
+        mId = in.readString();
         mName = in.readString();
         mHost = in.readString();
         mPort = in.readInt();

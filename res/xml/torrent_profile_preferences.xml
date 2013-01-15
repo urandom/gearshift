@@ -17,6 +17,7 @@
 	        android:key="profile_port"
 	        android:defaultValue="@string/con_port_default"
 	        android:title="@string/con_port"
+	        android:inputType="number"
 	        android:dialogTitle="@string/con_port" />
   	    <EditTextPreference
 	        android:key="profile_path"
@@ -42,6 +43,7 @@
 	        android:key="profile_timeout"
 	        android:defaultValue="@string/con_timeout_default"
 	        android:title="@string/con_timeout"
+	        android:inputType="number"
 	        android:dialogTitle="@string/con_timeout" />
 	    <ListPreference
 	        android:key="profile_retries"

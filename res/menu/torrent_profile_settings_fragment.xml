@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android" >
+    <item android:id="@+id/done"
+        android:visible="true"
+        android:showAsAction="always|withText"
+        android:icon="@drawable/ic_menu_done"
+        android:title="@string/done" />
+    <item android:id="@+id/delete"
+        android:visible="true"
+        android:showAsAction="always|withText"
+        android:icon="@drawable/ic_menu_cancel"
+        android:title="@string/delete" />
+</menu>

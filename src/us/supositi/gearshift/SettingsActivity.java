@@ -1,5 +1,6 @@
 package us.supositi.gearshift;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import android.app.LoaderManager;
@@ -24,7 +25,7 @@ public class SettingsActivity extends PreferenceActivity
     private Header mProfileHeaderseparatorHeader;
     private Header[] mProfileHeaders = new Header[0];
     
-    private List<Header> mHeaders;
+    private List<Header> mHeaders = new ArrayList<Header>();
     private TorrentProfile[] mProfiles;
     
     private static final int LOADER_ID = 1;
@@ -80,18 +81,63 @@ public class SettingsActivity extends PreferenceActivity
         switch(item.getItemId()) {
         case R.id.menu_add_profile:
             String name = TorrentProfileSettingsFragment.class.getCanonicalName();
-            Bundle args = new Bundle();
-            args.putParcelableArray(TorrentProfileSettingsFragment.ARG_PROFILES, mProfiles);
             if (onIsMultiPane())
-                switchToHeader(name, args);
+                switchToHeader(name, new Bundle());
             else
-                startWithFragment(name, args, null, 0);
+                startWithFragment(name, new Bundle(), null, 0);
 
             return true;
         }
         return super.onOptionsItemSelected(item);
     }
     
+    public void onProfileListChange() {
+        getLoaderManager().getLoader(LOADER_ID).onContentChanged();
+    }
+
+    @Override
+    public Loader<TorrentProfile[]> onCreateLoader(int id, Bundle args) {
+        return new TorrentProfileLoader(this);
+    }
+
+    @Override
+    public void onLoadFinished(Loader<TorrentProfile[]> loader,
+            TorrentProfile[] profiles) {
+        mProfiles = profiles;
+        
+        if (profiles.length == 0) return;
+
+        mProfileHeaders = new Header[profiles.length];
+        int index = 0;
+        for (TorrentProfile profile : profiles) {
+            Header newHeader = new Header();
+            
+            newHeader.id = profile.getName().hashCode();
+            newHeader.title = profile.getName();
+            newHeader.summary = (profile.getUsername().length() > 0 ? profile.getUsername() + "@" : "")
+                    + profile.getHost() + ":" + profile.getPort();
+            
+            newHeader.fragment = TorrentProfileSettingsFragment.class.getCanonicalName();
+            Bundle args = new Bundle();
+            args.putString(TorrentProfileSettingsFragment.ARG_PROFILE_ID, profile.getId());
+            newHeader.fragmentArguments = args;
+            
+            mProfileHeaders[index++] = newHeader;
+        }
+
+        invalidateOptionsMenu();
+        invalidateHeaders();
+    }
+
+    @Override
+    public void onLoaderReset(Loader<TorrentProfile[]> loader) {
+        mProfileHeaders = new Header[0];
+        mProfiles = null;
+        
+        invalidateHeaders();
+        invalidateOptionsMenu();
+    }
+
     private Header getAppPreferencesHeader() {
         // Set up fixed header for general settings
         if (mAppPreferencesHeader == null) {
@@ -211,49 +257,4 @@ public class SettingsActivity extends PreferenceActivity
             return view;
         }
     }
-
-    @Override
-    public Loader<TorrentProfile[]> onCreateLoader(int id, Bundle args) {
-        return new TorrentProfileLoader(this);
-    }
-
-    @Override
-    public void onLoadFinished(Loader<TorrentProfile[]> loader,
-            TorrentProfile[] profiles) {
-        mProfiles = profiles;
-        
-        if (profiles.length == 0) return;
-
-        mProfileHeaders = new Header[profiles.length];
-        int index = 0;
-        for (TorrentProfile profile : profiles) {
-            Header newHeader = new Header();
-            
-            newHeader.id = profile.getName().hashCode();
-            newHeader.title = profile.getName();
-            newHeader.summary = (profile.getUsername().length() > 0 ? profile.getUsername() + "@" : "")
-                    + profile.getHost() + ":" + profile.getPort();
-            
-            newHeader.fragment = TorrentProfileSettingsFragment.class.getCanonicalName();
-            Bundle args = new Bundle();
-            args.putString(TorrentProfileSettingsFragment.ARG_PROFILE_ID, profile.getName());
-            args.putParcelableArray(TorrentProfileSettingsFragment.ARG_PROFILES, profiles);
-            newHeader.fragmentArguments = args;
-            
-            mProfileHeaders[index++] = newHeader;
-        }
-
-        invalidateOptionsMenu();
-        invalidateHeaders();
-    }
-
-    @Override
-    public void onLoaderReset(Loader<TorrentProfile[]> loader) {
-        mProfileHeaders = new Header[0];
-        mProfiles = null;
-        
-        invalidateHeaders();
-        invalidateOptionsMenu();
-    }
-
 }

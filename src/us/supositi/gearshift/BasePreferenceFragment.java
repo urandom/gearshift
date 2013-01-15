@@ -8,7 +8,6 @@ import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.os.Bundle;
 import android.preference.Preference;
 import android.preference.PreferenceFragment;
-import android.preference.PreferenceManager;
 import android.view.Menu;
 import android.view.MenuInflater;
 
@@ -20,15 +19,15 @@ public class BasePreferenceFragment extends PreferenceFragment implements OnShar
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        
-        mSharedPrefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
-        
+                
         setHasOptionsMenu(true);
     }
 
     
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        super.onCreateOptionsMenu(menu, inflater);
+        
         menu.clear();
     }
     
@@ -49,7 +48,7 @@ public class BasePreferenceFragment extends PreferenceFragment implements OnShar
         updatePrefSummary(key);
     }
     
-    private void updatePrefSummary(String aKey) {
+    protected void updatePrefSummary(String aKey) {
         for (int i = 0; i < mSummaryPrefs.length; i++) {
             String key;
             if (aKey != null) {
@@ -66,11 +65,12 @@ public class BasePreferenceFragment extends PreferenceFragment implements OnShar
                 continue;
             
             String summary = (String) mSummaryPrefs[i][1];
+                        
             if ((Integer) mSummaryPrefs[i][2] == -1)
                 pref.setSummary(MessageFormat.format(summary,
                     mSummaryPrefs[i][4] == "int"
-                        ? Integer.parseInt(mSharedPrefs.getString(key, mSharedPrefs.getString(key, null)))
-                        : mSharedPrefs.getString(key, mSharedPrefs.getString(key, null))
+                        ? Integer.parseInt(mSharedPrefs.getString(key, mSharedPrefs.getString(key, "-1")))
+                        : mSharedPrefs.getString(key, mSharedPrefs.getString(key, ""))
                 ));
             else {
                 String[] values = getResources().getStringArray((Integer) mSummaryPrefs[i][2]);
