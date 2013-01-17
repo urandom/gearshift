@@ -157,7 +157,7 @@ public class TorrentListActivity extends SlidingFragmentActivity
     }
     
     public boolean isDetailsPanelShown() {
-        return findViewById(R.id.torrent_detail_panel).getVisibility() == View.VISIBLE;
+        return mTwoPane && findViewById(R.id.torrent_detail_panel).getVisibility() == View.VISIBLE;
     }
     
     private void toggleRightPane(boolean show) {

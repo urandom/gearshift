@@ -151,7 +151,7 @@ public class TorrentProfileSettingsFragment extends BasePreferenceFragment {
     @Override
     public void onDestroy() {
         if (!mSaved) {
-            if (mProfile != null) {
+            if (!mNew && mProfile != null) {
                 mProfile.save(getActivity());
             }
         }
