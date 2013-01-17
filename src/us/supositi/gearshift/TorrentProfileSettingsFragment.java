@@ -1,13 +1,18 @@
 package us.supositi.gearshift;
 
+import android.app.ActionBar;
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.SharedPreferences.Editor;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.View;
+import android.view.View.OnClickListener;
 
 public class TorrentProfileSettingsFragment extends BasePreferenceFragment {
     public static final String ARG_PROFILE_ID = "profile_id";
@@ -63,6 +68,54 @@ public class TorrentProfileSettingsFragment extends BasePreferenceFragment {
             {TorrentProfile.PREF_RETRIES, getString(R.string.profile_summary_format),
                 R.array.pref_con_retries_values, R.array.pref_con_retries_entries, ""},
         };
+        
+        ActionBar actionBar = getActivity().getActionBar();
+        if (actionBar != null) {
+            LayoutInflater inflater = (LayoutInflater) getActivity().getSystemService
+                    (Context.LAYOUT_INFLATER_SERVICE);
+            
+            View customActionBarView = inflater.inflate(R.layout.torrent_profile_settings_action_bar, null);
+            View saveMenuItem = customActionBarView.findViewById(R.id.save_menu_item);
+            saveMenuItem.setOnClickListener(new OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    int errorRes = -1;
+                    TorrentListActivity.logD(mSharedPrefs.getString(TorrentProfile.PREF_HOST, "").trim());
+                    if (mSharedPrefs.getString(TorrentProfile.PREF_NAME, "").trim().equals("")) {
+                        errorRes = R.string.con_name_cannot_be_empty;
+                    } else if (mSharedPrefs.getString(TorrentProfile.PREF_HOST, "").trim().equals("")) {
+                        errorRes = R.string.con_host_cannot_be_empty;
+                    }
+                    
+                    if (errorRes != -1) {
+                        final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+                        builder.setTitle(R.string.invalid_input_title);
+                        builder.setMessage(errorRes);
+                        builder.setPositiveButton(android.R.string.ok, null);
+                        builder.show();
+                        
+                        return;
+                    }
+                    
+                    if (mNew) {
+                        mProfile.load(mSharedPrefs);
+                        mProfile.save(getActivity());
+                    }
+                    
+                    /* TODO: validate. The name and host must not be empty */
+                    
+                    mSaved = true;
+
+                    ((SettingsActivity) getActivity()).onProfileListChange();
+
+                    getActivity().onBackPressed();
+                }
+            });
+            actionBar.setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM,
+                    ActionBar.DISPLAY_SHOW_CUSTOM | ActionBar.DISPLAY_SHOW_HOME |
+                    ActionBar.DISPLAY_SHOW_TITLE);
+            actionBar.setCustomView(customActionBarView);
+        }
     }
 
     @Override
@@ -77,37 +130,6 @@ public class TorrentProfileSettingsFragment extends BasePreferenceFragment {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
-            case R.id.done:
-                int errorRes = -1;
-                if (mSharedPrefs.getString(TorrentProfile.PREF_NAME, "").trim().equals("")) {
-                    errorRes = R.string.con_name_cannot_be_empty;
-                } else if (mSharedPrefs.getString(TorrentProfile.PREF_HOST, "").trim().equals("")) {
-                    errorRes = R.string.con_host_cannot_be_empty;
-                }
-                
-                if (errorRes != -1) {
-                    final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-                    builder.setTitle(R.string.invalid_input_title);
-                    builder.setMessage(errorRes);
-                    builder.setPositiveButton(android.R.string.ok, null);
-                    builder.show();
-                    
-                    return true;
-                }
-                
-                if (mNew) {
-                    mProfile.load(mSharedPrefs);
-                    mProfile.save(getActivity());
-                }
-                
-                /* TODO: validate. The name and host must not be empty */
-                
-                mSaved = true;
-
-                ((SettingsActivity) getActivity()).onProfileListChange();
-
-                getActivity().onBackPressed();
-                return true;
             case R.id.delete:
                 if (!mNew) {                    
                     /* FIXME: show undo bar https://plus.google.com/113735310430199015092/posts/RA9WEEGWYp6 */
