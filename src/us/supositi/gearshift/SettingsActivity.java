@@ -133,12 +133,12 @@ public class SettingsActivity extends PreferenceActivity
     }
 
     @Override
-    public void onLoaderReset(Loader<TorrentProfile[]> loader) {
+    public void onLoaderReset(Loader<TorrentProfile[]> loader) {/*
         mProfileHeaders = new Header[0];
         mProfiles = null;
         
         TorrentListActivity.logD("Received profile loader reset");
-        
+        */
         invalidateHeaders();
         invalidateOptionsMenu();
     }

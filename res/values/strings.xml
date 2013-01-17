@@ -7,6 +7,8 @@
     <string name="empty_string"></string>
     <string name="done">Done</string>
     <string name="delete">Delete</string>
+    <string name="remove">Remove</string>
+    <string name="remove_data">Remove and delete the data</string>
     
     <string name="number_dialog_delete">Delete a digit</string>
         

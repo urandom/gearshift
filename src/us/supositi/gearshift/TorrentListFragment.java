@@ -1,10 +1,13 @@
 package us.supositi.gearshift;
 
+import java.util.HashSet;
+
 import us.supositi.gearshift.dummy.DummyContent;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
+import android.view.ActionMode;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -12,6 +15,9 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
+import android.widget.AbsListView.MultiChoiceModeListener;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
@@ -46,7 +52,10 @@ public class TorrentListFragment extends ListFragment {
     private boolean mAltSpeed = false;
     
     private boolean mRefreshing = false;
+    
+    private boolean mIsCABDestroyed = false;
 
+    private int mChoiceMode = ListView.CHOICE_MODE_NONE;
     /**
      * A callback interface that all activities containing this fragment must
      * implement. This mechanism allows activities to be notified of item
@@ -102,6 +111,75 @@ public class TorrentListFragment extends ListFragment {
             setActivatedPosition(savedInstanceState.getInt(STATE_ACTIVATED_POSITION));
         }
     }
+    
+    @Override
+    public void onActivityCreated(Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        
+        final ListView list = getListView();
+        list.setChoiceMode(mChoiceMode);
+        list.setOnItemLongClickListener(new OnItemLongClickListener() {
+            @Override
+            public boolean onItemLongClick(AdapterView<?> parent, View view,
+                    int position, long id) {
+                
+                if (!((TorrentListActivity) getActivity()).isDetailsPanelShown()) {
+                    list.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE_MODAL);
+                    mIsCABDestroyed = false;
+                    setActivatedPosition(position);
+                    return true;
+                }
+                return false;
+            }});
+        
+        list.setMultiChoiceModeListener(new MultiChoiceModeListener() {
+            private HashSet<String> mSelectedTorrentIds;
+            
+            @Override
+            public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
+                switch (item.getItemId()) {
+                    case R.id.remove:
+                        mode.finish();
+                        break;
+                    case R.id.delete:
+                        mode.finish();
+                        break;
+                }
+                return true;
+            }
+        
+            @Override
+            public boolean onCreateActionMode(ActionMode mode, Menu menu) {
+                MenuInflater inflater = mode.getMenuInflater();
+                inflater.inflate(R.menu.torrent_list_multiselect, menu);
+                TorrentListActivity.logD("Creating context menu on select");
+                
+                mSelectedTorrentIds = new HashSet<String>();
+                return true;
+            }
+        
+            @Override
+            public void onDestroyActionMode(ActionMode mode) {
+                TorrentListActivity.logD("Destroying context menu");
+                mIsCABDestroyed = true;
+                mSelectedTorrentIds = null;
+            }
+        
+            @Override
+            public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
+                return false;
+            }
+        
+            @Override
+            public void onItemCheckedStateChanged(ActionMode mode,
+                    int position, long id, boolean checked) {
+                
+                if (checked)
+                    mSelectedTorrentIds.add(DummyContent.ITEMS.get(position).id);
+                else
+                    mSelectedTorrentIds.remove(DummyContent.ITEMS.get(position).id);
+            }});
+    }
 
     @Override
     public void onAttach(Activity activity) {
@@ -126,7 +204,10 @@ public class TorrentListFragment extends ListFragment {
     @Override
     public void onListItemClick(ListView listView, View view, int position, long id) {
         super.onListItemClick(listView, view, position, id);
-
+        
+        if (mIsCABDestroyed)
+            listView.setChoiceMode(mChoiceMode);
+        
         // Notify the active callbacks interface (the activity, if the
         // fragment is attached to one) that an item has been selected.
         mCallbacks.onItemSelected(DummyContent.ITEMS.get(position).id);
@@ -192,9 +273,10 @@ public class TorrentListFragment extends ListFragment {
     public void setActivateOnItemClick(boolean activateOnItemClick) {
         // When setting CHOICE_MODE_SINGLE, ListView will automatically
         // give items the 'activated' state when touched.
-        getListView().setChoiceMode(activateOnItemClick
+        mChoiceMode = activateOnItemClick
                 ? ListView.CHOICE_MODE_SINGLE
-                : ListView.CHOICE_MODE_NONE);
+                : ListView.CHOICE_MODE_NONE;
+        getListView().setChoiceMode(mChoiceMode);
     }
 
     private void setActivatedPosition(int position) {
