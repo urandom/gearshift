@@ -13,7 +13,7 @@
     <item android:id="@+id/remove"
 	    android:title="@string/remove"
 	    android:icon="@drawable/ic_menu_cancel"
-	    android:showAsAction="always" />
+	    android:showAsAction="ifRoom" />
     
 	<item android:id="@+id/delete"
 	    android:title="@string/remove_data"
