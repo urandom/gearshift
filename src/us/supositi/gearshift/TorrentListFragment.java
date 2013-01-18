@@ -144,6 +144,12 @@ public class TorrentListFragment extends ListFragment {
                     case R.id.delete:
                         mode.finish();
                         break;
+                    case R.id.resume:
+                        mode.finish();
+                        break;
+                    case R.id.pause:
+                        mode.finish();
+                        break;
                 }
                 return true;
             }
@@ -152,7 +158,13 @@ public class TorrentListFragment extends ListFragment {
             public boolean onCreateActionMode(ActionMode mode, Menu menu) {
                 MenuInflater inflater = mode.getMenuInflater();
                 inflater.inflate(R.menu.torrent_list_multiselect, menu);
-                TorrentListActivity.logD("Creating context menu on select");
+                
+                /* FIXME: Set these states depending on the torrent state */
+                MenuItem item = menu.findItem(R.id.resume);
+                item.setVisible(false).setEnabled(false);
+                
+                item = menu.findItem(R.id.pause);
+                item.setVisible(true).setEnabled(true);
                 
                 mSelectedTorrentIds = new HashSet<String>();
                 return true;

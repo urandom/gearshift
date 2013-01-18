@@ -9,6 +9,9 @@
     <string name="delete">Delete</string>
     <string name="remove">Remove</string>
     <string name="remove_data">Remove and delete the data</string>
+    <string name="resume">Resume</string>
+    <string name="pause">Pause</string>
+    <string name="stop">Stop</string>
     
     <string name="number_dialog_delete">Delete a digit</string>
         

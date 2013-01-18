@@ -7,6 +7,9 @@ import us.supositi.gearshift.dummy.DummyContent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -106,6 +109,7 @@ public class TorrentDetailFragment extends Fragment {
         }
         
         mPriorityValues = Arrays.asList(getResources().getStringArray(R.array.torrent_priority_values));
+        setHasOptionsMenu(true);
     }
 
     @Override
@@ -184,5 +188,33 @@ public class TorrentDetailFragment extends Fragment {
 
                 
         return root;
+    }
+    
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        inflater.inflate(R.menu.torrent_detail_fragment, menu);
+        
+        /* FIXME: Set these states depending on the torrent state */
+        MenuItem item = menu.findItem(R.id.resume);
+        item.setVisible(false).setEnabled(false);
+        
+        item = menu.findItem(R.id.pause);
+        item.setVisible(true).setEnabled(true);
+    }
+    
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.remove:
+                return true;
+            case R.id.delete:
+                return true;
+            case R.id.resume:
+                return true;
+            case R.id.pause:
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
     }
 }
