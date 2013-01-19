@@ -3,6 +3,7 @@ package us.supositi.gearshift;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.text.MessageFormat;
+import java.util.List;
 
 import us.supositi.gearshift.dummy.DummyContent;
 import android.content.Intent;
@@ -164,6 +165,8 @@ public class TorrentListActivity extends SlidingFragmentActivity
         if (!mTwoPane) return;
         
         ViewGroup panel = (ViewGroup) findViewById(R.id.torrent_detail_panel);
+        List<TorrentDetailFragment> fragments = ((TorrentDetailPagerAdapter) mPager.getAdapter()).getFragments();
+        
         if (show) {
             if (panel.getVisibility() != View.VISIBLE) {
                 panel.setVisibility(View.VISIBLE);
@@ -171,11 +174,15 @@ public class TorrentListActivity extends SlidingFragmentActivity
                         this, R.anim.layout_slide_right);
                 panel.setLayoutAnimation(controller);
                 getSlidingMenu().setTouchModeAbove(SlidingMenu.TOUCHMODE_NONE);
+                for (TorrentDetailFragment fragment : fragments)
+                    fragment.setHasOptionsMenu(true);
             }
         } else {
             if (panel.getVisibility() != View.GONE) {
                 panel.setVisibility(View.GONE);
                 getSlidingMenu().setTouchModeAbove(SlidingMenu.TOUCHMODE_FULLSCREEN);
+                for (TorrentDetailFragment fragment : fragments)
+                    fragment.setHasOptionsMenu(false);
             }
         }
     }
