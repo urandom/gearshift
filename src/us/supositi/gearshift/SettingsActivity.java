@@ -64,9 +64,11 @@ public class SettingsActivity extends PreferenceActivity
         getActionBar().setDisplayHomeAsUpEnabled(true);
         getActionBar().setHomeButtonEnabled(true);
         
-        TorrentListActivity.logD("Creating the profile loader");
+        if (savedInstanceState == null) {
+            TorrentListActivity.logD("Creating the profile loader");
 
-        getLoaderManager().initLoader(LOADER_ID, null, this);
+            getLoaderManager().initLoader(LOADER_ID, null, this);
+        }
     }
     
     @Override
@@ -113,19 +115,7 @@ public class SettingsActivity extends PreferenceActivity
         mProfileHeaders = new Header[profiles.length];
         int index = 0;
         for (TorrentProfile profile : profiles) {
-            Header newHeader = new Header();
-            
-            newHeader.id = profile.getName().hashCode();
-            newHeader.title = profile.getName();
-            newHeader.summary = (profile.getUsername().length() > 0 ? profile.getUsername() + "@" : "")
-                    + profile.getHost() + ":" + profile.getPort();
-            
-            newHeader.fragment = TorrentProfileSettingsFragment.class.getCanonicalName();
-            Bundle args = new Bundle();
-            args.putString(TorrentProfileSettingsFragment.ARG_PROFILE_ID, profile.getId());
-            newHeader.fragmentArguments = args;
-            
-            mProfileHeaders[index++] = newHeader;
+            mProfileHeaders[index++] = getProfileHeader(profile);
         }
 
         invalidateOptionsMenu();
@@ -141,6 +131,23 @@ public class SettingsActivity extends PreferenceActivity
         */
         invalidateHeaders();
         invalidateOptionsMenu();
+    }
+    
+    private Header getProfileHeader(TorrentProfile profile) {
+        Header header = new Header();
+        
+        header.id = profile.getId().hashCode();
+        header.title = profile.getName();
+        header.summary = (profile.getUsername().length() > 0 ? profile.getUsername() + "@" : "")
+                + profile.getHost() + ":" + profile.getPort();
+        
+        header.fragment = TorrentProfileSettingsFragment.class.getCanonicalName();
+        Bundle args = new Bundle();
+        args.putString(TorrentProfileSettingsFragment.ARG_PROFILE_ID, profile.getId());
+        args.putInt(TorrentProfileSettingsFragment.ARG_LOADER_ID, LOADER_ID);
+        header.fragmentArguments = args;
+        
+        return header;
     }
 
     private Header getAppPreferencesHeader() {

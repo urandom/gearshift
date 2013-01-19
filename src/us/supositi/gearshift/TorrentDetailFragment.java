@@ -109,7 +109,10 @@ public class TorrentDetailFragment extends Fragment {
         }
         
         mPriorityValues = Arrays.asList(getResources().getStringArray(R.array.torrent_priority_values));
-        setHasOptionsMenu(true);
+        
+        if (savedInstanceState == null) {
+            setHasOptionsMenu(true);
+        }
     }
 
     @Override
