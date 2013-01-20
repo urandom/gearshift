@@ -3,10 +3,13 @@ package us.supositi.gearshift;
 import java.util.HashSet;
 
 import us.supositi.gearshift.dummy.DummyContent;
+import android.app.ActionBar;
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
+import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.view.ActionMode;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -20,6 +23,8 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.Spinner;
+import android.widget.TextView;
 
 /**
  * A list fragment representing a list of Torrents. This fragment
@@ -56,6 +61,12 @@ public class TorrentListFragment extends ListFragment {
     private boolean mIsCABDestroyed = false;
 
     private int mChoiceMode = ListView.CHOICE_MODE_NONE;
+    
+    private TorrentProfileListAdapter mProfileAdapter;
+    
+    private static final int PROFILES_LOADER_ID = 1;
+    private static final int TORRENTS_LOADER_ID = 2;
+    
     /**
      * A callback interface that all activities containing this fragment must
      * implement. This mechanism allows activities to be notified of item
@@ -76,6 +87,33 @@ public class TorrentListFragment extends ListFragment {
         @Override
         public void onItemSelected(String id) {
         }
+    };
+    
+    private LoaderCallbacks<TorrentProfile[]> mProfilesLoaderCallbacks = new LoaderCallbacks<TorrentProfile[]>() {
+        @Override
+        public android.support.v4.content.Loader<TorrentProfile[]> onCreateLoader(
+                int id, Bundle args) {
+            if (id == PROFILES_LOADER_ID) {
+                return new TorrentProfileSupportLoader(getActivity()); 
+            }
+            return null;
+        }
+
+        @Override
+        public void onLoadFinished(
+                android.support.v4.content.Loader<TorrentProfile[]> loader,
+                TorrentProfile[] profiles) {
+            // TODO Auto-generated method stub
+            
+        }
+
+        @Override
+        public void onLoaderReset(
+                android.support.v4.content.Loader<TorrentProfile[]> loader) {
+            // TODO Auto-generated method stub
+            
+        }
+        
     };
 
     /**
@@ -98,7 +136,31 @@ public class TorrentListFragment extends ListFragment {
         
         setHasOptionsMenu(true);
         getActivity().requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);  
-        getActivity().setProgressBarIndeterminateVisibility(true); 
+        getActivity().setProgressBarIndeterminateVisibility(true);
+        
+        ActionBar actionBar = getActivity().getActionBar();
+        if (actionBar != null) {
+            LayoutInflater inflater = (LayoutInflater) getActivity().getSystemService
+                    (Context.LAYOUT_INFLATER_SERVICE);
+            
+            mProfileAdapter = new TorrentProfileListAdapter(getActivity());
+            
+            View customActionBarView = inflater.inflate(R.layout.torrent_list_action_bar, null);
+            Spinner selector  = ((Spinner) customActionBarView.findViewById(R.id.profiles_selector_menu_item));
+            selector.setAdapter(mProfileAdapter);
+            /* TODO: create an empty adapter, init the profile loader register its setOnItemSelectedListener */
+            
+            actionBar.setCustomView(customActionBarView);
+            
+            actionBar.setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM,
+                    ActionBar.DISPLAY_SHOW_CUSTOM|ActionBar.DISPLAY_SHOW_TITLE);
+        }
+        
+        if (savedInstanceState == null) {
+            TorrentListActivity.logD("Creating the support profile loader");
+
+            getActivity().getSupportLoaderManager().initLoader(PROFILES_LOADER_ID, null, mProfilesLoaderCallbacks);
+        }
     }
 
     @Override
@@ -299,5 +361,52 @@ public class TorrentListFragment extends ListFragment {
         }
 
         mActivatedPosition = position;
+    }
+    
+    private class TorrentProfileListAdapter extends ArrayAdapter<TorrentProfile> {
+        private final TorrentProfile mEmptyProfile = new TorrentProfile();        
+        
+        public TorrentProfileListAdapter(Context context) {
+            super(context, 0);
+
+            add(mEmptyProfile);
+        }
+        
+        @Override
+        public View getView(int position, View convertView, ViewGroup parent) {
+            View rowView = convertView;
+            TorrentProfile profile = getItem(position);
+            
+            if (rowView == null) {
+                LayoutInflater vi = (LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+                rowView = vi.inflate(R.layout.torrent_profile_selector, null);
+            }
+            
+            TextView name = (TextView) rowView.findViewById(R.id.name);
+            TextView summary = (TextView) rowView.findViewById(R.id.summary);
+            
+            if (profile == mEmptyProfile) {
+                name.setText(R.string.no_profiles);
+                summary.setText(R.string.create_profile_in_settings);
+            } else {
+                name.setText(profile.getName());
+                summary.setText((profile.getUsername().length() > 0 ? profile.getUsername() + "@" : "")
+                        + profile.getHost() + ":" + profile.getPort());
+            }
+            
+            return rowView;
+        }
+        
+        @Override
+        public View getDropDownView(int position, View convertView, ViewGroup parent) {
+            View rowView = convertView;
+
+            if (rowView == null) {
+                LayoutInflater vi = (LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+                rowView = vi.inflate(R.layout.torrent_profile_selector_dropdown, null);
+            }
+
+            return getView(position, rowView, parent);
+        }
     }
 }

@@ -1,13 +1,13 @@
 package us.supositi.gearshift;
 
 import android.app.Activity;
-import android.content.AsyncTaskLoader;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.preference.PreferenceManager;
+import android.support.v4.content.AsyncTaskLoader;
 
-public class TorrentProfileLoader extends AsyncTaskLoader<TorrentProfile[]> {
+public class TorrentProfileSupportLoader extends AsyncTaskLoader<TorrentProfile[]> {
     private TorrentProfile[] mProfiles;
     
     private OnSharedPreferenceChangeListener mListener = new OnSharedPreferenceChangeListener() {
@@ -33,7 +33,7 @@ public class TorrentProfileLoader extends AsyncTaskLoader<TorrentProfile[]> {
         }
     };
 
-    public TorrentProfileLoader(Context context) {
+    public TorrentProfileSupportLoader(Context context) {
         super(context);
         
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getContext().getApplicationContext());
