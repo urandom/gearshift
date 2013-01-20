@@ -4,7 +4,6 @@ import android.app.ActionBar;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
-import android.content.Loader;
 import android.content.SharedPreferences.Editor;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -17,15 +16,12 @@ import android.view.View.OnClickListener;
 
 public class TorrentProfileSettingsFragment extends BasePreferenceFragment {
     public static final String ARG_PROFILE_ID = "profile_id";
-    public static final String ARG_LOADER_ID = "loader_id";
     
     private TorrentProfile mProfile;
     
     private boolean mNew = true;
     private boolean mSaved = false;
-    
-    private Loader<TorrentProfile[]> mLoader;
-                
+                    
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -34,11 +30,6 @@ public class TorrentProfileSettingsFragment extends BasePreferenceFragment {
         if (getArguments().containsKey(ARG_PROFILE_ID)) {
             id = getArguments().getString(ARG_PROFILE_ID);
             mNew = false;
-        }
-        
-        if (getArguments().containsKey(ARG_LOADER_ID)) {
-            int loader_id = getArguments().getInt(ARG_LOADER_ID);
-            mLoader = getActivity().getLoaderManager().getLoader(loader_id);
         }
         
         if (id == null)
@@ -89,7 +80,6 @@ public class TorrentProfileSettingsFragment extends BasePreferenceFragment {
                 @Override
                 public void onClick(View v) {
                     int errorRes = -1;
-                    TorrentListActivity.logD(mSharedPrefs.getString(TorrentProfile.PREF_HOST, "").trim());
                     if (mSharedPrefs.getString(TorrentProfile.PREF_NAME, "").trim().equals("")) {
                         errorRes = R.string.con_name_cannot_be_empty;
                     } else if (mSharedPrefs.getString(TorrentProfile.PREF_HOST, "").trim().equals("")) {
@@ -110,12 +100,7 @@ public class TorrentProfileSettingsFragment extends BasePreferenceFragment {
                     if (mNew) {
                         mProfile.save(getActivity());
                     }
-                    
-                    if (mLoader != null)
-                        mLoader.onContentChanged();
-                    
-                    /* TODO: validate. The name and host must not be empty */
-                    
+                                        
                     mSaved = true;
 
                     getActivity().finish();
@@ -147,9 +132,6 @@ public class TorrentProfileSettingsFragment extends BasePreferenceFragment {
                     mProfile.delete(getActivity());
                     
                     mSaved = true;
-                                        
-                    if (mLoader != null)
-                        mLoader.onContentChanged();
                 }
 
                 getActivity().finish();

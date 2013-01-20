@@ -144,7 +144,6 @@ public class SettingsActivity extends PreferenceActivity
         header.fragment = TorrentProfileSettingsFragment.class.getCanonicalName();
         Bundle args = new Bundle();
         args.putString(TorrentProfileSettingsFragment.ARG_PROFILE_ID, profile.getId());
-        args.putInt(TorrentProfileSettingsFragment.ARG_LOADER_ID, LOADER_ID);
         header.fragmentArguments = args;
         
         return header;
