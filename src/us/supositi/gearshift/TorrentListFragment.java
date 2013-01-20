@@ -244,7 +244,7 @@ public class TorrentListFragment extends ListFragment {
     
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        inflater.inflate(R.menu.list_fragment, menu);
+        inflater.inflate(R.menu.torrent_list_options, menu);
     }
     
     @Override
