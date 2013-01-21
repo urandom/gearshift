@@ -23,7 +23,6 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
-import android.widget.Spinner;
 import android.widget.TextView;
 
 /**
@@ -66,6 +65,8 @@ public class TorrentListFragment extends ListFragment {
     
     private static final int PROFILES_LOADER_ID = 1;
     private static final int TORRENTS_LOADER_ID = 2;
+        
+    private TorrentProfile mCurrentProfile;
     
     /**
      * A callback interface that all activities containing this fragment must
@@ -89,7 +90,7 @@ public class TorrentListFragment extends ListFragment {
         }
     };
     
-    private LoaderCallbacks<TorrentProfile[]> mProfilesLoaderCallbacks = new LoaderCallbacks<TorrentProfile[]>() {
+    private LoaderCallbacks<TorrentProfile[]> mProfileLoaderCallbacks = new LoaderCallbacks<TorrentProfile[]>() {
         @Override
         public android.support.v4.content.Loader<TorrentProfile[]> onCreateLoader(
                 int id, Bundle args) {
@@ -103,15 +104,32 @@ public class TorrentListFragment extends ListFragment {
         public void onLoadFinished(
                 android.support.v4.content.Loader<TorrentProfile[]> loader,
                 TorrentProfile[] profiles) {
-            // TODO Auto-generated method stub
             
+            mProfileAdapter.clear();
+            if (profiles.length > 0) {
+                mProfileAdapter.addAll(profiles);
+            } else {
+                mProfileAdapter.add(TorrentProfileListAdapter.EMPTY_PROFILE);
+            }
+            
+            String currentId = TorrentProfile.getCurrentProfileId(getActivity());
+            int index = 0;
+            for (TorrentProfile prof : profiles) {
+                if (prof.getId().equals(currentId)) {
+                    ActionBar actionBar = getActivity().getActionBar();
+                    if (actionBar != null)
+                        actionBar.setSelectedNavigationItem(index);
+                    mCurrentProfile = prof;
+                    break;
+                }
+                index++;
+            }
         }
 
         @Override
         public void onLoaderReset(
                 android.support.v4.content.Loader<TorrentProfile[]> loader) {
-            // TODO Auto-generated method stub
-            
+            mProfileAdapter.clear();
         }
         
     };
@@ -140,27 +158,24 @@ public class TorrentListFragment extends ListFragment {
         
         ActionBar actionBar = getActivity().getActionBar();
         if (actionBar != null) {
-            LayoutInflater inflater = (LayoutInflater) getActivity().getSystemService
-                    (Context.LAYOUT_INFLATER_SERVICE);
+            actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_LIST);
             
             mProfileAdapter = new TorrentProfileListAdapter(getActivity());
             
-            View customActionBarView = inflater.inflate(R.layout.torrent_list_action_bar, null);
-            Spinner selector  = ((Spinner) customActionBarView.findViewById(R.id.profiles_selector_menu_item));
-            selector.setAdapter(mProfileAdapter);
-            /* TODO: create an empty adapter, init the profile loader register its setOnItemSelectedListener */
+            actionBar.setListNavigationCallbacks(mProfileAdapter, new ActionBar.OnNavigationListener() {
+                @Override
+                public boolean onNavigationItemSelected(int pos, long id) {
+                    TorrentProfile profile = mProfileAdapter.getItem(pos);
+                    TorrentProfile.setCurrentProfile(profile, getActivity());
+                    
+                    return false;
+                }
+            });
             
-            actionBar.setCustomView(customActionBarView);
-            
-            actionBar.setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM,
-                    ActionBar.DISPLAY_SHOW_CUSTOM|ActionBar.DISPLAY_SHOW_TITLE);
+            actionBar.setDisplayOptions(0, ActionBar.DISPLAY_SHOW_TITLE);
         }
-        
-        if (savedInstanceState == null) {
-            TorrentListActivity.logD("Creating the support profile loader");
 
-            getActivity().getSupportLoaderManager().initLoader(PROFILES_LOADER_ID, null, mProfilesLoaderCallbacks);
-        }
+        getActivity().getSupportLoaderManager().initLoader(PROFILES_LOADER_ID, null, mProfileLoaderCallbacks);
     }
 
     @Override
@@ -363,13 +378,13 @@ public class TorrentListFragment extends ListFragment {
         mActivatedPosition = position;
     }
     
-    private class TorrentProfileListAdapter extends ArrayAdapter<TorrentProfile> {
-        private final TorrentProfile mEmptyProfile = new TorrentProfile();        
+    private static class TorrentProfileListAdapter extends ArrayAdapter<TorrentProfile> {
+        public static final TorrentProfile EMPTY_PROFILE = new TorrentProfile();        
         
         public TorrentProfileListAdapter(Context context) {
             super(context, 0);
 
-            add(mEmptyProfile);
+            add(EMPTY_PROFILE);
         }
         
         @Override
@@ -385,12 +400,14 @@ public class TorrentListFragment extends ListFragment {
             TextView name = (TextView) rowView.findViewById(R.id.name);
             TextView summary = (TextView) rowView.findViewById(R.id.summary);
             
-            if (profile == mEmptyProfile) {
+            if (profile == EMPTY_PROFILE) {
                 name.setText(R.string.no_profiles);
-                summary.setText(R.string.create_profile_in_settings);
+                if (summary != null)
+                    summary.setText(R.string.create_profile_in_settings);
             } else {
                 name.setText(profile.getName());
-                summary.setText((profile.getUsername().length() > 0 ? profile.getUsername() + "@" : "")
+                if (summary != null)
+                    summary.setText((profile.getUsername().length() > 0 ? profile.getUsername() + "@" : "")
                         + profile.getHost() + ":" + profile.getPort());
             }
             

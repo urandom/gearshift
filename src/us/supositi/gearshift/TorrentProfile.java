@@ -15,6 +15,8 @@ import android.preference.PreferenceManager;
 
 public class TorrentProfile implements Parcelable, Comparable<TorrentProfile> {
     public static final String PREF_PROFILES = "profiles";
+    public static final String PREF_CURRENT_PROFILE = "default_profiles";
+    
     public static final String PREF_NAME = "profile_name";
     public static final String PREF_HOST = "profile_host";
     public static final String PREF_PORT = "profile_port";
@@ -51,6 +53,19 @@ public class TorrentProfile implements Parcelable, Comparable<TorrentProfile> {
         
         Arrays.sort(profiles);
         return profiles;
+    }
+    
+    public static String getCurrentProfileId(Context context) {
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+        return prefs.getString(PREF_CURRENT_PROFILE, null);
+    }    
+
+    public static void setCurrentProfile(TorrentProfile profile, Context context) {
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+        Editor e = prefs.edit();
+        
+        e.putString(PREF_CURRENT_PROFILE, profile.getId());
+        e.commit();
     }
     
     public TorrentProfile() {
@@ -173,6 +188,10 @@ public class TorrentProfile implements Parcelable, Comparable<TorrentProfile> {
         if (ids.add(mId)) {
             e.remove(PREF_PROFILES);
             e.commit();
+            
+            if (ids.size() == 1 && !prefs.getString(PREF_CURRENT_PROFILE, "").equals(mId)) {
+                e.putString(PREF_CURRENT_PROFILE, mId);
+            }
             e.putStringSet(PREF_PROFILES, ids);
             e.commit();
             

@@ -5,8 +5,9 @@
 
     <Spinner
         android:id="@+id/profiles_selector_menu_item"
-        style="android:style/Widget.Holo.Spinner"
+        style="android:style/Theme.DeviceDefault"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_vertical" />
 
 </FrameLayout>
