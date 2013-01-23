@@ -174,15 +174,19 @@ public class TorrentListActivity extends SlidingFragmentActivity
                         this, R.anim.layout_slide_right);
                 panel.setLayoutAnimation(controller);
                 getSlidingMenu().setTouchModeAbove(SlidingMenu.TOUCHMODE_NONE);
-                for (TorrentDetailFragment fragment : fragments)
-                    fragment.setHasOptionsMenu(true);
+                for (TorrentDetailFragment fragment : fragments) {
+                    if (fragment != null)
+                        fragment.setHasOptionsMenu(true);
+                }
             }
         } else {
             if (panel.getVisibility() != View.GONE) {
                 panel.setVisibility(View.GONE);
                 getSlidingMenu().setTouchModeAbove(SlidingMenu.TOUCHMODE_FULLSCREEN);
-                for (TorrentDetailFragment fragment : fragments)
-                    fragment.setHasOptionsMenu(false);
+                for (TorrentDetailFragment fragment : fragments) {
+                    if (fragment != null)
+                        fragment.setHasOptionsMenu(false);
+                }
             }
         }
     }

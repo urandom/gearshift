@@ -148,8 +148,8 @@ public class TorrentListFragment extends ListFragment {
         // TODO: replace with a real list adapter.
         setListAdapter(new ArrayAdapter<DummyContent.DummyItem>(
                 getActivity(),
-                android.R.layout.simple_list_item_activated_1,
-                android.R.id.text1,
+                R.layout.torrent_list_item,
+                R.id.name,
                 DummyContent.ITEMS));
         
         setHasOptionsMenu(true);
