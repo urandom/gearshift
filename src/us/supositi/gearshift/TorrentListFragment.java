@@ -1,5 +1,6 @@
 package us.supositi.gearshift;
 
+import java.text.MessageFormat;
 import java.util.HashSet;
 
 import us.supositi.gearshift.dummy.DummyContent;
@@ -10,6 +11,8 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
+import android.text.Html;
+import android.text.Spanned;
 import android.view.ActionMode;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -23,6 +26,7 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 /**
@@ -62,6 +66,7 @@ public class TorrentListFragment extends ListFragment {
     private int mChoiceMode = ListView.CHOICE_MODE_NONE;
     
     private TorrentProfileListAdapter mProfileAdapter;
+    private TorrentListAdapter mTorrentListAdapter;
     
     private static final int PROFILES_LOADER_ID = 1;
     private static final int TORRENTS_LOADER_ID = 2;
@@ -145,12 +150,19 @@ public class TorrentListFragment extends ListFragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        // TODO: replace with a real list adapter.
-        setListAdapter(new ArrayAdapter<DummyContent.DummyItem>(
-                getActivity(),
-                R.layout.torrent_list_item,
-                R.id.name,
-                DummyContent.ITEMS));
+        mTorrentListAdapter = new TorrentListAdapter(getActivity());
+        mTorrentListAdapter.add(new Torrent(1, "Item 1"));
+        mTorrentListAdapter.add(new Torrent(2, "Item 2"));
+        Torrent torrent = new Torrent(3, "Item 3");
+        torrent.setPercentDone(1f);
+        torrent.setStatus(Torrent.Status.SEEDING);
+        mTorrentListAdapter.add(torrent);
+        torrent = new Torrent(4, "Item 4");
+        torrent.setPercentDone(0.3f);
+        torrent.setStatus(Torrent.Status.DOWNLOAD_WAITING);
+        mTorrentListAdapter.add(torrent);
+        setListAdapter(mTorrentListAdapter);
+
         
         setHasOptionsMenu(true);
         getActivity().requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);  
@@ -424,6 +436,106 @@ public class TorrentListFragment extends ListFragment {
             }
 
             return getView(position, rowView, parent);
+        }
+    }
+    
+    private class TorrentListAdapter extends ArrayAdapter<Torrent> {        
+
+        public TorrentListAdapter(Context context) {
+            super(context, R.layout.torrent_list_item, R.id.name);
+        }
+        
+        @Override
+        public View getView(int position, View convertView, ViewGroup parent) {
+            View rowView = convertView;
+            Torrent torrent = getItem(position);
+            
+            if (rowView == null) {
+                LayoutInflater vi = (LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+                rowView = vi.inflate(R.layout.torrent_list_item, parent, false);
+            }
+            
+            TextView name = (TextView) rowView.findViewById(R.id.name);
+            
+            TextView traffic = (TextView) rowView.findViewById(R.id.summary);
+            ProgressBar progress = (ProgressBar) rowView.findViewById(R.id.progress);
+            TextView status = (TextView) rowView.findViewById(R.id.status);
+            
+            name.setText(torrent.getName());
+            
+            progress.setProgress((int) (torrent.getPercentDone() * 100));
+            
+            String statusFormat = getString(R.string.status_format);
+            String formattedStatus, statusType, statusMoreFormat, statusSpeedFormat, statusSpeed;
+            int peers;
+            
+            switch(torrent.getStatus()) {
+                case Torrent.Status.DOWNLOAD_WAITING:
+                case Torrent.Status.DOWNLOADING:
+                    statusType = getString(R.string.status_downloading);
+                    statusMoreFormat = getString(R.string.status_more_downloading_format);
+                    statusSpeedFormat = getString(R.string.status_more_downloading_speed_format);
+                    
+                    if (torrent.isStalled()) {
+                        statusSpeed = getString(R.string.status_more_idle);
+                    } else {
+                        statusSpeed = MessageFormat.format(statusSpeedFormat, new Object[] {
+                            Torrent.readableFileSize(torrent.getRateDownload()),
+                            Torrent.readableFileSize(torrent.getRateUpload())
+                        });
+                    }
+                    
+                    peers = torrent.getPeersSendingToUs();
+                    
+                    formattedStatus = MessageFormat.format(statusFormat, new Object[] {statusType, 
+                            MessageFormat.format(statusMoreFormat, new Object[] {
+                                peers, torrent.getPeersConnected(), statusSpeed
+                            })
+                        });
+                    break;
+                case Torrent.Status.SEED_WAITING:
+                case Torrent.Status.SEEDING:
+                    statusType = getString(R.string.status_uploading);
+                    statusMoreFormat = getString(R.string.status_more_uploading_format);
+                    statusSpeedFormat = getString(R.string.status_more_uploading_speed_format);
+                    
+                    if (torrent.isStalled()) {
+                        statusSpeed = getString(R.string.status_more_idle);
+                    } else {
+                        statusSpeed = MessageFormat.format(statusSpeedFormat, new Object[] {
+                            Torrent.readableFileSize(torrent.getRateUpload())
+                        });
+                    }
+                    peers = torrent.getPeersGettingFromUs();
+                    
+                    formattedStatus = MessageFormat.format(statusFormat, new Object[] {statusType, 
+                            MessageFormat.format(statusMoreFormat, new Object[] {
+                                peers, torrent.getPeersConnected(), statusSpeed
+                            })
+                        });
+                    break;
+                case Torrent.Status.CHECK_WAITING:
+                    statusType = getString(R.string.status_checking);
+                    
+                    formattedStatus = MessageFormat.format(statusFormat, new Object[] {
+                        statusType,
+                        "-" + getString(R.string.status_more_idle)
+                    });
+                    break;
+                case Torrent.Status.CHECKING:
+                    formattedStatus = getString(R.string.status_checking);
+
+                    break;
+                default:
+                    formattedStatus = getString(R.string.status_stopped);
+                    
+                    break;
+            }
+
+            Spanned processedStatus = Html.fromHtml(formattedStatus);
+            status.setText(processedStatus);
+
+            return rowView;
         }
     }
 }

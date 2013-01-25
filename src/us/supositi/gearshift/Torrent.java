@@ -1,25 +1,40 @@
 package us.supositi.gearshift;
 
+import java.text.DecimalFormat;
+
 public class Torrent {
+    
+    // https://github.com/killemov/Shift/blob/master/shift.js#L864
+    public static class Status {
+        public final static int ALL = -1;
+        public final static int STOPPED = 0;
+        public final static int CHECK_WAITING = 1;
+        public final static int CHECKING = 2;
+        public final static int DOWNLOAD_WAITING = 3;
+        public final static int DOWNLOADING = 4;
+        public final static int SEED_WAITING = 5;
+        public final static int SEEDING = 6;
+    };
+    
     private int mId;
     private String mName;
     
     private int mError;
     private String mErrorString;
     
-    private float mMetadataPercentComplete;
-    private float mPercentDone;
+    private float mMetadataPercentComplete = 0;
+    private float mPercentDone = 0;
     
     private long mEta;
     
-    private int mStatus;
+    private int mStatus = Status.STOPPED;
     
-    private boolean mFinished;
-    private boolean mStalled;
+    private boolean mFinished = false;
+    private boolean mStalled = true;
     
-    private int mPeersConnected;
-    private int mPeersGettingFromUs;
-    private int mPeersSendingToUs;
+    private int mPeersConnected = 0;
+    private int mPeersGettingFromUs = 0;
+    private int mPeersSendingToUs = 0;
     
     private long mLeftUntilDone;
     private long mAddedDate;
@@ -71,10 +86,10 @@ public class Torrent {
     public int getStatus() {
         return mStatus;
     }
-    public boolean ismFinished() {
+    public boolean isFinished() {
         return mFinished;
     }
-    public boolean ismStalled() {
+    public boolean isStalled() {
         return mStalled;
     }
     public int getPeersConnected() {
@@ -196,5 +211,12 @@ public class Torrent {
     }
     public void setUploadRatio(float mUploadRatio) {
         this.mUploadRatio = mUploadRatio;
+    }
+    
+    public static String readableFileSize(long size) {
+        if(size <= 0) return "0";
+        final String[] units = new String[] { "B", "KB", "MB", "GB", "TB" };
+        int digitGroups = (int) (Math.log10(size)/Math.log10(1024));
+        return new DecimalFormat("#,##0.#").format(size/Math.pow(1024, digitGroups)) + " " + units[digitGroups];
     }
 }

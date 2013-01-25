@@ -112,4 +112,17 @@
     
     <string name="no_profiles">No profiles</string>
     <string name="create_profile_in_settings">Create a new profile in the settings</string>
+    
+    <string name="traffic_format">{0} of {1} ({2}) - {3}</string>
+    
+    <string name="status_format">{0} {1}</string>
+    <string name="status_downloading"><b>Downloading</b></string>
+    <string name="status_uploading"><b>Seeding</b></string>
+    <string name="status_stopped"><b>Stopped</b></string>
+    <string name="status_checking"><b>Checking</b></string>
+    <string name="status_more_downloading_format"> from {0} of {1} connected peers - <i>{2}</i></string>
+    <string name="status_more_downloading_speed_format">&#x2193; {0}/s, &#x2191; {1}/s</string>
+    <string name="status_more_uploading_format"> to {0} of {1} connected peers - <i>{2}</i></string>
+    <string name="status_more_uploading_speed_format">&#x2191; {0}/s</string>
+    <string name="status_more_idle">Idle</string>
 </resources>
