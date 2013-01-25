@@ -32,6 +32,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:indeterminate="false"
+        android:progressDrawable="@drawable/torrent_progress_bar"
         android:max="100"
         android:progress="0" />
             

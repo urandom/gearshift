@@ -463,7 +463,12 @@ public class TorrentListFragment extends ListFragment {
             
             name.setText(torrent.getName());
             
-            progress.setProgress((int) (torrent.getPercentDone() * 100));
+            if (torrent.getPercentDone() < 1) {
+                progress.setSecondaryProgress((int) (torrent.getPercentDone() * 100));
+            } else {
+                progress.setSecondaryProgress(100);
+                progress.setProgress(25);                
+            }
             
             String statusFormat = getString(R.string.status_format);
             String formattedStatus, statusType, statusMoreFormat, statusSpeedFormat, statusSpeed;
