@@ -16,6 +16,13 @@ public class Torrent {
         public final static int SEEDING = 6;
     };
     
+    // http://packages.python.org/transmissionrpc/reference/transmissionrpc.html
+    public static class SeedRatioMode {
+        public final static int GLOBAL_LIMIT = 0;
+        public final static int TORRENT_LIMIT = 1;
+        public final static int NO_LIMIT = 2;
+    }
+    
     private int mId;
     private String mName;
     

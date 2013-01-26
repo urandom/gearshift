@@ -8,7 +8,9 @@ import android.app.ActionBar;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v4.app.ListFragment;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.text.Html;
@@ -72,6 +74,8 @@ public class TorrentListFragment extends ListFragment {
     private static final int TORRENTS_LOADER_ID = 2;
         
     private TorrentProfile mCurrentProfile;
+    
+    private SharedPreferences mDefaultPrefs;
     
     /**
      * A callback interface that all activities containing this fragment must
@@ -149,6 +153,8 @@ public class TorrentListFragment extends ListFragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        
+        mDefaultPrefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
 
         mTorrentListAdapter = new TorrentListAdapter(getActivity());
         mTorrentListAdapter.add(new Torrent(1, "Item 1"));
@@ -467,7 +473,26 @@ public class TorrentListFragment extends ListFragment {
                 progress.setSecondaryProgress((int) (torrent.getPercentDone() * 100));
             } else {
                 progress.setSecondaryProgress(100);
-                progress.setProgress(25);                
+                
+                switch (torrent.getSeedRatioMode()) {
+                    case Torrent.SeedRatioMode.GLOBAL_LIMIT:
+                        /* TODO: implements session-get in the TorrentProfile */
+                        break;
+                    case Torrent.SeedRatioMode.TORRENT_LIMIT:
+                        float limit = torrent.getSeedRatioLimit();
+                        float current = torrent.getUploadRatio();
+                        
+                        if (current >= limit) {
+                            progress.setProgress(100);
+                        } else {
+                            progress.setProgress((int) (current / limit * 100));
+                        }
+                        break;
+                    case Torrent.SeedRatioMode.NO_LIMIT:
+                        progress.setProgress(100);
+                        break;
+                }
+                                
             }
             
             String statusFormat = getString(R.string.status_format);

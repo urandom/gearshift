@@ -113,7 +113,10 @@
     <string name="no_profiles">No profiles</string>
     <string name="create_profile_in_settings">Create a new profile in the settings</string>
     
-    <string name="traffic_format">{0} of {1} ({2}) - {3}</string>
+    <string name="traffic_downloading_format">{0} of {1} ({2}) - {3}</string>
+    <string name="traffic_uploading_format">{0}, uploaded {1} ({2}) {3}</string>
+    <string name="traffic_uploading_ratio_format">Ratio: {0} {1}</string>
+    <string name="traffic_uploading_ratio_goal_format">Goal: {0}</string>
     
     <string name="status_format">{0} {1}</string>
     <string name="status_downloading"><b>Downloading</b></string>
