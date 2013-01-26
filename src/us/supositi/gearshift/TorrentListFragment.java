@@ -67,13 +67,13 @@ public class TorrentListFragment extends ListFragment {
 
     private int mChoiceMode = ListView.CHOICE_MODE_NONE;
     
-    private TorrentProfileListAdapter mProfileAdapter;
+    private TransmissionProfileListAdapter mProfileAdapter;
     private TorrentListAdapter mTorrentListAdapter;
     
     private static final int PROFILES_LOADER_ID = 1;
     private static final int TORRENTS_LOADER_ID = 2;
         
-    private TorrentProfile mCurrentProfile;
+    private TransmissionProfile mCurrentProfile;
     
     private SharedPreferences mDefaultPrefs;
     
@@ -99,31 +99,31 @@ public class TorrentListFragment extends ListFragment {
         }
     };
     
-    private LoaderCallbacks<TorrentProfile[]> mProfileLoaderCallbacks = new LoaderCallbacks<TorrentProfile[]>() {
+    private LoaderCallbacks<TransmissionProfile[]> mProfileLoaderCallbacks = new LoaderCallbacks<TransmissionProfile[]>() {
         @Override
-        public android.support.v4.content.Loader<TorrentProfile[]> onCreateLoader(
+        public android.support.v4.content.Loader<TransmissionProfile[]> onCreateLoader(
                 int id, Bundle args) {
             if (id == PROFILES_LOADER_ID) {
-                return new TorrentProfileSupportLoader(getActivity()); 
+                return new TransmissionProfileSupportLoader(getActivity()); 
             }
             return null;
         }
 
         @Override
         public void onLoadFinished(
-                android.support.v4.content.Loader<TorrentProfile[]> loader,
-                TorrentProfile[] profiles) {
+                android.support.v4.content.Loader<TransmissionProfile[]> loader,
+                TransmissionProfile[] profiles) {
             
             mProfileAdapter.clear();
             if (profiles.length > 0) {
                 mProfileAdapter.addAll(profiles);
             } else {
-                mProfileAdapter.add(TorrentProfileListAdapter.EMPTY_PROFILE);
+                mProfileAdapter.add(TransmissionProfileListAdapter.EMPTY_PROFILE);
             }
             
-            String currentId = TorrentProfile.getCurrentProfileId(getActivity());
+            String currentId = TransmissionProfile.getCurrentProfileId(getActivity());
             int index = 0;
-            for (TorrentProfile prof : profiles) {
+            for (TransmissionProfile prof : profiles) {
                 if (prof.getId().equals(currentId)) {
                     ActionBar actionBar = getActivity().getActionBar();
                     if (actionBar != null)
@@ -137,7 +137,7 @@ public class TorrentListFragment extends ListFragment {
 
         @Override
         public void onLoaderReset(
-                android.support.v4.content.Loader<TorrentProfile[]> loader) {
+                android.support.v4.content.Loader<TransmissionProfile[]> loader) {
             mProfileAdapter.clear();
         }
         
@@ -178,13 +178,13 @@ public class TorrentListFragment extends ListFragment {
         if (actionBar != null) {
             actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_LIST);
             
-            mProfileAdapter = new TorrentProfileListAdapter(getActivity());
+            mProfileAdapter = new TransmissionProfileListAdapter(getActivity());
             
             actionBar.setListNavigationCallbacks(mProfileAdapter, new ActionBar.OnNavigationListener() {
                 @Override
                 public boolean onNavigationItemSelected(int pos, long id) {
-                    TorrentProfile profile = mProfileAdapter.getItem(pos);
-                    TorrentProfile.setCurrentProfile(profile, getActivity());
+                    TransmissionProfile profile = mProfileAdapter.getItem(pos);
+                    TransmissionProfile.setCurrentProfile(profile, getActivity());
                     
                     return false;
                 }
@@ -396,10 +396,10 @@ public class TorrentListFragment extends ListFragment {
         mActivatedPosition = position;
     }
     
-    private static class TorrentProfileListAdapter extends ArrayAdapter<TorrentProfile> {
-        public static final TorrentProfile EMPTY_PROFILE = new TorrentProfile();        
+    private static class TransmissionProfileListAdapter extends ArrayAdapter<TransmissionProfile> {
+        public static final TransmissionProfile EMPTY_PROFILE = new TransmissionProfile();        
         
-        public TorrentProfileListAdapter(Context context) {
+        public TransmissionProfileListAdapter(Context context) {
             super(context, 0);
 
             add(EMPTY_PROFILE);
@@ -408,7 +408,7 @@ public class TorrentListFragment extends ListFragment {
         @Override
         public View getView(int position, View convertView, ViewGroup parent) {
             View rowView = convertView;
-            TorrentProfile profile = getItem(position);
+            TransmissionProfile profile = getItem(position);
             
             if (rowView == null) {
                 LayoutInflater vi = (LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
@@ -476,7 +476,7 @@ public class TorrentListFragment extends ListFragment {
                 
                 switch (torrent.getSeedRatioMode()) {
                     case Torrent.SeedRatioMode.GLOBAL_LIMIT:
-                        /* TODO: implements session-get in the TorrentProfile */
+                        /* TODO: implements session-get in the TransmissionProfile */
                         break;
                     case Torrent.SeedRatioMode.TORRENT_LIMIT:
                         float limit = torrent.getSeedRatioLimit();

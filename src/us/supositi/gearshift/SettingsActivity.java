@@ -19,14 +19,14 @@ import android.widget.ListAdapter;
 import android.widget.TextView;
 
 public class SettingsActivity extends PreferenceActivity
-        implements LoaderManager.LoaderCallbacks<TorrentProfile[]> {
+        implements LoaderManager.LoaderCallbacks<TransmissionProfile[]> {
     
     private Header mAppPreferencesHeader;
     private Header mProfileHeaderseparatorHeader;
     private Header[] mProfileHeaders = new Header[0];
     
     private List<Header> mHeaders = new ArrayList<Header>();
-    private TorrentProfile[] mProfiles;
+    private TransmissionProfile[] mProfiles;
     
     private static final int LOADER_ID = 1;
 
@@ -84,7 +84,7 @@ public class SettingsActivity extends PreferenceActivity
     public boolean onOptionsItemSelected(MenuItem item) {
         switch(item.getItemId()) {
         case R.id.menu_add_profile:
-            String name = TorrentProfileSettingsFragment.class.getCanonicalName();
+            String name = TransmissionProfileSettingsFragment.class.getCanonicalName();
             if (onIsMultiPane())
                 switchToHeader(name, new Bundle());
             else
@@ -100,13 +100,13 @@ public class SettingsActivity extends PreferenceActivity
     }
 
     @Override
-    public Loader<TorrentProfile[]> onCreateLoader(int id, Bundle args) {
-        return new TorrentProfileLoader(this);
+    public Loader<TransmissionProfile[]> onCreateLoader(int id, Bundle args) {
+        return new TransmissionProfileLoader(this);
     }
 
     @Override
-    public void onLoadFinished(Loader<TorrentProfile[]> loader,
-            TorrentProfile[] profiles) {
+    public void onLoadFinished(Loader<TransmissionProfile[]> loader,
+            TransmissionProfile[] profiles) {
         mProfiles = profiles;
         
         TorrentListActivity.logD("Finished loading {0} profiles", new Object[] {profiles.length});
@@ -114,7 +114,7 @@ public class SettingsActivity extends PreferenceActivity
 
         mProfileHeaders = new Header[profiles.length];
         int index = 0;
-        for (TorrentProfile profile : profiles) {
+        for (TransmissionProfile profile : profiles) {
             mProfileHeaders[index++] = getProfileHeader(profile);
         }
 
@@ -123,7 +123,7 @@ public class SettingsActivity extends PreferenceActivity
     }
 
     @Override
-    public void onLoaderReset(Loader<TorrentProfile[]> loader) {/*
+    public void onLoaderReset(Loader<TransmissionProfile[]> loader) {/*
         mProfileHeaders = new Header[0];
         mProfiles = null;
         
@@ -133,7 +133,7 @@ public class SettingsActivity extends PreferenceActivity
         invalidateOptionsMenu();
     }
     
-    private Header getProfileHeader(TorrentProfile profile) {
+    private Header getProfileHeader(TransmissionProfile profile) {
         Header header = new Header();
         
         header.id = profile.getId().hashCode();
@@ -141,9 +141,9 @@ public class SettingsActivity extends PreferenceActivity
         header.summary = (profile.getUsername().length() > 0 ? profile.getUsername() + "@" : "")
                 + profile.getHost() + ":" + profile.getPort();
         
-        header.fragment = TorrentProfileSettingsFragment.class.getCanonicalName();
+        header.fragment = TransmissionProfileSettingsFragment.class.getCanonicalName();
         Bundle args = new Bundle();
-        args.putString(TorrentProfileSettingsFragment.ARG_PROFILE_ID, profile.getId());
+        args.putString(TransmissionProfileSettingsFragment.ARG_PROFILE_ID, profile.getId());
         header.fragmentArguments = args;
         
         return header;

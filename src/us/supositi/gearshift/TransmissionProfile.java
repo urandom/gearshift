@@ -13,7 +13,7 @@ import android.os.Parcel;
 import android.os.Parcelable;
 import android.preference.PreferenceManager;
 
-public class TorrentProfile implements Parcelable, Comparable<TorrentProfile> {
+public class TransmissionProfile implements Parcelable, Comparable<TransmissionProfile> {
     public static final String PREF_PROFILES = "profiles";
     public static final String PREF_CURRENT_PROFILE = "default_profiles";
     
@@ -42,14 +42,14 @@ public class TorrentProfile implements Parcelable, Comparable<TorrentProfile> {
     private int mTimeout = 40;
     private int mRetries = 3;
 
-    public static TorrentProfile[] readProfiles(Context context) {
+    public static TransmissionProfile[] readProfiles(Context context) {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
         Set<String> profile_ids = prefs.getStringSet(PREF_PROFILES, new HashSet<String>());
-        TorrentProfile[] profiles = new TorrentProfile[profile_ids.size()];
+        TransmissionProfile[] profiles = new TransmissionProfile[profile_ids.size()];
         int index = 0;
         
         for (String id : profile_ids)
-            profiles[index++] = new TorrentProfile(id, context);
+            profiles[index++] = new TransmissionProfile(id, context);
         
         Arrays.sort(profiles);
         return profiles;
@@ -60,7 +60,7 @@ public class TorrentProfile implements Parcelable, Comparable<TorrentProfile> {
         return prefs.getString(PREF_CURRENT_PROFILE, null);
     }    
 
-    public static void setCurrentProfile(TorrentProfile profile, Context context) {
+    public static void setCurrentProfile(TransmissionProfile profile, Context context) {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
         Editor e = prefs.edit();
         
@@ -68,11 +68,11 @@ public class TorrentProfile implements Parcelable, Comparable<TorrentProfile> {
         e.commit();
     }
     
-    public TorrentProfile() {
+    public TransmissionProfile() {
         mId = UUID.randomUUID().toString();
     }    
     
-    public TorrentProfile(String id, Context context) {
+    public TransmissionProfile(String id, Context context) {
         mId = id;
         
         load(context);
@@ -230,7 +230,7 @@ public class TorrentProfile implements Parcelable, Comparable<TorrentProfile> {
     }
 
     @Override
-    public int compareTo(TorrentProfile another) {
+    public int compareTo(TransmissionProfile another) {
         return mName.compareToIgnoreCase(another.getName());
     }
     
@@ -257,18 +257,18 @@ public class TorrentProfile implements Parcelable, Comparable<TorrentProfile> {
         in.writeInt(mRetries);
     }
     
-    public static final Parcelable.Creator<TorrentProfile> CREATOR
-        = new Parcelable.Creator<TorrentProfile>() {
-      public TorrentProfile createFromParcel(Parcel in) {
-          return new TorrentProfile(in);
+    public static final Parcelable.Creator<TransmissionProfile> CREATOR
+        = new Parcelable.Creator<TransmissionProfile>() {
+      public TransmissionProfile createFromParcel(Parcel in) {
+          return new TransmissionProfile(in);
       }
       
-      public TorrentProfile[] newArray(int size) {
-          return new TorrentProfile[size];
+      public TransmissionProfile[] newArray(int size) {
+          return new TransmissionProfile[size];
       }
     };
     
-    private TorrentProfile(Parcel in) {
+    private TransmissionProfile(Parcel in) {
         mId = in.readString();
         mName = in.readString();
         mHost = in.readString();

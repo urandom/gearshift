@@ -7,8 +7,8 @@ import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.preference.PreferenceManager;
 
-public class TorrentProfileLoader extends AsyncTaskLoader<TorrentProfile[]> {
-    private TorrentProfile[] mProfiles;
+public class TransmissionProfileLoader extends AsyncTaskLoader<TransmissionProfile[]> {
+    private TransmissionProfile[] mProfiles;
     
     private OnSharedPreferenceChangeListener mListener = new OnSharedPreferenceChangeListener() {
         @Override
@@ -26,14 +26,14 @@ public class TorrentProfileLoader extends AsyncTaskLoader<TorrentProfile[]> {
         public void onSharedPreferenceChanged(
                 SharedPreferences sharedPreferences, String key) {
             TorrentListActivity.logD("Detault prefs changed " + key);
-            if (key.equals(TorrentProfile.PREF_PROFILES)) {
+            if (key.equals(TransmissionProfile.PREF_PROFILES)) {
                 TorrentListActivity.logD("TPLoader: the pref 'profiles' has changed.");
                 onContentChanged();
             }
         }
     };
 
-    public TorrentProfileLoader(Context context) {
+    public TransmissionProfileLoader(Context context) {
         super(context);
         
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getContext().getApplicationContext());
@@ -41,14 +41,14 @@ public class TorrentProfileLoader extends AsyncTaskLoader<TorrentProfile[]> {
     }
 
     @Override
-    public TorrentProfile[] loadInBackground() {
-        TorrentProfile[] profiles = TorrentProfile.readProfiles(getContext().getApplicationContext());
+    public TransmissionProfile[] loadInBackground() {
+        TransmissionProfile[] profiles = TransmissionProfile.readProfiles(getContext().getApplicationContext());
         
         TorrentListActivity.logD("TPLoader: Read {0} profiles", new Object[] {profiles.length});
         
-        for (TorrentProfile prof : profiles) {
+        for (TransmissionProfile prof : profiles) {
             SharedPreferences prefs = getContext().getApplicationContext().getSharedPreferences(
-                    TorrentProfile.PREF_PREFIX + prof.getId(), Activity.MODE_PRIVATE);
+                    TransmissionProfile.PREF_PREFIX + prof.getId(), Activity.MODE_PRIVATE);
             prefs.registerOnSharedPreferenceChangeListener(mListener);
         }
 
@@ -56,7 +56,7 @@ public class TorrentProfileLoader extends AsyncTaskLoader<TorrentProfile[]> {
     }
 
     @Override
-    public void deliverResult(TorrentProfile[] profiles) {
+    public void deliverResult(TransmissionProfile[] profiles) {
         if (isReset()) {
             if (profiles != null) {
                 onReleaseResources(profiles);
@@ -64,7 +64,7 @@ public class TorrentProfileLoader extends AsyncTaskLoader<TorrentProfile[]> {
             }
         }
         
-        TorrentProfile[] oldProfiles = mProfiles;
+        TransmissionProfile[] oldProfiles = mProfiles;
         mProfiles = profiles;
         
         if (isStarted()) {
@@ -73,11 +73,11 @@ public class TorrentProfileLoader extends AsyncTaskLoader<TorrentProfile[]> {
         }
         
         if (oldProfiles != null) {
-            for (TorrentProfile prof : oldProfiles) {
-                for (TorrentProfile newProf : mProfiles) {
+            for (TransmissionProfile prof : oldProfiles) {
+                for (TransmissionProfile newProf : mProfiles) {
                     if (!prof.getId().equals(newProf.getId())) {
                         SharedPreferences prefs = getContext().getApplicationContext().getSharedPreferences(
-                                TorrentProfile.PREF_PREFIX + prof.getId(), Activity.MODE_PRIVATE);
+                                TransmissionProfile.PREF_PREFIX + prof.getId(), Activity.MODE_PRIVATE);
                         prefs.unregisterOnSharedPreferenceChangeListener(mListener);
                     }
                 }
@@ -86,7 +86,7 @@ public class TorrentProfileLoader extends AsyncTaskLoader<TorrentProfile[]> {
     }
     
     @Override
-    public void onCanceled(TorrentProfile[] profiles) {
+    public void onCanceled(TransmissionProfile[] profiles) {
         super.onCanceled(profiles);
         
         onReleaseResources(profiles);
@@ -129,10 +129,10 @@ public class TorrentProfileLoader extends AsyncTaskLoader<TorrentProfile[]> {
         }
     }
     
-    protected void onReleaseResources(TorrentProfile[] profiles) {
-        for (TorrentProfile prof : profiles) {
+    protected void onReleaseResources(TransmissionProfile[] profiles) {
+        for (TransmissionProfile prof : profiles) {
             SharedPreferences prefs = getContext().getApplicationContext().getSharedPreferences(
-                    TorrentProfile.PREF_PREFIX + prof.getId(), Activity.MODE_PRIVATE);
+                    TransmissionProfile.PREF_PREFIX + prof.getId(), Activity.MODE_PRIVATE);
             prefs.unregisterOnSharedPreferenceChangeListener(mListener);
         }
         

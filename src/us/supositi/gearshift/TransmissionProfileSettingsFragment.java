@@ -14,10 +14,10 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 
-public class TorrentProfileSettingsFragment extends BasePreferenceFragment {
+public class TransmissionProfileSettingsFragment extends BasePreferenceFragment {
     public static final String ARG_PROFILE_ID = "profile_id";
     
-    private TorrentProfile mProfile;
+    private TransmissionProfile mProfile;
     
     private boolean mNew = true;
     private boolean mSaved = false;
@@ -33,15 +33,15 @@ public class TorrentProfileSettingsFragment extends BasePreferenceFragment {
         }
         
         if (id == null)
-            mProfile = new TorrentProfile();
+            mProfile = new TransmissionProfile();
         else
-            mProfile = new TorrentProfile(id, getActivity());
+            mProfile = new TransmissionProfile(id, getActivity());
         
         TorrentListActivity.logD(
             "Editing (new ? {0}) profile {1}",
             new Object[] {mNew, mProfile.getId()});
         
-        String prefname = TorrentProfile.PREF_PREFIX + (id == null ? "temp" : id); 
+        String prefname = TransmissionProfile.PREF_PREFIX + (id == null ? "temp" : id); 
         mSharedPrefs = getActivity().getSharedPreferences(
                 prefname, Activity.MODE_PRIVATE);
         
@@ -55,17 +55,17 @@ public class TorrentProfileSettingsFragment extends BasePreferenceFragment {
 
         addPreferencesFromResource(R.xml.torrent_profile_preferences);
         PreferenceManager.setDefaultValues(
-                getActivity(), TorrentProfile.PREF_PREFIX + (id == null ? "temp" : id),
+                getActivity(), TransmissionProfile.PREF_PREFIX + (id == null ? "temp" : id),
                 Activity.MODE_PRIVATE, R.xml.torrent_profile_preferences, true);
         
         mSummaryPrefs = new Object[][] {
-            {TorrentProfile.PREF_NAME, getString(R.string.profile_summary_format), -1, -1, ""},
-            {TorrentProfile.PREF_HOST, getString(R.string.profile_summary_format), -1, -1, ""},
-            {TorrentProfile.PREF_PORT, getString(R.string.profile_summary_format), -1, -1, ""},
-            {TorrentProfile.PREF_USER, getString(R.string.profile_summary_format), -1, -1, ""},
-            {TorrentProfile.PREF_PATH, getString(R.string.profile_summary_format), -1, -1, ""},
-            {TorrentProfile.PREF_TIMEOUT, getString(R.string.profile_summary_format), -1, -1, ""},
-            {TorrentProfile.PREF_RETRIES, getString(R.string.profile_summary_format),
+            {TransmissionProfile.PREF_NAME, getString(R.string.profile_summary_format), -1, -1, ""},
+            {TransmissionProfile.PREF_HOST, getString(R.string.profile_summary_format), -1, -1, ""},
+            {TransmissionProfile.PREF_PORT, getString(R.string.profile_summary_format), -1, -1, ""},
+            {TransmissionProfile.PREF_USER, getString(R.string.profile_summary_format), -1, -1, ""},
+            {TransmissionProfile.PREF_PATH, getString(R.string.profile_summary_format), -1, -1, ""},
+            {TransmissionProfile.PREF_TIMEOUT, getString(R.string.profile_summary_format), -1, -1, ""},
+            {TransmissionProfile.PREF_RETRIES, getString(R.string.profile_summary_format),
                 R.array.pref_con_retries_values, R.array.pref_con_retries_entries, ""},
         };
         
@@ -80,9 +80,9 @@ public class TorrentProfileSettingsFragment extends BasePreferenceFragment {
                 @Override
                 public void onClick(View v) {
                     int errorRes = -1;
-                    if (mSharedPrefs.getString(TorrentProfile.PREF_NAME, "").trim().equals("")) {
+                    if (mSharedPrefs.getString(TransmissionProfile.PREF_NAME, "").trim().equals("")) {
                         errorRes = R.string.con_name_cannot_be_empty;
-                    } else if (mSharedPrefs.getString(TorrentProfile.PREF_HOST, "").trim().equals("")) {
+                    } else if (mSharedPrefs.getString(TransmissionProfile.PREF_HOST, "").trim().equals("")) {
                         errorRes = R.string.con_host_cannot_be_empty;
                     }
                     
