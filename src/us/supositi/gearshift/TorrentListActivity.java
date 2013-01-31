@@ -191,6 +191,14 @@ public class TorrentListActivity extends SlidingFragmentActivity
         }
     }
     
+    public static void logE(String message, Object[] args, Exception e) {
+        Log.e(LogTag, MessageFormat.format(message, args), e);
+    }
+    
+    public static void logE(String message, Exception e) {
+        Log.e(LogTag, message, e);
+    }
+    
     public static void logD(String message, Object[] args) {
         if (!DEBUG) return;
         
