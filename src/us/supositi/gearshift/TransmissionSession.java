@@ -1,5 +1,7 @@
 package us.supositi.gearshift;
 
+import us.supositi.gearshift.TransmissionSessionManager.Exclude;
+
 import com.google.gson.annotations.SerializedName;
 
 public class TransmissionSession {
@@ -43,7 +45,7 @@ public class TransmissionSession {
     @SerializedName("version") private String mVersion;
 
     // https://trac.transmissionbt.com/browser/trunk/libtransmission/transmission.h - tr_sched_day
-    public static class AltSpeedDay {
+    @Exclude public static class AltSpeedDay {
         public static final int SUN = (1<<0);
         public static final int MON = (1<<1);
         public static final int TUE = (1<<2);
@@ -56,7 +58,7 @@ public class TransmissionSession {
         public static final int ALL = (WEEKDAY|WEEKEND);
     }
     
-    public static class Encryption {
+    @Exclude public static class Encryption {
         public static final String REQUIRED = "required";
         public static final String PREFERRED = "preferred";
         public static final String TOLERATED = "tolerated";

@@ -1,6 +1,7 @@
 package us.supositi.gearshift;
 
 import java.text.MessageFormat;
+import java.util.ArrayList;
 import java.util.HashSet;
 
 import us.supositi.gearshift.dummy.DummyContent;
@@ -103,10 +104,7 @@ public class TorrentListFragment extends ListFragment {
         @Override
         public android.support.v4.content.Loader<TransmissionProfile[]> onCreateLoader(
                 int id, Bundle args) {
-            if (id == PROFILES_LOADER_ID) {
-                return new TransmissionProfileSupportLoader(getActivity()); 
-            }
-            return null;
+            return new TransmissionProfileSupportLoader(getActivity()); 
         }
 
         @Override
@@ -133,12 +131,41 @@ public class TorrentListFragment extends ListFragment {
                 }
                 index++;
             }
+            
+            if (mCurrentProfile == null && profiles.length > 0)
+                mCurrentProfile = profiles[0];
+            getActivity().getSupportLoaderManager().initLoader(TORRENTS_LOADER_ID, null, mTorrentLoaderCallbacks);
         }
 
         @Override
         public void onLoaderReset(
                 android.support.v4.content.Loader<TransmissionProfile[]> loader) {
             mProfileAdapter.clear();
+        }
+        
+    };
+
+    private LoaderCallbacks<ArrayList<Torrent>> mTorrentLoaderCallbacks = new LoaderCallbacks<ArrayList<Torrent>>() {
+
+        @Override
+        public android.support.v4.content.Loader<ArrayList<Torrent>> onCreateLoader(
+                int id, Bundle args) {
+            TorrentListActivity.logD("Starting the torrents loader with profile " + mCurrentProfile);
+            if (mCurrentProfile == null) return null;
+
+            return new TorrentSupportLoader(getActivity(), mCurrentProfile);
+        }
+
+        @Override
+        public void onLoadFinished(
+                android.support.v4.content.Loader<ArrayList<Torrent>> loader,
+                ArrayList<Torrent> torrents) {
+
+        }
+
+        @Override
+        public void onLoaderReset(
+                android.support.v4.content.Loader<ArrayList<Torrent>> loader) {
         }
         
     };
@@ -184,7 +211,8 @@ public class TorrentListFragment extends ListFragment {
                 @Override
                 public boolean onNavigationItemSelected(int pos, long id) {
                     TransmissionProfile profile = mProfileAdapter.getItem(pos);
-                    TransmissionProfile.setCurrentProfile(profile, getActivity());
+                    if (profile != TransmissionProfileListAdapter.EMPTY_PROFILE)
+                        TransmissionProfile.setCurrentProfile(profile, getActivity());
                     
                     return false;
                 }

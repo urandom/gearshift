@@ -15,7 +15,7 @@ import android.preference.PreferenceManager;
 
 public class TransmissionProfile implements Parcelable, Comparable<TransmissionProfile> {
     public static final String PREF_PROFILES = "profiles";
-    public static final String PREF_CURRENT_PROFILE = "default_profiles";
+    public static final String PREF_CURRENT_PROFILE = "default_profile";
     
     public static final String PREF_NAME = "profile_name";
     public static final String PREF_HOST = "profile_host";
