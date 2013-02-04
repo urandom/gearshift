@@ -1,7 +1,8 @@
 package us.supositi.gearshift;
 
 import java.text.DecimalFormat;
-import java.util.ArrayList;
+
+import android.content.Context;
 
 import com.google.gson.annotations.SerializedName;
 
@@ -18,7 +19,7 @@ public class Torrent {
     /* User selected */
     @SerializedName("percentDone") private float mPercentDone = 0;
     
-    @SerializedName("eta") private long mEta;
+    @SerializedName("eta") private int mEta;
     
     @SerializedName("isFinished") private boolean mFinished = false;
     @SerializedName("isStalled") private boolean mStalled = true;
@@ -366,7 +367,7 @@ public class Torrent {
         return mPercentDone;
     }
 
-    public long getEta() {
+    public int getEta() {
         return mEta;
     }
 
@@ -550,7 +551,7 @@ public class Torrent {
         this.mPercentDone = percentDone;
     }
 
-    public void setEta(long eta) {
+    public void setEta(int eta) {
         this.mEta = eta;
     }
 
@@ -706,6 +707,15 @@ public class Torrent {
         this.mPeers = peers;
     }
 
+    public boolean isPaused() {
+        return mStatus == Status.STOPPED && !mFinished;
+    }
+
+    public boolean isSeeding() {
+        return mStatus == Status.SEEDING;
+    }
+
+
     public void updateFrom(Torrent source, String[] fields) {
         if (fields == null) return;
         
@@ -811,4 +821,44 @@ public class Torrent {
         return new DecimalFormat("#,##0.#").format(size/Math.pow(1024, digitGroups)) + " " + units[digitGroups];
     }
 
+    public static String readablePercent(float percent) {
+        if (percent < 10.0) {
+            return new DecimalFormat("#.##").format(percent);
+        } else if (percent < 100.0) {
+            return new DecimalFormat("#.#").format(percent);
+        } else {
+            return new DecimalFormat("#").format(percent);
+        }
+    }
+
+    public static String readableRemainingTime(int eta, Context context) {
+        int days = (int) Math.floor(eta / 86400);
+        int hours = (int) Math.floor((eta % 86400) / 3600);
+        int minutes = (int) Math.floor((eta % 3600) / 60);
+        int seconds = (int) Math.floor(eta % 60);
+        String d = Integer.toString(days) + ' ' + context.getString(days > 1 ? R.string.time_days : R.string.time_day);
+        String h = Integer.toString(hours) + ' ' + context.getString(hours > 1 ? R.string.time_hours : R.string.time_hour);
+        String m = Integer.toString(minutes) + ' ' + context.getString(minutes > 1 ? R.string.time_minutes : R.string.time_minute);
+        String s = Integer.toString(seconds) + ' ' + context.getString(seconds > 1 ? R.string.time_seconds : R.string.time_second);
+
+        if (days > 0) {
+            if (days >= 4 || hours == 0)
+                return d;
+            return d + ", " + h;
+        }
+
+        if (hours > 0) {
+            if (hours >= 4 || minutes == 0)
+                return h;
+            return h + ", " + m;
+        }
+
+        if (minutes > 0) {
+            if (minutes >= 4 || seconds == 0)
+                return m;
+            return m + ", " + s;
+        }
+        
+        return s;
+    }
 }

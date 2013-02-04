@@ -116,19 +116,33 @@
     <string name="no_profiles_empty_list">&lt;h2&gt;No profile seems to have been created yet.&lt;/h2&gt;You should add one by visiting the &lt;i&gt;settings&lt;/i&gt;.</string>
     <string name="no_torrents_empty_list">&lt;h2&gt;We got through!&lt;/h2&gt;You just have to add some torrents now.</string>
     
-    <string name="traffic_downloading_format">{0} of {1} ({2}) - {3}</string>
-    <string name="traffic_uploading_format">{0}, uploaded {1} ({2}) {3}</string>
-    <string name="traffic_uploading_ratio_format">Ratio: {0} {1}</string>
-    <string name="traffic_uploading_ratio_goal_format">Goal: {0}</string>
+    <string name="traffic_downloading_format">{0} of {1} ({2}){3}</string>
+    <string name="traffic_downloading_percentage_format">{0}%</string>
+    <string name="traffic_seeding_format">{0}, uploaded {1} ({2}){3}</string>
+    <string name="traffic_seeding_ratio_format">Ratio: {0}{1}</string>
+    <string name="traffic_seeding_ratio_goal_format"> Goal: {0}</string>
+    <string name="traffic_remaining_time_format"> - &lt;i&gt;{0} remaining&lt;/i&gt;</string>
     
     <string name="status_format">{0} {1}</string>
-    <string name="status_downloading"><b>Downloading</b></string>
-    <string name="status_uploading"><b>Seeding</b></string>
-    <string name="status_stopped"><b>Stopped</b></string>
-    <string name="status_checking"><b>Checking</b></string>
-    <string name="status_more_downloading_format"> from {0} of {1} connected peers - <i>{2}</i></string>
+    <string name="status_downloading">&lt;b&gt;Downloading&lt;/b&gt;</string>
+    <string name="status_downloading_metadata">&lt;b&gt;Downloading metadata&lt;/b&gt;</string>
+    <string name="status_seeding">&lt;b&gt;Seeding&lt;/b&gt;</string>
+    <string name="status_download_waiting">&lt;b&gt;Queued for downloading&lt;/b&gt;</string>
+    <string name="status_seed_waiting">&lt;b&gt;Queued for seeding&lt;/b&gt;</string>
+    <string name="status_stopped">&lt;b&gt;Stopped&lt;/b&gt;</string>
+    <string name="status_checking">&lt;b&gt;Checking&lt;/b&gt;</string>
+    <string name="status_more_downloading_format"> from {0} of {1} connected peers - &lt;i&gt;{2}&lt;/i&gt;</string>
     <string name="status_more_downloading_speed_format">&#x2193; {0}/s, &#x2191; {1}/s</string>
-    <string name="status_more_uploading_format"> to {0} of {1} connected peers - <i>{2}</i></string>
-    <string name="status_more_uploading_speed_format">&#x2191; {0}/s</string>
+    <string name="status_more_seeding_format"> to {0} of {1} connected peers - &lt;i&gt;{2}&lt;/i&gt;</string>
+    <string name="status_more_seeding_speed_format">&#x2191; {0}/s</string>
     <string name="status_more_idle">Idle</string>
+
+    <string name="time_days">days</string>
+    <string name="time_day">day</string>
+    <string name="time_hours">hours</string>
+    <string name="time_hour">hour</string>
+    <string name="time_minutes">minutes</string>
+    <string name="time_minute">minute</string>
+    <string name="time_seconds">seconds</string>
+    <string name="time_second">second</string>
 </resources>
