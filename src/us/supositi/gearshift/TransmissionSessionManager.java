@@ -95,8 +95,26 @@ public class TransmissionSessionManager {
         return response;
     }
     
-    public ActiveTorrentGetResponse getActiveTorrents() throws ManagerException {
-        ActiveTorrentGetRequest request = new ActiveTorrentGetRequest(/* FIELDS */);
+    public SessionStatsResponse getSessionStats() throws ManagerException {
+        TransmissionSessionStats stats = null;
+        SessionStatsRequest request = new SessionStatsRequest();
+        
+        String json;
+        try {
+            json = requestData(request);
+        } catch (IOException e) {
+            e.printStackTrace();
+            
+            throw new ManagerException(e.getMessage(), -1);
+        }
+        Gson gson = new GsonBuilder().setExclusionStrategies(new TransmissionExclusionStrategy()).create();
+        SessionStatsResponse response = gson.fromJson(json, SessionStatsResponse.class);
+                
+        return response;
+    }
+    
+    public ActiveTorrentGetResponse getActiveTorrents(String[] fields) throws ManagerException {
+        ActiveTorrentGetRequest request = new ActiveTorrentGetRequest(fields);
         String json;
         
         try {
@@ -112,8 +130,8 @@ public class TransmissionSessionManager {
         return response;
     }    
     
-    public TorrentGetResponse getAllTorrents() throws ManagerException {
-        AllTorrentGetRequest request = new AllTorrentGetRequest(/* FIELDS */);
+    public TorrentGetResponse getAllTorrents(String[] fields) throws ManagerException {
+        AllTorrentGetRequest request = new AllTorrentGetRequest(fields);
         String json;
 
         try {
@@ -129,8 +147,8 @@ public class TransmissionSessionManager {
         return response;
     }
     
-    public TorrentGetResponse getTorrents(int[] ids) throws ManagerException {
-        TorrentGetRequest request = new TorrentGetRequest(ids/*, FIELDS */);
+    public TorrentGetResponse getTorrents(int[] ids, String[] fields) throws ManagerException {
+        TorrentGetRequest request = new TorrentGetRequest(ids, fields);
         String json;
 
         try {
@@ -203,7 +221,6 @@ public class TransmissionSessionManager {
                 mInvalidSessionRetries = 0;
             }
 
-            TorrentListActivity.logD("The response is: " + code);
             is = conn.getInputStream();
     
             // Convert the InputStream into a string
@@ -268,8 +285,8 @@ public class TransmissionSessionManager {
         @SerializedName("method") private final String method = "torrent-get";
         @SerializedName("arguments") private Arguments arguments;
 
-        public AllTorrentGetRequest(String[]... fields) {
-            this.arguments = new Arguments(concat(fields));
+        public AllTorrentGetRequest(String[] fields) {
+            this.arguments = new Arguments(fields);
         }
 
         private static class Arguments {
@@ -285,8 +302,8 @@ public class TransmissionSessionManager {
        @SerializedName("method") private final String method = "torrent-get";
        @SerializedName("arguments") private Arguments arguments;
 
-       public TorrentGetRequest(int[] ids, String[]... fields) {
-           this.arguments = new Arguments(ids, concat(fields));
+       public TorrentGetRequest(int[] ids, String[] fields) {
+           this.arguments = new Arguments(ids, fields);
        }
 
        private static class Arguments {
@@ -304,8 +321,8 @@ public class TransmissionSessionManager {
        @SerializedName("method") private final String method = "torrent-get";
        @SerializedName("arguments") private Arguments arguments;
 
-       public ActiveTorrentGetRequest(String[]... fields) {
-           this.arguments = new Arguments(concat(fields));
+       public ActiveTorrentGetRequest(String[] fields) {
+           this.arguments = new Arguments(fields);
        }
 
        private static class Arguments {
@@ -331,6 +348,14 @@ public class TransmissionSessionManager {
 
         public TransmissionSession getSession() {
             return mSession;
+        }
+    }
+    
+    public static class SessionStatsResponse extends Response {
+        @SerializedName("arguments") private final TransmissionSessionStats mStats = null;
+
+        public TransmissionSessionStats getStats() {
+            return mStats;
         }
     }
     
@@ -373,22 +398,5 @@ public class TransmissionSessionManager {
                 return mRemoved;
             }
         }
-    }
-
-    public static String[] concat(String[]... arrays) {
-        int len = 0;
-        for (final String[] array : arrays) {
-            len += array.length;
-        }
-
-        final String[] result = new String[len];
-
-        int currentPos = 0;
-        for (final String[] array : arrays) {
-            System.arraycopy(array, 0, result, currentPos, array.length);
-            currentPos += array.length;
-        }
-
-        return result;
     }
 }

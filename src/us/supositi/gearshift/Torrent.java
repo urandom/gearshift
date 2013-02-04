@@ -114,10 +114,10 @@ public class Torrent {
          * startup or when a magnet finishes downloading its metadata finishes
          * downloading its metadata
          * */
-        public String[] METADATA = { "addedDate", "name", "totalSize" };
+        public static final String[] METADATA = { "addedDate", "name", "totalSize" };
 
         // commonly used fields which need to be periodically refreshed
-        public String[] STATS = {
+        public static final String[] STATS = {
             "id", "error", "errorString", "eta", "isFinished", "isStalled",
             "leftUntilDone", "metadataPercentComplete", "peersConnected",
             "peersGettingFromUs", "peersSendingToUs", "percentDone",
@@ -128,13 +128,13 @@ public class Torrent {
         };
 
         // fields used by the inspector which only need to be loaded once
-        public String[] INFO_EXTRA = {
+        public static final String[] INFO_EXTRA = {
             "comment", "creator", "dateCreated", "files", "hashString",
             "isPrivate", "pieceCount", "pieceSize"
         };
 
         // fields used in the inspector which need to be periodically refreshed
-        public String[] STATS_EXTRA = {
+        public static final String[] STATS_EXTRA = {
             "activityDate", "corruptEver", "desiredAvailable", "downloadDir",
             "downloadedEver", "fileStats", "haveUnchecked", "haveValid",
             "peers", "startDate", /*"trackerStats",*/ "webseedsSendingToUs"
