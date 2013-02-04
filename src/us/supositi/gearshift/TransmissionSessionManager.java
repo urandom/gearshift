@@ -13,8 +13,11 @@ import java.util.zip.GZIPInputStream;
 import java.util.zip.InflaterInputStream;
 
 import android.content.Context;
+import android.content.SharedPreferences;
+import android.content.SharedPreferences.Editor;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.preference.PreferenceManager;
 
 import com.google.gson.ExclusionStrategy;
 import com.google.gson.FieldAttributes;
@@ -47,6 +50,8 @@ public class TransmissionSessionManager {
         }
     }
     
+    public final static String PREF_LAST_SESSION_ID = "last_session_id";
+    
     private Context mContext;
     private TransmissionProfile mProfile;
     
@@ -55,12 +60,16 @@ public class TransmissionSessionManager {
     private String mSessionId;
     
     private int mInvalidSessionRetries = 0;
+    private SharedPreferences mDefaultPrefs;
     
     public TransmissionSessionManager(Context context, TransmissionProfile profile) {
         mContext = context;
         mProfile = profile;
         
         mConnManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        mDefaultPrefs = PreferenceManager.getDefaultSharedPreferences(context);
+        
+        mSessionId = mDefaultPrefs.getString(PREF_LAST_SESSION_ID, null);
     }
     
     public boolean hasConnectivity() {
@@ -68,18 +77,74 @@ public class TransmissionSessionManager {
         return (info != null);
     }
     
-    public TransmissionSession getSession() throws IOException, ManagerException {
+    public SessionGetResponse getSession() throws ManagerException {
         TransmissionSession session = null;
         SessionGetRequest request = new SessionGetRequest();
         
-        String json = requestData(request);
+        String json;
+        try {
+            json = requestData(request);
+        } catch (IOException e) {
+            e.printStackTrace();
+            
+            throw new ManagerException(e.getMessage(), -1);
+        }
         Gson gson = new GsonBuilder().setExclusionStrategies(new TransmissionExclusionStrategy()).create();
         SessionGetResponse response = gson.fromJson(json, SessionGetResponse.class);
-        session = response.getSession();
                 
-        return session;
+        return response;
     }
     
+    public ActiveTorrentGetResponse getActiveTorrents() throws ManagerException {
+        ActiveTorrentGetRequest request = new ActiveTorrentGetRequest(/* FIELDS */);
+        String json;
+        
+        try {
+            json = requestData(request);
+        } catch (IOException e) {
+            e.printStackTrace();
+            
+            throw new ManagerException(e.getMessage(), -1);
+        }
+        Gson gson = new GsonBuilder().setExclusionStrategies(new TransmissionExclusionStrategy()).create();
+        ActiveTorrentGetResponse response = gson.fromJson(json, ActiveTorrentGetResponse.class);
+
+        return response;
+    }    
+    
+    public TorrentGetResponse getAllTorrents() throws ManagerException {
+        AllTorrentGetRequest request = new AllTorrentGetRequest(/* FIELDS */);
+        String json;
+
+        try {
+            json = requestData(request);
+        } catch (IOException e) {
+            e.printStackTrace();
+            
+            throw new ManagerException(e.getMessage(), -1);
+        }
+        Gson gson = new GsonBuilder().setExclusionStrategies(new TransmissionExclusionStrategy()).create();
+        TorrentGetResponse response = gson.fromJson(json, TorrentGetResponse.class);
+
+        return response;
+    }
+    
+    public TorrentGetResponse getTorrents(int[] ids) throws ManagerException {
+        TorrentGetRequest request = new TorrentGetRequest(ids/*, FIELDS */);
+        String json;
+
+        try {
+            json = requestData(request);
+        } catch (IOException e) {
+            e.printStackTrace();
+            
+            throw new ManagerException(e.getMessage(), -1);
+        }
+        Gson gson = new GsonBuilder().setExclusionStrategies(new TransmissionExclusionStrategy()).create();
+        TorrentGetResponse response = gson.fromJson(json, TorrentGetResponse.class);
+
+        return response;
+    }
     private String requestData(Object data) throws IOException, ManagerException {
         OutputStream os = null;
         InputStream is = null;
@@ -170,7 +235,14 @@ public class TransmissionSessionManager {
     }
     
     private String getSessionId(HttpURLConnection conn) {
-        return conn.getHeaderField("X-Transmission-Session-Id");
+        String id = conn.getHeaderField("X-Transmission-Session-Id");
+        
+        if (id != null && !id.equals("")) {
+            Editor e = mDefaultPrefs.edit();
+            e.putString(PREF_LAST_SESSION_ID, id);
+            e.commit();
+        }
+        return id;
     }
     
     private String inputStreamToString(InputStream stream) throws IOException {
@@ -191,6 +263,23 @@ public class TransmissionSessionManager {
     private static class SessionStatsRequest {
        @SerializedName("method") private final String method = "session-stats";
     }
+    
+    private static class AllTorrentGetRequest {
+        @SerializedName("method") private final String method = "torrent-get";
+        @SerializedName("arguments") private Arguments arguments;
+
+        public AllTorrentGetRequest(String[]... fields) {
+            this.arguments = new Arguments(concat(fields));
+        }
+
+        private static class Arguments {
+            @SerializedName("fields") private String[] fields;
+
+            public Arguments(String[] fields) {
+                this.fields = fields;
+            }
+        }
+     }
 
     private static class TorrentGetRequest {
        @SerializedName("method") private final String method = "torrent-get";
@@ -211,11 +300,11 @@ public class TransmissionSessionManager {
        }
     }
 
-    private static class RecentTorrentGetRequest {
+    private static class ActiveTorrentGetRequest {
        @SerializedName("method") private final String method = "torrent-get";
        @SerializedName("arguments") private Arguments arguments;
 
-       public RecentTorrentGetRequest(String[]... fields) {
+       public ActiveTorrentGetRequest(String[]... fields) {
            this.arguments = new Arguments(concat(fields));
        }
 
@@ -229,7 +318,7 @@ public class TransmissionSessionManager {
        }
     }
 
-    private static class Response {
+    public static class Response {
         @SerializedName("result") protected final String mResult = null;
 
         public String getResult() {
@@ -237,11 +326,52 @@ public class TransmissionSessionManager {
         }
     }
 
-    private static class SessionGetResponse extends Response {
+    public static class SessionGetResponse extends Response {
         @SerializedName("arguments") private final TransmissionSession mSession = null;
 
         public TransmissionSession getSession() {
             return mSession;
+        }
+    }
+    
+    public static class TorrentGetResponse extends Response {
+        @SerializedName("arguments") private final TorrentsArguments mTorrentsArguments = null;
+
+        public Torrent[] getTorrents() {
+            return mTorrentsArguments.getTorrents();
+        }
+        
+        private static class TorrentsArguments {
+            @SerializedName("torrents") private final Torrent[] mTorrents = null;
+
+            public Torrent[] getTorrents() {
+                return mTorrents;
+            }
+        }
+    }
+    
+    public static class ActiveTorrentGetResponse extends Response {
+        @SerializedName("arguments") private final ActiveTorrentsArguments mActiveTorrentsArguments = null;
+
+        public Torrent[] getTorrents() {
+            return mActiveTorrentsArguments.getTorrents();
+        }
+        
+        public int[] getRemoved() {
+            return mActiveTorrentsArguments.getRemoved();
+        }
+        
+        private static class ActiveTorrentsArguments {
+            @SerializedName("torrents") private final Torrent[] mTorrents = null;
+            @SerializedName("removed") private final int[] mRemoved = null;
+
+            public Torrent[] getTorrents() {
+                return mTorrents;
+            }
+            
+            public int[] getRemoved() {
+                return mRemoved;
+            }
         }
     }
 

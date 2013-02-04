@@ -5,7 +5,7 @@
     android:orientation="vertical" >
     
     <include
-        layout="@android:layout/list_content"
+        layout="@layout/torrents_listview"
         android:id="@+id/list_panel"
         android:layout_width="match_parent"
         android:layout_height="0dip"

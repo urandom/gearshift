@@ -117,6 +117,7 @@ public class TorrentListFragment extends ListFragment {
                 mProfileAdapter.addAll(profiles);
             } else {
                 mProfileAdapter.add(TransmissionProfileListAdapter.EMPTY_PROFILE);
+                setEmptyText(R.string.no_profiles_empty_list);
             }
             
             String currentId = TransmissionProfile.getCurrentProfileId(getActivity());
@@ -145,27 +146,32 @@ public class TorrentListFragment extends ListFragment {
         
     };
 
-    private LoaderCallbacks<ArrayList<Torrent>> mTorrentLoaderCallbacks = new LoaderCallbacks<ArrayList<Torrent>>() {
+    private LoaderCallbacks<TransmissionSessionData> mTorrentLoaderCallbacks = new LoaderCallbacks<TransmissionSessionData>() {
 
         @Override
-        public android.support.v4.content.Loader<ArrayList<Torrent>> onCreateLoader(
+        public android.support.v4.content.Loader<TransmissionSessionData> onCreateLoader(
                 int id, Bundle args) {
             TorrentListActivity.logD("Starting the torrents loader with profile " + mCurrentProfile);
             if (mCurrentProfile == null) return null;
 
-            return new TorrentSupportLoader(getActivity(), mCurrentProfile);
+            return new TransmissionSessionLoader(getActivity(), mCurrentProfile);
         }
 
         @Override
         public void onLoadFinished(
-                android.support.v4.content.Loader<ArrayList<Torrent>> loader,
-                ArrayList<Torrent> torrents) {
+                android.support.v4.content.Loader<TransmissionSessionData> loader,
+                TransmissionSessionData data) {
 
+            if (data.torrents.length > 0) {
+                
+            } else {
+                setEmptyText(R.string.no_torrents_empty_list);
+            }
         }
 
         @Override
         public void onLoaderReset(
-                android.support.v4.content.Loader<ArrayList<Torrent>> loader) {
+                android.support.v4.content.Loader<TransmissionSessionData> loader) {
         }
         
     };
@@ -183,7 +189,8 @@ public class TorrentListFragment extends ListFragment {
         
         mDefaultPrefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
 
-        mTorrentListAdapter = new TorrentListAdapter(getActivity());
+        mTorrentListAdapter = new TorrentListAdapter(getActivity());        
+        /*
         mTorrentListAdapter.add(new Torrent(1, "Item 1"));
         mTorrentListAdapter.add(new Torrent(2, "Item 2"));
         Torrent torrent = new Torrent(3, "Item 3");
@@ -194,6 +201,7 @@ public class TorrentListFragment extends ListFragment {
         torrent.setPercentDone(0.3f);
         torrent.setStatus(Torrent.Status.DOWNLOAD_WAITING);
         mTorrentListAdapter.add(torrent);
+        */
         setListAdapter(mTorrentListAdapter);
 
         
@@ -399,6 +407,12 @@ public class TorrentListFragment extends ListFragment {
             default:
                 return super.onOptionsItemSelected(item);
         }
+    }
+    
+    public void setEmptyText(int stringId) {
+        Spanned text = Html.fromHtml(getString(stringId));
+        
+        ((TextView) getListView().getEmptyView()).setText(text);
     }
     
     /**

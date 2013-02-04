@@ -38,7 +38,7 @@ import com.slidingmenu.lib.app.SlidingFragmentActivity;
  * to listen for item selections.
  */
 public class TorrentListActivity extends SlidingFragmentActivity
-        implements TorrentListFragment.Callbacks, TorrentListInterface {
+        implements TorrentListFragment.Callbacks {
     
     /**
      * Whether or not the activity is in two-pane mode, i.e. running on a tablet
@@ -223,13 +223,5 @@ public class TorrentListActivity extends SlidingFragmentActivity
         
         t.printStackTrace(pw);
         Log.d(LogTag, sw.toString());
-    }
-    
-    public Torrent[] getTorrents() {
-        return mTorrents;
-    }
-    
-    public void setTorrents(Torrent[] torrents) {
-        mTorrents = torrents;
     }
 }

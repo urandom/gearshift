@@ -706,11 +706,109 @@ public class Torrent {
         this.mPeers = peers;
     }
 
+    public void updateFrom(Torrent source, String[] fields) {
+        if (fields == null) return;
+        
+        for (String field : fields) {
+            if (field.equals("addedDate")) {
+                setAddedDate(source.getAddedDate());
+            } else if (field.equals("name")) {
+                setName(source.getName());
+            } else if (field.equals("totalSize")) {
+                setTotalSize(source.getTotalSize());
+            } else if (field.equals("error")) {
+                setError(source.getError());
+            } else if (field.equals("errorString")) {
+                setErrorString(source.getErrorString());
+            } else if (field.equals("eta")) {
+                setEta(source.getEta());
+            } else if (field.equals("isFinished")) {
+                setFinished(source.isFinished());
+            } else if (field.equals("isStalled")) {
+                setStalled(source.isStalled());
+            } else if (field.equals("leftUntilDone")) {
+                setLeftUntilDone(source.getLeftUntilDone());
+            } else if (field.equals("metadataPercentComplete")) {
+                setMetadataPercentComplete(source.getMetadataPercentComplete());
+            } else if (field.equals("peersConnected")) {
+                setPeersConnected(source.getPeersConnected());
+            } else if (field.equals("peersGettingFromUs")) {
+                setPeersGettingFromUs(source.getPeersGettingFromUs());
+            } else if (field.equals("peersSendingToUs")) {
+                setPeersSendingToUs(source.getPeersSendingToUs());
+            } else if (field.equals("percentDone")) {
+                setPercentDone(source.getPercentDone());
+            } else if (field.equals("queuePosition")) {
+                setQueuePosition(source.getQueuePosition());
+            } else if (field.equals("rateDownload")) {
+                setRateDownload(source.getRateDownload());
+            } else if (field.equals("rateUpload")) {
+                setRateUpload(source.getRateUpload());
+            } else if (field.equals("recheckProgress")) {
+                setRecheckProgress(source.getRecheckProgress());
+            } else if (field.equals("seedRatioMode")) {
+                setSeedRatioMode(source.getSeedRatioMode());
+            } else if (field.equals("seedRatioLimit")) {
+                setSeedRatioLimit(source.getSeedRatioLimit());
+            } else if (field.equals("sizeWhenDone")) {
+                setSizeWhenDone(source.getSizeWhenDone());
+            } else if (field.equals("status")) {
+                setStatus(source.getStatus());
+            } else if (field.equals("trackers")) {
+                setTrackers(source.getTrackers());
+            } else if (field.equals("uploadedEver")) {
+                setUploadedEver(source.getUploadedEver());
+            } else if (field.equals("uploadRatio")) {
+                setUploadRatio(source.getUploadRatio());
+            } else if (field.equals("comment")) {
+                setComment(source.getComment());
+            } else if (field.equals("creator")) {
+                setCreator(source.getCreator());
+            } else if (field.equals("dateCreated")) {
+                setDateCreated(source.getDateCreated());
+            } else if (field.equals("files")) {
+                setFiles(source.getFiles());
+            } else if (field.equals("hashString")) {
+                setHashString(source.getHashString());
+            } else if (field.equals("isPrivate")) {
+                setPrivate(source.isPrivate());
+            } else if (field.equals("pieceCount")) {
+                setPieceCount(source.getPieceCount());
+            } else if (field.equals("pieceSize")) {
+                setPieceSize(source.getPieceSize());
+            } else if (field.equals("activityDate")) {
+                setActivityDate(source.getActivityDate());
+            } else if (field.equals("corruptEver")) {
+                setCorruptEver(source.getCorruptEver());
+            } else if (field.equals("desiredAvailable")) {
+                setDesiredAvailable(source.getDesiredAvailable());
+            } else if (field.equals("downloadDir")) {
+                setDownloadDir(source.getDownloadDir());
+            } else if (field.equals("downloadedEver")) {
+                setDownloadedEver(source.getDownloadedEver());
+            } else if (field.equals("fileStats")) {
+                setFileStats(source.getFileStats());
+            } else if (field.equals("haveUnchecked")) {
+                setHaveUnchecked(source.getHaveUnchecked());
+            } else if (field.equals("haveValid")) {
+                setHaveValid(source.getHaveValid());
+            } else if (field.equals("peers")) {
+                setPeers(source.getPeers());
+            } else if (field.equals("startDate")) {
+                setStartDate(source.getStartDate());
+            } else if (field.equals("webseedsSendingToUs")) {
+                setWebseedsSendingToUs(source.getWebseedsSendingToUs());
+            // } else if (field.equals("trackerStats")) {
+            //     setTrackerStats(source.getTrackerStats());
+            }
+        }
+    }
+
     public static String readableFileSize(long size) {
         if(size <= 0) return "0";
         final String[] units = new String[] { "B", "KB", "MB", "GB", "TB" };
         int digitGroups = (int) (Math.log10(size)/Math.log10(1024));
         return new DecimalFormat("#,##0.#").format(size/Math.pow(1024, digitGroups)) + " " + units[digitGroups];
     }
-}
 
+}
