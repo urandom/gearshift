@@ -120,8 +120,8 @@
     <string name="traffic_downloading_percentage_format">{0}%</string>
     <string name="traffic_seeding_format">{0}, uploaded {1} ({2}){3}</string>
     <string name="traffic_seeding_ratio_format">Ratio: {0}{1}</string>
-    <string name="traffic_seeding_ratio_goal_format"> Goal: {0}</string>
-    <string name="traffic_remaining_time_format"> - &lt;i&gt;{0} remaining&lt;/i&gt;</string>
+    <string name="traffic_seeding_ratio_goal_format">, Goal: {0}</string>
+    <string name="traffic_remaining_time_format">&#160;- &lt;i&gt;{0} remaining&lt;/i&gt;</string>
     
     <string name="status_format">{0} {1}</string>
     <string name="status_downloading">&lt;b&gt;Downloading&lt;/b&gt;</string>

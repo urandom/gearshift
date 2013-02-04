@@ -18,7 +18,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceListItem"
-        android:textSize="16sp"
+        android:textSize="@dimen/torrent_list_name_text_size"
         android:textStyle="bold" />
     
     <TextView
@@ -26,7 +26,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceListItemSmall"
-        android:textSize="10sp" />
+        android:textSize="@dimen/torrent_list_traffic_text_size" />
 
     <ProgressBar
         android:id="@+id/progress"
@@ -42,6 +42,7 @@
         android:id="@+id/status"
         android:layout_width="wrap_content"
      	android:layout_height="wrap_content"
-        android:textAppearanceSmall="?android:attr/textAppearanceListItemSmall" />
+        android:textAppearanceSmall="?android:attr/textAppearanceListItemSmall"
+        android:textSize="@dimen/torrent_list_status_text_size" />
 
 </LinearLayout>
