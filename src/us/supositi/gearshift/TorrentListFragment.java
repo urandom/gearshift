@@ -75,6 +75,8 @@ public class TorrentListFragment extends ListFragment {
     private static final int TORRENTS_LOADER_ID = 2;
         
     private TransmissionProfile mCurrentProfile;
+    private TransmissionSession mSession;
+    private TransmissionSessionStats mSessionStats;
     
     private SharedPreferences mDefaultPrefs;
     
@@ -162,8 +164,15 @@ public class TorrentListFragment extends ListFragment {
                 android.support.v4.content.Loader<TransmissionSessionData> loader,
                 TransmissionSessionData data) {
 
+            if (data.session != null)
+                mSession = data.session;
+            if (data.stats != null)
+                mSessionStats = data.stats;
+
             if (data.torrents.length > 0) {
-                
+                mTorrentListAdapter.clear();
+                mTorrentListAdapter.addAll(data.torrents);
+                mTorrentListAdapter.notifyDataSetChanged();
             } else {
                 setEmptyText(R.string.no_torrents_empty_list);
             }
@@ -190,18 +199,6 @@ public class TorrentListFragment extends ListFragment {
         mDefaultPrefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
 
         mTorrentListAdapter = new TorrentListAdapter(getActivity());        
-        /*
-        mTorrentListAdapter.add(new Torrent(1, "Item 1"));
-        mTorrentListAdapter.add(new Torrent(2, "Item 2"));
-        Torrent torrent = new Torrent(3, "Item 3");
-        torrent.setPercentDone(1f);
-        torrent.setStatus(Torrent.Status.SEEDING);
-        mTorrentListAdapter.add(torrent);
-        torrent = new Torrent(4, "Item 4");
-        torrent.setPercentDone(0.3f);
-        torrent.setStatus(Torrent.Status.DOWNLOAD_WAITING);
-        mTorrentListAdapter.add(torrent);
-        */
         setListAdapter(mTorrentListAdapter);
 
         
@@ -517,10 +514,18 @@ public class TorrentListFragment extends ListFragment {
                 progress.setSecondaryProgress(100);
                 
                 switch (torrent.getSeedRatioMode()) {
-                    case Torrent.SeedRatioMode.GLOBAL_LIMIT:
-                        /* TODO: implements session-get in the TransmissionProfile */
+                    case Torrent.SeedRatioMode.GLOBAL_LIMIT: {
+                        float limit = mSession.getSeedRatioLimit();
+                        float current = torrent.getUploadRatio();
+                        
+                        if (!mSession.isSeedRatioLimited() || current >= limit) {
+                            progress.setProgress(100);
+                        } else {
+                            progress.setProgress((int) (current / limit * 100));
+                        }
                         break;
-                    case Torrent.SeedRatioMode.TORRENT_LIMIT:
+                    }
+                    case Torrent.SeedRatioMode.TORRENT_LIMIT: {
                         float limit = torrent.getSeedRatioLimit();
                         float current = torrent.getUploadRatio();
                         
@@ -530,6 +535,7 @@ public class TorrentListFragment extends ListFragment {
                             progress.setProgress((int) (current / limit * 100));
                         }
                         break;
+                    }
                     case Torrent.SeedRatioMode.NO_LIMIT:
                         progress.setProgress(100);
                         break;

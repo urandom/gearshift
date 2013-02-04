@@ -63,4 +63,212 @@ public class TransmissionSession {
         public static final String PREFERRED = "preferred";
         public static final String TOLERATED = "tolerated";
     }
+
+    public boolean isAltSpeedEnabled() {
+        return mAltSpeedEnabled;
+    }
+
+    public long getAltSpeedDown() {
+        return mAltSpeedDown;
+    }
+
+    public long getAltSpeedUp() {
+        return mAltSpeedUp;
+    }
+
+    public boolean isAltSpeedTimeEnabled() {
+        return mAltSpeedTimeEnabled;
+    }
+
+    public int getAltSpeedTimeBegin() {
+        return mAltSpeedTimeBegin;
+    }
+
+    public int getAltSpeedTimeEnd() {
+        return mAltSpeedTimeEnd;
+    }
+
+    public boolean isBlocklistEnabled() {
+        return mBlocklistEnabled;
+    }
+
+    public int getBlocklistSize() {
+        return mBlocklistSize;
+    }
+
+    public boolean isDHTEnabled() {
+        return mDHTEnabled;
+    }
+
+    public String getEncryption() {
+        return mEncryption;
+    }
+
+    public String getDownloadDir() {
+        return mDownloadDir;
+    }
+
+    public int getPeerLimitGlobal() {
+        return mPeerLimitGlobal;
+    }
+
+    public int getPeerLimitPerTorrent() {
+        return mPeerLimitPerTorrent;
+    }
+
+    public boolean isPEXEnabled() {
+        return mPEXEnabled;
+    }
+
+    public int getPeerPort() {
+        return mPeerPort;
+    }
+
+    public boolean isPeerPortRandomOnStart() {
+        return mPeerPortRandomOnStart;
+    }
+
+    public boolean isPortForwardingEnabled() {
+        return mPortForwardingEnabled;
+    }
+
+    public int getRPCVersion() {
+        return mRPCVersion;
+    }
+
+    public int getRPCVersionMin() {
+        return mRPCVersionMin;
+    }
+
+    public float getSeedRatioLimit() {
+        return mSeedRatioLimit;
+    }
+
+    public boolean isSeedRatioLimited() {
+        return mSeedRatioLimited;
+    }
+
+    public long getSpeedLimitDown() {
+        return mSpeedLimitDown;
+    }
+
+    public boolean isSpeedLimitDownEnabled() {
+        return mSpeedLimitDownEnabled;
+    }
+
+    public long getSpeedLimitUp() {
+        return mSpeedLimitUp;
+    }
+
+    public boolean isSpeedLimitUpEnabled() {
+        return mSpeedLimitUpEnabled;
+    }
+
+    public String getVersion() {
+        return mVersion;
+    }
+
+    public void setAltSpeedEnabled(boolean altSpeedEnabled) {
+        mAltSpeedEnabled = altSpeedEnabled;
+    }
+
+    public void setAltSpeedDown(long altSpeedDown) {
+        mAltSpeedDown = altSpeedDown;
+    }
+
+    public void setAltSpeedUp(long altSpeedUp) {
+        mAltSpeedUp = altSpeedUp;
+    }
+
+    public void setAltSpeedTimeEnabled(boolean altSpeedTimeEnabled) {
+        mAltSpeedTimeEnabled = altSpeedTimeEnabled;
+    }
+
+    public void setAltSpeedTimeBegin(int altSpeedTimeBegin) {
+        mAltSpeedTimeBegin = altSpeedTimeBegin;
+    }
+
+    public void setAltSpeedTimeEnd(int altSpeedTimeEnd) {
+        mAltSpeedTimeEnd = altSpeedTimeEnd;
+    }
+
+    public void setBlocklistEnabled(boolean blocklistEnabled) {
+        mBlocklistEnabled = blocklistEnabled;
+    }
+
+    public void setBlocklistSize(int blocklistSize) {
+        mBlocklistSize = blocklistSize;
+    }
+
+    public void setDHTEnabled(boolean dHTEnabled) {
+        mDHTEnabled = dHTEnabled;
+    }
+
+    public void setEncryption(String encryption) {
+        mEncryption = encryption;
+    }
+
+    public void setDownloadDir(String downloadDir) {
+        mDownloadDir = downloadDir;
+    }
+
+    public void setPeerLimitGlobal(int peerLimitGlobal) {
+        mPeerLimitGlobal = peerLimitGlobal;
+    }
+
+    public void setPeerLimitPerTorrent(int peerLimitPerTorrent) {
+        mPeerLimitPerTorrent = peerLimitPerTorrent;
+    }
+
+    public void setPEXEnabled(boolean pEXEnabled) {
+        mPEXEnabled = pEXEnabled;
+    }
+
+    public void setPeerPort(int peerPort) {
+        mPeerPort = peerPort;
+    }
+
+    public void setPeerPortRandomOnStart(boolean peerPortRandomOnStart) {
+        mPeerPortRandomOnStart = peerPortRandomOnStart;
+    }
+
+    public void setPortForwardingEnabled(boolean portForwardingEnabled) {
+        mPortForwardingEnabled = portForwardingEnabled;
+    }
+
+    public void setRPCVersion(int rPCVersion) {
+        mRPCVersion = rPCVersion;
+    }
+
+    public void setRPCVersionMin(int rPCVersionMin) {
+        mRPCVersionMin = rPCVersionMin;
+    }
+
+    public void setSeedRatioLimit(float seedRatioLimit) {
+        mSeedRatioLimit = seedRatioLimit;
+    }
+
+    public void setSeedRatioLimited(boolean seedRatioLimited) {
+        mSeedRatioLimited = seedRatioLimited;
+    }
+
+    public void setSpeedLimitDown(long speedLimitDown) {
+        mSpeedLimitDown = speedLimitDown;
+    }
+
+    public void setSpeedLimitDownEnabled(boolean speedLimitDownEnabled) {
+        mSpeedLimitDownEnabled = speedLimitDownEnabled;
+    }
+
+    public void setSpeedLimitUp(long speedLimitUp) {
+        mSpeedLimitUp = speedLimitUp;
+    }
+
+    public void setSpeedLimitUpEnabled(boolean speedLimitUpEnabled) {
+        mSpeedLimitUpEnabled = speedLimitUpEnabled;
+    }
+
+    public void setVersion(String version) {
+        mVersion = version;
+    }
 }
