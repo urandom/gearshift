@@ -62,7 +62,7 @@ public class TorrentListFragment extends ListFragment {
     
     private boolean mAltSpeed = false;
     
-    private boolean mRefreshing = false;
+    private boolean mRefreshing = true;
     
     private boolean mIsCABDestroyed = false;
 
@@ -120,6 +120,8 @@ public class TorrentListFragment extends ListFragment {
             } else {
                 mProfileAdapter.add(TransmissionProfileListAdapter.EMPTY_PROFILE);
                 setEmptyText(R.string.no_profiles_empty_list);
+                mRefreshing = false;
+                getActivity().invalidateOptionsMenu();
             }
             
             String currentId = TransmissionProfile.getCurrentProfileId(getActivity());
@@ -176,6 +178,9 @@ public class TorrentListFragment extends ListFragment {
             } else {
                 setEmptyText(R.string.no_torrents_empty_list);
             }
+            
+            mRefreshing = false;
+            getActivity().invalidateOptionsMenu();
         }
 
         @Override
@@ -374,6 +379,12 @@ public class TorrentListFragment extends ListFragment {
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         inflater.inflate(R.menu.torrent_list_options, menu);
+        
+        MenuItem refresh = menu.findItem(R.id.menu_refresh);
+        if (mRefreshing)
+            refresh.setActionView(R.layout.action_progress_bar);
+        else
+            refresh.setActionView(null);
     }
     
     @Override
