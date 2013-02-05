@@ -169,9 +169,17 @@ public class TorrentListFragment extends ListFragment {
                 mSessionStats = data.stats;
 
             if (data.torrents.length > 0) {               
+                /* FIXME: This is just a hack to preserve the scroll position. */
+                ListView list = getListView();
+                int index = list.getFirstVisiblePosition();
+                View v = list.getChildAt(0);
+                int top = (v == null) ? 0 : v.getTop();
+
                 mTorrentListAdapter.clear();
                 mTorrentListAdapter.addAll(data.torrents);
                 mTorrentListAdapter.notifyDataSetChanged();
+
+                list.setSelectionFromTop(index, top);
             } else {
                 setEmptyText(R.string.no_torrents_empty_list);
             }
