@@ -49,7 +49,7 @@ public class TransmissionSessionLoader extends AsyncTaskLoader<TransmissionSessi
     
     private Torrent mCurrentTorrent;
     
-    private ArrayList<Integer> mNeedingMoreInfo = new ArrayList<Integer>();
+    private boolean mNeedsMoreInfo = false;
 
     private Handler mIntervalHandler = new Handler();
     private Runnable mIntervalRunner = new Runnable() {
@@ -106,7 +106,7 @@ public class TransmissionSessionLoader extends AsyncTaskLoader<TransmissionSessi
         int[] removed = null;
         String[] fields = null;
         
-        if (mIteration == 0 || mNeedingMoreInfo.size() > 0) {
+        if (mIteration == 0 || mNeedsMoreInfo) {
             fields = concat(Torrent.Fields.METADATA, Torrent.Fields.STATS);
         } else if (mCurrentTorrent != null) {
             fields = concat(new String[] {"id"}, Torrent.Fields.STATS_EXTRA);
@@ -119,13 +119,6 @@ public class TransmissionSessionLoader extends AsyncTaskLoader<TransmissionSessi
         try {
             if (mCurrentTorrent != null) {
                 torrents = mSessManager.getTorrents(new int[] {mCurrentTorrent.getId()}, fields).getTorrents();
-            } else if (mNeedingMoreInfo.size() > 0) {
-                int ids[] = new int[mNeedingMoreInfo.size()];
-                int index = 0;
-                for (Integer i : mNeedingMoreInfo)
-                    ids[index++] = i;
-                torrents = mSessManager.getTorrents(ids, fields).getTorrents();
-                mNeedingMoreInfo.clear();
             } else if (active) {
                 int full = mDefaultPrefs.getInt(GeneralSettingsFragment.PREF_FULL_UPDATE, 2);
                 
@@ -151,10 +144,11 @@ public class TransmissionSessionLoader extends AsyncTaskLoader<TransmissionSessi
                 }
             }
         }
-        
+        mNeedsMoreInfo = false;
+
         for (Torrent t : torrents) {
-            if (t.getTotalSize() == 0 && t.getMetadataPercentComplete() == 1) {
-                mNeedingMoreInfo.add(t.getId());
+            if (t.getTotalSize() == 0 && t.getMetadataPercentComplete() < 1) {
+                mNeedsMoreInfo = true;
             }
             Torrent torrent;
             if ((torrent = mTorrentMap.get(t.getId())) != null) {
@@ -162,7 +156,11 @@ public class TransmissionSessionLoader extends AsyncTaskLoader<TransmissionSessi
             } else {
                 mTorrents.add(t);
                 mTorrentMap.put(t.getId(), t);
+                torrent = t;
             }
+            torrent.setTransmissionSession(mSession);
+            torrent.setTrafficText(getContext());
+            torrent.setStatusText(getContext());
         }
 
         mIteration++;

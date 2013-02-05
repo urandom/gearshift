@@ -1,6 +1,5 @@
 package us.supositi.gearshift;
 
-import java.text.MessageFormat;
 import java.util.Arrays;
 
 import android.content.SharedPreferences;
@@ -67,7 +66,7 @@ public class BasePreferenceFragment extends PreferenceFragment implements OnShar
             String summary = (String) mSummaryPrefs[i][1];
                         
             if ((Integer) mSummaryPrefs[i][2] == -1)
-                pref.setSummary(MessageFormat.format(summary,
+                pref.setSummary(String.format(summary,
                     mSummaryPrefs[i][4] == "int"
                         ? Integer.parseInt(mSharedPrefs.getString(key, mSharedPrefs.getString(key, "-1")))
                         : mSharedPrefs.getString(key, mSharedPrefs.getString(key, ""))
@@ -78,7 +77,7 @@ public class BasePreferenceFragment extends PreferenceFragment implements OnShar
                 int index = Arrays.asList(values).indexOf(
                         mSharedPrefs.getString(key, mSharedPrefs.getString(key, null)));
                 if (index > -1 && entries.length > index)
-                    pref.setSummary(MessageFormat.format(summary, entries[index]));
+                    pref.setSummary(String.format(summary, entries[index]));
             }
         }
     }

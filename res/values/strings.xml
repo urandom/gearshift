@@ -26,8 +26,8 @@
     <string name="filter_checking">Checking</string>
     
     <string name="status">Status</string>
-    <string name="speed_format">Down: {0}/{1} {2}\nUp: {3}/{4} {5}</string>
-    <string name="free_space_format">Free Space: {0} {1}</string>
+    <string name="speed_format">Down: %1$d/%2$d %3$s\nUp: %4$s/%5$s %6$s</string>
+    <string name="free_space_format">Free Space: %1$s</string>
     
     <string name="refresh">Refresh</string>
     <string name="alt_speed_label_on">Alternate speed limit on</string>
@@ -80,17 +80,17 @@
     <string name="updates">Updates</string>
     <string name="update_active_torrents">Update active torrents only</string>
     <string name="full_update">Full update</string>
-    <string name="full_update_summary_format">Every {0} active updates</string>
+    <string name="full_update_summary_format">Every %1$d active updates</string>
     <string name="update_interval_dialog_title">Update interval</string>
     <string name="update_interval">Update interval</string>
-    <string name="update_interval_summary_format">{0}</string>
+    <string name="update_interval_summary_format">%1$s</string>
     <string name="session_update_interval">Session update interval</string>
     <string name="torrents">Torrents</string>
     <string name="start_paused">Start paused</string>
     <string name="delete_local_torrent_file">Delete local .torrent file after adding</string>
     
     <string name="profile">Profile</string>
-    <string name="profile_summary_format">{0}</string>
+    <string name="profile_summary_format">%1$s</string>
     <string name="profile_name">Name</string>
     <string name="profile_name_default">Default</string>
     <string name="connection">Connection</string>
@@ -116,14 +116,14 @@
     <string name="no_profiles_empty_list">&lt;h2&gt;No profile seems to have been created yet.&lt;/h2&gt;You should add one by visiting the &lt;i&gt;settings&lt;/i&gt;.</string>
     <string name="no_torrents_empty_list">&lt;h2&gt;We got through!&lt;/h2&gt;You just have to add some torrents now.</string>
     
-    <string name="traffic_downloading_format">{0} of {1} ({2}){3}</string>
-    <string name="traffic_downloading_percentage_format">{0}%</string>
-    <string name="traffic_seeding_format">{0}, uploaded {1} ({2}){3}</string>
-    <string name="traffic_seeding_ratio_format">Ratio: {0}{1}</string>
-    <string name="traffic_seeding_ratio_goal_format">, Goal: {0}</string>
-    <string name="traffic_remaining_time_format">&#160;- &lt;i&gt;{0} remaining&lt;/i&gt;</string>
+    <string name="traffic_downloading_format">%1$s of %2$s (%3$s)%4$s</string>
+    <string name="traffic_downloading_percentage_format">%1$s%%</string>
+    <string name="traffic_seeding_format">%1$s, uploaded %2$s (%3$s)%4$s</string>
+    <string name="traffic_seeding_ratio_format">Ratio: %1$s%2$s</string>
+    <string name="traffic_seeding_ratio_goal_format">, Goal: %1$s</string>
+    <string name="traffic_remaining_time_format">&#160;- &lt;i&gt;%1$s remaining&lt;/i&gt;</string>
     
-    <string name="status_format">{0} {1}</string>
+    <string name="status_format">%1$s %2$s</string>
     <string name="status_downloading">&lt;b&gt;Downloading&lt;/b&gt;</string>
     <string name="status_downloading_metadata">&lt;b&gt;Downloading metadata&lt;/b&gt;</string>
     <string name="status_seeding">&lt;b&gt;Seeding&lt;/b&gt;</string>
@@ -131,10 +131,10 @@
     <string name="status_seed_waiting">&lt;b&gt;Queued for seeding&lt;/b&gt;</string>
     <string name="status_stopped">&lt;b&gt;Stopped&lt;/b&gt;</string>
     <string name="status_checking">&lt;b&gt;Checking&lt;/b&gt;</string>
-    <string name="status_more_downloading_format"> from {0} of {1} connected peers - &lt;i&gt;{2}&lt;/i&gt;</string>
-    <string name="status_more_downloading_speed_format">&#x2193; {0}/s, &#x2191; {1}/s</string>
-    <string name="status_more_seeding_format"> to {0} of {1} connected peers - &lt;i&gt;{2}&lt;/i&gt;</string>
-    <string name="status_more_seeding_speed_format">&#x2191; {0}/s</string>
+    <string name="status_more_downloading_format"> from %1$d of %2$d connected peers - &lt;i&gt;%3$s&lt;/i&gt;</string>
+    <string name="status_more_downloading_speed_format">&#x2193; %1$s/s, &#x2191; %2$s/s</string>
+    <string name="status_more_seeding_format"> to %1$d of %2$d connected peers - &lt;i&gt;%3$s&lt;/i&gt;</string>
+    <string name="status_more_seeding_speed_format">&#x2191; %1$s/s</string>
     <string name="status_more_idle">Idle</string>
 
     <string name="time_days">days</string>

@@ -1,6 +1,5 @@
 package us.supositi.gearshift;
 
-import java.text.MessageFormat;
 
 import android.content.Context;
 import android.os.Bundle;
@@ -57,11 +56,11 @@ public class TorrentListMenuFragment extends Fragment {
         if (speed_args == null)
             speed_args = new Object[] {0, 0, "kb/s", 0, 0, "kb/s"};
         
-        speed.setText(MessageFormat.format(getString(R.string.speed_format), speed_args));
+        speed.setText(String.format(getString(R.string.speed_format), speed_args));
         
         if (space_args == null)
-            space_args = new Object[] {0, "MB"};
+            space_args = new Object[] {"0MB"};
         
-        space.setText(MessageFormat.format(getString(R.string.free_space_format), space_args));
+        space.setText(String.format(getString(R.string.free_space_format), space_args));
     }
 }

@@ -1,6 +1,5 @@
 package us.supositi.gearshift;
 
-import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.HashSet;
 
@@ -77,9 +76,7 @@ public class TorrentListFragment extends ListFragment {
     private TransmissionProfile mCurrentProfile;
     private TransmissionSession mSession;
     private TransmissionSessionStats mSessionStats;
-    
-    private SharedPreferences mDefaultPrefs;
-    
+        
     /**
      * A callback interface that all activities containing this fragment must
      * implement. This mechanism allows activities to be notified of item
@@ -171,16 +168,9 @@ public class TorrentListFragment extends ListFragment {
             if (data.stats != null)
                 mSessionStats = data.stats;
 
-            if (data.torrents.length > 0) {
-                int count = mTorrentListAdapter.getCount();
-                
+            if (data.torrents.length > 0) {               
+                mTorrentListAdapter.clear();
                 mTorrentListAdapter.addAll(data.torrents);
-                
-                /* Calling clear resets the scroll position */
-                for (int i = 0; i < count; ++i) {
-                    mTorrentListAdapter.remove(mTorrentListAdapter.getItem(i));
-                }
-                
                 mTorrentListAdapter.notifyDataSetChanged();
             } else {
                 setEmptyText(R.string.no_torrents_empty_list);
@@ -208,8 +198,6 @@ public class TorrentListFragment extends ListFragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         
-        mDefaultPrefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
-
         mTorrentListAdapter = new TorrentListAdapter(getActivity());
         mTorrentListAdapter.setNotifyOnChange(false);
         setListAdapter(mTorrentListAdapter);
@@ -528,8 +516,6 @@ public class TorrentListFragment extends ListFragment {
             
             name.setText(torrent.getName());
 
-            float seedLimit = 0;
-
             if (torrent.getMetadataPercentComplete() < 1) {
                 progress.setSecondaryProgress((int) (torrent.getMetadataPercentComplete() * 100));
             } else if (torrent.getPercentDone() < 1) {
@@ -537,183 +523,22 @@ public class TorrentListFragment extends ListFragment {
             } else {
                 progress.setSecondaryProgress(100);
                 
-                switch (torrent.getSeedRatioMode()) {
-                    case Torrent.SeedRatioMode.GLOBAL_LIMIT: {
-                        float limit = mSession.getSeedRatioLimit();
-                        float current = torrent.getUploadRatio();
-
-                        if (mSession.isSeedRatioLimited())
-                            seedLimit = limit;
-                        
-                        if (!mSession.isSeedRatioLimited() || current >= limit) {
-                            progress.setProgress(100);
-                        } else {
-                            progress.setProgress((int) (current / limit * 100));
-                        }
-                        break;
-                    }
-                    case Torrent.SeedRatioMode.TORRENT_LIMIT: {
-                        float limit = torrent.getSeedRatioLimit();
-                        float current = torrent.getUploadRatio();
-                        
-                        seedLimit = limit;
-                        if (current >= limit) {
-                            progress.setProgress(100);
-                        } else {
-                            progress.setProgress((int) (current / limit * 100));
-                        }
-                        break;
-                    }
-                    case Torrent.SeedRatioMode.NO_LIMIT:
+                float limit = torrent.getActiveSeedRatioLimit();
+                float current = torrent.getUploadRatio();
+                
+                if (limit == -1) {
+                    progress.setProgress(100);
+                } else {
+                    if (current >= limit) {
                         progress.setProgress(100);
-                        break;
+                    } else {
+                        progress.setProgress((int) (current / limit * 100));
+                    }
                 }
-                                
             }
             
-            String statusFormat = getString(R.string.status_format);
-            String formattedStatus, statusType, statusMoreFormat, statusSpeedFormat, statusSpeed;
-            int peers;
-            
-            /* FIXME: Move the string generation to the loader */
-            switch(torrent.getStatus()) {
-                case Torrent.Status.DOWNLOAD_WAITING:
-                case Torrent.Status.DOWNLOADING:
-                    traffic.setText(Html.fromHtml(MessageFormat.format(
-                                    getString(R.string.traffic_downloading_format), new Object[] {
-                        Torrent.readableFileSize(torrent.getSizeWhenDone() - torrent.getLeftUntilDone()),
-                        Torrent.readableFileSize(torrent.getSizeWhenDone()),
-                        MessageFormat.format(getString(R.string.traffic_downloading_percentage_format),
-                               Torrent.readablePercent(torrent.getPercentDone() * 100)),
-                        MessageFormat.format(getString(R.string.traffic_remaining_time_format),
-                               Torrent.readableRemainingTime(torrent.getEta(), getContext())),
-                    })));
-
-                    statusType = getString(torrent.getStatus() == Torrent.Status.DOWNLOADING
-                            ? torrent.getMetadataPercentComplete() < 1
-                                ? R.string.status_downloading_metadata
-                                : R.string.status_downloading
-                            : R.string.status_download_waiting);
-                    statusMoreFormat = getString(R.string.status_more_downloading_format);
-                    statusSpeedFormat = getString(R.string.status_more_downloading_speed_format);
-                    
-                    if (torrent.isStalled()) {
-                        statusSpeed = getString(R.string.status_more_idle);
-                    } else {
-                        statusSpeed = MessageFormat.format(statusSpeedFormat, new Object[] {
-                            Torrent.readableFileSize(torrent.getRateDownload()),
-                            Torrent.readableFileSize(torrent.getRateUpload())
-                        });
-                    }
-                    
-                    peers = torrent.getPeersSendingToUs();
-                    
-                    formattedStatus = MessageFormat.format(statusFormat, new Object[] {statusType, 
-                            MessageFormat.format(statusMoreFormat, new Object[] {
-                                peers, torrent.getPeersConnected(), statusSpeed
-                            })
-                        });
-                    break;
-                case Torrent.Status.SEED_WAITING:
-                case Torrent.Status.SEEDING:
-                    traffic.setText(Html.fromHtml(MessageFormat.format(
-                                    getString(R.string.traffic_seeding_format), new Object[] {
-                        Torrent.readableFileSize(torrent.getSizeWhenDone()),
-                        Torrent.readableFileSize(torrent.getUploadedEver()),
-                        MessageFormat.format(getString(R.string.traffic_seeding_ratio_format), new Object[] {
-                               Torrent.readablePercent(torrent.getUploadRatio()),
-                               seedLimit == 0 ? "" : MessageFormat.format(
-                                   getString(R.string.traffic_seeding_ratio_goal_format),
-                                   Torrent.readablePercent(seedLimit))
-                        }),
-                        seedLimit == 0
-                            ? ""
-                            : MessageFormat.format(
-                                getString(R.string.traffic_remaining_time_format),
-                                Torrent.readableRemainingTime(torrent.getEta(), getContext())),
-                    })));
-
-                    statusType = getString(torrent.getStatus() == Torrent.Status.SEEDING
-                            ? R.string.status_seeding : R.string.status_seed_waiting);
-                    statusMoreFormat = getString(R.string.status_more_seeding_format);
-                    statusSpeedFormat = getString(R.string.status_more_seeding_speed_format);
-                    
-                    if (torrent.isStalled()) {
-                        statusSpeed = getString(R.string.status_more_idle);
-                    } else {
-                        statusSpeed = MessageFormat.format(statusSpeedFormat, new Object[] {
-                            Torrent.readableFileSize(torrent.getRateUpload())
-                        });
-                    }
-                    peers = torrent.getPeersGettingFromUs();
-                    
-                    formattedStatus = MessageFormat.format(statusFormat, new Object[] {statusType, 
-                            MessageFormat.format(statusMoreFormat, new Object[] {
-                                peers, torrent.getPeersConnected(), statusSpeed
-                            })
-                        });
-                    break;
-                case Torrent.Status.CHECK_WAITING:
-                    statusType = getString(R.string.status_checking);
-                    
-                    formattedStatus = MessageFormat.format(statusFormat, new Object[] {
-                        statusType,
-                        "-" + getString(R.string.status_more_idle)
-                    });
-                    break;
-                case Torrent.Status.CHECKING:
-                    formattedStatus = getString(R.string.status_checking);
-
-                    break;
-                case Torrent.Status.STOPPED:
-                    if (torrent.getPercentDone() < 1) {
-                        Spanned trafficStatus = Html.fromHtml(MessageFormat.format(
-                                        getString(R.string.traffic_downloading_format), new Object[] {
-                            Torrent.readableFileSize(torrent.getSizeWhenDone() - torrent.getLeftUntilDone()),
-                            Torrent.readableFileSize(torrent.getSizeWhenDone()),
-                            MessageFormat.format(getString(R.string.traffic_downloading_percentage_format),
-                                   Torrent.readablePercent(torrent.getPercentDone() * 100)),
-                            "<br/>" + MessageFormat.format(
-                                            getString(R.string.traffic_seeding_format), new Object[] {
-                                Torrent.readableFileSize(torrent.getSizeWhenDone()),
-                                Torrent.readableFileSize(torrent.getUploadedEver()),
-                                MessageFormat.format(getString(R.string.traffic_seeding_ratio_format), new Object[] {
-                                       Torrent.readablePercent(torrent.getUploadRatio()),
-                                       seedLimit == 0 ? "" : MessageFormat.format(
-                                           getString(R.string.traffic_seeding_ratio_goal_format),
-                                           Torrent.readablePercent(seedLimit))
-                                }),
-                                ""
-                            }),
-                        }));
-                        traffic.setText(trafficStatus);
-                    } else {
-                        Spanned trafficStatus = Html.fromHtml(MessageFormat.format(
-                                        getString(R.string.traffic_seeding_format), new Object[] {
-                            Torrent.readableFileSize(torrent.getSizeWhenDone()),
-                            Torrent.readableFileSize(torrent.getUploadedEver()),
-                            MessageFormat.format(getString(R.string.traffic_seeding_ratio_format), new Object[] {
-                                   Torrent.readablePercent(torrent.getUploadRatio()),
-                                   seedLimit == 0 ? "" : MessageFormat.format(
-                                       getString(R.string.traffic_seeding_ratio_goal_format),
-                                       Torrent.readablePercent(seedLimit))
-                            }),
-                            ""
-                        }));
-                        traffic.setText(trafficStatus);
-                    }
-
-                    formattedStatus = getString(R.string.status_stopped);
-                    
-                    break;
-                default:
-                    formattedStatus = "Error";
-                    
-                    break;
-            }
-
-            Spanned processedStatus = Html.fromHtml(formattedStatus);
-            status.setText(processedStatus);
+            traffic.setText(torrent.getTrafficText());
+            status.setText(torrent.getStatusText());
 
             return rowView;
         }
