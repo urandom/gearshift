@@ -172,8 +172,15 @@ public class TorrentListFragment extends ListFragment {
                 mSessionStats = data.stats;
 
             if (data.torrents.length > 0) {
-                mTorrentListAdapter.clear();
+                int count = mTorrentListAdapter.getCount();
+                
                 mTorrentListAdapter.addAll(data.torrents);
+                
+                /* Calling clear resets the scroll position */
+                for (int i = 0; i < count; ++i) {
+                    mTorrentListAdapter.remove(mTorrentListAdapter.getItem(i));
+                }
+                
                 mTorrentListAdapter.notifyDataSetChanged();
             } else {
                 setEmptyText(R.string.no_torrents_empty_list);
@@ -203,7 +210,8 @@ public class TorrentListFragment extends ListFragment {
         
         mDefaultPrefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
 
-        mTorrentListAdapter = new TorrentListAdapter(getActivity());        
+        mTorrentListAdapter = new TorrentListAdapter(getActivity());
+        mTorrentListAdapter.setNotifyOnChange(false);
         setListAdapter(mTorrentListAdapter);
 
         
@@ -567,6 +575,7 @@ public class TorrentListFragment extends ListFragment {
             String formattedStatus, statusType, statusMoreFormat, statusSpeedFormat, statusSpeed;
             int peers;
             
+            /* FIXME: Move the string generation to the loader */
             switch(torrent.getStatus()) {
                 case Torrent.Status.DOWNLOAD_WAITING:
                 case Torrent.Status.DOWNLOADING:
