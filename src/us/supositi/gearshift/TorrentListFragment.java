@@ -168,20 +168,12 @@ public class TorrentListFragment extends ListFragment {
             if (data.stats != null)
                 mSessionStats = data.stats;
 
-            if (data.torrents.length > 0) {               
-                /* FIXME: This is just a hack to preserve the scroll position. */
-                ListView list = getListView();
-                int index = list.getFirstVisiblePosition();
-                View v = list.getChildAt(0);
-                int top = (v == null) ? 0 : v.getTop();
-                list.setVerticalScrollBarEnabled(false);
-
+            if (data.torrents.size() > 0) {
+                /* The notifyDataSetChanged method sets this to true */
+                mTorrentListAdapter.setNotifyOnChange(false);
                 mTorrentListAdapter.clear();
                 mTorrentListAdapter.addAll(data.torrents);
                 mTorrentListAdapter.notifyDataSetChanged();
-
-                list.setSelectionFromTop(index, top);
-                list.setVerticalScrollBarEnabled(true);
             } else {
                 setEmptyText(R.string.no_torrents_empty_list);
             }
@@ -209,7 +201,6 @@ public class TorrentListFragment extends ListFragment {
         super.onCreate(savedInstanceState);
         
         mTorrentListAdapter = new TorrentListAdapter(getActivity());
-        mTorrentListAdapter.setNotifyOnChange(false);
         setListAdapter(mTorrentListAdapter);
         
         setHasOptionsMenu(true);
@@ -548,6 +539,22 @@ public class TorrentListFragment extends ListFragment {
             
             traffic.setText(torrent.getTrafficText());
             status.setText(torrent.getStatusText());
+
+            int color;
+            switch(torrent.getStatus()) {
+                case Torrent.Status.STOPPED:
+                case Torrent.Status.CHECK_WAITING:
+                case Torrent.Status.DOWNLOAD_WAITING:
+                case Torrent.Status.SEED_WAITING:
+                    color = getContext().getResources().getColor(android.R.color.darker_gray);
+                    break;
+                default:
+                    color = getContext().getResources().getColor(android.R.color.primary_text_light);
+                    break;
+            }
+            name.setTextColor(color);
+            traffic.setTextColor(color);
+            status.setTextColor(color);
 
             return rowView;
         }

@@ -17,18 +17,20 @@ import android.support.v4.content.AsyncTaskLoader;
 class TransmissionSessionData {
     public TransmissionSession session = null;
     public TransmissionSessionStats stats = null;
-    public Torrent[] torrents = new Torrent[0];
+    public ArrayList<Torrent> torrents = new ArrayList<Torrent>();
     
     public TransmissionSessionData(TransmissionSession session, TransmissionSessionStats stats) {
         this.session = session;
         this.stats = stats;
     }
-    
+
     public TransmissionSessionData(TransmissionSession session, TransmissionSessionStats stats,
-            Torrent[] torrents) {
+            ArrayList<Torrent> torrents) {
         this.session = session;
         this.stats = stats;
-        this.torrents = torrents;
+
+        if (torrents != null)
+            this.torrents = torrents;
     }
 }
 
@@ -183,7 +185,7 @@ public class TransmissionSessionLoader extends AsyncTaskLoader<TransmissionSessi
 
         mIteration++;
         return new TransmissionSessionData(
-                mSession, mSessionStats, mTorrents.toArray(new Torrent[mTorrents.size()]));
+                mSession, mSessionStats, mTorrents);
     }
 
     @Override
@@ -193,7 +195,7 @@ public class TransmissionSessionLoader extends AsyncTaskLoader<TransmissionSessi
         }
 
         if (isStarted()) {
-            TorrentListActivity.logD("TLoader: Delivering results: {0} torrents", new Object[] {data.torrents.length});
+            TorrentListActivity.logD("TLoader: Delivering results: {0} torrents", new Object[] {data.torrents.size()});
             super.deliverResult(data);
         }
 
@@ -208,7 +210,7 @@ public class TransmissionSessionLoader extends AsyncTaskLoader<TransmissionSessi
                 
         if (mTorrents.size() > 0)
             deliverResult(new TransmissionSessionData(
-                    mSession, mSessionStats, mTorrents.toArray(new Torrent[mTorrents.size()])));
+                    mSession, mSessionStats, mTorrents));
         
         if (takeContentChanged() || mTorrents.size() == 0) {
             TorrentListActivity.logD("TLoader: forceLoad()");
