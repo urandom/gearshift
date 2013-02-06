@@ -143,6 +143,24 @@ public class TransmissionSessionLoader extends AsyncTaskLoader<TransmissionSessi
                     mTorrentMap.remove(id);
                 }
             }
+        } else if (mCurrentTorrent == null) {
+            ArrayList<Torrent> removal = new ArrayList<Torrent>();
+            for (Torrent original : mTorrents) {
+                boolean found = false;
+                for (Torrent t : torrents) {
+                    if (original.getId() == t.getId()) {
+                        found = true;
+                        break;
+                    }
+                }
+                if (!found) {
+                    removal.add(original);
+                }
+            }
+            for (Torrent t : removal) {
+                mTorrents.remove(t);
+                mTorrentMap.remove(t.getId());
+            }
         }
         mNeedsMoreInfo = false;
 
@@ -229,6 +247,8 @@ public class TransmissionSessionLoader extends AsyncTaskLoader<TransmissionSessi
     private TransmissionSessionData handleError(ManagerException e) {
         mStopUpdates = true;
         e.printStackTrace();
+        
+        TorrentListActivity.logD("Got an error while fetching data: " + e.getMessage() + " and this code: " + e.getCode());
         
         return new TransmissionSessionData(mSession, mSessionStats);
     }    
