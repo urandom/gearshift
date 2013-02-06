@@ -120,7 +120,7 @@ public class TransmissionSessionLoader extends AsyncTaskLoader<TransmissionSessi
             if (mCurrentTorrent != null) {
                 torrents = mSessManager.getTorrents(new int[] {mCurrentTorrent.getId()}, fields).getTorrents();
             } else if (active) {
-                int full = mDefaultPrefs.getInt(GeneralSettingsFragment.PREF_FULL_UPDATE, 2);
+                int full = Integer.parseInt(mDefaultPrefs.getString(GeneralSettingsFragment.PREF_FULL_UPDATE, "2"));
                 
                 if (mIteration % full == 0) {
                     torrents = mSessManager.getAllTorrents(fields).getTorrents();

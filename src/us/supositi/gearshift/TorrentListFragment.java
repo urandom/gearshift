@@ -174,12 +174,14 @@ public class TorrentListFragment extends ListFragment {
                 int index = list.getFirstVisiblePosition();
                 View v = list.getChildAt(0);
                 int top = (v == null) ? 0 : v.getTop();
+                list.setVerticalScrollBarEnabled(false);
 
                 mTorrentListAdapter.clear();
                 mTorrentListAdapter.addAll(data.torrents);
                 mTorrentListAdapter.notifyDataSetChanged();
 
                 list.setSelectionFromTop(index, top);
+                list.setVerticalScrollBarEnabled(true);
             } else {
                 setEmptyText(R.string.no_torrents_empty_list);
             }
@@ -209,7 +211,6 @@ public class TorrentListFragment extends ListFragment {
         mTorrentListAdapter = new TorrentListAdapter(getActivity());
         mTorrentListAdapter.setNotifyOnChange(false);
         setListAdapter(mTorrentListAdapter);
-
         
         setHasOptionsMenu(true);
         getActivity().requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);  
