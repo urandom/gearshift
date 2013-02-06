@@ -1,6 +1,9 @@
 package us.supositi.gearshift;
 
-import us.supositi.gearshift.dummy.DummyContent;
+import java.util.ArrayList;
+import java.util.Arrays;
+
+import us.supositi.gearshift.TransmissionSessionManager.TransmissionExclusionStrategy;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
@@ -8,7 +11,8 @@ import android.support.v4.app.NavUtils;
 import android.support.v4.view.ViewPager;
 import android.view.MenuItem;
 
-import us.supositi.gearshift.TorrentDetailPagerAdapter;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
 
 /**
@@ -20,10 +24,15 @@ import us.supositi.gearshift.TorrentDetailPagerAdapter;
  * This activity is mostly just a 'shell' activity containing nothing
  * more than a {@link TorrentDetailFragment}.
  */
-public class TorrentDetailActivity extends FragmentActivity {
-    public static final String ARG_ITEM_ID = "item_id";
+public class TorrentDetailActivity extends FragmentActivity implements TransmissionSessionInterface {
+    public static final String ARG_TORRENT_ID = "torrent_id";
+    public static final String ARG_JSON_TORRENTS = "json_torrents";
 
 	private ViewPager mPager;
+	
+    private ArrayList<Torrent> mTorrents = new ArrayList<Torrent>();
+    
+    /* TODO: create transmissionsessionloader and callback */
 		
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -32,6 +41,10 @@ public class TorrentDetailActivity extends FragmentActivity {
 
         // Show the Up button in the action bar.
         getActionBar().setDisplayHomeAsUpEnabled(true);
+        
+        Gson gson = new GsonBuilder().setExclusionStrategies(new TransmissionExclusionStrategy()).create();
+        mTorrents = new ArrayList<Torrent>(Arrays.asList(
+                gson.fromJson(getIntent().getStringExtra(ARG_JSON_TORRENTS), Torrent[].class)));
         
         mPager = (ViewPager) findViewById(R.id.torrent_detail_pager);
         mPager.setAdapter(new TorrentDetailPagerAdapter(this));
@@ -45,9 +58,16 @@ public class TorrentDetailActivity extends FragmentActivity {
         //
         // http://developer.android.com/guide/components/fragments.html
         //
+                
         if (savedInstanceState == null) {
-        	mPager.setCurrentItem(DummyContent.ITEMS.indexOf(
-        			DummyContent.ITEM_MAP.get(getIntent().getStringExtra(ARG_ITEM_ID))));        	
+            int id = getIntent().getIntExtra(ARG_TORRENT_ID, 0);
+            for (int i = 0; i < mTorrents.size(); ++i) {
+                Torrent t = mTorrents.get(i);
+                if (t.getId() == id) {
+                    mPager.setCurrentItem(i);
+                    break;
+                }
+            }
         }
     }
 
@@ -69,13 +89,16 @@ public class TorrentDetailActivity extends FragmentActivity {
     }
     
     @Override
-    public void onBackPressed() {
-        if (mPager != null) {
-        	if (mPager.getCurrentItem() == 0) {
-        		super.onBackPressed();
-        	} else {
-        		mPager.setCurrentItem(mPager.getCurrentItem() - 1);
-        	}
+    public void setTorrents(ArrayList<Torrent> torrents) {
+        if (torrents == null) {
+            mTorrents.clear();
+        } else {
+            mTorrents.addAll(torrents);
         }
+    }
+
+    @Override
+    public ArrayList<Torrent> getTorrents() {
+        return mTorrents;
     }
 }

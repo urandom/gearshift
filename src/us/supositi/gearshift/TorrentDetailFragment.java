@@ -1,9 +1,9 @@
 package us.supositi.gearshift;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import us.supositi.gearshift.dummy.DummyContent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
@@ -25,11 +25,7 @@ import android.widget.TextView;
  * on handsets.
  */
 public class TorrentDetailFragment extends Fragment {
-    /**
-     * The dummy content this fragment is presenting.
-     */
-    private DummyContent.DummyItem mItem;
-    
+    private Torrent mTorrent;
     private List<String> mPriorityValues;
     
     private View.OnClickListener mExpanderListener = new View.OnClickListener() {
@@ -101,15 +97,22 @@ public class TorrentDetailFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        if (getArguments().containsKey(TorrentDetailActivity.ARG_ITEM_ID)) {
-            // Load the dummy content specified by the fragment
-            // arguments. In a real-world scenario, use a Loader
-            // to load content from a content provider.
-            mItem = DummyContent.ITEM_MAP.get(getArguments().getString(TorrentDetailActivity.ARG_ITEM_ID));
+        if (getArguments().containsKey(TorrentDetailActivity.ARG_TORRENT_ID)) {
+            int id = getArguments().getInt(TorrentDetailActivity.ARG_TORRENT_ID);
+            ArrayList<Torrent> torrents = ((TransmissionSessionInterface) getActivity()).getTorrents();
+            for (Torrent t : torrents) {
+                if (t.getId() == id) {
+                    mTorrent = t;
+                    break;
+                }
+            }
+            if (mTorrent == null) {
+                throw new IllegalStateException("A valid torrent was not found.");
+            }
         }
-        
+
         mPriorityValues = Arrays.asList(getResources().getStringArray(R.array.torrent_priority_values));
-        
+
         if (savedInstanceState == null) {
             setHasOptionsMenu(true);
         }
@@ -120,8 +123,8 @@ public class TorrentDetailFragment extends Fragment {
             Bundle savedInstanceState) {
         final View root = inflater.inflate(R.layout.fragment_torrent_detail, container, false);
         
-        if (mItem != null) {
-            ((TextView) root.findViewById(R.id.torrent_detail_title)).setText(mItem.content);
+        if (mTorrent != null) {
+            ((TextView) root.findViewById(R.id.torrent_detail_title)).setText(mTorrent.getName());
         }
 
         

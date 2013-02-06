@@ -195,7 +195,7 @@ public class TransmissionSessionLoader extends AsyncTaskLoader<TransmissionSessi
         }
 
         if (isStarted()) {
-            TorrentListActivity.logD("TLoader: Delivering results: {0} torrents", new Object[] {data.torrents.size()});
+            TorrentListActivity.logD("TLoader: Delivering results: %d torrents", new Object[] {data.torrents.size()});
             super.deliverResult(data);
         }
 

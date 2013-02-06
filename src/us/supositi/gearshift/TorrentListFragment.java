@@ -1,16 +1,12 @@
 package us.supositi.gearshift;
 
-import java.util.ArrayList;
 import java.util.HashSet;
 
-import us.supositi.gearshift.dummy.DummyContent;
 import android.app.ActionBar;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.support.v4.app.ListFragment;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.text.Html;
@@ -86,7 +82,7 @@ public class TorrentListFragment extends ListFragment {
         /**
          * Callback for when an item has been selected.
          */
-        public void onItemSelected(String id);
+        public void onItemSelected(Torrent torrent);
     }
 
     /**
@@ -95,7 +91,7 @@ public class TorrentListFragment extends ListFragment {
      */
     private static Callbacks sDummyCallbacks = new Callbacks() {
         @Override
-        public void onItemSelected(String id) {
+        public void onItemSelected(Torrent torrent) {
         }
     };
     
@@ -174,7 +170,10 @@ public class TorrentListFragment extends ListFragment {
                 mTorrentListAdapter.clear();
                 mTorrentListAdapter.addAll(data.torrents);
                 mTorrentListAdapter.notifyDataSetChanged();
+                
+                ((TransmissionSessionInterface) getActivity()).setTorrents(data.torrents);
             } else {
+                ((TransmissionSessionInterface) getActivity()).setTorrents(null);
                 setEmptyText(R.string.no_torrents_empty_list);
             }
             
@@ -262,7 +261,7 @@ public class TorrentListFragment extends ListFragment {
             }});
         
         list.setMultiChoiceModeListener(new MultiChoiceModeListener() {
-            private HashSet<String> mSelectedTorrentIds;
+            private HashSet<Integer> mSelectedTorrentIds;
             
             @Override
             public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
@@ -295,7 +294,7 @@ public class TorrentListFragment extends ListFragment {
                 item = menu.findItem(R.id.pause);
                 item.setVisible(true).setEnabled(true);
                 
-                mSelectedTorrentIds = new HashSet<String>();
+                mSelectedTorrentIds = new HashSet<Integer>();
                 return true;
             }
         
@@ -316,9 +315,9 @@ public class TorrentListFragment extends ListFragment {
                     int position, long id, boolean checked) {
                 
                 if (checked)
-                    mSelectedTorrentIds.add(DummyContent.ITEMS.get(position).id);
+                    mSelectedTorrentIds.add(mTorrentListAdapter.getItem(position).getId());
                 else
-                    mSelectedTorrentIds.remove(DummyContent.ITEMS.get(position).id);
+                    mSelectedTorrentIds.remove(mTorrentListAdapter.getItem(position).getId());
             }});
     }
 
@@ -352,7 +351,7 @@ public class TorrentListFragment extends ListFragment {
         // Notify the active callbacks interface (the activity, if the
         // fragment is attached to one) that an item has been selected.
         /* TODO: replace with real torrent */
-        mCallbacks.onItemSelected(DummyContent.ITEMS.get(position).id);
+        mCallbacks.onItemSelected(mTorrentListAdapter.getItem(position));
     }
 
     @Override

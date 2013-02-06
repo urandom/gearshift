@@ -2,10 +2,10 @@ package us.supositi.gearshift;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.text.MessageFormat;
+import java.util.ArrayList;
 import java.util.List;
 
-import us.supositi.gearshift.dummy.DummyContent;
+import us.supositi.gearshift.TransmissionSessionManager.TransmissionExclusionStrategy;
 import android.content.Intent;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -18,6 +18,8 @@ import android.view.animation.AnimationUtils;
 import android.view.animation.LayoutAnimationController;
 import android.widget.ListView;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.slidingmenu.lib.SlidingMenu;
 import com.slidingmenu.lib.app.SlidingFragmentActivity;
 
@@ -38,7 +40,7 @@ import com.slidingmenu.lib.app.SlidingFragmentActivity;
  * to listen for item selections.
  */
 public class TorrentListActivity extends SlidingFragmentActivity
-        implements TorrentListFragment.Callbacks {
+        implements TransmissionSessionInterface, TorrentListFragment.Callbacks {
     
     /**
      * Whether or not the activity is in two-pane mode, i.e. running on a tablet
@@ -51,7 +53,7 @@ public class TorrentListActivity extends SlidingFragmentActivity
     private static final boolean DEBUG = true;
     private static final String LogTag = "GearShift";
     
-    private Torrent[] mTorrents;
+    private ArrayList<Torrent> mTorrents = new ArrayList<Torrent>();
     
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -106,16 +108,18 @@ public class TorrentListActivity extends SlidingFragmentActivity
      * indicating that the item with the given ID was selected.
      */
     @Override
-    public void onItemSelected(String id) {
+    public void onItemSelected(Torrent torrent) {
         if (mTwoPane) {
             toggleRightPane(true);
-            mPager.setCurrentItem(DummyContent.ITEMS.indexOf(
-                    DummyContent.ITEM_MAP.get(id)));
+            mPager.setCurrentItem(mTorrents.indexOf(torrent));
         } else {
             // In single-pane mode, simply start the detail activity
             // for the selected item ID.
             Intent detailIntent = new Intent(this, TorrentDetailActivity.class);
-            detailIntent.putExtra(TorrentDetailActivity.ARG_ITEM_ID, id);
+            detailIntent.putExtra(TorrentDetailActivity.ARG_TORRENT_ID, torrent.getId());
+            Gson gson = new GsonBuilder().setExclusionStrategies(new TransmissionExclusionStrategy()).create();
+            detailIntent.putExtra(TorrentDetailActivity.ARG_JSON_TORRENTS,
+                    gson.toJson(mTorrents.toArray(new Torrent[mTorrents.size()])));
             startActivity(detailIntent);
         }
     }
@@ -194,7 +198,7 @@ public class TorrentListActivity extends SlidingFragmentActivity
     }
     
     public static void logE(String message, Object[] args, Exception e) {
-        Log.e(LogTag, MessageFormat.format(message, args), e);
+        Log.e(LogTag, String.format(message, args), e);
     }
     
     public static void logE(String message, Exception e) {
@@ -204,7 +208,7 @@ public class TorrentListActivity extends SlidingFragmentActivity
     public static void logD(String message, Object[] args) {
         if (!DEBUG) return;
         
-        Log.d(LogTag, MessageFormat.format(message, args));
+        Log.d(LogTag, String.format(message, args));
     }
     
     public static void logD(String message) {
@@ -223,5 +227,19 @@ public class TorrentListActivity extends SlidingFragmentActivity
         
         t.printStackTrace(pw);
         Log.d(LogTag, sw.toString());
+    }
+
+    @Override
+    public void setTorrents(ArrayList<Torrent> torrents) {
+        if (torrents == null) {
+            mTorrents.clear();
+        } else {
+            mTorrents.addAll(torrents);
+        }
+    }
+
+    @Override
+    public ArrayList<Torrent> getTorrents() {
+        return mTorrents;
     }
 }

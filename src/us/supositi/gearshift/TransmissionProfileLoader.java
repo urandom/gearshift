@@ -44,7 +44,7 @@ public class TransmissionProfileLoader extends AsyncTaskLoader<TransmissionProfi
     public TransmissionProfile[] loadInBackground() {
         TransmissionProfile[] profiles = TransmissionProfile.readProfiles(getContext().getApplicationContext());
         
-        TorrentListActivity.logD("TPLoader: Read {0} profiles", new Object[] {profiles.length});
+        TorrentListActivity.logD("TPLoader: Read %d profiles", new Object[] {profiles.length});
         
         for (TransmissionProfile prof : profiles) {
             SharedPreferences prefs = getContext().getApplicationContext().getSharedPreferences(
@@ -68,7 +68,7 @@ public class TransmissionProfileLoader extends AsyncTaskLoader<TransmissionProfi
         mProfiles = profiles;
         
         if (isStarted()) {
-            TorrentListActivity.logD("TPLoader: Delivering results: {0} profiles", new Object[] {profiles.length});
+            TorrentListActivity.logD("TPLoader: Delivering results: %d profiles", new Object[] {profiles.length});
             super.deliverResult(profiles);
         }
         

@@ -38,7 +38,7 @@ public class TransmissionProfileSettingsFragment extends BasePreferenceFragment 
             mProfile = new TransmissionProfile(id, getActivity());
         
         TorrentListActivity.logD(
-            "Editing (new ? {0}) profile {1}",
+            "Editing (new ? %s) profile %s",
             new Object[] {mNew, mProfile.getId()});
         
         String prefname = TransmissionProfile.PREF_PREFIX + (id == null ? "temp" : id); 

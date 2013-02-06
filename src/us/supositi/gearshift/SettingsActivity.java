@@ -109,7 +109,7 @@ public class SettingsActivity extends PreferenceActivity
             TransmissionProfile[] profiles) {
         mProfiles = profiles;
         
-        TorrentListActivity.logD("Finished loading {0} profiles", new Object[] {profiles.length});
+        TorrentListActivity.logD("Finished loading %d profiles", new Object[] {profiles.length});
         if (profiles.length == 0) return;
 
         mProfileHeaders = new Header[profiles.length];

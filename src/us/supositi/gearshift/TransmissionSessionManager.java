@@ -5,6 +5,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 import java.net.Authenticator;
 import java.net.HttpURLConnection;
 import java.net.PasswordAuthentication;
@@ -26,7 +28,9 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.annotations.SerializedName;
 
 public class TransmissionSessionManager {
+    @Retention(RetentionPolicy.RUNTIME)
     public @interface Exclude {};
+
     public static class TransmissionExclusionStrategy implements ExclusionStrategy {
         @Override
         public boolean shouldSkipClass(Class<?> cls) {

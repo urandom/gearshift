@@ -156,7 +156,7 @@ public class TransmissionProfile implements Parcelable, Comparable<TransmissionP
         mRetries = Integer.parseInt(pref.getString(PREF_RETRIES, "-1"));
 
         TorrentListActivity.logD(
-            "Loading profile from prefs: id {0}, name {1}, host {2}, port {3}   ",
+            "Loading profile from prefs: id %s, name %s, host %s, port %d   ",
             new Object[] {mId, mName, mHost, mPort});
     }
     
@@ -177,7 +177,7 @@ public class TransmissionProfile implements Parcelable, Comparable<TransmissionP
         e.commit();
         
         TorrentListActivity.logD(
-            "Saving profile to prefs: id {0}, name {1}, host {2}, port {3}",
+            "Saving profile to prefs: id %s, name %s, host %s, port %d",
             new Object[] {mId, mName, mHost, mPort});
         
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
@@ -196,7 +196,7 @@ public class TransmissionProfile implements Parcelable, Comparable<TransmissionP
             e.commit();
             
             TorrentListActivity.logD(
-                    "Adding the profile {0} to the set of profiles",
+                    "Adding the profile %s to the set of profiles",
                     new Object[] {mId});
         }
     }
@@ -220,12 +220,12 @@ public class TransmissionProfile implements Parcelable, Comparable<TransmissionP
             e.commit();
             
             TorrentListActivity.logD(
-                    "Removing the profile {0} from the set of profiles",
+                    "Removing the profile %s from the set of profiles",
                     new Object[] {mId});
         }
         
         TorrentListActivity.logD(
-                "Deleting profile from prefs: id {0}, name {1}, host {2}, port {3}",
+                "Deleting profile from prefs: id %s, name %s, host %s, port %d",
                 new Object[] {mId, mName, mHost, mPort});
     }
 
