@@ -9,6 +9,7 @@ import us.supositi.gearshift.TransmissionSessionManager.TransmissionExclusionStr
 import android.content.Intent;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.v4.content.Loader;
 import android.support.v4.view.ViewPager;
 import android.util.Log;
 import android.view.MenuItem;
@@ -25,6 +26,11 @@ import com.slidingmenu.lib.app.SlidingFragmentActivity;
 
 public class TorrentListActivity extends SlidingFragmentActivity
         implements TransmissionSessionInterface, TorrentListFragment.Callbacks {
+
+    /* TODO: move to an Application class, along with the logging functions */
+    public static final int PROFILES_LOADER_ID = 1;
+    public static final int SESSION_LOADER_ID = 2;
+        
     
     /**
      * Whether or not the activity is in two-pane mode, i.e. running on a tablet
@@ -53,15 +59,19 @@ public class TorrentListActivity extends SlidingFragmentActivity
             // activity should be in two-pane mode.
             mTwoPane = true;
 
-        	mPager = (ViewPager) findViewById(R.id.torrent_detail_pager);
-        	mPager.setAdapter(new TorrentDetailPagerAdapter(this));
-        	mPager.setOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
-        		public void onPageSelected(int position) {
-        			((TorrentListFragment) getSupportFragmentManager()
-        					.findFragmentById(R.id.torrent_list))
-        				.getListView().setItemChecked(position, true);
-        		}
-        	});
+            mPager = (ViewPager) findViewById(R.id.torrent_detail_pager);
+            mPager.setAdapter(new TorrentDetailPagerAdapter(this));
+            mPager.setOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
+                public void onPageSelected(int position) {
+                    ((TorrentListFragment) getSupportFragmentManager()
+                     .findFragmentById(R.id.torrent_list))
+                        .getListView().setItemChecked(position, true);
+
+                    Loader<TransmissionSessionData> loader =
+                            getSupportLoaderManager().getLoader(SESSION_LOADER_ID);
+                    ((TransmissionSessionLoader) loader).setCurrentTorrents(getCurrentTorrents());
+                }
+            });
 
             // In two-pane mode, list items should be given the
             // 'activated' state when touched.
@@ -177,6 +187,8 @@ public class TorrentListActivity extends SlidingFragmentActivity
                     if (fragment != null)
                         fragment.setHasOptionsMenu(false);
                 }
+                Loader<TransmissionSessionData> loader = getSupportLoaderManager().getLoader(SESSION_LOADER_ID);
+                ((TransmissionSessionLoader) loader).setCurrentTorrents(null);
             }
         }
     }

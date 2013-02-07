@@ -43,6 +43,7 @@ public class TransmissionSessionLoader extends AsyncTaskLoader<TransmissionSessi
     private TransmissionSessionStats mSessionStats;
     
     private TransmissionSessionManager mSessManager;
+    private Torrent[] mCurrentTorrents;
     
     private int mIteration = 0;
     private boolean mStopUpdates = false;
@@ -83,20 +84,23 @@ public class TransmissionSessionLoader extends AsyncTaskLoader<TransmissionSessi
         }
     }
 
+    public void setCurrentTorrents(Torrent[] torrents) {
+        mCurrentTorrents = torrents;
+    }
+
     @Override
     public TransmissionSessionData loadInBackground() {
         /* Remove any previous waiting runners */
         mIntervalHandler.removeCallbacks(mIntervalRunner);
-        Torrent[] currentTorrents = ((TransmissionSessionInterface) getContext()).getCurrentTorrents();
 
-        if (currentTorrents == null && (mSession == null || mIteration % 3 == 0)) {
+        if (mCurrentTorrents == null && (mSession == null || mIteration % 3 == 0)) {
             try {
                 mSession = mSessManager.getSession().getSession();
             } catch (ManagerException e) {
                 return handleError(e);
             }
         }
-        if (currentTorrents == null && mSessionStats == null) {
+        if (mCurrentTorrents == null && mSessionStats == null) {
             try {
                 mSessionStats = mSessManager.getSessionStats().getStats();
             } catch (ManagerException e) {
@@ -112,12 +116,12 @@ public class TransmissionSessionLoader extends AsyncTaskLoader<TransmissionSessi
         
         if (mIteration == 0 || mNeedsMoreInfo) {
             fields = concat(Torrent.Fields.METADATA, Torrent.Fields.STATS);
-        } else if (currentTorrents != null) {
+        } else if (mCurrentTorrents != null) {
             fields = concat(new String[] {"id"}, Torrent.Fields.STATS_EXTRA);
             boolean extraAdded = false;
-            ids = new int[currentTorrents.length];
+            ids = new int[mCurrentTorrents.length];
             int index = 0;
-            for (Torrent t : currentTorrents) {
+            for (Torrent t : mCurrentTorrents) {
                 if (!extraAdded && t.getHashString() == null) {
                     fields = concat(fields, Torrent.Fields.INFO_EXTRA);
                     extraAdded = true;
@@ -129,7 +133,7 @@ public class TransmissionSessionLoader extends AsyncTaskLoader<TransmissionSessi
             fields = Torrent.Fields.STATS;
         }
         try {
-            if (currentTorrents != null) {
+            if (mCurrentTorrents != null) {
                 torrents = mSessManager.getTorrents(ids, fields).getTorrents();
             } else if (active) {
                 int full = Integer.parseInt(mDefaultPrefs.getString(GeneralSettingsFragment.PREF_FULL_UPDATE, "2"));
@@ -155,7 +159,7 @@ public class TransmissionSessionLoader extends AsyncTaskLoader<TransmissionSessi
                     mTorrentMap.remove(id);
                 }
             }
-        } else if (currentTorrents == null) {
+        } else if (mCurrentTorrents == null) {
             ArrayList<Torrent> removal = new ArrayList<Torrent>();
             for (Torrent original : mTorrents) {
                 boolean found = false;

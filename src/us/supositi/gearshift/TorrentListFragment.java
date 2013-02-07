@@ -9,6 +9,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
+import android.support.v4.content.Loader;
 import android.text.Html;
 import android.text.Spanned;
 import android.view.ActionMode;
@@ -66,9 +67,6 @@ public class TorrentListFragment extends ListFragment {
     private TransmissionProfileListAdapter mProfileAdapter;
     private TorrentListAdapter mTorrentListAdapter;
     
-    private static final int PROFILES_LOADER_ID = 1;
-    private static final int TORRENTS_LOADER_ID = 2;
-        
     private TransmissionProfile mCurrentProfile;
     private TransmissionSession mSession;
     private TransmissionSessionStats mSessionStats;
@@ -132,7 +130,7 @@ public class TorrentListFragment extends ListFragment {
             
             if (mCurrentProfile == null && profiles.length > 0)
                 mCurrentProfile = profiles[0];
-            getActivity().getSupportLoaderManager().initLoader(TORRENTS_LOADER_ID, null, mTorrentLoaderCallbacks);
+            getActivity().getSupportLoaderManager().initLoader(TorrentListActivity.SESSION_LOADER_ID, null, mTorrentLoaderCallbacks);
         }
 
         @Override
@@ -151,7 +149,10 @@ public class TorrentListFragment extends ListFragment {
             TorrentListActivity.logD("Starting the torrents loader with profile " + mCurrentProfile);
             if (mCurrentProfile == null) return null;
 
-            return new TransmissionSessionLoader(getActivity(), mCurrentProfile);
+            TransmissionSessionLoader loader = new TransmissionSessionLoader(getActivity(), mCurrentProfile);
+            loader.setCurrentTorrents(((TransmissionSessionInterface) getActivity()).getCurrentTorrents());
+
+            return loader;
         }
 
         @Override
@@ -226,7 +227,7 @@ public class TorrentListFragment extends ListFragment {
             actionBar.setDisplayOptions(0, ActionBar.DISPLAY_SHOW_TITLE);
         }
 
-        getActivity().getSupportLoaderManager().initLoader(PROFILES_LOADER_ID, null, mProfileLoaderCallbacks);
+        getActivity().getSupportLoaderManager().initLoader(TorrentListActivity.PROFILES_LOADER_ID, null, mProfileLoaderCallbacks);
     }
 
     @Override
