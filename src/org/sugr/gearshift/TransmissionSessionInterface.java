@@ -1,4 +1,4 @@
-package us.supositi.gearshift;
+package org.sugr.gearshift;
 
 import java.util.ArrayList;
 

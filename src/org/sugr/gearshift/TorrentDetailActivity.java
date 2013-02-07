@@ -1,9 +1,9 @@
-package us.supositi.gearshift;
+package org.sugr.gearshift;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 
-import us.supositi.gearshift.TransmissionSessionManager.TransmissionExclusionStrategy;
+import org.sugr.gearshift.TransmissionSessionManager.TransmissionExclusionStrategy;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;

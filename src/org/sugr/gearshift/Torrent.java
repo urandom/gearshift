@@ -1,8 +1,8 @@
-package us.supositi.gearshift;
+package org.sugr.gearshift;
 
 import java.text.DecimalFormat;
 
-import us.supositi.gearshift.TransmissionSessionManager.Exclude;
+import org.sugr.gearshift.TransmissionSessionManager.Exclude;
 
 import android.content.Context;
 import android.text.Html;

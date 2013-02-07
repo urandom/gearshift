@@ -1,4 +1,4 @@
-package us.supositi.gearshift;
+package org.sugr.gearshift;
 
 import android.app.Activity;
 import android.content.Context;

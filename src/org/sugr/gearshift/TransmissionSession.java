@@ -1,6 +1,6 @@
-package us.supositi.gearshift;
+package org.sugr.gearshift;
 
-import us.supositi.gearshift.TransmissionSessionManager.Exclude;
+import org.sugr.gearshift.TransmissionSessionManager.Exclude;
 
 import com.google.gson.annotations.SerializedName;
 

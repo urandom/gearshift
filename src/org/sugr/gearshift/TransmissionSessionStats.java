@@ -1,4 +1,4 @@
-package us.supositi.gearshift;
+package org.sugr.gearshift;
 
 import com.google.gson.annotations.SerializedName;
 

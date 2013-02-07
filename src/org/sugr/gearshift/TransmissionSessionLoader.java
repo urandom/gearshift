@@ -1,11 +1,11 @@
-package us.supositi.gearshift;
+package org.sugr.gearshift;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import us.supositi.gearshift.TransmissionSessionManager.ActiveTorrentGetResponse;
-import us.supositi.gearshift.TransmissionSessionManager.ManagerException;
+import org.sugr.gearshift.TransmissionSessionManager.ActiveTorrentGetResponse;
+import org.sugr.gearshift.TransmissionSessionManager.ManagerException;
 
 import android.content.Context;
 import android.content.SharedPreferences;
