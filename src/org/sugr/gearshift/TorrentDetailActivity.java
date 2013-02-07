@@ -36,15 +36,15 @@ public class TorrentDetailActivity extends FragmentActivity implements Transmiss
 		
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        Gson gson = new GsonBuilder().setExclusionStrategies(new TransmissionExclusionStrategy()).create();
+        mTorrents = new ArrayList<Torrent>(Arrays.asList(
+                gson.fromJson(getIntent().getStringExtra(ARG_JSON_TORRENTS), Torrent[].class)));
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_torrent_detail);
 
         // Show the Up button in the action bar.
         getActionBar().setDisplayHomeAsUpEnabled(true);
-        
-        Gson gson = new GsonBuilder().setExclusionStrategies(new TransmissionExclusionStrategy()).create();
-        mTorrents = new ArrayList<Torrent>(Arrays.asList(
-                gson.fromJson(getIntent().getStringExtra(ARG_JSON_TORRENTS), Torrent[].class)));
         
         mPager = (ViewPager) findViewById(R.id.torrent_detail_pager);
         mPager.setAdapter(new TorrentDetailPagerAdapter(this));
