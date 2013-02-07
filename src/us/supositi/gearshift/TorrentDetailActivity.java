@@ -101,4 +101,21 @@ public class TorrentDetailActivity extends FragmentActivity implements Transmiss
     public ArrayList<Torrent> getTorrents() {
         return mTorrents;
     }
+    
+    @Override
+    public Torrent[] getCurrentTorrents() {        
+        int current = mPager.getCurrentItem();
+        int offscreen = mPager.getOffscreenPageLimit(); 
+        int count = offscreen * 2 + 1;
+        Torrent torrents[] = new Torrent[count];
+        
+        for (int i = 0; i < count; i++) {
+            int position = current + i - offscreen;
+            Torrent t = mTorrents.get(position);
+            
+            torrents[i] = t;
+        }
+
+        return torrents;
+    }
 }

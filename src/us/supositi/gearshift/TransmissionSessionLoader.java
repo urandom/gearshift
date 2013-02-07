@@ -48,9 +48,7 @@ public class TransmissionSessionLoader extends AsyncTaskLoader<TransmissionSessi
     private boolean mStopUpdates = false;
     
     private SharedPreferences mDefaultPrefs;
-    
-    private Torrent mCurrentTorrent;
-    
+        
     private boolean mNeedsMoreInfo = false;
 
     private Handler mIntervalHandler = new Handler();
@@ -71,31 +69,34 @@ public class TransmissionSessionLoader extends AsyncTaskLoader<TransmissionSessi
         mDefaultPrefs = PreferenceManager.getDefaultSharedPreferences(getContext());
     }
     
-    public TransmissionSessionLoader(Context context, TransmissionProfile profile, Torrent torrent) {
+    public TransmissionSessionLoader(Context context, TransmissionProfile profile, ArrayList<Torrent> all) {
         super(context);
         
         mProfile = profile;
         
         mSessManager = new TransmissionSessionManager(getContext(), mProfile);
         mDefaultPrefs = PreferenceManager.getDefaultSharedPreferences(getContext());
-        mCurrentTorrent = torrent;
-        mTorrents.add(torrent);
-        mTorrentMap.put(torrent.getId(), torrent);
+        if (all != null) {
+            mTorrents.addAll(all);
+            for (Torrent t : all)
+                mTorrentMap.put(t.getId(), t);
+        }
     }
 
     @Override
     public TransmissionSessionData loadInBackground() {
         /* Remove any previous waiting runners */
         mIntervalHandler.removeCallbacks(mIntervalRunner);
+        Torrent[] currentTorrents = ((TransmissionSessionInterface) getContext()).getCurrentTorrents();
 
-        if (mCurrentTorrent == null && (mSession == null || mIteration % 3 == 0)) {
+        if (currentTorrents == null && (mSession == null || mIteration % 3 == 0)) {
             try {
                 mSession = mSessManager.getSession().getSession();
             } catch (ManagerException e) {
                 return handleError(e);
             }
         }
-        if (mCurrentTorrent == null && mSessionStats == null) {
+        if (currentTorrents == null && mSessionStats == null) {
             try {
                 mSessionStats = mSessManager.getSessionStats().getStats();
             } catch (ManagerException e) {
@@ -106,21 +107,30 @@ public class TransmissionSessionLoader extends AsyncTaskLoader<TransmissionSessi
         boolean active = mDefaultPrefs.getBoolean(GeneralSettingsFragment.PREF_UPDATE_ACTIVE, false);
         Torrent [] torrents;
         int[] removed = null;
+        int[] ids = null;
         String[] fields = null;
         
         if (mIteration == 0 || mNeedsMoreInfo) {
             fields = concat(Torrent.Fields.METADATA, Torrent.Fields.STATS);
-        } else if (mCurrentTorrent != null) {
+        } else if (currentTorrents != null) {
             fields = concat(new String[] {"id"}, Torrent.Fields.STATS_EXTRA);
-            if (mCurrentTorrent.getHashString() == null) {
-                fields = concat(fields, Torrent.Fields.INFO_EXTRA);
+            boolean extraAdded = false;
+            ids = new int[currentTorrents.length];
+            int index = 0;
+            for (Torrent t : currentTorrents) {
+                if (!extraAdded && t.getHashString() == null) {
+                    fields = concat(fields, Torrent.Fields.INFO_EXTRA);
+                    extraAdded = true;
+                }
+                
+                ids[index++] = t.getId();
             }
         } else {
             fields = Torrent.Fields.STATS;
         }
         try {
-            if (mCurrentTorrent != null) {
-                torrents = mSessManager.getTorrents(new int[] {mCurrentTorrent.getId()}, fields).getTorrents();
+            if (currentTorrents != null) {
+                torrents = mSessManager.getTorrents(ids, fields).getTorrents();
             } else if (active) {
                 int full = Integer.parseInt(mDefaultPrefs.getString(GeneralSettingsFragment.PREF_FULL_UPDATE, "2"));
                 
@@ -145,7 +155,7 @@ public class TransmissionSessionLoader extends AsyncTaskLoader<TransmissionSessi
                     mTorrentMap.remove(id);
                 }
             }
-        } else if (mCurrentTorrent == null) {
+        } else if (currentTorrents == null) {
             ArrayList<Torrent> removal = new ArrayList<Torrent>();
             for (Torrent original : mTorrents) {
                 boolean found = false;

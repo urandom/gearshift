@@ -23,22 +23,6 @@ import com.google.gson.GsonBuilder;
 import com.slidingmenu.lib.SlidingMenu;
 import com.slidingmenu.lib.app.SlidingFragmentActivity;
 
-/**
- * An activity representing a list of Torrents. This activity
- * has different presentations for handset and tablet-size devices. On
- * handsets, the activity presents a list of items, which when touched,
- * lead to a {@link TorrentDetailActivity} representing
- * item details. On tablets, the activity presents the list of items and
- * item details side-by-side using two vertical panes.
- * <p>
- * The activity makes heavy use of fragments. The list of items is a
- * {@link TorrentListFragment} and the item details
- * (if present) is a {@link TorrentDetailFragment}.
- * <p>
- * This activity also implements the required
- * {@link TorrentListFragment.Callbacks} interface
- * to listen for item selections.
- */
 public class TorrentListActivity extends SlidingFragmentActivity
         implements TransmissionSessionInterface, TorrentListFragment.Callbacks {
     
@@ -241,5 +225,24 @@ public class TorrentListActivity extends SlidingFragmentActivity
     @Override
     public ArrayList<Torrent> getTorrents() {
         return mTorrents;
+    }
+
+    @Override
+    public Torrent[] getCurrentTorrents() {
+        if (!isDetailsPanelShown()) return null;
+        
+        int current = mPager.getCurrentItem();
+        int offscreen = mPager.getOffscreenPageLimit(); 
+        int count = offscreen * 2 + 1;
+        Torrent torrents[] = new Torrent[count];
+        
+        for (int i = 0; i < count; i++) {
+            int position = current + i - offscreen;
+            Torrent t = mTorrents.get(position);
+            
+            torrents[i] = t;
+        }
+
+        return torrents;
     }
 }
