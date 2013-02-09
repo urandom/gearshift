@@ -33,8 +33,7 @@ public class TorrentDetailPagerAdapter extends FragmentStatePagerAdapter {
 	public Fragment getItem(int position) {
 		TorrentDetailPageFragment fragment = new TorrentDetailPageFragment();
 		Bundle arguments = new Bundle();
-		ArrayList<Torrent> torrents = mContext.getTorrents();
-        arguments.putInt(TorrentDetailActivity.ARG_TORRENT_ID, torrents.get(position).getId());
+        arguments.putInt(TorrentDetailFragment.ARG_PAGE_POSITION, position);
         fragment.setArguments(arguments);
         
         while (mFragments.size() <= position)

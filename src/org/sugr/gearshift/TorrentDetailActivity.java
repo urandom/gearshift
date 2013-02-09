@@ -24,14 +24,13 @@ import com.google.gson.GsonBuilder;
  * This activity is mostly just a 'shell' activity containing nothing
  * more than a {@link TorrentDetailFragment}.
  */
-public class TorrentDetailActivity extends FragmentActivity implements TransmissionSessionInterface {
-    public static final String ARG_TORRENT_ID = "torrent_id";
+public class TorrentDetailActivity extends FragmentActivity implements TransmissionSessionInterface,
+       TorrentDetailFragment.Callbacks {
     public static final String ARG_JSON_TORRENTS = "json_torrents";
 
-	private ViewPager mPager;
-	
     private ArrayList<Torrent> mTorrents = new ArrayList<Torrent>();
-    
+    private int mCurrentTorrent = 0;
+
     /* TODO: create transmissionsessionloader and callback */
 		
     @Override
@@ -46,9 +45,6 @@ public class TorrentDetailActivity extends FragmentActivity implements Transmiss
         // Show the Up button in the action bar.
         getActionBar().setDisplayHomeAsUpEnabled(true);
         
-        mPager = (ViewPager) findViewById(R.id.torrent_detail_pager);
-        mPager.setAdapter(new TorrentDetailPagerAdapter(this));
-
         // savedInstanceState is non-null when there is fragment state
         // saved from previous configurations of this activity
         // (e.g. when rotating the screen from portrait to landscape).
@@ -60,14 +56,15 @@ public class TorrentDetailActivity extends FragmentActivity implements Transmiss
         //
                 
         if (savedInstanceState == null) {
-            int id = getIntent().getIntExtra(ARG_TORRENT_ID, 0);
-            for (int i = 0; i < mTorrents.size(); ++i) {
-                Torrent t = mTorrents.get(i);
-                if (t.getId() == id) {
-                    mPager.setCurrentItem(i);
-                    break;
-                }
-            }
+            mCurrentTorrent = getIntent().getIntExtra(TorrentDetailFragment.ARG_PAGE_POSITION, 0);
+            Bundle arguments = new Bundle();
+            arguments.putInt(TorrentDetailFragment.ARG_PAGE_POSITION,
+                    mCurrentTorrent);
+            TorrentDetailFragment fragment = new TorrentDetailFragment();
+            fragment.setArguments(arguments);
+            getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.torrent_detail_container, fragment)
+                    .commit();
         }
     }
 
@@ -103,9 +100,9 @@ public class TorrentDetailActivity extends FragmentActivity implements Transmiss
     }
     
     @Override
-    public Torrent[] getCurrentTorrents() {        
-        int current = mPager.getCurrentItem();
-        int offscreen = mPager.getOffscreenPageLimit(); 
+    public Torrent[] getCurrentTorrents() {
+        int current = mCurrentTorrent;
+        int offscreen = 1; 
         int count = offscreen * 2 + 1;
         Torrent torrents[] = new Torrent[count];
         
@@ -117,5 +114,10 @@ public class TorrentDetailActivity extends FragmentActivity implements Transmiss
         }
 
         return torrents;
+    }
+
+    @Override
+    public void onPageSelected(int position) {
+        mCurrentTorrent = position;
     }
 }

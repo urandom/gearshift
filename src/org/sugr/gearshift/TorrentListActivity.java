@@ -10,7 +10,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.content.Loader;
-import android.support.v4.view.ViewPager;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
@@ -25,7 +24,8 @@ import com.slidingmenu.lib.SlidingMenu;
 import com.slidingmenu.lib.app.SlidingFragmentActivity;
 
 public class TorrentListActivity extends SlidingFragmentActivity
-        implements TransmissionSessionInterface, TorrentListFragment.Callbacks {
+        implements TransmissionSessionInterface, TorrentListFragment.Callbacks,
+                   TorrentDetailFragment.Callbacks {
 
     /* TODO: move to an Application class, along with the logging functions */
     public static final int PROFILES_LOADER_ID = 1;
@@ -38,12 +38,13 @@ public class TorrentListActivity extends SlidingFragmentActivity
      */
     private boolean mTwoPane;
 
-    private ViewPager mPager;
-    
     private static final boolean DEBUG = true;
     private static final String LogTag = "GearShift";
     
     private ArrayList<Torrent> mTorrents = new ArrayList<Torrent>();
+    private int mCurrentTorrent = 0;
+
+
     
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -52,26 +53,12 @@ public class TorrentListActivity extends SlidingFragmentActivity
         
         PreferenceManager.setDefaultValues(this, R.xml.general_preferences, false);
         
-        if (findViewById(R.id.torrent_detail_pager) != null) {
+        if (findViewById(R.id.torrent_detail_panel) != null) {
             // The detail container view will be present only in the
             // large-screen layouts (res/values-large and
             // res/values-sw600dp). If this view is present, then the
             // activity should be in two-pane mode.
             mTwoPane = true;
-
-            mPager = (ViewPager) findViewById(R.id.torrent_detail_pager);
-            mPager.setAdapter(new TorrentDetailPagerAdapter(this));
-            mPager.setOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
-                public void onPageSelected(int position) {
-                    ((TorrentListFragment) getSupportFragmentManager()
-                     .findFragmentById(R.id.torrent_list))
-                        .getListView().setItemChecked(position, true);
-
-                    Loader<TransmissionSessionData> loader =
-                            getSupportLoaderManager().getLoader(SESSION_LOADER_ID);
-                    ((TransmissionSessionLoader) loader).setCurrentTorrents(getCurrentTorrents());
-                }
-            });
 
             // In two-pane mode, list items should be given the
             // 'activated' state when touched.
@@ -105,23 +92,44 @@ public class TorrentListActivity extends SlidingFragmentActivity
     public void onItemSelected(Torrent torrent) {
         if (mTwoPane) {
             toggleRightPane(true);
-            mPager.setCurrentItem(mTorrents.indexOf(torrent));
+            mCurrentTorrent = mTorrents.indexOf(torrent);
+            Bundle arguments = new Bundle();
+            arguments.putInt(TorrentDetailFragment.ARG_PAGE_POSITION,
+                    mCurrentTorrent);
+            TorrentDetailFragment fragment = new TorrentDetailFragment();
+            fragment.setArguments(arguments);
+            getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.torrent_detail_container, fragment)
+                    .commit();
         } else {
             // In single-pane mode, simply start the detail activity
             // for the selected item ID.
             Intent detailIntent = new Intent(this, TorrentDetailActivity.class);
-            detailIntent.putExtra(TorrentDetailActivity.ARG_TORRENT_ID, torrent.getId());
+            detailIntent.putExtra(TorrentDetailFragment.ARG_PAGE_POSITION, mTorrents.indexOf(torrent));
             Gson gson = new GsonBuilder().setExclusionStrategies(new TransmissionExclusionStrategy()).create();
             detailIntent.putExtra(TorrentDetailActivity.ARG_JSON_TORRENTS,
                     gson.toJson(mTorrents.toArray(new Torrent[mTorrents.size()])));
             startActivity(detailIntent);
         }
     }
-    
+
+    @Override
+    public void onPageSelected(int position) {
+        if (mTwoPane) {
+            ((TorrentListFragment) getSupportFragmentManager()
+             .findFragmentById(R.id.torrent_list))
+                .getListView().setItemChecked(position, true);
+
+            Loader<TransmissionSessionData> loader =
+                    getSupportLoaderManager().getLoader(SESSION_LOADER_ID);
+            ((TransmissionSessionLoader) loader).setCurrentTorrents(getCurrentTorrents());
+        }
+    }
+
     @Override
     public void onBackPressed() {
-    	TorrentListFragment fragment = ((TorrentListFragment) getSupportFragmentManager()
-				.findFragmentById(R.id.torrent_list));
+        TorrentListFragment fragment = ((TorrentListFragment) getSupportFragmentManager()
+                .findFragmentById(R.id.torrent_list));
     	
     	int position = fragment.getListView().getCheckedItemPosition();
     	if (position == ListView.INVALID_POSITION) {
@@ -165,30 +173,21 @@ public class TorrentListActivity extends SlidingFragmentActivity
         if (!mTwoPane) return;
         
         ViewGroup panel = (ViewGroup) findViewById(R.id.torrent_detail_panel);
-        List<TorrentDetailPageFragment> fragments = ((TorrentDetailPagerAdapter) mPager.getAdapter()).getFragments();
-        
         if (show) {
             if (panel.getVisibility() != View.VISIBLE) {
                 panel.setVisibility(View.VISIBLE);
-                LayoutAnimationController controller = AnimationUtils.loadLayoutAnimation(
-                        this, R.anim.layout_slide_right);
-                panel.setLayoutAnimation(controller);
+                // LayoutAnimationController controller = AnimationUtils.loadLayoutAnimation(
+                //         this, R.anim.layout_slide_right);
+                // panel.setLayoutAnimation(controller);
                 getSlidingMenu().setTouchModeAbove(SlidingMenu.TOUCHMODE_NONE);
-                for (TorrentDetailPageFragment fragment : fragments) {
-                    if (fragment != null)
-                        fragment.setHasOptionsMenu(true);
-                }
             }
         } else {
             if (panel.getVisibility() != View.GONE) {
                 panel.setVisibility(View.GONE);
                 getSlidingMenu().setTouchModeAbove(SlidingMenu.TOUCHMODE_FULLSCREEN);
-                for (TorrentDetailPageFragment fragment : fragments) {
-                    if (fragment != null)
-                        fragment.setHasOptionsMenu(false);
-                }
                 Loader<TransmissionSessionData> loader = getSupportLoaderManager().getLoader(SESSION_LOADER_ID);
-                ((TransmissionSessionLoader) loader).setCurrentTorrents(null);
+                if (loader != null)
+                    ((TransmissionSessionLoader) loader).setCurrentTorrents(null);
             }
         }
     }
@@ -243,8 +242,8 @@ public class TorrentListActivity extends SlidingFragmentActivity
     public Torrent[] getCurrentTorrents() {
         if (!isDetailsPanelShown()) return null;
         
-        int current = mPager.getCurrentItem();
-        int offscreen = mPager.getOffscreenPageLimit(); 
+        int current = mCurrentTorrent;
+        int offscreen = 1;
         int count = offscreen * 2 + 1;
         Torrent torrents[] = new Torrent[count];
         

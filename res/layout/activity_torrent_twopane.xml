@@ -36,12 +36,12 @@
 	        android:layout_width="16dp"
 	        android:layout_height="match_parent" />
 
-		<android.support.v4.view.ViewPager
-		    android:id="@+id/torrent_detail_pager"
-		    android:layout_marginLeft="16dp"
-		    android:layout_width="match_parent"
-		    android:layout_height="match_parent"/>
-		
+            <FrameLayout
+                android:id="@+id/torrent_detail_container"
+                android:layout_marginLeft="16dp"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent" />
+
     </RelativeLayout>
 
 	

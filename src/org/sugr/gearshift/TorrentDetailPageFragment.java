@@ -99,18 +99,12 @@ public class TorrentDetailPageFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        if (getArguments().containsKey(TorrentDetailActivity.ARG_TORRENT_ID)) {
-            int id = getArguments().getInt(TorrentDetailActivity.ARG_TORRENT_ID);
+        if (getArguments().containsKey(TorrentDetailFragment.ARG_PAGE_POSITION)) {
+            int position = getArguments().getInt(TorrentDetailFragment.ARG_PAGE_POSITION);
             ArrayList<Torrent> torrents = ((TransmissionSessionInterface) getActivity()).getTorrents();
-            for (Torrent t : torrents) {
-                if (t.getId() == id) {
-                    mTorrent = t;
-                    break;
-                }
-            }
-            if (mTorrent == null) {
-                throw new IllegalStateException("A valid torrent was not found.");
-            }
+
+            if (position < torrents.size())
+                mTorrent = torrents.get(position);
         }
 
         mPriorityValues = Arrays.asList(getResources().getStringArray(R.array.torrent_priority_values));
@@ -119,13 +113,13 @@ public class TorrentDetailPageFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState) {
-        final View root = inflater.inflate(R.layout.fragment_torrent_detail, container, false);
-        
-        if (mTorrent != null) {
-            ((TextView) root.findViewById(R.id.torrent_detail_title)).setText(mTorrent.getName());
-        }
+        final View root = inflater.inflate(R.layout.fragment_torrent_detail_page, container, false);
 
+        if (mTorrent == null) return root;
         
+        ((TextView) root.findViewById(R.id.torrent_detail_title)).setText(mTorrent.getName());
+
+
         root.findViewById(R.id.torrent_detail_overview_expander).setOnClickListener(mExpanderListener);
         root.findViewById(R.id.torrent_detail_limits_expander).setOnClickListener(mExpanderListener);
         root.findViewById(R.id.torrent_detail_advanced_expander).setOnClickListener(mExpanderListener);

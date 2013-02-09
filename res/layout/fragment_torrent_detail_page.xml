@@ -1,0 +1,29 @@
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/detail_background" >
+
+    <LinearLayout
+        android:id="@+id/torrent_detail_container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="8dp"
+        android:paddingBottom="16dp"
+        android:paddingTop="16dp"
+        tools:context=".TorrentDetailFragment" >
+
+        <TextView
+            android:id="@+id/torrent_detail_title"
+            style="@style/TorrentTitle" />
+
+        <include layout="@layout/torrent_detail_overview" />
+
+        <include layout="@layout/torrent_detail_limits" />
+        
+        <include layout="@layout/torrent_detail_advanced" />
+
+    </LinearLayout>
+
+</ScrollView><!-- android:background="@android:drawable/dialog_holo_light_frame" -->
