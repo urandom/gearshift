@@ -165,7 +165,7 @@ public class TorrentListActivity extends SlidingFragmentActivity
         if (!mTwoPane) return;
         
         ViewGroup panel = (ViewGroup) findViewById(R.id.torrent_detail_panel);
-        List<TorrentDetailFragment> fragments = ((TorrentDetailPagerAdapter) mPager.getAdapter()).getFragments();
+        List<TorrentDetailPageFragment> fragments = ((TorrentDetailPagerAdapter) mPager.getAdapter()).getFragments();
         
         if (show) {
             if (panel.getVisibility() != View.VISIBLE) {
@@ -174,7 +174,7 @@ public class TorrentListActivity extends SlidingFragmentActivity
                         this, R.anim.layout_slide_right);
                 panel.setLayoutAnimation(controller);
                 getSlidingMenu().setTouchModeAbove(SlidingMenu.TOUCHMODE_NONE);
-                for (TorrentDetailFragment fragment : fragments) {
+                for (TorrentDetailPageFragment fragment : fragments) {
                     if (fragment != null)
                         fragment.setHasOptionsMenu(true);
                 }
@@ -183,7 +183,7 @@ public class TorrentListActivity extends SlidingFragmentActivity
             if (panel.getVisibility() != View.GONE) {
                 panel.setVisibility(View.GONE);
                 getSlidingMenu().setTouchModeAbove(SlidingMenu.TOUCHMODE_FULLSCREEN);
-                for (TorrentDetailFragment fragment : fragments) {
+                for (TorrentDetailPageFragment fragment : fragments) {
                     if (fragment != null)
                         fragment.setHasOptionsMenu(false);
                 }

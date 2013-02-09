@@ -213,6 +213,7 @@ public class TransmissionSessionManager {
             
             int code = conn.getResponseCode();
 
+            TorrentListActivity.logD("Got a response code " + code);
             if (code == 409) {
                 mSessionId = getSessionId(conn);
                 if (mInvalidSessionRetries < 3 && mSessionId != null) {

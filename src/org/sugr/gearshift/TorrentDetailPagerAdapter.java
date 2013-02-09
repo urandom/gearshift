@@ -9,7 +9,7 @@ import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentStatePagerAdapter;
 
 public class TorrentDetailPagerAdapter extends FragmentStatePagerAdapter {
-    private ArrayList<TorrentDetailFragment> mFragments = new ArrayList<TorrentDetailFragment>();
+    private ArrayList<TorrentDetailPageFragment> mFragments = new ArrayList<TorrentDetailPageFragment>();
     private TransmissionSessionInterface mContext;
   
 	public TorrentDetailPagerAdapter(FragmentActivity activity) {
@@ -31,7 +31,7 @@ public class TorrentDetailPagerAdapter extends FragmentStatePagerAdapter {
 	
 	@Override
 	public Fragment getItem(int position) {
-		TorrentDetailFragment fragment = new TorrentDetailFragment();
+		TorrentDetailPageFragment fragment = new TorrentDetailPageFragment();
 		Bundle arguments = new Bundle();
 		ArrayList<Torrent> torrents = mContext.getTorrents();
         arguments.putInt(TorrentDetailActivity.ARG_TORRENT_ID, torrents.get(position).getId());
@@ -44,7 +44,7 @@ public class TorrentDetailPagerAdapter extends FragmentStatePagerAdapter {
 		return fragment;
 	}
 	
-	public List<TorrentDetailFragment> getFragments() {
+	public List<TorrentDetailPageFragment> getFragments() {
 	    return mFragments;
 	}
 }
