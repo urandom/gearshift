@@ -3,19 +3,18 @@ package org.sugr.gearshift;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.ArrayList;
-import java.util.List;
 
 import org.sugr.gearshift.TransmissionSessionManager.TransmissionExclusionStrategy;
+
 import android.content.Intent;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.v4.app.FragmentManager;
 import android.support.v4.content.Loader;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.AnimationUtils;
-import android.view.animation.LayoutAnimationController;
 import android.widget.ListView;
 
 import com.google.gson.Gson;
@@ -93,14 +92,21 @@ public class TorrentListActivity extends SlidingFragmentActivity
         if (mTwoPane) {
             toggleRightPane(true);
             mCurrentTorrent = mTorrents.indexOf(torrent);
-            Bundle arguments = new Bundle();
-            arguments.putInt(TorrentDetailFragment.ARG_PAGE_POSITION,
-                    mCurrentTorrent);
-            TorrentDetailFragment fragment = new TorrentDetailFragment();
-            fragment.setArguments(arguments);
-            getSupportFragmentManager().beginTransaction()
-                    .replace(R.id.torrent_detail_container, fragment)
-                    .commit();
+            FragmentManager manager = getSupportFragmentManager();
+            TorrentDetailFragment fragment = (TorrentDetailFragment) manager.findFragmentByTag(
+                    TorrentDetailFragment.TAG);
+            if (fragment == null) {
+                Bundle arguments = new Bundle();
+                arguments.putInt(TorrentDetailFragment.ARG_PAGE_POSITION,
+                        mCurrentTorrent);
+                fragment = new TorrentDetailFragment();
+                fragment.setArguments(arguments);
+                manager.beginTransaction()
+                        .replace(R.id.torrent_detail_container, fragment, TorrentDetailFragment.TAG)
+                        .commit();
+            } else {
+                fragment.setCurrentTorrent(mCurrentTorrent);
+            }
         } else {
             // In single-pane mode, simply start the detail activity
             // for the selected item ID.
@@ -122,7 +128,7 @@ public class TorrentListActivity extends SlidingFragmentActivity
 
             Loader<TransmissionSessionData> loader =
                     getSupportLoaderManager().getLoader(SESSION_LOADER_ID);
-            ((TransmissionSessionLoader) loader).setCurrentTorrents(getCurrentTorrents());
+            ((TransmissionSessionLoader) loader).setAllCurrentTorrents(true);
         }
     }
 
@@ -169,8 +175,8 @@ public class TorrentListActivity extends SlidingFragmentActivity
         return mTwoPane && findViewById(R.id.torrent_detail_panel).getVisibility() == View.VISIBLE;
     }
     
-    private void toggleRightPane(boolean show) {
-        if (!mTwoPane) return;
+    private boolean toggleRightPane(boolean show) {
+        if (!mTwoPane) return false;
         
         ViewGroup panel = (ViewGroup) findViewById(R.id.torrent_detail_panel);
         if (show) {
@@ -180,6 +186,7 @@ public class TorrentListActivity extends SlidingFragmentActivity
                 //         this, R.anim.layout_slide_right);
                 // panel.setLayoutAnimation(controller);
                 getSlidingMenu().setTouchModeAbove(SlidingMenu.TOUCHMODE_NONE);
+                return true;
             }
         } else {
             if (panel.getVisibility() != View.GONE) {
@@ -187,9 +194,11 @@ public class TorrentListActivity extends SlidingFragmentActivity
                 getSlidingMenu().setTouchModeAbove(SlidingMenu.TOUCHMODE_FULLSCREEN);
                 Loader<TransmissionSessionData> loader = getSupportLoaderManager().getLoader(SESSION_LOADER_ID);
                 if (loader != null)
-                    ((TransmissionSessionLoader) loader).setCurrentTorrents(null);
+                    ((TransmissionSessionLoader) loader).setAllCurrentTorrents(false);
+                return true;
             }
         }
+        return false;
     }
     
     public static void logE(String message, Object[] args, Exception e) {
@@ -226,10 +235,12 @@ public class TorrentListActivity extends SlidingFragmentActivity
 
     @Override
     public void setTorrents(ArrayList<Torrent> torrents) {
-        if (torrents == null) {
-            mTorrents.clear();
-        } else {
+        mTorrents.clear();
+        if (torrents != null) {
             mTorrents.addAll(torrents);
+        }
+        if (mTorrents.size() == 0) {
+            toggleRightPane(false);
         }
     }
 
@@ -241,19 +252,7 @@ public class TorrentListActivity extends SlidingFragmentActivity
     @Override
     public Torrent[] getCurrentTorrents() {
         if (!isDetailsPanelShown()) return null;
-        
-        int current = mCurrentTorrent;
-        int offscreen = 1;
-        int count = offscreen * 2 + 1;
-        Torrent torrents[] = new Torrent[count];
-        
-        for (int i = 0; i < count; i++) {
-            int position = current + i - offscreen;
-            Torrent t = mTorrents.get(position);
-            
-            torrents[i] = t;
-        }
 
-        return torrents;
+        return mTorrents.toArray(new Torrent[mTorrents.size()]);
     }
 }

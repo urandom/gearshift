@@ -7,6 +7,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v4.app.FragmentManager;
 import android.support.v4.app.ListFragment;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.Loader;
@@ -165,7 +166,7 @@ public class TorrentListFragment extends ListFragment {
             if (data.stats != null)
                 mSessionStats = data.stats;
 
-            if (data.torrents.size() > 0) {
+            if (data.torrents.size() > 0 || mTorrentListAdapter.getCount() > 0) {
                 /* The notifyDataSetChanged method sets this to true */
                 mTorrentListAdapter.setNotifyOnChange(false);
                 mTorrentListAdapter.clear();
@@ -173,7 +174,18 @@ public class TorrentListFragment extends ListFragment {
                 mTorrentListAdapter.notifyDataSetChanged();
                 
                 ((TransmissionSessionInterface) getActivity()).setTorrents(data.torrents);
-            } else {
+
+                if (data.hasRemoved || data.hasAdded) {
+                    FragmentManager manager = getActivity().getSupportFragmentManager();
+                    TorrentDetailFragment fragment = (TorrentDetailFragment) manager.findFragmentByTag(
+                            TorrentDetailFragment.TAG);
+                    if (fragment != null) {
+                        fragment.notifyTorrentListChanged(data.hasRemoved, data.hasAdded);
+                    }
+                }
+            }
+
+            if (mTorrentListAdapter.getCount() == 0) {
                 ((TransmissionSessionInterface) getActivity()).setTorrents(null);
                 setEmptyText(R.string.no_torrents_empty_list);
             }

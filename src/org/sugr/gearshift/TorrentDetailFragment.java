@@ -1,5 +1,7 @@
 package org.sugr.gearshift;
 
+import java.util.ArrayList;
+
 import android.app.Activity;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -12,6 +14,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 public class TorrentDetailFragment extends Fragment {
+    public static final String TAG = "detail_fragment";
     public static final String ARG_PAGE_POSITION = "page_position";
     public interface Callbacks {
         public void onPageSelected(int position);
@@ -19,6 +22,8 @@ public class TorrentDetailFragment extends Fragment {
 
     private Callbacks mCallbacks = sDummyCallbacks;
     private ViewPager mPager;
+    private int mCurrentTorrentId = -1;
+    private int mCurrentPosition = -1;
 
     private static Callbacks sDummyCallbacks = new Callbacks() {
         @Override
@@ -48,13 +53,23 @@ public class TorrentDetailFragment extends Fragment {
         mPager.setAdapter(new TorrentDetailPagerAdapter(getActivity()));
         mPager.setOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
             public void onPageSelected(int position) {
+                mCurrentPosition = position;
+                ArrayList<Torrent> torrents = ((TransmissionSessionInterface) getActivity()).getTorrents();
+                mCurrentTorrentId = torrents.size() > position
+                    ? ((Torrent) torrents.get(position)).getId()
+                    : -1;
+
                 mCallbacks.onPageSelected(position);
             }
         });
 
         if (getArguments().containsKey(ARG_PAGE_POSITION)) {
-            int position = getArguments().getInt(ARG_PAGE_POSITION);
-            mPager.setCurrentItem(position);
+            mCurrentPosition = getArguments().getInt(ARG_PAGE_POSITION);
+            mPager.setCurrentItem(mCurrentPosition);
+            ArrayList<Torrent> torrents = ((TransmissionSessionInterface) getActivity()).getTorrents();
+            mCurrentTorrentId = torrents.size() > mCurrentPosition
+                ? ((Torrent) torrents.get(mCurrentPosition)).getId()
+                : -1;
         }
 
 
@@ -107,6 +122,29 @@ public class TorrentDetailFragment extends Fragment {
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
+        }
+    }
+
+    public void setCurrentTorrent(int position) {
+        mPager.setCurrentItem(position);
+    }
+
+    public void notifyTorrentListChanged(boolean removed, boolean added) {
+        ArrayList<Torrent> torrents = ((TransmissionSessionInterface) getActivity()).getTorrents();
+        boolean found = false;
+        int index = 0;
+        for (Torrent t : torrents) {
+            if (t.getId() == mCurrentTorrentId) {
+                found = true;
+                break;
+            }
+            index++;
+        }
+        mPager.setAdapter(new TorrentDetailPagerAdapter(getActivity()));
+        if (found) {
+            mPager.setCurrentItem(index);
+        } else {
+            mPager.setCurrentItem(0);
         }
     }
 }

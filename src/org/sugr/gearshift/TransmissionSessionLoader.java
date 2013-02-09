@@ -1,8 +1,6 @@
 package org.sugr.gearshift;
 
-import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
 
 import org.sugr.gearshift.TransmissionSessionManager.ActiveTorrentGetResponse;
 import org.sugr.gearshift.TransmissionSessionManager.ManagerException;
@@ -12,31 +10,40 @@ import android.content.SharedPreferences;
 import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.support.v4.content.AsyncTaskLoader;
+import android.util.SparseArray;
 
 
 class TransmissionSessionData {
     public TransmissionSession session = null;
     public TransmissionSessionStats stats = null;
     public ArrayList<Torrent> torrents = new ArrayList<Torrent>();
+    public boolean hasRemoved = false;
+    public boolean hasAdded = false;
     
     public TransmissionSessionData(TransmissionSession session, TransmissionSessionStats stats) {
         this.session = session;
         this.stats = stats;
     }
 
-    public TransmissionSessionData(TransmissionSession session, TransmissionSessionStats stats,
-            ArrayList<Torrent> torrents) {
+    public TransmissionSessionData(TransmissionSession session,
+            TransmissionSessionStats stats,
+            ArrayList<Torrent> torrents,
+            boolean hasRemoved,
+            boolean hasAdded) {
         this.session = session;
         this.stats = stats;
 
         if (torrents != null)
             this.torrents = torrents;
+
+        this.hasRemoved = hasRemoved;
+        this.hasAdded = hasAdded;
     }
 }
 
 public class TransmissionSessionLoader extends AsyncTaskLoader<TransmissionSessionData> {
     private ArrayList<Torrent> mTorrents = new ArrayList<Torrent>();
-    private static HashMap<Integer, Torrent> mTorrentMap = new HashMap<Integer, Torrent>();
+    private static SparseArray<Torrent> mTorrentMap = new SparseArray<Torrent>();
     private TransmissionProfile mProfile;
     
     private TransmissionSession mSession;
@@ -44,6 +51,7 @@ public class TransmissionSessionLoader extends AsyncTaskLoader<TransmissionSessi
     
     private TransmissionSessionManager mSessManager;
     private Torrent[] mCurrentTorrents;
+    private boolean mAllCurrent = false;
     
     private int mIteration = 0;
     private boolean mStopUpdates = false;
@@ -86,6 +94,12 @@ public class TransmissionSessionLoader extends AsyncTaskLoader<TransmissionSessi
 
     public void setCurrentTorrents(Torrent[] torrents) {
         mCurrentTorrents = torrents;
+        mAllCurrent = false;
+    }
+
+    public void setAllCurrentTorrents(boolean set) {
+        mCurrentTorrents = null;
+        mAllCurrent = set;
     }
 
     @Override
@@ -116,6 +130,14 @@ public class TransmissionSessionLoader extends AsyncTaskLoader<TransmissionSessi
         
         if (mIteration == 0 || mNeedsMoreInfo) {
             fields = concat(Torrent.Fields.METADATA, Torrent.Fields.STATS);
+        } else if (mAllCurrent) {
+            fields = concat(Torrent.Fields.STATS, Torrent.Fields.STATS_EXTRA);
+            for (Torrent t : mTorrents) {
+                if (t.getHashString() == null) {
+                    fields = concat(fields, Torrent.Fields.INFO_EXTRA);
+                    break;
+                }
+            }
         } else if (mCurrentTorrents != null) {
             fields = concat(new String[] {"id"}, Torrent.Fields.STATS_EXTRA);
             boolean extraAdded = false;
@@ -135,7 +157,7 @@ public class TransmissionSessionLoader extends AsyncTaskLoader<TransmissionSessi
         try {
             if (mCurrentTorrents != null) {
                 torrents = mSessManager.getTorrents(ids, fields).getTorrents();
-            } else if (active) {
+            } else if (active && !mAllCurrent) {
                 int full = Integer.parseInt(mDefaultPrefs.getString(GeneralSettingsFragment.PREF_FULL_UPDATE, "2"));
                 
                 if (mIteration % full == 0) {
@@ -151,12 +173,15 @@ public class TransmissionSessionLoader extends AsyncTaskLoader<TransmissionSessi
         } catch (ManagerException e) {
             return handleError(e);
         }
+
+        boolean hasRemoved = false, hasAdded = false;
         if (removed != null) {
             for (int id : removed) {
                 Torrent t = mTorrentMap.get(id);
                 if (t != null) {
                     mTorrents.remove(t);
                     mTorrentMap.remove(id);
+                    hasRemoved = true;
                 }
             }
         } else if (mCurrentTorrents == null) {
@@ -176,6 +201,7 @@ public class TransmissionSessionLoader extends AsyncTaskLoader<TransmissionSessi
             for (Torrent t : removal) {
                 mTorrents.remove(t);
                 mTorrentMap.remove(t.getId());
+                hasRemoved = true;
             }
         }
         mNeedsMoreInfo = false;
@@ -191,6 +217,7 @@ public class TransmissionSessionLoader extends AsyncTaskLoader<TransmissionSessi
                 mTorrents.add(t);
                 mTorrentMap.put(t.getId(), t);
                 torrent = t;
+                hasAdded = true;
             }
             torrent.setTransmissionSession(mSession);
             torrent.setTrafficText(getContext());
@@ -199,7 +226,7 @@ public class TransmissionSessionLoader extends AsyncTaskLoader<TransmissionSessi
 
         mIteration++;
         return new TransmissionSessionData(
-                mSession, mSessionStats, mTorrents);
+                mSession, mSessionStats, mTorrents, hasRemoved, hasAdded);
     }
 
     @Override
@@ -224,7 +251,7 @@ public class TransmissionSessionLoader extends AsyncTaskLoader<TransmissionSessi
                 
         if (mTorrents.size() > 0)
             deliverResult(new TransmissionSessionData(
-                    mSession, mSessionStats, mTorrents));
+                    mSession, mSessionStats, mTorrents, false, false));
         
         if (takeContentChanged() || mTorrents.size() == 0) {
             TorrentListActivity.logD("TLoader: forceLoad()");

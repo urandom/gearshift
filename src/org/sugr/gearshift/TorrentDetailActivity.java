@@ -87,9 +87,8 @@ public class TorrentDetailActivity extends FragmentActivity implements Transmiss
     
     @Override
     public void setTorrents(ArrayList<Torrent> torrents) {
-        if (torrents == null) {
-            mTorrents.clear();
-        } else {
+        mTorrents.clear();
+        if (torrents != null) {
             mTorrents.addAll(torrents);
         }
     }
@@ -104,12 +103,16 @@ public class TorrentDetailActivity extends FragmentActivity implements Transmiss
         int current = mCurrentTorrent;
         int offscreen = 1; 
         int count = offscreen * 2 + 1;
+        if (current == mTorrents.size() - 1) {
+            count--;
+        }
+
         Torrent torrents[] = new Torrent[count];
-        
-        for (int i = 0; i < count; i++) {
+
+        for (int i = (current == 0 ? 1 : 0); i < count; i++) {
             int position = current + i - offscreen;
             Torrent t = mTorrents.get(position);
-            
+
             torrents[i] = t;
         }
 
