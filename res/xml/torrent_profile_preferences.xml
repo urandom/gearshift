@@ -45,13 +45,14 @@
 	        android:title="@string/con_timeout"
 	        android:inputType="number"
 	        android:dialogTitle="@string/con_timeout" />
+            <!--
 	    <ListPreference
 	        android:key="profile_retries"
 	        android:title="@string/con_retries"
 	        android:dialogTitle="@string/con_retries"
 	        android:entries="@array/pref_con_retries_entries"
 	        android:entryValues="@array/pref_con_retries_values"
-	        android:defaultValue="3" />
+	        android:defaultValue="3" />-->
 	</PreferenceCategory>    
 
 </PreferenceScreen>

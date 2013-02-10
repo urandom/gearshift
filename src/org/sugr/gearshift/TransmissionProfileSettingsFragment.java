@@ -65,8 +65,8 @@ public class TransmissionProfileSettingsFragment extends BasePreferenceFragment 
             {TransmissionProfile.PREF_USER, getString(R.string.profile_summary_format), -1, -1, ""},
             {TransmissionProfile.PREF_PATH, getString(R.string.profile_summary_format), -1, -1, ""},
             {TransmissionProfile.PREF_TIMEOUT, getString(R.string.profile_summary_format), -1, -1, ""},
-            {TransmissionProfile.PREF_RETRIES, getString(R.string.profile_summary_format),
-                R.array.pref_con_retries_values, R.array.pref_con_retries_entries, ""},
+            /* {TransmissionProfile.PREF_RETRIES, getString(R.string.profile_summary_format),
+                R.array.pref_con_retries_values, R.array.pref_con_retries_entries, ""}, */
         };
         
         ActionBar actionBar = getActivity().getActionBar();

@@ -40,7 +40,7 @@ public class TransmissionSessionManager {
         @Override
         public boolean shouldSkipField(FieldAttributes field) {
             return field.getAnnotation(Exclude.class) != null;
-        }        
+        }
     }
     public class ManagerException extends Exception {
         int mCode;
@@ -53,87 +53,87 @@ public class TransmissionSessionManager {
             return mCode;
         }
     }
-    
+
     public final static String PREF_LAST_SESSION_ID = "last_session_id";
-    
+
     private Context mContext;
     private TransmissionProfile mProfile;
-    
+
     private ConnectivityManager mConnManager;
-    
+
     private String mSessionId;
-    
+
     private int mInvalidSessionRetries = 0;
     private SharedPreferences mDefaultPrefs;
-    
+
     public TransmissionSessionManager(Context context, TransmissionProfile profile) {
         mContext = context;
         mProfile = profile;
-        
+
         mConnManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
         mDefaultPrefs = PreferenceManager.getDefaultSharedPreferences(context);
-        
+
         mSessionId = mDefaultPrefs.getString(PREF_LAST_SESSION_ID, null);
     }
-    
+
     public boolean hasConnectivity() {
         NetworkInfo info = mConnManager.getActiveNetworkInfo();
         return (info != null);
     }
-    
+
     public SessionGetResponse getSession() throws ManagerException {
         TransmissionSession session = null;
         SessionGetRequest request = new SessionGetRequest();
-        
+
         String json;
         try {
             json = requestData(request);
         } catch (IOException e) {
             e.printStackTrace();
-            
+
             throw new ManagerException(e.getMessage(), -1);
         }
         Gson gson = new GsonBuilder().setExclusionStrategies(new TransmissionExclusionStrategy()).create();
         SessionGetResponse response = gson.fromJson(json, SessionGetResponse.class);
-                
+
         return response;
     }
-    
+
     public SessionStatsResponse getSessionStats() throws ManagerException {
         TransmissionSessionStats stats = null;
         SessionStatsRequest request = new SessionStatsRequest();
-        
+
         String json;
         try {
             json = requestData(request);
         } catch (IOException e) {
             e.printStackTrace();
-            
+
             throw new ManagerException(e.getMessage(), -1);
         }
         Gson gson = new GsonBuilder().setExclusionStrategies(new TransmissionExclusionStrategy()).create();
         SessionStatsResponse response = gson.fromJson(json, SessionStatsResponse.class);
-                
+
         return response;
     }
-    
+
     public ActiveTorrentGetResponse getActiveTorrents(String[] fields) throws ManagerException {
         ActiveTorrentGetRequest request = new ActiveTorrentGetRequest(fields);
         String json;
-        
+
         try {
             json = requestData(request);
         } catch (IOException e) {
             e.printStackTrace();
-            
+
             throw new ManagerException(e.getMessage(), -1);
         }
         Gson gson = new GsonBuilder().setExclusionStrategies(new TransmissionExclusionStrategy()).create();
         ActiveTorrentGetResponse response = gson.fromJson(json, ActiveTorrentGetResponse.class);
 
         return response;
-    }    
-    
+    }
+
     public TorrentGetResponse getAllTorrents(String[] fields) throws ManagerException {
         AllTorrentGetRequest request = new AllTorrentGetRequest(fields);
         String json;
@@ -142,7 +142,7 @@ public class TransmissionSessionManager {
             json = requestData(request);
         } catch (IOException e) {
             e.printStackTrace();
-            
+
             throw new ManagerException(e.getMessage(), -1);
         }
         Gson gson = new GsonBuilder().setExclusionStrategies(new TransmissionExclusionStrategy()).create();
@@ -150,7 +150,7 @@ public class TransmissionSessionManager {
 
         return response;
     }
-    
+
     public TorrentGetResponse getTorrents(int[] ids, String[] fields) throws ManagerException {
         TorrentGetRequest request = new TorrentGetRequest(ids, fields);
         String json;
@@ -159,7 +159,7 @@ public class TransmissionSessionManager {
             json = requestData(request);
         } catch (IOException e) {
             e.printStackTrace();
-            
+
             throw new ManagerException(e.getMessage(), -1);
         }
         Gson gson = new GsonBuilder().setExclusionStrategies(new TransmissionExclusionStrategy()).create();
@@ -177,17 +177,20 @@ public class TransmissionSessionManager {
                 + mProfile.getHost() + ":" + mProfile.getPort()
                 + mProfile.getPath());
             conn = (HttpURLConnection) url.openConnection();
-            conn.setReadTimeout(10000 /* milliseconds */);
-            conn.setConnectTimeout(15000 /* milliseconds */);
+            int timeout = mProfile.getTimeout() > 0
+                ? mProfile.getTimeout() * 1000
+                : 10000;
+            conn.setReadTimeout(timeout);
+            conn.setConnectTimeout(timeout);
             conn.setRequestProperty("Content-Type", "application/json");
             conn.setRequestProperty("Accept-Encoding", "gzip, deflate");
             conn.setUseCaches(false);
             conn.setAllowUserInteraction(false);
-            
+
             conn.setRequestMethod("POST");
             conn.setDoInput(true);
             conn.setDoOutput(true);
-            
+
             if (mSessionId != null) {
                 conn.setRequestProperty("X-Transmission-Session-Id", mSessionId);
             }
@@ -202,6 +205,7 @@ public class TransmissionSessionManager {
             final String user = mProfile.getUsername();
             if (user != null && user.length() > 0) {
                 Authenticator.setDefault(new Authenticator() {
+                    @Override
                     protected PasswordAuthentication getPasswordAuthentication() {
                         return new PasswordAuthentication(user, mProfile.getPassword().toCharArray());
                     }
@@ -210,7 +214,7 @@ public class TransmissionSessionManager {
 
             // Starts the query
             conn.connect();
-            
+
             int code = conn.getResponseCode();
 
             TorrentListActivity.logD("Got a response code " + code);
@@ -227,11 +231,11 @@ public class TransmissionSessionManager {
             }
 
             is = conn.getInputStream();
-    
+
             // Convert the InputStream into a string
             String contentAsString = null;
             String encoding = conn.getContentEncoding();
-            
+
             switch(code) {
                 case 200:
                 case 201:
@@ -255,10 +259,10 @@ public class TransmissionSessionManager {
                 conn.disconnect();
         }
     }
-    
+
     private String getSessionId(HttpURLConnection conn) {
         String id = conn.getHeaderField("X-Transmission-Session-Id");
-        
+
         if (id != null && !id.equals("")) {
             Editor e = mDefaultPrefs.edit();
             e.putString(PREF_LAST_SESSION_ID, id);
@@ -266,7 +270,7 @@ public class TransmissionSessionManager {
         }
         return id;
     }
-    
+
     private String inputStreamToString(InputStream stream) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(stream));
         StringBuilder sb = new StringBuilder();
@@ -285,7 +289,7 @@ public class TransmissionSessionManager {
     private static class SessionStatsRequest {
        @SerializedName("method") private final String method = "session-stats";
     }
-    
+
     private static class AllTorrentGetRequest {
         @SerializedName("method") private final String method = "torrent-get";
         @SerializedName("arguments") private Arguments arguments;
@@ -355,7 +359,7 @@ public class TransmissionSessionManager {
             return mSession;
         }
     }
-    
+
     public static class SessionStatsResponse extends Response {
         @SerializedName("arguments") private final TransmissionSessionStats mStats = null;
 
@@ -363,14 +367,14 @@ public class TransmissionSessionManager {
             return mStats;
         }
     }
-    
+
     public static class TorrentGetResponse extends Response {
         @SerializedName("arguments") private final TorrentsArguments mTorrentsArguments = null;
 
         public Torrent[] getTorrents() {
             return mTorrentsArguments.getTorrents();
         }
-        
+
         private static class TorrentsArguments {
             @SerializedName("torrents") private final Torrent[] mTorrents = null;
 
@@ -379,18 +383,18 @@ public class TransmissionSessionManager {
             }
         }
     }
-    
+
     public static class ActiveTorrentGetResponse extends Response {
         @SerializedName("arguments") private final ActiveTorrentsArguments mActiveTorrentsArguments = null;
 
         public Torrent[] getTorrents() {
             return mActiveTorrentsArguments.getTorrents();
         }
-        
+
         public int[] getRemoved() {
             return mActiveTorrentsArguments.getRemoved();
         }
-        
+
         private static class ActiveTorrentsArguments {
             @SerializedName("torrents") private final Torrent[] mTorrents = null;
             @SerializedName("removed") private final int[] mRemoved = null;
@@ -398,7 +402,7 @@ public class TransmissionSessionManager {
             public Torrent[] getTorrents() {
                 return mTorrents;
             }
-            
+
             public int[] getRemoved() {
                 return mRemoved;
             }

@@ -10,7 +10,6 @@ import android.os.Bundle;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.ListFragment;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
-import android.support.v4.content.Loader;
 import android.text.Html;
 import android.text.Spanned;
 import android.view.ActionMode;
@@ -56,22 +55,22 @@ public class TorrentListFragment extends ListFragment {
      * The current activated item position. Only used on tablets.
      */
     private int mActivatedPosition = ListView.INVALID_POSITION;
-    
+
     private boolean mAltSpeed = false;
-    
+
     private boolean mRefreshing = true;
-    
+
     private boolean mIsCABDestroyed = false;
 
     private int mChoiceMode = ListView.CHOICE_MODE_NONE;
-    
+
     private TransmissionProfileListAdapter mProfileAdapter;
     private TorrentListAdapter mTorrentListAdapter;
-    
+
     private TransmissionProfile mCurrentProfile;
     private TransmissionSession mSession;
     private TransmissionSessionStats mSessionStats;
-        
+
     /**
      * A callback interface that all activities containing this fragment must
      * implement. This mechanism allows activities to be notified of item
@@ -93,19 +92,19 @@ public class TorrentListFragment extends ListFragment {
         public void onItemSelected(Torrent torrent) {
         }
     };
-    
+
     private LoaderCallbacks<TransmissionProfile[]> mProfileLoaderCallbacks = new LoaderCallbacks<TransmissionProfile[]>() {
         @Override
         public android.support.v4.content.Loader<TransmissionProfile[]> onCreateLoader(
                 int id, Bundle args) {
-            return new TransmissionProfileSupportLoader(getActivity()); 
+            return new TransmissionProfileSupportLoader(getActivity());
         }
 
         @Override
         public void onLoadFinished(
                 android.support.v4.content.Loader<TransmissionProfile[]> loader,
                 TransmissionProfile[] profiles) {
-            
+
             mProfileAdapter.clear();
             if (profiles.length > 0) {
                 mProfileAdapter.addAll(profiles);
@@ -115,7 +114,7 @@ public class TorrentListFragment extends ListFragment {
                 mRefreshing = false;
                 getActivity().invalidateOptionsMenu();
             }
-            
+
             String currentId = TransmissionProfile.getCurrentProfileId(getActivity());
             int index = 0;
             for (TransmissionProfile prof : profiles) {
@@ -128,7 +127,7 @@ public class TorrentListFragment extends ListFragment {
                 }
                 index++;
             }
-            
+
             if (mCurrentProfile == null && profiles.length > 0)
                 mCurrentProfile = profiles[0];
             getActivity().getSupportLoaderManager().initLoader(TorrentListActivity.SESSION_LOADER_ID, null, mTorrentLoaderCallbacks);
@@ -139,7 +138,7 @@ public class TorrentListFragment extends ListFragment {
                 android.support.v4.content.Loader<TransmissionProfile[]> loader) {
             mProfileAdapter.clear();
         }
-        
+
     };
 
     private LoaderCallbacks<TransmissionSessionData> mTorrentLoaderCallbacks = new LoaderCallbacks<TransmissionSessionData>() {
@@ -172,15 +171,19 @@ public class TorrentListFragment extends ListFragment {
                 mTorrentListAdapter.clear();
                 mTorrentListAdapter.addAll(data.torrents);
                 mTorrentListAdapter.notifyDataSetChanged();
-                
+
                 ((TransmissionSessionInterface) getActivity()).setTorrents(data.torrents);
 
+                FragmentManager manager = getActivity().getSupportFragmentManager();
+                TorrentListMenuFragment menu = (TorrentListMenuFragment) manager.findFragmentById(R.id.torrent_list_menu);
+                if (menu != null) {
+                    menu.notifyTorrentListUpdate(data.torrents, data.session);
+                }
                 if (data.hasRemoved || data.hasAdded) {
-                    FragmentManager manager = getActivity().getSupportFragmentManager();
-                    TorrentDetailFragment fragment = (TorrentDetailFragment) manager.findFragmentByTag(
+                    TorrentDetailFragment detail = (TorrentDetailFragment) manager.findFragmentByTag(
                             TorrentDetailFragment.TAG);
-                    if (fragment != null) {
-                        fragment.notifyTorrentListChanged(data.hasRemoved, data.hasAdded);
+                    if (detail != null) {
+                        detail.notifyTorrentListChanged(data.hasRemoved, data.hasAdded);
                     }
                 }
             }
@@ -189,7 +192,7 @@ public class TorrentListFragment extends ListFragment {
                 ((TransmissionSessionInterface) getActivity()).setTorrents(null);
                 setEmptyText(R.string.no_torrents_empty_list);
             }
-            
+
             mRefreshing = false;
             getActivity().invalidateOptionsMenu();
         }
@@ -198,7 +201,7 @@ public class TorrentListFragment extends ListFragment {
         public void onLoaderReset(
                 android.support.v4.content.Loader<TransmissionSessionData> loader) {
         }
-        
+
     };
 
     /**
@@ -211,31 +214,31 @@ public class TorrentListFragment extends ListFragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        
+
         mTorrentListAdapter = new TorrentListAdapter(getActivity());
         setListAdapter(mTorrentListAdapter);
-        
+
         setHasOptionsMenu(true);
-        getActivity().requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);  
+        getActivity().requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
         getActivity().setProgressBarIndeterminateVisibility(true);
-        
+
         ActionBar actionBar = getActivity().getActionBar();
         if (actionBar != null) {
             actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_LIST);
-            
+
             mProfileAdapter = new TransmissionProfileListAdapter(getActivity());
-            
+
             actionBar.setListNavigationCallbacks(mProfileAdapter, new ActionBar.OnNavigationListener() {
                 @Override
                 public boolean onNavigationItemSelected(int pos, long id) {
                     TransmissionProfile profile = mProfileAdapter.getItem(pos);
                     if (profile != TransmissionProfileListAdapter.EMPTY_PROFILE)
                         TransmissionProfile.setCurrentProfile(profile, getActivity());
-                    
+
                     return false;
                 }
             });
-            
+
             actionBar.setDisplayOptions(0, ActionBar.DISPLAY_SHOW_TITLE);
         }
 
@@ -252,18 +255,18 @@ public class TorrentListFragment extends ListFragment {
             setActivatedPosition(savedInstanceState.getInt(STATE_ACTIVATED_POSITION));
         }
     }
-    
+
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        
+
         final ListView list = getListView();
         list.setChoiceMode(mChoiceMode);
         list.setOnItemLongClickListener(new OnItemLongClickListener() {
             @Override
             public boolean onItemLongClick(AdapterView<?> parent, View view,
                     int position, long id) {
-                
+
                 if (!((TorrentListActivity) getActivity()).isDetailsPanelShown()) {
                     list.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE_MODAL);
                     mIsCABDestroyed = false;
@@ -272,10 +275,10 @@ public class TorrentListFragment extends ListFragment {
                 }
                 return false;
             }});
-        
+
         list.setMultiChoiceModeListener(new MultiChoiceModeListener() {
             private HashSet<Integer> mSelectedTorrentIds;
-            
+
             @Override
             public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
                 switch (item.getItemId()) {
@@ -294,39 +297,39 @@ public class TorrentListFragment extends ListFragment {
                 }
                 return true;
             }
-        
+
             @Override
             public boolean onCreateActionMode(ActionMode mode, Menu menu) {
                 MenuInflater inflater = mode.getMenuInflater();
                 inflater.inflate(R.menu.torrent_list_multiselect, menu);
-                
+
                 /* FIXME: Set these states depending on the torrent state */
                 MenuItem item = menu.findItem(R.id.resume);
                 item.setVisible(false).setEnabled(false);
-                
+
                 item = menu.findItem(R.id.pause);
                 item.setVisible(true).setEnabled(true);
-                
+
                 mSelectedTorrentIds = new HashSet<Integer>();
                 return true;
             }
-        
+
             @Override
             public void onDestroyActionMode(ActionMode mode) {
                 TorrentListActivity.logD("Destroying context menu");
                 mIsCABDestroyed = true;
                 mSelectedTorrentIds = null;
             }
-        
+
             @Override
             public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
                 return false;
             }
-        
+
             @Override
             public void onItemCheckedStateChanged(ActionMode mode,
                     int position, long id, boolean checked) {
-                
+
                 if (checked)
                     mSelectedTorrentIds.add(mTorrentListAdapter.getItem(position).getId());
                 else
@@ -357,10 +360,10 @@ public class TorrentListFragment extends ListFragment {
     @Override
     public void onListItemClick(ListView listView, View view, int position, long id) {
         super.onListItemClick(listView, view, position, id);
-        
+
         if (mIsCABDestroyed)
             listView.setChoiceMode(mChoiceMode);
-        
+
         // Notify the active callbacks interface (the activity, if the
         // fragment is attached to one) that an item has been selected.
         /* TODO: replace with real torrent */
@@ -375,26 +378,26 @@ public class TorrentListFragment extends ListFragment {
             outState.putInt(STATE_ACTIVATED_POSITION, mActivatedPosition);
         }
     }
-    
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_torrent_list, container, false);
-                
+
         return rootView;
     }
-    
+
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         inflater.inflate(R.menu.torrent_list_options, menu);
-        
+
         MenuItem refresh = menu.findItem(R.id.menu_refresh);
         if (mRefreshing)
             refresh.setActionView(R.layout.action_progress_bar);
         else
             refresh.setActionView(null);
     }
-    
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
@@ -418,20 +421,20 @@ public class TorrentListFragment extends ListFragment {
                 mRefreshing = !mRefreshing;
                 return true;
             case R.id.menu_settings:
-                Intent i = new Intent(getActivity(), SettingsActivity.class); 
+                Intent i = new Intent(getActivity(), SettingsActivity.class);
                 getActivity().startActivity(i);
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
     }
-    
+
     public void setEmptyText(int stringId) {
         Spanned text = Html.fromHtml(getString(stringId));
-        
+
         ((TextView) getListView().getEmptyView()).setText(text);
     }
-    
+
     /**
      * Turns on activate-on-click mode. When this mode is on, list items will be
      * given the 'activated' state when touched.
@@ -454,29 +457,29 @@ public class TorrentListFragment extends ListFragment {
 
         mActivatedPosition = position;
     }
-    
+
     private static class TransmissionProfileListAdapter extends ArrayAdapter<TransmissionProfile> {
-        public static final TransmissionProfile EMPTY_PROFILE = new TransmissionProfile();        
-        
+        public static final TransmissionProfile EMPTY_PROFILE = new TransmissionProfile();
+
         public TransmissionProfileListAdapter(Context context) {
             super(context, 0);
 
             add(EMPTY_PROFILE);
         }
-        
+
         @Override
         public View getView(int position, View convertView, ViewGroup parent) {
             View rowView = convertView;
             TransmissionProfile profile = getItem(position);
-            
+
             if (rowView == null) {
                 LayoutInflater vi = (LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
                 rowView = vi.inflate(R.layout.torrent_profile_selector, null);
             }
-            
+
             TextView name = (TextView) rowView.findViewById(R.id.name);
             TextView summary = (TextView) rowView.findViewById(R.id.summary);
-            
+
             if (profile == EMPTY_PROFILE) {
                 name.setText(R.string.no_profiles);
                 if (summary != null)
@@ -487,10 +490,10 @@ public class TorrentListFragment extends ListFragment {
                     summary.setText((profile.getUsername().length() > 0 ? profile.getUsername() + "@" : "")
                         + profile.getHost() + ":" + profile.getPort());
             }
-            
+
             return rowView;
         }
-        
+
         @Override
         public View getDropDownView(int position, View convertView, ViewGroup parent) {
             View rowView = convertView;
@@ -503,29 +506,29 @@ public class TorrentListFragment extends ListFragment {
             return getView(position, rowView, parent);
         }
     }
-    
-    private class TorrentListAdapter extends ArrayAdapter<Torrent> {        
+
+    private class TorrentListAdapter extends ArrayAdapter<Torrent> {
 
         public TorrentListAdapter(Context context) {
             super(context, R.layout.torrent_list_item, R.id.name);
         }
-        
+
         @Override
         public View getView(int position, View convertView, ViewGroup parent) {
             View rowView = convertView;
             Torrent torrent = getItem(position);
-            
+
             if (rowView == null) {
                 LayoutInflater vi = (LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
                 rowView = vi.inflate(R.layout.torrent_list_item, parent, false);
             }
-            
+
             TextView name = (TextView) rowView.findViewById(R.id.name);
-            
+
             TextView traffic = (TextView) rowView.findViewById(R.id.traffic);
             ProgressBar progress = (ProgressBar) rowView.findViewById(R.id.progress);
             TextView status = (TextView) rowView.findViewById(R.id.status);
-            
+
             name.setText(torrent.getName());
 
             if (torrent.getMetadataPercentComplete() < 1) {
@@ -534,10 +537,10 @@ public class TorrentListFragment extends ListFragment {
                 progress.setSecondaryProgress((int) (torrent.getPercentDone() * 100));
             } else {
                 progress.setSecondaryProgress(100);
-                
+
                 float limit = torrent.getActiveSeedRatioLimit();
                 float current = torrent.getUploadRatio();
-                
+
                 if (limit == -1) {
                     progress.setProgress(100);
                 } else {
@@ -548,7 +551,7 @@ public class TorrentListFragment extends ListFragment {
                     }
                 }
             }
-            
+
             traffic.setText(torrent.getTrafficText());
             status.setText(torrent.getStatusText());
 

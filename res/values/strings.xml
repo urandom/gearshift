@@ -26,8 +26,8 @@
     <string name="filter_checking">Checking</string>
     
     <string name="status">Status</string>
-    <string name="speed_format">Down: %1$d/%2$d %3$s\nUp: %4$s/%5$s %6$s</string>
-    <string name="free_space_format">Free Space: %1$s</string>
+    <string name="speed_format">&lt;b&gt;Down&lt;/b&gt;: %1$s/s%2$s&lt;br/&gt;&lt;b&gt;Up&lt;/b&gt;: %3$s/s%4$s</string>
+    <string name="free_space_format">&lt;b&gt;Free Space&lt;/b&gt;: %1$s</string>
     
     <string name="refresh">Refresh</string>
     <string name="alt_speed_label_on">Alternate speed limit on</string>
