@@ -165,6 +165,11 @@ public class TorrentListFragment extends ListFragment {
             if (data.stats != null)
                 mSessionStats = data.stats;
 
+            if (mAltSpeed != mSession.isAltSpeedEnabled()) {
+                mAltSpeed = mSession.isAltSpeedEnabled();
+                getActivity().invalidateOptionsMenu();
+            }
+
             if (data.torrents.size() > 0 || mTorrentListAdapter.getCount() > 0) {
                 /* The notifyDataSetChanged method sets this to true */
                 mTorrentListAdapter.setNotifyOnChange(false);
@@ -391,34 +396,32 @@ public class TorrentListFragment extends ListFragment {
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         inflater.inflate(R.menu.torrent_list_options, menu);
 
-        MenuItem refresh = menu.findItem(R.id.menu_refresh);
+        MenuItem item = menu.findItem(R.id.menu_refresh);
         if (mRefreshing)
-            refresh.setActionView(R.layout.action_progress_bar);
+            item.setActionView(R.layout.action_progress_bar);
         else
-            refresh.setActionView(null);
+            item.setActionView(null);
+
+        item = menu.findItem(R.id.menu_alt_speed);
+        if (mAltSpeed) {
+            item.setIcon(R.drawable.ic_menu_alt_speed_on);
+            item.setTitle(R.string.alt_speed_label_off);
+        } else {
+            item.setIcon(R.drawable.ic_menu_alt_speed_off);
+            item.setTitle(R.string.alt_speed_label_on);
+        }
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.menu_alt_speed:
-                if (mAltSpeed) {
-                    mAltSpeed = false;
-                    item.setIcon(R.drawable.ic_menu_alt_speed_off);
-                    item.setTitle(R.string.alt_speed_label_on);
-                } else {
-                    mAltSpeed = true;
-                    item.setIcon(R.drawable.ic_menu_alt_speed_on);
-                    item.setTitle(R.string.alt_speed_label_off);
-                }
+                mAltSpeed = !mAltSpeed;
+                getActivity().invalidateOptionsMenu();
                 return true;
             case R.id.menu_refresh:
-                if (mRefreshing)
-                    item.setActionView(null);
-                else
-                    item.setActionView(R.layout.action_progress_bar);
-
                 mRefreshing = !mRefreshing;
+                getActivity().invalidateOptionsMenu();
                 return true;
             case R.id.menu_settings:
                 Intent i = new Intent(getActivity(), SettingsActivity.class);

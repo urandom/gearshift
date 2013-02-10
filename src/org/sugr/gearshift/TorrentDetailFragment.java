@@ -52,14 +52,16 @@ public class TorrentDetailFragment extends Fragment {
         mPager = (ViewPager) root.findViewById(R.id.torrent_detail_pager);
         mPager.setAdapter(new TorrentDetailPagerAdapter(getActivity()));
         mPager.setOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
+            @Override
             public void onPageSelected(int position) {
                 mCurrentPosition = position;
                 ArrayList<Torrent> torrents = ((TransmissionSessionInterface) getActivity()).getTorrents();
                 mCurrentTorrentId = torrents.size() > position
-                    ? ((Torrent) torrents.get(position)).getId()
+                    ? torrents.get(position).getId()
                     : -1;
 
                 mCallbacks.onPageSelected(position);
+                getActivity().invalidateOptionsMenu();
             }
         });
 
@@ -68,7 +70,7 @@ public class TorrentDetailFragment extends Fragment {
             mPager.setCurrentItem(mCurrentPosition);
             ArrayList<Torrent> torrents = ((TransmissionSessionInterface) getActivity()).getTorrents();
             mCurrentTorrentId = torrents.size() > mCurrentPosition
-                ? ((Torrent) torrents.get(mCurrentPosition)).getId()
+                ? torrents.get(mCurrentPosition).getId()
                 : -1;
         }
 
@@ -101,12 +103,18 @@ public class TorrentDetailFragment extends Fragment {
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         inflater.inflate(R.menu.torrent_detail_fragment, menu);
 
-        /* FIXME: Set these states depending on the torrent state */
-        MenuItem item = menu.findItem(R.id.resume);
-        item.setVisible(false).setEnabled(false);
+        ArrayList<Torrent> torrents = ((TransmissionSessionInterface) getActivity()).getTorrents();
+        Torrent torrent = mCurrentPosition < torrents.size()
+            ? torrents.get(mCurrentPosition)
+            : null;
 
+        boolean state = torrent != null && torrent.getStatus() == Torrent.Status.STOPPED;
+        MenuItem item = menu.findItem(R.id.resume);
+        item.setVisible(state).setEnabled(state);
+
+        state = torrent != null && torrent.getStatus() != Torrent.Status.STOPPED;
         item = menu.findItem(R.id.pause);
-        item.setVisible(true).setEnabled(true);
+        item.setVisible(state).setEnabled(state);
     }
 
     @Override

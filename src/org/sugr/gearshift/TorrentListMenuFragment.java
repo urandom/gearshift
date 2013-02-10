@@ -64,11 +64,17 @@ public class TorrentListMenuFragment extends Fragment {
             Torrent.readableFileSize(down), "",
             Torrent.readableFileSize(up), ""
         };
-        if (session.isSpeedLimitDownEnabled()) {
-            speed[1] = " (" + Torrent.readableFileSize(session.getSpeedLimitDown() * 1024) + "/s)";
+        if (session.isSpeedLimitDownEnabled() || session.isAltSpeedEnabled()) {
+            speed[1] = " (" + Torrent.readableFileSize((
+                session.isAltSpeedEnabled()
+                    ? session.getAltSpeedDown()
+                    : session.getSpeedLimitDown()) * 1024) + "/s)";
         }
-        if (session.isSpeedLimitUpEnabled()) {
-            speed[3] = " (" + Torrent.readableFileSize(session.getSpeedLimitUp() * 1024) + "/s)";
+        if (session.isSpeedLimitUpEnabled() || session.isAltSpeedEnabled()) {
+            speed[3] = " (" + Torrent.readableFileSize((
+                session.isAltSpeedEnabled()
+                    ? session.getAltSpeedUp()
+                    : session.getSpeedLimitUp()) * 1024) + "/s)";
         }
 
         setStatus(speed, Torrent.readableFileSize(session.getDownloadDirFreeSpace()));
