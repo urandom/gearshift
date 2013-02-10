@@ -128,7 +128,8 @@ public class TorrentListActivity extends SlidingFragmentActivity
 
             Loader<TransmissionSessionData> loader =
                     getSupportLoaderManager().getLoader(SESSION_LOADER_ID);
-            ((TransmissionSessionLoader) loader).setAllCurrentTorrents(true);
+            if (loader != null)
+                ((TransmissionSessionLoader) loader).setAllCurrentTorrents(true);
         }
     }
 

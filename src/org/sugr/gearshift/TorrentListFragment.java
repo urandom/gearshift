@@ -10,6 +10,7 @@ import android.os.Bundle;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.ListFragment;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
+import android.support.v4.content.Loader;
 import android.text.Html;
 import android.text.Spanned;
 import android.view.ActionMode;
@@ -165,9 +166,10 @@ public class TorrentListFragment extends ListFragment {
             if (data.stats != null)
                 mSessionStats = data.stats;
 
+            boolean invalidateMenu = false;
             if (mAltSpeed != mSession.isAltSpeedEnabled()) {
                 mAltSpeed = mSession.isAltSpeedEnabled();
-                getActivity().invalidateOptionsMenu();
+                invalidateMenu = true;
             }
 
             if (data.torrents.size() > 0 || mTorrentListAdapter.getCount() > 0) {
@@ -198,8 +200,12 @@ public class TorrentListFragment extends ListFragment {
                 setEmptyText(R.string.no_torrents_empty_list);
             }
 
-            mRefreshing = false;
-            getActivity().invalidateOptionsMenu();
+            if (mRefreshing) {
+                mRefreshing = false;
+                invalidateMenu = true;
+            }
+            if (invalidateMenu)
+                getActivity().invalidateOptionsMenu();
         }
 
         @Override
@@ -420,8 +426,13 @@ public class TorrentListFragment extends ListFragment {
                 getActivity().invalidateOptionsMenu();
                 return true;
             case R.id.menu_refresh:
-                mRefreshing = !mRefreshing;
-                getActivity().invalidateOptionsMenu();
+                Loader<TransmissionSessionData> loader =
+                    getActivity().getSupportLoaderManager().getLoader(TorrentListActivity.SESSION_LOADER_ID);
+                if (loader != null) {
+                    loader.onContentChanged();
+                    mRefreshing = !mRefreshing;
+                    getActivity().invalidateOptionsMenu();
+                }
                 return true;
             case R.id.menu_settings:
                 Intent i = new Intent(getActivity(), SettingsActivity.class);
