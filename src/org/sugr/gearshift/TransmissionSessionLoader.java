@@ -4,6 +4,7 @@ import java.util.ArrayList;
 
 import org.sugr.gearshift.TransmissionSessionManager.ActiveTorrentGetResponse;
 import org.sugr.gearshift.TransmissionSessionManager.ManagerException;
+import org.sugr.gearshift.TransmissionSessionManager.Response;
 
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -69,6 +70,9 @@ public class TransmissionSessionLoader extends AsyncTaskLoader<TransmissionSessi
         }
     };
 
+    private TransmissionSession mSessionSet;
+    private String[] mSessionSetKeys;
+
     public TransmissionSessionLoader(Context context, TransmissionProfile profile) {
         super(context);
 
@@ -86,9 +90,10 @@ public class TransmissionSessionLoader extends AsyncTaskLoader<TransmissionSessi
         mSessManager = new TransmissionSessionManager(getContext(), mProfile);
         mDefaultPrefs = PreferenceManager.getDefaultSharedPreferences(getContext());
         if (all != null) {
-            mTorrents.addAll(all);
-            for (Torrent t : all)
+            for (Torrent t : all) {
+                mTorrents.add(t);
                 mTorrentMap.put(t.getId(), t);
+            }
         }
     }
 
@@ -102,10 +107,27 @@ public class TransmissionSessionLoader extends AsyncTaskLoader<TransmissionSessi
         mAllCurrent = set;
     }
 
+    public void setSession(TransmissionSession session, String... keys) {
+        mSessionSet = session;
+        mSessionSetKeys = keys;
+        onContentChanged();
+    }
+
     @Override
     public TransmissionSessionData loadInBackground() {
         /* Remove any previous waiting runners */
         mIntervalHandler.removeCallbacks(mIntervalRunner);
+
+        /* Setters */
+        if (mSessionSet != null) {
+            try {
+                Response response = mSessManager.setSession(mSessionSet, mSessionSetKeys);
+                mSessionSet = null;
+                mSessionSetKeys = null;
+            } catch (ManagerException e) {
+                return handleError(e);
+            }
+        }
 
         if (mCurrentTorrents == null && (mSession == null || mIteration % 3 == 0)) {
             try {
@@ -205,6 +227,14 @@ public class TransmissionSessionLoader extends AsyncTaskLoader<TransmissionSessi
             }
         }
         mNeedsMoreInfo = false;
+
+        if (mTorrents.size() != mTorrentMap.size()) {
+            /* the torrent list has been lost */
+            TorrentListActivity.logD("Torrent list corruption, array size : " + mTorrents.size() + ", map size : " + mTorrentMap.size());
+            mTorrents.clear();
+            mTorrentMap.clear();
+            hasRemoved = true;;
+        }
 
         for (Torrent t : torrents) {
             if (t.getTotalSize() == 0 && t.getMetadataPercentComplete() < 1) {

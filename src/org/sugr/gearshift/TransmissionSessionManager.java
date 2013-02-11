@@ -11,6 +11,8 @@ import java.net.Authenticator;
 import java.net.HttpURLConnection;
 import java.net.PasswordAuthentication;
 import java.net.URL;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.InflaterInputStream;
 
@@ -29,7 +31,7 @@ import com.google.gson.annotations.SerializedName;
 
 public class TransmissionSessionManager {
     @Retention(RetentionPolicy.RUNTIME)
-    public @interface Exclude {};
+    public @interface Exclude {}
 
     public static class TransmissionExclusionStrategy implements ExclusionStrategy {
         @Override
@@ -42,6 +44,40 @@ public class TransmissionSessionManager {
             return field.getAnnotation(Exclude.class) != null;
         }
     }
+
+    public static class KeyExclusionStrategy implements ExclusionStrategy {
+        HashSet<String> mKeys = new HashSet<String>();
+        public KeyExclusionStrategy(String... keys) {
+            super();
+
+            if (keys != null) {
+                for (String key : keys)
+                    mKeys.add(key);
+            }
+            mKeys.add("method");
+            mKeys.add("arguments");
+        }
+
+        @Override
+        public boolean shouldSkipClass(Class<?> cls) {
+            SerializedName serializedName = cls.getAnnotation(SerializedName.class);
+            if (serializedName == null)
+                return false;
+
+            return !mKeys.contains(serializedName.value());
+        }
+
+        @Override
+        public boolean shouldSkipField(FieldAttributes field) {
+            SerializedName serializedName = field.getAnnotation(SerializedName.class);
+            if (serializedName == null)
+                return false;
+
+            return !mKeys.contains(serializedName.value());
+        }
+    }
+
+
     public class ManagerException extends Exception {
         int mCode;
         public ManagerException(String message, int code) {
@@ -167,7 +203,25 @@ public class TransmissionSessionManager {
 
         return response;
     }
-    private String requestData(Object data) throws IOException, ManagerException {
+
+    public Response setSession(TransmissionSession session, String... keys) throws ManagerException {
+        SessionSetRequest request = new SessionSetRequest(session);
+        String json;
+
+        try {
+            json = requestData(request, new KeyExclusionStrategy(keys));
+        } catch (IOException e) {
+            e.printStackTrace();
+
+            throw new ManagerException(e.getMessage(), -1);
+        }
+        Gson gson = new GsonBuilder().setExclusionStrategies(new TransmissionExclusionStrategy()).create();
+        Response response = gson.fromJson(json, Response.class);
+
+        return response;
+    }
+
+    private String requestData(Object data, ExclusionStrategy... strategies) throws IOException, ManagerException {
         OutputStream os = null;
         InputStream is = null;
         HttpURLConnection conn = null;
@@ -196,7 +250,9 @@ public class TransmissionSessionManager {
             }
 
             os = conn.getOutputStream();
-            Gson gson = new GsonBuilder().setExclusionStrategies(new TransmissionExclusionStrategy()).create();
+            Gson gson = new GsonBuilder().setExclusionStrategies(strategies)
+                .addSerializationExclusionStrategy(
+                        new TransmissionExclusionStrategy()).create();
             String json = gson.toJson(data);
             os.write(json.getBytes());
             os.flush();
@@ -285,6 +341,16 @@ public class TransmissionSessionManager {
     private static class SessionGetRequest {
        @SerializedName("method") private final String method = "session-get";
     }
+
+    private static class SessionSetRequest {
+       @SerializedName("method") private final String method = "session-set";
+       @SerializedName("arguments") private TransmissionSession arguments;
+
+       public SessionSetRequest(TransmissionSession session) {
+           this.arguments = session;
+       }
+    }
+
 
     private static class SessionStatsRequest {
        @SerializedName("method") private final String method = "session-stats";

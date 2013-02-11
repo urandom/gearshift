@@ -420,14 +420,21 @@ public class TorrentListFragment extends ListFragment {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
+        Loader<TransmissionSessionData> loader;
         switch (item.getItemId()) {
             case R.id.menu_alt_speed:
-                mAltSpeed = !mAltSpeed;
-                getActivity().invalidateOptionsMenu();
+                loader = getActivity().getSupportLoaderManager()
+                    .getLoader(TorrentListActivity.SESSION_LOADER_ID);
+                if (loader != null) {
+                    mAltSpeed = !mAltSpeed;
+                    mSession.setAltSpeedEnabled(mAltSpeed);
+                    ((TransmissionSessionLoader) loader).setSession(mSession, "alt-speed-enabled");
+                    getActivity().invalidateOptionsMenu();
+                }
                 return true;
             case R.id.menu_refresh:
-                Loader<TransmissionSessionData> loader =
-                    getActivity().getSupportLoaderManager().getLoader(TorrentListActivity.SESSION_LOADER_ID);
+                loader = getActivity().getSupportLoaderManager()
+                    .getLoader(TorrentListActivity.SESSION_LOADER_ID);
                 if (loader != null) {
                     loader.onContentChanged();
                     mRefreshing = !mRefreshing;
