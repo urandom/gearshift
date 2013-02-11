@@ -11,7 +11,6 @@ import java.net.Authenticator;
 import java.net.HttpURLConnection;
 import java.net.PasswordAuthentication;
 import java.net.URL;
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.InflaterInputStream;
@@ -221,6 +220,40 @@ public class TransmissionSessionManager {
         return response;
     }
 
+    public Response setTorrentsRemove(int[] ids, boolean delete) throws ManagerException {
+        TorrentsRemoveRequest request = new TorrentsRemoveRequest(ids, delete);
+        String json;
+
+        try {
+            json = requestData(request);
+        } catch (IOException e) {
+            e.printStackTrace();
+
+            throw new ManagerException(e.getMessage(), -1);
+        }
+        Gson gson = new GsonBuilder().setExclusionStrategies(new TransmissionExclusionStrategy()).create();
+        Response response = gson.fromJson(json, Response.class);
+
+        return response;
+    }
+
+    public Response setTorrentsAction(String action, int[] ids) throws ManagerException {
+        TorrentsActionRequest request = new TorrentsActionRequest(action, ids);
+        String json;
+
+        try {
+            json = requestData(request);
+        } catch (IOException e) {
+            e.printStackTrace();
+
+            throw new ManagerException(e.getMessage(), -1);
+        }
+        Gson gson = new GsonBuilder().setExclusionStrategies(new TransmissionExclusionStrategy()).create();
+        Response response = gson.fromJson(json, Response.class);
+
+        return response;
+    }
+
     private String requestData(Object data, ExclusionStrategy... strategies) throws IOException, ManagerException {
         OutputStream os = null;
         InputStream is = null;
@@ -351,7 +384,6 @@ public class TransmissionSessionManager {
        }
     }
 
-
     private static class SessionStatsRequest {
        @SerializedName("method") private final String method = "session-stats";
     }
@@ -406,6 +438,43 @@ public class TransmissionSessionManager {
 
            public Arguments(String[] fields) {
                this.fields = fields;
+           }
+       }
+    }
+
+    private static class TorrentsRemoveRequest {
+       @SerializedName("method") private final String method = "torrent-remove";
+       @SerializedName("arguments") private Arguments arguments;
+
+       public TorrentsRemoveRequest(int[] ids, boolean delete) {
+           this.arguments = new Arguments(ids, delete);
+       }
+
+       private static class Arguments {
+           @SerializedName("ids") private int[] ids;
+           @SerializedName("delete-local-data") private boolean delete;
+
+           public Arguments(int[] ids, boolean delete) {
+               this.ids = ids;
+               this.delete = delete;
+           }
+       }
+    }
+
+    private static class TorrentsActionRequest {
+       @SerializedName("method") private String method;
+       @SerializedName("arguments") private Arguments arguments;
+
+       public TorrentsActionRequest(String action, int[] ids) {
+           this.method = action;
+           this.arguments = new Arguments(ids);
+       }
+
+       private static class Arguments {
+           @SerializedName("ids") private int[] ids;
+
+           public Arguments(int[] ids) {
+               this.ids = ids;
            }
        }
     }

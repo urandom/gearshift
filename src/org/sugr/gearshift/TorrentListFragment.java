@@ -1,5 +1,6 @@
 package org.sugr.gearshift;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 
 import android.app.ActionBar;
@@ -292,17 +293,43 @@ public class TorrentListFragment extends ListFragment {
 
             @Override
             public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
+                Loader<TransmissionSessionData> loader;
+                int[] ids = new int[mSelectedTorrentIds.size()];
+                int index = 0;
+                for (Integer id : mSelectedTorrentIds)
+                    ids[index++] = id;
+
                 switch (item.getItemId()) {
                     case R.id.remove:
+                        loader = getActivity().getSupportLoaderManager()
+                            .getLoader(TorrentListActivity.SESSION_LOADER_ID);
+                        if (loader != null) {
+                            ((TransmissionSessionLoader) loader).setTorrentsRemove(ids, false);
+                        }
                         mode.finish();
                         break;
                     case R.id.delete:
+                        loader = getActivity().getSupportLoaderManager()
+                            .getLoader(TorrentListActivity.SESSION_LOADER_ID);
+                        if (loader != null) {
+                            ((TransmissionSessionLoader) loader).setTorrentsRemove(ids, true);
+                        }
                         mode.finish();
                         break;
                     case R.id.resume:
+                        loader = getActivity().getSupportLoaderManager()
+                            .getLoader(TorrentListActivity.SESSION_LOADER_ID);
+                        if (loader != null) {
+                            ((TransmissionSessionLoader) loader).setTorrentsAction("torrent-start", ids);
+                        }
                         mode.finish();
                         break;
                     case R.id.pause:
+                        loader = getActivity().getSupportLoaderManager()
+                            .getLoader(TorrentListActivity.SESSION_LOADER_ID);
+                        if (loader != null) {
+                            ((TransmissionSessionLoader) loader).setTorrentsAction("torrent-stop", ids);
+                        }
                         mode.finish();
                         break;
                 }
@@ -313,13 +340,6 @@ public class TorrentListFragment extends ListFragment {
             public boolean onCreateActionMode(ActionMode mode, Menu menu) {
                 MenuInflater inflater = mode.getMenuInflater();
                 inflater.inflate(R.menu.torrent_list_multiselect, menu);
-
-                /* FIXME: Set these states depending on the torrent state */
-                MenuItem item = menu.findItem(R.id.resume);
-                item.setVisible(false).setEnabled(false);
-
-                item = menu.findItem(R.id.pause);
-                item.setVisible(true).setEnabled(true);
 
                 mSelectedTorrentIds = new HashSet<Integer>();
                 return true;
@@ -345,6 +365,25 @@ public class TorrentListFragment extends ListFragment {
                     mSelectedTorrentIds.add(mTorrentListAdapter.getItem(position).getId());
                 else
                     mSelectedTorrentIds.remove(mTorrentListAdapter.getItem(position).getId());
+
+                ArrayList<Torrent> torrents = ((TransmissionSessionInterface) getActivity()).getTorrents();
+                boolean hasPaused = false;
+                boolean hasRunning = false;
+                for (Torrent t : torrents) {
+                    if (mSelectedTorrentIds.contains(t.getId())) {
+                        if (t.getStatus() == Torrent.Status.STOPPED) {
+                            hasPaused = true;
+                        } else {
+                            hasRunning = true;
+                        }
+                    }
+                }
+                Menu menu = mode.getMenu();
+                MenuItem item = menu.findItem(R.id.resume);
+                item.setVisible(hasPaused).setEnabled(hasPaused);
+
+                item = menu.findItem(R.id.pause);
+                item.setVisible(hasRunning).setEnabled(hasRunning);
             }});
     }
 

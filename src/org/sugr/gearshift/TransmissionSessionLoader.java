@@ -73,6 +73,10 @@ public class TransmissionSessionLoader extends AsyncTaskLoader<TransmissionSessi
     private TransmissionSession mSessionSet;
     private String[] mSessionSetKeys;
 
+    private String mTorrentAction;
+    private int[] mTorrentActionIds;
+    private boolean mDeleteData = false;
+
     public TransmissionSessionLoader(Context context, TransmissionProfile profile) {
         super(context);
 
@@ -113,6 +117,19 @@ public class TransmissionSessionLoader extends AsyncTaskLoader<TransmissionSessi
         onContentChanged();
     }
 
+    public void setTorrentsRemove(int[] ids, boolean delete) {
+        mTorrentAction = "torrent-remove";
+        mTorrentActionIds = ids;
+        mDeleteData = delete;
+        onContentChanged();
+    }
+
+    public void setTorrentsAction(String action, int[] ids) {
+        mTorrentAction = action;
+        mTorrentActionIds = ids;
+        onContentChanged();
+    }
+
     @Override
     public TransmissionSessionData loadInBackground() {
         /* Remove any previous waiting runners */
@@ -124,6 +141,20 @@ public class TransmissionSessionLoader extends AsyncTaskLoader<TransmissionSessi
                 Response response = mSessManager.setSession(mSessionSet, mSessionSetKeys);
                 mSessionSet = null;
                 mSessionSetKeys = null;
+            } catch (ManagerException e) {
+                return handleError(e);
+            }
+        }
+        if (mTorrentActionIds != null) {
+            try {
+                Response response;
+                if (mTorrentAction.equals("torrent-remove"))
+                    response = mSessManager.setTorrentsRemove(mTorrentActionIds, mDeleteData);
+                else
+                    response = mSessManager.setTorrentsAction(mTorrentAction, mTorrentActionIds);
+                mTorrentActionIds = null;
+                mTorrentAction = null;
+                mDeleteData = false;
             } catch (ManagerException e) {
                 return handleError(e);
             }
