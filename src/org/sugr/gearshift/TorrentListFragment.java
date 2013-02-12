@@ -319,6 +319,8 @@ public class TorrentListFragment extends ListFragment {
                             })
                                 .setMessage(R.string.remove_selected_confirmation)
                                 .show();
+                            mRefreshing = true;
+                            getActivity().invalidateOptionsMenu();
                         }
                         mode.finish();
                         break;
@@ -335,6 +337,8 @@ public class TorrentListFragment extends ListFragment {
                             })
                                 .setMessage(R.string.delete_selected_confirmation)
                                 .show();
+                            mRefreshing = true;
+                            getActivity().invalidateOptionsMenu();
                         }
                         mode.finish();
                         break;
@@ -343,6 +347,8 @@ public class TorrentListFragment extends ListFragment {
                             .getLoader(TorrentListActivity.SESSION_LOADER_ID);
                         if (loader != null) {
                             ((TransmissionSessionLoader) loader).setTorrentsAction("torrent-start", ids);
+                            mRefreshing = true;
+                            getActivity().invalidateOptionsMenu();
                         }
                         mode.finish();
                         break;
@@ -351,6 +357,8 @@ public class TorrentListFragment extends ListFragment {
                             .getLoader(TorrentListActivity.SESSION_LOADER_ID);
                         if (loader != null) {
                             ((TransmissionSessionLoader) loader).setTorrentsAction("torrent-stop", ids);
+                            mRefreshing = true;
+                            getActivity().invalidateOptionsMenu();
                         }
                         mode.finish();
                         break;
