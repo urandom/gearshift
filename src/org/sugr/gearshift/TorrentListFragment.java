@@ -5,7 +5,9 @@ import java.util.HashSet;
 
 import android.app.ActionBar;
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.FragmentManager;
@@ -293,18 +295,30 @@ public class TorrentListFragment extends ListFragment {
 
             @Override
             public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
-                Loader<TransmissionSessionData> loader;
-                int[] ids = new int[mSelectedTorrentIds.size()];
+                final Loader<TransmissionSessionData> loader;
+                final int[] ids = new int[mSelectedTorrentIds.size()];
                 int index = 0;
                 for (Integer id : mSelectedTorrentIds)
                     ids[index++] = id;
+
+                AlertDialog.Builder builder = new AlertDialog.Builder(getActivity())
+                    .setCancelable(false)
+                    .setNegativeButton(android.R.string.no, null);
 
                 switch (item.getItemId()) {
                     case R.id.remove:
                         loader = getActivity().getSupportLoaderManager()
                             .getLoader(TorrentListActivity.SESSION_LOADER_ID);
                         if (loader != null) {
-                            ((TransmissionSessionLoader) loader).setTorrentsRemove(ids, false);
+                            builder.setPositiveButton(android.R.string.yes,
+                                new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int id) {
+                                    ((TransmissionSessionLoader) loader).setTorrentsRemove(ids, false);
+                                }
+                            })
+                                .setMessage(R.string.remove_selected_confirmation)
+                                .show();
                         }
                         mode.finish();
                         break;
@@ -312,7 +326,15 @@ public class TorrentListFragment extends ListFragment {
                         loader = getActivity().getSupportLoaderManager()
                             .getLoader(TorrentListActivity.SESSION_LOADER_ID);
                         if (loader != null) {
-                            ((TransmissionSessionLoader) loader).setTorrentsRemove(ids, true);
+                            builder.setPositiveButton(android.R.string.yes,
+                                new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int id) {
+                                    ((TransmissionSessionLoader) loader).setTorrentsRemove(ids, true);
+                                }
+                            })
+                                .setMessage(R.string.delete_selected_confirmation)
+                                .show();
                         }
                         mode.finish();
                         break;

@@ -145,4 +145,7 @@
     <string name="time_minute">minute</string>
     <string name="time_seconds">seconds</string>
     <string name="time_second">second</string>
+    
+    <string name="remove_selected_confirmation">Are you sure you want to remove the selected torrents?</string>
+    <string name="delete_selected_confirmation">Are you sure you want to remove and delete the data of the selected torrents?</string>
 </resources>
