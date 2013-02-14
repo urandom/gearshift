@@ -72,7 +72,7 @@ public class TorrentListFragment extends ListFragment {
     private TorrentListAdapter mTorrentListAdapter;
 
     private TransmissionProfile mCurrentProfile;
-    private TransmissionSession mSession;
+    private TransmissionSession mSession = new TransmissionSession();
     private TransmissionSessionStats mSessionStats;
 
     /**
@@ -189,12 +189,10 @@ public class TorrentListFragment extends ListFragment {
                 if (menu != null) {
                     menu.notifyTorrentListUpdate(data.torrents, data.session);
                 }
-                if (data.hasRemoved || data.hasAdded) {
-                    TorrentDetailFragment detail = (TorrentDetailFragment) manager.findFragmentByTag(
-                            TorrentDetailFragment.TAG);
-                    if (detail != null) {
-                        detail.notifyTorrentListChanged(data.hasRemoved, data.hasAdded);
-                    }
+                TorrentDetailFragment detail = (TorrentDetailFragment) manager.findFragmentByTag(
+                        TorrentDetailFragment.TAG);
+                if (detail != null) {
+                    detail.notifyTorrentListChanged(data.hasRemoved, data.hasAdded);
                 }
             }
 
@@ -294,75 +292,53 @@ public class TorrentListFragment extends ListFragment {
             private HashSet<Integer> mSelectedTorrentIds;
 
             @Override
-            public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
-                final Loader<TransmissionSessionData> loader;
+            public boolean onActionItemClicked(ActionMode mode, final MenuItem item) {
+                final Loader<TransmissionSessionData> loader = getActivity().getSupportLoaderManager()
+                    .getLoader(TorrentListActivity.SESSION_LOADER_ID);
+
+                if (loader == null)
+                    return false;
+
                 final int[] ids = new int[mSelectedTorrentIds.size()];
                 int index = 0;
                 for (Integer id : mSelectedTorrentIds)
                     ids[index++] = id;
 
-                AlertDialog.Builder builder = new AlertDialog.Builder(getActivity())
-                    .setCancelable(false)
-                    .setNegativeButton(android.R.string.no, null);
-
                 switch (item.getItemId()) {
                     case R.id.remove:
-                        loader = getActivity().getSupportLoaderManager()
-                            .getLoader(TorrentListActivity.SESSION_LOADER_ID);
-                        if (loader != null) {
-                            builder.setPositiveButton(android.R.string.yes,
-                                new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialog, int id) {
-                                    ((TransmissionSessionLoader) loader).setTorrentsRemove(ids, false);
-                                }
-                            })
-                                .setMessage(R.string.remove_selected_confirmation)
-                                .show();
-                            mRefreshing = true;
-                            getActivity().invalidateOptionsMenu();
-                        }
-                        mode.finish();
-                        break;
                     case R.id.delete:
-                        loader = getActivity().getSupportLoaderManager()
-                            .getLoader(TorrentListActivity.SESSION_LOADER_ID);
-                        if (loader != null) {
-                            builder.setPositiveButton(android.R.string.yes,
-                                new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialog, int id) {
-                                    ((TransmissionSessionLoader) loader).setTorrentsRemove(ids, true);
-                                }
-                            })
-                                .setMessage(R.string.delete_selected_confirmation)
-                                .show();
-                            mRefreshing = true;
-                            getActivity().invalidateOptionsMenu();
-                        }
-                        mode.finish();
+                        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity())
+                            .setCancelable(false)
+                            .setNegativeButton(android.R.string.no, null);
+
+                        builder.setPositiveButton(android.R.string.yes,
+                            new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int id) {
+                                ((TransmissionSessionLoader) loader).setTorrentsRemove(ids, item.getItemId() == R.id.delete);
+                            }
+                        })
+                            .setMessage(item.getItemId() == R.id.delete
+                                    ? R.string.delete_selected_confirmation
+                                    : R.string.remove_selected_confirmation)
+                        .show();
                         break;
                     case R.id.resume:
-                        loader = getActivity().getSupportLoaderManager()
-                            .getLoader(TorrentListActivity.SESSION_LOADER_ID);
-                        if (loader != null) {
-                            ((TransmissionSessionLoader) loader).setTorrentsAction("torrent-start", ids);
-                            mRefreshing = true;
-                            getActivity().invalidateOptionsMenu();
-                        }
-                        mode.finish();
+                        ((TransmissionSessionLoader) loader).setTorrentsAction("torrent-start", ids);
                         break;
                     case R.id.pause:
-                        loader = getActivity().getSupportLoaderManager()
-                            .getLoader(TorrentListActivity.SESSION_LOADER_ID);
-                        if (loader != null) {
-                            ((TransmissionSessionLoader) loader).setTorrentsAction("torrent-stop", ids);
-                            mRefreshing = true;
-                            getActivity().invalidateOptionsMenu();
-                        }
-                        mode.finish();
+                        ((TransmissionSessionLoader) loader).setTorrentsAction("torrent-stop", ids);
                         break;
+                    default:
+                        return true;
                 }
+
+
+
+                mRefreshing = true;
+                getActivity().invalidateOptionsMenu();
+
+                mode.finish();
                 return true;
             }
 
@@ -446,7 +422,6 @@ public class TorrentListFragment extends ListFragment {
 
         // Notify the active callbacks interface (the activity, if the
         // fragment is attached to one) that an item has been selected.
-        /* TODO: replace with real torrent */
         mCallbacks.onItemSelected(mTorrentListAdapter.getItem(position));
     }
 

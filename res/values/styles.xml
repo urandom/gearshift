@@ -100,9 +100,10 @@
         <item name="android:layout_weight">1</item>
     </style>
     
-    <style name="TorrentDetailClickable">
-        <item name="android:clickable">true</item>
-        <item name="android:background">@drawable/clickable_selector_holo_light</item>
+    <style name="TorrentDetailEntry">
+        <!-- <item name="android:clickable">true</item> -->
+        <!-- <item name="android:background">@drawable/clickable_selector_holo_light</item> -->
+        <item name="android:imeOptions">actionDone|flagNoExtractUi</item>
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:layout_margin">4dp</item>
@@ -114,26 +115,5 @@
         <item name="android:layout_height">wrap_content</item>
         <item name="android:paddingBottom">8dp</item>
         <item name="android:textSize">13sp</item>
-    </style>
-    
-    <style name="NumberPickerText">
-        <item name="android:textSize">56sp</item>
-        <item name="android:textAllCaps">true</item>
-        <item name="android:textColor">#bebebe</item>
-        <item name="android:fontFamily">sans-serif</item>
-        <item name="android:gravity">center</item>
-    </style>
-    
-    <style name="NumberPickerTextValue" parent="@style/NumberPickerText">
-        <item name="android:textSize">64sp</item>
-        <item name="android:textStyle">bold</item>
-        <item name="android:gravity">left</item>
-        <item name="android:layout_marginLeft">32dp</item>
-    </style>
-    
-    <style name="NumberPickerButton" parent="@style/NumberPickerText">
-        <item name="android:layout_width">96dp</item>
-        <item name="android:layout_height">96dp</item>        
-        <item name="android:background">@drawable/list_selector_holo_light</item>
     </style>
 </resources>

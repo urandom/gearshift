@@ -68,10 +68,11 @@
             <TextView style="@style/TorrentDetailTextColumn"
                  android:text="@string/torrent_queue_position" />
 
-            <TextView
+            <EditText
                 android:id="@+id/torrent_queue_position"
-                style="@style/TorrentDetailClickable" >
-            </TextView>
+                android:inputType="number"
+                style="@style/TorrentDetailEntry" >
+            </EditText>
             
         </TableRow>
 
@@ -95,10 +96,11 @@
             <TextView style="@style/TorrentDetailTextColumn"
                 android:text="@string/torrent_limit_speed_amount" />
             
-            <TextView
+            <EditText
                 android:id="@+id/torrent_limit_download"
-                style="@style/TorrentDetailClickable" >
-            </TextView>
+                android:inputType="number"
+                style="@style/TorrentDetailEntry" >
+            </EditText>
             
         </TableRow>
         
@@ -122,10 +124,11 @@
             <TextView style="@style/TorrentDetailTextColumn"
                 android:text="@string/torrent_limit_speed_amount" />
             
-            <TextView
+            <EditText
                 android:id="@+id/torrent_limit_upload"
-                style="@style/TorrentDetailClickable" >
-            </TextView>
+                android:inputType="number"
+                style="@style/TorrentDetailEntry" >
+            </EditText>
             
         </TableRow>
         
@@ -160,10 +163,11 @@
             
             <TextView style="@style/TorrentDetailTextColumn" android:text="@string/torrent_seed_ratio_limit" />
 
-            <TextView
+            <EditText
                 android:id="@+id/torrent_seed_ratio_limit"
-                style="@style/TorrentDetailClickable" >
-            </TextView>
+                android:inputType="numberDecimal"
+                style="@style/TorrentDetailEntry" >
+            </EditText>
             
         </TableRow>
                    
@@ -186,10 +190,11 @@
             <TextView style="@style/TorrentDetailTextColumn"
                 android:text="@string/torrent_peer_limit" />
 
-            <TextView
+            <EditText
                 android:id="@+id/torrent_peer_limit"
-                style="@style/TorrentDetailClickable" >
-            </TextView>
+                android:inputType="number"
+                style="@style/TorrentDetailEntry" >
+            </EditText>
                 
 
         </TableRow>

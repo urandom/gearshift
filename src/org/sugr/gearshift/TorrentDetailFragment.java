@@ -3,8 +3,11 @@ package org.sugr.gearshift;
 import java.util.ArrayList;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.content.Loader;
 import android.support.v4.view.ViewPager;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -24,6 +27,8 @@ public class TorrentDetailFragment extends Fragment {
     private ViewPager mPager;
     private int mCurrentTorrentId = -1;
     private int mCurrentPosition = -1;
+
+    private boolean mExpectingStatusChange = false;
 
     private static Callbacks sDummyCallbacks = new Callbacks() {
         @Override
@@ -118,19 +123,57 @@ public class TorrentDetailFragment extends Fragment {
     }
 
     @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
+    public boolean onOptionsItemSelected(final MenuItem item) {
+        final Loader<TransmissionSessionData> loader = getActivity().getSupportLoaderManager()
+            .getLoader(TorrentListActivity.SESSION_LOADER_ID);
+
+        ArrayList<Torrent> torrents = ((TransmissionSessionInterface) getActivity()).getTorrents();
+        Torrent torrent = torrents.size() > mCurrentPosition
+            ? torrents.get(mCurrentPosition) : null;
+
+        if (loader == null || torrent == null)
+            return super.onOptionsItemSelected(item);
+
+        final int[] ids = new int[] {mCurrentTorrentId};
+
         switch (item.getItemId()) {
             case R.id.remove:
-                return true;
             case R.id.delete:
-                return true;
+                AlertDialog.Builder builder = new AlertDialog.Builder(getActivity())
+                    .setCancelable(false)
+                    .setNegativeButton(android.R.string.no, null);
+
+                builder.setPositiveButton(android.R.string.yes,
+                    new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int id) {
+                        ((TransmissionSessionLoader) loader).setTorrentsRemove(ids, item.getItemId() == R.id.delete);
+                    }
+                })
+                    .setMessage(String.format(getString(
+                                    item.getItemId() == R.id.delete
+                            ? R.string.delete_current_confirmation
+                            : R.string.remove_current_confirmation),
+                                torrent.getName()))
+                .show();
+                break;
             case R.id.resume:
-                return true;
+                mExpectingStatusChange = true;
+                ((TransmissionSessionLoader) loader).setTorrentsAction("torrent-start", ids);
+                break;
             case R.id.pause:
-                return true;
+                mExpectingStatusChange = true;
+                ((TransmissionSessionLoader) loader).setTorrentsAction("torrent-stop", ids);
+                break;
             default:
-                return super.onOptionsItemSelected(item);
+                return true;
         }
+
+        /* TODO: use the action progress bar if present
+        mRefreshing = true;
+        */
+
+        return true;
     }
 
     public void setCurrentTorrent(int position) {
@@ -138,21 +181,27 @@ public class TorrentDetailFragment extends Fragment {
     }
 
     public void notifyTorrentListChanged(boolean removed, boolean added) {
-        ArrayList<Torrent> torrents = ((TransmissionSessionInterface) getActivity()).getTorrents();
-        boolean found = false;
-        int index = 0;
-        for (Torrent t : torrents) {
-            if (t.getId() == mCurrentTorrentId) {
-                found = true;
-                break;
+        if (removed || added) {
+            ArrayList<Torrent> torrents = ((TransmissionSessionInterface) getActivity()).getTorrents();
+            boolean found = false;
+            int index = 0;
+            for (Torrent t : torrents) {
+                if (t.getId() == mCurrentTorrentId) {
+                    found = true;
+                    break;
+                }
+                index++;
             }
-            index++;
+            mPager.setAdapter(new TorrentDetailPagerAdapter(getActivity()));
+            if (found) {
+                mPager.setCurrentItem(index);
+            } else {
+                mPager.setCurrentItem(0);
+            }
         }
-        mPager.setAdapter(new TorrentDetailPagerAdapter(getActivity()));
-        if (found) {
-            mPager.setCurrentItem(index);
-        } else {
-            mPager.setCurrentItem(0);
+        if (mExpectingStatusChange) {
+            mExpectingStatusChange = false;
+            getActivity().invalidateOptionsMenu();
         }
     }
 }

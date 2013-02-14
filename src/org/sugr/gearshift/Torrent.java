@@ -13,43 +13,43 @@ import com.google.gson.annotations.SerializedName;
 public class Torrent {
     @SerializedName("id") private int mId;
     @SerializedName("status") private int mStatus = Status.STOPPED;
-    
+
     @SerializedName("name") private String mName;
-    
+
     @SerializedName("error") private int mError;
     @SerializedName("errorString") private String mErrorString;
-    
+
     @SerializedName("metadataPercentComplete") private float mMetadataPercentComplete = 0;
     /* User selected */
     @SerializedName("percentDone") private float mPercentDone = 0;
-    
-    @SerializedName("eta") private int mEta;
-    
+
+    @SerializedName("eta") private long mEta;
+
     @SerializedName("isFinished") private boolean mFinished = false;
     @SerializedName("isStalled") private boolean mStalled = true;
-    
+
     @SerializedName("peersConnected") private int mPeersConnected = 0;
     @SerializedName("peersGettingFromUs") private int mPeersGettingFromUs = 0;
     @SerializedName("peersSendingToUs") private int mPeersSendingToUs = 0;
-    
+
     /* In bytes */
     @SerializedName("leftUntilDone") private long mLeftUntilDone;
     /* 0 .. leftUntilDone */
     @SerializedName("desiredAvailable")  private long mDesiredAvailable;
-    
+
     @SerializedName("totalSize") private long mTotalSize;
     @SerializedName("sizeWhenDone") private long mSizeWhenDone;
-    
+
     @SerializedName("rateDownload") private long mRateDownload;
     @SerializedName("rateUpload") private long mRateUpload;
-    
+
     @SerializedName("queuePosition") private int mQueuePosition;
-    
+
     @SerializedName("recheckProgress") private float mRecheckProgress;
-    
+
     @SerializedName("seedRatioMode") private int mSeedRatioMode;
     @SerializedName("seedRatioLimit") private float mSeedRatioLimit;
-    
+
     @SerializedName("uploadedEver") private long mUploadedEver;
     @SerializedName("uploadRatio") private float mUploadRatio;
 
@@ -65,9 +65,9 @@ public class Torrent {
 
     @SerializedName("haveUnchecked") private long mHaveUnchecked;
     @SerializedName("haveValid") private long mHaveValid;
-    
+
     @SerializedName("trackers") private Tracker[] mTrackers;
-    
+
     @SerializedName("comment") private String mComment;
     @SerializedName("creator") private String mCreator;
     @SerializedName("dateCreated") private long mDateCreated;
@@ -84,7 +84,7 @@ public class Torrent {
     @Exclude private Spanned mTrafficText;
     @Exclude private Spanned mStatusText;
     @Exclude private TransmissionSession mSession;
-    
+
     // https://github.com/killemov/Shift/blob/master/shift.js#L864
     @Exclude public static class Status {
         public final static int ALL = -1;
@@ -154,15 +154,15 @@ public class Torrent {
         @SerializedName("announce") private String mAnnounce;
         @SerializedName("scrape") private String mScrape;
         @SerializedName("tier") private int mTier;
-        
+
         public String getAnnounce() {
             return mAnnounce;
         }
-        
+
         public String getScrape() {
             return mScrape;
         }
-        
+
         public int getTier() {
             return mTier;
         }
@@ -170,16 +170,16 @@ public class Torrent {
         public void setAnnounce(String announce) {
             mAnnounce = announce;
         }
-        
+
         public void setScrape(String scrape) {
             mScrape = scrape;
         }
-        
+
         public void setTier(int tier) {
             mTier = tier;
         }
     }
-    
+
     public static class File {
         @SerializedName("bytesCompleted") private long mBytesCompleted;
         @SerializedName("length") private long mLength;
@@ -375,7 +375,7 @@ public class Torrent {
         return mPercentDone;
     }
 
-    public int getEta() {
+    public long getEta() {
         return mEta;
     }
 
@@ -559,7 +559,7 @@ public class Torrent {
         this.mPercentDone = percentDone;
     }
 
-    public void setEta(int eta) {
+    public void setEta(long eta) {
         this.mEta = eta;
     }
 
@@ -823,7 +823,7 @@ public class Torrent {
                         : R.string.status_download_waiting);
                 statusMoreFormat = context.getString(R.string.status_more_downloading_format);
                 statusSpeedFormat = context.getString(R.string.status_more_downloading_speed_format);
-                
+
                 if (mStalled) {
                     statusSpeed = context.getString(R.string.status_more_idle);
                 } else {
@@ -832,9 +832,9 @@ public class Torrent {
                         Torrent.readableFileSize(mRateUpload)
                     );
                 }
-                
+
                 peers = mPeersSendingToUs;
-                
+
                 formattedStatus = String.format(statusFormat, statusType,
                         String.format(statusMoreFormat,
                             peers, mPeersConnected, statusSpeed
@@ -847,7 +847,7 @@ public class Torrent {
                         ? R.string.status_seeding : R.string.status_seed_waiting);
                 statusMoreFormat = context.getString(R.string.status_more_seeding_format);
                 statusSpeedFormat = context.getString(R.string.status_more_seeding_speed_format);
-                
+
                 if (mStalled) {
                     statusSpeed = context.getString(R.string.status_more_idle);
                 } else {
@@ -856,7 +856,7 @@ public class Torrent {
                     );
                 }
                 peers = mPeersGettingFromUs;
-                
+
                 formattedStatus = String.format(statusFormat, statusType,
                         String.format(statusMoreFormat,
                             peers, mPeersConnected, statusSpeed
@@ -865,7 +865,7 @@ public class Torrent {
                 break;
             case Torrent.Status.CHECK_WAITING:
                 statusType = context.getString(R.string.status_checking);
-                
+
                 formattedStatus = String.format(statusFormat,
                     statusType,
                     "-" + context.getString(R.string.status_more_idle)
@@ -877,11 +877,11 @@ public class Torrent {
                 break;
             case Torrent.Status.STOPPED:
                 formattedStatus = context.getString(R.string.status_stopped);
-                
+
                 break;
             default:
                 formattedStatus = "Error";
-                
+
                 break;
         }
         mStatusText = Html.fromHtml(formattedStatus);
@@ -894,7 +894,7 @@ public class Torrent {
     public void setTransmissionSession(TransmissionSession session) {
         mSession = session;
     }
-    
+
     public float getActiveSeedRatioLimit() {
         switch(mSeedRatioMode) {
             case Torrent.SeedRatioMode.GLOBAL_LIMIT:
@@ -912,7 +912,7 @@ public class Torrent {
 
     public void updateFrom(Torrent source, String[] fields) {
         if (fields == null) return;
-        
+
         for (String field : fields) {
             if (field.equals("addedDate")) {
                 setAddedDate(source.getAddedDate());
@@ -1025,7 +1025,7 @@ public class Torrent {
         }
     }
 
-    public static String readableRemainingTime(int eta, Context context) {
+    public static String readableRemainingTime(long eta, Context context) {
         int days = (int) Math.floor(eta / 86400);
         int hours = (int) Math.floor((eta % 86400) / 3600);
         int minutes = (int) Math.floor((eta % 3600) / 60);
@@ -1052,7 +1052,7 @@ public class Torrent {
                 return m;
             return m + ", " + s;
         }
-        
+
         return s;
     }
 }

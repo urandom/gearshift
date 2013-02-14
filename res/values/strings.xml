@@ -41,7 +41,6 @@
     
     <string name="torrent_activity">Activity</string>
     <string name="torrent_have">Have:</string>
-    <string name="torrent_availability">Availability:</string>
     <string name="torrent_downloaded">Downloaded:</string>
     <string name="torrent_uploaded">Uploaded:</string>
     <string name="torrent_state">State:</string>
@@ -145,7 +144,26 @@
     <string name="time_minute">minute</string>
     <string name="time_seconds">seconds</string>
     <string name="time_second">second</string>
-    
+
     <string name="remove_selected_confirmation">Are you sure you want to remove the selected torrents?</string>
     <string name="delete_selected_confirmation">Are you sure you want to remove and delete the data of the selected torrents?</string>
+
+    <string name="remove_current_confirmation">Are you sure you want to remove \'%s\'?</string>
+    <string name="delete_current_confirmation">Are you sure you want to remove and delete the data of \'%s\'?</string>
+
+    <string name="torrent_have_format">%1$s of %2$s (%3$s%%)</string>
+
+    <string name="none">None</string>
+    <string name="unknown">Unknown</string>
+
+    <string name="status_stopped">Paused</string>
+    <string name="status_check_waiting">Queued check</string>
+    <string name="status_checking">Checking</string>
+    <string name="status_download_waiting">Queued download</string>
+    <string name="status_downloading">Downloading</string>
+    <string name="status_downloading_metadata">Downloading metadata</string>
+    <string name="status_seed_waiting">Queued seed</string>
+    <string name="status_seeding">Seeding</string>
+
+    <string name="torrent_active_now">Active now</string>
 </resources>

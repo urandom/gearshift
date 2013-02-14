@@ -46,15 +46,6 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" >
 
-            <TextView style="@style/TorrentDetailTextColumn" android:text="@string/torrent_availability" />
-
-            <TextView android:id="@+id/torrent_availability" />
-        </TableRow>
-
-        <TableRow
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" >
-
             <TextView style="@style/TorrentDetailTextColumn" android:text="@string/torrent_downloaded" />
 
             <TextView android:id="@+id/torrent_downloaded" />
