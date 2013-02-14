@@ -24,7 +24,7 @@ import com.slidingmenu.lib.app.SlidingFragmentActivity;
 
 public class TorrentListActivity extends SlidingFragmentActivity
         implements TransmissionSessionInterface, TorrentListFragment.Callbacks,
-                   TorrentDetailFragment.Callbacks {
+                   TorrentDetailFragment.PagerCallbacks {
 
     /* TODO: move to an Application class, along with the logging functions */
     public static final int PROFILES_LOADER_ID = 1;
@@ -129,7 +129,7 @@ public class TorrentListActivity extends SlidingFragmentActivity
             Loader<TransmissionSessionData> loader =
                     getSupportLoaderManager().getLoader(SESSION_LOADER_ID);
             if (loader != null)
-                ((TransmissionSessionLoader) loader).setAllCurrentTorrents(true);
+            ((TransmissionSessionLoader) loader).setAllCurrentTorrents(true);
         }
     }
 

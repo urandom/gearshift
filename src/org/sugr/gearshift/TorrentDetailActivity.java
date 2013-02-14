@@ -4,11 +4,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 import org.sugr.gearshift.TransmissionSessionManager.TransmissionExclusionStrategy;
+
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.NavUtils;
-import android.support.v4.view.ViewPager;
 import android.view.MenuItem;
 
 import com.google.gson.Gson;
@@ -25,14 +25,14 @@ import com.google.gson.GsonBuilder;
  * more than a {@link TorrentDetailFragment}.
  */
 public class TorrentDetailActivity extends FragmentActivity implements TransmissionSessionInterface,
-       TorrentDetailFragment.Callbacks {
+       TorrentDetailFragment.PagerCallbacks {
     public static final String ARG_JSON_TORRENTS = "json_torrents";
 
     private ArrayList<Torrent> mTorrents = new ArrayList<Torrent>();
     private int mCurrentTorrent = 0;
 
     /* TODO: create transmissionsessionloader and callback */
-		
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         Gson gson = new GsonBuilder().setExclusionStrategies(new TransmissionExclusionStrategy()).create();
@@ -44,7 +44,7 @@ public class TorrentDetailActivity extends FragmentActivity implements Transmiss
 
         // Show the Up button in the action bar.
         getActionBar().setDisplayHomeAsUpEnabled(true);
-        
+
         // savedInstanceState is non-null when there is fragment state
         // saved from previous configurations of this activity
         // (e.g. when rotating the screen from portrait to landscape).
@@ -54,7 +54,7 @@ public class TorrentDetailActivity extends FragmentActivity implements Transmiss
         //
         // http://developer.android.com/guide/components/fragments.html
         //
-                
+
         if (savedInstanceState == null) {
             mCurrentTorrent = getIntent().getIntExtra(TorrentDetailFragment.ARG_PAGE_POSITION, 0);
             Bundle arguments = new Bundle();
@@ -84,7 +84,7 @@ public class TorrentDetailActivity extends FragmentActivity implements Transmiss
         }
         return super.onOptionsItemSelected(item);
     }
-    
+
     @Override
     public void setTorrents(ArrayList<Torrent> torrents) {
         mTorrents.clear();
@@ -97,11 +97,11 @@ public class TorrentDetailActivity extends FragmentActivity implements Transmiss
     public ArrayList<Torrent> getTorrents() {
         return mTorrents;
     }
-    
+
     @Override
     public Torrent[] getCurrentTorrents() {
         int current = mCurrentTorrent;
-        int offscreen = 1; 
+        int offscreen = 1;
         int count = offscreen * 2 + 1;
         if (current == mTorrents.size() - 1) {
             count--;

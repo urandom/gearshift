@@ -133,7 +133,7 @@ public class Torrent {
             "queuePosition", "rateDownload", "rateUpload",
             "recheckProgress", "seedRatioMode", "seedRatioLimit",
             "sizeWhenDone", "status", "trackers", "uploadedEver",
-            "uploadRatio"
+            "uploadRatio", "downloadDir"
         };
 
         // fields used by the inspector which only need to be loaded once
@@ -144,7 +144,7 @@ public class Torrent {
 
         // fields used in the inspector which need to be periodically refreshed
         public static final String[] STATS_EXTRA = {
-            "activityDate", "corruptEver", "desiredAvailable", "downloadDir",
+            "activityDate", "corruptEver", "desiredAvailable",
             "downloadedEver", "fileStats", "haveUnchecked", "haveValid",
             "peers", "startDate", /*"trackerStats",*/ "webseedsSendingToUs"
         };

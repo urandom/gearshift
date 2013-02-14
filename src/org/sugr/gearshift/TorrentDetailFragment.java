@@ -1,6 +1,7 @@
 package org.sugr.gearshift;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -19,11 +20,11 @@ import android.view.ViewGroup;
 public class TorrentDetailFragment extends Fragment {
     public static final String TAG = "detail_fragment";
     public static final String ARG_PAGE_POSITION = "page_position";
-    public interface Callbacks {
+    public interface PagerCallbacks {
         public void onPageSelected(int position);
     }
 
-    private Callbacks mCallbacks = sDummyCallbacks;
+    private PagerCallbacks mCallbacks = sDummyCallbacks;
     private ViewPager mPager;
     private int mCurrentTorrentId = -1;
     private int mCurrentPosition = -1;
@@ -31,7 +32,7 @@ public class TorrentDetailFragment extends Fragment {
     private boolean mExpectingPause = false;
     private boolean mExpectingResume = false;
 
-    private static Callbacks sDummyCallbacks = new Callbacks() {
+    private static PagerCallbacks sDummyCallbacks = new PagerCallbacks() {
         @Override
         public void onPageSelected(int position) { }
     };
@@ -89,11 +90,11 @@ public class TorrentDetailFragment extends Fragment {
         super.onAttach(activity);
 
         // Activities containing this fragment must implement its callbacks.
-        if (!(activity instanceof Callbacks)) {
+        if (!(activity instanceof PagerCallbacks)) {
             throw new IllegalStateException("Activity must implement fragment's callbacks.");
         }
 
-        mCallbacks = (Callbacks) activity;
+        mCallbacks = (PagerCallbacks) activity;
     }
 
     @Override
@@ -182,40 +183,50 @@ public class TorrentDetailFragment extends Fragment {
     }
 
     public void notifyTorrentListChanged(boolean removed, boolean added) {
+        ArrayList<Torrent> torrents = ((TransmissionSessionInterface) getActivity()).getTorrents();
+        Torrent torrent = null;
         if (removed || added) {
-            ArrayList<Torrent> torrents = ((TransmissionSessionInterface) getActivity()).getTorrents();
-            boolean found = false;
             int index = 0;
             for (Torrent t : torrents) {
                 if (t.getId() == mCurrentTorrentId) {
-                    found = true;
+                    torrent = t;
                     break;
                 }
                 index++;
             }
             mPager.setAdapter(new TorrentDetailPagerAdapter(getActivity()));
-            if (found) {
+            if (torrent != null) {
                 mPager.setCurrentItem(index);
             } else {
                 mPager.setCurrentItem(0);
             }
         }
         if (mExpectingPause || mExpectingResume) {
-            ArrayList<Torrent> torrents = ((TransmissionSessionInterface) getActivity()).getTorrents();
-            Torrent torrent = torrents.size() > mCurrentPosition
-                ? torrents.get(mCurrentPosition)
-                : null;
-            if (torrent == null)
-                return;
+            if (torrent == null) {
+                torrent = torrents.size() > mCurrentPosition
+                    ? torrents.get(mCurrentPosition)
+                    : null;
+            }
 
-            if (mExpectingPause && torrent.getStatus() == Torrent.Status.STOPPED) {
-                mExpectingPause = false;
-                getActivity().invalidateOptionsMenu();
+            if (torrent != null) {
+                if (mExpectingPause && torrent.getStatus() == Torrent.Status.STOPPED) {
+                    mExpectingPause = false;
+                    getActivity().invalidateOptionsMenu();
+                }
+                if (mExpectingResume && torrent.getStatus() != Torrent.Status.STOPPED) {
+                    mExpectingResume = false;
+                    getActivity().invalidateOptionsMenu();
+                }
             }
-            if (mExpectingResume && torrent.getStatus() != Torrent.Status.STOPPED) {
-                mExpectingResume = false;
-                getActivity().invalidateOptionsMenu();
-            }
+        }
+        Torrent[] currentTorrents = ((TransmissionSessionInterface) getActivity()).getCurrentTorrents();
+        List<TorrentDetailPageFragment> pages = ((TorrentDetailPagerAdapter) mPager.getAdapter()).getFragments();
+        for (Torrent t : currentTorrents) {
+            int index = torrents.indexOf(t);
+            TorrentDetailPageFragment page = pages.size() > index
+                ? pages.get(index) : null;
+            if (page == null) continue;
+            page.notifyTorrentUpdate(t);
         }
     }
 }

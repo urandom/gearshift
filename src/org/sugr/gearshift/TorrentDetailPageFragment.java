@@ -87,12 +87,28 @@ public class TorrentDetailPageFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState) {
-        final View root = inflater.inflate(R.layout.fragment_torrent_detail_page, container, false);
+        View root = inflater.inflate(R.layout.fragment_torrent_detail_page, container, false);
 
         if (mTorrent == null) return root;
 
-        ((TextView) root.findViewById(R.id.torrent_detail_title)).setText(mTorrent.getName());
+        updateFields(root);
 
+        return root;
+    }
+
+    public void notifyTorrentUpdate(Torrent torrent) {
+        if (torrent.getId() != mTorrent.getId()) {
+            return;
+        }
+
+        mTorrent = torrent;
+        updateFields(getView());
+    }
+
+    private void updateFields(final View root) {
+        if (root == null) return;
+
+        ((TextView) root.findViewById(R.id.torrent_detail_title)).setText(mTorrent.getName());
 
         root.findViewById(R.id.torrent_detail_overview_expander).setOnClickListener(mExpanderListener);
         root.findViewById(R.id.torrent_detail_limits_expander).setOnClickListener(mExpanderListener);
@@ -206,8 +222,5 @@ public class TorrentDetailPageFragment extends Fragment {
         /* TODO: use the torrent global limits override */
         check = (CheckBox) root.findViewById(R.id.torrent_global_limits);
         check.setChecked(true);
-
-
-        return root;
     }
 }

@@ -77,6 +77,15 @@ public class TransmissionSessionLoader extends AsyncTaskLoader<TransmissionSessi
     private int[] mTorrentActionIds;
     private boolean mDeleteData = false;
 
+    public static enum SortBy {
+        NAME, SIZE, STATE, ACTIVITY, AGE, PROGRESS, RATIO, LOCATION,
+        PEERS, QUEUE
+    };
+
+    public static enum SortDirection {
+        ASCENDING, DESCENDING
+    };
+
     public TransmissionSessionLoader(Context context, TransmissionProfile profile) {
         super(context);
 

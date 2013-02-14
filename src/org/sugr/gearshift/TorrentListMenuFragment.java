@@ -56,7 +56,7 @@ public class TorrentListMenuFragment extends Fragment {
         long down = 0, up = 0;
 
         for (Torrent t : torrents) {
-            down = t.getRateDownload();
+            down += t.getRateDownload();
             up += t.getRateUpload();
         }
 
