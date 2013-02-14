@@ -125,11 +125,6 @@ public class TorrentListActivity extends SlidingFragmentActivity
             ((TorrentListFragment) getSupportFragmentManager()
              .findFragmentById(R.id.torrent_list))
                 .getListView().setItemChecked(position, true);
-
-            Loader<TransmissionSessionData> loader =
-                    getSupportLoaderManager().getLoader(SESSION_LOADER_ID);
-            if (loader != null)
-            ((TransmissionSessionLoader) loader).setAllCurrentTorrents(true);
         }
     }
 
@@ -187,6 +182,13 @@ public class TorrentListActivity extends SlidingFragmentActivity
                 //         this, R.anim.layout_slide_right);
                 // panel.setLayoutAnimation(controller);
                 getSlidingMenu().setTouchModeAbove(SlidingMenu.TOUCHMODE_NONE);
+
+                Loader<TransmissionSessionData> loader =
+                        getSupportLoaderManager().getLoader(SESSION_LOADER_ID);
+                if (loader != null) {
+                    ((TransmissionSessionLoader) loader).setAllCurrentTorrents(true);
+                    loader.onContentChanged();
+                }
                 return true;
             }
         } else {
@@ -194,8 +196,10 @@ public class TorrentListActivity extends SlidingFragmentActivity
                 panel.setVisibility(View.GONE);
                 getSlidingMenu().setTouchModeAbove(SlidingMenu.TOUCHMODE_FULLSCREEN);
                 Loader<TransmissionSessionData> loader = getSupportLoaderManager().getLoader(SESSION_LOADER_ID);
-                if (loader != null)
+                if (loader != null) {
                     ((TransmissionSessionLoader) loader).setAllCurrentTorrents(false);
+                    loader.onContentChanged();
+                }
                 return true;
             }
         }

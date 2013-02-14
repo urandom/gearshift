@@ -79,7 +79,7 @@ public class TransmissionSessionLoader extends AsyncTaskLoader<TransmissionSessi
 
     public static enum SortBy {
         NAME, SIZE, STATE, ACTIVITY, AGE, PROGRESS, RATIO, LOCATION,
-        PEERS, QUEUE
+        PEERS, RATE_DOWNLOAD, RATE_UPLOAD, QUEUE
     };
 
     public static enum SortDirection {

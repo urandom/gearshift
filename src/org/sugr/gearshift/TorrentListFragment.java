@@ -154,7 +154,6 @@ public class TorrentListFragment extends ListFragment {
             if (mCurrentProfile == null) return null;
 
             TransmissionSessionLoader loader = new TransmissionSessionLoader(getActivity(), mCurrentProfile);
-            loader.setCurrentTorrents(((TransmissionSessionInterface) getActivity()).getCurrentTorrents());
 
             return loader;
         }
