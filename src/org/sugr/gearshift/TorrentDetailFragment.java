@@ -28,7 +28,8 @@ public class TorrentDetailFragment extends Fragment {
     private int mCurrentTorrentId = -1;
     private int mCurrentPosition = -1;
 
-    private boolean mExpectingStatusChange = false;
+    private boolean mExpectingPause = false;
+    private boolean mExpectingResume = false;
 
     private static Callbacks sDummyCallbacks = new Callbacks() {
         @Override
@@ -158,11 +159,11 @@ public class TorrentDetailFragment extends Fragment {
                 .show();
                 break;
             case R.id.resume:
-                mExpectingStatusChange = true;
+                mExpectingResume = true;
                 ((TransmissionSessionLoader) loader).setTorrentsAction("torrent-start", ids);
                 break;
             case R.id.pause:
-                mExpectingStatusChange = true;
+                mExpectingPause = true;
                 ((TransmissionSessionLoader) loader).setTorrentsAction("torrent-stop", ids);
                 break;
             default:
@@ -199,9 +200,22 @@ public class TorrentDetailFragment extends Fragment {
                 mPager.setCurrentItem(0);
             }
         }
-        if (mExpectingStatusChange) {
-            mExpectingStatusChange = false;
-            getActivity().invalidateOptionsMenu();
+        if (mExpectingPause || mExpectingResume) {
+            ArrayList<Torrent> torrents = ((TransmissionSessionInterface) getActivity()).getTorrents();
+            Torrent torrent = torrents.size() > mCurrentPosition
+                ? torrents.get(mCurrentPosition)
+                : null;
+            if (torrent == null)
+                return;
+
+            if (mExpectingPause && torrent.getStatus() == Torrent.Status.STOPPED) {
+                mExpectingPause = false;
+                getActivity().invalidateOptionsMenu();
+            }
+            if (mExpectingResume && torrent.getStatus() != Torrent.Status.STOPPED) {
+                mExpectingResume = false;
+                getActivity().invalidateOptionsMenu();
+            }
         }
     }
 }
