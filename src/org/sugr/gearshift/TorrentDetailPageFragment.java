@@ -129,7 +129,9 @@ public class TorrentDetailPageFragment extends Fragment {
                     ))
                 ));
             ((TextView) root.findViewById(R.id.torrent_downloaded)).setText(
-                Torrent.readableFileSize(mTorrent.getDownloadedEver())
+                mTorrent.getDownloadedEver() == 0
+                    ? getString(R.string.unknown)
+                    : Torrent.readableFileSize(mTorrent.getDownloadedEver())
             );
             ((TextView) root.findViewById(R.id.torrent_uploaded)).setText(
                 Torrent.readableFileSize(mTorrent.getUploadedEver())
@@ -164,7 +166,9 @@ public class TorrentDetailPageFragment extends Fragment {
             ((TextView) root.findViewById(R.id.torrent_running_time)).setText(
                 mTorrent.getStatus() == Torrent.Status.STOPPED
                     ? getString(R.string.status_stopped)
-                    : Torrent.readableRemainingTime(now - mTorrent.getStartDate(), getActivity())
+                    : mTorrent.getStartDate() > 0
+                        ? Torrent.readableRemainingTime(now - mTorrent.getStartDate(), getActivity())
+                        : getString(R.string.unknown)
             );
             ((TextView) root.findViewById(R.id.torrent_remaining_time)).setText(
                 mTorrent.getEta() < 0
@@ -173,7 +177,7 @@ public class TorrentDetailPageFragment extends Fragment {
             );
             long lastActive = now - mTorrent.getActivityDate();
             ((TextView) root.findViewById(R.id.torrent_last_activity)).setText(
-                lastActive < 0
+                lastActive < 0 || mTorrent.getActivityDate() <= 0
                     ? getString(R.string.unknown)
                     : lastActive < 5
                         ? getString(R.string.torrent_active_now)
