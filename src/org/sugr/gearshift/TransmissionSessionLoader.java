@@ -1,6 +1,8 @@
 package org.sugr.gearshift;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 
 import org.sugr.gearshift.TransmissionSessionManager.ActiveTorrentGetResponse;
 import org.sugr.gearshift.TransmissionSessionManager.ManagerException;
@@ -77,8 +79,75 @@ public class TransmissionSessionLoader extends AsyncTaskLoader<TransmissionSessi
     private int[] mTorrentActionIds;
     private boolean mDeleteData = false;
 
+    private SortBy mSortBy = SortBy.STATUS;
+    private SortDirection mSortDirection = SortDirection.ASCENDING;
+
+    private final Comparator<Torrent> mTorrentComparator = new Comparator<Torrent>() {
+        @Override
+        public int compare(Torrent a, Torrent b) {
+            int nameComp = a.getName().compareToIgnoreCase(b.getName());
+            int statusComp = b.getStatus() - a.getStatus();
+            int ret = 0;
+            float delta;
+
+            if (nameComp == 0)
+                nameComp = a.getId() - b.getId();
+            if (statusComp == 0)
+                statusComp = nameComp;
+
+            switch(mSortBy) {
+                case NAME:
+                    ret = nameComp;
+                    break;
+                case SIZE:
+                    ret = (int) (a.getTotalSize() - b.getTotalSize());
+                    break;
+                case STATUS:
+                    ret = statusComp;
+                    break;
+                case ACTIVITY:
+                    ret = (int) ((b.getRateDownload() + b.getRateUpload()) - (a.getRateDownload() + a.getRateUpload()));
+                    break;
+                case AGE:
+                    ret = (int) (b.getAddedDate() - a.getAddedDate());
+                    break;
+                case LOCATION:
+                    ret = a.getDownloadDir().compareToIgnoreCase(b.getDownloadDir());
+                    break;
+                case PEERS:
+                    ret = a.getPeersConnected() - b.getPeersConnected();
+                    break;
+                case PROGRESS:
+                    delta = a.getPercentDone() - b.getPercentDone();
+                    ret = delta < 0 ? -1 : delta > 0 ? 1 : 0;
+                    break;
+                case QUEUE:
+                    ret = a.getQueuePosition() - b.getQueuePosition();
+                    break;
+                case RATE_DOWNLOAD:
+                    ret = (int) (a.getRateDownload() - b.getRateDownload());
+                    break;
+                case RATE_UPLOAD:
+                    ret = (int) (a.getRateUpload() - b.getRateUpload());
+                    break;
+                case RATIO:
+                    delta = b.getUploadRatio() - a.getUploadRatio();
+                    ret = delta < 0 ? -1 : delta > 0 ? 1 : 0;
+                    break;
+                default:
+                    break;
+            }
+            if (mSortBy != SortBy.NAME && mSortBy != SortBy.STATUS
+                    && ret == 0) {
+                ret = statusComp;
+            }
+
+            return mSortDirection == SortDirection.ASCENDING ? ret : -ret;
+        }
+    };
+
     public static enum SortBy {
-        NAME, SIZE, STATE, ACTIVITY, AGE, PROGRESS, RATIO, LOCATION,
+        NAME, SIZE, STATUS, ACTIVITY, AGE, PROGRESS, RATIO, LOCATION,
         PEERS, RATE_DOWNLOAD, RATE_UPLOAD, QUEUE
     };
 
@@ -118,6 +187,7 @@ public class TransmissionSessionLoader extends AsyncTaskLoader<TransmissionSessi
     public void setAllCurrentTorrents(boolean set) {
         mCurrentTorrents = null;
         mAllCurrent = set;
+        onContentChanged();
     }
 
     public void setSession(TransmissionSession session, String... keys) {
@@ -136,6 +206,12 @@ public class TransmissionSessionLoader extends AsyncTaskLoader<TransmissionSessi
     public void setTorrentsAction(String action, int[] ids) {
         mTorrentAction = action;
         mTorrentActionIds = ids;
+        onContentChanged();
+    }
+
+    public void setSortingMethod(SortBy by, SortDirection dir) {
+        mSortBy = by;
+        mSortDirection = dir;
         onContentChanged();
     }
 
@@ -293,6 +369,8 @@ public class TransmissionSessionLoader extends AsyncTaskLoader<TransmissionSessi
             torrent.setTrafficText(getContext());
             torrent.setStatusText(getContext());
         }
+
+        Collections.sort(mTorrents, mTorrentComparator);
 
         mIteration++;
         return new TransmissionSessionData(

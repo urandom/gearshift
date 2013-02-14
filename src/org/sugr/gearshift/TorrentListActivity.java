@@ -187,7 +187,6 @@ public class TorrentListActivity extends SlidingFragmentActivity
                         getSupportLoaderManager().getLoader(SESSION_LOADER_ID);
                 if (loader != null) {
                     ((TransmissionSessionLoader) loader).setAllCurrentTorrents(true);
-                    loader.onContentChanged();
                 }
                 return true;
             }
@@ -198,7 +197,6 @@ public class TorrentListActivity extends SlidingFragmentActivity
                 Loader<TransmissionSessionData> loader = getSupportLoaderManager().getLoader(SESSION_LOADER_ID);
                 if (loader != null) {
                     ((TransmissionSessionLoader) loader).setAllCurrentTorrents(false);
-                    loader.onContentChanged();
                 }
                 return true;
             }
