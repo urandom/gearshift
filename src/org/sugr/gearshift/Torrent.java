@@ -734,7 +734,7 @@ public class Torrent {
                     Torrent.readableFileSize(mSizeWhenDone),
                     String.format(context.getString(R.string.traffic_downloading_percentage_format),
                            Torrent.readablePercent(mPercentDone * 100)),
-                    mEta == -1
+                    mEta < 0
                         ? context.getString(R.string.traffic_remaining_time_unknown)
                         : String.format(context.getString(R.string.traffic_remaining_time_format),
                            Torrent.readableRemainingTime(mEta, context))
@@ -754,9 +754,10 @@ public class Torrent {
                     ),
                     seedLimit == 0
                         ? ""
-                        : String.format(
-                            context.getString(R.string.traffic_remaining_time_format),
-                            Torrent.readableRemainingTime(mEta, context)),
+                        : mEta < 0
+                            ? context.getString(R.string.traffic_remaining_time_unknown)
+                            : String.format(context.getString(R.string.traffic_remaining_time_format),
+                               Torrent.readableRemainingTime(mEta, context)),
                 }));
                 break;
             case Torrent.Status.CHECK_WAITING:
@@ -1028,7 +1029,7 @@ public class Torrent {
     }
 
     public static String readableRemainingTime(long eta, Context context) {
-        if (eta == -1) {
+        if (eta < 0) {
             return context.getString(R.string.traffic_remaining_time_unknown);
         }
         int days = (int) Math.floor(eta / 86400);
