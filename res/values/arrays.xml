@@ -12,14 +12,14 @@
     </string-array>
     
     <string-array translatable="false" name="filter_list_entry_values">
-        <item>all</item>
-        <item>downloading</item>
-        <item>seeding</item>
-        <item>paused</item>
-        <item>complete</item>
-        <item>incomplete</item>
-        <item>active</item>
-        <item>checking</item>
+        <item>filter:all</item>
+        <item>filter:downloading</item>
+        <item>filter:seeding</item>
+        <item>filter:paused</item>
+        <item>filter:complete</item>
+        <item>filter:incomplete</item>
+        <item>filter:active</item>
+        <item>filter:checking</item>
     </string-array>
     
     <string-array name="torrent_priority">

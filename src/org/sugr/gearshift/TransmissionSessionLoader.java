@@ -54,11 +54,6 @@ public class TransmissionSessionLoader extends AsyncTaskLoader<TransmissionSessi
         ASCENDING, DESCENDING
     };
 
-    public static enum Filter {
-        ALL, DOWNLOADING, SEEDING, PAUSED, COMPLETE, INCOMPLETE,
-        ACTIVE, CHECKING
-    };
-
     private ArrayList<Torrent> mTorrents = new ArrayList<Torrent>();
     private static SparseArray<Torrent> mTorrentMap = new SparseArray<Torrent>();
     private TransmissionProfile mProfile;
@@ -95,8 +90,6 @@ public class TransmissionSessionLoader extends AsyncTaskLoader<TransmissionSessi
 
     private SortBy mSortBy = SortBy.STATUS;
     private SortDirection mSortDirection = SortDirection.ASCENDING;
-    private Filter mFilter = Filter.ALL;
-    private boolean mFilterChanged = false;
 
     private final Comparator<Torrent> mTorrentComparator = new Comparator<Torrent>() {
         @Override
@@ -188,13 +181,6 @@ public class TransmissionSessionLoader extends AsyncTaskLoader<TransmissionSessi
                 mTorrents.add(t);
                 mTorrentMap.put(t.getId(), t);
             }
-        }
-    }
-
-    public void setFilter(Filter filter) {
-        if (mFilter != filter) {
-                mFilter = filter;
-                mFilterChanged = true;
         }
     }
 
@@ -332,11 +318,7 @@ public class TransmissionSessionLoader extends AsyncTaskLoader<TransmissionSessi
         }
 
         boolean hasRemoved = false, hasAdded = false;
-        if (mFilterChanged) {
-            mFilterChanged = false;
-            mTorrents.clear();
-            mTorrentMap.clear();
-        } else if (removed != null) {
+        if (removed != null) {
             for (int id : removed) {
                 Torrent t = mTorrentMap.get(id);
                 if (t != null) {
@@ -380,26 +362,25 @@ public class TransmissionSessionLoader extends AsyncTaskLoader<TransmissionSessi
                 mNeedsMoreInfo = true;
             }
             Torrent torrent;
-            if (applyFilter(t)) {
-                if ((torrent = mTorrentMap.get(t.getId())) != null) {
-                    torrent.updateFrom(t, fields);
-                } else {
-                    mTorrents.add(t);
-                    mTorrentMap.put(t.getId(), t);
-                    torrent = t;
-                    hasAdded = true;
-                }
-                torrent.setTransmissionSession(mSession);
-                torrent.setTrafficText(getContext());
-                torrent.setStatusText(getContext());
+            if ((torrent = mTorrentMap.get(t.getId())) != null) {
+                torrent.updateFrom(t, fields);
+            } else {
+                mTorrents.add(t);
+                mTorrentMap.put(t.getId(), t);
+                torrent = t;
+                hasAdded = true;
             }
+            torrent.setTransmissionSession(mSession);
+            torrent.setTrafficText(getContext());
+            torrent.setStatusText(getContext());
         }
 
         Collections.sort(mTorrents, mTorrentComparator);
 
         mIteration++;
         return new TransmissionSessionData(
-                mSession, mSessionStats, mTorrents, hasRemoved, hasAdded);
+                mSession, mSessionStats, mTorrents,
+                hasRemoved, hasAdded);
     }
 
     @Override
@@ -424,7 +405,8 @@ public class TransmissionSessionLoader extends AsyncTaskLoader<TransmissionSessi
 
         if (mTorrents.size() > 0)
             deliverResult(new TransmissionSessionData(
-                    mSession, mSessionStats, mTorrents, false, false));
+                    mSession, mSessionStats, mTorrents,
+                    false, false));
 
         if (takeContentChanged() || mTorrents.size() == 0) {
             TorrentListActivity.logD("TLoader: forceLoad()");
@@ -467,32 +449,6 @@ public class TransmissionSessionLoader extends AsyncTaskLoader<TransmissionSessi
         TorrentListActivity.logD("Got an error while fetching data: " + e.getMessage() + " and this code: " + e.getCode());
 
         return new TransmissionSessionData(mSession, mSessionStats);
-    }
-
-    private boolean applyFilter(Torrent torrent) {
-        switch(mFilter) {
-            case ALL:
-                return true;
-            case DOWNLOADING:
-                return torrent.getStatus() == Torrent.Status.DOWNLOADING;
-            case SEEDING:
-                return torrent.getStatus() == Torrent.Status.SEEDING;
-            case PAUSED:
-                return torrent.getStatus() == Torrent.Status.STOPPED;
-            case COMPLETE:
-                return torrent.getPercentDone() == 1;
-            case INCOMPLETE:
-                return torrent.getPercentDone() < 1;
-            case ACTIVE:
-                return !torrent.isStalled() && !torrent.isFinished() && (
-                       torrent.getStatus() == Torrent.Status.DOWNLOADING
-                    || torrent.getStatus() == Torrent.Status.SEEDING
-                );
-            case CHECKING:
-                return torrent.getStatus() == Torrent.Status.CHECKING;
-            default:
-                return false;
-        }
     }
 
     public static String[] concat(String[]... arrays) {

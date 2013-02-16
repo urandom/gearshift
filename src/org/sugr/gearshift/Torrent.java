@@ -734,7 +734,9 @@ public class Torrent {
                     Torrent.readableFileSize(mSizeWhenDone),
                     String.format(context.getString(R.string.traffic_downloading_percentage_format),
                            Torrent.readablePercent(mPercentDone * 100)),
-                    String.format(context.getString(R.string.traffic_remaining_time_format),
+                    mEta == -1
+                        ? context.getString(R.string.traffic_remaining_time_unknown)
+                        : String.format(context.getString(R.string.traffic_remaining_time_format),
                            Torrent.readableRemainingTime(mEta, context))
                 ));
                 break;
@@ -1026,6 +1028,9 @@ public class Torrent {
     }
 
     public static String readableRemainingTime(long eta, Context context) {
+        if (eta == -1) {
+            return context.getString(R.string.traffic_remaining_time_unknown);
+        }
         int days = (int) Math.floor(eta / 86400);
         int hours = (int) Math.floor((eta % 86400) / 3600);
         int minutes = (int) Math.floor((eta % 3600) / 60);

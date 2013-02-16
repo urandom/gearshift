@@ -10,6 +10,8 @@
     <TextView android:id="@+android:id/empty"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:paddingLeft="16dp"
+            android:paddingRight="16dp"
             android:gravity="center"
             android:layout_margin="16dp"
             android:textAppearance="?android:attr/textAppearanceMedium" />        

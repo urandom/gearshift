@@ -1,6 +1,7 @@
 package org.sugr.gearshift;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashSet;
 
 import android.app.ActionBar;
@@ -28,6 +29,7 @@ import android.widget.AbsListView.MultiChoiceModeListener;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.ArrayAdapter;
+import android.widget.Filter;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -571,6 +573,11 @@ public class TorrentListFragment extends ListFragment {
     }
 
     private class TorrentListAdapter extends ArrayAdapter<Torrent> {
+        private final Object mLock = new Object();
+        private ArrayList<Torrent> mObjects = new ArrayList<Torrent>();
+        private ArrayList<Torrent> mOriginalValues;
+        private TorrentFilter mFilter;
+
         public TorrentListAdapter(Context context) {
             super(context, R.layout.torrent_list_item, R.id.name);
         }
@@ -634,6 +641,151 @@ public class TorrentListFragment extends ListFragment {
             status.setTextColor(color);
 
             return rowView;
+        }
+
+        @Override
+        public void addAll(Collection<? extends Torrent> collection) {
+            synchronized (mLock) {
+                if (mOriginalValues != null) {
+                    mOriginalValues.addAll(collection);
+                } else {
+                    mObjects.addAll(collection);
+                }
+                super.addAll(collection);
+            }
+        }
+
+        @Override
+        public void clear() {
+            synchronized (mLock) {
+                if (mOriginalValues != null) {
+                    mOriginalValues.clear();
+                } else {
+                    mObjects.clear();
+                }
+                super.clear();
+            }
+        }
+
+        @Override
+        public int getCount() {
+            synchronized(mLock) {
+                return mObjects.size();
+
+            }
+        }
+
+        @Override
+        public Torrent getItem(int position) {
+            return mObjects.get(position);
+        }
+
+        @Override
+        public int getPosition(Torrent item) {
+            return mObjects.indexOf(item);
+        }
+
+        @Override
+        public Filter getFilter() {
+            if (mFilter == null)
+                mFilter = new TorrentFilter();
+
+            return mFilter;
+        }
+
+        private class TorrentFilter extends Filter {
+            @Override
+            protected FilterResults performFiltering(CharSequence prefix) {
+                FilterResults results = new FilterResults();
+
+                if (mOriginalValues == null) {
+                    synchronized (mLock) {
+                        mOriginalValues = new ArrayList<Torrent>(mObjects);
+                    }
+                }
+
+                String prefixString = prefix == null
+                    ? "" : prefix.toString().toLowerCase();
+                if (prefixString.length() == 0 || prefixString.startsWith("filter:all")) {
+                    ArrayList<Torrent> list;
+                    synchronized (mLock) {
+                        list = new ArrayList<Torrent>(mOriginalValues);
+                    }
+                    results.values = list;
+                    results.count = list.size();
+                } else {
+                    ArrayList<Torrent> values;
+                    synchronized (mLock) {
+                        values = new ArrayList<Torrent>(mOriginalValues);
+                    }
+
+                    final int count = values.size();
+                    final ArrayList<Torrent> newValues = new ArrayList<Torrent>();
+
+                    for (int i = 0; i < count; i++) {
+                        final Torrent torrent = values.get(i);
+
+                        if (prefixString.equals("filter:downloading")) {
+                            if (torrent.getStatus() == Torrent.Status.DOWNLOADING)
+                                newValues.add(torrent);
+                        } else if (prefixString.equals("filter:seeding")) {
+                            if (torrent.getStatus() == Torrent.Status.SEEDING)
+                                newValues.add(torrent);
+                        } else if (prefixString.equals("filter:paused")) {
+                            if (torrent.getStatus() == Torrent.Status.STOPPED)
+                                newValues.add(torrent);
+                        } else if (prefixString.equals("filter:complete")) {
+                            if (torrent.getPercentDone() == 1)
+                                newValues.add(torrent);
+                        } else if (prefixString.equals("filter:incomplete")) {
+                            if (torrent.getPercentDone() < 1)
+                                newValues.add(torrent);
+                        } else if (prefixString.equals("filter:active")) {
+                            if (!torrent.isStalled() && !torrent.isFinished() && (
+                                   torrent.getStatus() == Torrent.Status.DOWNLOADING
+                                || torrent.getStatus() == Torrent.Status.SEEDING
+                            ))
+                                newValues.add(torrent);
+                        } else if (prefixString.equals("filter:checking")) {
+                            if (torrent.getStatus() == Torrent.Status.CHECKING)
+                                newValues.add(torrent);
+                        } else {
+                            final String valueText = torrent.getName().toLowerCase();
+                            // First match against the whole, non-splitted value
+                            if (valueText.startsWith(prefixString)) {
+                                newValues.add(torrent);
+                            } else {
+                                final String[] words = valueText.split(" ");
+                                final int wordCount = words.length;
+
+                                // Start at index 0, in case valueText starts with space(s)
+                                for (int k = 0; k < wordCount; k++) {
+                                    if (words[k].startsWith(prefixString)) {
+                                        newValues.add(torrent);
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    results.values = newValues;
+                    results.count = newValues.size();
+                }
+
+                return results;
+            }
+
+            @Override
+            protected void publishResults(CharSequence constraint, FilterResults results) {
+                //noinspection unchecked
+                mObjects = (ArrayList<Torrent>) results.values;
+                if (results.count > 0) {
+                    notifyDataSetChanged();
+                } else {
+                    notifyDataSetInvalidated();
+                }
+            }
         }
     }
 }

@@ -6,17 +6,25 @@ import java.util.ArrayList;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.ListFragment;
 import android.text.Html;
 import android.view.ContextThemeWrapper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
+import android.widget.Filterable;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.slidingmenu.lib.app.SlidingFragmentActivity;
+
 public class TorrentListMenuFragment extends Fragment {
     private ListView mFilterList;
+    private int mActivatedPosition = ListView.INVALID_POSITION;
+    private static final String STATE_ACTIVATED_POSITION = "filter_activated_position";
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -38,9 +46,29 @@ public class TorrentListMenuFragment extends Fragment {
         /* TODO: The list items should have a count that indicates
          *  how many torrents are matched by the filter */
         mFilterList.setAdapter(new ArrayAdapter<String>(context,
-                android.R.layout.simple_list_item_1,
+                R.layout.filter_list_item,
                 android.R.id.text1,
                 getResources().getStringArray(R.array.filter_list_entries)));
+
+        mFilterList.setDivider(null);
+        mFilterList.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
+
+        mFilterList.setOnItemClickListener(new OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view,
+                    int position, long id) {
+                setActivatedPosition(position);
+            }
+
+        });
+
+        if (savedInstanceState != null
+                && savedInstanceState.containsKey(STATE_ACTIVATED_POSITION)) {
+            setActivatedPosition(savedInstanceState.getInt(STATE_ACTIVATED_POSITION));
+        } else {
+            mActivatedPosition = mFilterList.getHeaderViewsCount();
+            mFilterList.setItemChecked(mActivatedPosition, true);
+        }
 
         return root;
     }
@@ -50,6 +78,15 @@ public class TorrentListMenuFragment extends Fragment {
         super.onResume();
 
         setStatus(null, null);
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        if (mActivatedPosition != ListView.INVALID_POSITION) {
+            // Serialize and persist the activated item position.
+            outState.putInt(STATE_ACTIVATED_POSITION, mActivatedPosition);
+        }
     }
 
     public void notifyTorrentListUpdate(ArrayList<Torrent> torrents, TransmissionSession session) {
@@ -97,4 +134,20 @@ public class TorrentListMenuFragment extends Fragment {
         space.setText(Html.fromHtml(String.format(getString(
                             R.string.free_space_format), freeSpace)));
     }
+
+    private void setActivatedPosition(int position) {
+        if (position == ListView.INVALID_POSITION) {
+            mFilterList.setItemChecked(mActivatedPosition, false);
+        } else {
+            mFilterList.setItemChecked(position, true);
+            String value = getResources().getStringArray(R.array.filter_list_entry_values)
+                    [position - mFilterList.getHeaderViewsCount()];
+            ((Filterable) ((ListFragment) getFragmentManager().findFragmentById(R.id.torrent_list))
+                    .getListAdapter()).getFilter().filter(value);
+        }
+
+        mActivatedPosition = position;
+        ((SlidingFragmentActivity) getActivity()).showContent();
+    }
+
 }

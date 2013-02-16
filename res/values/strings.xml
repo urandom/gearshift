@@ -121,6 +121,7 @@
     <string name="traffic_seeding_ratio_format">Ratio: %1$s%2$s</string>
     <string name="traffic_seeding_ratio_goal_format">, Goal: %1$s</string>
     <string name="traffic_remaining_time_format">&#160;- &lt;i&gt;%1$s remaining&lt;/i&gt;</string>
+    <string name="traffic_remaining_time_unknown">&#160;- Remaining time unknown</string>
     
     <string name="status_format">%1$s %2$s</string>
     <string name="status_downloading">&lt;b&gt;Downloading&lt;/b&gt;</string>
