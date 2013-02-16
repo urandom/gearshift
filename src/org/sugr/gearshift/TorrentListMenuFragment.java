@@ -77,7 +77,11 @@ public class TorrentListMenuFragment extends Fragment {
                     : session.getSpeedLimitUp()) * 1024) + "/s)";
         }
 
-        setStatus(speed, Torrent.readableFileSize(session.getDownloadDirFreeSpace()));
+        setStatus(speed,
+            session.getDownloadDirFreeSpace() > 0
+                ? Torrent.readableFileSize(session.getDownloadDirFreeSpace())
+                : getString(R.string.unknown)
+        );
     }
 
     private void setStatus(Object[] speeds, String freeSpace) {

@@ -45,6 +45,20 @@ class TransmissionSessionData {
 }
 
 public class TransmissionSessionLoader extends AsyncTaskLoader<TransmissionSessionData> {
+    public static enum SortBy {
+        NAME, SIZE, STATUS, ACTIVITY, AGE, PROGRESS, RATIO, LOCATION,
+        PEERS, RATE_DOWNLOAD, RATE_UPLOAD, QUEUE
+    };
+
+    public static enum SortDirection {
+        ASCENDING, DESCENDING
+    };
+
+    public static enum Filter {
+        ALL, DOWNLOADING, SEEDING, PAUSED, COMPLETE, INCOMPLETE,
+        ACTIVE, CHECKING
+    };
+
     private ArrayList<Torrent> mTorrents = new ArrayList<Torrent>();
     private static SparseArray<Torrent> mTorrentMap = new SparseArray<Torrent>();
     private TransmissionProfile mProfile;
@@ -81,12 +95,19 @@ public class TransmissionSessionLoader extends AsyncTaskLoader<TransmissionSessi
 
     private SortBy mSortBy = SortBy.STATUS;
     private SortDirection mSortDirection = SortDirection.ASCENDING;
+    private Filter mFilter = Filter.ALL;
+    private boolean mFilterChanged = false;
 
     private final Comparator<Torrent> mTorrentComparator = new Comparator<Torrent>() {
         @Override
         public int compare(Torrent a, Torrent b) {
             int nameComp = a.getName().compareToIgnoreCase(b.getName());
-            int statusComp = b.getStatus() - a.getStatus();
+            /* Artificially inflate the download status to appear above
+             * the seeding */
+            int statusComp = (b.getStatus() == Torrent.Status.DOWNLOADING
+                ? b.getStatus() + 10 : b.getStatus()
+            ) - (a.getStatus() == Torrent.Status.DOWNLOADING
+                ? a.getStatus() + 10 : a.getStatus());
             int ret = 0;
             float delta;
 
@@ -146,15 +167,6 @@ public class TransmissionSessionLoader extends AsyncTaskLoader<TransmissionSessi
         }
     };
 
-    public static enum SortBy {
-        NAME, SIZE, STATUS, ACTIVITY, AGE, PROGRESS, RATIO, LOCATION,
-        PEERS, RATE_DOWNLOAD, RATE_UPLOAD, QUEUE
-    };
-
-    public static enum SortDirection {
-        ASCENDING, DESCENDING
-    };
-
     public TransmissionSessionLoader(Context context, TransmissionProfile profile) {
         super(context);
 
@@ -176,6 +188,13 @@ public class TransmissionSessionLoader extends AsyncTaskLoader<TransmissionSessi
                 mTorrents.add(t);
                 mTorrentMap.put(t.getId(), t);
             }
+        }
+    }
+
+    public void setFilter(Filter filter) {
+        if (mFilter != filter) {
+                mFilter = filter;
+                mFilterChanged = true;
         }
     }
 
@@ -313,7 +332,11 @@ public class TransmissionSessionLoader extends AsyncTaskLoader<TransmissionSessi
         }
 
         boolean hasRemoved = false, hasAdded = false;
-        if (removed != null) {
+        if (mFilterChanged) {
+            mFilterChanged = false;
+            mTorrents.clear();
+            mTorrentMap.clear();
+        } else if (removed != null) {
             for (int id : removed) {
                 Torrent t = mTorrentMap.get(id);
                 if (t != null) {
@@ -357,17 +380,19 @@ public class TransmissionSessionLoader extends AsyncTaskLoader<TransmissionSessi
                 mNeedsMoreInfo = true;
             }
             Torrent torrent;
-            if ((torrent = mTorrentMap.get(t.getId())) != null) {
-                torrent.updateFrom(t, fields);
-            } else {
-                mTorrents.add(t);
-                mTorrentMap.put(t.getId(), t);
-                torrent = t;
-                hasAdded = true;
+            if (applyFilter(t)) {
+                if ((torrent = mTorrentMap.get(t.getId())) != null) {
+                    torrent.updateFrom(t, fields);
+                } else {
+                    mTorrents.add(t);
+                    mTorrentMap.put(t.getId(), t);
+                    torrent = t;
+                    hasAdded = true;
+                }
+                torrent.setTransmissionSession(mSession);
+                torrent.setTrafficText(getContext());
+                torrent.setStatusText(getContext());
             }
-            torrent.setTransmissionSession(mSession);
-            torrent.setTrafficText(getContext());
-            torrent.setStatusText(getContext());
         }
 
         Collections.sort(mTorrents, mTorrentComparator);
@@ -442,6 +467,32 @@ public class TransmissionSessionLoader extends AsyncTaskLoader<TransmissionSessi
         TorrentListActivity.logD("Got an error while fetching data: " + e.getMessage() + " and this code: " + e.getCode());
 
         return new TransmissionSessionData(mSession, mSessionStats);
+    }
+
+    private boolean applyFilter(Torrent torrent) {
+        switch(mFilter) {
+            case ALL:
+                return true;
+            case DOWNLOADING:
+                return torrent.getStatus() == Torrent.Status.DOWNLOADING;
+            case SEEDING:
+                return torrent.getStatus() == Torrent.Status.SEEDING;
+            case PAUSED:
+                return torrent.getStatus() == Torrent.Status.STOPPED;
+            case COMPLETE:
+                return torrent.getPercentDone() == 1;
+            case INCOMPLETE:
+                return torrent.getPercentDone() < 1;
+            case ACTIVE:
+                return !torrent.isStalled() && !torrent.isFinished() && (
+                       torrent.getStatus() == Torrent.Status.DOWNLOADING
+                    || torrent.getStatus() == Torrent.Status.SEEDING
+                );
+            case CHECKING:
+                return torrent.getStatus() == Torrent.Status.CHECKING;
+            default:
+                return false;
+        }
     }
 
     public static String[] concat(String[]... arrays) {

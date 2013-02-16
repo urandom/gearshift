@@ -42,7 +42,6 @@ import android.widget.TextView;
  * interface.
  */
 public class TorrentListFragment extends ListFragment {
-
     /**
      * The serialization (saved instance state) Bundle key representing the
      * activated item position. Only used on tablets.
@@ -572,7 +571,6 @@ public class TorrentListFragment extends ListFragment {
     }
 
     private class TorrentListAdapter extends ArrayAdapter<Torrent> {
-
         public TorrentListAdapter(Context context) {
             super(context, R.layout.torrent_list_item, R.id.name);
         }
