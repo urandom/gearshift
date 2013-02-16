@@ -10,6 +10,6 @@
     android:fontFamily="sans-serif-condensed"
     android:textAppearance="?android:attr/textAppearanceListItemSmall"
     android:gravity="center_vertical"
-    android:background="?android:attr/activatedBackgroundIndicator"
+    android:background="@drawable/filter_list_item_background"
     android:minHeight="?android:attr/listPreferredItemHeightSmall"
 />

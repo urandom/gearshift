@@ -3,4 +3,5 @@
     <color name="detail_background">#ddd</color>
     <color name="transparent">#00000000</color>
     <color name="transparent_white">#66ffffff</color>
+    <color name="highlight_dark">#222222</color>
 </resources>
