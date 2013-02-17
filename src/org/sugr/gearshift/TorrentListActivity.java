@@ -29,8 +29,8 @@ public class TorrentListActivity extends SlidingFragmentActivity
     /* TODO: move to an Application class, along with the logging functions */
     public static final int PROFILES_LOADER_ID = 1;
     public static final int SESSION_LOADER_ID = 2;
-        
-    
+
+
     /**
      * Whether or not the activity is in two-pane mode, i.e. running on a tablet
      * device.
@@ -39,19 +39,19 @@ public class TorrentListActivity extends SlidingFragmentActivity
 
     private static final boolean DEBUG = true;
     private static final String LogTag = "GearShift";
-    
+
     private ArrayList<Torrent> mTorrents = new ArrayList<Torrent>();
     private int mCurrentTorrent = 0;
 
 
-    
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_torrent_list);
-        
+
         PreferenceManager.setDefaultValues(this, R.xml.general_preferences, false);
-        
+
         if (findViewById(R.id.torrent_detail_panel) != null) {
             // The detail container view will be present only in the
             // large-screen layouts (res/values-large and
@@ -67,9 +67,9 @@ public class TorrentListActivity extends SlidingFragmentActivity
 
             toggleRightPane(false);
         }
-        
+
         setBehindContentView(R.layout.sliding_menu_frame);
-        
+
         SlidingMenu sm = getSlidingMenu();
         sm.setMode(SlidingMenu.LEFT);
         sm.setTouchModeAbove(SlidingMenu.TOUCHMODE_FULLSCREEN);
@@ -132,7 +132,7 @@ public class TorrentListActivity extends SlidingFragmentActivity
     public void onBackPressed() {
         TorrentListFragment fragment = ((TorrentListFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.torrent_list));
-    	
+
     	int position = fragment.getListView().getCheckedItemPosition();
     	if (position == ListView.INVALID_POSITION) {
     		super.onBackPressed();
@@ -141,7 +141,7 @@ public class TorrentListActivity extends SlidingFragmentActivity
     		fragment.getListView().setItemChecked(position, false);
     	}
     }
-    
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch(item.getItemId()) {
@@ -150,10 +150,10 @@ public class TorrentListActivity extends SlidingFragmentActivity
                 toggle();
                 return true;
             }
-            
+
             TorrentListFragment fragment = ((TorrentListFragment) getSupportFragmentManager()
                     .findFragmentById(R.id.torrent_list));
-            
+
             int position = fragment.getListView().getCheckedItemPosition();
             if (position == ListView.INVALID_POSITION) {
                 toggle();
@@ -166,14 +166,14 @@ public class TorrentListActivity extends SlidingFragmentActivity
         }
         return super.onOptionsItemSelected(item);
     }
-    
+
     public boolean isDetailsPanelShown() {
         return mTwoPane && findViewById(R.id.torrent_detail_panel).getVisibility() == View.VISIBLE;
     }
-    
+
     private boolean toggleRightPane(boolean show) {
         if (!mTwoPane) return false;
-        
+
         ViewGroup panel = (ViewGroup) findViewById(R.id.torrent_detail_panel);
         if (show) {
             if (panel.getVisibility() != View.VISIBLE) {
@@ -203,35 +203,35 @@ public class TorrentListActivity extends SlidingFragmentActivity
         }
         return false;
     }
-    
+
     public static void logE(String message, Object[] args, Exception e) {
         Log.e(LogTag, String.format(message, args), e);
     }
-    
+
     public static void logE(String message, Exception e) {
         Log.e(LogTag, message, e);
     }
-    
+
     public static void logD(String message, Object[] args) {
         if (!DEBUG) return;
-        
+
         Log.d(LogTag, String.format(message, args));
     }
-    
+
     public static void logD(String message) {
         if (!DEBUG) return;
-        
+
         Log.d(LogTag, message);
     }
-    
+
     public static void logDTrace() {
         if (!DEBUG) return;
-        
+
         StringWriter sw = new StringWriter();
         PrintWriter pw = new PrintWriter(sw);
-        
+
         Throwable t = new Throwable();
-        
+
         t.printStackTrace(pw);
         Log.d(LogTag, sw.toString());
     }
@@ -254,7 +254,7 @@ public class TorrentListActivity extends SlidingFragmentActivity
 
     @Override
     public Torrent[] getCurrentTorrents() {
-        if (!isDetailsPanelShown()) return null;
+        if (!isDetailsPanelShown()) return new Torrent[] {};
 
         return mTorrents.toArray(new Torrent[mTorrents.size()]);
     }

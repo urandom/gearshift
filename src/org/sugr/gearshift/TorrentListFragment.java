@@ -30,6 +30,7 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.Filter;
+import android.widget.Filter.FilterListener;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -178,20 +179,24 @@ public class TorrentListFragment extends ListFragment {
             if (data.torrents.size() > 0 || mTorrentListAdapter.getUnfilteredCount() > 0) {
                 /* The notifyDataSetChanged method sets this to true */
                 mTorrentListAdapter.setNotifyOnChange(false);
-                mTorrentListAdapter.clear();
-                if (data.torrents.size() > 0) {
+                if (data.hasRemoved || data.hasAdded) {
+                    mTorrentListAdapter.clear();
                     mTorrentListAdapter.addAll(data.torrents);
+                    if (!mTorrentListAdapter.repeatFilter()) {
+                        ((TransmissionSessionInterface) getActivity()).setTorrents(data.torrents);
+                    }
+
+                }
+                if (data.torrents.size() > 0) {
                     mTorrentListAdapter.notifyDataSetChanged();
                 } else {
                     mTorrentListAdapter.notifyDataSetInvalidated();
                 }
 
-                ((TransmissionSessionInterface) getActivity()).setTorrents(data.torrents);
-
                 FragmentManager manager = getActivity().getSupportFragmentManager();
                 TorrentListMenuFragment menu = (TorrentListMenuFragment) manager.findFragmentById(R.id.torrent_list_menu);
                 if (menu != null) {
-                    menu.notifyTorrentListUpdate(data.torrents, data.session);
+                    menu.notifyTorrentListUpdate(mTorrentListAdapter.getItems(), data.session);
                 }
                 TorrentDetailFragment detail = (TorrentDetailFragment) manager.findFragmentByTag(
                         TorrentDetailFragment.TAG);
@@ -206,7 +211,7 @@ public class TorrentListFragment extends ListFragment {
             } else if (mTorrentListAdapter.getCount() == 0) {
                 ((TransmissionSessionInterface) getActivity())
                     .setTorrents(null);
-                setEmptyText(R.string.no_torrents_empty_list);
+                setEmptyText(R.string.no_filtered_torrents_empty_list);
             }
 
             if (mRefreshing) {
@@ -521,6 +526,10 @@ public class TorrentListFragment extends ListFragment {
         getListView().setChoiceMode(mChoiceMode);
     }
 
+    public void setListFilter(CharSequence constraint) {
+        mTorrentListAdapter.filter(constraint);
+    }
+
     private void setActivatedPosition(int position) {
         if (position == ListView.INVALID_POSITION) {
             getListView().setItemChecked(mActivatedPosition, false);
@@ -585,6 +594,9 @@ public class TorrentListFragment extends ListFragment {
         private ArrayList<Torrent> mObjects = new ArrayList<Torrent>();
         private ArrayList<Torrent> mOriginalValues;
         private TorrentFilter mFilter;
+        private CharSequence mCurrentConstraint;
+        private FilterListener mCurrentFilterListener;
+
 
         public TorrentListAdapter(Context context) {
             super(context, R.layout.torrent_list_item, R.id.name);
@@ -712,7 +724,31 @@ public class TorrentListFragment extends ListFragment {
             return mFilter;
         }
 
+        public void filter(CharSequence constraint) {
+            filter(constraint, null);
+        }
+
+        public void filter(CharSequence constraint, FilterListener listener) {
+            mCurrentConstraint = constraint;
+            mCurrentFilterListener = listener;
+            getFilter().filter(constraint, listener);
+        }
+
+        public boolean repeatFilter() {
+            if (mCurrentConstraint == null || mCurrentConstraint.length() == 0) {
+                return false;
+            }
+            getFilter().filter(mCurrentConstraint, mCurrentFilterListener);
+            return true;
+        }
+
+        public ArrayList<Torrent> getItems() {
+            return mObjects;
+        }
+
         private class TorrentFilter extends Filter {
+            private boolean mChanged;
+
             @Override
             protected FilterResults performFiltering(CharSequence prefix) {
                 FilterResults results = new FilterResults();
@@ -792,14 +828,26 @@ public class TorrentListFragment extends ListFragment {
                     results.count = newValues.size();
                 }
 
+                mChanged = !((TransmissionSessionInterface) getActivity())
+                    .getTorrents().equals(results.values);
+
                 return results;
             }
 
+            @SuppressWarnings("unchecked")
             @Override
             protected void publishResults(CharSequence constraint, FilterResults results) {
-                //noinspection unchecked
                 mObjects = (ArrayList<Torrent>) results.values;
                 if (results.count > 0) {
+                    if (mChanged) {
+                        ((TransmissionSessionInterface) getActivity()).setTorrents((ArrayList<Torrent>) results.values);
+                        FragmentManager manager = getActivity().getSupportFragmentManager();
+                        TorrentDetailFragment detail = (TorrentDetailFragment) manager.findFragmentByTag(
+                                TorrentDetailFragment.TAG);
+                        if (detail != null) {
+                            detail.notifyTorrentListChanged(true, true);
+                        }
+                    }
                     notifyDataSetChanged();
                 } else {
                     notifyDataSetInvalidated();

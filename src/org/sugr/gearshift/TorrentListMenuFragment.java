@@ -6,7 +6,6 @@ import java.util.ArrayList;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.ListFragment;
 import android.text.Html;
 import android.view.ContextThemeWrapper;
 import android.view.LayoutInflater;
@@ -15,7 +14,6 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
-import android.widget.Filterable;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -142,8 +140,7 @@ public class TorrentListMenuFragment extends Fragment {
             mFilterList.setItemChecked(position, true);
             String value = getResources().getStringArray(R.array.filter_list_entry_values)
                     [position - mFilterList.getHeaderViewsCount()];
-            ((Filterable) ((ListFragment) getFragmentManager().findFragmentById(R.id.torrent_list))
-                    .getListAdapter()).getFilter().filter(value);
+            ((TorrentListFragment) getFragmentManager().findFragmentById(R.id.torrent_list)).setListFilter(value);
         }
 
         mActivatedPosition = position;

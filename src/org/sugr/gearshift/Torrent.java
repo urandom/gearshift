@@ -150,6 +150,8 @@ public class Torrent {
         };
     };
 
+    @Exclude private static final int SEED = 0x21;
+
     public static class Tracker {
         @SerializedName("announce") private String mAnnounce;
         @SerializedName("scrape") private String mScrape;
@@ -912,6 +914,25 @@ public class Torrent {
         }
     }
 
+    @Override
+    public boolean equals (Object o) {
+        if (this == o) return true;
+
+        if (!(o instanceof Torrent)) return false;
+
+        return hashCode() == ((Torrent) o).hashCode();
+    }
+
+    @Override
+    public int hashCode() {
+        int result = SEED;
+
+        result = SEED * result + mId;
+        result = SEED * result + (mHashString == null
+                ? 0 : mHashString.hashCode());
+
+        return result;
+    }
 
     public void updateFrom(Torrent source, String[] fields) {
         if (fields == null) return;
