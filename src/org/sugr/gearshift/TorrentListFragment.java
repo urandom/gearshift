@@ -175,12 +175,16 @@ public class TorrentListFragment extends ListFragment {
                 invalidateMenu = true;
             }
 
-            if (data.torrents.size() > 0 || mTorrentListAdapter.getCount() > 0) {
+            if (data.torrents.size() > 0 || mTorrentListAdapter.getUnfilteredCount() > 0) {
                 /* The notifyDataSetChanged method sets this to true */
                 mTorrentListAdapter.setNotifyOnChange(false);
                 mTorrentListAdapter.clear();
-                mTorrentListAdapter.addAll(data.torrents);
-                mTorrentListAdapter.notifyDataSetChanged();
+                if (data.torrents.size() > 0) {
+                    mTorrentListAdapter.addAll(data.torrents);
+                    mTorrentListAdapter.notifyDataSetChanged();
+                } else {
+                    mTorrentListAdapter.notifyDataSetInvalidated();
+                }
 
                 ((TransmissionSessionInterface) getActivity()).setTorrents(data.torrents);
 
@@ -196,8 +200,12 @@ public class TorrentListFragment extends ListFragment {
                 }
             }
 
-            if (mTorrentListAdapter.getCount() == 0) {
-                ((TransmissionSessionInterface) getActivity()).setTorrents(null);
+            if (mTorrentListAdapter.getUnfilteredCount() == 0) {
+                /* Do various error handling here */
+                setEmptyText(R.string.no_torrents_empty_list);
+            } else if (mTorrentListAdapter.getCount() == 0) {
+                ((TransmissionSessionInterface) getActivity())
+                    .setTorrents(null);
                 setEmptyText(R.string.no_torrents_empty_list);
             }
 
@@ -671,6 +679,17 @@ public class TorrentListFragment extends ListFragment {
         public int getCount() {
             synchronized(mLock) {
                 return mObjects.size();
+
+            }
+        }
+
+        public int getUnfilteredCount() {
+            synchronized(mLock) {
+                if (mOriginalValues != null) {
+                    return mOriginalValues.size();
+                } else {
+                    return mObjects.size();
+                }
 
             }
         }
