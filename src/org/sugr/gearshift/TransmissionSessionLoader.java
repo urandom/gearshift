@@ -232,6 +232,7 @@ public class TransmissionSessionLoader extends AsyncTaskLoader<TransmissionSessi
     public TransmissionSessionData loadInBackground() {
         /* Remove any previous waiting runners */
         mIntervalHandler.removeCallbacks(mIntervalRunner);
+        mStopUpdates = false;
 
         boolean hasRemoved = false, hasAdded = false;
 
