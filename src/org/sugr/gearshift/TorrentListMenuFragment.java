@@ -90,6 +90,10 @@ public class TorrentListMenuFragment extends Fragment {
     public void notifyTorrentListUpdate(ArrayList<Torrent> torrents, TransmissionSession session) {
         long down = 0, up = 0;
 
+        if (session == null) {
+            return;
+        }
+
         for (Torrent t : torrents) {
             down += t.getRateDownload();
             up += t.getRateUpload();

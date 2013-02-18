@@ -176,16 +176,29 @@ public class TorrentListFragment extends ListFragment {
                 invalidateMenu = true;
             }
 
-            if (data.torrents.size() > 0 || mTorrentListAdapter.getUnfilteredCount() > 0) {
+            if (data.torrents.size() > 0 || data.errorMask > 0
+                    || mTorrentListAdapter.getUnfilteredCount() > 0) {
+
                 /* The notifyDataSetChanged method sets this to true */
                 mTorrentListAdapter.setNotifyOnChange(false);
-                if (data.hasRemoved || data.hasAdded) {
-                    mTorrentListAdapter.clear();
-                    mTorrentListAdapter.addAll(data.torrents);
-                    if (!mTorrentListAdapter.repeatFilter()) {
-                        ((TransmissionSessionInterface) getActivity()).setTorrents(data.torrents);
-                    }
+                if (data.errorMask == 0) {
+                    if (data.hasRemoved || data.hasAdded) {
+                        mTorrentListAdapter.clear();
+                        mTorrentListAdapter.addAll(data.torrents);
+                        if (!mTorrentListAdapter.repeatFilter()) {
+                            ((TransmissionSessionInterface) getActivity()).setTorrents(data.torrents);
+                        }
 
+                    }
+                    setEmptyText(null);
+                } else {
+                    mTorrentListAdapter.clear();
+
+                    if ((data.errorMask & TransmissionSessionData.Errors.NO_CONNECTION) > 0) {
+                        setEmptyText(R.string.no_connection_empty_list);
+                    } else if ((data.errorMask & TransmissionSessionData.Errors.ACCESS_DENIED) > 0) {
+                        setEmptyText(R.string.access_denied_empty_list);
+                    }
                 }
                 if (data.torrents.size() > 0) {
                     mTorrentListAdapter.notifyDataSetChanged();
@@ -205,13 +218,15 @@ public class TorrentListFragment extends ListFragment {
                 }
             }
 
-            if (mTorrentListAdapter.getUnfilteredCount() == 0) {
-                /* Do various error handling here */
-                setEmptyText(R.string.no_torrents_empty_list);
-            } else if (mTorrentListAdapter.getCount() == 0) {
-                ((TransmissionSessionInterface) getActivity())
-                    .setTorrents(null);
-                setEmptyText(R.string.no_filtered_torrents_empty_list);
+            if (data.errorMask == 0) {
+                /* TODO:  Move this code to the filter, since it's asyncronous */
+                if (mTorrentListAdapter.getUnfilteredCount() == 0) {
+                    setEmptyText(R.string.no_torrents_empty_list);
+                } else if (mTorrentListAdapter.getCount() == 0) {
+                    ((TransmissionSessionInterface) getActivity())
+                        .setTorrents(null);
+                    setEmptyText(R.string.no_filtered_torrents_empty_list);
+                }
             }
 
             if (mRefreshing) {
@@ -510,6 +525,10 @@ public class TorrentListFragment extends ListFragment {
     public void setEmptyText(int stringId) {
         Spanned text = Html.fromHtml(getString(stringId));
 
+        ((TextView) getListView().getEmptyView()).setText(text);
+    }
+
+    public void setEmptyText(String text) {
         ((TextView) getListView().getEmptyView()).setText(text);
     }
 

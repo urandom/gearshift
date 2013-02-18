@@ -20,12 +20,19 @@ class TransmissionSessionData {
     public TransmissionSession session = null;
     public TransmissionSessionStats stats = null;
     public ArrayList<Torrent> torrents = new ArrayList<Torrent>();
+    public int errorMask = 0;
     public boolean hasRemoved = false;
     public boolean hasAdded = false;
 
-    public TransmissionSessionData(TransmissionSession session, TransmissionSessionStats stats) {
+    public static class Errors {
+        public static final int NO_CONNECTION = 1;
+        public static final int ACCESS_DENIED = 1 << 1;
+    };
+
+    public TransmissionSessionData(TransmissionSession session, TransmissionSessionStats stats, int errorMask) {
         this.session = session;
         this.stats = stats;
+        this.errorMask = errorMask;
     }
 
     public TransmissionSessionData(TransmissionSession session,
@@ -60,6 +67,7 @@ public class TransmissionSessionLoader extends AsyncTaskLoader<TransmissionSessi
 
     private TransmissionSession mSession;
     private TransmissionSessionStats mSessionStats;
+    private int mLastErrors;
 
     private TransmissionSessionManager mSessManager;
     private Torrent[] mCurrentTorrents;
@@ -225,6 +233,17 @@ public class TransmissionSessionLoader extends AsyncTaskLoader<TransmissionSessi
         /* Remove any previous waiting runners */
         mIntervalHandler.removeCallbacks(mIntervalRunner);
 
+        boolean hasRemoved = false, hasAdded = false;
+
+        if (mLastErrors > 0) {
+            mLastErrors = 0;
+            hasAdded = true;
+        }
+        if (!mSessManager.hasConnectivity()) {
+            mLastErrors = TransmissionSessionData.Errors.NO_CONNECTION;
+            return new TransmissionSessionData(mSession, mSessionStats, mLastErrors);
+        }
+
         /* Setters */
         if (mSessionSet != null) {
             try {
@@ -317,7 +336,6 @@ public class TransmissionSessionLoader extends AsyncTaskLoader<TransmissionSessi
             return handleError(e);
         }
 
-        boolean hasRemoved = false, hasAdded = false;
         if (removed != null) {
             for (int id : removed) {
                 Torrent t = mTorrentMap.get(id);
@@ -448,7 +466,13 @@ public class TransmissionSessionLoader extends AsyncTaskLoader<TransmissionSessi
 
         TorrentListActivity.logD("Got an error while fetching data: " + e.getMessage() + " and this code: " + e.getCode());
 
-        return new TransmissionSessionData(mSession, mSessionStats);
+        switch(e.getCode()) {
+            case 403:
+                mLastErrors = mLastErrors | TransmissionSessionData.Errors.ACCESS_DENIED;
+                break;
+        }
+
+        return new TransmissionSessionData(mSession, mSessionStats, mLastErrors);
     }
 
     public static String[] concat(String[]... arrays) {

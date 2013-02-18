@@ -120,14 +120,7 @@ public class TransmissionSessionManager {
         TransmissionSession session = null;
         SessionGetRequest request = new SessionGetRequest();
 
-        String json;
-        try {
-            json = requestData(request);
-        } catch (IOException e) {
-            e.printStackTrace();
-
-            throw new ManagerException(e.getMessage(), -1);
-        }
+        String json = requestData(request);
         Gson gson = new GsonBuilder().setExclusionStrategies(new TransmissionExclusionStrategy()).create();
         SessionGetResponse response = gson.fromJson(json, SessionGetResponse.class);
 
@@ -138,14 +131,7 @@ public class TransmissionSessionManager {
         TransmissionSessionStats stats = null;
         SessionStatsRequest request = new SessionStatsRequest();
 
-        String json;
-        try {
-            json = requestData(request);
-        } catch (IOException e) {
-            e.printStackTrace();
-
-            throw new ManagerException(e.getMessage(), -1);
-        }
+        String json = requestData(request);
         Gson gson = new GsonBuilder().setExclusionStrategies(new TransmissionExclusionStrategy()).create();
         SessionStatsResponse response = gson.fromJson(json, SessionStatsResponse.class);
 
@@ -154,15 +140,7 @@ public class TransmissionSessionManager {
 
     public ActiveTorrentGetResponse getActiveTorrents(String[] fields) throws ManagerException {
         ActiveTorrentGetRequest request = new ActiveTorrentGetRequest(fields);
-        String json;
-
-        try {
-            json = requestData(request);
-        } catch (IOException e) {
-            e.printStackTrace();
-
-            throw new ManagerException(e.getMessage(), -1);
-        }
+        String json = requestData(request);
         Gson gson = new GsonBuilder().setExclusionStrategies(new TransmissionExclusionStrategy()).create();
         ActiveTorrentGetResponse response = gson.fromJson(json, ActiveTorrentGetResponse.class);
 
@@ -171,15 +149,8 @@ public class TransmissionSessionManager {
 
     public TorrentGetResponse getAllTorrents(String[] fields) throws ManagerException {
         AllTorrentGetRequest request = new AllTorrentGetRequest(fields);
-        String json;
 
-        try {
-            json = requestData(request);
-        } catch (IOException e) {
-            e.printStackTrace();
-
-            throw new ManagerException(e.getMessage(), -1);
-        }
+        String json = requestData(request);
         Gson gson = new GsonBuilder().setExclusionStrategies(new TransmissionExclusionStrategy()).create();
         TorrentGetResponse response = gson.fromJson(json, TorrentGetResponse.class);
 
@@ -188,15 +159,8 @@ public class TransmissionSessionManager {
 
     public TorrentGetResponse getTorrents(int[] ids, String[] fields) throws ManagerException {
         TorrentGetRequest request = new TorrentGetRequest(ids, fields);
-        String json;
 
-        try {
-            json = requestData(request);
-        } catch (IOException e) {
-            e.printStackTrace();
-
-            throw new ManagerException(e.getMessage(), -1);
-        }
+        String json = requestData(request);
         Gson gson = new GsonBuilder().setExclusionStrategies(new TransmissionExclusionStrategy()).create();
         TorrentGetResponse response = gson.fromJson(json, TorrentGetResponse.class);
 
@@ -205,15 +169,8 @@ public class TransmissionSessionManager {
 
     public Response setSession(TransmissionSession session, String... keys) throws ManagerException {
         SessionSetRequest request = new SessionSetRequest(session);
-        String json;
 
-        try {
-            json = requestData(request, new KeyExclusionStrategy(keys));
-        } catch (IOException e) {
-            e.printStackTrace();
-
-            throw new ManagerException(e.getMessage(), -1);
-        }
+        String json = requestData(request, new KeyExclusionStrategy(keys));
         Gson gson = new GsonBuilder().setExclusionStrategies(new TransmissionExclusionStrategy()).create();
         Response response = gson.fromJson(json, Response.class);
 
@@ -222,15 +179,7 @@ public class TransmissionSessionManager {
 
     public Response setTorrentsRemove(int[] ids, boolean delete) throws ManagerException {
         TorrentsRemoveRequest request = new TorrentsRemoveRequest(ids, delete);
-        String json;
-
-        try {
-            json = requestData(request);
-        } catch (IOException e) {
-            e.printStackTrace();
-
-            throw new ManagerException(e.getMessage(), -1);
-        }
+        String json = requestData(request);
         Gson gson = new GsonBuilder().setExclusionStrategies(new TransmissionExclusionStrategy()).create();
         Response response = gson.fromJson(json, Response.class);
 
@@ -239,22 +188,14 @@ public class TransmissionSessionManager {
 
     public Response setTorrentsAction(String action, int[] ids) throws ManagerException {
         TorrentsActionRequest request = new TorrentsActionRequest(action, ids);
-        String json;
-
-        try {
-            json = requestData(request);
-        } catch (IOException e) {
-            e.printStackTrace();
-
-            throw new ManagerException(e.getMessage(), -1);
-        }
+        String json = requestData(request);
         Gson gson = new GsonBuilder().setExclusionStrategies(new TransmissionExclusionStrategy()).create();
         Response response = gson.fromJson(json, Response.class);
 
         return response;
     }
 
-    private String requestData(Object data, ExclusionStrategy... strategies) throws IOException, ManagerException {
+    private String requestData(Object data, ExclusionStrategy... strategies) throws ManagerException {
         OutputStream os = null;
         InputStream is = null;
         HttpURLConnection conn = null;
@@ -319,15 +260,15 @@ public class TransmissionSessionManager {
                 mInvalidSessionRetries = 0;
             }
 
-            is = conn.getInputStream();
-
-            // Convert the InputStream into a string
             String contentAsString = null;
-            String encoding = conn.getContentEncoding();
-
             switch(code) {
                 case 200:
                 case 201:
+                    is = conn.getInputStream();
+
+                    // Convert the InputStream into a string
+                    String encoding = conn.getContentEncoding();
+
                     if (encoding != null && encoding.equalsIgnoreCase("gzip")) {
                         is = new GZIPInputStream(is);
                     } else if (encoding != null && encoding.equalsIgnoreCase("deflate")) {
@@ -338,12 +279,18 @@ public class TransmissionSessionManager {
                 default:
                     throw new ManagerException(conn.getResponseMessage(), code);
             }
+
             return contentAsString;
+        } catch (IOException e) {
+            throw new ManagerException(e.getMessage(), -1);
         } finally {
-            if (os != null)
-                os.close();
-            if (is != null)
-                is.close();
+            try {
+                if (os != null)
+                    os.close();
+                if (is != null)
+                    is.close();
+            } catch(IOException e) {}
+
             if (conn != null)
                 conn.disconnect();
         }

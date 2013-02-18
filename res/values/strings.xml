@@ -115,7 +115,9 @@
     <string name="no_profiles_empty_list">&lt;h2&gt;No profile seems to have been created yet.&lt;/h2&gt;You should add one by visiting the &lt;i&gt;settings&lt;/i&gt;.</string>
     <string name="no_torrents_empty_list">&lt;h2&gt;We got through!&lt;/h2&gt;You just have to add some torrents now.</string>
     <string name="no_filtered_torrents_empty_list">No torrents match the current filter</string>
-
+    <string name="no_connection_empty_list">&lt;h2&gt;&lt;font color="#cc0000"&gt;You need an active network connection!&lt;/font&gt;&lt;/h2&gt;</string>
+    <string name="access_denied_empty_list">&lt;h2&gt;&lt;font color="#cc0000"&gt;Access denied!&lt;/font&gt;&lt;/h2&gt;Your credentials might be incorrect, or your IP address might not be in the daemon\'s white list.</string>
+    
     <string name="traffic_downloading_format">%1$s of %2$s (%3$s)%4$s</string>
     <string name="traffic_downloading_percentage_format">%1$s%%</string>
     <string name="traffic_seeding_format">%1$s, uploaded %2$s (%3$s)%4$s</string>
