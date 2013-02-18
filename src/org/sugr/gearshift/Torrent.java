@@ -750,11 +750,11 @@ public class Torrent {
                     Torrent.readableFileSize(mUploadedEver),
                     String.format(context.getString(R.string.traffic_seeding_ratio_format),
                            Torrent.readablePercent(mUploadRatio),
-                           seedLimit == 0 ? "" : String.format(
+                           seedLimit <= 0 ? "" : String.format(
                                context.getString(R.string.traffic_seeding_ratio_goal_format),
                                Torrent.readablePercent(seedLimit))
                     ),
-                    seedLimit == 0
+                    seedLimit <= 0
                         ? ""
                         : mEta < 0
                             ? context.getString(R.string.traffic_remaining_time_unknown)
@@ -780,7 +780,7 @@ public class Torrent {
                             Torrent.readableFileSize(mUploadedEver),
                             String.format(context.getString(R.string.traffic_seeding_ratio_format),
                                    Torrent.readablePercent(mUploadRatio),
-                                   seedLimit == 0 ? "" : String.format(
+                                   seedLimit <= 0 ? "" : String.format(
                                        context.getString(R.string.traffic_seeding_ratio_goal_format),
                                        Torrent.readablePercent(seedLimit))
                             ),
