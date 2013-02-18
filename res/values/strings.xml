@@ -115,9 +115,10 @@
     <string name="no_profiles_empty_list">&lt;h2&gt;No profile seems to have been created yet.&lt;/h2&gt;You should add one by visiting the &lt;i&gt;settings&lt;/i&gt;.</string>
     <string name="no_torrents_empty_list">&lt;h2&gt;We got through!&lt;/h2&gt;You just have to add some torrents now.</string>
     <string name="no_filtered_torrents_empty_list">No torrents match the current filter</string>
-    <string name="no_connection_empty_list">&lt;h2&gt;&lt;font color="#cc0000"&gt;You need an active network connection!&lt;/font&gt;&lt;/h2&gt;</string>
+    <string name="no_connectivity_empty_list">&lt;h2&gt;&lt;font color="#cc0000"&gt;You need an active network connection!&lt;/font&gt;&lt;/h2&gt;</string>
     <string name="access_denied_empty_list">&lt;h2&gt;&lt;font color="#cc0000"&gt;Access denied!&lt;/font&gt;&lt;/h2&gt;Your credentials might be incorrect, or your IP address might not be in the daemon\'s white list.</string>
     <string name="no_json_empty_list">&lt;h2&gt;&lt;font color="#cc0000"&gt;Unexpected response!&lt;/font&gt;&lt;/h2&gt;Please check if the RPC path in your current profile is correct.</string>
+    <string name="no_connection_empty_list">&lt;h2&gt;&lt;font color="#cc0000"&gt;Unable to connect!&lt;/font&gt;&lt;/h2&gt;Please check if the server address and port in your current profile is correct.</string>
     
     <string name="traffic_downloading_format">%1$s of %2$s (%3$s)%4$s</string>
     <string name="traffic_downloading_percentage_format">%1$s%%</string>
@@ -128,13 +129,13 @@
     <string name="traffic_remaining_time_unknown">&#160;- Remaining time unknown</string>
     
     <string name="status_format">%1$s %2$s</string>
-    <string name="status_downloading">&lt;b&gt;Downloading&lt;/b&gt;</string>
-    <string name="status_downloading_metadata">&lt;b&gt;Downloading metadata&lt;/b&gt;</string>
-    <string name="status_seeding">&lt;b&gt;Seeding&lt;/b&gt;</string>
-    <string name="status_download_waiting">&lt;b&gt;Queued for downloading&lt;/b&gt;</string>
-    <string name="status_seed_waiting">&lt;b&gt;Queued for seeding&lt;/b&gt;</string>
-    <string name="status_stopped">&lt;b&gt;Stopped&lt;/b&gt;</string>
-    <string name="status_checking">&lt;b&gt;Checking&lt;/b&gt;</string>
+    <string name="status_state_downloading">&lt;b&gt;Downloading&lt;/b&gt;</string>
+    <string name="status_state_downloading_metadata">&lt;b&gt;Downloading metadata&lt;/b&gt;</string>
+    <string name="status_state_seeding">&lt;b&gt;Seeding&lt;/b&gt;</string>
+    <string name="status_state_download_waiting">&lt;b&gt;Queued for downloading&lt;/b&gt;</string>
+    <string name="status_state_seed_waiting">&lt;b&gt;Queued for seeding&lt;/b&gt;</string>
+    <string name="status_state_stopped">&lt;b&gt;Stopped&lt;/b&gt;</string>
+    <string name="status_state_checking">&lt;b&gt;Checking&lt;/b&gt;</string>
     <string name="status_more_downloading_format"> from %1$d of %2$d connected peers - &lt;i&gt;%3$s&lt;/i&gt;</string>
     <string name="status_more_downloading_speed_format">&#x2193; %1$s/s, &#x2191; %2$s/s</string>
     <string name="status_more_seeding_format"> to %1$d of %2$d connected peers - &lt;i&gt;%3$s&lt;/i&gt;</string>

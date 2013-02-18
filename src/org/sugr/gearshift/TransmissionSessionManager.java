@@ -7,9 +7,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
-import java.net.Authenticator;
 import java.net.HttpURLConnection;
-import java.net.PasswordAuthentication;
 import java.net.URL;
 import java.util.HashSet;
 import java.util.zip.GZIPInputStream;
@@ -21,6 +19,7 @@ import android.content.SharedPreferences.Editor;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.preference.PreferenceManager;
+import android.util.Base64;
 
 import com.google.gson.ExclusionStrategy;
 import com.google.gson.FieldAttributes;
@@ -223,6 +222,13 @@ public class TransmissionSessionManager {
                 conn.setRequestProperty("X-Transmission-Session-Id", mSessionId);
             }
 
+            String user = mProfile.getUsername();
+            if (user != null && user.length() > 0) {
+                conn.setRequestProperty("Authorization",
+                        "Basic " + Base64.encodeToString(
+                                (user + ":" + mProfile.getPassword()).getBytes(), Base64.DEFAULT));
+            }
+
             os = conn.getOutputStream();
             Gson gson = new GsonBuilder().setExclusionStrategies(strategies)
                 .addSerializationExclusionStrategy(
@@ -231,16 +237,6 @@ public class TransmissionSessionManager {
             os.write(json.getBytes());
             os.flush();
             os.close();
-
-            final String user = mProfile.getUsername();
-            if (user != null && user.length() > 0) {
-                Authenticator.setDefault(new Authenticator() {
-                    @Override
-                    protected PasswordAuthentication getPasswordAuthentication() {
-                        return new PasswordAuthentication(user, mProfile.getPassword().toCharArray());
-                    }
-                });
-            }
 
             // Starts the query
             conn.connect();

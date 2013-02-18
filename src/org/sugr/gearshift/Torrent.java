@@ -794,7 +794,7 @@ public class Torrent {
                         Torrent.readableFileSize(mUploadedEver),
                         String.format(context.getString(R.string.traffic_seeding_ratio_format),
                                Torrent.readablePercent(mUploadRatio),
-                               seedLimit == 0 ? "" : String.format(
+                               seedLimit <= 0 ? "" : String.format(
                                    context.getString(R.string.traffic_seeding_ratio_goal_format),
                                    Torrent.readablePercent(seedLimit))
                         ),
@@ -823,9 +823,9 @@ public class Torrent {
             case Torrent.Status.DOWNLOADING:
                 statusType = context.getString(mStatus == Torrent.Status.DOWNLOADING
                         ? mMetadataPercentComplete < 1
-                            ? R.string.status_downloading_metadata
-                            : R.string.status_downloading
-                        : R.string.status_download_waiting);
+                            ? R.string.status_state_downloading_metadata
+                            : R.string.status_state_downloading
+                        : R.string.status_state_download_waiting);
                 statusMoreFormat = context.getString(R.string.status_more_downloading_format);
                 statusSpeedFormat = context.getString(R.string.status_more_downloading_speed_format);
 
@@ -849,7 +849,7 @@ public class Torrent {
             case Torrent.Status.SEED_WAITING:
             case Torrent.Status.SEEDING:
                 statusType = context.getString(mStatus == Torrent.Status.SEEDING
-                        ? R.string.status_seeding : R.string.status_seed_waiting);
+                        ? R.string.status_state_seeding : R.string.status_state_seed_waiting);
                 statusMoreFormat = context.getString(R.string.status_more_seeding_format);
                 statusSpeedFormat = context.getString(R.string.status_more_seeding_speed_format);
 
@@ -869,7 +869,7 @@ public class Torrent {
                     );
                 break;
             case Torrent.Status.CHECK_WAITING:
-                statusType = context.getString(R.string.status_checking);
+                statusType = context.getString(R.string.status_state_checking);
 
                 formattedStatus = String.format(statusFormat,
                     statusType,
@@ -877,11 +877,11 @@ public class Torrent {
                 );
                 break;
             case Torrent.Status.CHECKING:
-                formattedStatus = context.getString(R.string.status_checking);
+                formattedStatus = context.getString(R.string.status_state_checking);
 
                 break;
             case Torrent.Status.STOPPED:
-                formattedStatus = context.getString(R.string.status_stopped);
+                formattedStatus = context.getString(R.string.status_state_stopped);
 
                 break;
             default:
