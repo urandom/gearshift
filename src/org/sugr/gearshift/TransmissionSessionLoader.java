@@ -27,6 +27,7 @@ class TransmissionSessionData {
     public static class Errors {
         public static final int NO_CONNECTION = 1;
         public static final int ACCESS_DENIED = 1 << 1;
+        public static final int NO_JSON = 1 << 2;
     };
 
     public TransmissionSessionData(TransmissionSession session, TransmissionSessionStats stats, int errorMask) {
@@ -470,6 +471,11 @@ public class TransmissionSessionLoader extends AsyncTaskLoader<TransmissionSessi
         switch(e.getCode()) {
             case 403:
                 mLastErrors = mLastErrors | TransmissionSessionData.Errors.ACCESS_DENIED;
+                break;
+            case 200:
+                if (e.getMessage().equals("no-json")) {
+                    mLastErrors = mLastErrors | TransmissionSessionData.Errors.NO_JSON;
+                }
                 break;
         }
 

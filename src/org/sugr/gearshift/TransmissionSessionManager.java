@@ -264,6 +264,9 @@ public class TransmissionSessionManager {
             switch(code) {
                 case 200:
                 case 201:
+                    if (conn.getHeaderField("Content-Type").startsWith("text/html")) {
+                        throw new ManagerException("no-json", code);
+                    }
                     is = conn.getInputStream();
 
                     // Convert the InputStream into a string

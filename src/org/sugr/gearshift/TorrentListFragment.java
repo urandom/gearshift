@@ -182,7 +182,7 @@ public class TorrentListFragment extends ListFragment {
                 /* The notifyDataSetChanged method sets this to true */
                 mTorrentListAdapter.setNotifyOnChange(false);
                 if (data.errorMask == 0) {
-                    if (data.hasRemoved || data.hasAdded) {
+                    if (data.hasRemoved || data.hasAdded || mTorrentListAdapter.getUnfilteredCount() == 0) {
                         mTorrentListAdapter.clear();
                         mTorrentListAdapter.addAll(data.torrents);
                         if (!mTorrentListAdapter.repeatFilter()) {
@@ -198,6 +198,8 @@ public class TorrentListFragment extends ListFragment {
                         setEmptyText(R.string.no_connection_empty_list);
                     } else if ((data.errorMask & TransmissionSessionData.Errors.ACCESS_DENIED) > 0) {
                         setEmptyText(R.string.access_denied_empty_list);
+                    } else if ((data.errorMask & TransmissionSessionData.Errors.NO_JSON) > 0) {
+                        setEmptyText(R.string.no_json_empty_list);
                     }
                 }
                 if (data.torrents.size() > 0) {
