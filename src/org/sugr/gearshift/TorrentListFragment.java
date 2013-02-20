@@ -2,7 +2,9 @@ package org.sugr.gearshift;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
+import java.util.Locale;
 
 import android.app.ActionBar;
 import android.app.Activity;
@@ -181,14 +183,13 @@ public class TorrentListFragment extends ListFragment {
 
                 /* The notifyDataSetChanged method sets this to true */
                 mTorrentListAdapter.setNotifyOnChange(false);
+                boolean notifyChange = true;
                 if (data.error == 0) {
                     if (data.hasRemoved || data.hasAdded || mTorrentListAdapter.getUnfilteredCount() == 0) {
+                        notifyChange = false;
                         mTorrentListAdapter.clear();
                         mTorrentListAdapter.addAll(data.torrents);
-                        if (!mTorrentListAdapter.repeatFilter()) {
-                            ((TransmissionSessionInterface) getActivity()).setTorrents(data.torrents);
-                        }
-
+                        mTorrentListAdapter.repeatFilter();
                     }
                     setEmptyText(null);
                 } else {
@@ -205,7 +206,9 @@ public class TorrentListFragment extends ListFragment {
                     }
                 }
                 if (data.torrents.size() > 0) {
-                    mTorrentListAdapter.notifyDataSetChanged();
+                    if (notifyChange) {
+                        mTorrentListAdapter.notifyDataSetChanged();
+                    }
                 } else {
                     mTorrentListAdapter.notifyDataSetInvalidated();
                 }
@@ -619,6 +622,7 @@ public class TorrentListFragment extends ListFragment {
         private TorrentFilter mFilter;
         private CharSequence mCurrentConstraint;
         private FilterListener mCurrentFilterListener;
+        private TorrentComparator mTorrentComparator = new TorrentComparator();
 
 
         public TorrentListAdapter(Context context) {
@@ -725,7 +729,6 @@ public class TorrentListFragment extends ListFragment {
                 } else {
                     return mObjects.size();
                 }
-
             }
         }
 
@@ -757,12 +760,8 @@ public class TorrentListFragment extends ListFragment {
             getFilter().filter(constraint, listener);
         }
 
-        public boolean repeatFilter() {
-            if (mCurrentConstraint == null || mCurrentConstraint.length() == 0) {
-                return false;
-            }
+        public void repeatFilter() {
             getFilter().filter(mCurrentConstraint, mCurrentFilterListener);
-            return true;
         }
 
         public ArrayList<Torrent> getItems() {
@@ -775,6 +774,7 @@ public class TorrentListFragment extends ListFragment {
             @Override
             protected FilterResults performFiltering(CharSequence prefix) {
                 FilterResults results = new FilterResults();
+                ArrayList<Torrent> resultList;
 
                 if (mOriginalValues == null) {
                     synchronized (mLock) {
@@ -783,14 +783,14 @@ public class TorrentListFragment extends ListFragment {
                 }
 
                 String prefixString = prefix == null
-                    ? "" : prefix.toString().toLowerCase();
+                    ? "" : prefix.toString().toLowerCase(Locale.getDefault());
                 if (prefixString.length() == 0 || prefixString.startsWith("filter:all")) {
                     ArrayList<Torrent> list;
                     synchronized (mLock) {
                         list = new ArrayList<Torrent>(mOriginalValues);
                     }
-                    results.values = list;
-                    results.count = list.size();
+
+                    resultList = list;
                 } else {
                     ArrayList<Torrent> values;
                     synchronized (mLock) {
@@ -828,7 +828,7 @@ public class TorrentListFragment extends ListFragment {
                             if (torrent.getStatus() == Torrent.Status.CHECKING)
                                 newValues.add(torrent);
                         } else {
-                            final String valueText = torrent.getName().toLowerCase();
+                            final String valueText = torrent.getName().toLowerCase(Locale.getDefault());
                             // First match against the whole, non-splitted value
                             if (valueText.startsWith(prefixString)) {
                                 newValues.add(torrent);
@@ -847,12 +847,16 @@ public class TorrentListFragment extends ListFragment {
                         }
                     }
 
-                    results.values = newValues;
-                    results.count = newValues.size();
+                    resultList = newValues;
                 }
 
+                Collections.sort(resultList, mTorrentComparator);
+
                 mChanged = !((TransmissionSessionInterface) getActivity())
-                    .getTorrents().equals(results.values);
+                    .getTorrents().equals(resultList);
+
+                results.values = resultList;
+                results.count = resultList.size();
 
                 return results;
             }

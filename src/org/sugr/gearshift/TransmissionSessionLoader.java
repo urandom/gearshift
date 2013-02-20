@@ -1,12 +1,9 @@
 package org.sugr.gearshift;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 
 import org.sugr.gearshift.TransmissionSessionManager.ActiveTorrentGetResponse;
 import org.sugr.gearshift.TransmissionSessionManager.ManagerException;
-import org.sugr.gearshift.TransmissionSessionManager.Response;
 
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -29,6 +26,7 @@ class TransmissionSessionData {
         public static final int ACCESS_DENIED = 1 << 1;
         public static final int NO_JSON = 1 << 2;
         public static final int NO_CONNECTION = 1 << 3;
+        public static final int GENERIC_HTTP = 1 << 4;
     };
 
     public TransmissionSessionData(TransmissionSession session, TransmissionSessionStats stats, int error) {
@@ -54,15 +52,6 @@ class TransmissionSessionData {
 }
 
 public class TransmissionSessionLoader extends AsyncTaskLoader<TransmissionSessionData> {
-    public static enum SortBy {
-        NAME, SIZE, STATUS, ACTIVITY, AGE, PROGRESS, RATIO, LOCATION,
-        PEERS, RATE_DOWNLOAD, RATE_UPLOAD, QUEUE
-    };
-
-    public static enum SortDirection {
-        ASCENDING, DESCENDING
-    };
-
     private ArrayList<Torrent> mTorrents = new ArrayList<Torrent>();
     private static SparseArray<Torrent> mTorrentMap = new SparseArray<Torrent>();
     private TransmissionProfile mProfile;
@@ -97,78 +86,6 @@ public class TransmissionSessionLoader extends AsyncTaskLoader<TransmissionSessi
     private String mTorrentAction;
     private int[] mTorrentActionIds;
     private boolean mDeleteData = false;
-
-    private SortBy mSortBy = SortBy.STATUS;
-    private SortDirection mSortDirection = SortDirection.ASCENDING;
-
-    private final Comparator<Torrent> mTorrentComparator = new Comparator<Torrent>() {
-        @Override
-        public int compare(Torrent a, Torrent b) {
-            int nameComp = a.getName().compareToIgnoreCase(b.getName());
-            /* Artificially inflate the download status to appear above
-             * the seeding */
-            int statusComp = (b.getStatus() == Torrent.Status.DOWNLOADING
-                ? b.getStatus() + 10 : b.getStatus()
-            ) - (a.getStatus() == Torrent.Status.DOWNLOADING
-                ? a.getStatus() + 10 : a.getStatus());
-            int ret = 0;
-            float delta;
-
-            if (nameComp == 0)
-                nameComp = a.getId() - b.getId();
-            if (statusComp == 0)
-                statusComp = nameComp;
-
-            switch(mSortBy) {
-                case NAME:
-                    ret = nameComp;
-                    break;
-                case SIZE:
-                    ret = (int) (a.getTotalSize() - b.getTotalSize());
-                    break;
-                case STATUS:
-                    ret = statusComp;
-                    break;
-                case ACTIVITY:
-                    ret = (int) ((b.getRateDownload() + b.getRateUpload()) - (a.getRateDownload() + a.getRateUpload()));
-                    break;
-                case AGE:
-                    ret = (int) (b.getAddedDate() - a.getAddedDate());
-                    break;
-                case LOCATION:
-                    ret = a.getDownloadDir().compareToIgnoreCase(b.getDownloadDir());
-                    break;
-                case PEERS:
-                    ret = a.getPeersConnected() - b.getPeersConnected();
-                    break;
-                case PROGRESS:
-                    delta = a.getPercentDone() - b.getPercentDone();
-                    ret = delta < 0 ? -1 : delta > 0 ? 1 : 0;
-                    break;
-                case QUEUE:
-                    ret = a.getQueuePosition() - b.getQueuePosition();
-                    break;
-                case RATE_DOWNLOAD:
-                    ret = (int) (a.getRateDownload() - b.getRateDownload());
-                    break;
-                case RATE_UPLOAD:
-                    ret = (int) (a.getRateUpload() - b.getRateUpload());
-                    break;
-                case RATIO:
-                    delta = b.getUploadRatio() - a.getUploadRatio();
-                    ret = delta < 0 ? -1 : delta > 0 ? 1 : 0;
-                    break;
-                default:
-                    break;
-            }
-            if (mSortBy != SortBy.NAME && mSortBy != SortBy.STATUS
-                    && ret == 0) {
-                ret = statusComp;
-            }
-
-            return mSortDirection == SortDirection.ASCENDING ? ret : -ret;
-        }
-    };
 
     public TransmissionSessionLoader(Context context, TransmissionProfile profile) {
         super(context);
@@ -224,12 +141,6 @@ public class TransmissionSessionLoader extends AsyncTaskLoader<TransmissionSessi
         onContentChanged();
     }
 
-    public void setSortingMethod(SortBy by, SortDirection dir) {
-        mSortBy = by;
-        mSortDirection = dir;
-        onContentChanged();
-    }
-
     @Override
     public TransmissionSessionData loadInBackground() {
         /* Remove any previous waiting runners */
@@ -250,7 +161,7 @@ public class TransmissionSessionLoader extends AsyncTaskLoader<TransmissionSessi
         /* Setters */
         if (mSessionSet != null) {
             try {
-                Response response = mSessManager.setSession(mSessionSet, mSessionSetKeys);
+                mSessManager.setSession(mSessionSet, mSessionSetKeys);
                 mSessionSet = null;
                 mSessionSetKeys = null;
             } catch (ManagerException e) {
@@ -259,11 +170,10 @@ public class TransmissionSessionLoader extends AsyncTaskLoader<TransmissionSessi
         }
         if (mTorrentActionIds != null) {
             try {
-                Response response;
                 if (mTorrentAction.equals("torrent-remove"))
-                    response = mSessManager.setTorrentsRemove(mTorrentActionIds, mDeleteData);
+                    mSessManager.setTorrentsRemove(mTorrentActionIds, mDeleteData);
                 else
-                    response = mSessManager.setTorrentsAction(mTorrentAction, mTorrentActionIds);
+                    mSessManager.setTorrentsAction(mTorrentAction, mTorrentActionIds);
                 mTorrentActionIds = null;
                 mTorrentAction = null;
                 mDeleteData = false;
@@ -396,8 +306,6 @@ public class TransmissionSessionLoader extends AsyncTaskLoader<TransmissionSessi
             torrent.setStatusText(getContext());
         }
 
-        Collections.sort(mTorrents, mTorrentComparator);
-
         mIteration++;
         return new TransmissionSessionData(
                 mSession, mSessionStats, mTorrents,
@@ -481,6 +389,9 @@ public class TransmissionSessionLoader extends AsyncTaskLoader<TransmissionSessi
                 break;
             case -1:
                 mLastError = TransmissionSessionData.Errors.NO_CONNECTION;
+                break;
+            default:
+                mLastError = TransmissionSessionData.Errors.GENERIC_HTTP;
                 break;
         }
 
