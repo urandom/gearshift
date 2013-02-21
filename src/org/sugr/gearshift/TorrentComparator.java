@@ -8,16 +8,24 @@ public class TorrentComparator implements Comparator<Torrent> {
         PEERS, RATE_DOWNLOAD, RATE_UPLOAD, QUEUE
     };
 
-    public static enum SortDirection {
+    public static enum SortOrder {
         ASCENDING, DESCENDING
     };
 
     private SortBy mSortBy = SortBy.STATUS;
-    private SortDirection mSortDirection = SortDirection.ASCENDING;
+    private SortOrder mSortOrder = SortOrder.ASCENDING;
 
-    public void setSortingMethod(SortBy by, SortDirection dir) {
+    public void setSortingMethod(SortBy by, SortOrder order) {
         mSortBy = by;
-        mSortDirection = dir;
+        mSortOrder = order;
+    }
+
+    public SortBy getSortBy() {
+        return mSortBy;
+    }
+
+    public SortOrder getSortOrder() {
+        return mSortOrder;
     }
 
     @Override
@@ -84,6 +92,6 @@ public class TorrentComparator implements Comparator<Torrent> {
             ret = statusComp;
         }
 
-        return mSortDirection == SortDirection.ASCENDING ? ret : -ret;
+        return mSortOrder == SortOrder.ASCENDING ? ret : -ret;
     }
 }

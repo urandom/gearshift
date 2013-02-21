@@ -6,6 +6,9 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Locale;
 
+import org.sugr.gearshift.TorrentComparator.SortBy;
+import org.sugr.gearshift.TorrentComparator.SortOrder;
+
 import android.app.ActionBar;
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -556,6 +559,14 @@ public class TorrentListFragment extends ListFragment {
         mTorrentListAdapter.filter(constraint);
     }
 
+    public SortBy getSortBy() {
+        return mTorrentListAdapter.getSortBy();
+    }
+
+    public SortOrder getSortOrder() {
+        return mTorrentListAdapter.getSortOrder();
+    }
+
     private void setActivatedPosition(int position) {
         if (position == ListView.INVALID_POSITION) {
             getListView().setItemChecked(mActivatedPosition, false);
@@ -623,7 +634,8 @@ public class TorrentListFragment extends ListFragment {
         private CharSequence mCurrentConstraint;
         private FilterListener mCurrentFilterListener;
         private TorrentComparator mTorrentComparator = new TorrentComparator();
-
+        private SortBy mSortBy = mTorrentComparator.getSortBy();
+        private SortOrder mSortOrder = mTorrentComparator.getSortOrder();
 
         public TorrentListAdapter(Context context) {
             super(context, R.layout.torrent_list_item, R.id.name);
@@ -755,9 +767,43 @@ public class TorrentListFragment extends ListFragment {
         }
 
         public void filter(CharSequence constraint, FilterListener listener) {
-            mCurrentConstraint = constraint;
+            String prefix = constraint.toString().toLowerCase(Locale.getDefault());
+            if (prefix.startsWith("sortby:")) {
+                if (prefix.equals("sortby:name")) {
+                    mSortBy = SortBy.NAME;
+                } else if (prefix.equals("sortby:size")) {
+                    mSortBy = SortBy.SIZE;
+                } else if (prefix.equals("sortby:status")) {
+                    mSortBy = SortBy.STATUS;
+                } else if (prefix.equals("sortby:activity")) {
+                    mSortBy = SortBy.ACTIVITY;
+                } else if (prefix.equals("sortby:age")) {
+                    mSortBy = SortBy.AGE;
+                } else if (prefix.equals("sortby:progress")) {
+                    mSortBy = SortBy.PROGRESS;
+                } else if (prefix.equals("sortby:ratio")) {
+                    mSortBy = SortBy.RATIO;
+                } else if (prefix.equals("sortby:location")) {
+                    mSortBy = SortBy.LOCATION;
+                } else if (prefix.equals("sortby:peers")) {
+                    mSortBy = SortBy.PEERS;
+                } else if (prefix.equals("sortby:rate_download")) {
+                    mSortBy = SortBy.RATE_DOWNLOAD;
+                } else if (prefix.equals("sortby:rate_upload")) {
+                    mSortBy = SortBy.RATE_UPLOAD;
+                } else if (prefix.equals("sortby:queue")) {
+                    mSortBy = SortBy.QUEUE;
+                }
+                mTorrentComparator.setSortingMethod(mSortBy, mSortOrder);
+            } else if (prefix.startsWith("sortorder:")) {
+                mSortOrder = prefix.equals("sortorder:descending")
+                    ? SortOrder.DESCENDING : SortOrder.ASCENDING;
+                mTorrentComparator.setSortingMethod(mSortBy, mSortOrder);
+            } else {
+                mCurrentConstraint = constraint;
+            }
             mCurrentFilterListener = listener;
-            getFilter().filter(constraint, listener);
+            getFilter().filter(mCurrentConstraint, listener);
         }
 
         public void repeatFilter() {
@@ -766,6 +812,14 @@ public class TorrentListFragment extends ListFragment {
 
         public ArrayList<Torrent> getItems() {
             return mObjects;
+        }
+
+        public SortBy getSortBy() {
+            return mSortBy;
+        }
+
+        public SortOrder getSortOrder() {
+            return mSortOrder;
         }
 
         private class TorrentFilter extends Filter {
@@ -784,7 +838,7 @@ public class TorrentListFragment extends ListFragment {
 
                 String prefixString = prefix == null
                     ? "" : prefix.toString().toLowerCase(Locale.getDefault());
-                if (prefixString.length() == 0 || prefixString.startsWith("filter:all")) {
+                if (prefixString.length() == 0 || prefixString.equals("filter:all")) {
                     ArrayList<Torrent> list;
                     synchronized (mLock) {
                         list = new ArrayList<Torrent>(mOriginalValues);

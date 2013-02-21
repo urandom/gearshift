@@ -14,16 +14,6 @@
     <string name="stop">Stop</string>
     
     <string name="number_dialog_delete">Delete a digit</string>
-        
-    <string name="filter_header">Filters</string>
-    <string name="filter_all">All</string>
-    <string name="filter_downloading">Downloading</string>
-    <string name="filter_seeding">Seeding</string>
-    <string name="filter_paused">Paused</string>
-    <string name="filter_complete">Complete</string>
-    <string name="filter_incomplete">Incomplete</string>
-    <string name="filter_active">Active</string>
-    <string name="filter_checking">Checking</string>
     
     <string name="status">Status</string>
     <string name="speed_format">&lt;b&gt;Down&lt;/b&gt;: %1$s/s%2$s&lt;br/&gt;&lt;b&gt;Up&lt;/b&gt;: %3$s/s%4$s</string>
