@@ -259,6 +259,10 @@ public class TransmissionSessionLoader extends AsyncTaskLoader<TransmissionSessi
             );
         }
 
+        for (Thread t : threads) {
+            t.start();
+        }
+
         boolean active = mDefaultPrefs.getBoolean(GeneralSettingsFragment.PREF_UPDATE_ACTIVE, false);
         Torrent [] torrents;
         int[] removed = null;
