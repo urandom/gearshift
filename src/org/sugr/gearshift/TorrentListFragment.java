@@ -729,7 +729,7 @@ public class TorrentListFragment extends ListFragment {
         @Override
         public int getCount() {
             synchronized(mLock) {
-                return mObjects.size();
+                return mObjects == null ? 0 : mObjects.size();
 
             }
         }
