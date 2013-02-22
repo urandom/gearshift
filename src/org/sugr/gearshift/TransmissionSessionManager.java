@@ -77,6 +77,7 @@ public class TransmissionSessionManager {
 
 
     public class ManagerException extends Exception {
+        private static final long serialVersionUID = 6477491498169428449L;
         int mCode;
         public ManagerException(String message, int code) {
             super(message);

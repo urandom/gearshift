@@ -27,6 +27,7 @@ class TransmissionSessionData {
         public static final int NO_JSON = 1 << 2;
         public static final int NO_CONNECTION = 1 << 3;
         public static final int GENERIC_HTTP = 1 << 4;
+        public static final int THREAD_ERROR = 1 << 5;
     };
 
     public TransmissionSessionData(TransmissionSession session, TransmissionSessionStats stats, int error) {
@@ -86,6 +87,8 @@ public class TransmissionSessionLoader extends AsyncTaskLoader<TransmissionSessi
     private String mTorrentAction;
     private int[] mTorrentActionIds;
     private boolean mDeleteData = false;
+
+    private Object mLock = new Object();
 
     public TransmissionSessionLoader(Context context, TransmissionProfile profile) {
         super(context);
@@ -158,43 +161,102 @@ public class TransmissionSessionLoader extends AsyncTaskLoader<TransmissionSessi
             return new TransmissionSessionData(mSession, mSessionStats, mLastError);
         }
 
+        ArrayList<Thread> threads = new ArrayList<Thread>();
+        final ArrayList<ManagerException> exceptions = new ArrayList<ManagerException>();
         /* Setters */
         if (mSessionSet != null) {
-            try {
-                mSessManager.setSession(mSessionSet, mSessionSetKeys);
-                mSessionSet = null;
-                mSessionSetKeys = null;
-            } catch (ManagerException e) {
-                return handleError(e);
-            }
+            threads.add(
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        synchronized(mLock) {
+                            if (exceptions.size() > 0) {
+                                return;
+                            }
+                        }
+                        try {
+                            mSessManager.setSession(mSessionSet, mSessionSetKeys);
+                            mSessionSet = null;
+                            mSessionSetKeys = null;
+                        } catch (ManagerException e) {
+                            synchronized(mLock) {
+                                exceptions.add(e);
+                            }
+                        }
+                    }
+                })
+            );
+
         }
         if (mTorrentActionIds != null) {
-            try {
-                if (mTorrentAction.equals("torrent-remove"))
-                    mSessManager.setTorrentsRemove(mTorrentActionIds, mDeleteData);
-                else
-                    mSessManager.setTorrentsAction(mTorrentAction, mTorrentActionIds);
-                mTorrentActionIds = null;
-                mTorrentAction = null;
-                mDeleteData = false;
-            } catch (ManagerException e) {
-                return handleError(e);
-            }
+            threads.add(
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        synchronized(mLock) {
+                            if (exceptions.size() > 0) {
+                                return;
+                            }
+                        }
+                        try {
+                            if (mTorrentAction.equals("torrent-remove"))
+                                mSessManager.setTorrentsRemove(mTorrentActionIds, mDeleteData);
+                            else
+                                mSessManager.setTorrentsAction(mTorrentAction, mTorrentActionIds);
+                            mTorrentActionIds = null;
+                            mTorrentAction = null;
+                            mDeleteData = false;
+                        } catch (ManagerException e) {
+                            synchronized(mLock) {
+                                exceptions.add(e);
+                            };
+                        }
+                    }
+                })
+            );
         }
 
         if (mCurrentTorrents == null && (mSession == null || mIteration % 3 == 0)) {
-            try {
-                mSession = mSessManager.getSession().getSession();
-            } catch (ManagerException e) {
-                return handleError(e);
-            }
+            threads.add(
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        synchronized(mLock) {
+                            if (exceptions.size() > 0) {
+                                return;
+                            }
+                        }
+                        try {
+                            mSession = mSessManager.getSession().getSession();
+                        } catch (ManagerException e) {
+                            synchronized(mLock) {
+                                exceptions.add(e);
+                            };
+                        }
+                    }
+                })
+            );
         }
         if (mCurrentTorrents == null && mSessionStats == null) {
-            try {
-                mSessionStats = mSessManager.getSessionStats().getStats();
-            } catch (ManagerException e) {
-                return handleError(e);
-            }
+            threads.add(
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        synchronized(mLock) {
+                            if (exceptions.size() > 0) {
+                                return;
+                            }
+                        }
+                        try {
+                            mSessionStats = mSessManager.getSessionStats().getStats();
+                        } catch (ManagerException e) {
+                            synchronized(mLock) {
+                                exceptions.add(e);
+                            };
+                        }
+                    }
+                })
+            );
         }
 
         boolean active = mDefaultPrefs.getBoolean(GeneralSettingsFragment.PREF_UPDATE_ACTIVE, false);
@@ -279,6 +341,18 @@ public class TransmissionSessionLoader extends AsyncTaskLoader<TransmissionSessi
             }
         }
         mNeedsMoreInfo = false;
+
+        for (Thread t : threads) {
+            try {
+                t.join();
+            } catch (InterruptedException e) {
+                return handleError(e);
+            }
+        }
+
+        if (exceptions.size() > 0) {
+            return handleError(exceptions.get(0));
+        }
 
         if (mTorrents.size() != mTorrentMap.size()) {
             /* the torrent list has been lost */
@@ -394,6 +468,14 @@ public class TransmissionSessionLoader extends AsyncTaskLoader<TransmissionSessi
                 mLastError = TransmissionSessionData.Errors.GENERIC_HTTP;
                 break;
         }
+
+        return new TransmissionSessionData(mSession, mSessionStats, mLastError);
+    }
+
+    private TransmissionSessionData handleError(InterruptedException e) {
+        mStopUpdates = true;
+
+        mLastError = TransmissionSessionData.Errors.THREAD_ERROR;
 
         return new TransmissionSessionData(mSession, mSessionStats, mLastError);
     }
