@@ -40,6 +40,8 @@ import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import com.haarman.listviewanimations.swinginadapters.prepared.SwingLeftInAnimationAdapter;
+
 /**
  * A list fragment representing a list of Torrents. This fragment
  * also supports tablet devices by allowing list items to be given an
@@ -266,9 +268,6 @@ public class TorrentListFragment extends ListFragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        mTorrentListAdapter = new TorrentListAdapter(getActivity());
-        setListAdapter(mTorrentListAdapter);
-
         setHasOptionsMenu(true);
         getActivity().requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
         getActivity().setProgressBarIndeterminateVisibility(true);
@@ -305,6 +304,11 @@ public class TorrentListFragment extends ListFragment {
                 && savedInstanceState.containsKey(STATE_ACTIVATED_POSITION)) {
             setActivatedPosition(savedInstanceState.getInt(STATE_ACTIVATED_POSITION));
         }
+
+        mTorrentListAdapter = new TorrentListAdapter(getActivity());
+        SwingLeftInAnimationAdapter wrapperAdapter = new SwingLeftInAnimationAdapter(mTorrentListAdapter);
+        wrapperAdapter.setListView(getListView());
+        setListAdapter(wrapperAdapter);
     }
 
     @Override
