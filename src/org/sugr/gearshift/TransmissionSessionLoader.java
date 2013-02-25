@@ -165,102 +165,98 @@ public class TransmissionSessionLoader extends AsyncTaskLoader<TransmissionSessi
         final ArrayList<ManagerException> exceptions = new ArrayList<ManagerException>();
         /* Setters */
         if (mSessionSet != null) {
-            threads.add(
-                new Thread(new Runnable() {
-                    @Override
-                    public void run() {
-                        synchronized(mLock) {
-                            if (exceptions.size() > 0) {
-                                return;
-                            }
-                        }
-                        try {
-                            mSessManager.setSession(mSessionSet, mSessionSetKeys);
-                            mSessionSet = null;
-                            mSessionSetKeys = null;
-                        } catch (ManagerException e) {
-                            synchronized(mLock) {
-                                exceptions.add(e);
-                            }
+            Thread thread = new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    synchronized(mLock) {
+                        if (exceptions.size() > 0) {
+                            return;
                         }
                     }
-                })
-            );
+                    try {
+                        mSessManager.setSession(mSessionSet, mSessionSetKeys);
+                        mSessionSet = null;
+                        mSessionSetKeys = null;
+                    } catch (ManagerException e) {
+                        synchronized(mLock) {
+                            exceptions.add(e);
+                        }
+                    }
+                }
+            });
+            threads.add(thread);
+            thread.start();
 
         }
         if (mTorrentActionIds != null) {
-            threads.add(
-                new Thread(new Runnable() {
-                    @Override
-                    public void run() {
-                        synchronized(mLock) {
-                            if (exceptions.size() > 0) {
-                                return;
-                            }
-                        }
-                        try {
-                            if (mTorrentAction.equals("torrent-remove"))
-                                mSessManager.setTorrentsRemove(mTorrentActionIds, mDeleteData);
-                            else
-                                mSessManager.setTorrentsAction(mTorrentAction, mTorrentActionIds);
-                            mTorrentActionIds = null;
-                            mTorrentAction = null;
-                            mDeleteData = false;
-                        } catch (ManagerException e) {
-                            synchronized(mLock) {
-                                exceptions.add(e);
-                            };
+            Thread thread = new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    synchronized(mLock) {
+                        if (exceptions.size() > 0) {
+                            return;
                         }
                     }
-                })
-            );
+                    try {
+                        if (mTorrentAction.equals("torrent-remove"))
+                            mSessManager.setTorrentsRemove(mTorrentActionIds, mDeleteData);
+                        else
+                            mSessManager.setTorrentsAction(mTorrentAction, mTorrentActionIds);
+                        mTorrentActionIds = null;
+                        mTorrentAction = null;
+                        mDeleteData = false;
+                    } catch (ManagerException e) {
+                        synchronized(mLock) {
+                            exceptions.add(e);
+                        };
+                    }
+                }
+            });
+            threads.add(thread);
+            thread.start();
         }
 
         if (mCurrentTorrents == null && (mSession == null || mIteration % 3 == 0)) {
-            threads.add(
-                new Thread(new Runnable() {
-                    @Override
-                    public void run() {
-                        synchronized(mLock) {
-                            if (exceptions.size() > 0) {
-                                return;
-                            }
-                        }
-                        try {
-                            mSession = mSessManager.getSession().getSession();
-                        } catch (ManagerException e) {
-                            synchronized(mLock) {
-                                exceptions.add(e);
-                            };
+            Thread thread = new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    synchronized(mLock) {
+                        if (exceptions.size() > 0) {
+                            return;
                         }
                     }
-                })
-            );
+                    try {
+                        mSession = mSessManager.getSession().getSession();
+                    } catch (ManagerException e) {
+                        synchronized(mLock) {
+                            exceptions.add(e);
+                        };
+                    }
+                }
+            });
+            threads.add(thread);
+            thread.start();
         }
         if (mCurrentTorrents == null && mSessionStats == null) {
-            threads.add(
-                new Thread(new Runnable() {
-                    @Override
-                    public void run() {
-                        synchronized(mLock) {
-                            if (exceptions.size() > 0) {
-                                return;
-                            }
-                        }
-                        try {
-                            mSessionStats = mSessManager.getSessionStats().getStats();
-                        } catch (ManagerException e) {
-                            synchronized(mLock) {
-                                exceptions.add(e);
-                            };
+            Thread thread = new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    synchronized(mLock) {
+                        if (exceptions.size() > 0) {
+                            return;
                         }
                     }
-                })
-            );
-        }
-
-        for (Thread t : threads) {
-            t.start();
+                    try {
+                        mSessionStats = mSessManager.getSessionStats().getStats();
+                    } catch (ManagerException e) {
+                        synchronized(mLock) {
+                            exceptions.add(e);
+                        };
+                    }
+                }
+            });
+            threads.add(thread);
+            thread.start();
         }
 
         boolean active = mDefaultPrefs.getBoolean(GeneralSettingsFragment.PREF_UPDATE_ACTIVE, false);
@@ -480,6 +476,7 @@ public class TransmissionSessionLoader extends AsyncTaskLoader<TransmissionSessi
         mStopUpdates = true;
 
         mLastError = TransmissionSessionData.Errors.THREAD_ERROR;
+        TorrentListActivity.logE("Got an error when processing the threads", e);
 
         return new TransmissionSessionData(mSession, mSessionStats, mLastError);
     }

@@ -91,7 +91,7 @@ public class TransmissionSessionManager {
 
     public final static String PREF_LAST_SESSION_ID = "last_session_id";
 
-    private Context mContext;
+//    private Context mContext;
     private TransmissionProfile mProfile;
 
     private ConnectivityManager mConnManager;
@@ -102,7 +102,7 @@ public class TransmissionSessionManager {
     private SharedPreferences mDefaultPrefs;
 
     public TransmissionSessionManager(Context context, TransmissionProfile profile) {
-        mContext = context;
+//        mContext = context;
         mProfile = profile;
 
         mConnManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
@@ -117,7 +117,6 @@ public class TransmissionSessionManager {
     }
 
     public SessionGetResponse getSession() throws ManagerException {
-        TransmissionSession session = null;
         SessionGetRequest request = new SessionGetRequest();
 
         String json = requestData(request);
@@ -128,7 +127,6 @@ public class TransmissionSessionManager {
     }
 
     public SessionStatsResponse getSessionStats() throws ManagerException {
-        TransmissionSessionStats stats = null;
         SessionStatsRequest request = new SessionStatsRequest();
 
         String json = requestData(request);

@@ -80,7 +80,7 @@ public class TorrentListFragment extends ListFragment {
 
     private TransmissionProfile mCurrentProfile;
     private TransmissionSession mSession = new TransmissionSession();
-    private TransmissionSessionStats mSessionStats;
+//    private TransmissionSessionStats mSessionStats;
 
     /**
      * A callback interface that all activities containing this fragment must
@@ -172,8 +172,8 @@ public class TorrentListFragment extends ListFragment {
 
             if (data.session != null)
                 mSession = data.session;
-            if (data.stats != null)
-                mSessionStats = data.stats;
+           /* if (data.stats != null)
+                mSessionStats = data.stats;*/
 
             boolean invalidateMenu = false;
             if (mAltSpeed != mSession.isAltSpeedEnabled()) {
@@ -206,6 +206,8 @@ public class TorrentListFragment extends ListFragment {
                         setEmptyText(R.string.no_json_empty_list);
                     } else if (data.error == TransmissionSessionData.Errors.NO_CONNECTION) {
                         setEmptyText(R.string.no_connection_empty_list);
+                    } else if (data.error == TransmissionSessionData.Errors.THREAD_ERROR) {
+                        setEmptyText(R.string.thread_error_empty_list);
                     }
                 }
                 if (data.torrents.size() > 0) {
@@ -229,7 +231,6 @@ public class TorrentListFragment extends ListFragment {
             }
 
             if (data.error == 0) {
-                /* TODO:  Move this code to the filter, since it's asyncronous */
                 if (mTorrentListAdapter.getUnfilteredCount() == 0) {
                     setEmptyText(R.string.no_torrents_empty_list);
                 } else if (mTorrentListAdapter.getCount() == 0) {

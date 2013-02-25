@@ -72,7 +72,7 @@ public class TorrentListActivity extends SlidingFragmentActivity
 
         SlidingMenu sm = getSlidingMenu();
         sm.setMode(SlidingMenu.LEFT);
-        sm.setTouchModeAbove(SlidingMenu.TOUCHMODE_FULLSCREEN);
+        sm.setTouchModeAbove(SlidingMenu.TOUCHMODE_MARGIN);
         sm.setBehindWidthRes(R.dimen.sliding_menu_offset);
         sm.setShadowWidthRes(R.dimen.shadow_width);
         sm.setShadowDrawable(R.drawable.shadow);
@@ -193,7 +193,7 @@ public class TorrentListActivity extends SlidingFragmentActivity
         } else {
             if (panel.getVisibility() != View.GONE) {
                 panel.setVisibility(View.GONE);
-                getSlidingMenu().setTouchModeAbove(SlidingMenu.TOUCHMODE_FULLSCREEN);
+                getSlidingMenu().setTouchModeAbove(SlidingMenu.TOUCHMODE_MARGIN);
                 Loader<TransmissionSessionData> loader = getSupportLoaderManager().getLoader(SESSION_LOADER_ID);
                 if (loader != null) {
                     ((TransmissionSessionLoader) loader).setAllCurrentTorrents(false);
