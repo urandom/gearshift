@@ -108,7 +108,7 @@
     <string name="no_connectivity_empty_list">&lt;h2&gt;&lt;font color="#cc0000"&gt;You need an active network connection!&lt;/font&gt;&lt;/h2&gt;</string>
     <string name="access_denied_empty_list">&lt;h2&gt;&lt;font color="#cc0000"&gt;Access denied!&lt;/font&gt;&lt;/h2&gt;Your credentials might be incorrect, or your IP address might not be in the daemon\'s white list.</string>
     <string name="no_json_empty_list">&lt;h2&gt;&lt;font color="#cc0000"&gt;Unexpected response!&lt;/font&gt;&lt;/h2&gt;Please check if the RPC path in your current profile is correct.</string>
-    <string name="no_connection_empty_list">&lt;h2&gt;&lt;font color="#cc0000"&gt;Unable to connect!&lt;/font&gt;&lt;/h2&gt;Please check if the server address and port in your current profile is correct.</string>
+    <string name="no_connection_empty_list">&lt;h2&gt;&lt;font color="#cc0000"&gt;Unable to connect!&lt;/font&gt;&lt;/h2&gt;Please check if the server address and port in your current profile are correct.</string>
     <string name="thread_error_empty_list">&lt;h2&gt;&lt;font color="#cc0000"&gt;Internal error!&lt;/font&gt;&lt;/h2&gt;</string>
     
     <string name="traffic_downloading_format">%1$s of %2$s (%3$s)%4$s</string>

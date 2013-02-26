@@ -108,20 +108,25 @@ public class TorrentDetailFragment extends Fragment {
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        inflater.inflate(R.menu.torrent_detail_fragment, menu);
+        super.onCreateOptionsMenu(menu, inflater);
 
-        ArrayList<Torrent> torrents = ((TransmissionSessionInterface) getActivity()).getTorrents();
-        Torrent torrent = mCurrentPosition < torrents.size()
-            ? torrents.get(mCurrentPosition)
-            : null;
+        if (!(getActivity() instanceof TorrentListActivity)
+                || ((TorrentListActivity) getActivity()).isDetailsPanelShown()) {
+            inflater.inflate(R.menu.torrent_detail_fragment, menu);
 
-        boolean state = torrent != null && torrent.getStatus() == Torrent.Status.STOPPED;
-        MenuItem item = menu.findItem(R.id.resume);
-        item.setVisible(state).setEnabled(state);
+            ArrayList<Torrent> torrents = ((TransmissionSessionInterface) getActivity()).getTorrents();
+            Torrent torrent = mCurrentPosition < torrents.size()
+                ? torrents.get(mCurrentPosition)
+                : null;
 
-        state = torrent != null && torrent.getStatus() != Torrent.Status.STOPPED;
-        item = menu.findItem(R.id.pause);
-        item.setVisible(state).setEnabled(state);
+            boolean state = torrent != null && torrent.getStatus() == Torrent.Status.STOPPED;
+            MenuItem item = menu.findItem(R.id.resume);
+            item.setVisible(state).setEnabled(state);
+
+            state = torrent != null && torrent.getStatus() != Torrent.Status.STOPPED;
+            item = menu.findItem(R.id.pause);
+            item.setVisible(state).setEnabled(state);
+        }
     }
 
     @Override

@@ -188,6 +188,8 @@ public class TorrentListActivity extends SlidingFragmentActivity
                 if (loader != null) {
                     ((TransmissionSessionLoader) loader).setAllCurrentTorrents(true);
                 }
+
+                invalidateOptionsMenu();
                 return true;
             }
         } else {
@@ -198,6 +200,8 @@ public class TorrentListActivity extends SlidingFragmentActivity
                 if (loader != null) {
                     ((TransmissionSessionLoader) loader).setAllCurrentTorrents(false);
                 }
+
+                invalidateOptionsMenu();
                 return true;
             }
         }
