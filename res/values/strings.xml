@@ -66,6 +66,9 @@
     <string name="header_label_general_preferences">General</string>
     <string name="header_label_profiles">Profiles</string>
     
+    <string name="add_directory_option">Add directory</string>
+    <string name="no_download_dirs">&lt;h2&gt;You have no extra download directories.&lt;/h2&gt;Adding some here will allow you to change the location of any torrent in this profile.</string>
+    
     <string name="updates">Updates</string>
     <string name="update_active_torrents">Update active torrents only</string>
     <string name="full_update">Full update</string>
@@ -94,6 +97,7 @@
     <string name="con_timeout">Timeout</string>
     <string name="con_timeout_default">40</string>
     <string name="con_retries">Retry</string>
+    <string name="con_directories">Download Directories</string>
     
     <string name="invalid_input_title">Invalid Input</string>
     <string name="con_name_cannot_be_empty">The profile name cannot be empty</string>

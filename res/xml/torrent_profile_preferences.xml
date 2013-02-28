@@ -53,6 +53,12 @@
 	        android:entries="@array/pref_con_retries_entries"
 	        android:entryValues="@array/pref_con_retries_values"
 	        android:defaultValue="3" />-->
-	</PreferenceCategory>    
+	</PreferenceCategory>
+	<Preference
+	    android:key="profile_directories"
+	    android:fragment="org.sugr.gearshift.TransmissionProfileDirectoriesSettingsFragment"
+	    android:title="@string/con_directories">
+	    
+	</Preference>    
 
 </PreferenceScreen>
