@@ -167,4 +167,6 @@
     <string name="status_seeding">Seeding</string>
 
     <string name="torrent_active_now">Active now</string>
+
+    <string name="directory">Directory</string>
 </resources>

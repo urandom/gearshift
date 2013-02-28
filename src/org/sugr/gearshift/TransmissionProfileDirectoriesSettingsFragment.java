@@ -1,5 +1,6 @@
 package org.sugr.gearshift;
 
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -8,17 +9,22 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ListFragment;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.SharedPreferences;
+import android.content.SharedPreferences.Editor;
 import android.os.Bundle;
 import android.text.Html;
 import android.text.Spanned;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.EditText;
+import android.widget.ListView;
 import android.widget.TextView;
 
 public class TransmissionProfileDirectoriesSettingsFragment extends ListFragment {
@@ -26,6 +32,14 @@ public class TransmissionProfileDirectoriesSettingsFragment extends ListFragment
 
     private SharedPreferences mSharedPrefs;
     private Set<String> mDirectories = new HashSet<String>();
+    private ArrayAdapter<String> mAdapter;
+    private Comparator<String> mDirComparator = new Comparator<String>() {
+        @Override
+        public int compare(String lhs, String rhs) {
+            return lhs.compareToIgnoreCase(rhs);
+        }
+
+    };
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -52,6 +66,12 @@ public class TransmissionProfileDirectoriesSettingsFragment extends ListFragment
                         builder.show();
 
                         return;
+                    }
+
+                    if (mSharedPrefs != null) {
+                        Editor e = mSharedPrefs.edit();
+                        e.putStringSet(TransmissionProfile.PREF_DIRECTORIES, mDirectories);
+                        e.commit();
                     }
 
                     getActivity().finish();
@@ -86,11 +106,13 @@ public class TransmissionProfileDirectoriesSettingsFragment extends ListFragment
 
         if (mSharedPrefs != null) {
             mDirectories = mSharedPrefs.getStringSet(TransmissionProfile.PREF_DIRECTORIES, new HashSet<String>());
-            setListAdapter(new ArrayAdapter<String>(getActivity(),
+            mAdapter = new ArrayAdapter<String>(getActivity(),
                     android.R.layout.simple_list_item_activated_1,
-                    android.R.id.text1,
-                    mDirectories.toArray(new String[mDirectories.size()])
-            ));
+                    android.R.id.text1
+            );
+            mAdapter.addAll(mDirectories);
+            mAdapter.sort(mDirComparator);
+            setListAdapter(mAdapter);
             setEmptyText(R.string.no_download_dirs);
         }
     }
@@ -105,9 +127,73 @@ public class TransmissionProfileDirectoriesSettingsFragment extends ListFragment
             menu.findItem(R.id.menu_add_directory).setVisible(false);
     }
 
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch(item.getItemId()) {
+        case R.id.menu_add_directory:
+            createEntryDialog(new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    EditText text = (EditText) ((AlertDialog) dialog).findViewById(R.id.dialog_entry);
+
+                    mDirectories.add(text.getText().toString().trim());
+
+                    setAdapterDirectories();
+                }
+            });
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onListItemClick(ListView listView, View view, int position, long id) {
+        super.onListItemClick(listView, view, position, id);
+
+        final String directory = mAdapter.getItem(position);
+
+        createEntryDialog(new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                EditText text = (EditText) ((AlertDialog) dialog).findViewById(R.id.dialog_entry);
+
+                mDirectories.remove(directory);
+                mDirectories.add(text.getText().toString().trim());
+
+                setAdapterDirectories();
+            }
+        }, directory);
+    }
+
     public void setEmptyText(int stringId) {
         Spanned text = Html.fromHtml(getString(stringId));
 
         ((TextView) getListView().getEmptyView()).setText(text);
+    }
+
+    private void createEntryDialog(DialogInterface.OnClickListener clickListener) {
+        createEntryDialog(clickListener, null);
+    }
+
+    private void createEntryDialog(DialogInterface.OnClickListener clickListener, String text) {
+        AlertDialog.Builder alert = new AlertDialog.Builder(getActivity());
+
+        alert.setTitle(R.string.directory);
+        final EditText input = new EditText(getActivity());
+        input.setId(R.id.dialog_entry);
+        input.setText(text);
+        alert.setView(input);
+
+        alert.setPositiveButton(android.R.string.ok, clickListener);
+        alert.setNegativeButton(android.R.string.cancel, null);
+        alert.show();
+    }
+
+    private void setAdapterDirectories() {
+        mAdapter.setNotifyOnChange(false);
+        mAdapter.clear();
+        mAdapter.addAll(mDirectories);
+        mAdapter.sort(mDirComparator);
+        mAdapter.notifyDataSetChanged();
     }
 }

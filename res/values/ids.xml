@@ -2,4 +2,5 @@
 <resources xmlns:android="http://schemas.android.com/apk/res/android">
     <item type="id" name="numbers_key" />
     <item type="id" name="general_preferences" />
+    <item type="id" name="dialog_entry" />
 </resources>
