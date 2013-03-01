@@ -169,4 +169,5 @@
     <string name="torrent_active_now">Active now</string>
 
     <string name="directory">Directory</string>
+    <string name="remove_selected_directories_confirmation">Are you sure you want to remove the selected directories?</string>
 </resources>

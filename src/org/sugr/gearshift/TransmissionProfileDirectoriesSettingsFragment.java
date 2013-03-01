@@ -15,6 +15,7 @@ import android.content.SharedPreferences.Editor;
 import android.os.Bundle;
 import android.text.Html;
 import android.text.Spanned;
+import android.view.ActionMode;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -22,6 +23,9 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
+import android.widget.AbsListView.MultiChoiceModeListener;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ListView;
@@ -33,6 +37,9 @@ public class TransmissionProfileDirectoriesSettingsFragment extends ListFragment
     private SharedPreferences mSharedPrefs;
     private Set<String> mDirectories = new HashSet<String>();
     private ArrayAdapter<String> mAdapter;
+
+    private boolean mIsCABDestroyed = false;
+
     private Comparator<String> mDirComparator = new Comparator<String>() {
         @Override
         public int compare(String lhs, String rhs) {
@@ -105,7 +112,8 @@ public class TransmissionProfileDirectoriesSettingsFragment extends ListFragment
         }
 
         if (mSharedPrefs != null) {
-            mDirectories = mSharedPrefs.getStringSet(TransmissionProfile.PREF_DIRECTORIES, new HashSet<String>());
+            mDirectories = new HashSet<String>(
+                    mSharedPrefs.getStringSet(TransmissionProfile.PREF_DIRECTORIES, new HashSet<String>()));
             mAdapter = new ArrayAdapter<String>(getActivity(),
                     android.R.layout.simple_list_item_activated_1,
                     android.R.id.text1
@@ -113,7 +121,88 @@ public class TransmissionProfileDirectoriesSettingsFragment extends ListFragment
             mAdapter.addAll(mDirectories);
             mAdapter.sort(mDirComparator);
             setListAdapter(mAdapter);
+
             setEmptyText(R.string.no_download_dirs);
+
+            final ListView list = getListView();
+            list.setChoiceMode(ListView.CHOICE_MODE_NONE);
+            list.setOnItemLongClickListener(new OnItemLongClickListener() {
+                @Override
+                public boolean onItemLongClick(AdapterView<?> parent, View view,
+                        int position, long id) {
+
+                    list.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE_MODAL);
+                    mIsCABDestroyed = false;
+                    list.setItemChecked(position, true);
+                    return true;
+                }});
+
+            list.setMultiChoiceModeListener(new MultiChoiceModeListener() {
+                private Set<String> mSelectedDirectories;
+
+                @Override
+                public boolean onCreateActionMode(ActionMode mode, Menu menu) {
+                    MenuInflater inflater = mode.getMenuInflater();
+                    inflater.inflate(R.menu.download_directories_multiselect, menu);
+
+                    mSelectedDirectories = new HashSet<String>();
+                    return true;
+                }
+
+                @Override
+                public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
+                    return false;
+                }
+
+                @Override
+                public boolean onActionItemClicked(final ActionMode mode,
+                        MenuItem item) {
+
+                    switch (item.getItemId()) {
+                        case R.id.remove:
+                            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity())
+                                .setCancelable(false)
+                                .setNegativeButton(android.R.string.no, null);
+
+                            builder.setPositiveButton(android.R.string.yes,
+                                new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int id) {
+                                    for (String directory : mSelectedDirectories) {
+                                        mDirectories.remove(directory);
+                                    }
+
+                                    mode.finish();
+                                    setAdapterDirectories();
+                                }
+                            })
+                                .setMessage(R.string.remove_selected_directories_confirmation)
+                                .show();
+
+                            return true;
+                    }
+                    return false;
+                }
+
+                @Override
+                public void onDestroyActionMode(ActionMode mode) {
+                    mIsCABDestroyed = true;
+                    mSelectedDirectories = null;
+                }
+
+                @Override
+                public void onItemCheckedStateChanged(ActionMode mode,
+                        int position, long id, boolean checked) {
+
+                    String directory = mAdapter.getItem(position);
+
+                    if (checked) {
+                        mSelectedDirectories.add(directory);
+                    } else {
+                        mSelectedDirectories.remove(directory);
+                    }
+                }
+            });
         }
     }
 
@@ -150,19 +239,25 @@ public class TransmissionProfileDirectoriesSettingsFragment extends ListFragment
     public void onListItemClick(ListView listView, View view, int position, long id) {
         super.onListItemClick(listView, view, position, id);
 
-        final String directory = mAdapter.getItem(position);
+        if (mIsCABDestroyed) {
+            listView.setChoiceMode(ListView.CHOICE_MODE_NONE);
 
-        createEntryDialog(new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                EditText text = (EditText) ((AlertDialog) dialog).findViewById(R.id.dialog_entry);
+            final String directory = mAdapter.getItem(position);
 
-                mDirectories.remove(directory);
-                mDirectories.add(text.getText().toString().trim());
+            createEntryDialog(new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    EditText text = (EditText) ((AlertDialog) dialog).findViewById(R.id.dialog_entry);
 
-                setAdapterDirectories();
-            }
-        }, directory);
+                    mDirectories.remove(directory);
+                    mDirectories.add(text.getText().toString().trim());
+
+                    setAdapterDirectories();
+                }
+            }, directory);
+        } else {
+            listView.setItemChecked(position, true);
+        }
     }
 
     public void setEmptyText(int stringId) {
