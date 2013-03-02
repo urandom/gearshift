@@ -38,7 +38,7 @@
     <string name="torrent_running_time">Running time:</string>
     <string name="torrent_remaining_time">Remaining time:</string>
     <string name="torrent_last_activity">Last activity:</string>
-    <string name="torrent_error">Error:</string>
+    <string name="torrent_error">Tracker Error:</string>
     
     <string name="torrent_details">Details</string>
     <string name="torrent_size">Size:</string>
@@ -154,6 +154,7 @@
     <string name="delete_current_confirmation">Are you sure you want to remove and delete the data of \'%s\'?</string>
 
     <string name="torrent_have_format">%1$s of %2$s (%3$s%%)</string>
+    <string name="torrent_size_format">%1$s (%2$s pieces @ %3$s)</string>
 
     <string name="none">None</string>
     <string name="unknown">Unknown</string>
@@ -173,4 +174,12 @@
     <string name="remove_selected_directories_confirmation">Are you sure you want to remove the selected directories?</string>
     <string name="move_checkbox">Move the data from its current location</string>
     <string name="set_location">Set location</string>
+    
+    <string name="no_tracker_errors">No errors</string>
+    
+    <string name="torrent_private">Private torrent</string>
+    
+    <string name="torrent_public">Public torrent</string>
+    <string name="torrent_origin_format">Created on %1$s</string>
+    <string name="torrent_origin_creator_format">Created by %1$s on %2$s</string>
 </resources>

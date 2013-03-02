@@ -183,6 +183,37 @@ public class TorrentDetailPageFragment extends Fragment {
                         ? getString(R.string.torrent_active_now)
                         : Torrent.readableRemainingTime(lastActive, getActivity())
             );
+            if (mTorrent.getError() == Torrent.Error.OK) {
+                ((TextView) root.findViewById(R.id.torrent_error)).setText(
+                        R.string.no_tracker_errors);
+            } else {
+                ((TextView) root.findViewById(R.id.torrent_error)).setText(mTorrent.getErrorString());
+            }
+            ((TextView) root.findViewById(R.id.torrent_size)).setText(
+                    String.format(
+                        getString(R.string.torrent_size_format),
+                        Torrent.readableFileSize(mTorrent.getTotalSize()),
+                        mTorrent.getPieceCount(),
+                        Torrent.readableFileSize(mTorrent.getPieceSize())
+                    ));
+            ((TextView) root.findViewById(R.id.torrent_location)).setText(mTorrent.getDownloadDir());
+            ((TextView) root.findViewById(R.id.torrent_hash)).setText(mTorrent.getHashString());
+            ((TextView) root.findViewById(R.id.torrent_privacy)).setText(
+                    mTorrent.isPrivate() ? R.string.torrent_private : R.string.torrent_public);
+
+            Date creationDate = new Date(mTorrent.getDateCreated() * 1000);
+            ((TextView) root.findViewById(R.id.torrent_origin)).setText(
+                    mTorrent.getCreator() == null || mTorrent.getCreator().isEmpty()
+                    ? String.format(
+                                getString(R.string.torrent_origin_format),
+                                creationDate.toString()
+                        )
+                    : String.format(
+                                getString(R.string.torrent_origin_creator_format),
+                                mTorrent.getCreator(),
+                                creationDate.toString()
+                        ));
+            ((TextView) root.findViewById(R.id.torrent_comment)).setText(mTorrent.getComment());
         } else {
             ((TextView) root.findViewById(R.id.torrent_have)).setText(R.string.none);
         }

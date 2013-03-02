@@ -104,7 +104,7 @@ public class Torrent {
         public final static int NO_LIMIT = 2;
     }
 
-    @Exclude public static class ErrorString {
+    @Exclude public static class Error {
         public static final int OK = 0;
         public static final int TRACKER_WARNING = 1;
         public static final int TRACKER_ERROR = 2;
@@ -127,7 +127,7 @@ public class Torrent {
 
         // commonly used fields which need to be periodically refreshed
         public static final String[] STATS = {
-            "id", "error", "errorString", "eta", "isFinished", "isStalled",
+            "id", "error", "eta", "isFinished", "isStalled",
             "leftUntilDone", "metadataPercentComplete", "peersConnected",
             "peersGettingFromUs", "peersSendingToUs", "percentDone",
             "queuePosition", "rateDownload", "rateUpload",
@@ -145,7 +145,7 @@ public class Torrent {
         // fields used in the inspector which need to be periodically refreshed
         public static final String[] STATS_EXTRA = {
             "activityDate", "corruptEver", "desiredAvailable",
-            "downloadedEver", "fileStats", "haveUnchecked", "haveValid",
+            "downloadedEver", "errorString", "fileStats", "haveUnchecked", "haveValid",
             "peers", "startDate", /*"trackerStats",*/ "webseedsSendingToUs"
         };
     };
