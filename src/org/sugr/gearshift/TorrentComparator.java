@@ -30,7 +30,16 @@ public class TorrentComparator implements Comparator<Torrent> {
 
     @Override
     public int compare(Torrent a, Torrent b) {
-        int nameComp = a.getName().compareToIgnoreCase(b.getName());
+        String aName = a.getName(), bName = b.getName();
+        if (aName == null && bName == null) {
+            return 0;
+        } else if (aName == null) {
+            return -1;
+        } else if (bName == null) {
+            return 1;
+        }
+
+        int nameComp = aName.compareToIgnoreCase(bName);
         /* Artificially inflate the download status to appear above
          * the seeding */
         int statusComp = (b.getStatus() == Torrent.Status.DOWNLOADING

@@ -118,19 +118,24 @@ public class TorrentListMenuFragment extends Fragment {
     public void notifyTorrentListUpdate(ArrayList<Torrent> torrents, TransmissionSession session) {
         long down = 0, up = 0;
 
-        if (session == null) {
-            return;
-        }
-
-        for (Torrent t : torrents) {
-            down += t.getRateDownload();
-            up += t.getRateUpload();
+        if (torrents != null) {
+            for (Torrent t : torrents) {
+                down += t.getRateDownload();
+                up += t.getRateUpload();
+            }
         }
 
         Object[] speed = {
             Torrent.readableFileSize(down), "",
             Torrent.readableFileSize(up), ""
         };
+
+        if (session == null) {
+            setStatus(speed, getString(R.string.unknown));
+            return;
+        }
+
+
         if (session.isSpeedLimitDownEnabled() || session.isAltSpeedEnabled()) {
             speed[1] = " (" + Torrent.readableFileSize((
                 session.isAltSpeedEnabled()

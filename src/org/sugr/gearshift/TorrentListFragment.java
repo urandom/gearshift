@@ -184,6 +184,7 @@ public class TorrentListFragment extends ListFragment {
                 invalidateMenu = true;
             }
 
+            boolean filtered = false;
             if (data.torrents.size() > 0 || data.error > 0
                     || mTorrentListAdapter.getUnfilteredCount() > 0) {
 
@@ -193,9 +194,13 @@ public class TorrentListFragment extends ListFragment {
                 if (data.error == 0) {
                     if (data.hasRemoved || data.hasAdded || mTorrentListAdapter.getUnfilteredCount() == 0) {
                         notifyChange = false;
+                        if (data.hasRemoved || data.hasAdded) {
+                            ((TransmissionSessionInterface) getActivity()).setTorrents(data.torrents);
+                        }
                         mTorrentListAdapter.clear();
                         mTorrentListAdapter.addAll(data.torrents);
                         mTorrentListAdapter.repeatFilter();
+                        filtered = true;
                     }
                     setEmptyText(null);
                 } else {
@@ -226,10 +231,12 @@ public class TorrentListFragment extends ListFragment {
                 if (menu != null) {
                     menu.notifyTorrentListUpdate(mTorrentListAdapter.getItems(), data.session);
                 }
-                TorrentDetailFragment detail = (TorrentDetailFragment) manager.findFragmentByTag(
-                        TorrentDetailFragment.TAG);
-                if (detail != null) {
-                    detail.notifyTorrentListChanged(data.hasRemoved, data.hasAdded);
+                if (!filtered) {
+                    TorrentDetailFragment detail = (TorrentDetailFragment) manager.findFragmentByTag(
+                            TorrentDetailFragment.TAG);
+                    if (detail != null) {
+                        detail.notifyTorrentListChanged(data.hasRemoved, data.hasAdded);
+                    }
                 }
             }
 
@@ -414,7 +421,6 @@ public class TorrentListFragment extends ListFragment {
                         dialog.show();
 
                         Spinner location;
-                        CheckBox move;
                         TransmissionProfileDirectoryAdapter adapter =
                                 new TransmissionProfileDirectoryAdapter(
                                 getActivity(), android.R.layout.simple_spinner_item);

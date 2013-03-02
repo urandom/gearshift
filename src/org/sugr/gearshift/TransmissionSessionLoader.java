@@ -279,6 +279,8 @@ public class TransmissionSessionLoader extends AsyncTaskLoader<TransmissionSessi
 
         if (mIteration == 0 || mNeedsMoreInfo) {
             fields = concat(Torrent.Fields.METADATA, Torrent.Fields.STATS);
+            /* Force the list to re-order itself */
+            hasAdded = true;
         } else if (mAllCurrent) {
             fields = concat(Torrent.Fields.STATS, Torrent.Fields.STATS_EXTRA);
             for (Torrent t : mTorrents) {
@@ -405,7 +407,7 @@ public class TransmissionSessionLoader extends AsyncTaskLoader<TransmissionSessi
         }
 
         if (isStarted()) {
-            TorrentListActivity.logD("TLoader: Delivering results: %d torrents", new Object[] {data.torrents.size()});
+            // TorrentListActivity.logD("TLoader: Delivering results: %d torrents", new Object[] {data.torrents.size()});
             super.deliverResult(data);
         }
 

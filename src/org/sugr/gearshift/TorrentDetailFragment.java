@@ -203,7 +203,7 @@ public class TorrentDetailFragment extends Fragment {
             if (torrent != null) {
                 mPager.setCurrentItem(index);
             } else {
-                mPager.setCurrentItem(0);
+                mCallbacks.onPageSelected(mPager.getCurrentItem());
             }
         }
         if (mExpectingPause || mExpectingResume) {
