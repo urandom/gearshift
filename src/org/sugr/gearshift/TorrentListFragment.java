@@ -3,6 +3,7 @@ package org.sugr.gearshift;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Locale;
 
@@ -34,10 +35,12 @@ import android.widget.AbsListView.MultiChoiceModeListener;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.ArrayAdapter;
+import android.widget.CheckBox;
 import android.widget.Filter;
 import android.widget.Filter.FilterListener;
 import android.widget.ListView;
 import android.widget.ProgressBar;
+import android.widget.Spinner;
 import android.widget.TextView;
 
 /**
@@ -332,9 +335,16 @@ public class TorrentListFragment extends ListFragment {
 
         list.setMultiChoiceModeListener(new MultiChoiceModeListener() {
             private HashSet<Integer> mSelectedTorrentIds;
+            private Comparator<String> mDirComparator = new Comparator<String>() {
+                @Override
+                public int compare(String lhs, String rhs) {
+                    return lhs.compareToIgnoreCase(rhs);
+                }
+
+            };
 
             @Override
-            public boolean onActionItemClicked(ActionMode mode, final MenuItem item) {
+            public boolean onActionItemClicked(final ActionMode mode, final MenuItem item) {
                 final Loader<TransmissionSessionData> loader = getActivity().getSupportLoaderManager()
                     .getLoader(TorrentListActivity.SESSION_LOADER_ID);
 
@@ -346,10 +356,11 @@ public class TorrentListFragment extends ListFragment {
                 for (Integer id : mSelectedTorrentIds)
                     ids[index++] = id;
 
+                AlertDialog.Builder builder;
                 switch (item.getItemId()) {
                     case R.id.remove:
                     case R.id.delete:
-                        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity())
+                        builder = new AlertDialog.Builder(getActivity())
                             .setCancelable(false)
                             .setNegativeButton(android.R.string.no, null);
 
@@ -358,19 +369,65 @@ public class TorrentListFragment extends ListFragment {
                             @Override
                             public void onClick(DialogInterface dialog, int id) {
                                 ((TransmissionSessionLoader) loader).setTorrentsRemove(ids, item.getItemId() == R.id.delete);
+                                mRefreshing = true;
+                                getActivity().invalidateOptionsMenu();
+
+                                mode.finish();
                             }
                         })
                             .setMessage(item.getItemId() == R.id.delete
                                     ? R.string.delete_selected_confirmation
                                     : R.string.remove_selected_confirmation)
                         .show();
-                        break;
+                        return true;
                     case R.id.resume:
                         ((TransmissionSessionLoader) loader).setTorrentsAction("torrent-start", ids);
                         break;
                     case R.id.pause:
                         ((TransmissionSessionLoader) loader).setTorrentsAction("torrent-stop", ids);
                         break;
+                    case R.id.move:
+                        LayoutInflater inflater = getActivity().getLayoutInflater();
+
+                        builder = new AlertDialog.Builder(getActivity())
+                            .setTitle(R.string.set_location)
+                            .setCancelable(false)
+                            .setNegativeButton(android.R.string.no, null)
+                            .setPositiveButton(android.R.string.yes,
+                            new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int id) {
+                                Spinner location = (Spinner) ((AlertDialog) dialog).findViewById(R.id.location_choice);
+                                CheckBox move = (CheckBox) ((AlertDialog) dialog).findViewById(R.id.move);
+
+                                String dir = (String) location.getSelectedItem();
+                                ((TransmissionSessionLoader) loader).setTorrentsLocation(
+                                        ids, dir, move.isChecked());
+                                mRefreshing = true;
+                                getActivity().invalidateOptionsMenu();
+
+                                mode.finish();
+                            }
+                        }).setView(inflater.inflate(R.layout.torrent_location_dialog, null));
+
+                        AlertDialog dialog = builder.create();
+                        dialog.show();
+
+                        Spinner location;
+                        CheckBox move;
+                        TransmissionProfileDirectoryAdapter adapter =
+                                new TransmissionProfileDirectoryAdapter(
+                                getActivity(), android.R.layout.simple_spinner_item);
+
+                        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+                        adapter.add(mSession.getDownloadDir());
+                        adapter.addAll(mCurrentProfile.getDirectories());
+                        adapter.sort(mDirComparator);
+
+                        location = (Spinner) dialog.findViewById(R.id.location_choice);
+                        location.setAdapter(adapter);
+
+                        return true;
                     default:
                         return true;
                 }
@@ -627,6 +684,42 @@ public class TorrentListFragment extends ListFragment {
             }
 
             return getView(position, rowView, parent);
+        }
+    }
+
+    private class TransmissionProfileDirectoryAdapter extends ArrayAdapter<String> {
+        public TransmissionProfileDirectoryAdapter(Context context, int textViewResourceId) {
+            super(context, textViewResourceId);
+        }
+
+        @Override
+        public View getView(int position, View convertView, ViewGroup parent) {
+            View view = super.getView(position, convertView, parent);
+
+            TextView textView = (TextView) view.findViewById(android.R.id.text1);
+            String text = (String) textView.getText();
+
+            int lastSlash = text.lastIndexOf('/');
+            if (lastSlash > -1) {
+                textView.setText(text.substring(lastSlash + 1) + " (" + text.substring(0, lastSlash - 1) + ')');
+            }
+
+            return view;
+        }
+
+        @Override
+        public View getDropDownView(int position, View convertView, ViewGroup parent) {
+            View view = super.getDropDownView(position, convertView, parent);
+
+            TextView textView = (TextView) view.findViewById(android.R.id.text1);
+            String text = (String) textView.getText();
+
+            int lastSlash = text.lastIndexOf('/');
+            if (lastSlash > -1) {
+                textView.setText(text.substring(lastSlash + 1) + " (" + text.substring(0, lastSlash - 1) + ')');
+            }
+
+            return view;
         }
     }
 

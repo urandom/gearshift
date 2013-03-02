@@ -12,6 +12,7 @@
     <string name="resume">Resume</string>
     <string name="pause">Pause</string>
     <string name="stop">Stop</string>
+    <string name="move">Move</string>
     
     <string name="number_dialog_delete">Delete a digit</string>
     
@@ -170,4 +171,6 @@
 
     <string name="directory">Directory</string>
     <string name="remove_selected_directories_confirmation">Are you sure you want to remove the selected directories?</string>
+    <string name="move_checkbox">Move the data from its current location</string>
+    <string name="set_location">Set location</string>
 </resources>

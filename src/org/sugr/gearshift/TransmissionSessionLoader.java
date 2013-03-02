@@ -87,6 +87,8 @@ public class TransmissionSessionLoader extends AsyncTaskLoader<TransmissionSessi
     private String mTorrentAction;
     private int[] mTorrentActionIds;
     private boolean mDeleteData = false;
+    private String mTorrentLocation;
+    private boolean mMoveData = false;
 
     private Object mLock = new Object();
 
@@ -141,6 +143,14 @@ public class TransmissionSessionLoader extends AsyncTaskLoader<TransmissionSessi
     public void setTorrentsAction(String action, int[] ids) {
         mTorrentAction = action;
         mTorrentActionIds = ids;
+        onContentChanged();
+    }
+
+    public void setTorrentsLocation(int[] ids, String location, boolean move) {
+        mTorrentAction = "torrent-set-location";
+        mTorrentLocation = location;
+        mTorrentActionIds = ids;
+        mMoveData = move;
         onContentChanged();
     }
 
@@ -200,6 +210,8 @@ public class TransmissionSessionLoader extends AsyncTaskLoader<TransmissionSessi
                     try {
                         if (mTorrentAction.equals("torrent-remove"))
                             mSessManager.setTorrentsRemove(mTorrentActionIds, mDeleteData);
+                        else if (mTorrentAction.equals("torrent-set-location"))
+                            mSessManager.setTorrentsLocation(mTorrentActionIds, mTorrentLocation, mMoveData);
                         else
                             mSessManager.setTorrentsAction(mTorrentAction, mTorrentActionIds);
                         mTorrentActionIds = null;

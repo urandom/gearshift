@@ -5,6 +5,7 @@
         android:icon="@drawable/ic_menu_refresh"
         android:visible="true"
         android:showAsAction="ifRoom"
+        android:orderInCategory="1"
         android:title="@string/refresh"
         android:titleCondensed="@string/refresh"/>
     
@@ -12,12 +13,14 @@
         android:icon="@drawable/ic_menu_alt_speed_off"
         android:visible="true"
         android:showAsAction="ifRoom"
+        android:orderInCategory="3"
         android:title="@string/alt_speed_label_on"
         android:titleCondensed="@string/alt_speed"/>
 
     <item android:id="@+id/menu_settings"
         android:visible="true"
         android:showAsAction="never"
+        android:orderInCategory="3"
         android:title="@string/settings"
         android:titleCondensed="@string/settings" />
 </menu>

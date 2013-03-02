@@ -18,5 +18,10 @@
 	<item android:id="@+id/delete"
 	    android:title="@string/remove_data"
 	    android:icon="@drawable/ic_menu_trash_holo_dark"
-	    android:showAsAction="always|withText" />
+	    android:showAsAction="always" />
+	
+	<item android:id="@+id/move"
+	    android:title="@string/move"
+	    android:icon="@drawable/ic_menu_move"
+	    android:showAsAction="ifRoom" />
 </menu>

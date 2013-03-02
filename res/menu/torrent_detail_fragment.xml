@@ -3,20 +3,24 @@
     <item android:id="@+id/resume"
 	    android:title="@string/resume"
 	    android:icon="@drawable/ic_menu_resume"
+	    android:orderInCategory="2"
 	    android:showAsAction="always" />
     
     <item android:id="@+id/pause"
 	    android:title="@string/pause"
 	    android:icon="@drawable/ic_menu_pause"
+	    android:orderInCategory="2"
 	    android:showAsAction="always" />
     
     <item android:id="@+id/remove"
 	    android:title="@string/remove"
 	    android:icon="@drawable/ic_menu_cancel"
+	    android:orderInCategory="2"
 	    android:showAsAction="ifRoom" />
     
 	<item android:id="@+id/delete"
 	    android:title="@string/remove_data"
 	    android:icon="@drawable/ic_menu_trash_holo_dark"
+	    android:orderInCategory="2"
 	    android:showAsAction="ifRoom" />
 </menu>

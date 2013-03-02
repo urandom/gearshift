@@ -193,6 +193,15 @@ public class TransmissionSessionManager {
         return response;
     }
 
+    public Response setTorrentsLocation(int[] ids, String location, boolean move) throws ManagerException {
+        TorrentsSetLocationRequest request = new TorrentsSetLocationRequest(ids, location, move);
+        String json = requestData(request);
+        Gson gson = new GsonBuilder().setExclusionStrategies(new TransmissionExclusionStrategy()).create();
+        Response response = gson.fromJson(json, Response.class);
+
+        return response;
+    }
+
     private String requestData(Object data, ExclusionStrategy... strategies) throws ManagerException {
         OutputStream os = null;
         InputStream is = null;
@@ -423,6 +432,27 @@ public class TransmissionSessionManager {
            }
        }
     }
+
+    private static class TorrentsSetLocationRequest {
+        @SerializedName("method") private final String method = "torrent-set-location";
+        @SerializedName("arguments") private Arguments arguments;
+
+        public TorrentsSetLocationRequest(int[] ids, String location, boolean move) {
+            this.arguments = new Arguments(ids, location, move);
+        }
+
+        private static class Arguments {
+            @SerializedName("ids") private int[] ids;
+            @SerializedName("location") private String location;
+            @SerializedName("move") private boolean move;
+
+            public Arguments(int[] ids, String location, boolean move) {
+                this.ids = ids;
+                this.location = location;
+                this.move = move;
+            }
+        }
+     }
 
     public static class Response {
         @SerializedName("result") protected final String mResult = null;
