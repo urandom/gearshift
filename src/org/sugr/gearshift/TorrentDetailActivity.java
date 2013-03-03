@@ -51,7 +51,7 @@ public class TorrentDetailActivity extends FragmentActivity implements Transmiss
             if (mProfile == null) return null;
 
             TransmissionSessionLoader loader = new TransmissionSessionLoader(
-                    TorrentDetailActivity.this, mProfile, getCurrentTorrents());
+                    TorrentDetailActivity.this, mProfile, mTorrents, getCurrentTorrents());
 
             return loader;
         }

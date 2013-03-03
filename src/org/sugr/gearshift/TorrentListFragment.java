@@ -194,7 +194,7 @@ public class TorrentListFragment extends ListFragment {
                 mTorrentListAdapter.setNotifyOnChange(false);
                 boolean notifyChange = true;
                 if (data.error == 0) {
-                    if (data.hasRemoved || data.hasAdded || mTorrentListAdapter.getUnfilteredCount() == 0) {
+                    //if (data.hasRemoved || data.hasAdded || mTorrentListAdapter.getUnfilteredCount() == 0) {
                         notifyChange = false;
                         if (data.hasRemoved || data.hasAdded) {
                             ((TransmissionSessionInterface) getActivity()).setTorrents(data.torrents);
@@ -203,7 +203,7 @@ public class TorrentListFragment extends ListFragment {
                         mTorrentListAdapter.addAll(data.torrents);
                         mTorrentListAdapter.repeatFilter();
                         filtered = true;
-                    }
+                    //}
                     setEmptyText(null);
                 } else {
                     mTorrentListAdapter.clear();

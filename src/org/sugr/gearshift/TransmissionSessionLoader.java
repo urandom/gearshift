@@ -101,10 +101,14 @@ public class TransmissionSessionLoader extends AsyncTaskLoader<TransmissionSessi
         mTorrentMap = new SparseArray<Torrent>();
     }
 
-    public TransmissionSessionLoader(Context context, TransmissionProfile profile, Torrent[] current) {
+    public TransmissionSessionLoader(Context context, TransmissionProfile profile,
+            ArrayList<Torrent> torrents, Torrent[] current) {
         this(context, profile);
 
         setCurrentTorrents(current);
+        for (Torrent t : torrents) {
+            mTorrentMap.put(t.getId(), t);
+        }
     }
 
     public void setCurrentTorrents(Torrent[] torrents) {
