@@ -269,6 +269,7 @@ public class TorrentDetailFragment extends Fragment {
         List<TorrentDetailPageFragment> pages = ((TorrentDetailPagerAdapter) mPager.getAdapter()).getFragments();
         for (Torrent t : currentTorrents) {
             int index = torrents.indexOf(t);
+            if (index == -1) continue;
             TorrentDetailPageFragment page = pages.size() > index
                 ? pages.get(index) : null;
             if (page == null) continue;

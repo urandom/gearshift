@@ -1032,6 +1032,11 @@ public class Torrent {
         }
     }
 
+    @Override
+    public String toString() {
+        return mId + ": " + mName;
+    }
+
     public static String readableFileSize(long size) {
         if(size <= 0) return "0 B";
         final String[] units = new String[] { "B", "KB", "MB", "GB", "TB" };

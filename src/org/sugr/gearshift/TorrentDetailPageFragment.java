@@ -87,7 +87,42 @@ public class TorrentDetailPageFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState) {
-        View root = inflater.inflate(R.layout.fragment_torrent_detail_page, container, false);
+        final View root = inflater.inflate(R.layout.fragment_torrent_detail_page, container, false);
+
+        root.findViewById(R.id.torrent_detail_overview_expander).setOnClickListener(mExpanderListener);
+        root.findViewById(R.id.torrent_detail_limits_expander).setOnClickListener(mExpanderListener);
+        root.findViewById(R.id.torrent_detail_advanced_expander).setOnClickListener(mExpanderListener);
+
+        CheckBox check = (CheckBox) root.findViewById(R.id.torrent_limit_download_check);
+        check.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                root.findViewById(R.id.torrent_limit_download).setEnabled(isChecked);
+            }
+        });
+
+        check = (CheckBox) root.findViewById(R.id.torrent_limit_upload_check);
+        check.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                root.findViewById(R.id.torrent_limit_upload).setEnabled(isChecked);
+            }
+        });
+
+        ((Spinner) root.findViewById(R.id.torrent_seed_ratio_mode)).setOnItemSelectedListener(
+                new AdapterView.OnItemSelectedListener() {
+                    @Override
+                    public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
+                        String[] values = getResources().getStringArray(R.array.torrent_seed_ratio_mode_values);
+
+                        root.findViewById(R.id.torrent_seed_ratio_limit).setEnabled(values[pos].equals("user"));
+                    }
+
+                    @Override
+                    public void onNothingSelected(AdapterView<?> parent) {
+
+                    }
+                });
 
         if (mTorrent == null) return root;
 
@@ -105,14 +140,10 @@ public class TorrentDetailPageFragment extends Fragment {
         updateFields(getView());
     }
 
-    private void updateFields(final View root) {
+    private void updateFields(View root) {
         if (root == null) return;
 
         ((TextView) root.findViewById(R.id.torrent_detail_title)).setText(mTorrent.getName());
-
-        root.findViewById(R.id.torrent_detail_overview_expander).setOnClickListener(mExpanderListener);
-        root.findViewById(R.id.torrent_detail_limits_expander).setOnClickListener(mExpanderListener);
-        root.findViewById(R.id.torrent_detail_advanced_expander).setOnClickListener(mExpanderListener);
 
         long now = new Timestamp(new Date().getTime()).getTime() / 1000;
         if (mTorrent.getMetadataPercentComplete() == 1) {
@@ -222,37 +253,10 @@ public class TorrentDetailPageFragment extends Fragment {
         ((Spinner) root.findViewById(R.id.torrent_priority)).setSelection(mPriorityValues.indexOf("normal"));
 
         CheckBox check = (CheckBox) root.findViewById(R.id.torrent_limit_download_check);
-        check.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                root.findViewById(R.id.torrent_limit_download).setEnabled(isChecked);
-            }
-        });
         root.findViewById(R.id.torrent_limit_download).setEnabled(check.isChecked());
 
         check = (CheckBox) root.findViewById(R.id.torrent_limit_upload_check);
-        check.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                root.findViewById(R.id.torrent_limit_upload).setEnabled(isChecked);
-            }
-        });
         root.findViewById(R.id.torrent_limit_upload).setEnabled(check.isChecked());
-
-        ((Spinner) root.findViewById(R.id.torrent_seed_ratio_mode)).setOnItemSelectedListener(
-                new AdapterView.OnItemSelectedListener() {
-                    @Override
-                    public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
-                        String[] values = getResources().getStringArray(R.array.torrent_seed_ratio_mode_values);
-
-                        root.findViewById(R.id.torrent_seed_ratio_limit).setEnabled(values[pos].equals("user"));
-                    }
-
-                    @Override
-                    public void onNothingSelected(AdapterView<?> parent) {
-
-                    }
-                });
 
         /* TODO: use the torrent global limits override */
         check = (CheckBox) root.findViewById(R.id.torrent_global_limits);
