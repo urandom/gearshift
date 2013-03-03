@@ -1,5 +1,6 @@
 package org.sugr.gearshift;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
@@ -266,19 +267,20 @@ public class TransmissionProfile implements Parcelable, Comparable<TransmissionP
         in.writeInt(mUseSSL ? 1 : 0);
         in.writeInt(mTimeout);
         in.writeInt(mRetries);
+        in.writeStringList(new ArrayList<String>(mDirectories));
     }
 
     public static final Parcelable.Creator<TransmissionProfile> CREATOR
-        = new Parcelable.Creator<TransmissionProfile>() {
-      @Override
-    public TransmissionProfile createFromParcel(Parcel in) {
-          return new TransmissionProfile(in);
-      }
+            = new Parcelable.Creator<TransmissionProfile>() {
+        @Override
+        public TransmissionProfile createFromParcel(Parcel in) {
+            return new TransmissionProfile(in);
+        }
 
-      @Override
-    public TransmissionProfile[] newArray(int size) {
-          return new TransmissionProfile[size];
-      }
+        @Override
+        public TransmissionProfile[] newArray(int size) {
+            return new TransmissionProfile[size];
+        }
     };
 
     private TransmissionProfile(Parcel in) {
@@ -291,5 +293,9 @@ public class TransmissionProfile implements Parcelable, Comparable<TransmissionP
         mUseSSL = (in.readInt() == 1 ? true : false);
         mTimeout = in.readInt();
         mRetries = in.readInt();
+
+        ArrayList<String> directories = new ArrayList<String>();
+        in.readStringList(directories);
+        mDirectories = new HashSet<String>(directories);
     }
 }

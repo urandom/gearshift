@@ -43,7 +43,8 @@ public class TorrentListActivity extends SlidingFragmentActivity
     private ArrayList<Torrent> mTorrents = new ArrayList<Torrent>();
     private int mCurrentTorrent = 0;
 
-
+    private TransmissionProfile mProfile;
+    private TransmissionSession mSession;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -112,9 +113,11 @@ public class TorrentListActivity extends SlidingFragmentActivity
             // for the selected item ID.
             Intent detailIntent = new Intent(this, TorrentDetailActivity.class);
             detailIntent.putExtra(TorrentDetailFragment.ARG_PAGE_POSITION, mTorrents.indexOf(torrent));
+            detailIntent.putExtra(TorrentDetailActivity.ARG_PROFILE, mProfile);
             Gson gson = new GsonBuilder().setExclusionStrategies(new TransmissionExclusionStrategy()).create();
             detailIntent.putExtra(TorrentDetailActivity.ARG_JSON_TORRENTS,
                     gson.toJson(mTorrents.toArray(new Torrent[mTorrents.size()])));
+            detailIntent.putExtra(TorrentDetailActivity.ARG_JSON_SESSION, gson.toJson(mSession));
             startActivity(detailIntent);
         }
     }
@@ -261,5 +264,25 @@ public class TorrentListActivity extends SlidingFragmentActivity
         if (!isDetailsPanelShown()) return new Torrent[] {};
 
         return mTorrents.toArray(new Torrent[mTorrents.size()]);
+    }
+
+    @Override
+    public void setProfile(TransmissionProfile profile) {
+        mProfile = profile;
+    }
+
+    @Override
+    public TransmissionProfile getProfile() {
+        return mProfile;
+    }
+
+    @Override
+    public void setSession(TransmissionSession session) {
+        mSession = session;
+    }
+
+    @Override
+    public TransmissionSession getSession() {
+        return mSession;
     }
 }

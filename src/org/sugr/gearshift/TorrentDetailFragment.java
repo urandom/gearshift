@@ -16,6 +16,8 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.CheckBox;
+import android.widget.Spinner;
 
 public class TorrentDetailFragment extends Fragment {
     public static final String TAG = "detail_fragment";
@@ -155,6 +157,7 @@ public class TorrentDetailFragment extends Fragment {
                     @Override
                     public void onClick(DialogInterface dialog, int id) {
                         ((TransmissionSessionLoader) loader).setTorrentsRemove(ids, item.getItemId() == R.id.delete);
+                        // mRefreshing = true;
                     }
                 })
                     .setMessage(String.format(getString(
@@ -163,7 +166,7 @@ public class TorrentDetailFragment extends Fragment {
                             : R.string.remove_current_confirmation),
                                 torrent.getName()))
                 .show();
-                break;
+                return true;
             case R.id.resume:
                 mExpectingResume = true;
                 ((TransmissionSessionLoader) loader).setTorrentsAction("torrent-start", ids);
@@ -172,6 +175,44 @@ public class TorrentDetailFragment extends Fragment {
                 mExpectingPause = true;
                 ((TransmissionSessionLoader) loader).setTorrentsAction("torrent-stop", ids);
                 break;
+            case R.id.move:
+                LayoutInflater inflater = getActivity().getLayoutInflater();
+
+                builder = new AlertDialog.Builder(getActivity())
+                    .setTitle(R.string.set_location)
+                    .setCancelable(false)
+                    .setNegativeButton(android.R.string.no, null)
+                    .setPositiveButton(android.R.string.yes,
+                    new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int id) {
+                        Spinner location = (Spinner) ((AlertDialog) dialog).findViewById(R.id.location_choice);
+                        CheckBox move = (CheckBox) ((AlertDialog) dialog).findViewById(R.id.move);
+
+                        String dir = (String) location.getSelectedItem();
+                        ((TransmissionSessionLoader) loader).setTorrentsLocation(
+                                ids, dir, move.isChecked());
+
+                        // mRefreshing = true;
+                    }
+                }).setView(inflater.inflate(R.layout.torrent_location_dialog, null));
+
+                AlertDialog dialog = builder.create();
+                dialog.show();
+
+                Spinner location;
+                TransmissionProfileDirectoryAdapter adapter =
+                        new TransmissionProfileDirectoryAdapter(
+                        getActivity(), android.R.layout.simple_spinner_item);
+
+                adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+                adapter.add(((TransmissionSessionInterface) getActivity()).getSession().getDownloadDir());
+                adapter.addAll(((TransmissionSessionInterface) getActivity()).getProfile().getDirectories());
+
+                location = (Spinner) dialog.findViewById(R.id.location_choice);
+                location.setAdapter(adapter);
+
+                return true;
             default:
                 return true;
         }

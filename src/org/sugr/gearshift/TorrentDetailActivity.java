@@ -26,18 +26,28 @@ import com.google.gson.GsonBuilder;
  */
 public class TorrentDetailActivity extends FragmentActivity implements TransmissionSessionInterface,
        TorrentDetailFragment.PagerCallbacks {
+    public static final String ARG_PROFILE = "profile";
     public static final String ARG_JSON_TORRENTS = "json_torrents";
+    public static final String ARG_JSON_SESSION = "json_session";
 
     private ArrayList<Torrent> mTorrents = new ArrayList<Torrent>();
     private int mCurrentTorrent = 0;
+
+    private TransmissionProfile mProfile;
+    private TransmissionSession mSession;
 
     /* TODO: create transmissionsessionloader and callback */
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        Intent in = getIntent();
+
         Gson gson = new GsonBuilder().setExclusionStrategies(new TransmissionExclusionStrategy()).create();
         mTorrents = new ArrayList<Torrent>(Arrays.asList(
-                gson.fromJson(getIntent().getStringExtra(ARG_JSON_TORRENTS), Torrent[].class)));
+                gson.fromJson(in.getStringExtra(ARG_JSON_TORRENTS), Torrent[].class)));
+        mProfile = in.getParcelableExtra(ARG_PROFILE);
+        mSession = gson.fromJson(in.getStringExtra(ARG_JSON_SESSION), TransmissionSession.class);
+
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_torrent_detail);
@@ -56,7 +66,7 @@ public class TorrentDetailActivity extends FragmentActivity implements Transmiss
         //
 
         if (savedInstanceState == null) {
-            mCurrentTorrent = getIntent().getIntExtra(TorrentDetailFragment.ARG_PAGE_POSITION, 0);
+            mCurrentTorrent = in.getIntExtra(TorrentDetailFragment.ARG_PAGE_POSITION, 0);
             Bundle arguments = new Bundle();
             arguments.putInt(TorrentDetailFragment.ARG_PAGE_POSITION,
                     mCurrentTorrent);
@@ -122,5 +132,25 @@ public class TorrentDetailActivity extends FragmentActivity implements Transmiss
     @Override
     public void onPageSelected(int position) {
         mCurrentTorrent = position;
+    }
+
+    @Override
+    public void setProfile(TransmissionProfile profile) {
+        mProfile = profile;
+    }
+
+    @Override
+    public TransmissionProfile getProfile() {
+        return mProfile;
+    }
+
+    @Override
+    public void setSession(TransmissionSession session) {
+        mSession = session;
+    }
+
+    @Override
+    public TransmissionSession getSession() {
+        return mSession;
     }
 }

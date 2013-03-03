@@ -3,7 +3,6 @@ package org.sugr.gearshift;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Locale;
 
@@ -144,6 +143,7 @@ public class TorrentListFragment extends ListFragment {
 
             if (mCurrentProfile == null && profiles.length > 0)
                 mCurrentProfile = profiles[0];
+            ((TransmissionSessionInterface) getActivity()).setProfile(mCurrentProfile);
             getActivity().getSupportLoaderManager().initLoader(TorrentListActivity.SESSION_LOADER_ID, null, mTorrentLoaderCallbacks);
         }
 
@@ -173,8 +173,10 @@ public class TorrentListFragment extends ListFragment {
                 android.support.v4.content.Loader<TransmissionSessionData> loader,
                 TransmissionSessionData data) {
 
-            if (data.session != null)
+            if (data.session != null) {
                 mSession = data.session;
+                ((TransmissionSessionInterface) getActivity()).setSession(data.session);
+            }
            /* if (data.stats != null)
                 mSessionStats = data.stats;*/
 
@@ -342,13 +344,6 @@ public class TorrentListFragment extends ListFragment {
 
         list.setMultiChoiceModeListener(new MultiChoiceModeListener() {
             private HashSet<Integer> mSelectedTorrentIds;
-            private Comparator<String> mDirComparator = new Comparator<String>() {
-                @Override
-                public int compare(String lhs, String rhs) {
-                    return lhs.compareToIgnoreCase(rhs);
-                }
-
-            };
 
             @Override
             public boolean onActionItemClicked(final ActionMode mode, final MenuItem item) {
@@ -428,7 +423,6 @@ public class TorrentListFragment extends ListFragment {
                         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
                         adapter.add(mSession.getDownloadDir());
                         adapter.addAll(mCurrentProfile.getDirectories());
-                        adapter.sort(mDirComparator);
 
                         location = (Spinner) dialog.findViewById(R.id.location_choice);
                         location.setAdapter(adapter);
@@ -690,42 +684,6 @@ public class TorrentListFragment extends ListFragment {
             }
 
             return getView(position, rowView, parent);
-        }
-    }
-
-    private class TransmissionProfileDirectoryAdapter extends ArrayAdapter<String> {
-        public TransmissionProfileDirectoryAdapter(Context context, int textViewResourceId) {
-            super(context, textViewResourceId);
-        }
-
-        @Override
-        public View getView(int position, View convertView, ViewGroup parent) {
-            View view = super.getView(position, convertView, parent);
-
-            TextView textView = (TextView) view.findViewById(android.R.id.text1);
-            String text = (String) textView.getText();
-
-            int lastSlash = text.lastIndexOf('/');
-            if (lastSlash > -1) {
-                textView.setText(text.substring(lastSlash + 1) + " (" + text.substring(0, lastSlash - 1) + ')');
-            }
-
-            return view;
-        }
-
-        @Override
-        public View getDropDownView(int position, View convertView, ViewGroup parent) {
-            View view = super.getDropDownView(position, convertView, parent);
-
-            TextView textView = (TextView) view.findViewById(android.R.id.text1);
-            String text = (String) textView.getText();
-
-            int lastSlash = text.lastIndexOf('/');
-            if (lastSlash > -1) {
-                textView.setText(text.substring(lastSlash + 1) + " (" + text.substring(0, lastSlash - 1) + ')');
-            }
-
-            return view;
         }
     }
 

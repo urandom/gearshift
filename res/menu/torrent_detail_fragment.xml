@@ -23,4 +23,10 @@
 	    android:icon="@drawable/ic_menu_trash_holo_dark"
 	    android:orderInCategory="2"
 	    android:showAsAction="ifRoom" />
+	
+	<item android:id="@+id/move"
+	    android:title="@string/move"
+	    android:icon="@drawable/ic_menu_move"
+	    android:orderInCategory="2"
+	    android:showAsAction="ifRoom" />
 </menu>
