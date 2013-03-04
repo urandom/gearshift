@@ -289,7 +289,7 @@ public class TorrentListActivity extends SlidingFragmentActivity
     @Override
     public void setRefreshing(boolean refreshing) {
         FragmentManager manager = getSupportFragmentManager();
-        TorrentListFragment list = (TorrentListFragment) manager.findFragmentByTag(R.id.torrent_list);
+        TorrentListFragment list = (TorrentListFragment) manager.findFragmentById(R.id.torrent_list);
 
         if (list != null) {
             list.setRefreshing(refreshing);

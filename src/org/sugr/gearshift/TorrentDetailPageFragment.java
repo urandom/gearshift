@@ -8,12 +8,15 @@ import java.util.List;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
+import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TextView;
 
@@ -105,7 +108,7 @@ public class TorrentDetailPageFragment extends Fragment {
         ((Spinner) root.findViewById(R.id.torrent_priority)).setOnItemSelectedListener(
                 new AdapterView.OnItemSelectedListener() {
                     @Override public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
-                        String val = mPriorityValues[pos];
+                        String val = mPriorityValues.get(pos);
                         int priority = Torrent.Priority.NORMAL;
 
                         if (val.equals("low")) {
@@ -129,7 +132,7 @@ public class TorrentDetailPageFragment extends Fragment {
             @Override public void afterTextChanged(Editable s) {
                 long limit;
                 try {
-                    limit = Long.parseLong(s);
+                    limit = Long.parseLong(s.toString());
                 } catch (NumberFormatException e) {
                     return;
                 }
@@ -149,7 +152,7 @@ public class TorrentDetailPageFragment extends Fragment {
             @Override public void afterTextChanged(Editable s) {
                 long limit;
                 try {
-                    limit = Long.parseLong(s);
+                    limit = Long.parseLong(s.toString());
                 } catch (NumberFormatException e) {
                     return;
                 }
@@ -161,7 +164,7 @@ public class TorrentDetailPageFragment extends Fragment {
         ((Spinner) root.findViewById(R.id.torrent_seed_ratio_mode)).setOnItemSelectedListener(
                 new AdapterView.OnItemSelectedListener() {
                     @Override public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
-                        String val = mSeedRatioModeValues[pos];
+                        String val = mSeedRatioModeValues.get(pos);
                         int mode = Torrent.SeedRatioMode.GLOBAL_LIMIT;
                         if (val.equals("user")) {
                             mode = Torrent.SeedRatioMode.TORRENT_LIMIT;
@@ -178,7 +181,7 @@ public class TorrentDetailPageFragment extends Fragment {
             @Override public void afterTextChanged(Editable s) {
                 float limit;
                 try {
-                    limit = Float.parseFloat(s);
+                    limit = Float.parseFloat(s.toString());
                 } catch (NumberFormatException e) {
                     return;
                 }
@@ -191,7 +194,7 @@ public class TorrentDetailPageFragment extends Fragment {
             @Override public void afterTextChanged(Editable s) {
                 int limit;
                 try {
-                    limit = Integer.parseInt(s);
+                    limit = Integer.parseInt(s.toString());
                 } catch (NumberFormatException e) {
                     return;
                 }
@@ -328,13 +331,10 @@ public class TorrentDetailPageFragment extends Fragment {
         CheckBox check = (CheckBox) root.findViewById(R.id.torrent_global_limits);
         check.setChecked(mTorrent.isHonorsSessionLimits());
 
-        String priority;
+        String priority = "normal";
         switch (mTorrent.getBandwidthPriority()) {
             case Torrent.Priority.LOW:
                 priority = "low";
-                break;
-            case Torrent.Priority.NORMAL:
-                priority = "normal";
                 break;
             case Torrent.Priority.HIGH:
                 priority = "high";
@@ -348,26 +348,23 @@ public class TorrentDetailPageFragment extends Fragment {
         check.setChecked(mTorrent.isDownloadLimited());
 
         EditText limit = (EditText) root.findViewById(R.id.torrent_limit_download);
-        limit.setText(mTorrent.getDownloadLimit());
+        limit.setText(Long.toString(mTorrent.getDownloadLimit()));
         limit.setEnabled(check.isChecked());
 
         check = (CheckBox) root.findViewById(R.id.torrent_limit_upload_check);
         check.setChecked(mTorrent.isUploadLimited());
 
         limit = (EditText) root.findViewById(R.id.torrent_limit_upload);
-        limit.setText(mTorrent.getUploadLimit());
+        limit.setText(Long.toString(mTorrent.getUploadLimit()));
         limit.setEnabled(check.isChecked());
 
-        String mode;
+        String mode = "global";
         switch (mTorrent.getSeedRatioMode()) {
-            case Torrent.SeedRatioMode.GLOBAL_LIMIT:
-                priority = "global";
-                break;
             case Torrent.SeedRatioMode.TORRENT_LIMIT:
-                priority = "user";
+                mode = "user";
                 break;
             case Torrent.SeedRatioMode.NO_LIMIT:
-                priority = "infinite";
+                mode = "infinite";
                 break;
         }
         ((Spinner) root.findViewById(R.id.torrent_seed_ratio_mode)).setSelection(

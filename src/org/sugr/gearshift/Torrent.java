@@ -81,7 +81,7 @@ public class Torrent {
     @SerializedName("downloadLimit") private long mDownloadLimit;
     @SerializedName("downloadLimited") private boolean mDownloadLimited;
     @SerializedName("fileStats") private FileStat[] mFileStats;
-    @SerializedName("honorsSessionLimits") private String mHonorsSessionLimits;
+    @SerializedName("honorsSessionLimits") private boolean mHonorsSessionLimits;
     @SerializedName("uploadLimit") private long mUploadLimit;
     @SerializedName("uploadLimited") private boolean mUploadLimited;
     @SerializedName("webseedsSendingToUs") private int mWebseedsSendingToUs;
@@ -744,7 +744,7 @@ public class Torrent {
     }
 
     public void setHonorsSessionLimits(boolean limits) {
-        this.mHonorsSessionLimits = limits;
+        mHonorsSessionLimits = limits;
     }
 
     public void setPrivate(boolean priv) {
@@ -1063,7 +1063,7 @@ public class Torrent {
             } else if (field.equals("dateCreated")) {
                 setDateCreated(source.getDateCreated());
             } else if (field.equals("downloadLimit")) {
-                setDownloadLimit(source.isDownloadLimit());
+                setDownloadLimit(source.getDownloadLimit());
             } else if (field.equals("downloadLimited")) {
                 setDownloadLimited(source.isDownloadLimited());
             } else if (field.equals("files")) {
@@ -1079,7 +1079,7 @@ public class Torrent {
             } else if (field.equals("pieceSize")) {
                 setPieceSize(source.getPieceSize());
             } else if (field.equals("uploadLimit")) {
-                setUploadLimit(source.isUploadLimit());
+                setUploadLimit(source.getUploadLimit());
             } else if (field.equals("uploadLimited")) {
                 setUploadLimited(source.isUploadLimited());
             } else if (field.equals("activityDate")) {

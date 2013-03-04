@@ -136,7 +136,7 @@ public class TorrentDetailFragment extends Fragment {
         final Loader<TransmissionSessionData> loader = getActivity().getSupportLoaderManager()
             .getLoader(TorrentListActivity.SESSION_LOADER_ID);
 
-        TransmissionSessionInterface context = ((TransmissionSessionInterface) getActivity());
+        final TransmissionSessionInterface context = ((TransmissionSessionInterface) getActivity());
         ArrayList<Torrent> torrents = context.getTorrents();
         Torrent torrent = torrents.size() > mCurrentPosition
             ? torrents.get(mCurrentPosition) : null;

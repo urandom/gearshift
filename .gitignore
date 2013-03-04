@@ -4,3 +4,4 @@
 bin/
 gen/
 libs/android-support-v4.jar
+local.properties
