@@ -77,9 +77,16 @@ public class Torrent {
     @SerializedName("pieceCount") private int mPieceCount;
     @SerializedName("pieceSize") private long mPieceSize;
 
+    @SerializedName("bandwidthPriority") private int mBandwidthPriority;
+    @SerializedName("downloadLimit") private long mDownloadLimit;
+    @SerializedName("downloadLimited") private boolean mDownloadLimited;
     @SerializedName("fileStats") private FileStat[] mFileStats;
+    @SerializedName("honorsSessionLimits") private String mHonorsSessionLimits;
+    @SerializedName("uploadLimit") private long mUploadLimit;
+    @SerializedName("uploadLimited") private boolean mUploadLimited;
     @SerializedName("webseedsSendingToUs") private int mWebseedsSendingToUs;
     @SerializedName("peers") private Peer[] mPeers;
+    @SerializedName("peer-limit") private int mPeerLimit;
 
     @Exclude private Spanned mTrafficText;
     @Exclude private Spanned mStatusText;
@@ -144,9 +151,12 @@ public class Torrent {
 
         // fields used in the inspector which need to be periodically refreshed
         public static final String[] STATS_EXTRA = {
-            "activityDate", "corruptEver", "desiredAvailable",
-            "downloadedEver", "errorString", "fileStats", "haveUnchecked", "haveValid",
-            "peers", "startDate", /*"trackerStats",*/ "webseedsSendingToUs"
+            "activityDate", "bandwidthPriority", "corruptEver",
+            "desiredAvailable", "downloadedEver", "downloadLimit",
+            "downloadLimited", "errorString", "fileStats", "haveUnchecked",
+            "haveValid", "honorsSessionLimits", "peer-limit", "peers",
+            "startDate", /*"trackerStats",*/ "uploadLimit", "uploadLimited",
+            "webseedsSendingToUs"
         };
     };
 
@@ -489,6 +499,10 @@ public class Torrent {
         return mTrackers;
     }
 
+    public int getBandwidthPriority() {
+        return mBandwidthPriority;
+    }
+
     public String getComment() {
         return mComment;
     }
@@ -501,12 +515,24 @@ public class Torrent {
         return mDateCreated;
     }
 
+    public long getDownloadLimit() {
+        return mDownloadLimit;
+    }
+
+    public boolean isDownloadLimited() {
+        return mDownloadLimited;
+    }
+
     public File[] getFiles() {
         return mFiles;
     }
 
     public String getHashString() {
         return mHashString;
+    }
+
+    public boolean isHonorsSessionLimits() {
+        return mHonorsSessionLimits;
     }
 
     public boolean isPrivate() {
@@ -521,6 +547,14 @@ public class Torrent {
         return mPieceSize;
     }
 
+    public long getUploadLimit() {
+        return mUploadLimit;
+    }
+
+    public boolean isUploadLimited() {
+        return mUploadLimited;
+    }
+
     public FileStat[] getFileStats() {
         return mFileStats;
     }
@@ -531,6 +565,10 @@ public class Torrent {
 
     public Peer[] getPeers() {
         return mPeers;
+    }
+
+    public int getPeerLimit() {
+        return mPeerLimit;
     }
 
     public void setId(int id) {
@@ -673,6 +711,10 @@ public class Torrent {
         this.mTrackers = trackers;
     }
 
+    public void setBandwidthPriority(int priority) {
+        this.mBandwidthPriority = priority;
+    }
+
     public void setComment(String comment) {
         this.mComment = comment;
     }
@@ -685,12 +727,24 @@ public class Torrent {
         this.mDateCreated = dateCreated;
     }
 
+    public void setDownloadLimit(long limit) {
+        this.mDownloadLimit = limit;
+    }
+
+    public void setDownloadLimited(boolean limited) {
+        this.mDownloadLimited = limited;
+    }
+
     public void setFiles(File[] files) {
         this.mFiles = files;
     }
 
     public void setHashString(String hashString) {
         this.mHashString = hashString;
+    }
+
+    public void setHonorsSessionLimits(boolean limits) {
+        this.mHonorsSessionLimits = limits;
     }
 
     public void setPrivate(boolean priv) {
@@ -705,6 +759,14 @@ public class Torrent {
         this.mPieceSize = pieceSize;
     }
 
+    public void setUploadLimit(long limit) {
+        this.mUploadLimit = limit;
+    }
+
+    public void setUploadLimited(boolean limited) {
+        this.mUploadLimited = limited;
+    }
+
     public void setFileStats(FileStat[] fileStats) {
         this.mFileStats = fileStats;
     }
@@ -715,6 +777,10 @@ public class Torrent {
 
     public void setPeers(Peer[] peers) {
         this.mPeers = peers;
+    }
+
+    public void setPeerLimit(int peers) {
+        mPeerLimit = peers;
     }
 
     public boolean isPaused() {
@@ -988,22 +1054,34 @@ public class Torrent {
                 setUploadedEver(source.getUploadedEver());
             } else if (field.equals("uploadRatio")) {
                 setUploadRatio(source.getUploadRatio());
+            } else if (field.equals("bandwidthPriority")) {
+                setBandwidthPriority(source.getBandwidthPriority());
             } else if (field.equals("comment")) {
                 setComment(source.getComment());
             } else if (field.equals("creator")) {
                 setCreator(source.getCreator());
             } else if (field.equals("dateCreated")) {
                 setDateCreated(source.getDateCreated());
+            } else if (field.equals("downloadLimit")) {
+                setDownloadLimit(source.isDownloadLimit());
+            } else if (field.equals("downloadLimited")) {
+                setDownloadLimited(source.isDownloadLimited());
             } else if (field.equals("files")) {
                 setFiles(source.getFiles());
             } else if (field.equals("hashString")) {
                 setHashString(source.getHashString());
+            } else if (field.equals("honorsSessionLimits")) {
+                setHonorsSessionLimits(source.isHonorsSessionLimits());
             } else if (field.equals("isPrivate")) {
                 setPrivate(source.isPrivate());
             } else if (field.equals("pieceCount")) {
                 setPieceCount(source.getPieceCount());
             } else if (field.equals("pieceSize")) {
                 setPieceSize(source.getPieceSize());
+            } else if (field.equals("uploadLimit")) {
+                setUploadLimit(source.isUploadLimit());
+            } else if (field.equals("uploadLimited")) {
+                setUploadLimited(source.isUploadLimited());
             } else if (field.equals("activityDate")) {
                 setActivityDate(source.getActivityDate());
             } else if (field.equals("corruptEver")) {
@@ -1022,6 +1100,8 @@ public class Torrent {
                 setHaveValid(source.getHaveValid());
             } else if (field.equals("peers")) {
                 setPeers(source.getPeers());
+            } else if (field.equals("peer-limit")) {
+                setPeerLimit(source.getPeerLimit());
             } else if (field.equals("startDate")) {
                 setStartDate(source.getStartDate());
             } else if (field.equals("webseedsSendingToUs")) {

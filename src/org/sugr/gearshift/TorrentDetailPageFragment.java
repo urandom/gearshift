@@ -28,6 +28,7 @@ import android.widget.TextView;
 public class TorrentDetailPageFragment extends Fragment {
     private Torrent mTorrent;
     private List<String> mPriorityValues;
+    private List<String> mSeedRatioModeValues;
 
     private View.OnClickListener mExpanderListener = new View.OnClickListener() {
         @Override
@@ -82,6 +83,7 @@ public class TorrentDetailPageFragment extends Fragment {
         }
 
         mPriorityValues = Arrays.asList(getResources().getStringArray(R.array.torrent_priority_values));
+        mSeedRatioModeValues = Arrays.asList(getResources().getStringArray(R.array.torrent_seed_ratio_mode_values));
     }
 
     @Override
@@ -93,36 +95,110 @@ public class TorrentDetailPageFragment extends Fragment {
         root.findViewById(R.id.torrent_detail_limits_expander).setOnClickListener(mExpanderListener);
         root.findViewById(R.id.torrent_detail_advanced_expander).setOnClickListener(mExpanderListener);
 
-        CheckBox check = (CheckBox) root.findViewById(R.id.torrent_limit_download_check);
+        /* TODO: get loader, issue torrent-set commands */
+        CheckBox check = (CheckBox) root.findViewById(R.id.torrent_global_limits);
         check.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+            @Override public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+            }
+        });
+
+        ((Spinner) root.findViewById(R.id.torrent_priority)).setOnItemSelectedListener(
+                new AdapterView.OnItemSelectedListener() {
+                    @Override public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
+                        String val = mPriorityValues[pos];
+                        int priority = Torrent.Priority.NORMAL;
+
+                        if (val.equals("low")) {
+                            priority = Torrent.Priority.LOW;
+                        } else if (val.equals("high")) {
+                            priority = Torrent.Priority.HIGH;
+                        }
+                    }
+
+                    @Override public void onNothingSelected(AdapterView<?> parent) { }
+                });
+
+        check = (CheckBox) root.findViewById(R.id.torrent_limit_download_check);
+        check.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 root.findViewById(R.id.torrent_limit_download).setEnabled(isChecked);
             }
         });
 
+        ((EditText) root.findViewById(R.id.torrent_limit_download)).addTextChangedListener(new TextWatcher() {
+            @Override public void afterTextChanged(Editable s) {
+                long limit;
+                try {
+                    limit = Long.parseLong(s);
+                } catch (NumberFormatException e) {
+                    return;
+                }
+            }
+            @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+            @Override public void onTextChanged(CharSequence s, int start, int before, int count) {}
+        });
+
         check = (CheckBox) root.findViewById(R.id.torrent_limit_upload_check);
         check.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+            @Override public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 root.findViewById(R.id.torrent_limit_upload).setEnabled(isChecked);
             }
         });
 
+        ((EditText) root.findViewById(R.id.torrent_limit_upload)).addTextChangedListener(new TextWatcher() {
+            @Override public void afterTextChanged(Editable s) {
+                long limit;
+                try {
+                    limit = Long.parseLong(s);
+                } catch (NumberFormatException e) {
+                    return;
+                }
+            }
+            @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+            @Override public void onTextChanged(CharSequence s, int start, int before, int count) {}
+        });
+
         ((Spinner) root.findViewById(R.id.torrent_seed_ratio_mode)).setOnItemSelectedListener(
                 new AdapterView.OnItemSelectedListener() {
-                    @Override
-                    public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
-                        String[] values = getResources().getStringArray(R.array.torrent_seed_ratio_mode_values);
-
-                        root.findViewById(R.id.torrent_seed_ratio_limit).setEnabled(values[pos].equals("user"));
+                    @Override public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
+                        String val = mSeedRatioModeValues[pos];
+                        int mode = Torrent.SeedRatioMode.GLOBAL_LIMIT;
+                        if (val.equals("user")) {
+                            mode = Torrent.SeedRatioMode.TORRENT_LIMIT;
+                        } else if (val.equals("infinite")) {
+                            mode = Torrent.SeedRatioMode.NO_LIMIT;
+                        }
+                        root.findViewById(R.id.torrent_seed_ratio_limit).setEnabled(val.equals("user"));
                     }
 
-                    @Override
-                    public void onNothingSelected(AdapterView<?> parent) {
-
-                    }
+                    @Override public void onNothingSelected(AdapterView<?> parent) { }
                 });
+
+        ((EditText) root.findViewById(R.id.torrent_seed_ratio_limit)).addTextChangedListener(new TextWatcher() {
+            @Override public void afterTextChanged(Editable s) {
+                float limit;
+                try {
+                    limit = Float.parseFloat(s);
+                } catch (NumberFormatException e) {
+                    return;
+                }
+            }
+            @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+            @Override public void onTextChanged(CharSequence s, int start, int before, int count) {}
+        });
+
+        ((EditText) root.findViewById(R.id.torrent_peer_limit)).addTextChangedListener(new TextWatcher() {
+            @Override public void afterTextChanged(Editable s) {
+                int limit;
+                try {
+                    limit = Integer.parseInt(s);
+                } catch (NumberFormatException e) {
+                    return;
+                }
+            }
+            @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+            @Override public void onTextChanged(CharSequence s, int start, int before, int count) {}
+        });
 
         if (mTorrent == null) return root;
 
@@ -249,17 +325,57 @@ public class TorrentDetailPageFragment extends Fragment {
             ((TextView) root.findViewById(R.id.torrent_have)).setText(R.string.none);
         }
 
-        /* TODO: actually use whatever torrent priority is set */
-        ((Spinner) root.findViewById(R.id.torrent_priority)).setSelection(mPriorityValues.indexOf("normal"));
+        CheckBox check = (CheckBox) root.findViewById(R.id.torrent_global_limits);
+        check.setChecked(mTorrent.isHonorsSessionLimits());
 
-        CheckBox check = (CheckBox) root.findViewById(R.id.torrent_limit_download_check);
-        root.findViewById(R.id.torrent_limit_download).setEnabled(check.isChecked());
+        String priority;
+        switch (mTorrent.getBandwidthPriority()) {
+            case Torrent.Priority.LOW:
+                priority = "low";
+                break;
+            case Torrent.Priority.NORMAL:
+                priority = "normal";
+                break;
+            case Torrent.Priority.HIGH:
+                priority = "high";
+                break;
+        }
+        ((Spinner) root.findViewById(R.id.torrent_priority)).setSelection(mPriorityValues.indexOf(priority));
+
+        ((EditText) root.findViewById(R.id.torrent_queue_position)).setText(mTorrent.getQueuePosition());
+
+        check = (CheckBox) root.findViewById(R.id.torrent_limit_download_check);
+        check.setChecked(mTorrent.isDownloadLimited());
+
+        EditText limit = (EditText) root.findViewById(R.id.torrent_limit_download);
+        limit.setText(mTorrent.getDownloadLimit());
+        limit.setEnabled(check.isChecked());
 
         check = (CheckBox) root.findViewById(R.id.torrent_limit_upload_check);
-        root.findViewById(R.id.torrent_limit_upload).setEnabled(check.isChecked());
+        check.setChecked(mTorrent.isUploadLimited());
 
-        /* TODO: use the torrent global limits override */
-        check = (CheckBox) root.findViewById(R.id.torrent_global_limits);
-        check.setChecked(true);
+        limit = (EditText) root.findViewById(R.id.torrent_limit_upload);
+        limit.setText(mTorrent.getUploadLimit());
+        limit.setEnabled(check.isChecked());
+
+        String mode;
+        switch (mTorrent.getSeedRatioMode()) {
+            case Torrent.SeedRatioMode.GLOBAL_LIMIT:
+                priority = "global";
+                break;
+            case Torrent.SeedRatioMode.TORRENT_LIMIT:
+                priority = "user";
+                break;
+            case Torrent.SeedRatioMode.NO_LIMIT:
+                priority = "infinite";
+                break;
+        }
+        ((Spinner) root.findViewById(R.id.torrent_seed_ratio_mode)).setSelection(
+            mSeedRatioModeValues.indexOf(mode));
+        limit = (EditText) root.findViewById(R.id.torrent_seed_ratio_limit);
+        limit.setText(Torrent.readablePercent(mTorrent.getSeedRatioLimit()));
+
+        limit = (EditText) root.findViewById(R.id.torrent_peer_limit);
+        limit.setText(mTorrent.getPeerLimit());
     }
 }
