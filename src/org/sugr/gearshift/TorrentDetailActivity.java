@@ -110,7 +110,7 @@ public class TorrentDetailActivity extends FragmentActivity implements Transmiss
             TorrentDetailFragment detail = (TorrentDetailFragment) manager.findFragmentByTag(
                     TorrentDetailFragment.TAG);
             if (detail != null) {
-                detail.notifyTorrentListChanged(data.hasRemoved, false);
+                detail.notifyTorrentListChanged(data.hasRemoved, false, data.hasStatusChanged);
             }
 
             if (mRefreshing) {

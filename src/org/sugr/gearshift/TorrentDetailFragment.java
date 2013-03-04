@@ -31,9 +31,6 @@ public class TorrentDetailFragment extends Fragment {
     private int mCurrentTorrentId = -1;
     private int mCurrentPosition = -1;
 
-    private boolean mExpectingPause = false;
-    private boolean mExpectingResume = false;
-
     private static PagerCallbacks sDummyCallbacks = new PagerCallbacks() {
         @Override
         public void onPageSelected(int position) { }
@@ -169,11 +166,9 @@ public class TorrentDetailFragment extends Fragment {
                 .show();
                 return true;
             case R.id.resume:
-                mExpectingResume = true;
                 ((TransmissionSessionLoader) loader).setTorrentsAction("torrent-start", ids);
                 break;
             case R.id.pause:
-                mExpectingPause = true;
                 ((TransmissionSessionLoader) loader).setTorrentsAction("torrent-stop", ids);
                 break;
             case R.id.move:
@@ -227,7 +222,7 @@ public class TorrentDetailFragment extends Fragment {
         mPager.setCurrentItem(position);
     }
 
-    public void notifyTorrentListChanged(boolean removed, boolean added) {
+    public void notifyTorrentListChanged(boolean removed, boolean added, boolean status) {
         ArrayList<Torrent> torrents = ((TransmissionSessionInterface) getActivity()).getTorrents();
         Torrent torrent = null;
         if (removed || added) {
@@ -246,25 +241,11 @@ public class TorrentDetailFragment extends Fragment {
                 mCallbacks.onPageSelected(mPager.getCurrentItem());
             }
         }
-        /* TODO: this might not be needed anymore, the loader sends status change info */
-        if (mExpectingPause || mExpectingResume) {
-            if (torrent == null) {
-                torrent = torrents.size() > mCurrentPosition
-                    ? torrents.get(mCurrentPosition)
-                    : null;
-            }
 
-            if (torrent != null) {
-                if (mExpectingPause && torrent.getStatus() == Torrent.Status.STOPPED) {
-                    mExpectingPause = false;
-                    getActivity().invalidateOptionsMenu();
-                }
-                if (mExpectingResume && torrent.getStatus() != Torrent.Status.STOPPED) {
-                    mExpectingResume = false;
-                    getActivity().invalidateOptionsMenu();
-                }
-            }
+        if (status) {
+            getActivity().invalidateOptionsMenu();
         }
+
         Torrent[] currentTorrents = ((TransmissionSessionInterface) getActivity()).getCurrentTorrents();
         List<TorrentDetailPageFragment> pages = ((TorrentDetailPagerAdapter) mPager.getAdapter()).getFragments();
         for (Torrent t : currentTorrents) {

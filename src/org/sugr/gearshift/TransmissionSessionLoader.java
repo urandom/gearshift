@@ -291,7 +291,7 @@ public class TransmissionSessionLoader extends AsyncTaskLoader<TransmissionSessi
                 }
             }
         } else if (mCurrentTorrents != null) {
-            fields = concat(new String[] {"id"}, Torrent.Fields.STATS_EXTRA);
+            fields = concat(Torrent.Fields.STATS, Torrent.Fields.STATS_EXTRA);
             boolean extraAdded = false;
             ids = new int[mCurrentTorrents.length];
             int index = 0;

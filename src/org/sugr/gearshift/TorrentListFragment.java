@@ -239,7 +239,7 @@ public class TorrentListFragment extends ListFragment {
                     TorrentDetailFragment detail = (TorrentDetailFragment) manager.findFragmentByTag(
                             TorrentDetailFragment.TAG);
                     if (detail != null) {
-                        detail.notifyTorrentListChanged(data.hasRemoved, data.hasAdded);
+                        detail.notifyTorrentListChanged(data.hasRemoved, data.hasAdded, data.hasStatusChanged);
                         if (data.hasStatusChanged) {
                             invalidateMenu = true;
                         }
@@ -983,7 +983,7 @@ public class TorrentListFragment extends ListFragment {
                         TorrentDetailFragment detail = (TorrentDetailFragment) manager.findFragmentByTag(
                                 TorrentDetailFragment.TAG);
                         if (detail != null) {
-                            detail.notifyTorrentListChanged(true, true);
+                            detail.notifyTorrentListChanged(true, true, false);
                         }
                     }
                     notifyDataSetChanged();

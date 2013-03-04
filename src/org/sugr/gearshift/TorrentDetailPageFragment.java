@@ -342,7 +342,8 @@ public class TorrentDetailPageFragment extends Fragment {
         }
         ((Spinner) root.findViewById(R.id.torrent_priority)).setSelection(mPriorityValues.indexOf(priority));
 
-        ((EditText) root.findViewById(R.id.torrent_queue_position)).setText(mTorrent.getQueuePosition());
+        ((EditText) root.findViewById(R.id.torrent_queue_position))
+            .setText(Integer.toString(mTorrent.getQueuePosition()));
 
         check = (CheckBox) root.findViewById(R.id.torrent_limit_download_check);
         check.setChecked(mTorrent.isDownloadLimited());
@@ -373,6 +374,6 @@ public class TorrentDetailPageFragment extends Fragment {
         limit.setText(Torrent.readablePercent(mTorrent.getSeedRatioLimit()));
 
         limit = (EditText) root.findViewById(R.id.torrent_peer_limit);
-        limit.setText(mTorrent.getPeerLimit());
+        limit.setText(Integer.toString(mTorrent.getPeerLimit()));
     }
 }
