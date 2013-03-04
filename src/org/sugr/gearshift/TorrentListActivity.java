@@ -285,4 +285,14 @@ public class TorrentListActivity extends SlidingFragmentActivity
     public TransmissionSession getSession() {
         return mSession;
     }
+
+    @Override
+    public void setRefreshing(boolean refreshing) {
+        FragmentManager manager = getSupportFragmentManager();
+        TorrentListFragment list = (TorrentListFragment) manager.findFragmentByTag(R.id.torrent_list);
+
+        if (list != null) {
+            list.setRefreshing(refreshing);
+        }
+    }
 }

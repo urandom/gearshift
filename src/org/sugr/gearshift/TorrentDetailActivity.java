@@ -34,7 +34,7 @@ public class TorrentDetailActivity extends FragmentActivity implements Transmiss
     public static final String ARG_JSON_TORRENTS = "json_torrents";
     public static final String ARG_JSON_SESSION = "json_session";
 
-    private boolean mRefreshing = true;
+    private boolean mRefreshing = false;
 
     private ArrayList<Torrent> mTorrents = new ArrayList<Torrent>();
     private int mCurrentTorrent = 0;
@@ -82,6 +82,10 @@ public class TorrentDetailActivity extends FragmentActivity implements Transmiss
 
                         for (Torrent t : removal) {
                             mTorrents.remove(t);
+                        }
+
+                        if (data.hasStatusChanged) {
+                            invalidateMenu = true;
                         }
                     }
                 } else {
@@ -168,6 +172,8 @@ public class TorrentDetailActivity extends FragmentActivity implements Transmiss
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
+        super.onCreateOptionsMenu(menu);
+
         getMenuInflater().inflate(R.menu.torrent_detail_activity, menu);
 
         MenuItem item = menu.findItem(R.id.menu_refresh);
@@ -176,7 +182,7 @@ public class TorrentDetailActivity extends FragmentActivity implements Transmiss
         else
             item.setActionView(null);
 
-        return super.onCreateOptionsMenu(menu);
+        return true;
     }
 
     @Override
@@ -265,5 +271,11 @@ public class TorrentDetailActivity extends FragmentActivity implements Transmiss
     @Override
     public TransmissionSession getSession() {
         return mSession;
+    }
+
+    @Override
+    public void setRefreshing(boolean refreshing) {
+        mRefreshing = refreshing;
+        invalidateOptionsMenu();
     }
 }

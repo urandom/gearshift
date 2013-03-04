@@ -53,7 +53,7 @@ public class Torrent {
     @SerializedName("uploadedEver") private long mUploadedEver;
     @SerializedName("uploadRatio") private float mUploadRatio;
 
-    @SerializedName("addedDate") private long mAddedDate;
+    @SerializedName("addedDate") private long mAddedDate = 0;
     @SerializedName("doneDate") private long mDoneDate;
     @SerializedName("startDate") private long mStartDate;
     @SerializedName("activityDate") private long mActivityDate;

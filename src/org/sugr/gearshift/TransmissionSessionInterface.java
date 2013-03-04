@@ -13,4 +13,6 @@ public interface TransmissionSessionInterface {
     public ArrayList<Torrent> getTorrents();
 
     public Torrent[] getCurrentTorrents();
+
+    public void setRefreshing(boolean refreshing);
 }

@@ -20,6 +20,7 @@ class TransmissionSessionData {
     public int error = 0;
     public boolean hasRemoved = false;
     public boolean hasAdded = false;
+    public boolean hasStatusChanged = false;
 
     public static class Errors {
         public static final int NO_CONNECTIVITY = 1;
@@ -40,7 +41,8 @@ class TransmissionSessionData {
             TransmissionSessionStats stats,
             ArrayList<Torrent> torrents,
             boolean hasRemoved,
-            boolean hasAdded) {
+            boolean hasAdded,
+            boolean hasStatusChanged) {
         this.session = session;
         this.stats = stats;
 
@@ -49,6 +51,7 @@ class TransmissionSessionData {
 
         this.hasRemoved = hasRemoved;
         this.hasAdded = hasAdded;
+        this.hasStatusChanged = hasStatusChanged;
     }
 }
 
@@ -156,7 +159,9 @@ public class TransmissionSessionLoader extends AsyncTaskLoader<TransmissionSessi
         mIntervalHandler.removeCallbacks(mIntervalRunner);
         mStopUpdates = false;
 
-        boolean hasRemoved = false, hasAdded = false;
+        boolean hasRemoved = false,
+                hasAdded = false,
+                hasStatusChanged = false;
 
         if (mLastError > 0) {
             mLastError = 0;
@@ -373,6 +378,9 @@ public class TransmissionSessionLoader extends AsyncTaskLoader<TransmissionSessi
         for (Torrent t : torrents) {
             Torrent torrent;
             if ((torrent = mTorrentMap.get(t.getId())) != null) {
+                if (torrent.getStatus() != t.getStatus()) {
+                    hasStatusChanged = true;
+                }
                 torrent.updateFrom(t, fields);
             } else {
                 mTorrentMap.put(t.getId(), t);
@@ -391,7 +399,7 @@ public class TransmissionSessionLoader extends AsyncTaskLoader<TransmissionSessi
         mIteration++;
         return new TransmissionSessionData(
                 mSession, mSessionStats, convertSparseArray(mTorrentMap),
-                hasRemoved, hasAdded);
+                hasRemoved, hasAdded, hasStatusChanged);
     }
 
     @Override
@@ -418,7 +426,7 @@ public class TransmissionSessionLoader extends AsyncTaskLoader<TransmissionSessi
             deliverResult(new TransmissionSessionData(
                     mSession, mSessionStats,
                     convertSparseArray(mTorrentMap),
-                    false, false));
+                    false, false, false));
 
         if (takeContentChanged() || mTorrentMap.size() == 0) {
             TorrentListActivity.logD("TLoader: forceLoad()");

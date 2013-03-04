@@ -136,7 +136,8 @@ public class TorrentDetailFragment extends Fragment {
         final Loader<TransmissionSessionData> loader = getActivity().getSupportLoaderManager()
             .getLoader(TorrentListActivity.SESSION_LOADER_ID);
 
-        ArrayList<Torrent> torrents = ((TransmissionSessionInterface) getActivity()).getTorrents();
+        TransmissionSessionInterface context = ((TransmissionSessionInterface) getActivity());
+        ArrayList<Torrent> torrents = context.getTorrents();
         Torrent torrent = torrents.size() > mCurrentPosition
             ? torrents.get(mCurrentPosition) : null;
 
@@ -157,7 +158,7 @@ public class TorrentDetailFragment extends Fragment {
                     @Override
                     public void onClick(DialogInterface dialog, int id) {
                         ((TransmissionSessionLoader) loader).setTorrentsRemove(ids, item.getItemId() == R.id.delete);
-                        // mRefreshing = true;
+                        context.setRefreshing(true);
                     }
                 })
                     .setMessage(String.format(getString(
@@ -193,7 +194,7 @@ public class TorrentDetailFragment extends Fragment {
                         ((TransmissionSessionLoader) loader).setTorrentsLocation(
                                 ids, dir, move.isChecked());
 
-                        // mRefreshing = true;
+                        context.setRefreshing(true);
                     }
                 }).setView(inflater.inflate(R.layout.torrent_location_dialog, null));
 
@@ -217,9 +218,7 @@ public class TorrentDetailFragment extends Fragment {
                 return true;
         }
 
-        /* TODO: use the action progress bar if present
-        mRefreshing = true;
-        */
+        context.setRefreshing(true);
 
         return true;
     }
@@ -247,6 +246,7 @@ public class TorrentDetailFragment extends Fragment {
                 mCallbacks.onPageSelected(mPager.getCurrentItem());
             }
         }
+        /* TODO: this might not be needed anymore, the loader sends status change info */
         if (mExpectingPause || mExpectingResume) {
             if (torrent == null) {
                 torrent = torrents.size() > mCurrentPosition

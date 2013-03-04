@@ -194,7 +194,9 @@ public class TorrentListFragment extends ListFragment {
                 mTorrentListAdapter.setNotifyOnChange(false);
                 boolean notifyChange = true;
                 if (data.error == 0) {
-                    //if (data.hasRemoved || data.hasAdded || mTorrentListAdapter.getUnfilteredCount() == 0) {
+                    if (data.hasRemoved || data.hasAdded
+                            || data.hasStatusChanged
+                            || mTorrentListAdapter.getUnfilteredCount() == 0) {
                         notifyChange = false;
                         if (data.hasRemoved || data.hasAdded) {
                             ((TransmissionSessionInterface) getActivity()).setTorrents(data.torrents);
@@ -203,7 +205,7 @@ public class TorrentListFragment extends ListFragment {
                         mTorrentListAdapter.addAll(data.torrents);
                         mTorrentListAdapter.repeatFilter();
                         filtered = true;
-                    //}
+                    }
                     setEmptyText(null);
                 } else {
                     mTorrentListAdapter.clear();
@@ -238,6 +240,9 @@ public class TorrentListFragment extends ListFragment {
                             TorrentDetailFragment.TAG);
                     if (detail != null) {
                         detail.notifyTorrentListChanged(data.hasRemoved, data.hasAdded);
+                        if (data.hasStatusChanged) {
+                            invalidateMenu = true;
+                        }
                     }
                 }
             }
@@ -620,12 +625,9 @@ public class TorrentListFragment extends ListFragment {
         mTorrentListAdapter.filter(constraint);
     }
 
-    public SortBy getSortBy() {
-        return mTorrentListAdapter.getSortBy();
-    }
-
-    public SortOrder getSortOrder() {
-        return mTorrentListAdapter.getSortOrder();
+    public void setRefreshing(boolean refreshing) {
+        mRefreshing = refreshing;
+        getActivity().invalidateOptionsMenu();
     }
 
     private void setActivatedPosition(int position) {
@@ -875,14 +877,6 @@ public class TorrentListFragment extends ListFragment {
 
         public ArrayList<Torrent> getItems() {
             return mObjects;
-        }
-
-        public SortBy getSortBy() {
-            return mSortBy;
-        }
-
-        public SortOrder getSortOrder() {
-            return mSortOrder;
         }
 
         private class TorrentFilter extends Filter {

@@ -30,6 +30,7 @@ public class TorrentComparator implements Comparator<Torrent> {
 
     @Override
     public int compare(Torrent a, Torrent b) {
+        /* FIXME: use addedDate instead of name as the base order */
         String aName = a.getName(), bName = b.getName();
         if (aName == null && bName == null) {
             return 0;
