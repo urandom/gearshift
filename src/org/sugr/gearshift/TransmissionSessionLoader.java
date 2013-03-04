@@ -173,6 +173,8 @@ public class TransmissionSessionLoader extends AsyncTaskLoader<TransmissionSessi
         }
 
         ArrayList<Thread> threads = new ArrayList<Thread>();
+        ArrayList<Thread> importantThreads = new ArrayList<Thread>();
+
         final ArrayList<ManagerException> exceptions = new ArrayList<ManagerException>();
         /* Setters */
         if (mSessionSet != null) {
@@ -225,7 +227,7 @@ public class TransmissionSessionLoader extends AsyncTaskLoader<TransmissionSessi
                     }
                 }
             });
-            threads.add(thread);
+            importantThreads.add(thread);
             thread.start();
         }
 
@@ -312,6 +314,16 @@ public class TransmissionSessionLoader extends AsyncTaskLoader<TransmissionSessi
             /* Force the list to re-order itself */
             hasAdded = true;
         }
+
+        for (Thread t : importantThreads) {
+            try {
+                t.join();
+            } catch (InterruptedException e) {
+                return handleError(e);
+            }
+        }
+
+
         try {
             if (mCurrentTorrents != null) {
                 torrents = mSessManager.getTorrents(ids, fields).getTorrents();
