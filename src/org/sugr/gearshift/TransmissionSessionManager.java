@@ -452,7 +452,39 @@ public class TransmissionSessionManager {
                 this.move = move;
             }
         }
-     }
+    }
+
+    private static class TorrentSetRequest {
+        @SerializedName("method") private final String method = "session-set";
+        @SerializedName("arguments") private Arguments arguments;
+
+        public TorrentSetRequest(int[] ids, String key, boolean value) {
+            this.arguments = new Arguments(ids, key, value);
+        }
+
+        private static class Arguments {
+            @SerializedName("ids") private int[] ids;
+            @SerializedName("downloadLimited") private boolean downloadLimited;
+            @SerializedName("honorsSessionsLimits") private boolean honorsSessionsLimits;
+            @SerializedName("uploadLimited") private boolean uploadLimited;
+
+            public Arguments(int[] ids) {
+                this.ids = ids;
+            }
+
+            public Arguments(int[] ids, String key, boolean value) {
+                this(ids);
+                if (key.equals("downloadLimited")) {
+                    this.downloadLimited = value;
+                } else if (key.equals("honorsSessionsLimits")) {
+                    this.honorsSessionsLimits = value;
+                } else if (key.equals("uploadLimited")) {
+                    this.uploadLimited = value;
+                }
+            }
+        }
+    }
+
 
     public static class Response {
         @SerializedName("result") protected final String mResult = null;
