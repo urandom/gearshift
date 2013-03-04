@@ -5,14 +5,14 @@
 	    android:icon="@drawable/ic_menu_resume"
 	    android:menuCategory="system"
 	    android:orderInCategory="10"
-	    android:showAsAction="always" />
+	    android:showAsAction="ifRoom" />
     
     <item android:id="@+id/pause"
 	    android:title="@string/pause"
 	    android:icon="@drawable/ic_menu_pause"
 	    android:menuCategory="system"
 	    android:orderInCategory="10"
-	    android:showAsAction="always" />
+	    android:showAsAction="ifRoom" />
     
     <item android:id="@+id/remove"
 	    android:title="@string/remove"
