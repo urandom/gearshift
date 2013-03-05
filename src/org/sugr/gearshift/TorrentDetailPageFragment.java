@@ -73,6 +73,7 @@ public class TorrentDetailPageFragment extends Fragment {
             if (content.getVisibility() == View.GONE) {
                 content.setVisibility(View.VISIBLE);
                 image.setBackgroundResource(R.drawable.ic_section_collapse);
+                updateFields(getView());
             } else {
                 content.setVisibility(View.GONE);
                 image.setBackgroundResource(R.drawable.ic_section_expand);
@@ -340,112 +341,115 @@ public class TorrentDetailPageFragment extends Fragment {
         ((TextView) root.findViewById(R.id.torrent_detail_title)).setText(mTorrent.getName());
 
         /* Overview start */
-        long now = new Timestamp(new Date().getTime()).getTime() / 1000;
-        if (mTorrent.getMetadataPercentComplete() == 1) {
-            ((TextView) root.findViewById(R.id.torrent_have)).setText(
-                String.format(
-                    getString(R.string.torrent_have_format),
-                    Torrent.readableFileSize(mTorrent.getHaveValid() > 0
-                            ? mTorrent.getHaveValid() : mTorrent.getSizeWhenDone() - mTorrent.getLeftUntilDone()),
-                    Torrent.readableFileSize(mTorrent.getSizeWhenDone()),
-                    Torrent.readablePercent(100 * (
-                        mTorrent.getSizeWhenDone() > 0
-                            ? (mTorrent.getSizeWhenDone() - mTorrent.getLeftUntilDone()) / mTorrent.getSizeWhenDone()
-                            : 1
-                    ))
-                ));
-            ((TextView) root.findViewById(R.id.torrent_downloaded)).setText(
-                mTorrent.getDownloadedEver() == 0
-                    ? getString(R.string.unknown)
-                    : Torrent.readableFileSize(mTorrent.getDownloadedEver())
-            );
-            ((TextView) root.findViewById(R.id.torrent_uploaded)).setText(
-                Torrent.readableFileSize(mTorrent.getUploadedEver())
-            );
-            int state = R.string.none;
-            switch(mTorrent.getStatus()) {
-                case Torrent.Status.STOPPED:
-                    state = R.string.status_stopped;
-                    break;
-                case Torrent.Status.CHECK_WAITING:
-                    state = R.string.status_check_waiting;
-                    break;
-                case Torrent.Status.CHECKING:
-                    state = R.string.status_checking;
-                    break;
-                case Torrent.Status.DOWNLOAD_WAITING:
-                    state = R.string.status_download_waiting;
-                    break;
-                case Torrent.Status.DOWNLOADING:
-                    state = mTorrent.getMetadataPercentComplete() < 0
-                        ? R.string.status_downloading_metadata
-                        : R.string.status_downloading;
-                    break;
-                case Torrent.Status.SEED_WAITING:
-                    state = R.string.status_seed_waiting;
-                    break;
-                case Torrent.Status.SEEDING:
-                    state = R.string.status_seeding;
-                    break;
-            }
-            ((TextView) root.findViewById(R.id.torrent_state)).setText(state);
-            ((TextView) root.findViewById(R.id.torrent_running_time)).setText(
-                mTorrent.getStatus() == Torrent.Status.STOPPED
-                    ? getString(R.string.status_stopped)
-                    : mTorrent.getStartDate() > 0
-                        ? Torrent.readableRemainingTime(now - mTorrent.getStartDate(), getActivity())
-                        : getString(R.string.unknown)
-            );
-            ((TextView) root.findViewById(R.id.torrent_remaining_time)).setText(
-                mTorrent.getEta() < 0
-                    ? getString(R.string.unknown)
-                    : Torrent.readableRemainingTime(mTorrent.getEta(), getActivity())
-            );
-            long lastActive = now - mTorrent.getActivityDate();
-            ((TextView) root.findViewById(R.id.torrent_last_activity)).setText(
-                lastActive < 0 || mTorrent.getActivityDate() <= 0
-                    ? getString(R.string.unknown)
-                    : lastActive < 5
-                        ? getString(R.string.torrent_active_now)
-                        : Torrent.readableRemainingTime(lastActive, getActivity())
-            );
-            if (mTorrent.getError() == Torrent.Error.OK) {
-                ((TextView) root.findViewById(R.id.torrent_error)).setText(
-                        R.string.no_tracker_errors);
-            } else {
-                ((TextView) root.findViewById(R.id.torrent_error)).setText(mTorrent.getErrorString());
-            }
-            ((TextView) root.findViewById(R.id.torrent_size)).setText(
+        if (root.findViewById(R.id.torrent_detail_overview_content).getVisibility() != View.GONE) {
+            long now = new Timestamp(new Date().getTime()).getTime() / 1000;
+            if (mTorrent.getMetadataPercentComplete() == 1) {
+                ((TextView) root.findViewById(R.id.torrent_have)).setText(
                     String.format(
-                        getString(R.string.torrent_size_format),
-                        Torrent.readableFileSize(mTorrent.getTotalSize()),
-                        mTorrent.getPieceCount(),
-                        Torrent.readableFileSize(mTorrent.getPieceSize())
+                        getString(R.string.torrent_have_format),
+                        Torrent.readableFileSize(mTorrent.getHaveValid() > 0
+                                ? mTorrent.getHaveValid() : mTorrent.getSizeWhenDone() - mTorrent.getLeftUntilDone()),
+                        Torrent.readableFileSize(mTorrent.getSizeWhenDone()),
+                        Torrent.readablePercent(100 * (
+                            mTorrent.getSizeWhenDone() > 0
+                                ? (mTorrent.getSizeWhenDone() - mTorrent.getLeftUntilDone()) / mTorrent.getSizeWhenDone()
+                                : 1
+                        ))
                     ));
-            ((TextView) root.findViewById(R.id.torrent_location)).setText(mTorrent.getDownloadDir());
-            ((TextView) root.findViewById(R.id.torrent_hash)).setText(mTorrent.getHashString());
-            ((TextView) root.findViewById(R.id.torrent_privacy)).setText(
-                    mTorrent.isPrivate() ? R.string.torrent_private : R.string.torrent_public);
-
-            Date creationDate = new Date(mTorrent.getDateCreated() * 1000);
-            ((TextView) root.findViewById(R.id.torrent_origin)).setText(
-                    mTorrent.getCreator() == null || mTorrent.getCreator().isEmpty()
-                    ? String.format(
-                                getString(R.string.torrent_origin_format),
-                                creationDate.toString()
-                        )
-                    : String.format(
-                                getString(R.string.torrent_origin_creator_format),
-                                mTorrent.getCreator(),
-                                creationDate.toString()
+                ((TextView) root.findViewById(R.id.torrent_downloaded)).setText(
+                    mTorrent.getDownloadedEver() == 0
+                        ? getString(R.string.unknown)
+                        : Torrent.readableFileSize(mTorrent.getDownloadedEver())
+                );
+                ((TextView) root.findViewById(R.id.torrent_uploaded)).setText(
+                    Torrent.readableFileSize(mTorrent.getUploadedEver())
+                );
+                int state = R.string.none;
+                switch(mTorrent.getStatus()) {
+                    case Torrent.Status.STOPPED:
+                        state = R.string.status_stopped;
+                        break;
+                    case Torrent.Status.CHECK_WAITING:
+                        state = R.string.status_check_waiting;
+                        break;
+                    case Torrent.Status.CHECKING:
+                        state = R.string.status_checking;
+                        break;
+                    case Torrent.Status.DOWNLOAD_WAITING:
+                        state = R.string.status_download_waiting;
+                        break;
+                    case Torrent.Status.DOWNLOADING:
+                        state = mTorrent.getMetadataPercentComplete() < 0
+                            ? R.string.status_downloading_metadata
+                            : R.string.status_downloading;
+                        break;
+                    case Torrent.Status.SEED_WAITING:
+                        state = R.string.status_seed_waiting;
+                        break;
+                    case Torrent.Status.SEEDING:
+                        state = R.string.status_seeding;
+                        break;
+                }
+                ((TextView) root.findViewById(R.id.torrent_state)).setText(state);
+                ((TextView) root.findViewById(R.id.torrent_running_time)).setText(
+                    mTorrent.getStatus() == Torrent.Status.STOPPED
+                        ? getString(R.string.status_stopped)
+                        : mTorrent.getStartDate() > 0
+                            ? Torrent.readableRemainingTime(now - mTorrent.getStartDate(), getActivity())
+                            : getString(R.string.unknown)
+                );
+                ((TextView) root.findViewById(R.id.torrent_remaining_time)).setText(
+                    mTorrent.getEta() < 0
+                        ? getString(R.string.unknown)
+                        : Torrent.readableRemainingTime(mTorrent.getEta(), getActivity())
+                );
+                long lastActive = now - mTorrent.getActivityDate();
+                ((TextView) root.findViewById(R.id.torrent_last_activity)).setText(
+                    lastActive < 0 || mTorrent.getActivityDate() <= 0
+                        ? getString(R.string.unknown)
+                        : lastActive < 5
+                            ? getString(R.string.torrent_active_now)
+                            : Torrent.readableRemainingTime(lastActive, getActivity())
+                );
+                if (mTorrent.getError() == Torrent.Error.OK) {
+                    ((TextView) root.findViewById(R.id.torrent_error)).setText(
+                            R.string.no_tracker_errors);
+                } else {
+                    ((TextView) root.findViewById(R.id.torrent_error)).setText(mTorrent.getErrorString());
+                }
+                ((TextView) root.findViewById(R.id.torrent_size)).setText(
+                        String.format(
+                            getString(R.string.torrent_size_format),
+                            Torrent.readableFileSize(mTorrent.getTotalSize()),
+                            mTorrent.getPieceCount(),
+                            Torrent.readableFileSize(mTorrent.getPieceSize())
                         ));
-            ((TextView) root.findViewById(R.id.torrent_comment)).setText(mTorrent.getComment());
-        } else {
-            ((TextView) root.findViewById(R.id.torrent_have)).setText(R.string.none);
+                ((TextView) root.findViewById(R.id.torrent_location)).setText(mTorrent.getDownloadDir());
+                ((TextView) root.findViewById(R.id.torrent_hash)).setText(mTorrent.getHashString());
+                ((TextView) root.findViewById(R.id.torrent_privacy)).setText(
+                        mTorrent.isPrivate() ? R.string.torrent_private : R.string.torrent_public);
+
+                Date creationDate = new Date(mTorrent.getDateCreated() * 1000);
+                ((TextView) root.findViewById(R.id.torrent_origin)).setText(
+                        mTorrent.getCreator() == null || mTorrent.getCreator().isEmpty()
+                        ? String.format(
+                                    getString(R.string.torrent_origin_format),
+                                    creationDate.toString()
+                            )
+                        : String.format(
+                                    getString(R.string.torrent_origin_creator_format),
+                                    mTorrent.getCreator(),
+                                    creationDate.toString()
+                            ));
+                ((TextView) root.findViewById(R.id.torrent_comment)).setText(mTorrent.getComment());
+            } else {
+                ((TextView) root.findViewById(R.id.torrent_have)).setText(R.string.none);
+            }
         }
 
         /* Files start */
-        if (mTorrent.getFiles() != null && mTorrent.getFileStats() != null) {
+        if (root.findViewById(R.id.torrent_detail_files_content).getVisibility() != View.GONE
+                && mTorrent.getFiles() != null && mTorrent.getFileStats() != null) {
             Torrent.File[] files = mTorrent.getFiles();
             Torrent.FileStat[] stats = mTorrent.getFileStats();
 
@@ -459,74 +463,76 @@ public class TorrentDetailPageFragment extends Fragment {
         }
 
         /* Limits start */
-        CheckBox check = (CheckBox) root.findViewById(R.id.torrent_global_limits);
-        check.setChecked(mTorrent.areSessionLimitsHonored());
+        if (root.findViewById(R.id.torrent_detail_limits_content).getVisibility() != View.GONE) {
+            CheckBox check = (CheckBox) root.findViewById(R.id.torrent_global_limits);
+            check.setChecked(mTorrent.areSessionLimitsHonored());
 
-        String priority = "normal";
-        switch (mTorrent.getTorrentPriority()) {
-            case Torrent.Priority.LOW:
-                priority = "low";
-                break;
-            case Torrent.Priority.HIGH:
-                priority = "high";
-                break;
-        }
-        ((Spinner) root.findViewById(R.id.torrent_priority)).setSelection(mPriorityValues.indexOf(priority));
+            String priority = "normal";
+            switch (mTorrent.getTorrentPriority()) {
+                case Torrent.Priority.LOW:
+                    priority = "low";
+                    break;
+                case Torrent.Priority.HIGH:
+                    priority = "high";
+                    break;
+            }
+            ((Spinner) root.findViewById(R.id.torrent_priority)).setSelection(mPriorityValues.indexOf(priority));
 
-        String queue = Integer.toString(mTorrent.getQueuePosition());
-        if (!mTextValues[QUEUE_POSITION].equals(queue)) {
-            ((EditText) root.findViewById(R.id.torrent_queue_position))
-                .setText(queue);
-            mTextValues[QUEUE_POSITION] = queue;
-        }
+            String queue = Integer.toString(mTorrent.getQueuePosition());
+            if (!mTextValues[QUEUE_POSITION].equals(queue)) {
+                ((EditText) root.findViewById(R.id.torrent_queue_position))
+                    .setText(queue);
+                mTextValues[QUEUE_POSITION] = queue;
+            }
 
-        check = (CheckBox) root.findViewById(R.id.torrent_limit_download_check);
-        check.setChecked(mTorrent.isDownloadLimited());
+            check = (CheckBox) root.findViewById(R.id.torrent_limit_download_check);
+            check.setChecked(mTorrent.isDownloadLimited());
 
-        EditText limit;
-        String download = Long.toString(mTorrent.getDownloadLimit());
-        if (!mTextValues[DOWNLOAD_LIMIT].equals(download)) {
-            limit = (EditText) root.findViewById(R.id.torrent_limit_download);
-            limit.setText(download);
-            limit.setEnabled(check.isChecked());
-            mTextValues[DOWNLOAD_LIMIT] = download;
-        }
+            EditText limit;
+            String download = Long.toString(mTorrent.getDownloadLimit());
+            if (!mTextValues[DOWNLOAD_LIMIT].equals(download)) {
+                limit = (EditText) root.findViewById(R.id.torrent_limit_download);
+                limit.setText(download);
+                limit.setEnabled(check.isChecked());
+                mTextValues[DOWNLOAD_LIMIT] = download;
+            }
 
-        check = (CheckBox) root.findViewById(R.id.torrent_limit_upload_check);
-        check.setChecked(mTorrent.isUploadLimited());
+            check = (CheckBox) root.findViewById(R.id.torrent_limit_upload_check);
+            check.setChecked(mTorrent.isUploadLimited());
 
-        String upload = Long.toString(mTorrent.getUploadLimit());
-        if (!mTextValues[UPLOAD_LIMIT].equals(upload)) {
-            limit = (EditText) root.findViewById(R.id.torrent_limit_upload);
-            limit.setText(upload);
-            limit.setEnabled(check.isChecked());
-            mTextValues[UPLOAD_LIMIT] = upload;
-        }
+            String upload = Long.toString(mTorrent.getUploadLimit());
+            if (!mTextValues[UPLOAD_LIMIT].equals(upload)) {
+                limit = (EditText) root.findViewById(R.id.torrent_limit_upload);
+                limit.setText(upload);
+                limit.setEnabled(check.isChecked());
+                mTextValues[UPLOAD_LIMIT] = upload;
+            }
 
-        String mode = "global";
-        switch (mTorrent.getSeedRatioMode()) {
-            case Torrent.SeedRatioMode.TORRENT_LIMIT:
-                mode = "user";
-                break;
-            case Torrent.SeedRatioMode.NO_LIMIT:
-                mode = "infinite";
-                break;
-        }
-        ((Spinner) root.findViewById(R.id.torrent_seed_ratio_mode)).setSelection(
-            mSeedRatioModeValues.indexOf(mode));
+            String mode = "global";
+            switch (mTorrent.getSeedRatioMode()) {
+                case Torrent.SeedRatioMode.TORRENT_LIMIT:
+                    mode = "user";
+                    break;
+                case Torrent.SeedRatioMode.NO_LIMIT:
+                    mode = "infinite";
+                    break;
+            }
+            ((Spinner) root.findViewById(R.id.torrent_seed_ratio_mode)).setSelection(
+                mSeedRatioModeValues.indexOf(mode));
 
-        String ratio = Torrent.readablePercent(mTorrent.getSeedRatioLimit());
-        if (!mTextValues[SEED_RATIO_LIMIT].equals(ratio)) {
-            limit = (EditText) root.findViewById(R.id.torrent_seed_ratio_limit);
-            limit.setText(ratio);
-            mTextValues[SEED_RATIO_LIMIT] = ratio;
-        }
+            String ratio = Torrent.readablePercent(mTorrent.getSeedRatioLimit());
+            if (!mTextValues[SEED_RATIO_LIMIT].equals(ratio)) {
+                limit = (EditText) root.findViewById(R.id.torrent_seed_ratio_limit);
+                limit.setText(ratio);
+                mTextValues[SEED_RATIO_LIMIT] = ratio;
+            }
 
-        String peers = Integer.toString(mTorrent.getPeerLimit());
-        if (!mTextValues[PEER_LIMIT].equals(peers)) {
-            limit = (EditText) root.findViewById(R.id.torrent_peer_limit);
-            limit.setText(peers);
-            mTextValues[PEER_LIMIT] = peers;
+            String peers = Integer.toString(mTorrent.getPeerLimit());
+            if (!mTextValues[PEER_LIMIT].equals(peers)) {
+                limit = (EditText) root.findViewById(R.id.torrent_peer_limit);
+                limit.setText(peers);
+                mTextValues[PEER_LIMIT] = peers;
+            }
         }
     }
 
