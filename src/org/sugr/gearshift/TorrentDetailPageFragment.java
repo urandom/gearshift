@@ -11,6 +11,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.content.Loader;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
@@ -112,7 +113,6 @@ public class TorrentDetailPageFragment extends Fragment {
 
         updateFields(root);
 
-        /* TODO: get loader, issue torrent-set commands */
         CheckBox check = (CheckBox) root.findViewById(R.id.torrent_global_limits);
         check.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
@@ -141,8 +141,8 @@ public class TorrentDetailPageFragment extends Fragment {
                     @Override public void onNothingSelected(AdapterView<?> parent) { }
                 });
 
-        EditText edit = (EditText) root.findViewById(R.id.torrent_queue_position);
-        edit.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+        final EditText queue = (EditText) root.findViewById(R.id.torrent_queue_position);
+        queue.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
                 if (actionId == EditorInfo.IME_ACTION_DONE) {
                     int position;
@@ -169,8 +169,8 @@ public class TorrentDetailPageFragment extends Fragment {
             }
         });
 
-        edit = (EditText) root.findViewById(R.id.torrent_limit_download);
-        edit.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+        final EditText download = (EditText) root.findViewById(R.id.torrent_limit_download);
+        download.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
                 long limit;
                 try {
@@ -196,8 +196,8 @@ public class TorrentDetailPageFragment extends Fragment {
             }
         });
 
-        edit = (EditText) root.findViewById(R.id.torrent_limit_upload);
-        edit.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+        final EditText upload = (EditText) root.findViewById(R.id.torrent_limit_upload);
+        upload.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
                 long limit;
                 try {
@@ -232,8 +232,8 @@ public class TorrentDetailPageFragment extends Fragment {
                     @Override public void onNothingSelected(AdapterView<?> parent) { }
                 });
 
-        edit = (EditText) root.findViewById(R.id.torrent_seed_ratio_limit);
-        edit.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+        final EditText ratio = (EditText) root.findViewById(R.id.torrent_seed_ratio_limit);
+        ratio.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
                 float limit;
                 try {
@@ -249,8 +249,8 @@ public class TorrentDetailPageFragment extends Fragment {
 
         });
 
-        edit = (EditText) root.findViewById(R.id.torrent_peer_limit);
-        edit.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+        final EditText peer = (EditText) root.findViewById(R.id.torrent_peer_limit);
+        peer.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
                 int limit;
                 try {
@@ -264,6 +264,24 @@ public class TorrentDetailPageFragment extends Fragment {
                 return false;
             }
 
+        });
+
+        root.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                if (queue.hasFocus()) {
+                    queue.clearFocus();
+                } else if (download.hasFocus()) {
+                    download.clearFocus();
+                } else if (upload.hasFocus()) {
+                    upload.clearFocus();
+                } else if (ratio.hasFocus()) {
+                    ratio.clearFocus();
+                } else if (peer.hasFocus()) {
+                    peer.clearFocus();
+                }
+                return false;
+            }
         });
 
         return root;

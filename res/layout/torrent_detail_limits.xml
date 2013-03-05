@@ -63,7 +63,10 @@
 
         <TableRow
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content" >
+            android:layout_height="wrap_content"
+            android:focusable="true"
+    		android:focusableInTouchMode="true"
+    		android:descendantFocusability="beforeDescendants" >
             
             <TextView style="@style/TorrentDetailTextColumn"
                  android:text="@string/torrent_queue_position" />
@@ -91,7 +94,10 @@
         
         <TableRow
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content" >
+            android:layout_height="wrap_content"
+            android:focusable="true"
+    		android:focusableInTouchMode="true"
+    		android:descendantFocusability="beforeDescendants" >
             
             <TextView style="@style/TorrentDetailTextColumn"
                 android:text="@string/torrent_limit_speed_amount" />
@@ -119,7 +125,10 @@
         
         <TableRow
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content" >
+            android:layout_height="wrap_content"
+            android:focusable="true"
+    		android:focusableInTouchMode="true"
+    		android:descendantFocusability="beforeDescendants" >
             
             <TextView style="@style/TorrentDetailTextColumn"
                 android:text="@string/torrent_limit_speed_amount" />
@@ -159,7 +168,10 @@
 
         <TableRow
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content" >
+            android:layout_height="wrap_content"
+            android:focusable="true"
+    		android:focusableInTouchMode="true"
+    		android:descendantFocusability="beforeDescendants" >
             
             <TextView style="@style/TorrentDetailTextColumn" android:text="@string/torrent_seed_ratio_limit" />
 
@@ -184,7 +196,10 @@
 
         <TableRow
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content" >
+            android:layout_height="wrap_content"
+            android:focusable="true"
+    		android:focusableInTouchMode="true"
+    		android:descendantFocusability="beforeDescendants" >
 
             
             <TextView style="@style/TorrentDetailTextColumn"
