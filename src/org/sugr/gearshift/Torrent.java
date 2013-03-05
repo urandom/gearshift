@@ -11,6 +11,20 @@ import android.text.Spanned;
 import com.google.gson.annotations.SerializedName;
 
 public class Torrent {
+    @Exclude public static final class SetterFields {
+        public static final String DOWNLOAD_LIMIT = "downloadLimit";
+        public static final String DOWNLOAD_LIMITED = "downloadLimited";
+        public static final String PEER_LIMIT = "peer-limit";
+        public static final String QUEUE_POSITION = "queuePosition";
+        public static final String SEED_RATIO_LIMIT = "seedRatioLimit";
+        public static final String SEED_RATIO_MODE = "seedRatioMode";
+        public static final String SESSION_LIMITS = "honorsSessionLimits";
+        public static final String TORRENT_PRIORITY = "bandwidthPriority";
+        public static final String UPLOAD_LIMIT = "uploadLimit";
+        public static final String UPLOAD_LIMITED = "uploadLimited";
+
+    }
+
     @SerializedName("id") private int mId;
     @SerializedName("status") private int mStatus = Status.STOPPED;
 
@@ -43,12 +57,12 @@ public class Torrent {
     @SerializedName("rateDownload") private long mRateDownload;
     @SerializedName("rateUpload") private long mRateUpload;
 
-    @SerializedName("queuePosition") private int mQueuePosition;
+    @SerializedName(SetterFields.QUEUE_POSITION) private int mQueuePosition;
 
     @SerializedName("recheckProgress") private float mRecheckProgress;
 
-    @SerializedName("seedRatioMode") private int mSeedRatioMode;
-    @SerializedName("seedRatioLimit") private float mSeedRatioLimit;
+    @SerializedName(SetterFields.SEED_RATIO_MODE) private int mSeedRatioMode;
+    @SerializedName(SetterFields.SEED_RATIO_LIMIT) private float mSeedRatioLimit;
 
     @SerializedName("uploadedEver") private long mUploadedEver;
     @SerializedName("uploadRatio") private float mUploadRatio;
@@ -77,16 +91,16 @@ public class Torrent {
     @SerializedName("pieceCount") private int mPieceCount;
     @SerializedName("pieceSize") private long mPieceSize;
 
-    @SerializedName("bandwidthPriority") private int mBandwidthPriority;
-    @SerializedName("downloadLimit") private long mDownloadLimit;
-    @SerializedName("downloadLimited") private boolean mDownloadLimited;
+    @SerializedName(SetterFields.TORRENT_PRIORITY) private int mTorrentPriority;
+    @SerializedName(SetterFields.DOWNLOAD_LIMIT) private long mDownloadLimit;
+    @SerializedName(SetterFields.DOWNLOAD_LIMITED) private boolean mDownloadLimited;
     @SerializedName("fileStats") private FileStat[] mFileStats;
-    @SerializedName("honorsSessionLimits") private boolean mHonorsSessionLimits;
-    @SerializedName("uploadLimit") private long mUploadLimit;
-    @SerializedName("uploadLimited") private boolean mUploadLimited;
+    @SerializedName(SetterFields.SESSION_LIMITS) private boolean mHonorsSessionLimits;
+    @SerializedName(SetterFields.UPLOAD_LIMIT) private long mUploadLimit;
+    @SerializedName(SetterFields.UPLOAD_LIMITED) private boolean mUploadLimited;
     @SerializedName("webseedsSendingToUs") private int mWebseedsSendingToUs;
     @SerializedName("peers") private Peer[] mPeers;
-    @SerializedName("peer-limit") private int mPeerLimit;
+    @SerializedName(SetterFields.PEER_LIMIT) private int mPeerLimit;
 
     @Exclude private Spanned mTrafficText;
     @Exclude private Spanned mStatusText;
@@ -137,8 +151,8 @@ public class Torrent {
             "id", "error", "eta", "isFinished", "isStalled",
             "leftUntilDone", "metadataPercentComplete", "peersConnected",
             "peersGettingFromUs", "peersSendingToUs", "percentDone",
-            "queuePosition", "rateDownload", "rateUpload",
-            "recheckProgress", "seedRatioMode", "seedRatioLimit",
+            SetterFields.QUEUE_POSITION, "rateDownload", "rateUpload",
+            "recheckProgress", SetterFields.SEED_RATIO_MODE, SetterFields.SEED_RATIO_LIMIT,
             "sizeWhenDone", "status", "trackers", "uploadedEver",
             "uploadRatio", "downloadDir"
         };
@@ -151,12 +165,12 @@ public class Torrent {
 
         // fields used in the inspector which need to be periodically refreshed
         public static final String[] STATS_EXTRA = {
-            "activityDate", "bandwidthPriority", "corruptEver",
-            "desiredAvailable", "downloadedEver", "downloadLimit",
-            "downloadLimited", "errorString", "fileStats", "haveUnchecked",
-            "haveValid", "honorsSessionLimits", "peer-limit", "peers",
-            "startDate", /*"trackerStats",*/ "uploadLimit", "uploadLimited",
-            "webseedsSendingToUs"
+            "activityDate", SetterFields.TORRENT_PRIORITY, "corruptEver",
+            "desiredAvailable", "downloadedEver", SetterFields.DOWNLOAD_LIMIT,
+            SetterFields.DOWNLOAD_LIMITED, "errorString", "fileStats", "haveUnchecked",
+            "haveValid", SetterFields.SESSION_LIMITS, SetterFields.PEER_LIMIT, "peers",
+            "startDate", /*"trackerStats",*/ SetterFields.UPLOAD_LIMIT,
+            SetterFields.UPLOAD_LIMITED, "webseedsSendingToUs"
         };
     };
 
@@ -499,8 +513,8 @@ public class Torrent {
         return mTrackers;
     }
 
-    public int getBandwidthPriority() {
-        return mBandwidthPriority;
+    public int getTorrentPriority() {
+        return mTorrentPriority;
     }
 
     public String getComment() {
@@ -531,7 +545,7 @@ public class Torrent {
         return mHashString;
     }
 
-    public boolean isHonorsSessionLimits() {
+    public boolean areSessionLimitsHonored() {
         return mHonorsSessionLimits;
     }
 
@@ -711,8 +725,8 @@ public class Torrent {
         this.mTrackers = trackers;
     }
 
-    public void setBandwidthPriority(int priority) {
-        this.mBandwidthPriority = priority;
+    public void setTorrentPriority(int priority) {
+        this.mTorrentPriority = priority;
     }
 
     public void setComment(String comment) {
@@ -1032,7 +1046,7 @@ public class Torrent {
                 setPeersSendingToUs(source.getPeersSendingToUs());
             } else if (field.equals("percentDone")) {
                 setPercentDone(source.getPercentDone());
-            } else if (field.equals("queuePosition")) {
+            } else if (field.equals(SetterFields.QUEUE_POSITION)) {
                 setQueuePosition(source.getQueuePosition());
             } else if (field.equals("rateDownload")) {
                 setRateDownload(source.getRateDownload());
@@ -1040,9 +1054,9 @@ public class Torrent {
                 setRateUpload(source.getRateUpload());
             } else if (field.equals("recheckProgress")) {
                 setRecheckProgress(source.getRecheckProgress());
-            } else if (field.equals("seedRatioMode")) {
+            } else if (field.equals(SetterFields.SEED_RATIO_MODE)) {
                 setSeedRatioMode(source.getSeedRatioMode());
-            } else if (field.equals("seedRatioLimit")) {
+            } else if (field.equals(SetterFields.SEED_RATIO_LIMIT)) {
                 setSeedRatioLimit(source.getSeedRatioLimit());
             } else if (field.equals("sizeWhenDone")) {
                 setSizeWhenDone(source.getSizeWhenDone());
@@ -1054,33 +1068,33 @@ public class Torrent {
                 setUploadedEver(source.getUploadedEver());
             } else if (field.equals("uploadRatio")) {
                 setUploadRatio(source.getUploadRatio());
-            } else if (field.equals("bandwidthPriority")) {
-                setBandwidthPriority(source.getBandwidthPriority());
+            } else if (field.equals(SetterFields.TORRENT_PRIORITY)) {
+                setTorrentPriority(source.getTorrentPriority());
             } else if (field.equals("comment")) {
                 setComment(source.getComment());
             } else if (field.equals("creator")) {
                 setCreator(source.getCreator());
             } else if (field.equals("dateCreated")) {
                 setDateCreated(source.getDateCreated());
-            } else if (field.equals("downloadLimit")) {
+            } else if (field.equals(SetterFields.DOWNLOAD_LIMIT)) {
                 setDownloadLimit(source.getDownloadLimit());
-            } else if (field.equals("downloadLimited")) {
+            } else if (field.equals(SetterFields.DOWNLOAD_LIMITED)) {
                 setDownloadLimited(source.isDownloadLimited());
             } else if (field.equals("files")) {
                 setFiles(source.getFiles());
             } else if (field.equals("hashString")) {
                 setHashString(source.getHashString());
-            } else if (field.equals("honorsSessionLimits")) {
-                setHonorsSessionLimits(source.isHonorsSessionLimits());
+            } else if (field.equals(SetterFields.SESSION_LIMITS)) {
+                setHonorsSessionLimits(source.areSessionLimitsHonored());
             } else if (field.equals("isPrivate")) {
                 setPrivate(source.isPrivate());
             } else if (field.equals("pieceCount")) {
                 setPieceCount(source.getPieceCount());
             } else if (field.equals("pieceSize")) {
                 setPieceSize(source.getPieceSize());
-            } else if (field.equals("uploadLimit")) {
+            } else if (field.equals(SetterFields.UPLOAD_LIMIT)) {
                 setUploadLimit(source.getUploadLimit());
-            } else if (field.equals("uploadLimited")) {
+            } else if (field.equals(SetterFields.UPLOAD_LIMITED)) {
                 setUploadLimited(source.isUploadLimited());
             } else if (field.equals("activityDate")) {
                 setActivityDate(source.getActivityDate());
@@ -1100,7 +1114,7 @@ public class Torrent {
                 setHaveValid(source.getHaveValid());
             } else if (field.equals("peers")) {
                 setPeers(source.getPeers());
-            } else if (field.equals("peer-limit")) {
+            } else if (field.equals(SetterFields.PEER_LIMIT)) {
                 setPeerLimit(source.getPeerLimit());
             } else if (field.equals("startDate")) {
                 setStartDate(source.getStartDate());

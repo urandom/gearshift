@@ -86,10 +86,17 @@ public class TransmissionSessionLoader extends AsyncTaskLoader<TransmissionSessi
     private TransmissionSession mSessionSet;
     private String[] mSessionSetKeys;
 
+    private static final int INVALID_INT = -927351;
+
     private String mTorrentAction;
     private int[] mTorrentActionIds;
     private boolean mDeleteData = false;
     private String mTorrentLocation;
+    private String mTorrentSetKey;
+    private boolean mTorrentSetBooleanValue;
+    private int mTorrentSetIntValue = INVALID_INT;
+    private long mTorrentSetLongValue = INVALID_INT;
+    private float mTorrentSetFloatValue = INVALID_INT;
     private boolean mMoveData = false;
 
     private Object mLock = new Object();
@@ -153,6 +160,34 @@ public class TransmissionSessionLoader extends AsyncTaskLoader<TransmissionSessi
         onContentChanged();
     }
 
+    public void setTorrent(int id, String key, boolean value) {
+        mTorrentSetBooleanValue = value;
+        setTorrent(id, key);
+    }
+
+
+    public void setTorrent(int id, String key, int value) {
+        mTorrentSetIntValue = value;
+        setTorrent(id, key);
+    }
+
+    public void setTorrent(int id, String key, long value) {
+        mTorrentSetLongValue = value;
+        setTorrent(id, key);
+    }
+
+    public void setTorrent(int id, String key, float value) {
+        mTorrentSetFloatValue = value;
+        setTorrent(id, key);
+    }
+
+    private void setTorrent(int id, String key) {
+        mTorrentAction = "torrent-set";
+        mTorrentActionIds = new int[] {id};
+        mTorrentSetKey = key;
+        onContentChanged();
+    }
+
     @Override
     public TransmissionSessionData loadInBackground() {
         /* Remove any previous waiting runners */
@@ -174,14 +209,29 @@ public class TransmissionSessionLoader extends AsyncTaskLoader<TransmissionSessi
 
         if (mTorrentActionIds != null) {
             try {
-                if (mTorrentAction.equals("torrent-remove"))
+                if (mTorrentAction.equals("torrent-remove")) {
                     mSessManager.setTorrentsRemove(mTorrentActionIds, mDeleteData);
-                else if (mTorrentAction.equals("torrent-set-location"))
+                } else if (mTorrentAction.equals("torrent-set-location")) {
                     mSessManager.setTorrentsLocation(mTorrentActionIds, mTorrentLocation, mMoveData);
-                else
+                } else if (mTorrentAction.equals("torrent-set")) {
+                    if (mTorrentSetIntValue != INVALID_INT) {
+                        mSessManager.setTorrents(mTorrentActionIds, mTorrentSetKey, mTorrentSetIntValue);
+                    } else if (mTorrentSetLongValue != INVALID_INT) {
+                        mSessManager.setTorrents(mTorrentActionIds, mTorrentSetKey, mTorrentSetLongValue);
+                    } else if (mTorrentSetFloatValue != INVALID_INT) {
+                        mSessManager.setTorrents(mTorrentActionIds, mTorrentSetKey, mTorrentSetFloatValue);
+                    } else {
+                        mSessManager.setTorrents(mTorrentActionIds, mTorrentSetKey, mTorrentSetBooleanValue);
+                    }
+                } else {
                     mSessManager.setTorrentsAction(mTorrentAction, mTorrentActionIds);
+                }
                 mTorrentActionIds = null;
                 mTorrentAction = null;
+                mTorrentSetKey = null;
+                mTorrentSetIntValue = INVALID_INT;
+                mTorrentSetLongValue = INVALID_INT;
+                mTorrentSetFloatValue = INVALID_INT;
                 mDeleteData = false;
             } catch (ManagerException e) {
                 return handleError(e);

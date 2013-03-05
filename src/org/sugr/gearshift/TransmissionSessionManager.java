@@ -202,6 +202,38 @@ public class TransmissionSessionManager {
         return response;
     }
 
+    public Response setTorrents(int[] ids, String key, boolean value) throws ManagerException {
+        TorrentsSetRequest request = new TorrentsSetRequest(ids, key, value);
+        Response response = getTorrentSetResponse(ids, key, request);
+        return response;
+    }
+
+    public Response setTorrents(int[] ids, String key, int value) throws ManagerException {
+        TorrentsSetRequest request = new TorrentsSetRequest(ids, key, value);
+        Response response = getTorrentSetResponse(ids, key, request);
+        return response;
+    }
+
+    public Response setTorrents(int[] ids, String key, long value) throws ManagerException {
+        TorrentsSetRequest request = new TorrentsSetRequest(ids, key, value);
+        Response response = getTorrentSetResponse(ids, key, request);
+        return response;
+    }
+
+    public Response setTorrents(int[] ids, String key, float value) throws ManagerException {
+        TorrentsSetRequest request = new TorrentsSetRequest(ids, key, value);
+        Response response = getTorrentSetResponse(ids, key, request);
+        return response;
+    }
+
+    public Response getTorrentSetResponse(int[] ids, String key, TorrentsSetRequest request) throws ManagerException {
+        String json = requestData(request, new KeyExclusionStrategy("ids", key));
+        Gson gson = new GsonBuilder().setExclusionStrategies(new TransmissionExclusionStrategy()).create();
+        Response response = gson.fromJson(json, Response.class);
+
+        return response;
+    }
+
     private String requestData(Object data, ExclusionStrategy... strategies) throws ManagerException {
         OutputStream os = null;
         InputStream is = null;
@@ -454,19 +486,38 @@ public class TransmissionSessionManager {
         }
     }
 
-    private static class TorrentSetRequest {
-        @SerializedName("method") private final String method = "session-set";
+    private static class TorrentsSetRequest {
+        @SerializedName("method") private final String method = "torrent-set";
         @SerializedName("arguments") private Arguments arguments;
 
-        public TorrentSetRequest(int[] ids, String key, boolean value) {
+        public TorrentsSetRequest(int[] ids, String key, boolean value) {
+            this.arguments = new Arguments(ids, key, value);
+        }
+
+        public TorrentsSetRequest(int[] ids, String key, int value) {
+            this.arguments = new Arguments(ids, key, value);
+        }
+
+        public TorrentsSetRequest(int[] ids, String key, long value) {
+            this.arguments = new Arguments(ids, key, value);
+        }
+
+        public TorrentsSetRequest(int[] ids, String key, float value) {
             this.arguments = new Arguments(ids, key, value);
         }
 
         private static class Arguments {
             @SerializedName("ids") private int[] ids;
-            @SerializedName("downloadLimited") private boolean downloadLimited;
-            @SerializedName("honorsSessionsLimits") private boolean honorsSessionsLimits;
-            @SerializedName("uploadLimited") private boolean uploadLimited;
+            @SerializedName(Torrent.SetterFields.DOWNLOAD_LIMIT) private long downloadLimit;
+            @SerializedName(Torrent.SetterFields.DOWNLOAD_LIMITED) private boolean downloadLimited;
+            @SerializedName(Torrent.SetterFields.PEER_LIMIT) private int peerLimit;
+            @SerializedName(Torrent.SetterFields.QUEUE_POSITION) private int queuePosition;
+            @SerializedName(Torrent.SetterFields.SEED_RATIO_LIMIT) private float seedRatioLimit;
+            @SerializedName(Torrent.SetterFields.SEED_RATIO_MODE) private int seedRatioMode;
+            @SerializedName(Torrent.SetterFields.SESSION_LIMITS) private boolean honorsSessionLimits;
+            @SerializedName(Torrent.SetterFields.TORRENT_PRIORITY) private int torrentPriority;
+            @SerializedName(Torrent.SetterFields.UPLOAD_LIMIT) private long uploadLimit;
+            @SerializedName(Torrent.SetterFields.UPLOAD_LIMITED) private boolean uploadLimited;
 
             public Arguments(int[] ids) {
                 this.ids = ids;
@@ -474,12 +525,41 @@ public class TransmissionSessionManager {
 
             public Arguments(int[] ids, String key, boolean value) {
                 this(ids);
-                if (key.equals("downloadLimited")) {
+                if (key.equals(Torrent.SetterFields.DOWNLOAD_LIMITED)) {
                     this.downloadLimited = value;
-                } else if (key.equals("honorsSessionsLimits")) {
-                    this.honorsSessionsLimits = value;
-                } else if (key.equals("uploadLimited")) {
+                } else if (key.equals(Torrent.SetterFields.SESSION_LIMITS)) {
+                    this.honorsSessionLimits = value;
+                } else if (key.equals(Torrent.SetterFields.UPLOAD_LIMITED)) {
                     this.uploadLimited = value;
+                }
+            }
+
+            public Arguments(int[] ids, String key, int value) {
+                this(ids);
+                if (key.equals(Torrent.SetterFields.TORRENT_PRIORITY)) {
+                    this.torrentPriority = value;
+                } else if (key.equals(Torrent.SetterFields.QUEUE_POSITION)) {
+                    this.queuePosition = value;
+                } else if (key.equals(Torrent.SetterFields.PEER_LIMIT)) {
+                    this.peerLimit = value;
+                } else if (key.equals(Torrent.SetterFields.SEED_RATIO_MODE)) {
+                    this.seedRatioMode = value;
+                }
+            }
+
+            public Arguments(int[] ids, String key, long value) {
+                this(ids);
+                if (key.equals(Torrent.SetterFields.DOWNLOAD_LIMIT)) {
+                    this.downloadLimit = value;
+                } else if (key.equals(Torrent.SetterFields.UPLOAD_LIMIT)) {
+                    this.uploadLimit = value;
+                }
+            }
+
+            public Arguments(int[] ids, String key, float value) {
+                this(ids);
+                if (key.equals(Torrent.SetterFields.SEED_RATIO_LIMIT)) {
+                    this.seedRatioLimit = value;
                 }
             }
         }
