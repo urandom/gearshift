@@ -20,10 +20,10 @@
             style="@style/TorrentTitle" />
 
         <include layout="@layout/torrent_detail_overview" />
-
-        <include layout="@layout/torrent_detail_limits" />
+		
+		<include layout="@layout/torrent_detail_files" />
         
-        <include layout="@layout/torrent_detail_advanced" />
+        <include layout="@layout/torrent_detail_limits" />
 
     </LinearLayout>
 

@@ -6,6 +6,8 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
+import android.content.Context;
+import android.database.DataSetObserver;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.Loader;
@@ -16,9 +18,11 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
 import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
 
@@ -54,13 +58,13 @@ public class TorrentDetailPageFragment extends Fragment {
                     image = v.findViewById(R.id.torrent_detail_overview_expander_image);
                     content = getView().findViewById(R.id.torrent_detail_overview_content);
                     break;
+                case R.id.torrent_detail_files_expander:
+                    image = v.findViewById(R.id.torrent_detail_files_expander_image);
+                    content = getView().findViewById(R.id.torrent_detail_files_content);
+                    break;
                 case R.id.torrent_detail_limits_expander:
                     image = v.findViewById(R.id.torrent_detail_limits_expander_image);
                     content = getView().findViewById(R.id.torrent_detail_limits_content);
-                    break;
-                case R.id.torrent_detail_advanced_expander:
-                    image = v.findViewById(R.id.torrent_detail_advanced_expander_image);
-                    content = getView().findViewById(R.id.torrent_detail_advanced_content);
                     break;
                 default:
                     return;
@@ -76,6 +80,9 @@ public class TorrentDetailPageFragment extends Fragment {
 
         }
     };
+
+    private FilesAdapter mFilesAdapter;
+    private FilesDataSetObserver mFilesObserver;
 
     /**
      * Mandatory empty constructor for the fragment manager to instantiate the
@@ -106,10 +113,14 @@ public class TorrentDetailPageFragment extends Fragment {
         final View root = inflater.inflate(R.layout.fragment_torrent_detail_page, container, false);
 
         root.findViewById(R.id.torrent_detail_overview_expander).setOnClickListener(mExpanderListener);
+        root.findViewById(R.id.torrent_detail_files_expander).setOnClickListener(mExpanderListener);
         root.findViewById(R.id.torrent_detail_limits_expander).setOnClickListener(mExpanderListener);
-        root.findViewById(R.id.torrent_detail_advanced_expander).setOnClickListener(mExpanderListener);
 
         if (mTorrent == null) return root;
+
+        mFilesAdapter = new FilesAdapter();
+        mFilesObserver = new FilesDataSetObserver(root);
+        mFilesAdapter.registerDataSetObserver(mFilesObserver);
 
         updateFields(root);
 
@@ -433,6 +444,20 @@ public class TorrentDetailPageFragment extends Fragment {
             ((TextView) root.findViewById(R.id.torrent_have)).setText(R.string.none);
         }
 
+        /* Files start */
+        if (mTorrent.getFiles() != null && mTorrent.getFileStats() != null) {
+            Torrent.File[] files = mTorrent.getFiles();
+            Torrent.FileStat[] stats = mTorrent.getFileStats();
+
+            mFilesAdapter.setNotifyOnChange(false);
+            mFilesAdapter.clear();
+            for (int i = 0; i < files.length; i++) {
+                File file = new File(files[i], stats[i]);
+                mFilesAdapter.add(file);
+            }
+            mFilesAdapter.notifyDataSetChanged();
+        }
+
         /* Limits start */
         CheckBox check = (CheckBox) root.findViewById(R.id.torrent_global_limits);
         check.setChecked(mTorrent.areSessionLimitsHonored());
@@ -502,6 +527,70 @@ public class TorrentDetailPageFragment extends Fragment {
             limit = (EditText) root.findViewById(R.id.torrent_peer_limit);
             limit.setText(peers);
             mTextValues[PEER_LIMIT] = peers;
+        }
+    }
+
+    private class File {
+        Torrent.File file;
+        Torrent.FileStat stat;
+
+        public File(Torrent.File file, Torrent.FileStat stat) {
+            this.file = file;
+            this.stat = stat;
+        }
+    }
+
+    private class FilesAdapter extends ArrayAdapter<File> {
+        private static final int mFieldId = R.id.torrent_detail_files_row;
+
+        public FilesAdapter() {
+            super(getActivity(), mFieldId);
+        }
+
+        @Override
+        public View getView(int position, View convertView, ViewGroup parent) {
+            View rowView = convertView;
+            File file = getItem(position);
+
+            if (rowView == null) {
+                LayoutInflater vi = (LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+                rowView = vi.inflate(R.layout.torrent_detail_files_row, null);
+            }
+
+            CheckBox row = (CheckBox) rowView.findViewById(mFieldId);
+            row.setText(file.file.getName());
+            row.setChecked(file.stat.isWanted());
+
+            return rowView;
+        }
+    }
+
+    private class FilesDataSetObserver extends DataSetObserver {
+        private View mRoot;
+        private LinearLayout mContainer;
+
+        public FilesDataSetObserver(View root) {
+            mRoot = root;
+            mContainer = (LinearLayout) mRoot.findViewById(R.id.torrent_detail_files_content);
+        }
+
+        @Override public void onChanged() {
+            for (int i = 0; i < mFilesAdapter.getCount(); i++) {
+                View v = null;
+                boolean hasChild = false;
+                if (i < mContainer.getChildCount()) {
+                    v = mContainer.getChildAt(i);
+                    hasChild = true;
+                }
+                v = mFilesAdapter.getView(i, v, null);
+                if (!hasChild) {
+                    mContainer.addView(v, i);
+                }
+            }
+        }
+
+        @Override public void onInvalidated() {
+            mContainer.removeAllViews();
         }
     }
 }

@@ -6,20 +6,21 @@
     android:orientation="vertical" >
 
     <LinearLayout
-        android:id="@+id/torrent_detail_advanced_expander"
+        android:id="@+id/torrent_detail_files_expander"
         style="@style/TorrentDetailExpander" >
 
         <TextView
             style="@style/TorrentDetailExpanderText"
-            android:text="@string/torrent_advanced" />
+            android:text="@string/torrent_files" />
 
         <View
-            android:id="@+id/torrent_detail_advanced_expander_image"
+            android:id="@+id/torrent_detail_files_expander_image"
             style="@style/TorrentDetailExpanderImage" />
     </LinearLayout>
 
-    <TableLayout
-        android:id="@+id/torrent_detail_advanced_content"
+    <LinearLayout
+        android:id="@+id/torrent_detail_files_content"
+        android:orientation="vertical"
         style="@style/TorrentDetailContentCollapsed" >
-    </TableLayout>
+    </LinearLayout>
 </LinearLayout>

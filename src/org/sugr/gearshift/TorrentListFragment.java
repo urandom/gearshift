@@ -976,9 +976,13 @@ public class TorrentListFragment extends ListFragment {
             @Override
             protected void publishResults(CharSequence constraint, FilterResults results) {
                 mObjects = (ArrayList<Torrent>) results.values;
+                TransmissionSessionInterface context = (TransmissionSessionInterface) getActivity();
+                if (context == null) {
+                    return;
+                }
                 if (results.count > 0) {
                     if (mChanged) {
-                        ((TransmissionSessionInterface) getActivity()).setTorrents((ArrayList<Torrent>) results.values);
+                        context.setTorrents((ArrayList<Torrent>) results.values);
                         FragmentManager manager = getActivity().getSupportFragmentManager();
                         TorrentDetailFragment detail = (TorrentDetailFragment) manager.findFragmentByTag(
                                 TorrentDetailFragment.TAG);

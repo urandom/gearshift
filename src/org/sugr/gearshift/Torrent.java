@@ -245,7 +245,7 @@ public class Torrent {
             return mBytesCompleted;
         }
 
-        public long getPriority() {
+        public int getPriority() {
             return mPriority;
         }
 

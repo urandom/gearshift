@@ -27,8 +27,8 @@
     <string name="settings">Settings</string>
 
     <string name="torrent_overview">Overview</string>
+    <string name="torrent_files">Files</string>
     <string name="torrent_limits">Limits</string>
-    <string name="torrent_advanced">Advanced</string>
     
     <string name="torrent_activity">Activity</string>
     <string name="torrent_have">Have:</string>
