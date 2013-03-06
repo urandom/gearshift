@@ -144,8 +144,8 @@ public class TorrentDetailActivity extends FragmentActivity implements Transmiss
         // Show the Up button in the action bar.
         getActionBar().setDisplayHomeAsUpEnabled(true);
 
+        mCurrentTorrent = in.getIntExtra(TorrentDetailFragment.ARG_PAGE_POSITION, 0);
         if (savedInstanceState == null) {
-            mCurrentTorrent = in.getIntExtra(TorrentDetailFragment.ARG_PAGE_POSITION, 0);
             Bundle arguments = new Bundle();
             arguments.putInt(TorrentDetailFragment.ARG_PAGE_POSITION,
                     mCurrentTorrent);
@@ -154,10 +154,10 @@ public class TorrentDetailActivity extends FragmentActivity implements Transmiss
             getSupportFragmentManager().beginTransaction()
                     .replace(R.id.torrent_detail_container, fragment, TorrentDetailFragment.TAG)
                     .commit();
-
-            getSupportLoaderManager().restartLoader(
-                    TorrentListActivity.SESSION_LOADER_ID, null, mTorrentLoaderCallbacks);
         }
+
+        getSupportLoaderManager().restartLoader(
+                TorrentListActivity.SESSION_LOADER_ID, null, mTorrentLoaderCallbacks);
     }
 
     @Override

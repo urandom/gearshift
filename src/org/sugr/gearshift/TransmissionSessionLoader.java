@@ -309,9 +309,7 @@ public class TransmissionSessionLoader extends AsyncTaskLoader<TransmissionSessi
         int[] ids = null;
         String[] fields = null;
 
-        if (mIteration == 0) {
-            fields = concat(Torrent.Fields.METADATA, Torrent.Fields.STATS);
-        } else if (mAllCurrent) {
+        if (mAllCurrent) {
             fields = concat(Torrent.Fields.STATS, Torrent.Fields.STATS_EXTRA);
             for (int i = 0; i < mTorrentMap.size(); i++) {
                 int key = mTorrentMap.keyAt(i);
@@ -322,18 +320,25 @@ public class TransmissionSessionLoader extends AsyncTaskLoader<TransmissionSessi
                 }
             }
         } else if (mCurrentTorrents != null) {
-            fields = concat(Torrent.Fields.STATS, Torrent.Fields.STATS_EXTRA);
-            boolean extraAdded = false;
-            ids = new int[mCurrentTorrents.length];
-            int index = 0;
-            for (Torrent t : mCurrentTorrents) {
-                if (!extraAdded && t.getHashString() == null) {
-                    fields = concat(fields, Torrent.Fields.INFO_EXTRA);
-                    extraAdded = true;
-                }
+            if (mIteration == 0) {
+                fields = concat(Torrent.Fields.METADATA, Torrent.Fields.STATS,
+                        Torrent.Fields.STATS_EXTRA, Torrent.Fields.INFO_EXTRA);
+            } else {
+                fields = concat(Torrent.Fields.STATS, Torrent.Fields.STATS_EXTRA);
+                boolean extraAdded = false;
+                ids = new int[mCurrentTorrents.length];
+                int index = 0;
+                for (Torrent t : mCurrentTorrents) {
+                    if (!extraAdded && t.getHashString() == null) {
+                        fields = concat(fields, Torrent.Fields.INFO_EXTRA);
+                        extraAdded = true;
+                    }
 
-                ids[index++] = t.getId();
+                    ids[index++] = t.getId();
+                }
             }
+        } else if (mIteration == 0) {
+            fields = concat(Torrent.Fields.METADATA, Torrent.Fields.STATS);
         } else {
             fields = Torrent.Fields.STATS;
         }
