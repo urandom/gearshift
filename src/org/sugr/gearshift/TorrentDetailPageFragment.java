@@ -1,8 +1,11 @@
 package org.sugr.gearshift;
 
+import java.io.File;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 
@@ -456,14 +459,37 @@ public class TorrentDetailPageFragment extends Fragment {
         /* Files start */
         if (root.findViewById(R.id.torrent_detail_files_content).getVisibility() != View.GONE
                 && mTorrent.getFiles() != null && mTorrent.getFileStats() != null) {
-            Torrent.File[] files = mTorrent.getFiles();
-            Torrent.FileStat[] stats = mTorrent.getFileStats();
 
             mFilesAdapter.setNotifyOnChange(false);
-            mFilesAdapter.clear();
-            for (int i = 0; i < files.length; i++) {
-                File file = new File(files[i], stats[i]);
-                mFilesAdapter.add(file);
+            if (mFilesAdapter.getCount() == 0) {
+                Torrent.File[] files = mTorrent.getFiles();
+                Torrent.FileStat[] stats = mTorrent.getFileStats();
+
+                mFilesAdapter.clear();
+                ArrayList<TorrentFile> torrentFiles = new ArrayList<TorrentFile>();
+                for (int i = 0; i < files.length; i++) {
+                    TorrentFile file = new TorrentFile(i, files[i], stats[i]);
+                    torrentFiles.add(file);
+                }
+                Collections.sort(torrentFiles, new TorrentFileComparator());
+                String directory = "";
+
+                ArrayList<Integer> directories = new ArrayList<Integer>();
+                for (int i = 0; i < torrentFiles.size(); i++) {
+                    TorrentFile file = torrentFiles.get(i);
+                    if (!directory.equals(file.directory)) {
+                        directory = file.directory;
+                        directories.add(i);
+                    }
+                }
+                int offset = 0;
+                for (Integer i : directories) {
+                    TorrentFile file = torrentFiles.get(i + offset);
+                    torrentFiles.add(i + offset, new TorrentFile(file.directory));
+                    offset++;
+                }
+
+                mFilesAdapter.addAll(torrentFiles);
             }
             mFilesAdapter.notifyDataSetChanged();
         }
@@ -542,17 +568,52 @@ public class TorrentDetailPageFragment extends Fragment {
         }
     }
 
-    private class File {
-        Torrent.File file;
+    private class TorrentFile {
+        int index = -1;
+        Torrent.File info;
         Torrent.FileStat stat;
 
-        public File(Torrent.File file, Torrent.FileStat stat) {
-            this.file = file;
+        String directory;
+        String name;
+
+        public TorrentFile(int index, Torrent.File info, Torrent.FileStat stat) {
+            this.index = index;
+            this.stat = stat;
+
+            setInfo(info);
+        }
+
+        public TorrentFile(String directory) {
+            this.directory = directory;
+        }
+
+        public void setInfo(Torrent.File info) {
+            this.info = info;
+            String path = info.getName();
+            File f = new File(path);
+            this.directory = f.getParent();
+            this.name = f.getName();
+        }
+
+        public void setStat(Torrent.FileStat stat) {
             this.stat = stat;
         }
     }
 
-    private class FilesAdapter extends ArrayAdapter<File> {
+    private class TorrentFileComparator implements Comparator<TorrentFile> {
+        @Override
+        public int compare(TorrentFile lhs, TorrentFile rhs) {
+            int path = lhs.directory.compareTo(rhs.directory);
+
+            if (path != 0) {
+                return path;
+            }
+            return lhs.name.compareToIgnoreCase(rhs.name);
+        }
+
+    }
+
+    private class FilesAdapter extends ArrayAdapter<TorrentFile> {
         private static final int mFieldId = R.id.torrent_detail_files_row;
 
         public FilesAdapter() {
@@ -562,31 +623,41 @@ public class TorrentDetailPageFragment extends Fragment {
         @Override
         public View getView(final int position, View convertView, ViewGroup parent) {
             View rowView = convertView;
-            final File file = getItem(position);
+            final TorrentFile file = getItem(position);
             boolean initial = false;
 
             if (rowView == null) {
                 LayoutInflater vi = (LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-                rowView = vi.inflate(R.layout.torrent_detail_files_row, null);
+                if (file.info == null) {
+                    rowView = vi.inflate(R.layout.torrent_detail_files_directory_row, null);
+                } else {
+                    rowView = vi.inflate(R.layout.torrent_detail_files_row, null);
+                }
                 initial = true;
             }
 
-            CheckBox row = (CheckBox) rowView.findViewById(mFieldId);
-            if (initial) {
-                row.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-                    @Override public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                        if (file.stat.isWanted() != isChecked) {
-                            if (isChecked) {
-                                setTorrent(Torrent.SetterFields.FILES_WANTED, position);
-                            } else {
-                                setTorrent(Torrent.SetterFields.FILES_UNWANTED, position);
+            if (file.info == null) {
+                TextView row = (TextView) rowView.findViewById(mFieldId);
+
+                row.setText(file.directory);
+            } else {
+                CheckBox row = (CheckBox) rowView.findViewById(mFieldId);
+                if (initial) {
+                    row.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                        @Override public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                            if (file.stat.isWanted() != isChecked) {
+                                if (isChecked) {
+                                    setTorrent(Torrent.SetterFields.FILES_WANTED, file.index);
+                                } else {
+                                    setTorrent(Torrent.SetterFields.FILES_UNWANTED, file.index);
+                                }
                             }
                         }
-                    }
-                });
-                row.setText(file.file.getName());
+                    });
+                    row.setText(file.name);
+                }
+                row.setChecked(file.stat.isWanted());
             }
-            row.setChecked(file.stat.isWanted());
 
             return rowView;
         }
@@ -602,22 +673,40 @@ public class TorrentDetailPageFragment extends Fragment {
         }
 
         @Override public void onChanged() {
+            Torrent.File[] files = mTorrent.getFiles();
+            Torrent.FileStat[] stats = mTorrent.getFileStats();
             for (int i = 0; i < mFilesAdapter.getCount(); i++) {
+                TorrentFile file = mFilesAdapter.getItem(i);
                 View v = null;
                 boolean hasChild = false;
                 if (i < mContainer.getChildCount()) {
                     v = mContainer.getChildAt(i);
                     hasChild = true;
                 }
-                v = mFilesAdapter.getView(i, v, null);
-                if (!hasChild) {
-                    mContainer.addView(v, i);
+                if (!hasChild || (file.index != -1 && fileChanged(file, files[file.index], stats[file.index]))) {
+                    v = mFilesAdapter.getView(i, v, null);
+                    if (!hasChild) {
+                        mContainer.addView(v, i);
+                    }
                 }
             }
         }
 
         @Override public void onInvalidated() {
             mContainer.removeAllViews();
+        }
+
+        private boolean fileChanged(TorrentFile file, Torrent.File tFile, Torrent.FileStat stat) {
+            boolean changed = false;
+
+            if (file.stat.isWanted() != stat.isWanted()
+                    || file.stat.getBytesCompleted() != stat.getBytesCompleted()
+                    || file.stat.getPriority() != stat.getPriority()) {
+                file.setStat(stat);
+                changed = true;
+            }
+
+            return changed;
         }
     }
 }
