@@ -23,6 +23,12 @@ public class Torrent {
         public static final String UPLOAD_LIMIT = "uploadLimit";
         public static final String UPLOAD_LIMITED = "uploadLimited";
 
+        public static final String FILES_WANTED = "files-wanted";
+        public static final String FILES_UNWANTED = "files-unwanted";
+        public static final String FILES_HIGH = "priority-high";
+        public static final String FILES_NORMAL = "priority-normal";
+        public static final String FILES_LOW = "priority-low";
+
     }
 
     @SerializedName("id") private int mId;

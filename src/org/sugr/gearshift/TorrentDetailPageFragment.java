@@ -335,6 +335,12 @@ public class TorrentDetailPageFragment extends Fragment {
         return (TransmissionSessionLoader) loader;
     }
 
+    private void setTorrent(String key, int[] value) {
+        TransmissionSessionLoader loader = getLoader();
+        loader.setTorrent(mTorrent.getId(), key, value);
+    }
+
+
     private void updateFields(View root) {
         if (root == null) return;
 
@@ -554,17 +560,32 @@ public class TorrentDetailPageFragment extends Fragment {
         }
 
         @Override
-        public View getView(int position, View convertView, ViewGroup parent) {
+        public View getView(final int position, View convertView, ViewGroup parent) {
             View rowView = convertView;
-            File file = getItem(position);
+            final File file = getItem(position);
+            boolean initial = false;
 
             if (rowView == null) {
                 LayoutInflater vi = (LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
                 rowView = vi.inflate(R.layout.torrent_detail_files_row, null);
+                initial = true;
             }
 
             CheckBox row = (CheckBox) rowView.findViewById(mFieldId);
-            row.setText(file.file.getName());
+            if (initial) {
+                row.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                    @Override public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                        if (file.stat.isWanted() != isChecked) {
+                            if (isChecked) {
+                                setTorrent(Torrent.SetterFields.FILES_WANTED, position);
+                            } else {
+                                setTorrent(Torrent.SetterFields.FILES_UNWANTED, position);
+                            }
+                        }
+                    }
+                });
+                row.setText(file.file.getName());
+            }
             row.setChecked(file.stat.isWanted());
 
             return rowView;

@@ -234,6 +234,13 @@ public class TransmissionSessionManager {
         return response;
     }
 
+    public Response setTorrents(int[] ids, String key, int[] value) throws ManagerException {
+        TorrentsSetRequest request = new TorrentsSetRequest(ids, key, value);
+        Response response = getTorrentSetResponse(ids, key, request);
+        return response;
+    }
+
+
     private String requestData(Object data, ExclusionStrategy... strategies) throws ManagerException {
         OutputStream os = null;
         InputStream is = null;
@@ -506,6 +513,10 @@ public class TransmissionSessionManager {
             this.arguments = new Arguments(ids, key, value);
         }
 
+        public TorrentsSetRequest(int[] ids, String key, int[] value) {
+            this.arguments = new Arguments(ids, key, value);
+        }
+
         private static class Arguments {
             @SerializedName("ids") private int[] ids;
             @SerializedName(Torrent.SetterFields.DOWNLOAD_LIMIT) private long downloadLimit;
@@ -518,6 +529,12 @@ public class TransmissionSessionManager {
             @SerializedName(Torrent.SetterFields.TORRENT_PRIORITY) private int torrentPriority;
             @SerializedName(Torrent.SetterFields.UPLOAD_LIMIT) private long uploadLimit;
             @SerializedName(Torrent.SetterFields.UPLOAD_LIMITED) private boolean uploadLimited;
+
+            @SerializedName(Torrent.SetterFields.FILES_WANTED) private int[] filesWanted;
+            @SerializedName(Torrent.SetterFields.FILES_UNWANTED) private int[] filesUnwanted;
+            @SerializedName(Torrent.SetterFields.FILES_HIGH) private int[] filesHigh;
+            @SerializedName(Torrent.SetterFields.FILES_NORMAL) private int[] filesNormal;
+            @SerializedName(Torrent.SetterFields.FILES_LOW) private int[] filesLow;
 
             public Arguments(int[] ids) {
                 this.ids = ids;
@@ -544,6 +561,10 @@ public class TransmissionSessionManager {
                     this.peerLimit = value;
                 } else if (key.equals(Torrent.SetterFields.SEED_RATIO_MODE)) {
                     this.seedRatioMode = value;
+                } else if (key.equals(Torrent.SetterFields.FILES_WANTED)) {
+                    this.filesWanted = new int[] {value};
+                } else if (key.equals(Torrent.SetterFields.FILES_UNWANTED)) {
+                    this.filesUnwanted = new int[] {value};
                 }
             }
 
@@ -560,6 +581,21 @@ public class TransmissionSessionManager {
                 this(ids);
                 if (key.equals(Torrent.SetterFields.SEED_RATIO_LIMIT)) {
                     this.seedRatioLimit = value;
+                }
+            }
+
+            public Arguments(int[] ids, String key, int[] value) {
+                this(ids);
+                if (key.equals(Torrent.SetterFields.FILES_WANTED)) {
+                    this.filesWanted = value;
+                } else if (key.equals(Torrent.SetterFields.FILES_UNWANTED)) {
+                    this.filesUnwanted = value;
+                } else if (key.equals(Torrent.SetterFields.FILES_HIGH)) {
+                    this.filesHigh = value;
+                } else if (key.equals(Torrent.SetterFields.FILES_NORMAL)) {
+                    this.filesNormal = value;
+                } else if (key.equals(Torrent.SetterFields.FILES_LOW)) {
+                    this.filesLow = value;
                 }
             }
         }

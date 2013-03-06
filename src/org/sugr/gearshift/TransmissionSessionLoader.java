@@ -97,6 +97,7 @@ public class TransmissionSessionLoader extends AsyncTaskLoader<TransmissionSessi
     private int mTorrentSetIntValue = INVALID_INT;
     private long mTorrentSetLongValue = INVALID_INT;
     private float mTorrentSetFloatValue = INVALID_INT;
+    private int[] mTorrentSetIntArrayValue = new int[] {};
     private boolean mMoveData = false;
 
     private Object mLock = new Object();
@@ -181,6 +182,12 @@ public class TransmissionSessionLoader extends AsyncTaskLoader<TransmissionSessi
         setTorrent(id, key);
     }
 
+    public void setTorrent(int id, String key, int[] value) {
+        mTorrentSetIntArrayValue = value;
+        setTorrent(id, key);
+    }
+
+
     private void setTorrent(int id, String key) {
         mTorrentAction = "torrent-set";
         mTorrentActionIds = new int[] {id};
@@ -220,6 +227,8 @@ public class TransmissionSessionLoader extends AsyncTaskLoader<TransmissionSessi
                         mSessManager.setTorrents(mTorrentActionIds, mTorrentSetKey, mTorrentSetLongValue);
                     } else if (mTorrentSetFloatValue != INVALID_INT) {
                         mSessManager.setTorrents(mTorrentActionIds, mTorrentSetKey, mTorrentSetFloatValue);
+                    } else if (mTorrentSetIntArrayValue.length > 0) {
+                        mSessManager.setTorrents(mTorrentActionIds, mTorrentSetKey, mTorrentSetIntArrayValue);
                     } else {
                         mSessManager.setTorrents(mTorrentActionIds, mTorrentSetKey, mTorrentSetBooleanValue);
                     }
@@ -232,6 +241,7 @@ public class TransmissionSessionLoader extends AsyncTaskLoader<TransmissionSessi
                 mTorrentSetIntValue = INVALID_INT;
                 mTorrentSetLongValue = INVALID_INT;
                 mTorrentSetFloatValue = INVALID_INT;
+                mTorrentSetIntArrayValue = new int[] {};
                 mDeleteData = false;
             } catch (ManagerException e) {
                 return handleError(e);
