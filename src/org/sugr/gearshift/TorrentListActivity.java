@@ -6,16 +6,22 @@ import java.util.ArrayList;
 
 import org.sugr.gearshift.TransmissionSessionManager.TransmissionExclusionStrategy;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.content.Loader;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.CheckBox;
 import android.widget.ListView;
+import android.widget.Spinner;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -45,6 +51,8 @@ public class TorrentListActivity extends SlidingFragmentActivity
 
     private TransmissionProfile mProfile;
     private TransmissionSession mSession;
+
+    private boolean mIntentConsumed = false;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -279,6 +287,11 @@ public class TorrentListActivity extends SlidingFragmentActivity
     @Override
     public void setSession(TransmissionSession session) {
         mSession = session;
+
+        if (!mIntentConsumed) {
+            mIntentConsumed = true;
+            consumeIntent();
+        }
     }
 
     @Override
@@ -293,6 +306,58 @@ public class TorrentListActivity extends SlidingFragmentActivity
 
         if (list != null) {
             list.setRefreshing(refreshing);
+        }
+    }
+
+    private void consumeIntent() {
+        Intent intent = getIntent();
+        String action = intent.getAction();
+
+        if (Intent.ACTION_VIEW.equals(action)) {
+            final String type = intent.getType();
+            final Uri data = intent.getData();
+
+            if (data.getScheme().equals("magnet")) {
+                LayoutInflater inflater = getLayoutInflater();
+                final Loader<TransmissionSessionData> loader = getSupportLoaderManager()
+                        .getLoader(TorrentListActivity.SESSION_LOADER_ID);
+
+                AlertDialog.Builder builder = new AlertDialog.Builder(this)
+                    .setTitle(R.string.add_magnet)
+                    .setCancelable(false)
+                    .setNegativeButton(android.R.string.cancel, null)
+                    .setPositiveButton(android.R.string.ok,
+                    new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int id) {
+                        Spinner location = (Spinner) ((AlertDialog) dialog).findViewById(R.id.location_choice);
+                        CheckBox paused = (CheckBox) ((AlertDialog) dialog).findViewById(R.id.start_paused);
+
+                        String dir = (String) location.getSelectedItem();
+                        ((TransmissionSessionLoader) loader).addTorrent(
+                                data.toString(), null, dir, paused.isChecked());
+
+                        setRefreshing(true);
+                    }
+                }).setView(inflater.inflate(R.layout.add_torrent_dialog, null));
+
+                AlertDialog dialog = builder.create();
+                dialog.show();
+
+                Spinner location;
+                TransmissionProfileDirectoryAdapter adapter =
+                        new TransmissionProfileDirectoryAdapter(
+                        this, android.R.layout.simple_spinner_item);
+
+                adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+                adapter.add(getSession().getDownloadDir());
+                adapter.addAll(getProfile().getDirectories());
+
+                location = (Spinner) dialog.findViewById(R.id.location_choice);
+                location.setAdapter(adapter);
+            } else {
+                logD("Got a file of type " + type);
+            }
         }
     }
 }

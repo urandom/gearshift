@@ -31,6 +31,13 @@ public class Torrent {
 
     }
 
+    @Exclude public static final class AddFields {
+        public static final String URI = "filename";
+        public static final String META = "metainfo";
+        public static final String LOCATION = "download-dir";
+        public static final String PAUSED = "paused";
+    }
+
     @SerializedName("id") private int mId;
     @SerializedName("status") private int mStatus = Status.STOPPED;
 

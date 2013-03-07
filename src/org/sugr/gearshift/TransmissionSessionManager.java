@@ -226,6 +226,13 @@ public class TransmissionSessionManager {
         return response;
     }
 
+    public Response setTorrents(int[] ids, String key, int[] value) throws ManagerException {
+        TorrentsSetRequest request = new TorrentsSetRequest(ids, key, value);
+        Response response = getTorrentSetResponse(ids, key, request);
+        return response;
+    }
+
+
     public Response getTorrentSetResponse(int[] ids, String key, TorrentsSetRequest request) throws ManagerException {
         String json = requestData(request, new KeyExclusionStrategy("ids", key));
         Gson gson = new GsonBuilder().setExclusionStrategies(new TransmissionExclusionStrategy()).create();
@@ -234,12 +241,21 @@ public class TransmissionSessionManager {
         return response;
     }
 
-    public Response setTorrents(int[] ids, String key, int[] value) throws ManagerException {
-        TorrentsSetRequest request = new TorrentsSetRequest(ids, key, value);
-        Response response = getTorrentSetResponse(ids, key, request);
+    public AddTorrentResponse addTorrent(String uri, String meta, String location, boolean paused)
+            throws ManagerException {
+        TorrentAddRequest request = new TorrentAddRequest(uri, meta, location, paused);
+
+        String[] keys = {
+            uri == null ? Torrent.AddFields.META : Torrent.AddFields.URI,
+            Torrent.AddFields.LOCATION, Torrent.AddFields.PAUSED
+        };
+
+        String json = requestData(request, new KeyExclusionStrategy(keys));
+        Gson gson = new GsonBuilder().setExclusionStrategies(new TransmissionExclusionStrategy()).create();
+        AddTorrentResponse response = gson.fromJson(json, AddTorrentResponse.class);
+
         return response;
     }
-
 
     private String requestData(Object data, ExclusionStrategy... strategies) throws ManagerException {
         OutputStream os = null;
@@ -601,6 +617,29 @@ public class TransmissionSessionManager {
         }
     }
 
+    private static class TorrentAddRequest {
+        @SerializedName("method") private final String method = "torrent-add";
+        @SerializedName("arguments") private Arguments arguments;
+
+        public TorrentAddRequest(String uri, String meta, String location, boolean paused) {
+            this.arguments = new Arguments(uri, meta, location, paused);
+        }
+
+        private static class Arguments {
+            @SerializedName(Torrent.AddFields.URI) private String uri;
+            @SerializedName(Torrent.AddFields.META) private String meta;
+            @SerializedName(Torrent.AddFields.LOCATION) private String location;
+            @SerializedName(Torrent.AddFields.PAUSED) private boolean paused;
+
+            public Arguments(String uri, String meta, String location, boolean paused) {
+                this.uri = uri;
+                this.meta = meta;
+                this.location = location;
+                this.paused = paused;
+            }
+        }
+    }
+
 
     public static class Response {
         @SerializedName("result") protected final String mResult = null;
@@ -664,6 +703,26 @@ public class TransmissionSessionManager {
             public int[] getRemoved() {
                 return mRemoved;
             }
+        }
+    }
+
+    public static class AddTorrentResponse extends Response {
+        @SerializedName("arguments") private final AddTorrentArguments mArguments = null;
+
+        public Torrent getTorrent() {
+            if (mArguments == null || !getResult().equals("success")) {
+                return null;
+            }
+            Torrent torrent = new Torrent(mArguments.id, mArguments.name);
+            torrent.setHashString(mArguments.hashString);
+
+            return torrent;
+        }
+
+        private class AddTorrentArguments {
+            @SerializedName("id") public int id;
+            @SerializedName("name") public String name;
+            @SerializedName("hashString") public String hashString;
         }
     }
 }

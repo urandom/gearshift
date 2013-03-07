@@ -99,6 +99,11 @@ public class TransmissionSessionLoader extends AsyncTaskLoader<TransmissionSessi
     private float mTorrentSetFloatValue = INVALID_INT;
     private int[] mTorrentSetIntArrayValue = new int[] {};
     private boolean mMoveData = false;
+    private String mTorrentAddUri;
+    private String mTorrentAddMeta;
+    private boolean mTorrentAddPaused;
+
+    private boolean mNewTorrentAdded = false;
 
     private Object mLock = new Object();
 
@@ -205,6 +210,13 @@ public class TransmissionSessionLoader extends AsyncTaskLoader<TransmissionSessi
         onContentChanged();
     }
 
+    public void addTorrent(String uri, String meta, String location, boolean paused) {
+        mTorrentAddUri = uri;
+        mTorrentAddMeta = meta;
+        mTorrentAddPaused = paused;
+        mTorrentLocation = location;
+    }
+
     @Override
     public TransmissionSessionData loadInBackground() {
         /* Remove any previous waiting runners */
@@ -303,6 +315,37 @@ public class TransmissionSessionLoader extends AsyncTaskLoader<TransmissionSessi
             thread.start();
         }
 
+        mNewTorrentAdded = false;
+        if (mTorrentAddUri != null || mTorrentAddMeta != null) {
+            Thread thread = new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    synchronized(mLock) {
+                        if (exceptions.size() > 0) {
+                            return;
+                        }
+                    }
+                    try {
+                        Torrent torrent = mSessManager.addTorrent(mTorrentAddUri, mTorrentAddMeta,
+                                mTorrentLocation, mTorrentAddPaused).getTorrent();
+
+                        mTorrentAddUri = null;
+                        mTorrentAddMeta = null;
+                        if (torrent != null) {
+                            mTorrentMap.put(torrent.getId(), torrent);
+                            mNewTorrentAdded = true;
+                        }
+                    } catch (ManagerException e) {
+                        synchronized(mLock) {
+                            exceptions.add(e);
+                        };
+                    }
+                }
+            });
+            threads.add(thread);
+            thread.start();
+        }
+
         boolean active = mDefaultPrefs.getBoolean(GeneralSettingsFragment.PREF_UPDATE_ACTIVE, false);
         Torrent [] torrents;
         int[] removed = null;
@@ -369,6 +412,22 @@ public class TransmissionSessionLoader extends AsyncTaskLoader<TransmissionSessi
             return handleError(e);
         }
 
+        for (Thread t : threads) {
+            try {
+                t.join();
+            } catch (InterruptedException e) {
+                return handleError(e);
+            }
+        }
+
+        if (exceptions.size() > 0) {
+            return handleError(exceptions.get(0));
+        }
+
+        if (mNewTorrentAdded) {
+            hasAdded = true;
+        }
+
         if (removed != null) {
             for (int id : removed) {
                 Torrent t = mTorrentMap.get(id);
@@ -399,18 +458,6 @@ public class TransmissionSessionLoader extends AsyncTaskLoader<TransmissionSessi
             }
         }
         mNeedsMoreInfo = false;
-
-        for (Thread t : threads) {
-            try {
-                t.join();
-            } catch (InterruptedException e) {
-                return handleError(e);
-            }
-        }
-
-        if (exceptions.size() > 0) {
-            return handleError(exceptions.get(0));
-        }
 
         for (Torrent t : torrents) {
             Torrent torrent;

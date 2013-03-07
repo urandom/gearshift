@@ -175,6 +175,9 @@
     <string name="move_checkbox">Move the data from its current location</string>
     <string name="set_location">Set location</string>
     
+    <string name="add_magnet">New magnet link</string>
+    <string name="start_paused_checkbox">Start paused</string>
+    
     <string name="no_tracker_errors">No errors</string>
     
     <string name="torrent_private">Private torrent</string>
