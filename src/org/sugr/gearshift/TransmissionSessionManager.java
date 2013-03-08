@@ -9,7 +9,10 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.InflaterInputStream;
 
@@ -527,13 +530,13 @@ public class TransmissionSessionManager {
                     if (value instanceof Integer) {
                         this.filesWanted = new int[] { ((Integer) value).intValue() };
                     } else {
-                        this.filesWanted = ((ArrayList) value).toArray(new int[((ArrayList) value).size()]);
+                        this.filesWanted = convertIntegerList((ArrayList) value);
                     }
                 } else if (key.equals(Torrent.SetterFields.FILES_UNWANTED)) {
                     if (value instanceof Integer) {
                         this.filesUnwanted = new int[] { ((Integer) value).intValue() };
                     } else {
-                        this.filesUnwanted = ((ArrayList) value).toArray(new int[((ArrayList) value).size()]);
+                        this.filesUnwanted = convertIntegerList((ArrayList) value);
                     }
                 } else if (key.equals(Torrent.SetterFields.DOWNLOAD_LIMIT)) {
                     this.downloadLimit = ((Long) value).longValue();
@@ -542,11 +545,11 @@ public class TransmissionSessionManager {
                 } else if (key.equals(Torrent.SetterFields.SEED_RATIO_LIMIT)) {
                     this.seedRatioLimit = ((Float) value).floatValue();
                 } else if (key.equals(Torrent.SetterFields.FILES_HIGH)) {
-                    this.filesHigh = ((ArrayList) value).toArray(new int[((ArrayList) value).size()]);
+                    this.filesHigh = convertIntegerList((ArrayList) value);
                 } else if (key.equals(Torrent.SetterFields.FILES_NORMAL)) {
-                    this.filesNormal = ((ArrayList) value).toArray(new int[((ArrayList) value).size()]);
+                    this.filesNormal = convertIntegerList((ArrayList) value);
                 } else if (key.equals(Torrent.SetterFields.FILES_LOW)) {
-                    this.filesLow = ((ArrayList) value).toArray(new int[((ArrayList) value).size()]);
+                    this.filesLow = convertIntegerList((ArrayList) value);
                 }
             }
         }
@@ -659,5 +662,15 @@ public class TransmissionSessionManager {
             @SerializedName("name") public String name;
             @SerializedName("hashString") public String hashString;
         }
+    }
+
+    public static int[] convertIntegerList(List<Integer> list) {
+        int[] ret = new int[list.size()];
+        Iterator<Integer> iterator = list.iterator();
+        for (int i = 0; i < ret.length; i++) {
+            ret[i] = iterator.next().intValue();
+        }
+
+        return ret;
     }
 }

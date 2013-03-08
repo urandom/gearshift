@@ -312,8 +312,11 @@ public class TorrentDetailPageFragment extends Fragment {
     }
 
     private void setTorrentProperty(String key, Object value) {
-        TransmissionSessionLoader loader = getLoader();
-        loader.setTorrentProperty(mTorrent.getId(), key, value);
+
+        Loader<TransmissionSessionData> loader = getActivity()
+            .getSupportLoaderManager().getLoader(
+                    TorrentListActivity.SESSION_LOADER_ID);
+        ((TransmissionSessionLoader) loader).setTorrentProperty(mTorrent.getId(), key, value);
     }
 
     private void updateFields(View root) {
