@@ -317,17 +317,32 @@ public class TorrentListActivity extends SlidingFragmentActivity
             final String type = intent.getType();
             final Uri data = intent.getData();
 
-            if (data.getScheme().equals("magnet")) {
-                LayoutInflater inflater = getLayoutInflater();
-                final Loader<TransmissionSessionData> loader = getSupportLoaderManager()
-                        .getLoader(TorrentListActivity.SESSION_LOADER_ID);
+            LayoutInflater inflater = getLayoutInflater();
+            View view = inflater.inflate(R.layout.add_torrent_dialog, null);
+            final Loader<TransmissionSessionData> loader = getSupportLoaderManager()
+                    .getLoader(TorrentListActivity.SESSION_LOADER_ID);
 
-                AlertDialog.Builder builder = new AlertDialog.Builder(this)
-                    .setTitle(R.string.add_magnet)
-                    .setCancelable(false)
-                    .setNegativeButton(android.R.string.cancel, null)
-                    .setPositiveButton(android.R.string.ok,
-                    new DialogInterface.OnClickListener() {
+            AlertDialog.Builder builder = new AlertDialog.Builder(this)
+                .setCancelable(false)
+                .setNegativeButton(android.R.string.cancel, null)
+                .setView(view);
+
+            Spinner location;
+            TransmissionProfileDirectoryAdapter adapter =
+                    new TransmissionProfileDirectoryAdapter(
+                    this, android.R.layout.simple_spinner_item);
+
+            adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+            adapter.add(getSession().getDownloadDir());
+            adapter.addAll(getProfile().getDirectories());
+
+            location = (Spinner) view.findViewById(R.id.location_choice);
+            location.setAdapter(adapter);
+
+            if (data.getScheme().equals("magnet")) {
+                view.findViewById(R.id.delete_local_torrent_file).setVisibility(View.GONE);
+                builder.setTitle(R.string.add_magnet).setPositiveButton(android.R.string.ok,
+                        new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int id) {
                         Spinner location = (Spinner) ((AlertDialog) dialog).findViewById(R.id.location_choice);
@@ -339,22 +354,10 @@ public class TorrentListActivity extends SlidingFragmentActivity
 
                         setRefreshing(true);
                     }
-                }).setView(inflater.inflate(R.layout.add_torrent_dialog, null));
+                });
 
                 AlertDialog dialog = builder.create();
                 dialog.show();
-
-                Spinner location;
-                TransmissionProfileDirectoryAdapter adapter =
-                        new TransmissionProfileDirectoryAdapter(
-                        this, android.R.layout.simple_spinner_item);
-
-                adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-                adapter.add(getSession().getDownloadDir());
-                adapter.addAll(getProfile().getDirectories());
-
-                location = (Spinner) dialog.findViewById(R.id.location_choice);
-                location.setAdapter(adapter);
             } else {
                 logD("Got a file of type " + type);
             }

@@ -17,5 +17,13 @@
         android:layout_height="wrap_content"
         android:fontFamily="sans-serif-condensed"
         android:text="@string/start_paused_checkbox" />
+    
+    <CheckBox
+        android:id="@+id/delete_local_torrent_file"
+        android:layout_marginTop="8dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:fontFamily="sans-serif-condensed"
+        android:text="@string/delete_local_torrent_file" />
 
 </LinearLayout>
