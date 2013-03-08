@@ -202,38 +202,9 @@ public class TransmissionSessionManager {
         return response;
     }
 
-    public Response setTorrents(int[] ids, String key, boolean value) throws ManagerException {
+    public Response setTorrentsProperty(int[] ids, String key, Object value) throws ManagerException {
         TorrentsSetRequest request = new TorrentsSetRequest(ids, key, value);
-        Response response = getTorrentSetResponse(ids, key, request);
-        return response;
-    }
 
-    public Response setTorrents(int[] ids, String key, int value) throws ManagerException {
-        TorrentsSetRequest request = new TorrentsSetRequest(ids, key, value);
-        Response response = getTorrentSetResponse(ids, key, request);
-        return response;
-    }
-
-    public Response setTorrents(int[] ids, String key, long value) throws ManagerException {
-        TorrentsSetRequest request = new TorrentsSetRequest(ids, key, value);
-        Response response = getTorrentSetResponse(ids, key, request);
-        return response;
-    }
-
-    public Response setTorrents(int[] ids, String key, float value) throws ManagerException {
-        TorrentsSetRequest request = new TorrentsSetRequest(ids, key, value);
-        Response response = getTorrentSetResponse(ids, key, request);
-        return response;
-    }
-
-    public Response setTorrents(int[] ids, String key, int[] value) throws ManagerException {
-        TorrentsSetRequest request = new TorrentsSetRequest(ids, key, value);
-        Response response = getTorrentSetResponse(ids, key, request);
-        return response;
-    }
-
-
-    public Response getTorrentSetResponse(int[] ids, String key, TorrentsSetRequest request) throws ManagerException {
         String json = requestData(request, new KeyExclusionStrategy("ids", key));
         Gson gson = new GsonBuilder().setExclusionStrategies(new TransmissionExclusionStrategy()).create();
         Response response = gson.fromJson(json, Response.class);
@@ -513,23 +484,7 @@ public class TransmissionSessionManager {
         @SerializedName("method") private final String method = "torrent-set";
         @SerializedName("arguments") private Arguments arguments;
 
-        public TorrentsSetRequest(int[] ids, String key, boolean value) {
-            this.arguments = new Arguments(ids, key, value);
-        }
-
-        public TorrentsSetRequest(int[] ids, String key, int value) {
-            this.arguments = new Arguments(ids, key, value);
-        }
-
-        public TorrentsSetRequest(int[] ids, String key, long value) {
-            this.arguments = new Arguments(ids, key, value);
-        }
-
-        public TorrentsSetRequest(int[] ids, String key, float value) {
-            this.arguments = new Arguments(ids, key, value);
-        }
-
-        public TorrentsSetRequest(int[] ids, String key, int[] value) {
+        public TorrentsSetRequest(int[] ids, String key, Object value) {
             this.arguments = new Arguments(ids, key, value);
         }
 
@@ -552,66 +507,46 @@ public class TransmissionSessionManager {
             @SerializedName(Torrent.SetterFields.FILES_NORMAL) private int[] filesNormal;
             @SerializedName(Torrent.SetterFields.FILES_LOW) private int[] filesLow;
 
-            public Arguments(int[] ids) {
+            public Arguments(int[] ids, String key, Object value) {
                 this.ids = ids;
-            }
-
-            public Arguments(int[] ids, String key, boolean value) {
-                this(ids);
                 if (key.equals(Torrent.SetterFields.DOWNLOAD_LIMITED)) {
-                    this.downloadLimited = value;
+                    this.downloadLimited = ((Boolean) value).booleanValue();
                 } else if (key.equals(Torrent.SetterFields.SESSION_LIMITS)) {
-                    this.honorsSessionLimits = value;
+                    this.honorsSessionLimits = ((Boolean) value).booleanValue();
                 } else if (key.equals(Torrent.SetterFields.UPLOAD_LIMITED)) {
-                    this.uploadLimited = value;
-                }
-            }
-
-            public Arguments(int[] ids, String key, int value) {
-                this(ids);
-                if (key.equals(Torrent.SetterFields.TORRENT_PRIORITY)) {
-                    this.torrentPriority = value;
+                    this.uploadLimited = ((Boolean) value).booleanValue();
+                } else if (key.equals(Torrent.SetterFields.TORRENT_PRIORITY)) {
+                    this.torrentPriority = ((Integer) value).intValue();
                 } else if (key.equals(Torrent.SetterFields.QUEUE_POSITION)) {
-                    this.queuePosition = value;
+                    this.queuePosition = ((Integer) value).intValue();
                 } else if (key.equals(Torrent.SetterFields.PEER_LIMIT)) {
-                    this.peerLimit = value;
+                    this.peerLimit = ((Integer) value).intValue();
                 } else if (key.equals(Torrent.SetterFields.SEED_RATIO_MODE)) {
-                    this.seedRatioMode = value;
+                    this.seedRatioMode = ((Integer) value).intValue();
                 } else if (key.equals(Torrent.SetterFields.FILES_WANTED)) {
-                    this.filesWanted = new int[] {value};
+                    if (value instanceof Integer) {
+                        this.filesWanted = new int[] { ((Integer) value).intValue() };
+                    } else {
+                        this.filesWanted = ((ArrayList) value).toArray(new int[((ArrayList) value).size()]);
+                    }
                 } else if (key.equals(Torrent.SetterFields.FILES_UNWANTED)) {
-                    this.filesUnwanted = new int[] {value};
-                }
-            }
-
-            public Arguments(int[] ids, String key, long value) {
-                this(ids);
-                if (key.equals(Torrent.SetterFields.DOWNLOAD_LIMIT)) {
-                    this.downloadLimit = value;
+                    if (value instanceof Integer) {
+                        this.filesUnwanted = new int[] { ((Integer) value).intValue() };
+                    } else {
+                        this.filesUnwanted = ((ArrayList) value).toArray(new int[((ArrayList) value).size()]);
+                    }
+                } else if (key.equals(Torrent.SetterFields.DOWNLOAD_LIMIT)) {
+                    this.downloadLimit = ((Long) value).longValue();
                 } else if (key.equals(Torrent.SetterFields.UPLOAD_LIMIT)) {
-                    this.uploadLimit = value;
-                }
-            }
-
-            public Arguments(int[] ids, String key, float value) {
-                this(ids);
-                if (key.equals(Torrent.SetterFields.SEED_RATIO_LIMIT)) {
-                    this.seedRatioLimit = value;
-                }
-            }
-
-            public Arguments(int[] ids, String key, int[] value) {
-                this(ids);
-                if (key.equals(Torrent.SetterFields.FILES_WANTED)) {
-                    this.filesWanted = value;
-                } else if (key.equals(Torrent.SetterFields.FILES_UNWANTED)) {
-                    this.filesUnwanted = value;
+                    this.uploadLimit = ((Long) value).longValue();
+                } else if (key.equals(Torrent.SetterFields.SEED_RATIO_LIMIT)) {
+                    this.seedRatioLimit = ((Float) value).floatValue();
                 } else if (key.equals(Torrent.SetterFields.FILES_HIGH)) {
-                    this.filesHigh = value;
+                    this.filesHigh = ((ArrayList) value).toArray(new int[((ArrayList) value).size()]);
                 } else if (key.equals(Torrent.SetterFields.FILES_NORMAL)) {
-                    this.filesNormal = value;
+                    this.filesNormal = ((ArrayList) value).toArray(new int[((ArrayList) value).size()]);
                 } else if (key.equals(Torrent.SetterFields.FILES_LOW)) {
-                    this.filesLow = value;
+                    this.filesLow = ((ArrayList) value).toArray(new int[((ArrayList) value).size()]);
                 }
             }
         }

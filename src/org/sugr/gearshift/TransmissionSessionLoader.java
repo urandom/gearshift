@@ -93,11 +93,7 @@ public class TransmissionSessionLoader extends AsyncTaskLoader<TransmissionSessi
     private boolean mDeleteData = false;
     private String mTorrentLocation;
     private String mTorrentSetKey;
-    private boolean mTorrentSetBooleanValue;
-    private int mTorrentSetIntValue = INVALID_INT;
-    private long mTorrentSetLongValue = INVALID_INT;
-    private float mTorrentSetFloatValue = INVALID_INT;
-    private int[] mTorrentSetIntArrayValue = new int[] {};
+    private Object mTorrentSetValue;
     private boolean mMoveData = false;
     private String mTorrentAddUri;
     private String mTorrentAddMeta;
@@ -166,37 +162,11 @@ public class TransmissionSessionLoader extends AsyncTaskLoader<TransmissionSessi
         onContentChanged();
     }
 
-    public void setTorrent(int id, String key, boolean value) {
-        mTorrentSetBooleanValue = value;
-        setTorrent(id, key);
-    }
-
-
-    public void setTorrent(int id, String key, int value) {
-        mTorrentSetIntValue = value;
-        setTorrent(id, key);
-    }
-
-    public void setTorrent(int id, String key, long value) {
-        mTorrentSetLongValue = value;
-        setTorrent(id, key);
-    }
-
-    public void setTorrent(int id, String key, float value) {
-        mTorrentSetFloatValue = value;
-        setTorrent(id, key);
-    }
-
-    public void setTorrent(int id, String key, int[] value) {
-        mTorrentSetIntArrayValue = value;
-        setTorrent(id, key);
-    }
-
-
-    private void setTorrent(int id, String key) {
+    public void setTorrentProperty(int id, String key, Object value) {
         mTorrentAction = "torrent-set";
         mTorrentActionIds = new int[] {id};
         mTorrentSetKey = key;
+        mTorrentSetValue = value;
 
         if (key.equals(Torrent.SetterFields.FILES_WANTED) || key.equals(Torrent.SetterFields.FILES_UNWANTED)) {
             new Thread(new Runnable() {
@@ -550,20 +520,13 @@ public class TransmissionSessionLoader extends AsyncTaskLoader<TransmissionSessi
             boolean deleteData = mDeleteData;
             String location = mTorrentLocation;
             String setKey = mTorrentSetKey;
-            boolean boolVal = mTorrentSetBooleanValue;
-            int intVal = mTorrentSetIntValue;
-            long longVal = mTorrentSetLongValue;
-            float floatVal = mTorrentSetFloatValue;
-            int[] intArrayVal = mTorrentSetIntArrayValue ;
+            Object setValue = mTorrentSetValue;
             boolean moveData = mMoveData;
 
             mTorrentActionIds = null;
             mTorrentAction = null;
             mTorrentSetKey = null;
-            mTorrentSetIntValue = INVALID_INT;
-            mTorrentSetLongValue = INVALID_INT;
-            mTorrentSetFloatValue = INVALID_INT;
-            mTorrentSetIntArrayValue = new int[] {};
+            mTorrentSetValue = null;
             mDeleteData = false;
 
             if (action.equals("torrent-remove")) {
@@ -571,17 +534,7 @@ public class TransmissionSessionLoader extends AsyncTaskLoader<TransmissionSessi
             } else if (action.equals("torrent-set-location")) {
                 mSessManager.setTorrentsLocation(ids, location, moveData);
             } else if (action.equals("torrent-set")) {
-                if (intVal != INVALID_INT) {
-                    mSessManager.setTorrents(ids, setKey, intVal);
-                } else if (longVal != INVALID_INT) {
-                    mSessManager.setTorrents(ids, setKey, longVal);
-                } else if (floatVal != INVALID_INT) {
-                    mSessManager.setTorrents(ids, setKey, floatVal);
-                } else if (intArrayVal.length > 0) {
-                    mSessManager.setTorrents(ids, setKey, intArrayVal);
-                } else {
-                    mSessManager.setTorrents(ids, setKey, boolVal);
-                }
+                mSessManager.setTorrentsProperty(ids, setKey, setValue);
             } else {
                 mSessManager.setTorrentsAction(action, ids);
             }
