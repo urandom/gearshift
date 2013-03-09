@@ -1,12 +1,18 @@
 package org.sugr.gearshift;
 
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 
 import org.sugr.gearshift.TransmissionSessionManager.ActiveTorrentGetResponse;
 import org.sugr.gearshift.TransmissionSessionManager.ManagerException;
+import org.sugr.gearshift.util.Base64;
 
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.net.Uri;
 import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.support.v4.content.AsyncTaskLoader;
@@ -18,6 +24,7 @@ class TransmissionSessionData {
     public TransmissionSessionStats stats = null;
     public ArrayList<Torrent> torrents = new ArrayList<Torrent>();
     public int error = 0;
+    public String errorMessage;
     public boolean hasRemoved = false;
     public boolean hasAdded = false;
     public boolean hasStatusChanged = false;
@@ -29,6 +36,7 @@ class TransmissionSessionData {
         public static final int NO_CONNECTION = 1 << 3;
         public static final int GENERIC_HTTP = 1 << 4;
         public static final int THREAD_ERROR = 1 << 5;
+        public static final int RESPONSE_ERROR = 1 << 6;
     };
 
     public TransmissionSessionData(TransmissionSession session, TransmissionSessionStats stats, int error) {
@@ -86,8 +94,6 @@ public class TransmissionSessionLoader extends AsyncTaskLoader<TransmissionSessi
     private TransmissionSession mSessionSet;
     private String[] mSessionSetKeys;
 
-    private static final int INVALID_INT = -927351;
-
     private String mTorrentAction;
     private int[] mTorrentActionIds;
     private boolean mDeleteData = false;
@@ -96,7 +102,7 @@ public class TransmissionSessionLoader extends AsyncTaskLoader<TransmissionSessi
     private Object mTorrentSetValue;
     private boolean mMoveData = false;
     private String mTorrentAddUri;
-    private String mTorrentAddMeta;
+    private Uri mTorrentAddMeta;
     private boolean mTorrentAddPaused;
 
     private boolean mNewTorrentAdded = false;
@@ -180,11 +186,12 @@ public class TransmissionSessionLoader extends AsyncTaskLoader<TransmissionSessi
         onContentChanged();
     }
 
-    public void addTorrent(String uri, String meta, String location, boolean paused) {
+    public void addTorrent(String uri, Uri meta, String location, boolean paused) {
         mTorrentAddUri = uri;
         mTorrentAddMeta = meta;
         mTorrentAddPaused = paused;
         mTorrentLocation = location;
+        onContentChanged();
     }
 
     @Override
@@ -228,12 +235,13 @@ public class TransmissionSessionLoader extends AsyncTaskLoader<TransmissionSessi
                     }
                     try {
                         mSessManager.setSession(mSessionSet, mSessionSetKeys);
-                        mSessionSet = null;
-                        mSessionSetKeys = null;
                     } catch (ManagerException e) {
                         synchronized(mLock) {
                             exceptions.add(e);
                         }
+                    } finally {
+                        mSessionSet = null;
+                        mSessionSetKeys = null;
                     }
                 }
             });
@@ -252,7 +260,7 @@ public class TransmissionSessionLoader extends AsyncTaskLoader<TransmissionSessi
                         }
                     }
                     try {
-                        mSession = mSessManager.getSession().getSession();
+                        mSession = mSessManager.getSession();
                     } catch (ManagerException e) {
                         synchronized(mLock) {
                             exceptions.add(e);
@@ -273,7 +281,7 @@ public class TransmissionSessionLoader extends AsyncTaskLoader<TransmissionSessi
                         }
                     }
                     try {
-                        mSessionStats = mSessManager.getSessionStats().getStats();
+                        mSessionStats = mSessManager.getSessionStats();
                     } catch (ManagerException e) {
                         synchronized(mLock) {
                             exceptions.add(e);
@@ -296,11 +304,41 @@ public class TransmissionSessionLoader extends AsyncTaskLoader<TransmissionSessi
                         }
                     }
                     try {
-                        Torrent torrent = mSessManager.addTorrent(mTorrentAddUri, mTorrentAddMeta,
-                                mTorrentLocation, mTorrentAddPaused).getTorrent();
+                        String meta = null;
+                        if (mTorrentAddMeta != null) {
+                            ContentResolver cr = getContext().getContentResolver();
+                            InputStream stream = null;
+                            Base64.InputStream base64 = null;
+                            try {
+                                stream = cr.openInputStream(mTorrentAddMeta);
+                            } catch (FileNotFoundException e) {
+                                /* FIXME: proper error handling */
+                                TorrentListActivity.logE("Error while reading the torrent file", e);
+                                return;
+                            }
+                            base64 = new Base64.InputStream(stream, Base64.ENCODE | Base64.DO_BREAK_LINES);
+                            StringBuilder fileContent = new StringBuilder("");
+                            int ch;
+                            try {
+                                while( (ch = base64.read()) != -1)
+                                  fileContent.append((char)ch);
+                            } catch (IOException e) {
+                                /* FIXME: proper error handling */
+                                TorrentListActivity.logE("Error while reading the torrent file", e);
+                                return;
+                            } finally {
+                                try {
+                                    base64.close();
+                                } catch (IOException e) {
+                                    return;
+                                }
+                            }
 
-                        mTorrentAddUri = null;
-                        mTorrentAddMeta = null;
+                            meta = fileContent.toString();
+                        }
+                        Torrent torrent = mSessManager.addTorrent(mTorrentAddUri, meta,
+                                mTorrentLocation, mTorrentAddPaused);
+
                         if (torrent != null) {
                             mTorrentMap.put(torrent.getId(), torrent);
                             mNewTorrentAdded = true;
@@ -309,6 +347,9 @@ public class TransmissionSessionLoader extends AsyncTaskLoader<TransmissionSessi
                         synchronized(mLock) {
                             exceptions.add(e);
                         };
+                    } finally {
+                        mTorrentAddUri = null;
+                        mTorrentAddMeta = null;
                     }
                 }
             });
@@ -364,19 +405,19 @@ public class TransmissionSessionLoader extends AsyncTaskLoader<TransmissionSessi
 
         try {
             if (mCurrentTorrents != null) {
-                torrents = mSessManager.getTorrents(ids, fields).getTorrents();
+                torrents = mSessManager.getTorrents(ids, fields);
             } else if (active && !mAllCurrent) {
                 int full = Integer.parseInt(mDefaultPrefs.getString(GeneralSettingsFragment.PREF_FULL_UPDATE, "2"));
 
                 if (mIteration % full == 0) {
-                    torrents = mSessManager.getAllTorrents(fields).getTorrents();
+                    torrents = mSessManager.getAllTorrents(fields);
                 } else {
                     ActiveTorrentGetResponse response = mSessManager.getActiveTorrents(fields);
                     torrents = response.getTorrents();
                     removed = response.getRemoved();
                 }
             } else {
-                torrents = mSessManager.getAllTorrents(fields).getTorrents();
+                torrents = mSessManager.getAllTorrents(fields);
             }
         } catch (ManagerException e) {
             return handleError(e);
@@ -549,7 +590,6 @@ public class TransmissionSessionLoader extends AsyncTaskLoader<TransmissionSessi
 
     private TransmissionSessionData handleError(ManagerException e) {
         mStopUpdates = true;
-        e.printStackTrace();
 
         TorrentListActivity.logD("Got an error while fetching data: " + e.getMessage() + " and this code: " + e.getCode());
 
@@ -565,6 +605,10 @@ public class TransmissionSessionLoader extends AsyncTaskLoader<TransmissionSessi
                 break;
             case -1:
                 mLastError = TransmissionSessionData.Errors.NO_CONNECTION;
+                break;
+            case -2:
+                mLastError = TransmissionSessionData.Errors.RESPONSE_ERROR;
+                TorrentListActivity.logE("Transmission Daemon Error!", e);
                 break;
             default:
                 mLastError = TransmissionSessionData.Errors.GENERIC_HTTP;

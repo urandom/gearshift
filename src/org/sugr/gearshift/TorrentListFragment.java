@@ -220,6 +220,8 @@ public class TorrentListFragment extends ListFragment {
                         setEmptyText(R.string.no_connection_empty_list);
                     } else if (data.error == TransmissionSessionData.Errors.THREAD_ERROR) {
                         setEmptyText(R.string.thread_error_empty_list);
+                    } else if (data.error == TransmissionSessionData.Errors.RESPONSE_ERROR) {
+                        setEmptyText(R.string.response_error_empty_list);
                     }
                 }
                 if (data.torrents.size() > 0) {
@@ -784,7 +786,8 @@ public class TorrentListFragment extends ListFragment {
             synchronized (mLock) {
                 if (mOriginalValues != null) {
                     mOriginalValues.clear();
-                } else {
+                }
+                if (mObjects != null) {
                     mObjects.clear();
                 }
                 super.clear();
@@ -795,7 +798,6 @@ public class TorrentListFragment extends ListFragment {
         public int getCount() {
             synchronized(mLock) {
                 return mObjects == null ? 0 : mObjects.size();
-
             }
         }
 

@@ -119,24 +119,30 @@ public class TransmissionSessionManager {
         return (info != null);
     }
 
-    public SessionGetResponse getSession() throws ManagerException {
+    public TransmissionSession getSession() throws ManagerException {
         SessionGetRequest request = new SessionGetRequest();
 
         String json = requestData(request);
         Gson gson = new GsonBuilder().setExclusionStrategies(new TransmissionExclusionStrategy()).create();
         SessionGetResponse response = gson.fromJson(json, SessionGetResponse.class);
+        if (!response.getResult().equals("success")) {
+            throw new ManagerException(response.getResult(), -2);
+        }
 
-        return response;
+        return response.getSession();
     }
 
-    public SessionStatsResponse getSessionStats() throws ManagerException {
+    public TransmissionSessionStats getSessionStats() throws ManagerException {
         SessionStatsRequest request = new SessionStatsRequest();
 
         String json = requestData(request);
         Gson gson = new GsonBuilder().setExclusionStrategies(new TransmissionExclusionStrategy()).create();
         SessionStatsResponse response = gson.fromJson(json, SessionStatsResponse.class);
+        if (!response.getResult().equals("success")) {
+            throw new ManagerException(response.getResult(), -2);
+        }
 
-        return response;
+        return response.getStats();
     }
 
     public ActiveTorrentGetResponse getActiveTorrents(String[] fields) throws ManagerException {
@@ -144,78 +150,92 @@ public class TransmissionSessionManager {
         String json = requestData(request);
         Gson gson = new GsonBuilder().setExclusionStrategies(new TransmissionExclusionStrategy()).create();
         ActiveTorrentGetResponse response = gson.fromJson(json, ActiveTorrentGetResponse.class);
+        if (!response.getResult().equals("success")) {
+            throw new ManagerException(response.getResult(), -2);
+        }
 
         return response;
     }
 
-    public TorrentGetResponse getAllTorrents(String[] fields) throws ManagerException {
+    public Torrent[] getAllTorrents(String[] fields) throws ManagerException {
         AllTorrentGetRequest request = new AllTorrentGetRequest(fields);
 
         String json = requestData(request);
         Gson gson = new GsonBuilder().setExclusionStrategies(new TransmissionExclusionStrategy()).create();
         TorrentGetResponse response = gson.fromJson(json, TorrentGetResponse.class);
+        if (!response.getResult().equals("success")) {
+            throw new ManagerException(response.getResult(), -2);
+        }
 
-        return response;
+        return response.getTorrents();
     }
 
-    public TorrentGetResponse getTorrents(int[] ids, String[] fields) throws ManagerException {
+    public Torrent[] getTorrents(int[] ids, String[] fields) throws ManagerException {
         TorrentGetRequest request = new TorrentGetRequest(ids, fields);
 
         String json = requestData(request);
         Gson gson = new GsonBuilder().setExclusionStrategies(new TransmissionExclusionStrategy()).create();
         TorrentGetResponse response = gson.fromJson(json, TorrentGetResponse.class);
+        if (!response.getResult().equals("success")) {
+            throw new ManagerException(response.getResult(), -2);
+        }
 
-        return response;
+        return response.getTorrents();
     }
 
-    public Response setSession(TransmissionSession session, String... keys) throws ManagerException {
+    public void setSession(TransmissionSession session, String... keys) throws ManagerException {
         SessionSetRequest request = new SessionSetRequest(session);
 
         String json = requestData(request, new KeyExclusionStrategy(keys));
         Gson gson = new GsonBuilder().setExclusionStrategies(new TransmissionExclusionStrategy()).create();
         Response response = gson.fromJson(json, Response.class);
-
-        return response;
+        if (!response.getResult().equals("success")) {
+            throw new ManagerException(response.getResult(), -2);
+        }
     }
 
-    public Response setTorrentsRemove(int[] ids, boolean delete) throws ManagerException {
+    public void setTorrentsRemove(int[] ids, boolean delete) throws ManagerException {
         TorrentsRemoveRequest request = new TorrentsRemoveRequest(ids, delete);
         String json = requestData(request);
         Gson gson = new GsonBuilder().setExclusionStrategies(new TransmissionExclusionStrategy()).create();
         Response response = gson.fromJson(json, Response.class);
-
-        return response;
+        if (!response.getResult().equals("success")) {
+            throw new ManagerException(response.getResult(), -2);
+        }
     }
 
-    public Response setTorrentsAction(String action, int[] ids) throws ManagerException {
+    public void setTorrentsAction(String action, int[] ids) throws ManagerException {
         TorrentsActionRequest request = new TorrentsActionRequest(action, ids);
         String json = requestData(request);
         Gson gson = new GsonBuilder().setExclusionStrategies(new TransmissionExclusionStrategy()).create();
         Response response = gson.fromJson(json, Response.class);
-
-        return response;
+        if (!response.getResult().equals("success")) {
+            throw new ManagerException(response.getResult(), -2);
+        }
     }
 
-    public Response setTorrentsLocation(int[] ids, String location, boolean move) throws ManagerException {
+    public void setTorrentsLocation(int[] ids, String location, boolean move) throws ManagerException {
         TorrentsSetLocationRequest request = new TorrentsSetLocationRequest(ids, location, move);
         String json = requestData(request);
         Gson gson = new GsonBuilder().setExclusionStrategies(new TransmissionExclusionStrategy()).create();
         Response response = gson.fromJson(json, Response.class);
-
-        return response;
+        if (!response.getResult().equals("success")) {
+            throw new ManagerException(response.getResult(), -2);
+        }
     }
 
-    public Response setTorrentsProperty(int[] ids, String key, Object value) throws ManagerException {
+    public void setTorrentsProperty(int[] ids, String key, Object value) throws ManagerException {
         TorrentsSetRequest request = new TorrentsSetRequest(ids, key, value);
 
         String json = requestData(request, new KeyExclusionStrategy("ids", key));
         Gson gson = new GsonBuilder().setExclusionStrategies(new TransmissionExclusionStrategy()).create();
         Response response = gson.fromJson(json, Response.class);
-
-        return response;
+        if (!response.getResult().equals("success")) {
+            throw new ManagerException(response.getResult(), -2);
+        }
     }
 
-    public AddTorrentResponse addTorrent(String uri, String meta, String location, boolean paused)
+    public Torrent addTorrent(String uri, String meta, String location, boolean paused)
             throws ManagerException {
         TorrentAddRequest request = new TorrentAddRequest(uri, meta, location, paused);
 
@@ -227,8 +247,11 @@ public class TransmissionSessionManager {
         String json = requestData(request, new KeyExclusionStrategy(keys));
         Gson gson = new GsonBuilder().setExclusionStrategies(new TransmissionExclusionStrategy()).create();
         AddTorrentResponse response = gson.fromJson(json, AddTorrentResponse.class);
+        if (!response.getResult().equals("success")) {
+            throw new ManagerException(response.getResult(), -2);
+        }
 
-        return response;
+        return response.getTorrent();
     }
 
     private String requestData(Object data, ExclusionStrategy... strategies) throws ManagerException {
