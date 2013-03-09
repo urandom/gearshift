@@ -15,6 +15,7 @@ import android.content.ContentResolver;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.app.FragmentManager;
@@ -327,7 +328,7 @@ public class TorrentListActivity extends SlidingFragmentActivity
             final Loader<TransmissionSessionData> loader = getSupportLoaderManager()
                     .getLoader(TorrentListActivity.SESSION_LOADER_ID);
 
-            AlertDialog.Builder builder = new AlertDialog.Builder(this)
+            final AlertDialog.Builder builder = new AlertDialog.Builder(this)
                 .setCancelable(false)
                 .setNegativeButton(android.R.string.cancel, null)
                 .setView(view);
@@ -364,53 +365,67 @@ public class TorrentListActivity extends SlidingFragmentActivity
                 AlertDialog dialog = builder.create();
                 dialog.show();
             } else {
-                ContentResolver cr = getContentResolver();
-                InputStream stream = null;
-                Base64.InputStream base64 = null;
-                logD("Download uri " + data.toString());
-                try {
-                    stream = cr.openInputStream(data);
-                } catch (FileNotFoundException e) {
-                    logE("Error while reading the torrent file", e);
-                    return;
-                }
-                base64 = new Base64.InputStream(stream, Base64.ENCODE | Base64.DO_BREAK_LINES);
-                StringBuilder fileContent = new StringBuilder("");
-                int ch;
-                try {
-                    while( (ch = base64.read()) != -1)
-                      fileContent.append((char)ch);
-                } catch (IOException e) {
-                    logE("Error while reading the torrent file", e);
-                    return;
-                } finally {
-                    try {
-                        base64.close();
-                    } catch (IOException e) {
-                        return;
-                    }
-                }
-
-                final String content = fileContent.toString();
-
-                builder.setTitle(R.string.add_torrent).setPositiveButton(android.R.string.ok,
-                        new DialogInterface.OnClickListener() {
+                new AsyncTask<Void, Void, String>() {
                     @Override
-                    public void onClick(DialogInterface dialog, int id) {
-                        Spinner location = (Spinner) ((AlertDialog) dialog).findViewById(R.id.location_choice);
-                        CheckBox paused = (CheckBox) ((AlertDialog) dialog).findViewById(R.id.start_paused);
-                        CheckBox delete = (CheckBox) ((AlertDialog) dialog).findViewById(R.id.delete_local_torrent_file);
+                    protected String doInBackground(Void... params) {
+                        ContentResolver cr = getContentResolver();
+                        InputStream stream = null;
+                        Base64.InputStream base64 = null;
+                        logD("Download uri " + data.toString());
+                        try {
+                            stream = cr.openInputStream(data);
+                        } catch (FileNotFoundException e) {
+                            logE("Error while reading the torrent file", e);
+                            return null;
+                        }
+                        base64 = new Base64.InputStream(stream, Base64.ENCODE | Base64.DO_BREAK_LINES);
+                        StringBuilder fileContent = new StringBuilder("");
+                        int ch;
+                        try {
+                            while( (ch = base64.read()) != -1)
+                              fileContent.append((char)ch);
+                        } catch (IOException e) {
+                            logE("Error while reading the torrent file", e);
+                            return null;
+                        } finally {
+                            try {
+                                base64.close();
+                            } catch (IOException e) {
+                                return null;
+                            }
+                        }
 
-                        String dir = (String) location.getSelectedItem();
-                        ((TransmissionSessionLoader) loader).addTorrent(
-                                null, content, dir, paused.isChecked());
-
-                        setRefreshing(true);
+                        return fileContent.toString();
                     }
-                });
 
-                AlertDialog dialog = builder.create();
-                dialog.show();
+                    @Override
+                    protected void onPostExecute(final String result) {
+                        if (result == null) {
+                            return;
+                        }
+
+                        builder.setTitle(R.string.add_torrent).setPositiveButton(android.R.string.ok,
+                                new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int id) {
+                                Spinner location = (Spinner) ((AlertDialog) dialog).findViewById(R.id.location_choice);
+                                CheckBox paused = (CheckBox) ((AlertDialog) dialog).findViewById(R.id.start_paused);
+                                CheckBox delete = (CheckBox) ((AlertDialog) dialog).findViewById(R.id.delete_local_torrent_file);
+
+                                String dir = (String) location.getSelectedItem();
+                                ((TransmissionSessionLoader) loader).addTorrent(
+                                        null, result, dir, paused.isChecked());
+
+                                setRefreshing(true);
+                            }
+                        });
+
+                        AlertDialog dialog = builder.create();
+                        dialog.show();
+
+                    }
+
+                }.execute();
             }
         }
     }
