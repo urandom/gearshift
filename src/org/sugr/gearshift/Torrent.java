@@ -41,7 +41,7 @@ public class Torrent {
     @SerializedName("id") private int mId;
     @SerializedName("status") private int mStatus = Status.STOPPED;
 
-    @SerializedName("name") private String mName;
+    @SerializedName("name") private String mName = "";
 
     @SerializedName("error") private int mError;
     @SerializedName("errorString") private String mErrorString;

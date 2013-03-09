@@ -444,8 +444,10 @@ public class TransmissionSessionLoader extends AsyncTaskLoader<TransmissionSessi
             torrent.setTransmissionSession(mSession);
             torrent.setTrafficText(getContext());
             torrent.setStatusText(getContext());
-            if (!mNeedsMoreInfo && torrent.getTotalSize() == 0
-                    && torrent.getMetadataPercentComplete() < 1) {
+            if (!mNeedsMoreInfo && (
+                       torrent.getTotalSize() == 0
+                    || torrent.getAddedDate() == 0
+                    || torrent.getName().equals(""))) {
                 mNeedsMoreInfo = true;
             }
         }

@@ -1,12 +1,17 @@
 package org.sugr.gearshift;
 
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.ArrayList;
 
 import org.sugr.gearshift.TransmissionSessionManager.TransmissionExclusionStrategy;
+import org.sugr.gearshift.util.Base64;
 
 import android.app.AlertDialog;
+import android.content.ContentResolver;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
@@ -359,7 +364,53 @@ public class TorrentListActivity extends SlidingFragmentActivity
                 AlertDialog dialog = builder.create();
                 dialog.show();
             } else {
-                logD("Got a file of type " + type);
+                ContentResolver cr = getContentResolver();
+                InputStream stream = null;
+                Base64.InputStream base64 = null;
+                logD("Download uri " + data.toString());
+                try {
+                    stream = cr.openInputStream(data);
+                } catch (FileNotFoundException e) {
+                    logE("Error while reading the torrent file", e);
+                    return;
+                }
+                base64 = new Base64.InputStream(stream, Base64.ENCODE | Base64.DO_BREAK_LINES);
+                StringBuilder fileContent = new StringBuilder("");
+                int ch;
+                try {
+                    while( (ch = base64.read()) != -1)
+                      fileContent.append((char)ch);
+                } catch (IOException e) {
+                    logE("Error while reading the torrent file", e);
+                    return;
+                } finally {
+                    try {
+                        base64.close();
+                    } catch (IOException e) {
+                        return;
+                    }
+                }
+
+                final String content = fileContent.toString();
+
+                builder.setTitle(R.string.add_torrent).setPositiveButton(android.R.string.ok,
+                        new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int id) {
+                        Spinner location = (Spinner) ((AlertDialog) dialog).findViewById(R.id.location_choice);
+                        CheckBox paused = (CheckBox) ((AlertDialog) dialog).findViewById(R.id.start_paused);
+                        CheckBox delete = (CheckBox) ((AlertDialog) dialog).findViewById(R.id.delete_local_torrent_file);
+
+                        String dir = (String) location.getSelectedItem();
+                        ((TransmissionSessionLoader) loader).addTorrent(
+                                null, content, dir, paused.isChecked());
+
+                        setRefreshing(true);
+                    }
+                });
+
+                AlertDialog dialog = builder.create();
+                dialog.show();
             }
         }
     }
