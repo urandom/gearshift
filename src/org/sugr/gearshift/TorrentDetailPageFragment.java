@@ -12,6 +12,7 @@ import java.util.List;
 import android.content.Context;
 import android.database.DataSetObserver;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.Loader;
 import android.view.KeyEvent;
@@ -26,6 +27,7 @@ import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.ScrollView;
 import android.widget.Spinner;
 import android.widget.TextView;
 
@@ -51,23 +53,40 @@ public class TorrentDetailPageFragment extends Fragment {
     private static final int SEED_RATIO_LIMIT = 3;
     private static final int PEER_LIMIT = 4;
 
+    private static final String STATE_EXPANDED = "expanded_states";
+    private static final String STATE_SCROLL_POSITION = "scroll_position_state";
+
+    private static class Expanders {
+        public static final int TOTAL_EXPANDERS = 3;
+
+        public static final int OVERVIEW = 0;
+        public static final int FILES = 1;
+        public static final int LIMITS = 2;
+    }
+
+    private boolean[] mExpandedStates = new boolean[Expanders.TOTAL_EXPANDERS];
+
     private View.OnClickListener mExpanderListener = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
             View image;
             View content;
+            int index;
             switch(v.getId()) {
                 case R.id.torrent_detail_overview_expander:
                     image = v.findViewById(R.id.torrent_detail_overview_expander_image);
                     content = getView().findViewById(R.id.torrent_detail_overview_content);
+                    index = Expanders.OVERVIEW;
                     break;
                 case R.id.torrent_detail_files_expander:
                     image = v.findViewById(R.id.torrent_detail_files_expander_image);
                     content = getView().findViewById(R.id.torrent_detail_files_content);
+                    index = Expanders.FILES;
                     break;
                 case R.id.torrent_detail_limits_expander:
                     image = v.findViewById(R.id.torrent_detail_limits_expander_image);
                     content = getView().findViewById(R.id.torrent_detail_limits_content);
+                    index = Expanders.LIMITS;
                     break;
                 default:
                     return;
@@ -76,10 +95,12 @@ public class TorrentDetailPageFragment extends Fragment {
             if (content.getVisibility() == View.GONE) {
                 content.setVisibility(View.VISIBLE);
                 image.setBackgroundResource(R.drawable.ic_section_collapse);
+                mExpandedStates[index] = true;
                 updateFields(getView());
             } else {
                 content.setVisibility(View.GONE);
                 image.setBackgroundResource(R.drawable.ic_section_expand);
+                mExpandedStates[index] = false;
             }
 
         }
@@ -98,6 +119,7 @@ public class TorrentDetailPageFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        mExpandedStates[Expanders.OVERVIEW] = true;
 
         if (getArguments().containsKey(TorrentDetailFragment.ARG_PAGE_POSITION)) {
             int position = getArguments().getInt(TorrentDetailFragment.ARG_PAGE_POSITION);
@@ -122,6 +144,33 @@ public class TorrentDetailPageFragment extends Fragment {
 
         if (mTorrent == null) return root;
 
+        if (savedInstanceState != null) {
+            if (savedInstanceState.containsKey(STATE_EXPANDED)) {
+                mExpandedStates = savedInstanceState.getBooleanArray(STATE_EXPANDED);
+                Handler handler = new Handler();
+
+                handler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        root.findViewById(R.id.torrent_detail_overview_content).setVisibility(mExpandedStates[Expanders.OVERVIEW] ? View.VISIBLE : View.GONE);
+                        root.findViewById(R.id.torrent_detail_files_content).setVisibility(mExpandedStates[Expanders.FILES] ? View.VISIBLE : View.GONE);
+                        root.findViewById(R.id.torrent_detail_limits_content).setVisibility(mExpandedStates[Expanders.LIMITS] ? View.VISIBLE : View.GONE);
+                        updateFields(root);
+                    }
+                });
+            }
+            if (savedInstanceState.containsKey(STATE_SCROLL_POSITION)) {
+                final int position = savedInstanceState.getInt(STATE_SCROLL_POSITION);
+                final ScrollView scroll = (ScrollView) root.findViewById(R.id.detail_scroll);
+                scroll.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        scroll.scrollTo(0, position);
+                    }
+                });
+            }
+        }
+
         mFilesAdapter = new FilesAdapter();
         mFilesObserver = new FilesDataSetObserver(root);
         mFilesAdapter.registerDataSetObserver(mFilesObserver);
@@ -132,7 +181,7 @@ public class TorrentDetailPageFragment extends Fragment {
         check.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 if (mTorrent.areSessionLimitsHonored() != isChecked) {
-                    setTorrentProperty(Torrent.SetterFields.SESSION_LIMITS, new Boolean(isChecked));
+                    setTorrentProperty(Torrent.SetterFields.SESSION_LIMITS, Boolean.valueOf(isChecked));
                 }
             }
         });
@@ -149,7 +198,7 @@ public class TorrentDetailPageFragment extends Fragment {
                             priority = Torrent.Priority.HIGH;
                         }
                         if (mTorrent.getTorrentPriority() != priority) {
-                            setTorrentProperty(Torrent.SetterFields.TORRENT_PRIORITY, new Integer(priority));
+                            setTorrentProperty(Torrent.SetterFields.TORRENT_PRIORITY, Integer.valueOf(priority));
                         }
                     }
 
@@ -167,7 +216,7 @@ public class TorrentDetailPageFragment extends Fragment {
                         return false;
                     }
                     if (mTorrent.getQueuePosition() != position) {
-                        setTorrentProperty(Torrent.SetterFields.QUEUE_POSITION, new Integer(position));
+                        setTorrentProperty(Torrent.SetterFields.QUEUE_POSITION, Integer.valueOf(position));
                     }
                 }
                 return false;
@@ -179,7 +228,7 @@ public class TorrentDetailPageFragment extends Fragment {
             @Override public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 root.findViewById(R.id.torrent_limit_download).setEnabled(isChecked);
                 if (mTorrent.isDownloadLimited() != isChecked) {
-                    setTorrentProperty(Torrent.SetterFields.DOWNLOAD_LIMITED, new Boolean(isChecked));
+                    setTorrentProperty(Torrent.SetterFields.DOWNLOAD_LIMITED, Boolean.valueOf(isChecked));
                 }
             }
         });
@@ -194,7 +243,7 @@ public class TorrentDetailPageFragment extends Fragment {
                     return false;
                 }
                 if (mTorrent.getDownloadLimit() != limit) {
-                    setTorrentProperty(Torrent.SetterFields.DOWNLOAD_LIMIT, new Long(limit));
+                    setTorrentProperty(Torrent.SetterFields.DOWNLOAD_LIMIT, Long.valueOf(limit));
                 }
                 return false;
             }
@@ -206,7 +255,7 @@ public class TorrentDetailPageFragment extends Fragment {
             @Override public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 root.findViewById(R.id.torrent_limit_upload).setEnabled(isChecked);
                 if (mTorrent.isUploadLimited() != isChecked) {
-                    setTorrentProperty(Torrent.SetterFields.UPLOAD_LIMITED, new Boolean(isChecked));
+                    setTorrentProperty(Torrent.SetterFields.UPLOAD_LIMITED, Boolean.valueOf(isChecked));
                 }
             }
         });
@@ -221,7 +270,7 @@ public class TorrentDetailPageFragment extends Fragment {
                     return false;
                 }
                 if (mTorrent.getUploadLimit() != limit) {
-                    setTorrentProperty(Torrent.SetterFields.UPLOAD_LIMIT, new Long(limit));
+                    setTorrentProperty(Torrent.SetterFields.UPLOAD_LIMIT, Long.valueOf(limit));
                 }
                 return false;
             }
@@ -240,7 +289,7 @@ public class TorrentDetailPageFragment extends Fragment {
                         }
                         root.findViewById(R.id.torrent_seed_ratio_limit).setEnabled(val.equals("user"));
                         if (mTorrent.getSeedRatioMode() != mode) {
-                            setTorrentProperty(Torrent.SetterFields.SEED_RATIO_MODE, new Integer(mode));
+                            setTorrentProperty(Torrent.SetterFields.SEED_RATIO_MODE, Integer.valueOf(mode));
                         }
                     }
 
@@ -257,7 +306,7 @@ public class TorrentDetailPageFragment extends Fragment {
                     return false;
                 }
                 if (mTorrent.getSeedRatioLimit() != limit) {
-                    setTorrentProperty(Torrent.SetterFields.SEED_RATIO_LIMIT, new Float(limit));
+                    setTorrentProperty(Torrent.SetterFields.SEED_RATIO_LIMIT, Float.valueOf(limit));
                 }
                 return false;
             }
@@ -274,7 +323,7 @@ public class TorrentDetailPageFragment extends Fragment {
                     return false;
                 }
                 if (mTorrent.getPeerLimit() != limit) {
-                    setTorrentProperty(Torrent.SetterFields.PEER_LIMIT, new Integer(limit));
+                    setTorrentProperty(Torrent.SetterFields.PEER_LIMIT, Integer.valueOf(limit));
                 }
                 return false;
             }
@@ -301,6 +350,17 @@ public class TorrentDetailPageFragment extends Fragment {
 
         return root;
     }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putBooleanArray(STATE_EXPANDED, mExpandedStates);
+        ScrollView scroll = (ScrollView) getView().findViewById(R.id.detail_scroll);
+        if (scroll != null) {
+            outState.putInt(STATE_SCROLL_POSITION, scroll.getScrollY());
+        }
+    }
+
 
     public void notifyTorrentUpdate(Torrent torrent) {
         if (torrent.getId() != mTorrent.getId()) {
@@ -622,9 +682,9 @@ public class TorrentDetailPageFragment extends Fragment {
                         @Override public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                             if (file.stat.isWanted() != isChecked) {
                                 if (isChecked) {
-                                    setTorrentProperty(Torrent.SetterFields.FILES_WANTED, new Integer(file.index));
+                                    setTorrentProperty(Torrent.SetterFields.FILES_WANTED, Integer.valueOf(file.index));
                                 } else {
-                                    setTorrentProperty(Torrent.SetterFields.FILES_UNWANTED, new Integer(file.index));
+                                    setTorrentProperty(Torrent.SetterFields.FILES_UNWANTED, Integer.valueOf(file.index));
                                 }
                             }
                         }
