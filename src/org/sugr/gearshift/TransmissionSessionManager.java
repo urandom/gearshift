@@ -671,19 +671,11 @@ public class TransmissionSessionManager {
         @SerializedName("arguments") private final AddTorrentArguments mArguments = null;
 
         public Torrent getTorrent() {
-            if (mArguments == null || !getResult().equals("success")) {
-                return null;
-            }
-            Torrent torrent = new Torrent(mArguments.id, mArguments.name);
-            torrent.setHashString(mArguments.hashString);
-
-            return torrent;
+            return mArguments.torrent;
         }
 
         private class AddTorrentArguments {
-            @SerializedName("id") public int id;
-            @SerializedName("name") public String name;
-            @SerializedName("hashString") public String hashString;
+            @SerializedName("torrent-added") public Torrent torrent;
         }
     }
 

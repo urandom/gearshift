@@ -105,7 +105,7 @@ public class TransmissionSessionLoader extends AsyncTaskLoader<TransmissionSessi
     private Uri mTorrentAddMeta;
     private boolean mTorrentAddPaused;
 
-    private boolean mNewTorrentAdded = false;
+    private int mNewTorrentAdded;
 
     private Object mLock = new Object();
 
@@ -293,7 +293,7 @@ public class TransmissionSessionLoader extends AsyncTaskLoader<TransmissionSessi
             thread.start();
         }
 
-        mNewTorrentAdded = false;
+        mNewTorrentAdded = 0;
         if (mTorrentAddUri != null || mTorrentAddMeta != null) {
             Thread thread = new Thread(new Runnable() {
                 @Override
@@ -340,8 +340,8 @@ public class TransmissionSessionLoader extends AsyncTaskLoader<TransmissionSessi
                                 mTorrentLocation, mTorrentAddPaused);
 
                         if (torrent != null) {
+                            mNewTorrentAdded = torrent.getId();
                             mTorrentMap.put(torrent.getId(), torrent);
-                            mNewTorrentAdded = true;
                         }
                     } catch (ManagerException e) {
                         synchronized(mLock) {
@@ -435,7 +435,7 @@ public class TransmissionSessionLoader extends AsyncTaskLoader<TransmissionSessi
             return handleError(exceptions.get(0));
         }
 
-        if (mNewTorrentAdded) {
+        if (mNewTorrentAdded > 0) {
             hasAdded = true;
         }
 
@@ -452,6 +452,28 @@ public class TransmissionSessionLoader extends AsyncTaskLoader<TransmissionSessi
             for (int i = 0; i < mTorrentMap.size(); i++) {
                 int key = mTorrentMap.keyAt(i);
                 Torrent original = mTorrentMap.get(key);
+                boolean found = false;
+                if (mNewTorrentAdded == original.getId()) {
+                    found = true;
+                } else {
+                    for (Torrent t : torrents) {
+                        if (original.getId() == t.getId()) {
+                            found = true;
+                            break;
+                        }
+                    }
+                }
+                if (!found) {
+                    removal.add(original);
+                }
+            }
+            for (Torrent t : removal) {
+                mTorrentMap.remove(t.getId());
+                hasRemoved = true;
+            }
+        } else {
+            ArrayList<Torrent> removal = new ArrayList<Torrent>();
+            for (Torrent original : mCurrentTorrents) {
                 boolean found = false;
                 for (Torrent t : torrents) {
                     if (original.getId() == t.getId()) {
