@@ -67,6 +67,9 @@
     <string name="header_label_general_preferences">General</string>
     <string name="header_label_profiles">Profiles</string>
     
+    <string name="help_header_label">Help</string>
+    <string name="about_header_label">About</string>
+    
     <string name="add_directory_option">Add directory</string>
     <string name="no_download_dirs">&lt;h2&gt;You have no extra download directories.&lt;/h2&gt;Adding some here will allow you to change the location of any torrent in this profile.</string>
     

@@ -20,14 +20,16 @@ import android.widget.TextView;
 
 public class SettingsActivity extends PreferenceActivity
         implements LoaderManager.LoaderCallbacks<TransmissionProfile[]> {
-    
+
     private Header mAppPreferencesHeader;
-    private Header mProfileHeaderseparatorHeader;
+    private Header mProfileHeaderSeparatorHeader;
     private Header[] mProfileHeaders = new Header[0];
-    
+    private Header mHelpSeparatorHeader;
+    private Header mAboutHeader;
+
     private List<Header> mHeaders = new ArrayList<Header>();
     private TransmissionProfile[] mProfiles;
-    
+
     private static final int LOADER_ID = 1;
 
     @Override
@@ -36,19 +38,28 @@ public class SettingsActivity extends PreferenceActivity
         target.add(getAppPreferencesHeader());
 
         if (mProfileHeaders.length > 0) {
-            if (mProfileHeaderseparatorHeader == null) {
-                mProfileHeaderseparatorHeader = new Header();
-                mProfileHeaderseparatorHeader.title = getText(R.string.header_label_profiles);
+            if (mProfileHeaderSeparatorHeader == null) {
+                mProfileHeaderSeparatorHeader = new Header();
+                mProfileHeaderSeparatorHeader.title = getText(R.string.header_label_profiles);
             }
-            target.add(mProfileHeaderseparatorHeader);
-            
+            target.add(mProfileHeaderSeparatorHeader);
+
             for (Header profile : mProfileHeaders)
                 target.add(profile);
         }
 
+        if (mHelpSeparatorHeader == null) {
+            mHelpSeparatorHeader = new Header();
+            mHelpSeparatorHeader.title = getText(R.string.help_header_label);
+        }
+
+        target.add(mHelpSeparatorHeader);
+
+        target.add(getAboutHeader());
+
         mHeaders = target;
     }
-    
+
     @Override
     public void setListAdapter(ListAdapter adapter) {
         if (adapter == null)
@@ -56,30 +67,30 @@ public class SettingsActivity extends PreferenceActivity
         else
             super.setListAdapter(new HeaderAdapter(this, mHeaders));
     }
-    
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         getActionBar().setDisplayHomeAsUpEnabled(true);
         getActionBar().setHomeButtonEnabled(true);
-        
+
         if (savedInstanceState == null) {
             TorrentListActivity.logD("Creating the profile loader");
 
             getLoaderManager().initLoader(LOADER_ID, null, this);
         }
     }
-    
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         super.onCreateOptionsMenu(menu);
         if (mProfiles != null)
             getMenuInflater().inflate(R.menu.add_profile_option, menu);
-        
+
         return true;
     }
-    
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch(item.getItemId()) {
@@ -94,7 +105,7 @@ public class SettingsActivity extends PreferenceActivity
         }
         return super.onOptionsItemSelected(item);
     }
-    
+
     public void onProfileListChange() {
         getLoaderManager().getLoader(LOADER_ID).onContentChanged();
     }
@@ -108,7 +119,7 @@ public class SettingsActivity extends PreferenceActivity
     public void onLoadFinished(Loader<TransmissionProfile[]> loader,
             TransmissionProfile[] profiles) {
         mProfiles = profiles;
-        
+
         TorrentListActivity.logD("Finished loading %d profiles", new Object[] {profiles.length});
         if (profiles.length == 0) return;
 
@@ -126,26 +137,26 @@ public class SettingsActivity extends PreferenceActivity
     public void onLoaderReset(Loader<TransmissionProfile[]> loader) {/*
         mProfileHeaders = new Header[0];
         mProfiles = null;
-        
+
         TorrentListActivity.logD("Received profile loader reset");
         */
         invalidateHeaders();
         invalidateOptionsMenu();
     }
-    
+
     private Header getProfileHeader(TransmissionProfile profile) {
         Header header = new Header();
-        
+
         header.id = profile.getId().hashCode();
         header.title = profile.getName();
         header.summary = (profile.getUsername().length() > 0 ? profile.getUsername() + "@" : "")
                 + profile.getHost() + ":" + profile.getPort();
-        
+
         header.fragment = TransmissionProfileSettingsFragment.class.getCanonicalName();
         Bundle args = new Bundle();
         args.putString(TransmissionProfileSettingsFragment.ARG_PROFILE_ID, profile.getId());
         header.fragmentArguments = args;
-        
+
         return header;
     }
 
@@ -162,7 +173,21 @@ public class SettingsActivity extends PreferenceActivity
         }
         return mAppPreferencesHeader;
     }
-    
+
+    private Header getAboutHeader() {
+        // Set up fixed header for general settings
+        if (mAboutHeader == null) {
+            mAboutHeader = new Header();
+            mAboutHeader.id = R.id.about_header;
+            mAboutHeader.title = getText(R.string.about_header_label);
+            mAboutHeader.summary = null;
+            mAboutHeader.iconRes = 0;
+            mAboutHeader.fragment = GeneralSettingsFragment.class.getCanonicalName();
+            mAboutHeader.fragmentArguments = null;
+        }
+        return mAboutHeader;
+    }
+
     private static class HeaderAdapter extends ArrayAdapter<Header> {
         static final int HEADER_TYPE_CATEGORY = 0;
         static final int HEADER_TYPE_NORMAL = 1;
