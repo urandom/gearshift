@@ -1,8 +1,5 @@
 package org.sugr.gearshift;
 
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.ArrayList;
@@ -10,11 +7,10 @@ import java.util.ArrayList;
 import org.sugr.gearshift.TransmissionSessionManager.TransmissionExclusionStrategy;
 
 import android.app.AlertDialog;
-import android.content.ContentResolver;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.app.FragmentManager;
@@ -319,9 +315,9 @@ public class TorrentListActivity extends SlidingFragmentActivity
         String action = intent.getAction();
 
         if (Intent.ACTION_VIEW.equals(action)) {
-            final String type = intent.getType();
             final Uri data = intent.getData();
 
+            SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
             LayoutInflater inflater = getLayoutInflater();
             View view = inflater.inflate(R.layout.add_torrent_dialog, null);
             final Loader<TransmissionSessionData> loader = getSupportLoaderManager()
@@ -344,6 +340,8 @@ public class TorrentListActivity extends SlidingFragmentActivity
             location = (Spinner) view.findViewById(R.id.location_choice);
             location.setAdapter(adapter);
 
+            ((CheckBox) view.findViewById(R.id.start_paused)).setChecked(prefs.getBoolean(GeneralSettingsFragment.PREF_START_PAUSED, false));
+
             if (data.getScheme().equals("magnet")) {
                 view.findViewById(R.id.delete_local_torrent_file).setVisibility(View.GONE);
                 builder.setTitle(R.string.add_magnet).setPositiveButton(android.R.string.ok,
@@ -364,6 +362,7 @@ public class TorrentListActivity extends SlidingFragmentActivity
                 AlertDialog dialog = builder.create();
                 dialog.show();
             } else {
+                ((CheckBox) view.findViewById(R.id.delete_local_torrent_file)).setChecked(prefs.getBoolean(GeneralSettingsFragment.PREF_DELETE_LOCAL_TORRENT, false));
                 builder.setTitle(R.string.add_torrent).setPositiveButton(android.R.string.ok,
                         new DialogInterface.OnClickListener() {
                     @Override
