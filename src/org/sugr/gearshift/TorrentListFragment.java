@@ -208,20 +208,24 @@ public class TorrentListFragment extends ListFragment {
                     }
                     setEmptyText(null);
                 } else {
-                    mTorrentListAdapter.clear();
+                    if (data.error == TransmissionSessionData.Errors.DUPLICATE_TORRENT) {
 
-                    if (data.error == TransmissionSessionData.Errors.NO_CONNECTIVITY) {
-                        setEmptyText(R.string.no_connectivity_empty_list);
-                    } else if (data.error == TransmissionSessionData.Errors.ACCESS_DENIED) {
-                        setEmptyText(R.string.access_denied_empty_list);
-                    } else if (data.error == TransmissionSessionData.Errors.NO_JSON) {
-                        setEmptyText(R.string.no_json_empty_list);
-                    } else if (data.error == TransmissionSessionData.Errors.NO_CONNECTION) {
-                        setEmptyText(R.string.no_connection_empty_list);
-                    } else if (data.error == TransmissionSessionData.Errors.THREAD_ERROR) {
-                        setEmptyText(R.string.thread_error_empty_list);
-                    } else if (data.error == TransmissionSessionData.Errors.RESPONSE_ERROR) {
-                        setEmptyText(R.string.response_error_empty_list);
+                    } else {
+                        mTorrentListAdapter.clear();
+
+                        if (data.error == TransmissionSessionData.Errors.NO_CONNECTIVITY) {
+                            setEmptyText(R.string.no_connectivity_empty_list);
+                        } else if (data.error == TransmissionSessionData.Errors.ACCESS_DENIED) {
+                            setEmptyText(R.string.access_denied_empty_list);
+                        } else if (data.error == TransmissionSessionData.Errors.NO_JSON) {
+                            setEmptyText(R.string.no_json_empty_list);
+                        } else if (data.error == TransmissionSessionData.Errors.NO_CONNECTION) {
+                            setEmptyText(R.string.no_connection_empty_list);
+                        } else if (data.error == TransmissionSessionData.Errors.THREAD_ERROR) {
+                            setEmptyText(R.string.thread_error_empty_list);
+                        } else if (data.error == TransmissionSessionData.Errors.RESPONSE_ERROR) {
+                            setEmptyText(R.string.response_error_empty_list);
+                        }
                     }
                 }
                 if (data.torrents.size() > 0) {
