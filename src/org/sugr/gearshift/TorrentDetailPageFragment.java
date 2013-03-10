@@ -135,7 +135,7 @@ public class TorrentDetailPageFragment extends Fragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
-            Bundle savedInstanceState) {
+            final Bundle savedInstanceState) {
         final View root = inflater.inflate(R.layout.fragment_torrent_detail_page, container, false);
 
         root.findViewById(R.id.torrent_detail_overview_expander).setOnClickListener(mExpanderListener);
@@ -145,30 +145,23 @@ public class TorrentDetailPageFragment extends Fragment {
         if (mTorrent == null) return root;
 
         if (savedInstanceState != null) {
-            if (savedInstanceState.containsKey(STATE_EXPANDED)) {
-                mExpandedStates = savedInstanceState.getBooleanArray(STATE_EXPANDED);
-                Handler handler = new Handler();
-
-                handler.post(new Runnable() {
-                    @Override
-                    public void run() {
+            new Handler().post(new Runnable() {
+                @Override
+                public void run() {
+                    if (savedInstanceState.containsKey(STATE_EXPANDED)) {
+                        mExpandedStates = savedInstanceState.getBooleanArray(STATE_EXPANDED);
                         root.findViewById(R.id.torrent_detail_overview_content).setVisibility(mExpandedStates[Expanders.OVERVIEW] ? View.VISIBLE : View.GONE);
                         root.findViewById(R.id.torrent_detail_files_content).setVisibility(mExpandedStates[Expanders.FILES] ? View.VISIBLE : View.GONE);
                         root.findViewById(R.id.torrent_detail_limits_content).setVisibility(mExpandedStates[Expanders.LIMITS] ? View.VISIBLE : View.GONE);
                         updateFields(root);
                     }
-                });
-            }
-            if (savedInstanceState.containsKey(STATE_SCROLL_POSITION)) {
-                final int position = savedInstanceState.getInt(STATE_SCROLL_POSITION);
-                final ScrollView scroll = (ScrollView) root.findViewById(R.id.detail_scroll);
-                scroll.post(new Runnable() {
-                    @Override
-                    public void run() {
+                    if (savedInstanceState.containsKey(STATE_SCROLL_POSITION)) {
+                        final int position = savedInstanceState.getInt(STATE_SCROLL_POSITION);
+                        final ScrollView scroll = (ScrollView) root.findViewById(R.id.detail_scroll);
                         scroll.scrollTo(0, position);
                     }
-                });
-            }
+                }
+            });
         }
 
         mFilesAdapter = new FilesAdapter();
