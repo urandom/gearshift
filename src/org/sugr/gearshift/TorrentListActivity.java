@@ -343,7 +343,6 @@ public class TorrentListActivity extends SlidingFragmentActivity
             ((CheckBox) view.findViewById(R.id.start_paused)).setChecked(prefs.getBoolean(GeneralSettingsFragment.PREF_START_PAUSED, false));
 
             if (data.getScheme().equals("magnet")) {
-                view.findViewById(R.id.delete_local_torrent_file).setVisibility(View.GONE);
                 builder.setTitle(R.string.add_magnet).setPositiveButton(android.R.string.ok,
                         new DialogInterface.OnClickListener() {
                     @Override
@@ -362,14 +361,12 @@ public class TorrentListActivity extends SlidingFragmentActivity
                 AlertDialog dialog = builder.create();
                 dialog.show();
             } else {
-                ((CheckBox) view.findViewById(R.id.delete_local_torrent_file)).setChecked(prefs.getBoolean(GeneralSettingsFragment.PREF_DELETE_LOCAL_TORRENT, false));
                 builder.setTitle(R.string.add_torrent).setPositiveButton(android.R.string.ok,
                         new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(final DialogInterface dialog, int id) {
                         Spinner location = (Spinner) ((AlertDialog) dialog).findViewById(R.id.location_choice);
                         CheckBox paused = (CheckBox) ((AlertDialog) dialog).findViewById(R.id.start_paused);
-                        CheckBox delete = (CheckBox) ((AlertDialog) dialog).findViewById(R.id.delete_local_torrent_file);
 
                         String dir = (String) location.getSelectedItem();
                         ((TransmissionSessionLoader) loader).addTorrent(

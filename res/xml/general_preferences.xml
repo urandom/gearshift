@@ -30,11 +30,7 @@
             android:key="start_paused"
             android:title="@string/start_paused"
             android:defaultValue="false" />
-        
-        <CheckBoxPreference
-            android:key="delete_local_torrent_file"
-            android:title="@string/delete_local_torrent_file"
-            android:defaultValue="false" />
+
     </PreferenceCategory>
 
 </PreferenceScreen>
