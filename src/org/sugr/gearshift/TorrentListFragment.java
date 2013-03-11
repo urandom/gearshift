@@ -41,6 +41,7 @@ import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.Toast;
 
 /**
  * A list fragment representing a list of Torrents. This fragment
@@ -209,7 +210,9 @@ public class TorrentListFragment extends ListFragment {
                     setEmptyText(null);
                 } else {
                     if (data.error == TransmissionSessionData.Errors.DUPLICATE_TORRENT) {
-
+                        Toast.makeText(getActivity(), R.string.duplicate_torrent, Toast.LENGTH_SHORT).show();
+                    } else if (data.error == TransmissionSessionData.Errors.INVALID_TORRENT) {
+                        Toast.makeText(getActivity(), R.string.invalid_torrent, Toast.LENGTH_SHORT).show();
                     } else {
                         mTorrentListAdapter.clear();
 

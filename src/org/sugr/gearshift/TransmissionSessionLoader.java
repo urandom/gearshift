@@ -38,6 +38,7 @@ class TransmissionSessionData {
         public static final int THREAD_ERROR = 1 << 5;
         public static final int RESPONSE_ERROR = 1 << 6;
         public static final int DUPLICATE_TORRENT = 1 << 7;
+        public static final int INVALID_TORRENT = 1 << 8;
     };
 
     public TransmissionSessionData(TransmissionSession session, TransmissionSessionStats stats, int error) {
@@ -630,8 +631,10 @@ public class TransmissionSessionLoader extends AsyncTaskLoader<TransmissionSessi
                 mLastError = TransmissionSessionData.Errors.NO_CONNECTION;
                 break;
             case -2:
-                if (e.getMessage().contains("duplicate")) {
+                if (e.getMessage().equals("duplicate torrent")) {
                     mLastError = TransmissionSessionData.Errors.DUPLICATE_TORRENT;
+                } else if (e.getMessage().equals("invalid or corrupt torrent file")) {
+                    mLastError = TransmissionSessionData.Errors.INVALID_TORRENT;
                 } else {
                     mLastError = TransmissionSessionData.Errors.RESPONSE_ERROR;
                     TorrentListActivity.logE("Transmission Daemon Error!", e);
