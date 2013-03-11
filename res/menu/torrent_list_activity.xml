@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android" >
+     <item android:id="@+id/menu_about"
+        android:visible="true"
+        android:showAsAction="never"
+        android:menuCategory="system"
+        android:orderInCategory="99"
+        android:title="@string/about_item" />
+</menu>

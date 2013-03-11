@@ -24,8 +24,6 @@ public class SettingsActivity extends PreferenceActivity
     private Header mAppPreferencesHeader;
     private Header mProfileHeaderSeparatorHeader;
     private Header[] mProfileHeaders = new Header[0];
-    private Header mHelpSeparatorHeader;
-    private Header mAboutHeader;
 
     private List<Header> mHeaders = new ArrayList<Header>();
     private TransmissionProfile[] mProfiles;
@@ -47,15 +45,6 @@ public class SettingsActivity extends PreferenceActivity
             for (Header profile : mProfileHeaders)
                 target.add(profile);
         }
-
-        if (mHelpSeparatorHeader == null) {
-            mHelpSeparatorHeader = new Header();
-            mHelpSeparatorHeader.title = getText(R.string.help_header_label);
-        }
-
-        target.add(mHelpSeparatorHeader);
-
-        target.add(getAboutHeader());
 
         mHeaders = target;
     }
@@ -172,20 +161,6 @@ public class SettingsActivity extends PreferenceActivity
             mAppPreferencesHeader.fragmentArguments = null;
         }
         return mAppPreferencesHeader;
-    }
-
-    private Header getAboutHeader() {
-        // Set up fixed header for general settings
-        if (mAboutHeader == null) {
-            mAboutHeader = new Header();
-            mAboutHeader.id = R.id.about_header;
-            mAboutHeader.title = getText(R.string.about_header_label);
-            mAboutHeader.summary = null;
-            mAboutHeader.iconRes = 0;
-            mAboutHeader.fragment = GeneralSettingsFragment.class.getCanonicalName();
-            mAboutHeader.fragmentArguments = null;
-        }
-        return mAboutHeader;
     }
 
     private static class HeaderAdapter extends ArrayAdapter<Header> {

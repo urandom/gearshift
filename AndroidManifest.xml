@@ -55,6 +55,11 @@
 		        <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
+        <activity
+            android:name="org.sugr.gearshift.AboutActivity"
+            android:label="@string/about_item"
+            android:parentActivityName="org.sugr.gearshift.TorrentListActivity">
+        </activity>
     </application>
 
 </manifest>

@@ -67,9 +67,6 @@
     <string name="header_label_general_preferences">General</string>
     <string name="header_label_profiles">Profiles</string>
     
-    <string name="help_header_label">Help</string>
-    <string name="about_header_label">About</string>
-    
     <string name="add_directory_option">Add directory</string>
     <string name="no_download_dirs">&lt;h2&gt;You have no extra download directories.&lt;/h2&gt;Adding some here will allow you to change the location of any torrent in this profile.</string>
     
@@ -189,4 +186,10 @@
     <string name="torrent_public">Public torrent</string>
     <string name="torrent_origin_format">Created on %1$s</string>
     <string name="torrent_origin_creator_format">Created by %1$s on %2$s</string>
+    
+    <string name="about_item">About</string>
+    <string name="about_name">Gear Shift</string>
+    <string name="app_icon">App icon</string>
+    <string name="about_description">Gear Shift is a Transmission remote client, created to provide a great experience when dealing with all aspects of torrent management.</string>
+    <string name="about_donation">This app is provided for free, without any annoying ads. If you find it useful, consider making a small <a href="http://google.com" >donation</a>.</string>
 </resources>

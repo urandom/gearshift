@@ -17,6 +17,7 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.content.Loader;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
@@ -154,27 +155,41 @@ public class TorrentListActivity extends SlidingFragmentActivity
     	}
     }
 
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        super.onCreateOptionsMenu(menu);
+
+        getMenuInflater().inflate(R.menu.torrent_list_activity, menu);
+
+        return true;
+    }
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch(item.getItemId()) {
-        case android.R.id.home:
-            if (!mTwoPane || getSlidingMenu().isMenuShowing()) {
-                toggle();
-                return true;
-            }
+            case android.R.id.home:
+                if (!mTwoPane || getSlidingMenu().isMenuShowing()) {
+                    toggle();
+                    return true;
+                }
 
-            TorrentListFragment fragment = ((TorrentListFragment) getSupportFragmentManager()
-                    .findFragmentById(R.id.torrent_list));
+                TorrentListFragment fragment = ((TorrentListFragment) getSupportFragmentManager()
+                        .findFragmentById(R.id.torrent_list));
 
-            int position = fragment.getListView().getCheckedItemPosition();
-            if (position == ListView.INVALID_POSITION) {
-                toggle();
+                int position = fragment.getListView().getCheckedItemPosition();
+                if (position == ListView.INVALID_POSITION) {
+                    toggle();
+                    return true;
+                } else {
+                    toggleRightPane(false);
+                    fragment.getListView().setItemChecked(position, false);
+                    return true;
+                }
+            case R.id.menu_about:
+                Intent intent = new Intent(this, AboutActivity.class);
+                startActivity(intent);
                 return true;
-            } else {
-                toggleRightPane(false);
-                fragment.getListView().setItemChecked(position, false);
-                return true;
-            }
         }
         return super.onOptionsItemSelected(item);
     }
