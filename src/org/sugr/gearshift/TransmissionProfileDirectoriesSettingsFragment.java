@@ -38,7 +38,7 @@ public class TransmissionProfileDirectoriesSettingsFragment extends ListFragment
     private Set<String> mDirectories = new HashSet<String>();
     private ArrayAdapter<String> mAdapter;
 
-    private boolean mIsCABDestroyed = false;
+    private boolean mIsCABDestroyed = true;
 
     private Comparator<String> mDirComparator = new Comparator<String>() {
         @Override
@@ -159,6 +159,14 @@ public class TransmissionProfileDirectoriesSettingsFragment extends ListFragment
                         MenuItem item) {
 
                     switch (item.getItemId()) {
+                        case R.id.select_all:
+                            ListView v = getListView();
+                            for (int i = 0; i < mAdapter.getCount(); i++) {
+                                if (!v.isItemChecked(i)) {
+                                    v.setItemChecked(i, true);
+                                }
+                            }
+                            return true;
                         case R.id.remove:
                             AlertDialog.Builder builder = new AlertDialog.Builder(getActivity())
                                 .setCancelable(false)
@@ -277,6 +285,7 @@ public class TransmissionProfileDirectoriesSettingsFragment extends ListFragment
         final EditText input = new EditText(getActivity());
         input.setId(R.id.dialog_entry);
         input.setText(text);
+        input.setSelectAllOnFocus(true);
         alert.setView(input);
 
         alert.setPositiveButton(android.R.string.ok, clickListener);
