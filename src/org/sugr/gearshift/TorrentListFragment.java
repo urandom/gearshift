@@ -371,6 +371,14 @@ public class TorrentListFragment extends ListFragment {
 
                 AlertDialog.Builder builder;
                 switch (item.getItemId()) {
+                    case R.id.select_all:
+                        ListView v = getListView();
+                        for (int i = 0; i < mTorrentListAdapter.getCount(); i++) {
+                            if (!v.isItemChecked(i)) {
+                                v.setItemChecked(i, true);
+                            }
+                        }
+                        return true;
                     case R.id.remove:
                     case R.id.delete:
                         builder = new AlertDialog.Builder(getActivity())

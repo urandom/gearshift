@@ -533,6 +533,7 @@ public class TransmissionSessionManager {
             @SerializedName(Torrent.SetterFields.FILES_NORMAL) private int[] filesNormal;
             @SerializedName(Torrent.SetterFields.FILES_LOW) private int[] filesLow;
 
+            @SuppressWarnings("unchecked")
             public Arguments(int[] ids, String key, Object value) {
                 this.ids = ids;
                 if (key.equals(Torrent.SetterFields.DOWNLOAD_LIMITED)) {
@@ -553,13 +554,13 @@ public class TransmissionSessionManager {
                     if (value instanceof Integer) {
                         this.filesWanted = new int[] { ((Integer) value).intValue() };
                     } else {
-                        this.filesWanted = convertIntegerList((ArrayList) value);
+                        this.filesWanted = convertIntegerList((ArrayList<Integer>) value);
                     }
                 } else if (key.equals(Torrent.SetterFields.FILES_UNWANTED)) {
                     if (value instanceof Integer) {
                         this.filesUnwanted = new int[] { ((Integer) value).intValue() };
                     } else {
-                        this.filesUnwanted = convertIntegerList((ArrayList) value);
+                        this.filesUnwanted = convertIntegerList((ArrayList<Integer>) value);
                     }
                 } else if (key.equals(Torrent.SetterFields.DOWNLOAD_LIMIT)) {
                     this.downloadLimit = ((Long) value).longValue();
@@ -568,11 +569,11 @@ public class TransmissionSessionManager {
                 } else if (key.equals(Torrent.SetterFields.SEED_RATIO_LIMIT)) {
                     this.seedRatioLimit = ((Float) value).floatValue();
                 } else if (key.equals(Torrent.SetterFields.FILES_HIGH)) {
-                    this.filesHigh = convertIntegerList((ArrayList) value);
+                    this.filesHigh = convertIntegerList((ArrayList<Integer>) value);
                 } else if (key.equals(Torrent.SetterFields.FILES_NORMAL)) {
-                    this.filesNormal = convertIntegerList((ArrayList) value);
+                    this.filesNormal = convertIntegerList((ArrayList<Integer>) value);
                 } else if (key.equals(Torrent.SetterFields.FILES_LOW)) {
-                    this.filesLow = convertIntegerList((ArrayList) value);
+                    this.filesLow = convertIntegerList((ArrayList<Integer>) value);
                 }
             }
         }
