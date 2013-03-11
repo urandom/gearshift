@@ -131,7 +131,7 @@ public class TorrentListMenuFragment extends Fragment {
         };
 
         if (session == null) {
-            setStatus(speed, getString(R.string.unknown));
+            setStatus(speed, null);
             return;
         }
 
@@ -152,7 +152,7 @@ public class TorrentListMenuFragment extends Fragment {
         setStatus(speed,
             session.getDownloadDirFreeSpace() > 0
                 ? Torrent.readableFileSize(session.getDownloadDirFreeSpace())
-                : getString(R.string.unknown)
+                : null
         );
     }
 
@@ -167,7 +167,8 @@ public class TorrentListMenuFragment extends Fragment {
                             R.string.speed_format), speeds)));
 
         space.setText(Html.fromHtml(String.format(getString(
-                            R.string.free_space_format), freeSpace)));
+                            R.string.free_space_format),
+                            freeSpace == null ? getString(R.string.unknown) : freeSpace)));
     }
 
     private void setActivatedPosition(int position) {

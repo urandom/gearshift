@@ -83,7 +83,7 @@ public class TorrentListActivity extends SlidingFragmentActivity
 
         SlidingMenu sm = getSlidingMenu();
         sm.setMode(SlidingMenu.LEFT);
-        sm.setTouchModeAbove(SlidingMenu.TOUCHMODE_MARGIN);
+        sm.setTouchModeAbove(SlidingMenu.TOUCHMODE_NONE);
         sm.setBehindWidthRes(R.dimen.sliding_menu_offset);
         sm.setShadowWidthRes(R.dimen.shadow_width);
         sm.setShadowDrawable(R.drawable.shadow);
@@ -293,6 +293,7 @@ public class TorrentListActivity extends SlidingFragmentActivity
     @Override
     public void setProfile(TransmissionProfile profile) {
         mProfile = profile;
+        getSlidingMenu().setTouchModeAbove(SlidingMenu.TOUCHMODE_MARGIN);
     }
 
     @Override
