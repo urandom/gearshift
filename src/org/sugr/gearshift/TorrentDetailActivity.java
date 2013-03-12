@@ -12,8 +12,12 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.app.NavUtils;
 import android.support.v4.content.Loader;
+import android.text.Html;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -70,8 +74,34 @@ public class TorrentDetailActivity extends FragmentActivity implements Transmiss
 
             boolean invalidateMenu = false;
 
-            if (data.torrents.size() > 0 || data.error > 0) {
-                if (data.error == 0) {
+            View error = findViewById(R.id.fatal_error_layer);
+            error.setVisibility(View.GONE);
+            if (data.error > 0) {
+                if (data.error == TransmissionSessionData.Errors.DUPLICATE_TORRENT) {
+                    Toast.makeText(TorrentDetailActivity.this,
+                            R.string.duplicate_torrent, Toast.LENGTH_SHORT).show();
+                } else if (data.error == TransmissionSessionData.Errors.INVALID_TORRENT) {
+                    Toast.makeText(TorrentDetailActivity.this,
+                            R.string.invalid_torrent, Toast.LENGTH_SHORT).show();
+                } else {
+                    error.setVisibility(View.VISIBLE);
+                    TextView text = (TextView) findViewById(R.id.transmission_error);
+                    if (data.error == TransmissionSessionData.Errors.NO_CONNECTIVITY) {
+                        text.setText(Html.fromHtml(getString(R.string.no_connectivity_empty_list)));
+                    } else if (data.error == TransmissionSessionData.Errors.ACCESS_DENIED) {
+                        text.setText(Html.fromHtml(getString(R.string.access_denied_empty_list)));
+                    } else if (data.error == TransmissionSessionData.Errors.NO_JSON) {
+                        text.setText(Html.fromHtml(getString(R.string.no_json_empty_list)));
+                    } else if (data.error == TransmissionSessionData.Errors.NO_CONNECTION) {
+                        text.setText(Html.fromHtml(getString(R.string.no_connection_empty_list)));
+                    } else if (data.error == TransmissionSessionData.Errors.THREAD_ERROR) {
+                        text.setText(Html.fromHtml(getString(R.string.thread_error_empty_list)));
+                    } else if (data.error == TransmissionSessionData.Errors.RESPONSE_ERROR) {
+                        text.setText(Html.fromHtml(getString(R.string.response_error_empty_list)));
+                    }
+                }
+            } else {
+                if (data.torrents.size() > 0) {
                     if (data.hasRemoved) {
                         ArrayList<Torrent> removal = new ArrayList<Torrent>();
                         for (Torrent t : mTorrents) {
@@ -89,22 +119,11 @@ public class TorrentDetailActivity extends FragmentActivity implements Transmiss
                         }
                     }
                 } else {
-                    /* FIXME: Handle the errors
-                    if (data.error == TransmissionSessionData.Errors.NO_CONNECTIVITY) {
-                        setEmptyText(R.string.no_connectivity_empty_list);
-                    } else if (data.error == TransmissionSessionData.Errors.ACCESS_DENIED) {
-                        setEmptyText(R.string.access_denied_empty_list);
-                    } else if (data.error == TransmissionSessionData.Errors.NO_JSON) {
-                        setEmptyText(R.string.no_json_empty_list);
-                    } else if (data.error == TransmissionSessionData.Errors.NO_CONNECTION) {
-                        setEmptyText(R.string.no_connection_empty_list);
-                    } else if (data.error == TransmissionSessionData.Errors.THREAD_ERROR) {
-                        setEmptyText(R.string.thread_error_empty_list);
-                    }
-                    */
+                    Toast.makeText(TorrentDetailActivity.this,
+                            Html.fromHtml(getString(R.string.no_torrents_empty_list)),
+                            Toast.LENGTH_SHORT).show();
                 }
             }
-
 
             FragmentManager manager = getSupportFragmentManager();
             TorrentDetailFragment detail = (TorrentDetailFragment) manager.findFragmentByTag(

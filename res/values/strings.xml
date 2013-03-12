@@ -197,4 +197,5 @@
     
     <string name="duplicate_torrent">This torrent is already in the list.</string>
     <string name="invalid_torrent">The torrent being added is invalid or corrupt.</string>
+    <string name="error_title">Error!</string>
 </resources>

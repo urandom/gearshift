@@ -215,6 +215,7 @@ public class TorrentListFragment extends ListFragment {
                         Toast.makeText(getActivity(), R.string.invalid_torrent, Toast.LENGTH_SHORT).show();
                     } else {
                         mTorrentListAdapter.clear();
+                        ((TransmissionSessionInterface) getActivity()).setTorrents(null);
 
                         if (data.error == TransmissionSessionData.Errors.NO_CONNECTIVITY) {
                             setEmptyText(R.string.no_connectivity_empty_list);
