@@ -110,7 +110,6 @@ public class SettingsActivity extends PreferenceActivity
         mProfiles = profiles;
 
         TorrentListActivity.logD("Finished loading %d profiles", new Object[] {profiles.length});
-        if (profiles.length == 0) return;
 
         mProfileHeaders = new Header[profiles.length];
         int index = 0;
