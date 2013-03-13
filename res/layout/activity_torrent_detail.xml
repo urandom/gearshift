@@ -13,7 +13,7 @@
 	    android:layout_height="match_parent"
 	    android:clickable="true"
 	    android:orientation="vertical"
-	    android:background="#55ffffff"
+	    android:background="#66ffffff"
 	    android:visibility="gone" >
 	    
 	    <LinearLayout
