@@ -119,6 +119,7 @@ public class TransmissionProfileSettingsFragment extends BasePreferenceFragment 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         super.onCreateOptionsMenu(menu, inflater);
+        menu.clear();
 
         inflater.inflate(R.menu.torrent_profile_settings_fragment, menu);
         if (mProfile == null)

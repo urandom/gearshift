@@ -4,5 +4,6 @@
 * Add directories filter
 * Save the current filter/sorter in the preferences
 * Show a small indicator on each torrent row that has tracker errors
+* Experiment with swipe-to-delete pattern (example from dashclock)
 
 * Add trackers and peers to the details fragment

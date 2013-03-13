@@ -7,64 +7,55 @@ import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.os.Bundle;
 import android.preference.Preference;
 import android.preference.PreferenceFragment;
-import android.view.Menu;
-import android.view.MenuInflater;
 
 public class BasePreferenceFragment extends PreferenceFragment implements OnSharedPreferenceChangeListener {
     protected SharedPreferences mSharedPrefs;
     protected Object[][] mSummaryPrefs = {
     };
-    
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-                
+
         setHasOptionsMenu(true);
     }
 
-    
-    @Override
-    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        super.onCreateOptionsMenu(menu, inflater);
-        
-        menu.clear();
-    }
-    
     @Override
     public void onResume() {
         super.onResume();
         updatePrefSummary(null);
         mSharedPrefs.registerOnSharedPreferenceChangeListener(this);
     }
-    
+
     @Override
     public void onPause() {
         super.onPause();
         mSharedPrefs.unregisterOnSharedPreferenceChangeListener(this);
     }
-    
+
+    @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
         updatePrefSummary(key);
     }
-    
+
     protected void updatePrefSummary(String aKey) {
         for (int i = 0; i < mSummaryPrefs.length; i++) {
             String key;
             if (aKey != null) {
-                if (aKey.equals((String) mSummaryPrefs[i][0]))
+                if (aKey.equals(mSummaryPrefs[i][0]))
                     key = aKey;
                 else
                     continue;
             } else {
                 key = (String) mSummaryPrefs[i][0];
             }
-            
-            Preference pref = findPreference((String) key);
+
+            Preference pref = findPreference(key);
             if (pref == null)
                 continue;
-            
+
             String summary = (String) mSummaryPrefs[i][1];
-                        
+
             if ((Integer) mSummaryPrefs[i][2] == -1)
                 pref.setSummary(String.format(summary,
                     mSummaryPrefs[i][4] == "int"
