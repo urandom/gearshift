@@ -13,6 +13,7 @@ import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.os.Bundle;
+import android.preference.PreferenceActivity;
 import android.text.Html;
 import android.text.Spanned;
 import android.view.ActionMode;
@@ -52,7 +53,19 @@ public class TransmissionProfileDirectoriesSettingsFragment extends ListFragment
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
+    }
 
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+            Bundle savedInstanceState) {
+        View rootView = inflater.inflate(R.layout.fragment_torrent_list, container, false);
+
+        return rootView;
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
         ActionBar actionBar = getActivity().getActionBar();
         if (actionBar != null) {
             LayoutInflater inflater = (LayoutInflater) getActivity().getSystemService
@@ -81,7 +94,13 @@ public class TransmissionProfileDirectoriesSettingsFragment extends ListFragment
                         e.commit();
                     }
 
-                    getActivity().finish();
+                    PreferenceActivity context = (PreferenceActivity) getActivity();
+
+                    if (context.onIsHidingHeaders() || !context.onIsMultiPane()) {
+                        getActivity().finish();
+                    } else {
+                        getActivity().onBackPressed();
+                    }
                 }
             });
             actionBar.setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM,
@@ -89,14 +108,6 @@ public class TransmissionProfileDirectoriesSettingsFragment extends ListFragment
                     ActionBar.DISPLAY_SHOW_TITLE);
             actionBar.setCustomView(customActionBarView);
         }
-    }
-
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-            Bundle savedInstanceState) {
-        View rootView = inflater.inflate(R.layout.fragment_torrent_list, container, false);
-
-        return rootView;
     }
 
     @Override

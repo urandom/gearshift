@@ -85,7 +85,7 @@ public class SettingsActivity extends PreferenceActivity
         switch(item.getItemId()) {
         case R.id.menu_add_profile:
             String name = TransmissionProfileSettingsFragment.class.getCanonicalName();
-            if (onIsMultiPane())
+            if (!onIsHidingHeaders() && onIsMultiPane())
                 switchToHeader(name, new Bundle());
             else
                 startWithFragment(name, new Bundle(), null, 0);

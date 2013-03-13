@@ -6,6 +6,7 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.SharedPreferences.Editor;
 import android.os.Bundle;
+import android.preference.PreferenceActivity;
 import android.preference.PreferenceManager;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -71,7 +72,11 @@ public class TransmissionProfileSettingsFragment extends BasePreferenceFragment 
 
         Bundle dirBundle = getPreferenceManager().findPreference(TransmissionProfile.PREF_DIRECTORIES).getExtras();
         dirBundle.putString(TransmissionProfileDirectoriesSettingsFragment.ARG_PROFILE_ID, prefname);
+    }
 
+    @Override
+    public void onResume() {
+        super.onResume();
         ActionBar actionBar = getActivity().getActionBar();
         if (actionBar != null) {
             LayoutInflater inflater = (LayoutInflater) getActivity().getSystemService
@@ -106,7 +111,13 @@ public class TransmissionProfileSettingsFragment extends BasePreferenceFragment 
 
                     mSaved = true;
 
-                    getActivity().finish();
+                    PreferenceActivity context = (PreferenceActivity) getActivity();
+
+                    if (context.onIsHidingHeaders() || !context.onIsMultiPane()) {
+                        getActivity().finish();
+                    } else {
+                        ((PreferenceActivity) getActivity()).switchToHeader(GeneralSettingsFragment.class.getCanonicalName(), new Bundle());
+                    }
                 }
             });
             actionBar.setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM,
@@ -138,7 +149,13 @@ public class TransmissionProfileSettingsFragment extends BasePreferenceFragment 
                     mSaved = true;
                 }
 
-                getActivity().finish();
+                PreferenceActivity context = (PreferenceActivity) getActivity();
+
+                if (context.onIsHidingHeaders() || !context.onIsMultiPane()) {
+                    getActivity().finish();
+                } else {
+                    ((PreferenceActivity) getActivity()).switchToHeader(GeneralSettingsFragment.class.getCanonicalName(), new Bundle());
+                }
                 return true;
             default:
                 return super.onOptionsItemSelected(item);

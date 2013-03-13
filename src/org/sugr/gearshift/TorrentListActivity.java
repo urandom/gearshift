@@ -89,7 +89,7 @@ public class TorrentListActivity extends SlidingFragmentActivity
         sm.setShadowDrawable(R.drawable.shadow);
 
         setSlidingActionBarEnabled(false);
-        getActionBar().setDisplayHomeAsUpEnabled(true);
+        getActionBar().setDisplayHomeAsUpEnabled(false);
 
         // TODO: If exposing deep links into your app, handle intents here.
     }
@@ -294,6 +294,7 @@ public class TorrentListActivity extends SlidingFragmentActivity
     public void setProfile(TransmissionProfile profile) {
         mProfile = profile;
         getSlidingMenu().setTouchModeAbove(SlidingMenu.TOUCHMODE_MARGIN);
+        getActionBar().setDisplayHomeAsUpEnabled(true);
     }
 
     @Override

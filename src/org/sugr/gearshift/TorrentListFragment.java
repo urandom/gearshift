@@ -142,10 +142,14 @@ public class TorrentListFragment extends ListFragment {
                 index++;
             }
 
-            if (mCurrentProfile == null && profiles.length > 0)
+            if (mCurrentProfile == null && profiles.length > 0) {
                 mCurrentProfile = profiles[0];
-            ((TransmissionSessionInterface) getActivity()).setProfile(mCurrentProfile);
-            getActivity().getSupportLoaderManager().initLoader(TorrentListActivity.SESSION_LOADER_ID, null, mTorrentLoaderCallbacks);
+            }
+            if (mCurrentProfile != null) {
+                ((TransmissionSessionInterface) getActivity()).setProfile(mCurrentProfile);
+                getActivity().getSupportLoaderManager().initLoader(TorrentListActivity.SESSION_LOADER_ID,
+                        null, mTorrentLoaderCallbacks);
+            }
         }
 
         @Override
