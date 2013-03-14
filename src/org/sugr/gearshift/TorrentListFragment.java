@@ -908,8 +908,6 @@ public class TorrentListFragment extends ListFragment {
         }
 
         private class TorrentFilter extends Filter {
-            private boolean mChanged;
-
             @Override
             protected FilterResults performFiltering(CharSequence prefix) {
                 FilterResults results = new FilterResults();
@@ -991,9 +989,6 @@ public class TorrentListFragment extends ListFragment {
 
                 Collections.sort(resultList, mTorrentComparator);
 
-                mChanged = !((TransmissionSessionInterface) getActivity())
-                    .getTorrents().equals(resultList);
-
                 results.values = resultList;
                 results.count = resultList.size();
 
@@ -1009,7 +1004,7 @@ public class TorrentListFragment extends ListFragment {
                     return;
                 }
                 if (results.count > 0) {
-                    if (mChanged) {
+                    if (!context.getTorrents().equals((ArrayList<Torrent>) results.values)) {
                         context.setTorrents((ArrayList<Torrent>) results.values);
                         FragmentManager manager = getActivity().getSupportFragmentManager();
                         TorrentDetailFragment detail = (TorrentDetailFragment) manager.findFragmentByTag(
