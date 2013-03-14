@@ -171,20 +171,20 @@ public class TransmissionSessionLoader extends AsyncTaskLoader<TransmissionSessi
     }
 
     public void setTorrentProperty(int id, String key, Object value) {
+        if (key.equals(Torrent.SetterFields.FILES_WANTED) || key.equals(Torrent.SetterFields.FILES_UNWANTED)) {
+            Runnable r = new TorrentActionRunnable(
+                new int[] {id}, "torrent-set", null, key, value,
+                false, false);
+
+            new Thread(r).start();
+            return;
+        }
+
         mTorrentAction = "torrent-set";
         mTorrentActionIds = new int[] {id};
         mTorrentSetKey = key;
         mTorrentSetValue = value;
 
-        if (key.equals(Torrent.SetterFields.FILES_WANTED) || key.equals(Torrent.SetterFields.FILES_UNWANTED)) {
-            new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    executeTorrentsAction();
-                }
-            }).start();
-            return;
-        }
         onContentChanged();
     }
 
@@ -216,7 +216,16 @@ public class TransmissionSessionLoader extends AsyncTaskLoader<TransmissionSessi
         }
 
         if (mTorrentActionIds != null) {
-            TransmissionSessionData actionData = executeTorrentsAction();
+            TransmissionSessionData actionData = executeTorrentsAction(
+                mTorrentActionIds, mTorrentAction, mTorrentLocation,
+                mTorrentSetKey, mTorrentSetValue, mDeleteData, mMoveData);
+
+            mTorrentActionIds = null;
+            mTorrentAction = null;
+            mTorrentSetKey = null;
+            mTorrentSetValue = null;
+            mDeleteData = false;
+
             if (actionData != null) {
                 return actionData;
             }
@@ -585,22 +594,10 @@ public class TransmissionSessionLoader extends AsyncTaskLoader<TransmissionSessi
             mIntervalHandler.postDelayed(mIntervalRunner, update * 1000);
     }
 
-    private TransmissionSessionData executeTorrentsAction() {
+    private TransmissionSessionData executeTorrentsAction(int[] ids,
+                String action, String location, String setKey,
+                Object setValue, boolean deleteData, boolean moveData) {
         try {
-            String action = mTorrentAction;
-            int[] ids = mTorrentActionIds;
-            boolean deleteData = mDeleteData;
-            String location = mTorrentLocation;
-            String setKey = mTorrentSetKey;
-            Object setValue = mTorrentSetValue;
-            boolean moveData = mMoveData;
-
-            mTorrentActionIds = null;
-            mTorrentAction = null;
-            mTorrentSetKey = null;
-            mTorrentSetValue = null;
-            mDeleteData = false;
-
             if (action.equals("torrent-remove")) {
                 mSessManager.setTorrentsRemove(ids, deleteData);
             } else if (action.equals("torrent-set-location")) {
@@ -671,6 +668,33 @@ public class TransmissionSessionLoader extends AsyncTaskLoader<TransmissionSessi
         }
 
         return list;
+    }
+
+    private class TorrentActionRunnable implements Runnable {
+        private String action, location, setKey;
+        private boolean deleteData, moveData;
+        private int[] ids;
+        private Object setValue;
+
+        public TorrentActionRunnable(int[] ids,
+                String action, String location, String setKey,
+                Object setValue, boolean deleteData, boolean moveData) {
+
+            this.ids = ids;
+            this.action = action;
+            this.location = location;
+            this.setKey = setKey;
+            this.setValue = setValue;
+            this.deleteData = deleteData;
+            this.moveData = moveData;
+        }
+
+        @Override
+        public void run() {
+            executeTorrentsAction(
+                ids, action, location, setKey, setValue,
+                deleteData, moveData);
+        }
     }
 
     public static String[] concat(String[]... arrays) {

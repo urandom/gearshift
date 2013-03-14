@@ -186,6 +186,8 @@
     <string name="torrent_public">Public torrent</string>
     <string name="torrent_origin_format">Created on %1$s</string>
     <string name="torrent_origin_creator_format">Created by %1$s on %2$s</string>
+
+    <string name="torrent_detail_file_format"><![CDATA[%1$s<br /><small>%2$s of %3$s - %4$s</small>]]></string>
     
     <string name="about_item">About</string>
     <string name="about_name">Gear Shift</string>

@@ -15,6 +15,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.Loader;
+import android.text.Html;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -41,6 +42,7 @@ import android.widget.TextView;
  * Create a new TorrentDetailPagerFragment class for the individual pages */
 public class TorrentDetailPageFragment extends Fragment {
     private Torrent mTorrent;
+    private List<String> mPriorityNames;
     private List<String> mPriorityValues;
     private List<String> mSeedRatioModeValues;
 
@@ -129,6 +131,7 @@ public class TorrentDetailPageFragment extends Fragment {
                 mTorrent = torrents.get(position);
         }
 
+        mPriorityNames = Arrays.asList(getResources().getStringArray(R.array.torrent_priority));
         mPriorityValues = Arrays.asList(getResources().getStringArray(R.array.torrent_priority_values));
         mSeedRatioModeValues = Arrays.asList(getResources().getStringArray(R.array.torrent_seed_ratio_mode_values));
     }
@@ -682,8 +685,27 @@ public class TorrentDetailPageFragment extends Fragment {
                             }
                         }
                     });
-                    row.setText(file.name);
                 }
+                String priority;
+                switch(file.stat.getPriority()) {
+                    case Torrent.Priority.LOW:
+                        priority = mPriorityNames.get(0);
+                        break;
+                    case Torrent.Priority.HIGH:
+                        priority = mPriorityNames.get(2);
+                        break;
+                    default:
+                        priority = mPriorityNames.get(1);
+                        break;
+                }
+
+                row.setText(Html.fromHtml(String.format(
+                    getString(R.string.torrent_detail_file_format),
+                    file.name,
+                    Torrent.readableFileSize(file.stat.getBytesCompleted()),
+                    Torrent.readableFileSize(file.info.getLength()),
+                    priority
+                )));
                 row.setChecked(file.stat.isWanted());
             }
 
