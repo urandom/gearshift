@@ -267,16 +267,6 @@ public class TorrentListFragment extends ListFragment {
                 }
             }
 
-            if (data.error == 0) {
-                if (mTorrentListAdapter.getUnfilteredCount() == 0) {
-                    setEmptyText(R.string.no_torrents_empty_list);
-                } else if (mTorrentListAdapter.getCount() == 0) {
-                    ((TransmissionSessionInterface) getActivity())
-                        .setTorrents(null);
-                    setEmptyText(R.string.no_filtered_torrents_empty_list);
-                }
-            }
-
             if (mRefreshing) {
                 mRefreshing = false;
                 invalidateMenu = true;
@@ -812,8 +802,7 @@ public class TorrentListFragment extends ListFragment {
             synchronized (mLock) {
                 if (mOriginalValues != null) {
                     mOriginalValues.clear();
-                }
-                if (mObjects != null) {
+                } else if (mObjects != null) {
                     mObjects.clear();
                 }
                 super.clear();
@@ -1015,6 +1004,13 @@ public class TorrentListFragment extends ListFragment {
                     }
                     notifyDataSetChanged();
                 } else {
+                    if (mTorrentListAdapter.getUnfilteredCount() == 0) {
+                        setEmptyText(R.string.no_torrents_empty_list);
+                    } else if (mTorrentListAdapter.getCount() == 0) {
+                        ((TransmissionSessionInterface) getActivity())
+                            .setTorrents(null);
+                        setEmptyText(R.string.no_filtered_torrents_empty_list);
+                    }
                     notifyDataSetInvalidated();
                 }
             }

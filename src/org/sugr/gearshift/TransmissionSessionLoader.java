@@ -543,11 +543,16 @@ public class TransmissionSessionLoader extends AsyncTaskLoader<TransmissionSessi
 
         TorrentListActivity.logD("TLoader: onStartLoading()");
 
-        if (mTorrentMap.size() > 0)
+        mStopUpdates = false;
+        if (mLastError > 0) {
+            deliverResult(new TransmissionSessionData(
+                        mSession, mSessionStats, mLastError));
+        } else if (mTorrentMap.size() > 0) {
             deliverResult(new TransmissionSessionData(
                     mSession, mSessionStats,
                     convertSparseArray(mTorrentMap),
                     false, false, false));
+        }
 
         if (takeContentChanged() || mTorrentMap.size() == 0) {
             TorrentListActivity.logD("TLoader: forceLoad()");
