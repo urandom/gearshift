@@ -192,6 +192,11 @@ public class TorrentListFragment extends ListFragment {
             }
 
             boolean filtered = false;
+            View error = getView().findViewById(R.id.fatal_error_layer);
+            if (data.error == 0 && error.getVisibility() != View.GONE) {
+                error.setVisibility(View.GONE);
+                ((TransmissionSessionInterface) getActivity()).setProfile(mCurrentProfile);
+            }
             if (data.torrents.size() > 0 || data.error > 0
                     || mTorrentListAdapter.getUnfilteredCount() > 0) {
 
@@ -218,21 +223,22 @@ public class TorrentListFragment extends ListFragment {
                     } else if (data.error == TransmissionSessionData.Errors.INVALID_TORRENT) {
                         Toast.makeText(getActivity(), R.string.invalid_torrent, Toast.LENGTH_SHORT).show();
                     } else {
-                        mTorrentListAdapter.clear();
-                        ((TransmissionSessionInterface) getActivity()).setTorrents(null);
+                        error.setVisibility(View.VISIBLE);
+                        TextView text = (TextView) getView().findViewById(R.id.transmission_error);
+                        ((TransmissionSessionInterface) getActivity()).setProfile(null);
 
                         if (data.error == TransmissionSessionData.Errors.NO_CONNECTIVITY) {
-                            setEmptyText(R.string.no_connectivity_empty_list);
+                            text.setText(Html.fromHtml(getString(R.string.no_connectivity_empty_list)));
                         } else if (data.error == TransmissionSessionData.Errors.ACCESS_DENIED) {
-                            setEmptyText(R.string.access_denied_empty_list);
+                            text.setText(Html.fromHtml(getString(R.string.access_denied_empty_list)));
                         } else if (data.error == TransmissionSessionData.Errors.NO_JSON) {
-                            setEmptyText(R.string.no_json_empty_list);
+                            text.setText(Html.fromHtml(getString(R.string.no_json_empty_list)));
                         } else if (data.error == TransmissionSessionData.Errors.NO_CONNECTION) {
-                            setEmptyText(R.string.no_connection_empty_list);
+                            text.setText(Html.fromHtml(getString(R.string.no_connection_empty_list)));
                         } else if (data.error == TransmissionSessionData.Errors.THREAD_ERROR) {
-                            setEmptyText(R.string.thread_error_empty_list);
+                            text.setText(Html.fromHtml(getString(R.string.thread_error_empty_list)));
                         } else if (data.error == TransmissionSessionData.Errors.RESPONSE_ERROR) {
-                            setEmptyText(R.string.response_error_empty_list);
+                            text.setText(Html.fromHtml(getString(R.string.response_error_empty_list)));
                         }
                     }
                 }
