@@ -144,7 +144,6 @@ public class TorrentDetailPageFragment extends Fragment {
         @Override
         public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
             String priorityKey;
-            int priority;
             switch (item.getItemId()) {
                 case R.id.select_all:
                     List<View> files = mFilesAdapter.getViews();
@@ -161,15 +160,12 @@ public class TorrentDetailPageFragment extends Fragment {
                     return true;
                 case R.id.priority_low:
                     priorityKey = Torrent.SetterFields.FILES_LOW;
-                    priority = Torrent.Priority.LOW;
                     break;
                 case R.id.priority_normal:
                     priorityKey = Torrent.SetterFields.FILES_NORMAL;
-                    priority = Torrent.Priority.NORMAL;
                     break;
                 case R.id.priority_high:
                     priorityKey = Torrent.SetterFields.FILES_HIGH;
-                    priority = Torrent.Priority.HIGH;
                     break;
                 default:
                     return false;
