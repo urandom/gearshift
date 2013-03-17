@@ -177,9 +177,7 @@ public class TorrentDetailPageFragment extends Fragment {
             List<View> allViews = mFilesAdapter.getViews();
             List<Integer> indexes = new ArrayList<Integer>();
             for (View v : mSelectedFiles) {
-                TorrentFile file = mFilesAdapter.getItem(allViews.indexOf(v));
-                file.stat.setPriority(priority);
-                indexes.add(file.index);
+                indexes.add(mFilesAdapter.getItem(allViews.indexOf(v)).index);
             }
             mFilesAdapter.notifyDataSetChanged();
             setTorrentProperty(priorityKey, indexes);
