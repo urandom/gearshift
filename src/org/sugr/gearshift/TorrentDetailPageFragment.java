@@ -7,7 +7,9 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import android.content.Context;
 import android.database.DataSetObserver;
@@ -16,8 +18,11 @@ import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.Loader;
 import android.text.Html;
+import android.view.ActionMode;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
@@ -110,6 +115,77 @@ public class TorrentDetailPageFragment extends Fragment {
 
     private FilesAdapter mFilesAdapter;
     private FilesDataSetObserver mFilesObserver;
+
+    private ActionMode mActionMode;
+    Set<View> mSelectedFiles = new HashSet<View>();
+
+    private ActionMode.Callback mActionModeFiles = new ActionMode.Callback() {
+
+        @Override
+        public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
+            return false;
+        }
+
+        @Override
+        public void onDestroyActionMode(ActionMode mode) {
+            mActionMode = null;
+            for (View v : mSelectedFiles) {
+                v.setActivated(false);
+            }
+            mSelectedFiles.clear();
+        }
+
+        @Override
+        public boolean onCreateActionMode(ActionMode mode, Menu menu) {
+            mode.getMenuInflater().inflate(R.menu.torrent_detail_file_multiselect, menu);
+            return true;
+        }
+
+        @Override
+        public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
+            String priorityKey;
+            int priority;
+            switch (item.getItemId()) {
+                case R.id.select_all:
+                    List<View> files = mFilesAdapter.getViews();
+
+                    for (View v : files) {
+                        if (v != null) {
+                            if (!v.isActivated()) {
+                                v.setActivated(true);
+                                mSelectedFiles.add(v);
+                            }
+                        }
+                    }
+
+                    return true;
+                case R.id.priority_low:
+                    priorityKey = Torrent.SetterFields.FILES_LOW;
+                    priority = Torrent.Priority.LOW;
+                    break;
+                case R.id.priority_normal:
+                    priorityKey = Torrent.SetterFields.FILES_NORMAL;
+                    priority = Torrent.Priority.NORMAL;
+                    break;
+                case R.id.priority_high:
+                    priorityKey = Torrent.SetterFields.FILES_HIGH;
+                    priority = Torrent.Priority.HIGH;
+                    break;
+                default:
+                    return false;
+            }
+            List<View> allViews = mFilesAdapter.getViews();
+            List<Integer> indexes = new ArrayList<Integer>();
+            for (View v : mSelectedFiles) {
+                TorrentFile file = mFilesAdapter.getItem(allViews.indexOf(v));
+                file.stat.setPriority(priority);
+                indexes.add(file.index);
+            }
+            mFilesAdapter.notifyDataSetChanged();
+            setTorrentProperty(priorityKey, indexes);
+            return true;
+        }
+    };
 
     /**
      * Mandatory empty constructor for the fragment manager to instantiate the
@@ -357,7 +433,6 @@ public class TorrentDetailPageFragment extends Fragment {
         }
     }
 
-
     public void notifyTorrentUpdate(Torrent torrent) {
         if (torrent.getId() != mTorrent.getId()) {
             return;
@@ -365,6 +440,12 @@ public class TorrentDetailPageFragment extends Fragment {
 
         mTorrent = torrent;
         updateFields(getView());
+    }
+
+    public void onPageUnselected() {
+        if (mActionMode != null) {
+            mActionMode.finish();
+        }
     }
 
     private void setTorrentProperty(String key, Object value) {
@@ -646,9 +727,14 @@ public class TorrentDetailPageFragment extends Fragment {
 
     private class FilesAdapter extends ArrayAdapter<TorrentFile> {
         private static final int mFieldId = R.id.torrent_detail_files_row;
+        private List<View> mViews = new ArrayList<View>();
 
         public FilesAdapter() {
             super(getActivity(), mFieldId);
+        }
+
+        public List<View> getViews() {
+            return mViews;
         }
 
         @Override
@@ -676,6 +762,20 @@ public class TorrentDetailPageFragment extends Fragment {
                 if (initial) {
                     row.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
                         @Override public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                            if (mActionMode != null) {
+                                buttonView.setChecked(!isChecked);
+                                if (buttonView.isActivated()) {
+                                    buttonView.setActivated(false);
+                                    mSelectedFiles.remove(buttonView);
+                                    if (mSelectedFiles.size() == 0) {
+                                        mActionMode.finish();
+                                    }
+                                } else {
+                                    buttonView.setActivated(true);
+                                    mSelectedFiles.add(buttonView);
+                                }
+                                return;
+                            }
                             if (file.stat.isWanted() != isChecked) {
                                 if (isChecked) {
                                     setTorrentProperty(Torrent.SetterFields.FILES_WANTED, Integer.valueOf(file.index));
@@ -683,6 +783,18 @@ public class TorrentDetailPageFragment extends Fragment {
                                     setTorrentProperty(Torrent.SetterFields.FILES_UNWANTED, Integer.valueOf(file.index));
                                 }
                             }
+                        }
+                    });
+                    row.setOnLongClickListener(new View.OnLongClickListener() {
+                        @Override
+                        public boolean onLongClick(View v) {
+                            if (mActionMode != null) {
+                                return false;
+                            }
+                            mActionMode = getActivity().startActionMode(mActionModeFiles);
+                            v.setActivated(true);
+                            mSelectedFiles.add(v);
+                            return true;
                         }
                     });
                 }
@@ -707,6 +819,12 @@ public class TorrentDetailPageFragment extends Fragment {
                     priority
                 )));
                 row.setChecked(file.stat.isWanted());
+
+                if (initial) {
+                    while (mViews.size() <= position)
+                        mViews.add(null);
+                    mViews.set(position, rowView);
+                }
             }
 
             return rowView;

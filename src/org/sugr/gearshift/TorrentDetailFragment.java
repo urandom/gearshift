@@ -59,6 +59,12 @@ public class TorrentDetailFragment extends Fragment {
         mPager.setOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
             @Override
             public void onPageSelected(int position) {
+                List<TorrentDetailPageFragment> pages = ((TorrentDetailPagerAdapter) mPager.getAdapter())
+                        .getFragments();
+
+                if (mCurrentPosition != -1 && pages.size() > mCurrentPosition) {
+                    pages.get(mCurrentPosition).onPageUnselected();
+                }
                 mCurrentPosition = position;
                 ArrayList<Torrent> torrents = ((TransmissionSessionInterface) getActivity()).getTorrents();
                 mCurrentTorrentId = torrents.size() > position

@@ -200,4 +200,7 @@
     <string name="duplicate_torrent">This torrent is already in the list.</string>
     <string name="invalid_torrent">The torrent being added is invalid or corrupt.</string>
     <string name="error_title">Error!</string>
+    <string name="menu_high_priority">High priority</string>
+    <string name="menu_normal_priority">Normal priority</string>
+    <string name="menu_low_priority">Low priority</string>
 </resources>

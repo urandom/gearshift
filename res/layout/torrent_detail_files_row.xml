@@ -3,6 +3,7 @@
     android:id="@+id/torrent_detail_files_row"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:background="@drawable/list_activated_holo_light"
     android:fontFamily="sans-serif-light"
     android:paddingTop="8dp"
     android:paddingBottom="8dp" >

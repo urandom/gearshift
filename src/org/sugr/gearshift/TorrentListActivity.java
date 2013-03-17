@@ -45,7 +45,7 @@ public class TorrentListActivity extends SlidingFragmentActivity
      */
     private boolean mTwoPane;
 
-    private static final boolean DEBUG = false;
+    private static final boolean DEBUG = true;
     private static final String LogTag = "GearShift";
 
     private ArrayList<Torrent> mTorrents = new ArrayList<Torrent>();

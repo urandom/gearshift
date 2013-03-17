@@ -171,7 +171,11 @@ public class TransmissionSessionLoader extends AsyncTaskLoader<TransmissionSessi
     }
 
     public void setTorrentProperty(int id, String key, Object value) {
-        if (key.equals(Torrent.SetterFields.FILES_WANTED) || key.equals(Torrent.SetterFields.FILES_UNWANTED)) {
+        if (key.equals(Torrent.SetterFields.FILES_WANTED)
+                || key.equals(Torrent.SetterFields.FILES_UNWANTED)
+                || key.equals(Torrent.SetterFields.FILES_LOW)
+                || key.equals(Torrent.SetterFields.FILES_NORMAL)
+                || key.equals(Torrent.SetterFields.FILES_HIGH)) {
             Runnable r = new TorrentActionRunnable(
                 new int[] {id}, "torrent-set", null, key, value,
                 false, false);
