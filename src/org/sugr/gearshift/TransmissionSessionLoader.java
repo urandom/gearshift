@@ -172,10 +172,8 @@ public class TransmissionSessionLoader extends AsyncTaskLoader<TransmissionSessi
 
     public void setTorrentProperty(int id, String key, Object value) {
         if (key.equals(Torrent.SetterFields.FILES_WANTED)
-                || key.equals(Torrent.SetterFields.FILES_UNWANTED)
-                || key.equals(Torrent.SetterFields.FILES_LOW)
-                || key.equals(Torrent.SetterFields.FILES_NORMAL)
-                || key.equals(Torrent.SetterFields.FILES_HIGH)) {
+                || key.equals(Torrent.SetterFields.FILES_UNWANTED)) {
+
             Runnable r = new TorrentActionRunnable(
                 new int[] {id}, "torrent-set", null, key, value,
                 false, false);
@@ -244,6 +242,7 @@ public class TransmissionSessionLoader extends AsyncTaskLoader<TransmissionSessi
                 @Override
                 public void run() {
                     synchronized(mLock) {
+                        /* TODO: create a common runnable class that contains an exception property */
                         if (exceptions.size() > 0) {
                             return;
                         }

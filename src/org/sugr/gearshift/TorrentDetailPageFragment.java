@@ -144,6 +144,7 @@ public class TorrentDetailPageFragment extends Fragment {
         @Override
         public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
             String priorityKey;
+            int priority;
             switch (item.getItemId()) {
                 case R.id.select_all:
                     List<View> files = mFilesAdapter.getViews();
@@ -160,12 +161,15 @@ public class TorrentDetailPageFragment extends Fragment {
                     return true;
                 case R.id.priority_low:
                     priorityKey = Torrent.SetterFields.FILES_LOW;
+                    priority = Torrent.Priority.LOW;
                     break;
                 case R.id.priority_normal:
                     priorityKey = Torrent.SetterFields.FILES_NORMAL;
+                    priority = Torrent.Priority.NORMAL;
                     break;
                 case R.id.priority_high:
                     priorityKey = Torrent.SetterFields.FILES_HIGH;
+                    priority = Torrent.Priority.HIGH;
                     break;
                 default:
                     return false;
@@ -173,10 +177,17 @@ public class TorrentDetailPageFragment extends Fragment {
             List<View> allViews = mFilesAdapter.getViews();
             List<Integer> indexes = new ArrayList<Integer>();
             for (View v : mSelectedFiles) {
-                indexes.add(mFilesAdapter.getItem(allViews.indexOf(v)).index);
+                TorrentFile file = mFilesAdapter.getItem(allViews.indexOf(v));
+                if (file.stat.getPriority() != priority) {
+                    indexes.add(file.index);
+                    file.changed = true;
+                    file.stat.setPriority(priority);
+                }
             }
-            mFilesAdapter.notifyDataSetChanged();
-            setTorrentProperty(priorityKey, indexes);
+            if (indexes.size() > 0) {
+                setTorrentProperty(priorityKey, indexes);
+                mFilesAdapter.notifyDataSetChanged();
+            }
             return true;
         }
     };
@@ -458,6 +469,7 @@ public class TorrentDetailPageFragment extends Fragment {
         /* Overview start */
         if (root.findViewById(R.id.torrent_detail_overview_content).getVisibility() != View.GONE) {
             long now = new Timestamp(new Date().getTime()).getTime() / 1000;
+            int state;
             if (mTorrent.getMetadataPercentComplete() == 1) {
                 ((TextView) root.findViewById(R.id.torrent_have)).setText(
                     String.format(
@@ -479,7 +491,7 @@ public class TorrentDetailPageFragment extends Fragment {
                 ((TextView) root.findViewById(R.id.torrent_uploaded)).setText(
                     Torrent.readableFileSize(mTorrent.getUploadedEver())
                 );
-                int state = R.string.none;
+                state = R.string.none;
                 switch(mTorrent.getStatus()) {
                     case Torrent.Status.STOPPED:
                         state = R.string.status_stopped;
@@ -531,6 +543,10 @@ public class TorrentDetailPageFragment extends Fragment {
                             R.string.no_tracker_errors);
                 } else {
                     ((TextView) root.findViewById(R.id.torrent_error)).setText(mTorrent.getErrorString());
+                    state = mTorrent.getStatus() == Torrent.Status.STOPPED
+                        ? R.string.status_stopped
+                        : R.string.status_downloading_metadata;
+                    ((TextView) root.findViewById(R.id.torrent_state)).setText(state);
                 }
                 ((TextView) root.findViewById(R.id.torrent_size)).setText(
                         String.format(
@@ -681,6 +697,8 @@ public class TorrentDetailPageFragment extends Fragment {
 
         String directory;
         String name;
+
+        boolean changed = false;
 
         public TorrentFile(int index, Torrent.File info, Torrent.FileStat stat) {
             this.index = index;
@@ -861,10 +879,12 @@ public class TorrentDetailPageFragment extends Fragment {
         private boolean fileChanged(TorrentFile file, Torrent.File tFile, Torrent.FileStat stat) {
             boolean changed = false;
 
-            if (file.stat.isWanted() != stat.isWanted()
+            if (file.changed
+                    || file.stat.isWanted() != stat.isWanted()
                     || file.stat.getBytesCompleted() != stat.getBytesCompleted()
                     || file.stat.getPriority() != stat.getPriority()) {
                 file.setStat(stat);
+                file.changed = false;
                 changed = true;
             }
 
