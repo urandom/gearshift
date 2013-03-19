@@ -216,7 +216,6 @@ public class TorrentListFragment extends ListFragment {
                         mTorrentListAdapter.repeatFilter();
                         filtered = true;
                     }
-                    setEmptyText(null);
                 } else {
                     if (data.error == TransmissionSessionData.Errors.DUPLICATE_TORRENT) {
                         Toast.makeText(getActivity(), R.string.duplicate_torrent, Toast.LENGTH_SHORT).show();
