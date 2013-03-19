@@ -78,6 +78,9 @@ public class TorrentDetailFragment extends Fragment {
 
         if (getArguments().containsKey(ARG_PAGE_POSITION)) {
             mCurrentPosition = getArguments().getInt(ARG_PAGE_POSITION);
+            if (mCurrentPosition < 0) {
+                mCurrentPosition = 0;
+            }
             mPager.setCurrentItem(mCurrentPosition);
             ArrayList<Torrent> torrents = ((TransmissionSessionInterface) getActivity()).getTorrents();
             mCurrentTorrentId = torrents.size() > mCurrentPosition

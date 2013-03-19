@@ -164,6 +164,9 @@ public class TorrentDetailActivity extends FragmentActivity implements Transmiss
         getActionBar().setDisplayHomeAsUpEnabled(true);
 
         mCurrentTorrent = in.getIntExtra(TorrentDetailFragment.ARG_PAGE_POSITION, 0);
+        if (mCurrentTorrent < 0) {
+            mCurrentTorrent = 0;
+        }
         if (savedInstanceState == null) {
             Bundle arguments = new Bundle();
             arguments.putInt(TorrentDetailFragment.ARG_PAGE_POSITION,
