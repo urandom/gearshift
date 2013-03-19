@@ -766,8 +766,11 @@ public class TorrentDetailPageFragment extends Fragment {
 
             if (file.info == null) {
                 TextView row = (TextView) rowView.findViewById(mFieldId);
-
-                row.setText(file.directory);
+                if (file.directory == null) {
+                    row.setVisibility(View.GONE);
+                } else {
+                    row.setText(file.directory);
+                }
             } else {
                 CheckBox row = (CheckBox) rowView.findViewById(mFieldId);
                 if (initial) {
