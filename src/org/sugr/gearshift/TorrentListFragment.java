@@ -205,7 +205,7 @@ public class TorrentListFragment extends ListFragment {
                 boolean notifyChange = true;
                 if (data.error == 0) {
                     if (data.hasRemoved || data.hasAdded
-                            || data.hasStatusChanged
+                            || data.hasStatusChanged || data.hasMetadataNeeded
                             || mTorrentListAdapter.getUnfilteredCount() == 0) {
                         notifyChange = false;
                         if (data.hasRemoved || data.hasAdded) {
@@ -993,7 +993,7 @@ public class TorrentListFragment extends ListFragment {
                     return;
                 }
                 if (results.count > 0) {
-                    if (!context.getTorrents().equals((ArrayList<Torrent>) results.values)) {
+                    if (!context.getTorrents().equals(results.values)) {
                         context.setTorrents((ArrayList<Torrent>) results.values);
                         FragmentManager manager = getActivity().getSupportFragmentManager();
                         TorrentDetailFragment detail = (TorrentDetailFragment) manager.findFragmentByTag(

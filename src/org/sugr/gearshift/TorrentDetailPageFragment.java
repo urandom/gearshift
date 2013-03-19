@@ -469,7 +469,6 @@ public class TorrentDetailPageFragment extends Fragment {
         /* Overview start */
         if (root.findViewById(R.id.torrent_detail_overview_content).getVisibility() != View.GONE) {
             long now = new Timestamp(new Date().getTime()).getTime() / 1000;
-            int state;
             if (mTorrent.getMetadataPercentComplete() == 1) {
                 ((TextView) root.findViewById(R.id.torrent_have)).setText(
                     String.format(
@@ -491,7 +490,7 @@ public class TorrentDetailPageFragment extends Fragment {
                 ((TextView) root.findViewById(R.id.torrent_uploaded)).setText(
                     Torrent.readableFileSize(mTorrent.getUploadedEver())
                 );
-                state = R.string.none;
+                int state = R.string.none;
                 switch(mTorrent.getStatus()) {
                     case Torrent.Status.STOPPED:
                         state = R.string.status_stopped;
@@ -543,10 +542,6 @@ public class TorrentDetailPageFragment extends Fragment {
                             R.string.no_tracker_errors);
                 } else {
                     ((TextView) root.findViewById(R.id.torrent_error)).setText(mTorrent.getErrorString());
-                    state = mTorrent.getStatus() == Torrent.Status.STOPPED
-                        ? R.string.status_stopped
-                        : R.string.status_downloading_metadata;
-                    ((TextView) root.findViewById(R.id.torrent_state)).setText(state);
                 }
                 ((TextView) root.findViewById(R.id.torrent_size)).setText(
                         String.format(
@@ -575,6 +570,10 @@ public class TorrentDetailPageFragment extends Fragment {
                 ((TextView) root.findViewById(R.id.torrent_comment)).setText(mTorrent.getComment());
             } else {
                 ((TextView) root.findViewById(R.id.torrent_have)).setText(R.string.none);
+                int state = mTorrent.getStatus() == Torrent.Status.STOPPED
+                        ? R.string.status_stopped
+                        : R.string.status_downloading_metadata;
+                ((TextView) root.findViewById(R.id.torrent_state)).setText(state);
             }
         }
 

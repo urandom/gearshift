@@ -28,6 +28,7 @@ class TransmissionSessionData {
     public boolean hasRemoved = false;
     public boolean hasAdded = false;
     public boolean hasStatusChanged = false;
+    public boolean hasMetadataNeeded = false;
 
     public static class Errors {
         public static final int NO_CONNECTIVITY = 1;
@@ -52,7 +53,8 @@ class TransmissionSessionData {
             ArrayList<Torrent> torrents,
             boolean hasRemoved,
             boolean hasAdded,
-            boolean hasStatusChanged) {
+            boolean hasStatusChanged,
+            boolean hasMetadataNeeded) {
         this.session = session;
         this.stats = stats;
 
@@ -62,6 +64,7 @@ class TransmissionSessionData {
         this.hasRemoved = hasRemoved;
         this.hasAdded = hasAdded;
         this.hasStatusChanged = hasStatusChanged;
+        this.hasMetadataNeeded = hasMetadataNeeded;
     }
 }
 
@@ -206,7 +209,8 @@ public class TransmissionSessionLoader extends AsyncTaskLoader<TransmissionSessi
 
         boolean hasRemoved = false,
                 hasAdded = false,
-                hasStatusChanged = false;
+                hasStatusChanged = false,
+                hasMetadataNeeded = false;
 
         if (mLastError > 0) {
             mLastError = 0;
@@ -382,7 +386,7 @@ public class TransmissionSessionLoader extends AsyncTaskLoader<TransmissionSessi
             for (int i = 0; i < mTorrentMap.size(); i++) {
                 int key = mTorrentMap.keyAt(i);
                 Torrent t = mTorrentMap.get(key);
-                if (t.getHashString() == null) {
+                if (t.getFiles() == null || t.getFiles().length == 0) {
                     fields = concat(fields, Torrent.Fields.INFO_EXTRA);
                     break;
                 }
@@ -397,7 +401,7 @@ public class TransmissionSessionLoader extends AsyncTaskLoader<TransmissionSessi
                 ids = new int[mCurrentTorrents.length];
                 int index = 0;
                 for (Torrent t : mCurrentTorrents) {
-                    if (!extraAdded && t.getHashString() == null) {
+                    if (!extraAdded && (t.getFiles() == null || t.getFiles().length == 0)) {
                         fields = concat(fields, Torrent.Fields.INFO_EXTRA);
                         extraAdded = true;
                     }
@@ -413,8 +417,7 @@ public class TransmissionSessionLoader extends AsyncTaskLoader<TransmissionSessi
 
         if (mNeedsMoreInfo && mIteration != 0) {
             fields = concat(Torrent.Fields.METADATA, fields);
-            /* Force the list to re-order itself */
-            hasAdded = true;
+            hasMetadataNeeded = true;
         }
 
         try {
@@ -532,7 +535,7 @@ public class TransmissionSessionLoader extends AsyncTaskLoader<TransmissionSessi
         mIteration++;
         return new TransmissionSessionData(
                 mSession, mSessionStats, convertSparseArray(mTorrentMap),
-                hasRemoved, hasAdded, hasStatusChanged);
+                hasRemoved, hasAdded, hasStatusChanged, hasMetadataNeeded);
     }
 
     @Override
@@ -563,7 +566,7 @@ public class TransmissionSessionLoader extends AsyncTaskLoader<TransmissionSessi
             deliverResult(new TransmissionSessionData(
                     mSession, mSessionStats,
                     convertSparseArray(mTorrentMap),
-                    false, false, false));
+                    false, false, false, false));
         }
 
         if (takeContentChanged() || mTorrentMap.size() == 0) {
