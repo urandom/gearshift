@@ -74,7 +74,7 @@ public class TorrentListFragment extends ListFragment {
 
     private boolean mRefreshing = true;
 
-    private boolean mIsCABDestroyed = false;
+    private ActionMode mActionMode;
 
     private int mChoiceMode = ListView.CHOICE_MODE_NONE;
 
@@ -349,7 +349,6 @@ public class TorrentListFragment extends ListFragment {
 
                 if (!((TorrentListActivity) getActivity()).isDetailsPanelShown()) {
                     list.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE_MODAL);
-                    mIsCABDestroyed = false;
                     setActivatedPosition(position);
                     return true;
                 }
@@ -469,13 +468,14 @@ public class TorrentListFragment extends ListFragment {
                 inflater.inflate(R.menu.torrent_list_multiselect, menu);
 
                 mSelectedTorrentIds = new HashSet<Integer>();
+                mActionMode = mode;
                 return true;
             }
 
             @Override
             public void onDestroyActionMode(ActionMode mode) {
                 TorrentListActivity.logD("Destroying context menu");
-                mIsCABDestroyed = true;
+                mActionMode = null;
                 mSelectedTorrentIds = null;
             }
 
@@ -538,7 +538,7 @@ public class TorrentListFragment extends ListFragment {
     public void onListItemClick(ListView listView, View view, int position, long id) {
         super.onListItemClick(listView, view, position, id);
 
-        if (mIsCABDestroyed)
+        if (mActionMode == null)
             listView.setChoiceMode(mChoiceMode);
 
         // Notify the active callbacks interface (the activity, if the

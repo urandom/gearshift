@@ -39,7 +39,7 @@ public class TransmissionProfileDirectoriesSettingsFragment extends ListFragment
     private Set<String> mDirectories = new HashSet<String>();
     private ArrayAdapter<String> mAdapter;
 
-    private boolean mIsCABDestroyed = true;
+    private ActionMode mActionMode;
 
     private Comparator<String> mDirComparator = new Comparator<String>() {
         @Override
@@ -143,7 +143,6 @@ public class TransmissionProfileDirectoriesSettingsFragment extends ListFragment
                         int position, long id) {
 
                     list.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE_MODAL);
-                    mIsCABDestroyed = false;
                     list.setItemChecked(position, true);
                     return true;
                 }});
@@ -157,6 +156,7 @@ public class TransmissionProfileDirectoriesSettingsFragment extends ListFragment
                     inflater.inflate(R.menu.download_directories_multiselect, menu);
 
                     mSelectedDirectories = new HashSet<String>();
+                    mActionMode = mode;
                     return true;
                 }
 
@@ -205,7 +205,7 @@ public class TransmissionProfileDirectoriesSettingsFragment extends ListFragment
 
                 @Override
                 public void onDestroyActionMode(ActionMode mode) {
-                    mIsCABDestroyed = true;
+                    mActionMode = null;
                     mSelectedDirectories = null;
                 }
 
@@ -258,7 +258,7 @@ public class TransmissionProfileDirectoriesSettingsFragment extends ListFragment
     public void onListItemClick(ListView listView, View view, int position, long id) {
         super.onListItemClick(listView, view, position, id);
 
-        if (mIsCABDestroyed) {
+        if (mActionMode == null) {
             listView.setChoiceMode(ListView.CHOICE_MODE_NONE);
 
             final String directory = mAdapter.getItem(position);

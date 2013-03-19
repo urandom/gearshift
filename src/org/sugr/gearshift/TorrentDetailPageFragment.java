@@ -570,9 +570,18 @@ public class TorrentDetailPageFragment extends Fragment {
                 ((TextView) root.findViewById(R.id.torrent_comment)).setText(mTorrent.getComment());
             } else {
                 ((TextView) root.findViewById(R.id.torrent_have)).setText(R.string.none);
-                int state = mTorrent.getStatus() == Torrent.Status.STOPPED
-                        ? R.string.status_stopped
-                        : R.string.status_downloading_metadata;
+                int state;
+                switch(mTorrent.getStatus()) {
+                    case Torrent.Status.STOPPED:
+                        state = R.string.status_stopped;
+                        break;
+                    case Torrent.Status.DOWNLOAD_WAITING:
+                        state = R.string.status_download_waiting;
+                        break;
+                    default:
+                        state = R.string.status_downloading_metadata;
+                        break;
+                }
                 ((TextView) root.findViewById(R.id.torrent_state)).setText(state);
             }
         }
