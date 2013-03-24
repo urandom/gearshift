@@ -29,7 +29,7 @@ public class TorrentDetailFragment extends Fragment {
     private PagerCallbacks mCallbacks = sDummyCallbacks;
     private ViewPager mPager;
     private int mCurrentTorrentId = -1;
-    private int mCurrentPosition = -1;
+    private int mCurrentPosition = 0;
 
     private static PagerCallbacks sDummyCallbacks = new PagerCallbacks() {
         @Override
@@ -45,6 +45,17 @@ public class TorrentDetailFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        if (getArguments().containsKey(ARG_PAGE_POSITION)) {
+            mCurrentPosition = getArguments().getInt(ARG_PAGE_POSITION);
+            if (mCurrentPosition < 0) {
+                mCurrentPosition = 0;
+            }
+            ArrayList<Torrent> torrents = ((TransmissionSessionInterface) getActivity()).getTorrents();
+            mCurrentTorrentId = torrents.size() > mCurrentPosition
+                ? torrents.get(mCurrentPosition).getId()
+                : -1;
+        }
 
         setHasOptionsMenu(true);
     }
@@ -76,18 +87,7 @@ public class TorrentDetailFragment extends Fragment {
             }
         });
 
-        if (getArguments().containsKey(ARG_PAGE_POSITION)) {
-            mCurrentPosition = getArguments().getInt(ARG_PAGE_POSITION);
-            if (mCurrentPosition < 0) {
-                mCurrentPosition = 0;
-            }
-            mPager.setCurrentItem(mCurrentPosition);
-            ArrayList<Torrent> torrents = ((TransmissionSessionInterface) getActivity()).getTorrents();
-            mCurrentTorrentId = torrents.size() > mCurrentPosition
-                ? torrents.get(mCurrentPosition).getId()
-                : -1;
-        }
-
+        mPager.setCurrentItem(mCurrentPosition);
 
         return root;
     }
