@@ -47,6 +47,11 @@ class G {
     private static final boolean DEBUG = true;
     private static final String LogTag = "GearShift";
 
+    public static enum FilterBy {
+        ALL, DOWNLOADING, SEEDING, PAUSED, COMPLETE, INCOMPLETE,
+        ACTIVE, CHECKING
+    };
+
     public static enum SortBy {
         NAME, SIZE, STATUS, ACTIVITY, AGE, PROGRESS, RATIO, LOCATION,
         PEERS, RATE_DOWNLOAD, RATE_UPLOAD, QUEUE

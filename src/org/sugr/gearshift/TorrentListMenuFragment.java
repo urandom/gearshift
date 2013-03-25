@@ -81,8 +81,8 @@ public class TorrentListMenuFragment extends Fragment {
                 && savedInstanceState.containsKey(STATE_FILTER_POSITION)) {
             setActivatedPosition(savedInstanceState.getInt(STATE_FILTER_POSITION));
         } else {
-            if (sharedPrefs.contains(TorrentListFragment.PREF_LIST_FILTER)) {
-                String filter = sharedPrefs.getString(TorrentListFragment.PREF_LIST_FILTER, "");
+            if (sharedPrefs.contains(G.PREF_LIST_FILTER)) {
+                String filter = sharedPrefs.getString(G.PREF_LIST_FILTER, "");
                 if (filter.equals("filter:all")) {
                     mFilterPosition = 1;
                 } else if (filter.equals("filter:downloading")) {
@@ -110,10 +110,10 @@ public class TorrentListMenuFragment extends Fragment {
             setActivatedPosition(savedInstanceState.getInt(STATE_SORT_POSITION));
         } else {
             SortBy by = null;
-            if (sharedPrefs.contains(TorrentListFragment.PREF_LIST_SORT_BY)) {
+            if (sharedPrefs.contains(G.PREF_LIST_SORT_BY)) {
                 try {
                     by = SortBy.valueOf(
-                        sharedPrefs.getString(TorrentListFragment.PREF_LIST_SORT_BY, "")
+                        sharedPrefs.getString(G.PREF_LIST_SORT_BY, "")
                     );
                 } catch (Exception e) {}
             }
@@ -167,11 +167,11 @@ public class TorrentListMenuFragment extends Fragment {
                 && savedInstanceState.getBoolean(STATE_ORDER_DESCENDING)) {
             setActivatedPosition(mFilterSortOrder);
         } else {
-            if (sharedPrefs.contains(TorrentListFragment.PREF_LIST_SORT_ORDER)) {
+            if (sharedPrefs.contains(G.PREF_LIST_SORT_ORDER)) {
                 SortOrder order = null;
                 try {
                     order = SortOrder.valueOf(
-                        sharedPrefs.getString(TorrentListFragment.PREF_LIST_SORT_ORDER, "")
+                        sharedPrefs.getString(G.PREF_LIST_SORT_ORDER, "")
                     );
                 } catch (Exception e) { }
                 if (order == SortOrder.DESCENDING) {
