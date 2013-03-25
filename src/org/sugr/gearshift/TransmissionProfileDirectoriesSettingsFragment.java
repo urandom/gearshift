@@ -33,8 +33,6 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 public class TransmissionProfileDirectoriesSettingsFragment extends ListFragment {
-    public static final String ARG_PROFILE_ID = "profile_id";
-
     private SharedPreferences mSharedPrefs;
     private Set<String> mDirectories = new HashSet<String>();
     private ArrayAdapter<String> mAdapter;
@@ -90,7 +88,7 @@ public class TransmissionProfileDirectoriesSettingsFragment extends ListFragment
 
                     if (mSharedPrefs != null) {
                         Editor e = mSharedPrefs.edit();
-                        e.putStringSet(TransmissionProfile.PREF_DIRECTORIES, mDirectories);
+                        e.putStringSet(G.PREF_DIRECTORIES, mDirectories);
                         e.commit();
                     }
 
@@ -115,8 +113,8 @@ public class TransmissionProfileDirectoriesSettingsFragment extends ListFragment
         super.onViewCreated(view, savedInstanceState);
         Bundle args = getArguments();
 
-        if (args != null && args.containsKey(ARG_PROFILE_ID)) {
-            String prefname = args.getString(ARG_PROFILE_ID);
+        if (args != null && args.containsKey(G.ARG_PROFILE_ID)) {
+            String prefname = args.getString(G.ARG_PROFILE_ID);
 
             mSharedPrefs = getActivity().getSharedPreferences(
                     prefname, Activity.MODE_PRIVATE);
@@ -124,7 +122,7 @@ public class TransmissionProfileDirectoriesSettingsFragment extends ListFragment
 
         if (mSharedPrefs != null) {
             mDirectories = new HashSet<String>(
-                    mSharedPrefs.getStringSet(TransmissionProfile.PREF_DIRECTORIES, new HashSet<String>()));
+                    mSharedPrefs.getStringSet(G.PREF_DIRECTORIES, new HashSet<String>()));
             mAdapter = new ArrayAdapter<String>(getActivity(),
                     android.R.layout.simple_list_item_activated_1,
                     android.R.id.text1

@@ -6,8 +6,8 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Locale;
 
-import org.sugr.gearshift.TorrentComparator.SortBy;
-import org.sugr.gearshift.TorrentComparator.SortOrder;
+import org.sugr.gearshift.G.SortBy;
+import org.sugr.gearshift.G.SortOrder;
 
 import android.app.ActionBar;
 import android.app.Activity;
@@ -153,7 +153,7 @@ public class TorrentListFragment extends ListFragment {
             }
             if (mCurrentProfile != null) {
                 ((TransmissionSessionInterface) getActivity()).setProfile(mCurrentProfile);
-                getActivity().getSupportLoaderManager().initLoader(TorrentListActivity.SESSION_LOADER_ID,
+                getActivity().getSupportLoaderManager().initLoader(G.SESSION_LOADER_ID,
                         null, mTorrentLoaderCallbacks);
             }
         }
@@ -171,7 +171,7 @@ public class TorrentListFragment extends ListFragment {
         @Override
         public android.support.v4.content.Loader<TransmissionSessionData> onCreateLoader(
                 int id, Bundle args) {
-            TorrentListActivity.logD("Starting the torrents loader with profile " + mCurrentProfile);
+            G.logD("Starting the torrents loader with profile " + mCurrentProfile);
             if (mCurrentProfile == null) return null;
 
             TransmissionSessionLoader loader = new TransmissionSessionLoader(getActivity(), mCurrentProfile);
@@ -322,7 +322,7 @@ public class TorrentListFragment extends ListFragment {
             actionBar.setDisplayOptions(0, ActionBar.DISPLAY_SHOW_TITLE);
         }
 
-        getActivity().getSupportLoaderManager().initLoader(TorrentListActivity.PROFILES_LOADER_ID, null, mProfileLoaderCallbacks);
+        getActivity().getSupportLoaderManager().initLoader(G.PROFILES_LOADER_ID, null, mProfileLoaderCallbacks);
     }
 
     @Override
@@ -367,7 +367,7 @@ public class TorrentListFragment extends ListFragment {
             @Override
             public boolean onActionItemClicked(final ActionMode mode, final MenuItem item) {
                 final Loader<TransmissionSessionData> loader = getActivity().getSupportLoaderManager()
-                    .getLoader(TorrentListActivity.SESSION_LOADER_ID);
+                    .getLoader(G.SESSION_LOADER_ID);
 
                 if (loader == null)
                     return false;
@@ -480,7 +480,7 @@ public class TorrentListFragment extends ListFragment {
 
             @Override
             public void onDestroyActionMode(ActionMode mode) {
-                TorrentListActivity.logD("Destroying context menu");
+                G.logD("Destroying context menu");
                 mActionMode = null;
                 mSelectedTorrentIds = null;
             }
@@ -595,7 +595,7 @@ public class TorrentListFragment extends ListFragment {
         switch (item.getItemId()) {
             case R.id.menu_alt_speed:
                 loader = getActivity().getSupportLoaderManager()
-                    .getLoader(TorrentListActivity.SESSION_LOADER_ID);
+                    .getLoader(G.SESSION_LOADER_ID);
                 if (loader != null) {
                     mAltSpeed = !mAltSpeed;
                     mSession.setAltSpeedEnabled(mAltSpeed);
@@ -605,7 +605,7 @@ public class TorrentListFragment extends ListFragment {
                 return true;
             case R.id.menu_refresh:
                 loader = getActivity().getSupportLoaderManager()
-                    .getLoader(TorrentListActivity.SESSION_LOADER_ID);
+                    .getLoader(G.SESSION_LOADER_ID);
                 if (loader != null) {
                     loader.onContentChanged();
                     mRefreshing = !mRefreshing;

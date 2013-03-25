@@ -331,7 +331,7 @@ public class TransmissionSessionLoader extends AsyncTaskLoader<TransmissionSessi
                                 stream = cr.openInputStream(mTorrentAddMeta);
                             } catch (FileNotFoundException e) {
                                 /* FIXME: proper error handling */
-                                TorrentListActivity.logE("Error while reading the torrent file", e);
+                                G.logE("Error while reading the torrent file", e);
                                 return;
                             }
                             base64 = new Base64.InputStream(stream, Base64.ENCODE | Base64.DO_BREAK_LINES);
@@ -342,7 +342,7 @@ public class TransmissionSessionLoader extends AsyncTaskLoader<TransmissionSessi
                                   fileContent.append((char)ch);
                             } catch (IOException e) {
                                 /* FIXME: proper error handling */
-                                TorrentListActivity.logE("Error while reading the torrent file", e);
+                                G.logE("Error while reading the torrent file", e);
                                 return;
                             } finally {
                                 try {
@@ -375,7 +375,7 @@ public class TransmissionSessionLoader extends AsyncTaskLoader<TransmissionSessi
             thread.start();
         }
 
-        boolean active = mDefaultPrefs.getBoolean(GeneralSettingsFragment.PREF_UPDATE_ACTIVE, false);
+        boolean active = mDefaultPrefs.getBoolean(G.PREF_UPDATE_ACTIVE, false);
         Torrent [] torrents;
         int[] removed = null;
         int[] ids = null;
@@ -424,7 +424,7 @@ public class TransmissionSessionLoader extends AsyncTaskLoader<TransmissionSessi
             if (mCurrentTorrents != null) {
                 torrents = mSessManager.getTorrents(ids, fields);
             } else if (active && !mAllCurrent) {
-                int full = Integer.parseInt(mDefaultPrefs.getString(GeneralSettingsFragment.PREF_FULL_UPDATE, "2"));
+                int full = Integer.parseInt(mDefaultPrefs.getString(G.PREF_FULL_UPDATE, "2"));
 
                 if (mIteration % full == 0) {
                     torrents = mSessManager.getAllTorrents(fields);
@@ -556,7 +556,7 @@ public class TransmissionSessionLoader extends AsyncTaskLoader<TransmissionSessi
     protected void onStartLoading() {
         super.onStartLoading();
 
-        TorrentListActivity.logD("TLoader: onStartLoading()");
+        G.logD("TLoader: onStartLoading()");
 
         mStopUpdates = false;
         if (mLastError > 0) {
@@ -570,7 +570,7 @@ public class TransmissionSessionLoader extends AsyncTaskLoader<TransmissionSessi
         }
 
         if (takeContentChanged() || mTorrentMap.size() == 0) {
-            TorrentListActivity.logD("TLoader: forceLoad()");
+            G.logD("TLoader: forceLoad()");
             forceLoad();
         }
     }
@@ -579,7 +579,7 @@ public class TransmissionSessionLoader extends AsyncTaskLoader<TransmissionSessi
     protected void onStopLoading() {
         super.onStopLoading();
 
-        TorrentListActivity.logD("TLoader: onStopLoading()");
+        G.logD("TLoader: onStopLoading()");
         cancelLoad();
     }
 
@@ -587,7 +587,7 @@ public class TransmissionSessionLoader extends AsyncTaskLoader<TransmissionSessi
     protected void onReset() {
         super.onReset();
 
-        TorrentListActivity.logD("TLoader: onReset()");
+        G.logD("TLoader: onReset()");
 
         onStopLoading();
 
@@ -595,7 +595,7 @@ public class TransmissionSessionLoader extends AsyncTaskLoader<TransmissionSessi
     }
 
     private void repeatLoading() {
-        int update = Integer.parseInt(mDefaultPrefs.getString(GeneralSettingsFragment.PREF_UPDATE_INTERVAL, "-1"));
+        int update = Integer.parseInt(mDefaultPrefs.getString(G.PREF_UPDATE_INTERVAL, "-1"));
         if (update >= 0 && !isReset())
             mIntervalHandler.postDelayed(mIntervalRunner, update * 1000);
     }
@@ -623,7 +623,7 @@ public class TransmissionSessionLoader extends AsyncTaskLoader<TransmissionSessi
     private TransmissionSessionData handleError(ManagerException e) {
         mStopUpdates = true;
 
-        TorrentListActivity.logD("Got an error while fetching data: " + e.getMessage() + " and this code: " + e.getCode());
+        G.logD("Got an error while fetching data: " + e.getMessage() + " and this code: " + e.getCode());
 
         switch(e.getCode()) {
             case 401:
@@ -645,7 +645,7 @@ public class TransmissionSessionLoader extends AsyncTaskLoader<TransmissionSessi
                     mLastError = TransmissionSessionData.Errors.INVALID_TORRENT;
                 } else {
                     mLastError = TransmissionSessionData.Errors.RESPONSE_ERROR;
-                    TorrentListActivity.logE("Transmission Daemon Error!", e);
+                    G.logE("Transmission Daemon Error!", e);
                 }
                 break;
             default:
@@ -660,7 +660,7 @@ public class TransmissionSessionLoader extends AsyncTaskLoader<TransmissionSessi
         mStopUpdates = true;
 
         mLastError = TransmissionSessionData.Errors.THREAD_ERROR;
-        TorrentListActivity.logE("Got an error when processing the threads", e);
+        G.logE("Got an error when processing the threads", e);
 
         return new TransmissionSessionData(mSession, mSessionStats, mLastError);
     }

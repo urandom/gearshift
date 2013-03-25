@@ -2,16 +2,10 @@ package org.sugr.gearshift;
 
 import java.util.Comparator;
 
+import org.sugr.gearshift.G.SortBy;
+import org.sugr.gearshift.G.SortOrder;
+
 public class TorrentComparator implements Comparator<Torrent> {
-    public static enum SortBy {
-        NAME, SIZE, STATUS, ACTIVITY, AGE, PROGRESS, RATIO, LOCATION,
-        PEERS, RATE_DOWNLOAD, RATE_UPLOAD, QUEUE
-    };
-
-    public static enum SortOrder {
-        ASCENDING, DESCENDING
-    };
-
     private SortBy mSortBy = SortBy.STATUS;
     private SortOrder mSortOrder = SortOrder.ASCENDING;
 

@@ -1,7 +1,5 @@
 package org.sugr.gearshift;
 
-import java.io.PrintWriter;
-import java.io.StringWriter;
 import java.util.ArrayList;
 
 import org.sugr.gearshift.TransmissionSessionManager.TransmissionExclusionStrategy;
@@ -15,7 +13,6 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.content.Loader;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -34,19 +31,11 @@ public class TorrentListActivity extends SlidingFragmentActivity
         implements TransmissionSessionInterface, TorrentListFragment.Callbacks,
                    TorrentDetailFragment.PagerCallbacks {
 
-    /* TODO: move to an Application class, along with the logging functions */
-    public static final int PROFILES_LOADER_ID = 1;
-    public static final int SESSION_LOADER_ID = 2;
-
-
     /**
      * Whether or not the activity is in two-pane mode, i.e. running on a tablet
      * device.
      */
     private boolean mTwoPane;
-
-    private static final boolean DEBUG = true;
-    private static final String LogTag = "GearShift";
 
     private ArrayList<Torrent> mTorrents = new ArrayList<Torrent>();
     private int mCurrentTorrent = 0;
@@ -211,7 +200,7 @@ public class TorrentListActivity extends SlidingFragmentActivity
                 getSlidingMenu().setTouchModeAbove(SlidingMenu.TOUCHMODE_NONE);
 
                 Loader<TransmissionSessionData> loader =
-                        getSupportLoaderManager().getLoader(SESSION_LOADER_ID);
+                        getSupportLoaderManager().getLoader(G.SESSION_LOADER_ID);
                 if (loader != null) {
                     ((TransmissionSessionLoader) loader).setAllCurrentTorrents(true);
                 }
@@ -223,7 +212,7 @@ public class TorrentListActivity extends SlidingFragmentActivity
             if (panel.getVisibility() != View.GONE) {
                 panel.setVisibility(View.GONE);
                 getSlidingMenu().setTouchModeAbove(SlidingMenu.TOUCHMODE_MARGIN);
-                Loader<TransmissionSessionData> loader = getSupportLoaderManager().getLoader(SESSION_LOADER_ID);
+                Loader<TransmissionSessionData> loader = getSupportLoaderManager().getLoader(G.SESSION_LOADER_ID);
                 if (loader != null) {
                     ((TransmissionSessionLoader) loader).setAllCurrentTorrents(false);
                 }
@@ -233,38 +222,6 @@ public class TorrentListActivity extends SlidingFragmentActivity
             }
         }
         return false;
-    }
-
-    public static void logE(String message, Object[] args, Exception e) {
-        Log.e(LogTag, String.format(message, args), e);
-    }
-
-    public static void logE(String message, Exception e) {
-        Log.e(LogTag, message, e);
-    }
-
-    public static void logD(String message, Object[] args) {
-        if (!DEBUG) return;
-
-        Log.d(LogTag, String.format(message, args));
-    }
-
-    public static void logD(String message) {
-        if (!DEBUG) return;
-
-        Log.d(LogTag, message);
-    }
-
-    public static void logDTrace() {
-        if (!DEBUG) return;
-
-        StringWriter sw = new StringWriter();
-        PrintWriter pw = new PrintWriter(sw);
-
-        Throwable t = new Throwable();
-
-        t.printStackTrace(pw);
-        Log.d(LogTag, sw.toString());
     }
 
     @Override
@@ -344,7 +301,7 @@ public class TorrentListActivity extends SlidingFragmentActivity
             LayoutInflater inflater = getLayoutInflater();
             View view = inflater.inflate(R.layout.add_torrent_dialog, null);
             final Loader<TransmissionSessionData> loader = getSupportLoaderManager()
-                    .getLoader(TorrentListActivity.SESSION_LOADER_ID);
+                    .getLoader(G.SESSION_LOADER_ID);
 
             final AlertDialog.Builder builder = new AlertDialog.Builder(this)
                 .setCancelable(false)
@@ -363,7 +320,7 @@ public class TorrentListActivity extends SlidingFragmentActivity
             location = (Spinner) view.findViewById(R.id.location_choice);
             location.setAdapter(adapter);
 
-            ((CheckBox) view.findViewById(R.id.start_paused)).setChecked(prefs.getBoolean(GeneralSettingsFragment.PREF_START_PAUSED, false));
+            ((CheckBox) view.findViewById(R.id.start_paused)).setChecked(prefs.getBoolean(G.PREF_START_PAUSED, false));
 
             if (data.getScheme().equals("magnet")) {
                 builder.setTitle(R.string.add_magnet).setPositiveButton(android.R.string.ok,

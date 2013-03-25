@@ -3,8 +3,8 @@ package org.sugr.gearshift;
 
 import java.util.ArrayList;
 
-import org.sugr.gearshift.TorrentComparator.SortBy;
-import org.sugr.gearshift.TorrentComparator.SortOrder;
+import org.sugr.gearshift.G.SortBy;
+import org.sugr.gearshift.G.SortOrder;
 
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -216,8 +216,8 @@ public class TorrentListMenuFragment extends Fragment {
         }
 
         Object[] speed = {
-            Torrent.readableFileSize(down), "",
-            Torrent.readableFileSize(up), ""
+            G.readableFileSize(down), "",
+            G.readableFileSize(up), ""
         };
 
         if (session == null) {
@@ -227,13 +227,13 @@ public class TorrentListMenuFragment extends Fragment {
 
 
         if (session.isSpeedLimitDownEnabled() || session.isAltSpeedEnabled()) {
-            speed[1] = " (" + Torrent.readableFileSize((
+            speed[1] = " (" + G.readableFileSize((
                 session.isAltSpeedEnabled()
                     ? session.getAltSpeedDown()
                     : session.getSpeedLimitDown()) * 1024) + "/s)";
         }
         if (session.isSpeedLimitUpEnabled() || session.isAltSpeedEnabled()) {
-            speed[3] = " (" + Torrent.readableFileSize((
+            speed[3] = " (" + G.readableFileSize((
                 session.isAltSpeedEnabled()
                     ? session.getAltSpeedUp()
                     : session.getSpeedLimitUp()) * 1024) + "/s)";
@@ -241,7 +241,7 @@ public class TorrentListMenuFragment extends Fragment {
 
         setStatus(speed,
             session.getDownloadDirFreeSpace() > 0
-                ? Torrent.readableFileSize(session.getDownloadDirFreeSpace())
+                ? G.readableFileSize(session.getDownloadDirFreeSpace())
                 : null
         );
     }

@@ -457,7 +457,7 @@ public class TorrentDetailPageFragment extends Fragment {
 
         Loader<TransmissionSessionData> loader = getActivity()
             .getSupportLoaderManager().getLoader(
-                    TorrentListActivity.SESSION_LOADER_ID);
+                    G.SESSION_LOADER_ID);
         ((TransmissionSessionLoader) loader).setTorrentProperty(mTorrent.getId(), key, value);
     }
 
@@ -473,10 +473,10 @@ public class TorrentDetailPageFragment extends Fragment {
                 ((TextView) root.findViewById(R.id.torrent_have)).setText(
                     String.format(
                         getString(R.string.torrent_have_format),
-                        Torrent.readableFileSize(mTorrent.getHaveValid() > 0
+                        G.readableFileSize(mTorrent.getHaveValid() > 0
                                 ? mTorrent.getHaveValid() : mTorrent.getSizeWhenDone() - mTorrent.getLeftUntilDone()),
-                        Torrent.readableFileSize(mTorrent.getSizeWhenDone()),
-                        Torrent.readablePercent(100 * (
+                        G.readableFileSize(mTorrent.getSizeWhenDone()),
+                        G.readablePercent(100 * (
                             mTorrent.getSizeWhenDone() > 0
                                 ? (mTorrent.getSizeWhenDone() - mTorrent.getLeftUntilDone()) / mTorrent.getSizeWhenDone()
                                 : 1
@@ -485,10 +485,10 @@ public class TorrentDetailPageFragment extends Fragment {
                 ((TextView) root.findViewById(R.id.torrent_downloaded)).setText(
                     mTorrent.getDownloadedEver() == 0
                         ? getString(R.string.unknown)
-                        : Torrent.readableFileSize(mTorrent.getDownloadedEver())
+                        : G.readableFileSize(mTorrent.getDownloadedEver())
                 );
                 ((TextView) root.findViewById(R.id.torrent_uploaded)).setText(
-                    Torrent.readableFileSize(mTorrent.getUploadedEver())
+                    G.readableFileSize(mTorrent.getUploadedEver())
                 );
                 int state = R.string.none;
                 switch(mTorrent.getStatus()) {
@@ -521,13 +521,13 @@ public class TorrentDetailPageFragment extends Fragment {
                     mTorrent.getStatus() == Torrent.Status.STOPPED
                         ? getString(R.string.status_stopped)
                         : mTorrent.getStartDate() > 0
-                            ? Torrent.readableRemainingTime(now - mTorrent.getStartDate(), getActivity())
+                            ? G.readableRemainingTime(now - mTorrent.getStartDate(), getActivity())
                             : getString(R.string.unknown)
                 );
                 ((TextView) root.findViewById(R.id.torrent_remaining_time)).setText(
                     mTorrent.getEta() < 0
                         ? getString(R.string.unknown)
-                        : Torrent.readableRemainingTime(mTorrent.getEta(), getActivity())
+                        : G.readableRemainingTime(mTorrent.getEta(), getActivity())
                 );
                 long lastActive = now - mTorrent.getActivityDate();
                 ((TextView) root.findViewById(R.id.torrent_last_activity)).setText(
@@ -535,7 +535,7 @@ public class TorrentDetailPageFragment extends Fragment {
                         ? getString(R.string.unknown)
                         : lastActive < 5
                             ? getString(R.string.torrent_active_now)
-                            : Torrent.readableRemainingTime(lastActive, getActivity())
+                            : G.readableRemainingTime(lastActive, getActivity())
                 );
                 if (mTorrent.getError() == Torrent.Error.OK) {
                     ((TextView) root.findViewById(R.id.torrent_error)).setText(
@@ -546,9 +546,9 @@ public class TorrentDetailPageFragment extends Fragment {
                 ((TextView) root.findViewById(R.id.torrent_size)).setText(
                         String.format(
                             getString(R.string.torrent_size_format),
-                            Torrent.readableFileSize(mTorrent.getTotalSize()),
+                            G.readableFileSize(mTorrent.getTotalSize()),
                             mTorrent.getPieceCount(),
-                            Torrent.readableFileSize(mTorrent.getPieceSize())
+                            G.readableFileSize(mTorrent.getPieceSize())
                         ));
                 ((TextView) root.findViewById(R.id.torrent_location)).setText(mTorrent.getDownloadDir());
                 ((TextView) root.findViewById(R.id.torrent_hash)).setText(mTorrent.getHashString());
@@ -682,7 +682,7 @@ public class TorrentDetailPageFragment extends Fragment {
             ((Spinner) root.findViewById(R.id.torrent_seed_ratio_mode)).setSelection(
                 mSeedRatioModeValues.indexOf(mode));
 
-            String ratio = Torrent.readablePercent(mTorrent.getSeedRatioLimit());
+            String ratio = G.readablePercent(mTorrent.getSeedRatioLimit());
             if (!mTextValues[SEED_RATIO_LIMIT].equals(ratio)) {
                 limit = (EditText) root.findViewById(R.id.torrent_seed_ratio_limit);
                 limit.setText(ratio);
@@ -837,8 +837,8 @@ public class TorrentDetailPageFragment extends Fragment {
                 row.setText(Html.fromHtml(String.format(
                     getString(R.string.torrent_detail_file_format),
                     file.name,
-                    Torrent.readableFileSize(file.stat.getBytesCompleted()),
-                    Torrent.readableFileSize(file.info.getLength()),
+                    G.readableFileSize(file.stat.getBytesCompleted()),
+                    G.readableFileSize(file.info.getLength()),
                     priority
                 )));
                 row.setChecked(file.stat.isWanted());

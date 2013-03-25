@@ -14,7 +14,7 @@ public class TransmissionProfileLoader extends AsyncTaskLoader<TransmissionProfi
         @Override
         public void onSharedPreferenceChanged(
                 SharedPreferences sharedPreferences, String key) {
-            TorrentListActivity.logD("TPLoader: the pref of a profile has changed.");
+            G.logD("TPLoader: the pref of a profile has changed.");
             onContentChanged();
         }
 
@@ -25,9 +25,9 @@ public class TransmissionProfileLoader extends AsyncTaskLoader<TransmissionProfi
         @Override
         public void onSharedPreferenceChanged(
                 SharedPreferences sharedPreferences, String key) {
-            TorrentListActivity.logD("Detault prefs changed " + key);
-            if (key.equals(TransmissionProfile.PREF_PROFILES)) {
-                TorrentListActivity.logD("TPLoader: the pref 'profiles' has changed.");
+            G.logD("Detault prefs changed " + key);
+            if (key.equals(G.PREF_PROFILES)) {
+                G.logD("TPLoader: the pref 'profiles' has changed.");
                 onContentChanged();
             }
         }
@@ -44,11 +44,11 @@ public class TransmissionProfileLoader extends AsyncTaskLoader<TransmissionProfi
     public TransmissionProfile[] loadInBackground() {
         TransmissionProfile[] profiles = TransmissionProfile.readProfiles(getContext().getApplicationContext());
 
-        TorrentListActivity.logD("TPLoader: Read %d profiles", new Object[] {profiles.length});
+        G.logD("TPLoader: Read %d profiles", new Object[] {profiles.length});
 
         for (TransmissionProfile prof : profiles) {
             SharedPreferences prefs = getContext().getApplicationContext().getSharedPreferences(
-                    TransmissionProfile.PREF_PREFIX + prof.getId(), Activity.MODE_PRIVATE);
+                    G.PREF_PREFIX + prof.getId(), Activity.MODE_PRIVATE);
             prefs.registerOnSharedPreferenceChangeListener(mListener);
         }
 
@@ -68,7 +68,7 @@ public class TransmissionProfileLoader extends AsyncTaskLoader<TransmissionProfi
         mProfiles = profiles;
 
         if (isStarted()) {
-            TorrentListActivity.logD("TPLoader: Delivering results: %d profiles", new Object[] {profiles.length});
+            G.logD("TPLoader: Delivering results: %d profiles", new Object[] {profiles.length});
             super.deliverResult(profiles);
         }
 
@@ -77,7 +77,7 @@ public class TransmissionProfileLoader extends AsyncTaskLoader<TransmissionProfi
                 for (TransmissionProfile newProf : mProfiles) {
                     if (!prof.getId().equals(newProf.getId())) {
                         SharedPreferences prefs = getContext().getApplicationContext().getSharedPreferences(
-                                TransmissionProfile.PREF_PREFIX + prof.getId(), Activity.MODE_PRIVATE);
+                                G.PREF_PREFIX + prof.getId(), Activity.MODE_PRIVATE);
                         prefs.unregisterOnSharedPreferenceChangeListener(mListener);
                     }
                 }
@@ -96,13 +96,13 @@ public class TransmissionProfileLoader extends AsyncTaskLoader<TransmissionProfi
     protected void onStartLoading() {
         super.onStartLoading();
 
-        TorrentListActivity.logD("TPLoader: onStartLoading()");
+        G.logD("TPLoader: onStartLoading()");
 
         if (mProfiles != null)
             deliverResult(mProfiles);
 
         if (takeContentChanged() || mProfiles == null) {
-            TorrentListActivity.logD("TPLoader: forceLoad()");
+            G.logD("TPLoader: forceLoad()");
             forceLoad();
         }
     }
@@ -111,7 +111,7 @@ public class TransmissionProfileLoader extends AsyncTaskLoader<TransmissionProfi
     protected void onStopLoading() {
         super.onStopLoading();
 
-        TorrentListActivity.logD("TPLoader: onStopLoading()");
+        G.logD("TPLoader: onStopLoading()");
         cancelLoad();
     }
 
@@ -119,7 +119,7 @@ public class TransmissionProfileLoader extends AsyncTaskLoader<TransmissionProfi
     protected void onReset() {
         super.onReset();
 
-        TorrentListActivity.logD("TPLoader: onReset()");
+        G.logD("TPLoader: onReset()");
 
         onStopLoading();
 
@@ -133,7 +133,7 @@ public class TransmissionProfileLoader extends AsyncTaskLoader<TransmissionProfi
         if (profiles != null) {
             for (TransmissionProfile prof : profiles) {
                 SharedPreferences prefs = getContext().getApplicationContext().getSharedPreferences(
-                        TransmissionProfile.PREF_PREFIX + prof.getId(), Activity.MODE_PRIVATE);
+                        G.PREF_PREFIX + prof.getId(), Activity.MODE_PRIVATE);
                 prefs.unregisterOnSharedPreferenceChangeListener(mListener);
             }
         }

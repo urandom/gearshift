@@ -65,7 +65,7 @@ public class SettingsActivity extends PreferenceActivity
         getActionBar().setHomeButtonEnabled(true);
 
         if (savedInstanceState == null) {
-            TorrentListActivity.logD("Creating the profile loader");
+            G.logD("Creating the profile loader");
 
             getLoaderManager().initLoader(LOADER_ID, null, this);
         }
@@ -109,7 +109,7 @@ public class SettingsActivity extends PreferenceActivity
             TransmissionProfile[] profiles) {
         mProfiles = profiles;
 
-        TorrentListActivity.logD("Finished loading %d profiles", new Object[] {profiles.length});
+        G.logD("Finished loading %d profiles", new Object[] {profiles.length});
 
         mProfileHeaders = new Header[profiles.length];
         int index = 0;
@@ -142,7 +142,7 @@ public class SettingsActivity extends PreferenceActivity
 
         header.fragment = TransmissionProfileSettingsFragment.class.getCanonicalName();
         Bundle args = new Bundle();
-        args.putString(TransmissionProfileSettingsFragment.ARG_PROFILE_ID, profile.getId());
+        args.putString(G.ARG_PROFILE_ID, profile.getId());
         header.fragmentArguments = args;
 
         return header;

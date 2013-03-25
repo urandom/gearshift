@@ -16,8 +16,6 @@ import android.view.View;
 import android.view.View.OnClickListener;
 
 public class TransmissionProfileSettingsFragment extends BasePreferenceFragment {
-    public static final String ARG_PROFILE_ID = "profile_id";
-
     private TransmissionProfile mProfile;
 
     private boolean mNew = true;
@@ -28,8 +26,8 @@ public class TransmissionProfileSettingsFragment extends BasePreferenceFragment 
         super.onCreate(savedInstanceState);
 
         String id = null;
-        if (getArguments().containsKey(ARG_PROFILE_ID)) {
-            id = getArguments().getString(ARG_PROFILE_ID);
+        if (getArguments().containsKey(G.ARG_PROFILE_ID)) {
+            id = getArguments().getString(G.ARG_PROFILE_ID);
             mNew = false;
         }
 
@@ -38,11 +36,10 @@ public class TransmissionProfileSettingsFragment extends BasePreferenceFragment 
         else
             mProfile = new TransmissionProfile(id, getActivity());
 
-        TorrentListActivity.logD(
-            "Editing (new ? %s) profile %s",
+        G.logD("Editing (new ? %s) profile %s",
             new Object[] {mNew, mProfile.getId()});
 
-        String prefname = TransmissionProfile.PREF_PREFIX + (id == null ? "temp" : id);
+        String prefname = G.PREF_PREFIX + (id == null ? "temp" : id);
         mSharedPrefs = getActivity().getSharedPreferences(
                 prefname, Activity.MODE_PRIVATE);
 
@@ -56,22 +53,22 @@ public class TransmissionProfileSettingsFragment extends BasePreferenceFragment 
 
         addPreferencesFromResource(R.xml.torrent_profile_preferences);
         PreferenceManager.setDefaultValues(
-                getActivity(), TransmissionProfile.PREF_PREFIX + (id == null ? "temp" : id),
+                getActivity(), G.PREF_PREFIX + (id == null ? "temp" : id),
                 Activity.MODE_PRIVATE, R.xml.torrent_profile_preferences, true);
 
         mSummaryPrefs = new Object[][] {
-            {TransmissionProfile.PREF_NAME, getString(R.string.profile_summary_format), -1, -1, ""},
-            {TransmissionProfile.PREF_HOST, getString(R.string.profile_summary_format), -1, -1, ""},
-            {TransmissionProfile.PREF_PORT, getString(R.string.profile_summary_format), -1, -1, ""},
-            {TransmissionProfile.PREF_USER, getString(R.string.profile_summary_format), -1, -1, ""},
-            {TransmissionProfile.PREF_PATH, getString(R.string.profile_summary_format), -1, -1, ""},
-            {TransmissionProfile.PREF_TIMEOUT, getString(R.string.profile_summary_format), -1, -1, ""},
-            /* {TransmissionProfile.PREF_RETRIES, getString(R.string.profile_summary_format),
+            {G.PREF_NAME, getString(R.string.profile_summary_format), -1, -1, ""},
+            {G.PREF_HOST, getString(R.string.profile_summary_format), -1, -1, ""},
+            {G.PREF_PORT, getString(R.string.profile_summary_format), -1, -1, ""},
+            {G.PREF_USER, getString(R.string.profile_summary_format), -1, -1, ""},
+            {G.PREF_PATH, getString(R.string.profile_summary_format), -1, -1, ""},
+            {G.PREF_TIMEOUT, getString(R.string.profile_summary_format), -1, -1, ""},
+            /* {G.PREF_RETRIES, getString(R.string.profile_summary_format),
                 R.array.pref_con_retries_values, R.array.pref_con_retries_entries, ""}, */
         };
 
-        Bundle dirBundle = getPreferenceManager().findPreference(TransmissionProfile.PREF_DIRECTORIES).getExtras();
-        dirBundle.putString(TransmissionProfileDirectoriesSettingsFragment.ARG_PROFILE_ID, prefname);
+        Bundle dirBundle = getPreferenceManager().findPreference(G.PREF_DIRECTORIES).getExtras();
+        dirBundle.putString(G.ARG_PROFILE_ID, prefname);
     }
 
     @Override
@@ -88,9 +85,9 @@ public class TransmissionProfileSettingsFragment extends BasePreferenceFragment 
                 @Override
                 public void onClick(View v) {
                     int errorRes = -1;
-                    if (mSharedPrefs.getString(TransmissionProfile.PREF_NAME, "").trim().equals("")) {
+                    if (mSharedPrefs.getString(G.PREF_NAME, "").trim().equals("")) {
                         errorRes = R.string.con_name_cannot_be_empty;
-                    } else if (mSharedPrefs.getString(TransmissionProfile.PREF_HOST, "").trim().equals("")) {
+                    } else if (mSharedPrefs.getString(G.PREF_HOST, "").trim().equals("")) {
                         errorRes = R.string.con_host_cannot_be_empty;
                     }
 

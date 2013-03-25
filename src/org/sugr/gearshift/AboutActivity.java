@@ -18,7 +18,7 @@ public class AboutActivity extends FragmentActivity {
         try {
             version.setText(getPackageManager().getPackageInfo(getPackageName(), 0 ).versionName);
         } catch (NameNotFoundException e) {
-            TorrentListActivity.logE("Error getting the app version", e);
+            G.logE("Error getting the app version", e);
         }
         TextView donation = (TextView) findViewById(R.id.about_donation);
         donation.setText(Html.fromHtml(getString(R.string.about_donation)));

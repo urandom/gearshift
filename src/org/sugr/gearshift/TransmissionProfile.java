@@ -15,22 +15,6 @@ import android.os.Parcelable;
 import android.preference.PreferenceManager;
 
 public class TransmissionProfile implements Parcelable, Comparable<TransmissionProfile> {
-    public static final String PREF_PROFILES = "profiles";
-    public static final String PREF_CURRENT_PROFILE = "default_profile";
-
-    public static final String PREF_NAME = "profile_name";
-    public static final String PREF_HOST = "profile_host";
-    public static final String PREF_PORT = "profile_port";
-    public static final String PREF_PATH = "profile_path";
-    public static final String PREF_USER = "profile_username";
-    public static final String PREF_PASS = "profile_password";
-    public static final String PREF_SSL = "profile_use_ssl";
-    public static final String PREF_TIMEOUT = "profile_timeout";
-    public static final String PREF_RETRIES = "profile_retries";
-    public static final String PREF_DIRECTORIES = "profile_directories";
-    public static final String PREF_PREFIX = "profile_";
-
-
     private final String mId;
     private String mName = "";
     private String mHost = "";
@@ -48,7 +32,7 @@ public class TransmissionProfile implements Parcelable, Comparable<TransmissionP
 
     public static TransmissionProfile[] readProfiles(Context context) {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
-        Set<String> profile_ids = prefs.getStringSet(PREF_PROFILES, new HashSet<String>());
+        Set<String> profile_ids = prefs.getStringSet(G.PREF_PROFILES, new HashSet<String>());
         TransmissionProfile[] profiles = new TransmissionProfile[profile_ids.size()];
         int index = 0;
 
@@ -61,14 +45,14 @@ public class TransmissionProfile implements Parcelable, Comparable<TransmissionP
 
     public static String getCurrentProfileId(Context context) {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
-        return prefs.getString(PREF_CURRENT_PROFILE, null);
+        return prefs.getString(G.PREF_CURRENT_PROFILE, null);
     }
 
     public static void setCurrentProfile(TransmissionProfile profile, Context context) {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
         Editor e = prefs.edit();
 
-        e.putString(PREF_CURRENT_PROFILE, profile.getId());
+        e.putString(G.PREF_CURRENT_PROFILE, profile.getId());
         e.commit();
     }
 
@@ -149,72 +133,69 @@ public class TransmissionProfile implements Parcelable, Comparable<TransmissionP
 
     public void load(Context context) {
         SharedPreferences pref = context.getSharedPreferences(
-                PREF_PREFIX + mId, Activity.MODE_PRIVATE);
+                G.PREF_PREFIX + mId, Activity.MODE_PRIVATE);
 
         load(pref);
     }
 
     public void load(SharedPreferences pref) {
-        mName = pref.getString(PREF_NAME, "").trim();
-        mHost = pref.getString(PREF_HOST, "").trim();
-        mPort = Integer.parseInt(pref.getString(PREF_PORT, "-1"));
-        mPath = pref.getString(PREF_PATH, "").trim();
-        mUsername = pref.getString(PREF_USER, "").trim();
-        mPassword = pref.getString(PREF_PASS, "").trim();
-        mUseSSL = pref.getBoolean(PREF_SSL, false);
-        mTimeout = Integer.parseInt(pref.getString(PREF_TIMEOUT, "-1"));
-        mRetries = Integer.parseInt(pref.getString(PREF_RETRIES, "-1"));
-        mDirectories = pref.getStringSet(PREF_DIRECTORIES, new HashSet<String>());
+        mName = pref.getString(G.PREF_NAME, "").trim();
+        mHost = pref.getString(G.PREF_HOST, "").trim();
+        mPort = Integer.parseInt(pref.getString(G.PREF_PORT, "-1"));
+        mPath = pref.getString(G.PREF_PATH, "").trim();
+        mUsername = pref.getString(G.PREF_USER, "").trim();
+        mPassword = pref.getString(G.PREF_PASS, "").trim();
+        mUseSSL = pref.getBoolean(G.PREF_SSL, false);
+        mTimeout = Integer.parseInt(pref.getString(G.PREF_TIMEOUT, "-1"));
+        mRetries = Integer.parseInt(pref.getString(G.PREF_RETRIES, "-1"));
+        mDirectories = pref.getStringSet(G.PREF_DIRECTORIES, new HashSet<String>());
 
-        TorrentListActivity.logD(
-            "Loading profile from prefs: id %s, name %s, host %s, port %d   ",
+        G.logD("Loading profile from prefs: id %s, name %s, host %s, port %d   ",
             new Object[] {mId, mName, mHost, mPort});
     }
 
     public void save(Context context) {
-        SharedPreferences pref = context.getSharedPreferences(PREF_PREFIX + mId, Activity.MODE_PRIVATE);
+        SharedPreferences pref = context.getSharedPreferences(G.PREF_PREFIX + mId, Activity.MODE_PRIVATE);
         Editor e = pref.edit();
 
-        e.putString(PREF_NAME, mName);
-        e.putString(PREF_HOST, mHost);
-        e.putString(PREF_PORT, Integer.toString(mPort));
-        e.putString(PREF_PATH, mPath);
-        e.putString(PREF_USER, mUsername);
-        e.putString(PREF_PASS, mPassword);
-        e.putBoolean(PREF_SSL, mUseSSL);
-        e.putString(PREF_TIMEOUT, Integer.toString(mTimeout));
-        e.putString(PREF_RETRIES, Integer.toString(mRetries));
-        e.putStringSet(PREF_DIRECTORIES, mDirectories);
+        e.putString(G.PREF_NAME, mName);
+        e.putString(G.PREF_HOST, mHost);
+        e.putString(G.PREF_PORT, Integer.toString(mPort));
+        e.putString(G.PREF_PATH, mPath);
+        e.putString(G.PREF_USER, mUsername);
+        e.putString(G.PREF_PASS, mPassword);
+        e.putBoolean(G.PREF_SSL, mUseSSL);
+        e.putString(G.PREF_TIMEOUT, Integer.toString(mTimeout));
+        e.putString(G.PREF_RETRIES, Integer.toString(mRetries));
+        e.putStringSet(G.PREF_DIRECTORIES, mDirectories);
 
         e.commit();
 
-        TorrentListActivity.logD(
-            "Saving profile to prefs: id %s, name %s, host %s, port %d",
+        G.logD("Saving profile to prefs: id %s, name %s, host %s, port %d",
             new Object[] {mId, mName, mHost, mPort});
 
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
         e = prefs.edit();
 
-        Set<String> ids = prefs.getStringSet(PREF_PROFILES, new HashSet<String>());
+        Set<String> ids = prefs.getStringSet(G.PREF_PROFILES, new HashSet<String>());
 
         if (ids.add(mId)) {
-            e.remove(PREF_PROFILES);
+            e.remove(G.PREF_PROFILES);
             e.commit();
 
-            if (ids.size() == 1 && !prefs.getString(PREF_CURRENT_PROFILE, "").equals(mId)) {
-                e.putString(PREF_CURRENT_PROFILE, mId);
+            if (ids.size() == 1 && !prefs.getString(G.PREF_CURRENT_PROFILE, "").equals(mId)) {
+                e.putString(G.PREF_CURRENT_PROFILE, mId);
             }
-            e.putStringSet(PREF_PROFILES, ids);
+            e.putStringSet(G.PREF_PROFILES, ids);
             e.commit();
 
-            TorrentListActivity.logD(
-                    "Adding the profile %s to the set of profiles",
+            G.logD("Adding the profile %s to the set of profiles",
                     new Object[] {mId});
         }
     }
 
     public void delete(Context context) {
-        SharedPreferences pref = context.getSharedPreferences(PREF_PREFIX + mId, Activity.MODE_PRIVATE);
+        SharedPreferences pref = context.getSharedPreferences(G.PREF_PREFIX + mId, Activity.MODE_PRIVATE);
         Editor e = pref.edit();
 
         e.clear();
@@ -223,21 +204,19 @@ public class TransmissionProfile implements Parcelable, Comparable<TransmissionP
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
         e = prefs.edit();
 
-        Set<String> ids = prefs.getStringSet(PREF_PROFILES, new HashSet<String>());
+        Set<String> ids = prefs.getStringSet(G.PREF_PROFILES, new HashSet<String>());
 
         if (ids.remove(mId)) {
-            e.remove(PREF_PROFILES);
+            e.remove(G.PREF_PROFILES);
             e.commit();
-            e.putStringSet(PREF_PROFILES, ids);
+            e.putStringSet(G.PREF_PROFILES, ids);
             e.commit();
 
-            TorrentListActivity.logD(
-                    "Removing the profile %s from the set of profiles",
+            G.logD("Removing the profile %s from the set of profiles",
                     new Object[] {mId});
         }
 
-        TorrentListActivity.logD(
-                "Deleting profile from prefs: id %s, name %s, host %s, port %d",
+        G.logD("Deleting profile from prefs: id %s, name %s, host %s, port %d",
                 new Object[] {mId, mName, mHost, mPort});
     }
 

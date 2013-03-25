@@ -51,7 +51,7 @@ public class TorrentDetailActivity extends FragmentActivity implements Transmiss
         @Override
         public android.support.v4.content.Loader<TransmissionSessionData> onCreateLoader(
                 int id, Bundle args) {
-            TorrentListActivity.logD("Starting the torrents loader with profile " + mProfile);
+            G.logD("Starting the torrents loader with profile " + mProfile);
             if (mProfile == null) return null;
 
             TransmissionSessionLoader loader = new TransmissionSessionLoader(
@@ -179,13 +179,13 @@ public class TorrentDetailActivity extends FragmentActivity implements Transmiss
         }
 
         getSupportLoaderManager().restartLoader(
-                TorrentListActivity.SESSION_LOADER_ID, null, mTorrentLoaderCallbacks);
+                G.SESSION_LOADER_ID, null, mTorrentLoaderCallbacks);
     }
 
     @Override
     public void onDestroy() {
         Loader<TransmissionSessionData> loader = getSupportLoaderManager()
-            .getLoader(TorrentListActivity.SESSION_LOADER_ID);
+            .getLoader(G.SESSION_LOADER_ID);
 
         ((TransmissionSessionLoader) loader).setAllCurrentTorrents(false);
 
@@ -217,7 +217,7 @@ public class TorrentDetailActivity extends FragmentActivity implements Transmiss
                 return true;
             case R.id.menu_refresh:
                 loader = getSupportLoaderManager()
-                    .getLoader(TorrentListActivity.SESSION_LOADER_ID);
+                    .getLoader(G.SESSION_LOADER_ID);
                 if (loader != null) {
                     loader.onContentChanged();
                     mRefreshing = !mRefreshing;
@@ -270,7 +270,7 @@ public class TorrentDetailActivity extends FragmentActivity implements Transmiss
         mCurrentTorrent = position;
 
         Loader<TransmissionSessionData> loader = getSupportLoaderManager()
-            .getLoader(TorrentListActivity.SESSION_LOADER_ID);
+            .getLoader(G.SESSION_LOADER_ID);
 
         ((TransmissionSessionLoader) loader).setCurrentTorrents(getCurrentTorrents());
     }

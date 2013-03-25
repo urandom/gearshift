@@ -1,7 +1,5 @@
 package org.sugr.gearshift;
 
-import java.text.DecimalFormat;
-
 import org.sugr.gearshift.TransmissionSessionManager.Exclude;
 
 import android.content.Context;
@@ -825,34 +823,34 @@ public class Torrent {
             case Torrent.Status.DOWNLOADING:
                 mTrafficText = Html.fromHtml(String.format(
                                 context.getString(R.string.traffic_downloading_format),
-                    Torrent.readableFileSize(mSizeWhenDone - mLeftUntilDone),
-                    Torrent.readableFileSize(mSizeWhenDone),
+                    G.readableFileSize(mSizeWhenDone - mLeftUntilDone),
+                    G.readableFileSize(mSizeWhenDone),
                     String.format(context.getString(R.string.traffic_downloading_percentage_format),
-                           Torrent.readablePercent(mPercentDone * 100)),
+                           G.readablePercent(mPercentDone * 100)),
                     mEta < 0
                         ? context.getString(R.string.traffic_remaining_time_unknown)
                         : String.format(context.getString(R.string.traffic_remaining_time_format),
-                           Torrent.readableRemainingTime(mEta, context))
+                           G.readableRemainingTime(mEta, context))
                 ));
                 break;
             case Torrent.Status.SEED_WAITING:
             case Torrent.Status.SEEDING:
                 mTrafficText = Html.fromHtml(String.format(
                                 context.getString(R.string.traffic_seeding_format), new Object[] {
-                    Torrent.readableFileSize(mSizeWhenDone),
-                    Torrent.readableFileSize(mUploadedEver),
+                    G.readableFileSize(mSizeWhenDone),
+                    G.readableFileSize(mUploadedEver),
                     String.format(context.getString(R.string.traffic_seeding_ratio_format),
-                           Torrent.readablePercent(mUploadRatio),
+                           G.readablePercent(mUploadRatio),
                            seedLimit <= 0 ? "" : String.format(
                                context.getString(R.string.traffic_seeding_ratio_goal_format),
-                               Torrent.readablePercent(seedLimit))
+                               G.readablePercent(seedLimit))
                     ),
                     seedLimit <= 0
                         ? ""
                         : mEta < 0
                             ? context.getString(R.string.traffic_remaining_time_unknown)
                             : String.format(context.getString(R.string.traffic_remaining_time_format),
-                               Torrent.readableRemainingTime(mEta, context)),
+                               G.readableRemainingTime(mEta, context)),
                 }));
                 break;
             case Torrent.Status.CHECK_WAITING:
@@ -863,19 +861,19 @@ public class Torrent {
                 if (mPercentDone < 1) {
                     mTrafficText = Html.fromHtml(String.format(
                                     context.getString(R.string.traffic_downloading_format),
-                        Torrent.readableFileSize(mSizeWhenDone - mLeftUntilDone),
-                        Torrent.readableFileSize(mSizeWhenDone),
+                        G.readableFileSize(mSizeWhenDone - mLeftUntilDone),
+                        G.readableFileSize(mSizeWhenDone),
                         String.format(context.getString(R.string.traffic_downloading_percentage_format),
-                               Torrent.readablePercent(mPercentDone * 100)),
+                               G.readablePercent(mPercentDone * 100)),
                         "<br/>" + String.format(
                                         context.getString(R.string.traffic_seeding_format),
-                            Torrent.readableFileSize(mSizeWhenDone),
-                            Torrent.readableFileSize(mUploadedEver),
+                            G.readableFileSize(mSizeWhenDone),
+                            G.readableFileSize(mUploadedEver),
                             String.format(context.getString(R.string.traffic_seeding_ratio_format),
-                                   mUploadRatio < 0 ? 0 : Torrent.readablePercent(mUploadRatio),
+                                   mUploadRatio < 0 ? 0 : G.readablePercent(mUploadRatio),
                                    seedLimit <= 0 ? "" : String.format(
                                        context.getString(R.string.traffic_seeding_ratio_goal_format),
-                                       Torrent.readablePercent(seedLimit))
+                                       G.readablePercent(seedLimit))
                             ),
                             ""
                         )
@@ -883,13 +881,13 @@ public class Torrent {
                 } else {
                     mTrafficText = Html.fromHtml(String.format(
                                     context.getString(R.string.traffic_seeding_format),
-                        Torrent.readableFileSize(mSizeWhenDone),
-                        Torrent.readableFileSize(mUploadedEver),
+                        G.readableFileSize(mSizeWhenDone),
+                        G.readableFileSize(mUploadedEver),
                         String.format(context.getString(R.string.traffic_seeding_ratio_format),
-                               Torrent.readablePercent(mUploadRatio),
+                               G.readablePercent(mUploadRatio),
                                seedLimit <= 0 ? "" : String.format(
                                    context.getString(R.string.traffic_seeding_ratio_goal_format),
-                                   Torrent.readablePercent(seedLimit))
+                                   G.readablePercent(seedLimit))
                         ),
                         ""
                     ));
@@ -926,8 +924,8 @@ public class Torrent {
                     statusSpeed = context.getString(R.string.status_more_idle);
                 } else {
                     statusSpeed = String.format(statusSpeedFormat,
-                        Torrent.readableFileSize(mRateDownload),
-                        Torrent.readableFileSize(mRateUpload)
+                        G.readableFileSize(mRateDownload),
+                        G.readableFileSize(mRateUpload)
                     );
                 }
 
@@ -950,7 +948,7 @@ public class Torrent {
                     statusSpeed = context.getString(R.string.status_more_idle);
                 } else {
                     statusSpeed = String.format(statusSpeedFormat,
-                        Torrent.readableFileSize(mRateUpload)
+                        G.readableFileSize(mRateUpload)
                     );
                 }
                 peers = mPeersGettingFromUs;
@@ -1142,56 +1140,5 @@ public class Torrent {
     @Override
     public String toString() {
         return mId + ": " + mName;
-    }
-
-    public static String readableFileSize(long size) {
-        if(size <= 0) return "0 B";
-        final String[] units = new String[] { "B", "KB", "MB", "GB", "TB" };
-        int digitGroups = (int) (Math.log10(size)/Math.log10(1024));
-        return new DecimalFormat("#,##0.#").format(size/Math.pow(1024, digitGroups)) + " " + units[digitGroups];
-    }
-
-    public static String readablePercent(float percent) {
-        if (percent < 10.0) {
-            return new DecimalFormat("#.##").format(percent);
-        } else if (percent < 100.0) {
-            return new DecimalFormat("#.#").format(percent);
-        } else {
-            return new DecimalFormat("#").format(percent);
-        }
-    }
-
-    public static String readableRemainingTime(long eta, Context context) {
-        if (eta < 0) {
-            return context.getString(R.string.traffic_remaining_time_unknown);
-        }
-        int days = (int) Math.floor(eta / 86400);
-        int hours = (int) Math.floor((eta % 86400) / 3600);
-        int minutes = (int) Math.floor((eta % 3600) / 60);
-        int seconds = (int) Math.floor(eta % 60);
-        String d = Integer.toString(days) + ' ' + context.getString(days > 1 ? R.string.time_days : R.string.time_day);
-        String h = Integer.toString(hours) + ' ' + context.getString(hours > 1 ? R.string.time_hours : R.string.time_hour);
-        String m = Integer.toString(minutes) + ' ' + context.getString(minutes > 1 ? R.string.time_minutes : R.string.time_minute);
-        String s = Integer.toString(seconds) + ' ' + context.getString(seconds > 1 ? R.string.time_seconds : R.string.time_second);
-
-        if (days > 0) {
-            if (days >= 4 || hours == 0)
-                return d;
-            return d + ", " + h;
-        }
-
-        if (hours > 0) {
-            if (hours >= 4 || minutes == 0)
-                return h;
-            return h + ", " + m;
-        }
-
-        if (minutes > 0) {
-            if (minutes >= 4 || seconds == 0)
-                return m;
-            return m + ", " + s;
-        }
-
-        return s;
     }
 }
