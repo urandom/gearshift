@@ -3,8 +3,13 @@ package org.sugr.gearshift;
 
 import java.util.ArrayList;
 
+import org.sugr.gearshift.TorrentComparator.SortBy;
+import org.sugr.gearshift.TorrentComparator.SortOrder;
+
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.text.Html;
 import android.view.ContextThemeWrapper;
@@ -70,24 +75,109 @@ public class TorrentListMenuFragment extends Fragment {
         mFilterSortLength = getResources().getInteger(R.integer.filter_sort_length);
         mFilterSortOrder = getResources().getInteger(R.integer.filter_sort_order);
 
+        SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
+
         if (savedInstanceState != null
                 && savedInstanceState.containsKey(STATE_FILTER_POSITION)) {
             setActivatedPosition(savedInstanceState.getInt(STATE_FILTER_POSITION));
         } else {
-            mFilterPosition = 1;
+            if (sharedPrefs.contains(TorrentListFragment.PREF_LIST_FILTER)) {
+                String filter = sharedPrefs.getString(TorrentListFragment.PREF_LIST_FILTER, "");
+                if (filter.equals("filter:all")) {
+                    mFilterPosition = 1;
+                } else if (filter.equals("filter:downloading")) {
+                    mFilterPosition = 2;
+                } else if (filter.equals("filter:seeding")) {
+                    mFilterPosition = 3;
+                } else if (filter.equals("filter:paused")) {
+                    mFilterPosition = 4;
+                } else if (filter.equals("filter:complete")) {
+                    mFilterPosition = 5;
+                } else if (filter.equals("filter:incomplete")) {
+                    mFilterPosition = 6;
+                } else if (filter.equals("filter:active")) {
+                    mFilterPosition = 7;
+                } else if (filter.equals("filter:checking")) {
+                    mFilterPosition = 8;
+                }
+            } else {
+                mFilterPosition = 1;
+            }
             mFilterList.setItemChecked(mFilterPosition, true);
         }
         if (savedInstanceState != null
                 && savedInstanceState.containsKey(STATE_SORT_POSITION)) {
             setActivatedPosition(savedInstanceState.getInt(STATE_SORT_POSITION));
         } else {
-            mSortPosition = mFilterSortStart + 2;
+            SortBy by = null;
+            if (sharedPrefs.contains(TorrentListFragment.PREF_LIST_SORT_BY)) {
+                try {
+                    by = SortBy.valueOf(
+                        sharedPrefs.getString(TorrentListFragment.PREF_LIST_SORT_BY, "")
+                    );
+                } catch (Exception e) {}
+            }
+            if (by == null) {
+                mSortPosition = mFilterSortStart + 2;
+            } else {
+                switch(by) {
+                    case NAME:
+                        mSortPosition = mFilterSortStart;
+                        break;
+                    case SIZE:
+                        mSortPosition = mFilterSortStart + 1;
+                        break;
+                    case STATUS:
+                        mSortPosition = mFilterSortStart + 2;
+                        break;
+                    case ACTIVITY:
+                        mSortPosition = mFilterSortStart + 3;
+                        break;
+                    case AGE:
+                        mSortPosition = mFilterSortStart + 4;
+                        break;
+                    case PROGRESS:
+                        mSortPosition = mFilterSortStart + 5;
+                        break;
+                    case RATIO:
+                        mSortPosition = mFilterSortStart + 6;
+                        break;
+                    case LOCATION:
+                        mSortPosition = mFilterSortStart + 7;
+                        break;
+                    case PEERS:
+                        mSortPosition = mFilterSortStart + 8;
+                        break;
+                    case RATE_DOWNLOAD:
+                        mSortPosition = mFilterSortStart + 9;
+                        break;
+                    case RATE_UPLOAD:
+                        mSortPosition = mFilterSortStart + 10;
+                        break;
+                    case QUEUE:
+                        mSortPosition = mFilterSortStart + 11;
+                        break;
+                }
+            }
+
             mFilterList.setItemChecked(mSortPosition, true);
         }
         if (savedInstanceState != null
                 && savedInstanceState.containsKey(STATE_ORDER_DESCENDING)
                 && savedInstanceState.getBoolean(STATE_ORDER_DESCENDING)) {
             setActivatedPosition(mFilterSortOrder);
+        } else {
+            if (sharedPrefs.contains(TorrentListFragment.PREF_LIST_SORT_ORDER)) {
+                SortOrder order = null;
+                try {
+                    order = SortOrder.valueOf(
+                        sharedPrefs.getString(TorrentListFragment.PREF_LIST_SORT_ORDER, "")
+                    );
+                } catch (Exception e) { }
+                if (order == SortOrder.DESCENDING) {
+                    setActivatedPosition(mFilterSortOrder);
+                }
+            }
         }
 
 

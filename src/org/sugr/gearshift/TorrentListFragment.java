@@ -15,7 +15,10 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.SharedPreferences.Editor;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.ListFragment;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
@@ -53,6 +56,9 @@ import android.widget.Toast;
  * interface.
  */
 public class TorrentListFragment extends ListFragment {
+    public static final String PREF_LIST_SORT_BY = "torrents_sort_by";
+    public static final String PREF_LIST_SORT_ORDER = "torrents_sort_order";
+    public static final String PREF_LIST_FILTER = "torrents_filter";
     /**
      * The serialization (saved instance state) Bundle key representing the
      * activated item position. Only used on tablets.
@@ -717,8 +723,35 @@ public class TorrentListFragment extends ListFragment {
         private SortBy mSortBy = mTorrentComparator.getSortBy();
         private SortOrder mSortOrder = mTorrentComparator.getSortOrder();
 
+        private SharedPreferences mSharedPrefs;
+
         public TorrentListAdapter(Context context) {
             super(context, R.layout.torrent_list_item, R.id.name);
+
+            mSharedPrefs = PreferenceManager.getDefaultSharedPreferences(getContext());
+            if (mSharedPrefs.contains(PREF_LIST_FILTER)) {
+                mCurrentConstraint = mSharedPrefs.getString(
+                        PREF_LIST_FILTER, null);
+            }
+            if (mSharedPrefs.contains(PREF_LIST_SORT_BY)) {
+                try {
+                    mSortBy = SortBy.valueOf(
+                        mSharedPrefs.getString(PREF_LIST_SORT_BY, "")
+                    );
+                } catch (Exception e) {
+                    mSortBy = mTorrentComparator.getSortBy();
+                }
+            }
+            if (mSharedPrefs.contains(PREF_LIST_SORT_ORDER)) {
+                try {
+                    mSortOrder = SortOrder.valueOf(
+                        mSharedPrefs.getString(PREF_LIST_SORT_ORDER, "")
+                    );
+                } catch (Exception e) {
+                    mSortOrder = mTorrentComparator.getSortOrder();
+                }
+            }
+            mTorrentComparator.setSortingMethod(mSortBy, mSortOrder);
         }
 
         @Override
@@ -849,6 +882,8 @@ public class TorrentListFragment extends ListFragment {
 
         public void filter(CharSequence constraint, FilterListener listener) {
             String prefix = constraint.toString().toLowerCase(Locale.getDefault());
+            Editor e = mSharedPrefs.edit();
+
             if (prefix.startsWith("sortby:")) {
                 if (prefix.equals("sortby:name")) {
                     mSortBy = SortBy.NAME;
@@ -875,14 +910,19 @@ public class TorrentListFragment extends ListFragment {
                 } else if (prefix.equals("sortby:queue")) {
                     mSortBy = SortBy.QUEUE;
                 }
+                e.putString(PREF_LIST_SORT_BY, mSortBy.name());
                 mTorrentComparator.setSortingMethod(mSortBy, mSortOrder);
             } else if (prefix.startsWith("sortorder:")) {
                 mSortOrder = prefix.equals("sortorder:descending")
                     ? SortOrder.DESCENDING : SortOrder.ASCENDING;
+                e.putString(PREF_LIST_SORT_ORDER, mSortOrder.name());
                 mTorrentComparator.setSortingMethod(mSortBy, mSortOrder);
             } else {
                 mCurrentConstraint = constraint;
+                e.putString(PREF_LIST_FILTER, prefix);
             }
+            e.apply();
+
             mCurrentFilterListener = listener;
             getFilter().filter(mCurrentConstraint, listener);
         }
