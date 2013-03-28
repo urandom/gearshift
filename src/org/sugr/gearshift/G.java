@@ -32,6 +32,28 @@ class G {
     public static final String PREF_LIST_SORT_BY = "torrents_sort_by";
     public static final String PREF_LIST_SORT_ORDER = "torrents_sort_order";
     public static final String PREF_LIST_FILTER = "torrents_filter";
+    public static final String PREF_LIST_SEARCH = "torrents_search";
+
+    public static final String PREF_FILTER_DOWNLOADING = "filter_downloading";
+    public static final String PREF_FILTER_SEEDING = "filter_seeding";
+    public static final String PREF_FILTER_PAUSED = "filter_paused";
+    public static final String PREF_FILTER_COMPLETE = "filter_complete";
+    public static final String PREF_FILTER_INCOMPLETE = "filter_incomplete";
+    public static final String PREF_FILTER_ACTIVE = "filter_active";
+    public static final String PREF_FILTER_CHECKING = "filter_checking";
+
+    public static final String PREF_SORT_NAME = "sort_name";
+    public static final String PREF_SORT_SIZE = "sort_size";
+    public static final String PREF_SORT_STATUS = "sort_status";
+    public static final String PREF_SORT_ACTIVITY = "sort_activity";
+    public static final String PREF_SORT_AGE = "sort_age";
+    public static final String PREF_SORT_PROGRESS = "sort_progress";
+    public static final String PREF_SORT_RATIO = "sort_ratio";
+    public static final String PREF_SORT_LOCATION = "sort_ratio";
+    public static final String PREF_SORT_PEERS = "sort_peers";
+    public static final String PREF_SORT_RATE_DOWNLOAD = "sort_rate_download";
+    public static final String PREF_SORT_RATE_UPLOAD = "sort_rate_upload";
+    public static final String PREF_SORT_QUEUE = "sort_QUEUE";
 
     public static final String ARG_JSON_TORRENTS = "json_torrents";
     public static final String ARG_JSON_SESSION = "json_session";

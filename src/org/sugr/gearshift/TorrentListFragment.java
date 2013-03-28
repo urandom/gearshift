@@ -6,6 +6,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Locale;
 
+import org.sugr.gearshift.G.FilterBy;
 import org.sugr.gearshift.G.SortBy;
 import org.sugr.gearshift.G.SortOrder;
 
@@ -641,8 +642,16 @@ public class TorrentListFragment extends ListFragment {
         getListView().setChoiceMode(mChoiceMode);
     }
 
-    public void setListFilter(CharSequence constraint) {
-        mTorrentListAdapter.filter(constraint);
+    public void setListFilter(FilterBy e) {
+        mTorrentListAdapter.filter(e);
+    }
+
+    public void setListFilter(SortBy e) {
+        mTorrentListAdapter.filter(e);
+    }
+
+    public void setListFilter(SortOrder e) {
+        mTorrentListAdapter.filter(e);
     }
 
     public void setRefreshing(boolean refreshing) {
@@ -717,6 +726,7 @@ public class TorrentListFragment extends ListFragment {
         private CharSequence mCurrentConstraint;
         private FilterListener mCurrentFilterListener;
         private TorrentComparator mTorrentComparator = new TorrentComparator();
+        private FilterBy mFilterBy = FilterBy.ALL;
         private SortBy mSortBy = mTorrentComparator.getSortBy();
         private SortOrder mSortOrder = mTorrentComparator.getSortOrder();
 
@@ -726,9 +736,18 @@ public class TorrentListFragment extends ListFragment {
             super(context, R.layout.torrent_list_item, R.id.name);
 
             mSharedPrefs = PreferenceManager.getDefaultSharedPreferences(getContext());
-            if (mSharedPrefs.contains(G.PREF_LIST_FILTER)) {
+            if (mSharedPrefs.contains(G.PREF_LIST_SEARCH)) {
                 mCurrentConstraint = mSharedPrefs.getString(
-                        G.PREF_LIST_FILTER, null);
+                        G.PREF_LIST_SEARCH, null);
+            }
+            if (mSharedPrefs.contains(G.PREF_LIST_FILTER)) {
+                try {
+                    mFilterBy = FilterBy.valueOf(
+                        mSharedPrefs.getString(G.PREF_LIST_FILTER, "")
+                    );
+                } catch (Exception e) {
+                    mFilterBy = FilterBy.ALL;
+                }
             }
             if (mSharedPrefs.contains(G.PREF_LIST_SORT_BY)) {
                 try {
@@ -873,55 +892,33 @@ public class TorrentListFragment extends ListFragment {
             return mFilter;
         }
 
-        public void filter(CharSequence constraint) {
-            filter(constraint, null);
-        }
-
+        /*
         public void filter(CharSequence constraint, FilterListener listener) {
             String prefix = constraint.toString().toLowerCase(Locale.getDefault());
             Editor e = mSharedPrefs.edit();
 
-            if (prefix.startsWith("sortby:")) {
-                if (prefix.equals("sortby:name")) {
-                    mSortBy = SortBy.NAME;
-                } else if (prefix.equals("sortby:size")) {
-                    mSortBy = SortBy.SIZE;
-                } else if (prefix.equals("sortby:status")) {
-                    mSortBy = SortBy.STATUS;
-                } else if (prefix.equals("sortby:activity")) {
-                    mSortBy = SortBy.ACTIVITY;
-                } else if (prefix.equals("sortby:age")) {
-                    mSortBy = SortBy.AGE;
-                } else if (prefix.equals("sortby:progress")) {
-                    mSortBy = SortBy.PROGRESS;
-                } else if (prefix.equals("sortby:ratio")) {
-                    mSortBy = SortBy.RATIO;
-                } else if (prefix.equals("sortby:location")) {
-                    mSortBy = SortBy.LOCATION;
-                } else if (prefix.equals("sortby:peers")) {
-                    mSortBy = SortBy.PEERS;
-                } else if (prefix.equals("sortby:rate_download")) {
-                    mSortBy = SortBy.RATE_DOWNLOAD;
-                } else if (prefix.equals("sortby:rate_upload")) {
-                    mSortBy = SortBy.RATE_UPLOAD;
-                } else if (prefix.equals("sortby:queue")) {
-                    mSortBy = SortBy.QUEUE;
-                }
-                e.putString(G.PREF_LIST_SORT_BY, mSortBy.name());
-                mTorrentComparator.setSortingMethod(mSortBy, mSortOrder);
-            } else if (prefix.startsWith("sortorder:")) {
-                mSortOrder = prefix.equals("sortorder:descending")
-                    ? SortOrder.DESCENDING : SortOrder.ASCENDING;
-                e.putString(G.PREF_LIST_SORT_ORDER, mSortOrder.name());
-                mTorrentComparator.setSortingMethod(mSortBy, mSortOrder);
-            } else {
-                mCurrentConstraint = constraint;
-                e.putString(G.PREF_LIST_FILTER, prefix);
-            }
+            mCurrentConstraint = constraint;
+            e.putString(G.PREF_LIST_SEARCH, prefix);
             e.apply();
 
             mCurrentFilterListener = listener;
             getFilter().filter(mCurrentConstraint, listener);
+        }
+        */
+
+        public void filter(FilterBy by) {
+            mFilterBy = by;
+            applyFilter(by.name(), G.PREF_LIST_FILTER);
+        }
+
+        public void filter(SortBy by) {
+            mSortBy = by;
+            applyFilter(by.name(), G.PREF_LIST_SORT_BY);
+        }
+
+        public void filter(SortOrder order) {
+            mSortOrder = order;
+            applyFilter(order.name(), G.PREF_LIST_SORT_ORDER);
         }
 
         public void repeatFilter() {
@@ -930,6 +927,14 @@ public class TorrentListFragment extends ListFragment {
 
         public ArrayList<Torrent> getItems() {
             return mObjects;
+        }
+
+        private void applyFilter(String value, String pref) {
+            Editor e = mSharedPrefs.edit();
+            e.putString(pref, value);
+            e.apply();
+            mTorrentComparator.setSortingMethod(mSortBy, mSortOrder);
+            repeatFilter();
         }
 
         private class TorrentFilter extends Filter {
@@ -944,9 +949,11 @@ public class TorrentListFragment extends ListFragment {
                     }
                 }
 
-                String prefixString = prefix == null
-                    ? "" : prefix.toString().toLowerCase(Locale.getDefault());
-                if (prefixString.length() == 0 || prefixString.equals("filter:all")) {
+                if (prefix == null) {
+                    prefix = "";
+                }
+
+                if (prefix.length() == 0 && mFilterBy == FilterBy.ALL) {
                     ArrayList<Torrent> list;
                     synchronized (mLock) {
                         list = new ArrayList<Torrent>(mOriginalValues);
@@ -961,37 +968,41 @@ public class TorrentListFragment extends ListFragment {
 
                     final int count = values.size();
                     final ArrayList<Torrent> newValues = new ArrayList<Torrent>();
+                    String prefixString = prefix.toString().toLowerCase(Locale.getDefault());
 
                     for (int i = 0; i < count; i++) {
                         final Torrent torrent = values.get(i);
 
-                        if (prefixString.equals("filter:downloading")) {
-                            if (torrent.getStatus() == Torrent.Status.DOWNLOADING)
-                                newValues.add(torrent);
-                        } else if (prefixString.equals("filter:seeding")) {
-                            if (torrent.getStatus() == Torrent.Status.SEEDING)
-                                newValues.add(torrent);
-                        } else if (prefixString.equals("filter:paused")) {
-                            if (torrent.getStatus() == Torrent.Status.STOPPED)
-                                newValues.add(torrent);
-                        } else if (prefixString.equals("filter:complete")) {
-                            if (torrent.getPercentDone() == 1)
-                                newValues.add(torrent);
-                        } else if (prefixString.equals("filter:incomplete")) {
-                            if (torrent.getPercentDone() < 1)
-                                newValues.add(torrent);
-                        } else if (prefixString.equals("filter:active")) {
-                            if (!torrent.isStalled() && !torrent.isFinished() && (
-                                   torrent.getStatus() == Torrent.Status.DOWNLOADING
-                                || torrent.getStatus() == Torrent.Status.SEEDING
+                        if (mFilterBy == FilterBy.DOWNLOADING) {
+                            if (torrent.getStatus() != Torrent.Status.DOWNLOADING)
+                                continue;
+                        } else if (mFilterBy == FilterBy.SEEDING) {
+                            if (torrent.getStatus() != Torrent.Status.SEEDING)
+                                continue;
+                        } else if (mFilterBy == FilterBy.PAUSED) {
+                            if (torrent.getStatus() != Torrent.Status.STOPPED)
+                                continue;
+                        } else if (mFilterBy == FilterBy.COMPLETE) {
+                            if (torrent.getPercentDone() != 1)
+                                continue;
+                        } else if (mFilterBy == FilterBy.INCOMPLETE) {
+                            if (torrent.getPercentDone() >= 1)
+                                continue;
+                        } else if (mFilterBy == FilterBy.ACTIVE) {
+                            if (torrent.isStalled() || torrent.isFinished() || (
+                                   torrent.getStatus() != Torrent.Status.DOWNLOADING
+                                && torrent.getStatus() != Torrent.Status.SEEDING
                             ))
-                                newValues.add(torrent);
-                        } else if (prefixString.equals("filter:checking")) {
-                            if (torrent.getStatus() == Torrent.Status.CHECKING)
-                                newValues.add(torrent);
-                        } else {
+                                continue;
+                        } else if (mFilterBy == FilterBy.CHECKING) {
+                            if (torrent.getStatus() != Torrent.Status.CHECKING)
+                                continue;
+                        }
+
+                        if (prefix.length() == 0 && mFilterBy != FilterBy.ALL) {
+                            newValues.add(torrent);
+                        } else if (prefix.length() > 0) {
                             final String valueText = torrent.getName().toLowerCase(Locale.getDefault());
-                            // First match against the whole, non-splitted value
                             if (valueText.startsWith(prefixString)) {
                                 newValues.add(torrent);
                             } else {
