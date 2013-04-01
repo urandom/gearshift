@@ -34,4 +34,16 @@
 	    android:menuCategory="system"
 	    android:orderInCategory="10"
 	    android:showAsAction="ifRoom" />
+
+	<item android:id="@+id/verify"
+	    android:title="@string/verify"
+	    android:menuCategory="system"
+	    android:orderInCategory="10"
+	    android:showAsAction="never" />
+
+	<item android:id="@+id/reannounce"
+	    android:title="@string/reannounce"
+	    android:menuCategory="system"
+	    android:orderInCategory="10"
+	    android:showAsAction="never" />
 </menu>

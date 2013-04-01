@@ -13,6 +13,8 @@
     <string name="pause">Pause</string>
     <string name="stop">Stop</string>
     <string name="move">Move</string>
+    <string name="verify">Verify local data</string>
+    <string name="reannounce">Request more peers</string>
     
     <string name="number_dialog_delete">Delete a digit</string>
     

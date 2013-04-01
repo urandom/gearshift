@@ -29,4 +29,12 @@
 	    android:title="@string/move"
 	    android:icon="@drawable/ic_menu_move"
 	    android:showAsAction="ifRoom" />
+
+	<item android:id="@+id/verify"
+	    android:title="@string/verify"
+	    android:showAsAction="never" />
+
+	<item android:id="@+id/reannounce"
+	    android:title="@string/reannounce"
+	    android:showAsAction="never" />
 </menu>

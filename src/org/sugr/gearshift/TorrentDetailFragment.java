@@ -174,7 +174,17 @@ public class TorrentDetailFragment extends Fragment {
                 .show();
                 return true;
             case R.id.resume:
-                ((TransmissionSessionLoader) loader).setTorrentsAction("torrent-start", ids);
+                String action;
+                switch(torrent.getStatus()) {
+                    case Torrent.Status.DOWNLOAD_WAITING:
+                    case Torrent.Status.SEED_WAITING:
+                        action = "torrent-start-now";
+                        break;
+                    default:
+                        action = "torrent-start";
+                        break;
+                }
+                ((TransmissionSessionLoader) loader).setTorrentsAction(action, ids);
                 break;
             case R.id.pause:
                 ((TransmissionSessionLoader) loader).setTorrentsAction("torrent-stop", ids);
@@ -217,6 +227,12 @@ public class TorrentDetailFragment extends Fragment {
                 location.setAdapter(adapter);
 
                 return true;
+            case R.id.verify:
+                ((TransmissionSessionLoader) loader).setTorrentsAction("torrent-verify", ids);
+                break;
+            case R.id.reannounce:
+                ((TransmissionSessionLoader) loader).setTorrentsAction("torrent-reannounce", ids);
+                break;
             default:
                 return true;
         }

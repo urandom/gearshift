@@ -453,6 +453,12 @@ public class TorrentListFragment extends ListFragment {
                         location.setAdapter(adapter);
 
                         return true;
+                    case R.id.verify:
+                        ((TransmissionSessionLoader) loader).setTorrentsAction("torrent-verify", ids);
+                        break;
+                    case R.id.reannounce:
+                        ((TransmissionSessionLoader) loader).setTorrentsAction("torrent-reannounce", ids);
+                        break;
                     default:
                         return true;
                 }
