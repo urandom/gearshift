@@ -1,7 +1,5 @@
 package org.sugr.gearshift;
 
-import java.util.Comparator;
-
 import android.content.Context;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,13 +8,6 @@ import android.widget.TextView;
 
 
 public class TransmissionProfileDirectoryAdapter extends ArrayAdapter<String> {
-    private Comparator<String> mDirComparator = new Comparator<String>() {
-        @Override
-        public int compare(String lhs, String rhs) {
-            return lhs.compareToIgnoreCase(rhs);
-        }
-
-    };
 
     public TransmissionProfileDirectoryAdapter(Context context, int textViewResourceId) {
         super(context, textViewResourceId);
@@ -53,6 +44,6 @@ public class TransmissionProfileDirectoryAdapter extends ArrayAdapter<String> {
     }
 
     public void sort() {
-        sort(mDirComparator);
+        sort(G.SIMPLE_STRING_COMPARATOR);
     }
 }

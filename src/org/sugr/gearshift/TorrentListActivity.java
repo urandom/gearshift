@@ -79,8 +79,6 @@ public class TorrentListActivity extends SlidingFragmentActivity
 
         setSlidingActionBarEnabled(false);
         getActionBar().setDisplayHomeAsUpEnabled(false);
-
-        // TODO: If exposing deep links into your app, handle intents here.
     }
 
     /**

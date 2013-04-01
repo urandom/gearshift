@@ -226,7 +226,7 @@
     <string name="menu_sort_peers">Peers</string>
     <string name="menu_sort_download_speed">Download speed</string>
     <string name="menu_sort_upload_speed">Upload speed</string>
-    <string name="menu_sort_queue">queue</string>
+    <string name="menu_sort_queue">Queue</string>
 
     <string name="menu_order_header">Order</string>
     <string name="menu_order_descending">Descending</string>

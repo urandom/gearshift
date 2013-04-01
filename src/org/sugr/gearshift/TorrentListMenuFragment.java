@@ -3,6 +3,8 @@ package org.sugr.gearshift;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.TreeSet;
 
 import org.sugr.gearshift.G.FilterBy;
 import org.sugr.gearshift.G.SortBy;
@@ -14,6 +16,7 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.text.Html;
+import android.util.SparseBooleanArray;
 import android.view.ContextThemeWrapper;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -31,18 +34,19 @@ public class TorrentListMenuFragment extends Fragment {
     private FilterAdapter mFilterAdapter;
     private int mFilterPosition = ListView.INVALID_POSITION;
     private int mSortPosition = ListView.INVALID_POSITION;
-    private boolean mOrderDescending = false;
-    private static final String STATE_FILTER_POSITION = "filter_activated_position";
-    private static final String STATE_SORT_POSITION = "sort_activated_position";
-    private static final String STATE_ORDER_DESCENDING = "sort_order_descending";
+    private int mOrderPosition = ListView.INVALID_POSITION;
+    private int mDirectoryPosition = ListView.INVALID_POSITION;
 
     private enum Type {
-        FILTER, SORT_BY, SORT_ORDER, HEADER
+        FILTER, DIRECTORY, SORT_BY, SORT_ORDER, HEADER
     };
 
     private static final String FILTERS_HEADER_KEY = "filters_header";
+    private static final String DIRECTORIES_HEADER_KEY = "directories_header";
     private static final String SORT_BY_HEADER_KEY = "sort_by_header";
     private static final String SORT_ORDER_HEADER_KEY = "sort_order_header";
+
+    private TreeSet<String> mDirectories = new TreeSet<String>(G.SIMPLE_STRING_COMPARATOR);
 
     private HashMap<String, ListItem> mListItemMap
         = new HashMap<String, ListItem>();
@@ -83,24 +87,7 @@ public class TorrentListMenuFragment extends Fragment {
         mSharedPrefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
 
         fillMenuItems();
-        if (savedInstanceState == null) {
-            checkSelectedItems();
-        } else {
-            if (savedInstanceState.containsKey(STATE_FILTER_POSITION)) {
-                mFilterPosition = savedInstanceState.getInt(STATE_FILTER_POSITION);
-                mFilterList.setItemChecked(mFilterPosition, true);
-            }
-            if (savedInstanceState.containsKey(STATE_SORT_POSITION)) {
-                mSortPosition = savedInstanceState.getInt(STATE_SORT_POSITION);
-                mFilterList.setItemChecked(mSortPosition, true);
-            }
-            if (savedInstanceState.containsKey(STATE_ORDER_DESCENDING)
-                    && savedInstanceState.getBoolean(STATE_ORDER_DESCENDING)) {
-                mOrderDescending = true;
-                mFilterList.setItemChecked(mFilterAdapter.getPosition(
-                            mListItemMap.get(SortOrder.DESCENDING.name())), true);
-            }
-        }
+        checkSelectedItems();
 
         return root;
     }
@@ -112,28 +99,80 @@ public class TorrentListMenuFragment extends Fragment {
         setStatus(null, null);
     }
 
-    @Override
-    public void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-        if (mFilterPosition != ListView.INVALID_POSITION) {
-            // Serialize and persist the activated item position.
-            outState.putInt(STATE_FILTER_POSITION, mFilterPosition);
-        }
-        if (mSortPosition != ListView.INVALID_POSITION) {
-            // Serialize and persist the activated item position.
-            outState.putInt(STATE_SORT_POSITION, mSortPosition);
-        }
-        outState.putBoolean(STATE_ORDER_DESCENDING, mOrderDescending);
-    }
-
     public void notifyTorrentListUpdate(ArrayList<Torrent> torrents, TransmissionSession session) {
         long down = 0, up = 0;
+        HashSet<String> directories = new HashSet<String>();
+        boolean equalDirectories = true;
 
         if (torrents != null) {
             for (Torrent t : torrents) {
                 down += t.getRateDownload();
                 up += t.getRateUpload();
+                directories.add(t.getDownloadDir());
             }
+        }
+
+        if (directories.size() != mDirectories.size()) {
+            equalDirectories = false;
+        } else {
+            for (String d : directories) {
+                if (!mDirectories.contains(d)) {
+                    equalDirectories = false;
+                    break;
+                }
+            }
+        }
+        if (!equalDirectories) {
+            mDirectories.clear();
+            mDirectories.addAll(directories);
+
+            mFilterAdapter.setNotifyOnChange(false);
+            ListItem item = mListItemMap.get(DIRECTORIES_HEADER_KEY);
+            int position = mFilterAdapter.getPosition(item);
+
+            if (position != -1) {
+                ArrayList<ListItem> removal = new ArrayList<ListItem>();
+                removal.add(item);
+                for (int i = 0; i < mFilterAdapter.getCount(); i++) {
+                    item = mFilterAdapter.getItem(i);
+                    if (item.getType() == Type.DIRECTORY) {
+                        removal.add(item);
+                    }
+                }
+
+                for (ListItem i : removal) {
+                    mFilterAdapter.remove(i);
+                }
+            }
+            if (mDirectories.size() > 1) {
+                ListItem pivot = mListItemMap.get(SORT_BY_HEADER_KEY);
+                position = mFilterAdapter.getPosition(pivot);
+
+                if (position == -1) {
+                    pivot = mListItemMap.get(SORT_ORDER_HEADER_KEY);
+                    position = mFilterAdapter.getPosition(pivot);
+                }
+
+                ListItem header = mListItemMap.get(DIRECTORIES_HEADER_KEY);
+                if (position == -1) {
+                    mFilterAdapter.add(header);
+                    for (String d : mDirectories) {
+                        mFilterAdapter.add(getDirectoryItem(d));
+                    }
+                } else {
+                    mFilterAdapter.insert(header, position++);
+                    for (String d : mDirectories) {
+                        mFilterAdapter.insert(getDirectoryItem(d), position++);
+                    }
+                }
+            } else {
+                TorrentListFragment fragment =
+                        ((TorrentListFragment) getFragmentManager().findFragmentById(R.id.torrent_list));
+                fragment.setListFilter((String) null);
+                ((SlidingFragmentActivity) getActivity()).showContent();
+            }
+            mFilterAdapter.notifyDataSetChanged();
+            checkSelectedItems();
         }
 
         Object[] speed = {
@@ -188,14 +227,18 @@ public class TorrentListMenuFragment extends Fragment {
             return;
         }
         if (position == ListView.INVALID_POSITION) {
-            mFilterList.setItemChecked(mFilterPosition, false);
-            mFilterList.setItemChecked(mSortPosition, false);
-            mFilterList.setItemChecked(mFilterAdapter.getPosition(
-                    mListItemMap.get(SortOrder.DESCENDING.name())), false);
+            SparseBooleanArray checked = mFilterList.getCheckedItemPositions();
+            for (int i = 0; i < checked.size(); i++) {
+                int pos = checked.keyAt(i);
+                if (checked.get(pos)) {
+                    mFilterList.setItemChecked(pos, false);
+                }
+            }
 
             mFilterPosition = ListView.INVALID_POSITION;
             mSortPosition = ListView.INVALID_POSITION;
-            mOrderDescending = false;
+            mOrderPosition = ListView.INVALID_POSITION;
+            mDirectoryPosition = ListView.INVALID_POSITION;
         } else {
             ListItem item = mFilterAdapter.getItem(position);
             TorrentListFragment fragment =
@@ -208,6 +251,17 @@ public class TorrentListMenuFragment extends Fragment {
                     mFilterPosition = position;
                     fragment.setListFilter((FilterBy) item.getValue());
                     break;
+                case DIRECTORY:
+                    mFilterList.setItemChecked(mDirectoryPosition, false);
+                    if (mDirectoryPosition == position) {
+                        mDirectoryPosition = ListView.INVALID_POSITION;
+                        fragment.setListFilter((String) null);
+                    } else {
+                        mFilterList.setItemChecked(position, true);
+                        mDirectoryPosition = position;
+                        fragment.setListFilter(item.getValueString());
+                    }
+                    break;
                 case SORT_BY:
                     mFilterList.setItemChecked(mSortPosition, false);
                     mFilterList.setItemChecked(position, true);
@@ -215,14 +269,15 @@ public class TorrentListMenuFragment extends Fragment {
                     fragment.setListFilter((SortBy) item.getValue());
                     break;
                 case SORT_ORDER:
-                    if (mOrderDescending) {
+                    if (mOrderPosition == position) {
+                        mOrderPosition = ListView.INVALID_POSITION;
                         mFilterList.setItemChecked(position, false);
                         fragment.setListFilter(SortOrder.ASCENDING);
                     } else {
+                        mOrderPosition = position;
                         mFilterList.setItemChecked(position, true);
                         fragment.setListFilter((SortOrder) item.getValue());
                     }
-                    mOrderDescending = !mOrderDescending;
                     break;
                 default:
                     return;
@@ -281,7 +336,6 @@ public class TorrentListMenuFragment extends Fragment {
                 item = new ListItem(Type.FILTER, filter, string, pref);
             }
             if (mSharedPrefs.getBoolean(item.getPreferenceKey(), true)) {
-                /* FIXME: bring back the setVisibility and handle this in the view, or the convertView might fail */
                 list.add(item);
             }
         }
@@ -298,6 +352,11 @@ public class TorrentListMenuFragment extends Fragment {
         }
         list.clear();
 
+        if (!mListItemMap.containsKey(DIRECTORIES_HEADER_KEY)) {
+            header = new ListItem(Type.HEADER, DIRECTORIES_HEADER_KEY, R.string.menu_directories_header);
+        }
+
+        int index = 0;
         for (SortBy sort : SortBy.values()) {
             ListItem item;
             if (mListItemMap.containsKey(sort.name())) {
@@ -357,9 +416,10 @@ public class TorrentListMenuFragment extends Fragment {
                 }
                 item = new ListItem(Type.SORT_BY, sort, string, pref);
             }
-            if (mSharedPrefs.getBoolean(item.getPreferenceKey(), true)) {
+            if (mSharedPrefs.getBoolean(item.getPreferenceKey(), true) && (index == 0 || index % 3 != 0)) {
                 list.add(item);
             }
+            index++;
         }
         if (mListItemMap.containsKey(SORT_BY_HEADER_KEY)) {
             header = mListItemMap.get(SORT_BY_HEADER_KEY);
@@ -391,6 +451,14 @@ public class TorrentListMenuFragment extends Fragment {
     }
 
     private void checkSelectedItems() {
+        SparseBooleanArray checked = mFilterList.getCheckedItemPositions();
+        for (int i = 0; i < checked.size(); i++) {
+            int position = checked.keyAt(i);
+            if (checked.get(position)) {
+                mFilterList.setItemChecked(position, false);
+            }
+        }
+
         FilterBy selectedFilter = FilterBy.ALL;
         if (mSharedPrefs.contains(G.PREF_LIST_FILTER)) {
             try {
@@ -423,9 +491,39 @@ public class TorrentListMenuFragment extends Fragment {
                 );
             } catch (Exception e) { }
         }
-        mOrderDescending = selectedOrder == SortOrder.DESCENDING;
-        mFilterList.setItemChecked(mFilterAdapter.getPosition(
-                    mListItemMap.get(selectedOrder.name())), true);
+        if (selectedOrder == SortOrder.DESCENDING) {
+            mOrderPosition = mFilterAdapter.getPosition(
+                    mListItemMap.get(selectedOrder.name()));
+            mFilterList.setItemChecked(mOrderPosition, true);
+        } else {
+            mOrderPosition = ListView.INVALID_POSITION;
+        }
+
+        String selectedDirectory = null;
+        if (mSharedPrefs.contains(G.PREF_LIST_DIRECTORY)) {
+            selectedDirectory = mSharedPrefs.getString(G.PREF_LIST_DIRECTORY, null);
+        }
+        if (selectedDirectory != null) {
+            mDirectoryPosition = mFilterAdapter.getPosition(
+                    mListItemMap.get(selectedDirectory));
+            mFilterList.setItemChecked(mDirectoryPosition, true);
+        }
+    }
+
+    private ListItem getDirectoryItem(String directory) {
+        ListItem item;
+        if (mListItemMap.containsKey(directory)) {
+            item = mListItemMap.get(directory);
+        } else {
+            String name = directory;
+            int lastSlash = directory.lastIndexOf('/');
+            if (lastSlash > -1) {
+                name = directory.substring(lastSlash + 1);
+            }
+            item = new ListItem(Type.DIRECTORY, directory, name, G.PREF_FILTER_DIRECTORIES);
+        }
+
+        return item;
     }
 
     private static class FilterAdapter extends ArrayAdapter<ListItem> {
@@ -488,6 +586,7 @@ public class TorrentListMenuFragment extends Fragment {
                         break;
 
                     case FILTER:
+                    case DIRECTORY:
                     case SORT_BY:
                     case SORT_ORDER:
                         convertView = mInflater.inflate(mItemLayout, parent, false);
@@ -519,9 +618,10 @@ public class TorrentListMenuFragment extends Fragment {
             mListItemMap.put(value.name(), this);
         }
 
-        public ListItem(Type type, String value, int stringId, String pref) {
+        public ListItem(Type type, String value, String label,
+                String pref) {
             mType = type;
-            mLabel = getString(stringId);
+            mLabel = label;
             mValueString = value;
             mPref = pref;
 
@@ -529,7 +629,11 @@ public class TorrentListMenuFragment extends Fragment {
         }
 
         public ListItem(Type type, String value, int stringId) {
-            this(type, value, stringId, null);
+            mType = type;
+            mLabel = getString(stringId);
+            mValueString = value;
+
+            mListItemMap.put(value, this);
         }
 
         public Type getType() {

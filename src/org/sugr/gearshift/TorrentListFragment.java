@@ -256,7 +256,7 @@ public class TorrentListFragment extends ListFragment {
                 FragmentManager manager = getActivity().getSupportFragmentManager();
                 TorrentListMenuFragment menu = (TorrentListMenuFragment) manager.findFragmentById(R.id.torrent_list_menu);
                 if (menu != null) {
-                    menu.notifyTorrentListUpdate(mTorrentListAdapter.getItems(), data.session);
+                    menu.notifyTorrentListUpdate(data.torrents, data.session);
                 }
                 if (!filtered) {
                     TorrentDetailFragment detail = (TorrentDetailFragment) manager.findFragmentByTag(
@@ -654,6 +654,10 @@ public class TorrentListFragment extends ListFragment {
         mTorrentListAdapter.filter(e);
     }
 
+    public void setListFilter(String e) {
+        mTorrentListAdapter.filterDirectory(e);
+    }
+
     public void setRefreshing(boolean refreshing) {
         mRefreshing = refreshing;
         getActivity().invalidateOptionsMenu();
@@ -729,6 +733,7 @@ public class TorrentListFragment extends ListFragment {
         private FilterBy mFilterBy = FilterBy.ALL;
         private SortBy mSortBy = mTorrentComparator.getSortBy();
         private SortOrder mSortOrder = mTorrentComparator.getSortOrder();
+        private String mDirectory;
 
         private SharedPreferences mSharedPrefs;
 
@@ -768,6 +773,9 @@ public class TorrentListFragment extends ListFragment {
                 }
             }
             mTorrentComparator.setSortingMethod(mSortBy, mSortOrder);
+            if (mSharedPrefs.contains(G.PREF_LIST_DIRECTORY)) {
+                mDirectory = mSharedPrefs.getString(G.PREF_LIST_DIRECTORY, null);
+            }
         }
 
         @Override
@@ -921,12 +929,13 @@ public class TorrentListFragment extends ListFragment {
             applyFilter(order.name(), G.PREF_LIST_SORT_ORDER);
         }
 
-        public void repeatFilter() {
-            getFilter().filter(mCurrentConstraint, mCurrentFilterListener);
+        public void filterDirectory(String directory) {
+            mDirectory = directory;
+            applyFilter(directory, G.PREF_LIST_DIRECTORY);
         }
 
-        public ArrayList<Torrent> getItems() {
-            return mObjects;
+        public void repeatFilter() {
+            getFilter().filter(mCurrentConstraint, mCurrentFilterListener);
         }
 
         private void applyFilter(String value, String pref) {
@@ -953,7 +962,7 @@ public class TorrentListFragment extends ListFragment {
                     prefix = "";
                 }
 
-                if (prefix.length() == 0 && mFilterBy == FilterBy.ALL) {
+                if (prefix.length() == 0 && mFilterBy == FilterBy.ALL && mDirectory == null) {
                     ArrayList<Torrent> list;
                     synchronized (mLock) {
                         list = new ArrayList<Torrent>(mOriginalValues);
@@ -999,7 +1008,12 @@ public class TorrentListFragment extends ListFragment {
                                 continue;
                         }
 
-                        if (prefix.length() == 0 && mFilterBy != FilterBy.ALL) {
+                        if (mDirectory != null) {
+                            if (!torrent.getDownloadDir().equals(mDirectory))
+                                continue;
+                        }
+
+                        if (prefix.length() == 0) {
                             newValues.add(torrent);
                         } else if (prefix.length() > 0) {
                             final String valueText = torrent.getName().toLowerCase(Locale.getDefault());

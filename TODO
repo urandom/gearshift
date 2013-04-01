@@ -1,3 +1,4 @@
+* Add torrent-verify method
 * Add session configuration fragment
 * Allow to set which filters and sorters are available for selecting
 * Add directories filter
