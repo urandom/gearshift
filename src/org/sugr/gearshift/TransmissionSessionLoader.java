@@ -513,6 +513,7 @@ public class TransmissionSessionLoader extends AsyncTaskLoader<TransmissionSessi
             Torrent torrent;
             if ((torrent = mTorrentMap.get(t.getId())) != null) {
                 if (torrent.getStatus() != t.getStatus()
+                        || torrent.getDownloadDir() == null && t.getDownloadDir() != null
                         || !torrent.getDownloadDir().equals(t.getDownloadDir())) {
                     hasStatusChanged = true;
                 }

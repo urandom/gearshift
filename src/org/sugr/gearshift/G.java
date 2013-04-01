@@ -69,7 +69,7 @@ class G {
     public static final int PROFILES_LOADER_ID = 1;
     public static final int SESSION_LOADER_ID = 2;
 
-    private static final boolean DEBUG = true;
+    private static final boolean DEBUG = false;
     private static final String LogTag = "GearShift";
 
     public static enum FilterBy {
