@@ -108,7 +108,9 @@ public class TorrentListMenuFragment extends Fragment {
             for (Torrent t : torrents) {
                 down += t.getRateDownload();
                 up += t.getRateUpload();
-                directories.add(t.getDownloadDir());
+                if (t.getDownloadDir() != null) {
+                    directories.add(t.getDownloadDir());
+                }
             }
         }
 

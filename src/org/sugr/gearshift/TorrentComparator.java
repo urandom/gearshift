@@ -66,7 +66,11 @@ public class TorrentComparator implements Comparator<Torrent> {
                 ret = (int) (b.getAddedDate() - a.getAddedDate());
                 break;
             case LOCATION:
-                ret = a.getDownloadDir().compareToIgnoreCase(b.getDownloadDir());
+                if (a.getDownloadDir() == null) {
+                    ret = -1;
+                } else {
+                    ret = a.getDownloadDir().compareToIgnoreCase(b.getDownloadDir());
+                }
                 break;
             case PEERS:
                 ret = a.getPeersConnected() - b.getPeersConnected();

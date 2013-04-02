@@ -89,7 +89,15 @@ class G {
     public static Comparator<String> SIMPLE_STRING_COMPARATOR = new Comparator<String>() {
         @Override
         public int compare(String lhs, String rhs) {
-            return lhs.compareToIgnoreCase(rhs);
+            if (lhs == null && rhs == null) {
+                return 0;
+            } else if (lhs == null) {
+                return -1;
+            } else if (rhs == null) {
+                return 1;
+            } else {
+                return lhs.compareToIgnoreCase(rhs);
+            }
         }
 
     };

@@ -1015,7 +1015,8 @@ public class TorrentListFragment extends ListFragment {
                         }
 
                         if (mDirectory != null) {
-                            if (!torrent.getDownloadDir().equals(mDirectory))
+                            if (torrent.getDownloadDir() == null
+                                    || !torrent.getDownloadDir().equals(mDirectory))
                                 continue;
                         }
 

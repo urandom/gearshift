@@ -126,13 +126,27 @@ public class TorrentDetailFragment extends Fragment {
                 ? torrents.get(mCurrentPosition)
                 : null;
 
-            boolean state = torrent != null && torrent.getStatus() == Torrent.Status.STOPPED;
-            MenuItem item = menu.findItem(R.id.resume);
-            item.setVisible(state).setEnabled(state);
+            boolean resumeState = false;
+            boolean pauseState = false;
+            if (torrent != null) {
+                switch (torrent.getStatus()) {
+                    case Torrent.Status.STOPPED:
+                    case Torrent.Status.DOWNLOAD_WAITING:
+                    case Torrent.Status.SEED_WAITING:
+                        resumeState = true;
+                        pauseState = false;
+                        break;
+                    default:
+                        resumeState = false;
+                        pauseState = true;
+                }
+            }
 
-            state = torrent != null && torrent.getStatus() != Torrent.Status.STOPPED;
+            MenuItem item = menu.findItem(R.id.resume);
+            item.setVisible(resumeState).setEnabled(resumeState);
+
             item = menu.findItem(R.id.pause);
-            item.setVisible(state).setEnabled(state);
+            item.setVisible(pauseState).setEnabled(pauseState);
         }
     }
 
