@@ -1,7 +1,5 @@
-* Add torrent-verify method
 * Add session configuration fragment
 * Allow to set which filters and sorters are available for selecting
-* Add directories filter
 * Show a small indicator on each torrent row that has tracker errors
 * Experiment with swipe-to-delete pattern (example from dashclock)
 
