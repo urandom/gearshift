@@ -103,13 +103,18 @@ public class TorrentListMenuFragment extends Fragment {
         long down = 0, up = 0;
         HashSet<String> directories = new HashSet<String>();
         boolean equalDirectories = true;
+        boolean currentDirectoryTorrents = false;
 
         if (torrents != null) {
+            String dir = mSharedPrefs.getString(G.PREF_LIST_DIRECTORY, "");
             for (Torrent t : torrents) {
                 down += t.getRateDownload();
                 up += t.getRateUpload();
                 if (t.getDownloadDir() != null) {
                     directories.add(t.getDownloadDir());
+                    if (!currentDirectoryTorrents && t.getDownloadDir().equals(dir)) {
+                        currentDirectoryTorrents = true;
+                    }
                 }
             }
         }
@@ -146,6 +151,8 @@ public class TorrentListMenuFragment extends Fragment {
                     mFilterAdapter.remove(i);
                 }
             }
+
+            boolean updateFilter = false;
             if (mDirectories.size() > 1) {
                 ListItem pivot = mListItemMap.get(SORT_BY_HEADER_KEY);
                 position = mFilterAdapter.getPosition(pivot);
@@ -167,7 +174,12 @@ public class TorrentListMenuFragment extends Fragment {
                         mFilterAdapter.insert(getDirectoryItem(d), position++);
                     }
                 }
+                updateFilter = !currentDirectoryTorrents;
             } else {
+                updateFilter = true;
+            }
+
+            if (updateFilter) {
                 TorrentListFragment fragment =
                         ((TorrentListFragment) getFragmentManager().findFragmentById(R.id.torrent_list));
                 fragment.setListFilter((String) null);
