@@ -960,7 +960,7 @@ public class Torrent {
                     );
                 break;
             case Torrent.Status.CHECK_WAITING:
-                statusType = context.getString(R.string.status_state_checking);
+                statusType = context.getString(R.string.status_state_check_waiting);
 
                 formattedStatus = String.format(statusFormat,
                     statusType,
@@ -968,7 +968,9 @@ public class Torrent {
                 );
                 break;
             case Torrent.Status.CHECKING:
-                formattedStatus = context.getString(R.string.status_state_checking);
+                formattedStatus = String.format(
+                    context.getString(R.string.status_state_checking),
+                    G.readablePercent(mRecheckProgress * 100));
 
                 break;
             case Torrent.Status.STOPPED:
