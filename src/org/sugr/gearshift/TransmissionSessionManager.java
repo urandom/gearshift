@@ -119,6 +119,10 @@ public class TransmissionSessionManager {
         return (info != null);
     }
 
+    public void setProfile(TransmissionProfile profile) {
+        mProfile = profile;
+    }
+
     public TransmissionSession getSession() throws ManagerException {
         SessionGetRequest request = new SessionGetRequest();
 

@@ -310,8 +310,18 @@ public class TorrentListFragment extends ListFragment {
                 @Override
                 public boolean onNavigationItemSelected(int pos, long id) {
                     TransmissionProfile profile = mProfileAdapter.getItem(pos);
-                    if (profile != TransmissionProfileListAdapter.EMPTY_PROFILE)
+                    if (profile != TransmissionProfileListAdapter.EMPTY_PROFILE) {
+                        final Loader<TransmissionSessionData> loader = getActivity().getSupportLoaderManager()
+                                .getLoader(G.SESSION_LOADER_ID);
+
+                        mCurrentProfile = profile;
                         TransmissionProfile.setCurrentProfile(profile, getActivity());
+                        ((TransmissionSessionInterface) getActivity()).setProfile(profile);
+                        ((TransmissionSessionLoader) loader).setProfile(profile);
+
+                        mRefreshing = true;
+                        getActivity().invalidateOptionsMenu();
+                    }
 
                     return false;
                 }
@@ -1061,14 +1071,12 @@ public class TorrentListFragment extends ListFragment {
                     return;
                 }
                 if (results.count > 0) {
-                    if (!context.getTorrents().equals(results.values)) {
-                        context.setTorrents((ArrayList<Torrent>) results.values);
-                        FragmentManager manager = getActivity().getSupportFragmentManager();
-                        TorrentDetailFragment detail = (TorrentDetailFragment) manager.findFragmentByTag(
-                                TorrentDetailFragment.TAG);
-                        if (detail != null) {
-                            detail.notifyTorrentListChanged(true, true, false);
-                        }
+                    context.setTorrents((ArrayList<Torrent>) results.values);
+                    FragmentManager manager = getActivity().getSupportFragmentManager();
+                    TorrentDetailFragment detail = (TorrentDetailFragment) manager.findFragmentByTag(
+                            TorrentDetailFragment.TAG);
+                    if (detail != null) {
+                        detail.notifyTorrentListChanged(true, true, false);
                     }
                     notifyDataSetChanged();
                 } else {

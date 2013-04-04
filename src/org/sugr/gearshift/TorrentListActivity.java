@@ -248,10 +248,10 @@ public class TorrentListActivity extends SlidingFragmentActivity
     @Override
     public void setProfile(TransmissionProfile profile) {
         mProfile = profile;
+        toggleRightPane(false);
         if (profile == null) {
             getSlidingMenu().setTouchModeAbove(SlidingMenu.TOUCHMODE_NONE);
             getActionBar().setDisplayHomeAsUpEnabled(false);
-            toggleRightPane(false);
         } else {
             getSlidingMenu().setTouchModeAbove(SlidingMenu.TOUCHMODE_MARGIN);
             getActionBar().setDisplayHomeAsUpEnabled(true);

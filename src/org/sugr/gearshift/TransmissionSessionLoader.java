@@ -85,6 +85,7 @@ public class TransmissionSessionLoader extends AsyncTaskLoader<TransmissionSessi
 
     private SharedPreferences mDefaultPrefs;
 
+    private boolean mProfileChanged = false;
     private boolean mNeedsMoreInfo = false;
 
     private Handler mIntervalHandler = new Handler();
@@ -131,6 +132,17 @@ public class TransmissionSessionLoader extends AsyncTaskLoader<TransmissionSessi
         setCurrentTorrents(current);
         for (Torrent t : torrents) {
             mTorrentMap.put(t.getId(), t);
+        }
+    }
+
+    public void setProfile(TransmissionProfile profile) {
+        if (mProfile == profile) {
+            return;
+        }
+        mProfile = profile;
+        mProfileChanged = true;
+        if (mProfile != null) {
+            onContentChanged();
         }
     }
 
@@ -215,6 +227,15 @@ public class TransmissionSessionLoader extends AsyncTaskLoader<TransmissionSessi
         if (mLastError > 0) {
             mLastError = 0;
             hasAdded = true;
+        }
+
+        if (mProfileChanged) {
+            mSessManager.setProfile(mProfile);
+            mProfileChanged = false;
+            mIteration = 0;
+            mTorrentMap.clear();
+            hasAdded = true;
+            hasRemoved = true;
         }
         if (!mSessManager.hasConnectivity()) {
             mLastError = TransmissionSessionData.Errors.NO_CONNECTIVITY;
