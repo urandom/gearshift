@@ -770,6 +770,9 @@ public class TorrentListFragment extends ListFragment {
                     mFilterBy = FilterBy.ALL;
                 }
             }
+            if (mSharedPrefs.contains(G.PREF_LIST_DIRECTORY)) {
+                mDirectory = mSharedPrefs.getString(G.PREF_LIST_DIRECTORY, null);
+            }
             if (mSharedPrefs.contains(G.PREF_LIST_SORT_BY)) {
                 try {
                     mSortBy = SortBy.valueOf(
@@ -789,9 +792,6 @@ public class TorrentListFragment extends ListFragment {
                 }
             }
             mTorrentComparator.setSortingMethod(mSortBy, mSortOrder);
-            if (mSharedPrefs.contains(G.PREF_LIST_DIRECTORY)) {
-                mDirectory = mSharedPrefs.getString(G.PREF_LIST_DIRECTORY, null);
-            }
         }
 
         @Override

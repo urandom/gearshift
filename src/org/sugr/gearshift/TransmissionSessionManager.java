@@ -121,6 +121,7 @@ public class TransmissionSessionManager {
 
     public void setProfile(TransmissionProfile profile) {
         mProfile = profile;
+        mSessionId = null;
     }
 
     public TransmissionSession getSession() throws ManagerException {

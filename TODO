@@ -2,5 +2,6 @@
 * Allow to set which filters and sorters are available for selecting
 * Show a small indicator on each torrent row that has tracker errors
 * Experiment with swipe-to-delete pattern (example from dashclock)
+* Store settings in Drive (http://googleappsdeveloper.blogspot.com/2013/04/more-ways-for-apps-to-write-to-drive.html) or Backup API
 
 * Add trackers and peers to the details fragment

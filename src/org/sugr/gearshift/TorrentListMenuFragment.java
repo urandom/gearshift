@@ -182,6 +182,7 @@ public class TorrentListMenuFragment extends Fragment {
             if (updateFilter) {
                 TorrentListFragment fragment =
                         ((TorrentListFragment) getFragmentManager().findFragmentById(R.id.torrent_list));
+                mDirectoryPosition = ListView.INVALID_POSITION;
                 fragment.setListFilter((String) null);
                 ((SlidingFragmentActivity) getActivity()).showContent();
             }
@@ -370,7 +371,6 @@ public class TorrentListMenuFragment extends Fragment {
             header = new ListItem(Type.HEADER, DIRECTORIES_HEADER_KEY, R.string.menu_directories_header);
         }
 
-        int index = 0;
         for (SortBy sort : SortBy.values()) {
             ListItem item;
             if (mListItemMap.containsKey(sort.name())) {
@@ -430,10 +430,9 @@ public class TorrentListMenuFragment extends Fragment {
                 }
                 item = new ListItem(Type.SORT_BY, sort, string, pref);
             }
-            if (mSharedPrefs.getBoolean(item.getPreferenceKey(), true) && (index == 0 || index % 3 != 0)) {
+            if (mSharedPrefs.getBoolean(item.getPreferenceKey(), true)) {
                 list.add(item);
             }
-            index++;
         }
         if (mListItemMap.containsKey(SORT_BY_HEADER_KEY)) {
             header = mListItemMap.get(SORT_BY_HEADER_KEY);
