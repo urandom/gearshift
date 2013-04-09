@@ -119,75 +119,68 @@ public class TorrentListMenuFragment extends Fragment {
             }
         }
 
-        if (directories.size() != mDirectories.size()) {
-            equalDirectories = false;
-        } else {
-            for (String d : directories) {
-                if (!mDirectories.contains(d)) {
-                    equalDirectories = false;
-                    break;
-                }
-            }
-        }
-        if (!equalDirectories) {
-            mDirectories.clear();
-            mDirectories.addAll(directories);
-
-            mFilterAdapter.setNotifyOnChange(false);
-            ListItem item = mListItemMap.get(DIRECTORIES_HEADER_KEY);
-            int position = mFilterAdapter.getPosition(item);
-
-            if (position != -1) {
-                ArrayList<ListItem> removal = new ArrayList<ListItem>();
-                removal.add(item);
-                for (int i = 0; i < mFilterAdapter.getCount(); i++) {
-                    item = mFilterAdapter.getItem(i);
-                    if (item.getType() == Type.DIRECTORY) {
-                        removal.add(item);
-                    }
-                }
-
-                for (ListItem i : removal) {
-                    mFilterAdapter.remove(i);
-                }
-            }
-
-            boolean updateFilter = false;
-            if (mDirectories.size() > 1) {
-                ListItem pivot = mListItemMap.get(SORT_BY_HEADER_KEY);
-                position = mFilterAdapter.getPosition(pivot);
-
-                if (position == -1) {
-                    pivot = mListItemMap.get(SORT_ORDER_HEADER_KEY);
-                    position = mFilterAdapter.getPosition(pivot);
-                }
-
-                ListItem header = mListItemMap.get(DIRECTORIES_HEADER_KEY);
-                if (position == -1) {
-                    mFilterAdapter.add(header);
-                    for (String d : mDirectories) {
-                        mFilterAdapter.add(getDirectoryItem(d));
-                    }
-                } else {
-                    mFilterAdapter.insert(header, position++);
-                    for (String d : mDirectories) {
-                        mFilterAdapter.insert(getDirectoryItem(d), position++);
-                    }
-                }
-                updateFilter = !currentDirectoryTorrents;
+        boolean updateFilter = false;
+        if (mSharedPrefs.getBoolean(G.PREF_FILTER_DIRECTORIES, true)) {
+            if (directories.size() != mDirectories.size()) {
+                equalDirectories = false;
             } else {
-                updateFilter = true;
+                for (String d : directories) {
+                    if (!mDirectories.contains(d)) {
+                        equalDirectories = false;
+                        break;
+                    }
+                }
             }
+            if (!equalDirectories) {
+                mDirectories.clear();
+                mDirectories.addAll(directories);
 
-            if (updateFilter) {
-                TorrentListFragment fragment =
-                        ((TorrentListFragment) getFragmentManager().findFragmentById(R.id.torrent_list));
-                mDirectoryPosition = ListView.INVALID_POSITION;
-                fragment.setListFilter((String) null);
-                ((SlidingFragmentActivity) getActivity()).showContent();
+                mFilterAdapter.setNotifyOnChange(false);
+                int position = removeDirectoriesFilters();
+
+                if (mDirectories.size() > 1) {
+                    ListItem pivot = mListItemMap.get(SORT_BY_HEADER_KEY);
+                    position = mFilterAdapter.getPosition(pivot);
+
+                    if (position == -1) {
+                        pivot = mListItemMap.get(SORT_ORDER_HEADER_KEY);
+                        position = mFilterAdapter.getPosition(pivot);
+                    }
+
+                    ListItem header = mListItemMap.get(DIRECTORIES_HEADER_KEY);
+                    if (position == -1) {
+                        mFilterAdapter.add(header);
+                        for (String d : mDirectories) {
+                            mFilterAdapter.add(getDirectoryItem(d));
+                        }
+                    } else {
+                        mFilterAdapter.insert(header, position++);
+                        for (String d : mDirectories) {
+                            mFilterAdapter.insert(getDirectoryItem(d), position++);
+                        }
+                    }
+                    updateFilter = !currentDirectoryTorrents;
+                } else {
+                    updateFilter = true;
+                }
+
+                mFilterAdapter.notifyDataSetChanged();
+                checkSelectedItems();
             }
+        } else {
+            mFilterAdapter.setNotifyOnChange(false);
+            removeDirectoriesFilters();
             mFilterAdapter.notifyDataSetChanged();
-            checkSelectedItems();
+
+            updateFilter = true;
+        }
+
+        if (updateFilter) {
+            TorrentListFragment fragment =
+                    ((TorrentListFragment) getFragmentManager().findFragmentById(R.id.torrent_list));
+            mDirectoryPosition = ListView.INVALID_POSITION;
+            fragment.setListFilter((String) null);
+            ((SlidingFragmentActivity) getActivity()).showContent();
         }
 
         Object[] speed = {
@@ -482,7 +475,15 @@ public class TorrentListMenuFragment extends Fragment {
         }
         mFilterPosition = mFilterAdapter.getPosition(
                 mListItemMap.get(selectedFilter.name()));
-        mFilterList.setItemChecked(mFilterPosition, true);
+        if (mFilterPosition > -1) {
+            mFilterList.setItemChecked(mFilterPosition, true);
+        } else {
+            mFilterList.setItemChecked(0, true);
+            TorrentListFragment fragment =
+                    ((TorrentListFragment) getFragmentManager().findFragmentById(R.id.torrent_list));
+            mFilterPosition = ListView.INVALID_POSITION;
+            fragment.setListFilter(FilterBy.ALL);
+        }
 
         SortBy selectedSort = SortBy.STATUS;
         if (mSharedPrefs.contains(G.PREF_LIST_SORT_BY)) {
@@ -537,6 +538,28 @@ public class TorrentListMenuFragment extends Fragment {
         }
 
         return item;
+    }
+
+    private int removeDirectoriesFilters() {
+        ListItem item = mListItemMap.get(DIRECTORIES_HEADER_KEY);
+        int position = mFilterAdapter.getPosition(item);
+
+        if (position != -1) {
+            ArrayList<ListItem> removal = new ArrayList<ListItem>();
+            removal.add(item);
+            for (int i = 0; i < mFilterAdapter.getCount(); i++) {
+                item = mFilterAdapter.getItem(i);
+                if (item.getType() == Type.DIRECTORY) {
+                    removal.add(item);
+                }
+            }
+
+            for (ListItem i : removal) {
+                mFilterAdapter.remove(i);
+            }
+        }
+
+        return position;
     }
 
     private static class FilterAdapter extends ArrayAdapter<ListItem> {

@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
+    <PreferenceCategory android:title="@string/filter_visibility" >
+        <CheckBoxPreference
+            android:key="filter_downloading"
+            android:title="@string/menu_filters_downloading"
+            android:defaultValue="true" />
+        <CheckBoxPreference
+            android:key="filter_seeding"
+            android:title="@string/menu_filters_seeding"
+            android:defaultValue="true" />
+        <CheckBoxPreference
+            android:key="filter_paused"
+            android:title="@string/menu_filters_paused"
+            android:defaultValue="true" />
+        <CheckBoxPreference
+            android:key="filter_complete"
+            android:title="@string/menu_filters_complete"
+            android:defaultValue="true" />
+        <CheckBoxPreference
+            android:key="filter_incomplete"
+            android:title="@string/menu_filters_incomplete"
+            android:defaultValue="true" />
+        <CheckBoxPreference
+            android:key="filter_active"
+            android:title="@string/menu_filters_active"
+            android:defaultValue="true" />
+        <CheckBoxPreference
+            android:key="filter_checking"
+            android:title="@string/menu_filters_checking"
+            android:defaultValue="true" />
+    </PreferenceCategory>
+    <PreferenceCategory android:title="@string/directory_filters" >
+        <CheckBoxPreference
+            android:key="filter_directories"
+            android:title="@string/show_directory_filters"
+            android:defaultValue="true" />
+    </PreferenceCategory>
+</PreferenceScreen>

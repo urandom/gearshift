@@ -16,7 +16,8 @@
         android:icon="@drawable/ic_launcher"
         android:logo="@drawable/ic_home"
         android:label="@string/app_name"
-        android:theme="@style/AppTheme" >
+        android:theme="@style/AppTheme"
+        android:backupAgent="org.sugr.gearshift.GearShiftBackupAgent" >
         <activity
             android:name="org.sugr.gearshift.TorrentListActivity"
             android:label="@string/app_name" >
@@ -60,6 +61,9 @@
             android:label="@string/about_item"
             android:parentActivityName="org.sugr.gearshift.TorrentListActivity">
         </activity>
+
+        <meta-data android:name="com.google.android.backup.api_key"
+            android:value="AEdPqrEAAAAIPmUc7ecxzuRYH5xae0ephTNsrjJDOho8oAYxLA" />
     </application>
 
 </manifest>

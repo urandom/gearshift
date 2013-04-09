@@ -22,6 +22,7 @@ public class SettingsActivity extends PreferenceActivity
         implements LoaderManager.LoaderCallbacks<TransmissionProfile[]> {
 
     private Header mAppPreferencesHeader;
+    private Header mFiltersHeader;
     private Header mProfileHeaderSeparatorHeader;
     private Header[] mProfileHeaders = new Header[0];
 
@@ -34,6 +35,7 @@ public class SettingsActivity extends PreferenceActivity
     public void onBuildHeaders(List<Header> target) {
         target.clear();
         target.add(getAppPreferencesHeader());
+        target.add(getFiltersHeader());
 
         if (mProfileHeaders.length > 0) {
             if (mProfileHeaderSeparatorHeader == null) {
@@ -160,6 +162,20 @@ public class SettingsActivity extends PreferenceActivity
             mAppPreferencesHeader.fragmentArguments = null;
         }
         return mAppPreferencesHeader;
+    }
+
+    private Header getFiltersHeader() {
+        if (mFiltersHeader == null) {
+            mFiltersHeader = new Header();
+            mFiltersHeader.id = R.id.filters_preferences;
+            mFiltersHeader.title = getText(R.string.header_label_filters);
+            mFiltersHeader.summary = null;
+            mFiltersHeader.iconRes = 0;
+            mFiltersHeader.fragment = FiltersSettingsFragment.class.getCanonicalName();
+            mFiltersHeader.fragmentArguments = null;
+        }
+
+        return mFiltersHeader;
     }
 
     private static class HeaderAdapter extends ArrayAdapter<Header> {
