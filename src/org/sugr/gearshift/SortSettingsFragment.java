@@ -16,7 +16,10 @@ public class SortSettingsFragment extends BasePreferenceFragment {
         mSharedPrefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
         addPreferencesFromResource(R.xml.sort_preferences);
 
-        mSummaryPrefs = new Object[][] {};
+        mSummaryPrefs = new Object[][] {
+            {G.PREF_BASE_SORT, getString(R.string.update_interval_summary_format),
+             R.array.pref_base_sort_method_values, R.array.pref_base_sort_method_entries, ""},
+        };
 
         ActionBar actionBar = getActivity().getActionBar();
         if (actionBar != null) {

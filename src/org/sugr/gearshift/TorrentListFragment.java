@@ -748,6 +748,7 @@ public class TorrentListFragment extends ListFragment {
         private TorrentComparator mTorrentComparator = new TorrentComparator();
         private FilterBy mFilterBy = FilterBy.ALL;
         private SortBy mSortBy = mTorrentComparator.getSortBy();
+        private SortBy mBaseSort = mTorrentComparator.getBaseSort();
         private SortOrder mSortOrder = mTorrentComparator.getSortOrder();
         private String mDirectory;
 
@@ -782,6 +783,15 @@ public class TorrentListFragment extends ListFragment {
                     mSortBy = mTorrentComparator.getSortBy();
                 }
             }
+            if (mSharedPrefs.contains(G.PREF_BASE_SORT)) {
+                try {
+                    mBaseSort = SortBy.valueOf(
+                        mSharedPrefs.getString(G.PREF_BASE_SORT, "")
+                    );
+                } catch (Exception e) {
+                    mBaseSort = mTorrentComparator.getBaseSort();
+                }
+            }
             if (mSharedPrefs.contains(G.PREF_LIST_SORT_ORDER)) {
                 try {
                     mSortOrder = SortOrder.valueOf(
@@ -792,6 +802,7 @@ public class TorrentListFragment extends ListFragment {
                 }
             }
             mTorrentComparator.setSortingMethod(mSortBy, mSortOrder);
+            mTorrentComparator.setBaseSort(mBaseSort);
         }
 
         @Override

@@ -231,7 +231,7 @@
     <string name="menu_sort_peers">Peers</string>
     <string name="menu_sort_download_speed">Download speed</string>
     <string name="menu_sort_upload_speed">Upload speed</string>
-    <string name="menu_sort_queue">Queue</string>
+    <string name="menu_sort_queue">Queue position</string>
 
     <string name="menu_order_header">Order</string>
     <string name="menu_order_descending">Descending</string>
@@ -245,4 +245,8 @@
     <string name="show_directory_filters">Show directory filters</string>
     
     <string name="sort_visibility">Sorting options visibility</string>
+    
+    <string name="base_sort_method">Base sort method</string>
+    
+    <string name="sorting_option">Sorting option</string>
 </resources>

@@ -50,4 +50,13 @@
             android:title="@string/menu_sort_queue"
             android:defaultValue="true" />
     </PreferenceCategory>
+    <PreferenceCategory android:title="@string/base_sort_method" >
+        <ListPreference
+	        android:key="base_sort"
+	        android:title="Secondary sorting"
+	        android:dialogTitle="@string/sorting_option"
+	        android:entries="@array/pref_base_sort_method_entries"
+	        android:entryValues="@array/pref_base_sort_method_values"
+	        android:defaultValue="AGE" />
+	</PreferenceCategory>
 </PreferenceScreen>

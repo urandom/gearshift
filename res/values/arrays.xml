@@ -81,4 +81,33 @@
         <item>10</item>
         <item>15</item>
     </string-array>
+    
+    <string-array name="pref_base_sort_method_entries">
+        <item>Name</item>
+        <item>Size</item>
+        <item>Status</item>
+        <item>Activity</item>
+		<item>Age</item>
+		<item>Progress</item>
+		<item>Ratio</item>
+		<item>Location</item>
+		<item>Peers</item>
+		<item>Download speed</item>
+		<item>Upload speed</item>
+		<item>Queue position</item>
+    </string-array>
+    <string-array name="pref_base_sort_method_values" translatable="false">
+        <item>NAME</item>
+        <item>SIZE</item>
+        <item>STATUS</item>
+        <item>ACTIVITY</item>
+		<item>AGE</item>
+		<item>PROGRESS</item>
+		<item>RATIO</item>
+		<item>LOCATION</item>
+		<item>PEERS</item>
+		<item>RATE_DOWNLOAD</item>
+		<item>RATE_UPLOAD</item>
+		<item>QUEUE</item>
+    </string-array>
 </resources>

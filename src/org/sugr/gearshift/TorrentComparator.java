@@ -23,11 +23,11 @@ public class TorrentComparator implements Comparator<Torrent> {
         return mSortOrder;
     }
 
-    public void setBaseComparator(SortBy by) {
+    public void setBaseSort(SortBy by) {
         mBaseSort = by;
     }
 
-    public SortBy getBaseComparator() {
+    public SortBy getBaseSort() {
         return mBaseSort;
     }
 
@@ -88,10 +88,10 @@ public class TorrentComparator implements Comparator<Torrent> {
                 ret = a.getQueuePosition() - b.getQueuePosition();
                 break;
             case RATE_DOWNLOAD:
-                ret = (int) (a.getRateDownload() - b.getRateDownload());
+                ret = (int) (b.getRateDownload() - a.getRateDownload());
                 break;
             case RATE_UPLOAD:
-                ret = (int) (a.getRateUpload() - b.getRateUpload());
+                ret = (int) (b.getRateUpload() - a.getRateUpload());
                 break;
             case RATIO:
                 delta = b.getUploadRatio() - a.getUploadRatio();

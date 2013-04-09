@@ -9,6 +9,8 @@ import android.content.Context;
 import android.util.Log;
 
 class G {
+    private static final boolean DEBUG = false;
+
     public static final String PREF_UPDATE_ACTIVE = "update_active_torrents";
     public static final String PREF_FULL_UPDATE = "full_update";
     public static final String PREF_UPDATE_INTERVAL = "update_interval";
@@ -58,6 +60,8 @@ class G {
     public static final String PREF_SORT_RATE_UPLOAD = "sort_rate_upload";
     public static final String PREF_SORT_QUEUE = "sort_queue";
 
+    public static final String PREF_BASE_SORT = "base_sort";
+
     public static final String ARG_JSON_TORRENTS = "json_torrents";
     public static final String ARG_JSON_SESSION = "json_session";
     public static final String ARG_PROFILE = "profile";
@@ -69,7 +73,6 @@ class G {
     public static final int PROFILES_LOADER_ID = 1;
     public static final int SESSION_LOADER_ID = 2;
 
-    private static final boolean DEBUG = false;
     private static final String LogTag = "GearShift";
 
     public static enum FilterBy {
