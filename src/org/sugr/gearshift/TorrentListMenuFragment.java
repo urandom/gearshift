@@ -172,7 +172,9 @@ public class TorrentListMenuFragment extends Fragment {
             removeDirectoriesFilters();
             mFilterAdapter.notifyDataSetChanged();
 
-            updateFilter = true;
+            if (!mSharedPrefs.getString(G.PREF_LIST_DIRECTORY, "").equals("")) {
+                updateFilter = true;
+            }
         }
 
         if (updateFilter) {
