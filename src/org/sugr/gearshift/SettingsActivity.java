@@ -23,6 +23,7 @@ public class SettingsActivity extends PreferenceActivity
 
     private Header mAppPreferencesHeader;
     private Header mFiltersHeader;
+    private Header mSortHeader;
     private Header mProfileHeaderSeparatorHeader;
     private Header[] mProfileHeaders = new Header[0];
 
@@ -36,6 +37,7 @@ public class SettingsActivity extends PreferenceActivity
         target.clear();
         target.add(getAppPreferencesHeader());
         target.add(getFiltersHeader());
+        target.add(getSortHeader());
 
         if (mProfileHeaders.length > 0) {
             if (mProfileHeaderSeparatorHeader == null) {
@@ -176,6 +178,20 @@ public class SettingsActivity extends PreferenceActivity
         }
 
         return mFiltersHeader;
+    }
+
+    private Header getSortHeader() {
+        if (mSortHeader == null) {
+            mSortHeader = new Header();
+            mSortHeader.id = R.id.sort_preferences;
+            mSortHeader.title = getText(R.string.header_label_sort);
+            mSortHeader.summary = null;
+            mSortHeader.iconRes = 0;
+            mSortHeader.fragment = SortSettingsFragment.class.getCanonicalName();
+            mSortHeader.fragmentArguments = null;
+        }
+
+        return mSortHeader;
     }
 
     private static class HeaderAdapter extends ArrayAdapter<Header> {

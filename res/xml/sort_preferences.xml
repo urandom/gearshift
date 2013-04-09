@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
+    <PreferenceCategory android:title="@string/sort_visibility" >
+        <CheckBoxPreference
+            android:key="sort_name"
+            android:title="@string/menu_sort_name"
+            android:defaultValue="true" />
+        <CheckBoxPreference
+            android:key="sort_size"
+            android:title="@string/menu_sort_size"
+            android:defaultValue="true" />
+        <CheckBoxPreference
+            android:key="sort_status"
+            android:title="@string/menu_sort_status"
+            android:defaultValue="true" />
+        <CheckBoxPreference
+            android:key="sort_activity"
+            android:title="@string/menu_sort_activity"
+            android:defaultValue="true" />
+        <CheckBoxPreference
+            android:key="sort_age"
+            android:title="@string/menu_sort_age"
+            android:defaultValue="true" />
+        <CheckBoxPreference
+            android:key="sort_progress"
+            android:title="@string/menu_sort_progress"
+            android:defaultValue="true" />
+        <CheckBoxPreference
+            android:key="sort_ratio"
+            android:title="@string/menu_sort_ratio"
+            android:defaultValue="true" />
+        <CheckBoxPreference
+            android:key="sort_location"
+            android:title="@string/menu_sort_location"
+            android:defaultValue="true" />
+        <CheckBoxPreference
+            android:key="sort_peers"
+            android:title="@string/menu_sort_peers"
+            android:defaultValue="true" />
+        <CheckBoxPreference
+            android:key="sort_rate_download"
+            android:title="@string/menu_sort_download_speed"
+            android:defaultValue="true" />
+        <CheckBoxPreference
+            android:key="sort_rate_upload"
+            android:title="@string/menu_sort_upload_speed"
+            android:defaultValue="true" />
+        <CheckBoxPreference
+            android:key="sort_queue"
+            android:title="@string/menu_sort_queue"
+            android:defaultValue="true" />
+    </PreferenceCategory>
+</PreferenceScreen>

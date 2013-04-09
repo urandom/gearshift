@@ -3,6 +3,7 @@
     <item type="id" name="numbers_key" />
     <item type="id" name="general_preferences" />
     <item type="id" name="filters_preferences" />
+    <item type="id" name="sort_preferences" />
     <item type="id" name="dialog_entry" />
     <item type="id" name="about_header" />
 </resources>

@@ -68,6 +68,7 @@
     <string name="add_profile_option">Add profile</string>
     <string name="header_label_general_preferences">General</string>
     <string name="header_label_filters">Filters</string>
+    <string name="header_label_sort">Sorting options</string>
     <string name="header_label_profiles">Profiles</string>
     
     <string name="add_directory_option">Add directory</string>
@@ -237,9 +238,11 @@
 
     <string name="menu_directories_header">Directories</string>
 
-    <string name="filter_visibility">Filter Visibility</string>
+    <string name="filter_visibility">Filter visibility</string>
 
     <string name="directory_filters">Directory filters</string>
 
     <string name="show_directory_filters">Show directory filters</string>
+    
+    <string name="sort_visibility">Sorting options visibility</string>
 </resources>

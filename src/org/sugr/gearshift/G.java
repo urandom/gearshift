@@ -52,7 +52,7 @@ class G {
     public static final String PREF_SORT_AGE = "sort_age";
     public static final String PREF_SORT_PROGRESS = "sort_progress";
     public static final String PREF_SORT_RATIO = "sort_ratio";
-    public static final String PREF_SORT_LOCATION = "sort_ratio";
+    public static final String PREF_SORT_LOCATION = "sort_location";
     public static final String PREF_SORT_PEERS = "sort_peers";
     public static final String PREF_SORT_RATE_DOWNLOAD = "sort_rate_download";
     public static final String PREF_SORT_RATE_UPLOAD = "sort_rate_upload";
