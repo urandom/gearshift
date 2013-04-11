@@ -232,7 +232,8 @@ public class TorrentListMenuFragment extends Fragment {
     }
 
     private void setActivatedPosition(int position) {
-        if (position == mFilterPosition || position == mSortPosition) {
+        if (mSharedPrefs.getBoolean(G.PREF_FILTER_ALL, true) && position == mFilterPosition
+                || position == mSortPosition) {
             mFilterList.setItemChecked(position, true);
             return;
         }
@@ -256,10 +257,19 @@ public class TorrentListMenuFragment extends Fragment {
 
             switch(item.getType()) {
                 case FILTER:
-                    mFilterList.setItemChecked(mFilterPosition, false);
-                    mFilterList.setItemChecked(position, true);
-                    mFilterPosition = position;
-                    fragment.setListFilter((FilterBy) item.getValue());
+                    FilterBy value;
+                    if (position == mFilterPosition) {
+                        value = FilterBy.ALL;
+                        mFilterList.setItemChecked(mFilterPosition, false);
+                        mFilterPosition = ListView.INVALID_POSITION;
+                    } else {
+                        mFilterList.setItemChecked(mFilterPosition, false);
+                        mFilterList.setItemChecked(position, true);
+                        mFilterPosition = position;
+                        value = (FilterBy) item.getValue();
+                    }
+
+                    fragment.setListFilter(value);
                     break;
                 case DIRECTORY:
                     mFilterList.setItemChecked(mDirectoryPosition, false);
@@ -313,6 +323,7 @@ public class TorrentListMenuFragment extends Fragment {
                 switch(filter) {
                     case ALL:
                         string = R.string.menu_filters_all;
+                        pref = G.PREF_FILTER_ALL;
                         break;
                     case DOWNLOADING:
                         string = R.string.menu_filters_downloading;
@@ -356,7 +367,7 @@ public class TorrentListMenuFragment extends Fragment {
             header = new ListItem(Type.HEADER, FILTERS_HEADER_KEY, R.string.menu_filters_header);
         }
 
-        if (list.size() > 1) {
+        if (mSharedPrefs.getBoolean(G.PREF_FILTER_ALL, true) && list.size() > 1 || list.size() > 0) {
             mFilterAdapter.add(header);
             mFilterAdapter.addAll(list);
         }

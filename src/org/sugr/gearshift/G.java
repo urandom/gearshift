@@ -38,6 +38,8 @@ class G {
     public static final String PREF_LIST_DIRECTORY = "torrents_directory";
     public static final String PREF_LIST_SEARCH = "torrents_search";
 
+    public static final String PREF_FILTER_ALL = "filter_all";
+
     public static final String PREF_FILTER_DOWNLOADING = "filter_downloading";
     public static final String PREF_FILTER_SEEDING = "filter_seeding";
     public static final String PREF_FILTER_PAUSED = "filter_paused";

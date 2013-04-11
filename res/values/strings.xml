@@ -249,4 +249,6 @@
     <string name="base_sort_method">Base sort method</string>
     
     <string name="sorting_option">Sorting option</string>
+        
+    <string name="show_all_filter_summary">If hidden, clicking on a selected filter will unselect it</string>
 </resources>

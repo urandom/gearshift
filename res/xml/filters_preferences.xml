@@ -2,6 +2,11 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
     <PreferenceCategory android:title="@string/filter_visibility" >
         <CheckBoxPreference
+            android:key="filter_all"
+            android:title="@string/menu_filters_all"
+            android:summary="@string/show_all_filter_summary"
+            android:defaultValue="true" />
+        <CheckBoxPreference
             android:key="filter_downloading"
             android:title="@string/menu_filters_downloading"
             android:defaultValue="true" />
