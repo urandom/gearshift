@@ -129,7 +129,7 @@ public class Torrent {
         public final static int SEEDING = 6;
     };
 
-    @Exclude public static final int NEW_STATUS_RPC_VERSION = 14;
+    @Exclude private static final int NEW_STATUS_RPC_VERSION = 14;
     @Exclude public static class OldStatus {
         public final static int CHECK_WAITING = 1;
         public final static int CHECKING = 2;
