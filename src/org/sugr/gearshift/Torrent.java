@@ -129,6 +129,15 @@ public class Torrent {
         public final static int SEEDING = 6;
     };
 
+    @Exclude public static final int NEW_STATUS_RPC_VERSION = 14;
+    @Exclude public static class OldStatus {
+        public final static int CHECK_WAITING = 1;
+        public final static int CHECKING = 2;
+        public final static int DOWNLOADING = 4;
+        public final static int SEEDING = 8;
+        public final static int STOPPED = 16;
+    };
+
     // http://packages.python.org/transmissionrpc/reference/transmissionrpc.html
     @Exclude public static class SeedRatioMode {
         public final static int GLOBAL_LIMIT = 0;
@@ -389,7 +398,31 @@ public class Torrent {
     }
 
     public int getStatus() {
+        if (mSession != null && mSession.getRPCVersion() < NEW_STATUS_RPC_VERSION) {
+            switch(mStatus) {
+                case Torrent.OldStatus.CHECK_WAITING:
+                    return Torrent.Status.CHECK_WAITING;
+                case Torrent.OldStatus.CHECKING:
+                    return Torrent.Status.CHECKING;
+                case Torrent.OldStatus.DOWNLOADING:
+                    return Torrent.Status.DOWNLOADING;
+                case Torrent.OldStatus.SEEDING:
+                    return Torrent.Status.SEEDING;
+                case Torrent.OldStatus.STOPPED:
+                    return Torrent.Status.STOPPED;
+                default:
+                    return mStatus;
+            }
+        }
         return mStatus;
+    }
+
+    public int getStatus(boolean skipConversion) {
+        if (skipConversion) {
+            return mStatus;
+        } else {
+            return getStatus();
+        }
     }
 
     public String getName() {
@@ -809,16 +842,16 @@ public class Torrent {
     }
 
     public boolean isPaused() {
-        return mStatus == Status.STOPPED && !mFinished;
+        return getStatus() == Status.STOPPED && !mFinished;
     }
 
     public boolean isSeeding() {
-        return mStatus == Status.SEEDING;
+        return getStatus() == Status.SEEDING;
     }
 
     public void setTrafficText(Context context) {
         float seedLimit = getActiveSeedRatioLimit();
-        switch(mStatus) {
+        switch(getStatus()) {
             case Torrent.Status.DOWNLOAD_WAITING:
             case Torrent.Status.DOWNLOADING:
                 mTrafficText = Html.fromHtml(String.format(
@@ -909,10 +942,10 @@ public class Torrent {
                statusMoreFormat, statusSpeedFormat, statusSpeed;
         int peers;
 
-        switch(mStatus) {
+        switch(getStatus()) {
             case Torrent.Status.DOWNLOAD_WAITING:
             case Torrent.Status.DOWNLOADING:
-                statusType = context.getString(mStatus == Torrent.Status.DOWNLOADING
+                statusType = context.getString(getStatus() == Torrent.Status.DOWNLOADING
                         ? mMetadataPercentComplete < 1
                             ? R.string.status_state_downloading_metadata
                             : R.string.status_state_downloading
@@ -939,7 +972,7 @@ public class Torrent {
                 break;
             case Torrent.Status.SEED_WAITING:
             case Torrent.Status.SEEDING:
-                statusType = context.getString(mStatus == Torrent.Status.SEEDING
+                statusType = context.getString(getStatus() == Torrent.Status.SEEDING
                         ? R.string.status_state_seeding : R.string.status_state_seed_waiting);
                 statusMoreFormat = context.getString(R.string.status_more_seeding_format);
                 statusSpeedFormat = context.getString(R.string.status_more_seeding_speed_format);
@@ -1074,7 +1107,7 @@ public class Torrent {
             } else if (field.equals("sizeWhenDone")) {
                 setSizeWhenDone(source.getSizeWhenDone());
             } else if (field.equals("status")) {
-                setStatus(source.getStatus());
+                setStatus(source.getStatus(true));
             } else if (field.equals("trackers")) {
                 setTrackers(source.getTrackers());
             } else if (field.equals("uploadedEver")) {
