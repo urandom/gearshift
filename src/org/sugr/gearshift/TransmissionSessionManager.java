@@ -303,6 +303,8 @@ public class TransmissionSessionManager {
             os.flush();
             os.close();
 
+            G.logD("The request is " + json);
+
             // Starts the query
             conn.connect();
 
@@ -344,6 +346,7 @@ public class TransmissionSessionManager {
                     throw new ManagerException(conn.getResponseMessage(), code);
             }
 
+            G.logD("The response is " + contentAsString);
             return contentAsString;
         } catch (java.net.SocketTimeoutException e) {
             throw new ManagerException("timeout", -1);
