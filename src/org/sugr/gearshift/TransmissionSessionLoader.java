@@ -40,6 +40,7 @@ class TransmissionSessionData {
         public static final int RESPONSE_ERROR = 1 << 6;
         public static final int DUPLICATE_TORRENT = 1 << 7;
         public static final int INVALID_TORRENT = 1 << 8;
+        public static final int TIMEOUT = 1 << 9;
     };
 
     public TransmissionSessionData(TransmissionSession session, TransmissionSessionStats stats, int error) {
@@ -241,6 +242,8 @@ public class TransmissionSessionLoader extends AsyncTaskLoader<TransmissionSessi
             mLastError = TransmissionSessionData.Errors.NO_CONNECTIVITY;
             return new TransmissionSessionData(mSession, mSessionStats, mLastError);
         }
+
+        G.logD("Fetching data");
 
         if (mTorrentActionIds != null) {
             TransmissionSessionData actionData = executeTorrentsAction(
@@ -659,7 +662,11 @@ public class TransmissionSessionLoader extends AsyncTaskLoader<TransmissionSessi
                 }
                 break;
             case -1:
-                mLastError = TransmissionSessionData.Errors.NO_CONNECTION;
+                if (e.getMessage().equals("timeout")) {
+                    mLastError = TransmissionSessionData.Errors.TIMEOUT;
+                } else {
+                    mLastError = TransmissionSessionData.Errors.NO_CONNECTION;
+                }
                 break;
             case -2:
                 if (e.getMessage().equals("duplicate torrent")) {

@@ -32,5 +32,15 @@
             android:defaultValue="false" />
 
     </PreferenceCategory>
+    
+    <PreferenceCategory
+        android:title="@string/developer_options">
+        
+        <CheckBoxPreference
+            android:key="debug"
+            android:title="@string/debug"
+            android:summary="@string/debug_summary"
+            android:defaultValue="false" />
+    </PreferenceCategory>
 
 </PreferenceScreen>

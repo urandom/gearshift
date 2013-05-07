@@ -48,6 +48,10 @@ public class TorrentListActivity extends SlidingFragmentActivity
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+        G.DEBUG = prefs.getBoolean(G.PREF_DEBUG, false);
+
         setContentView(R.layout.activity_torrent_list);
 
         PreferenceManager.setDefaultValues(this, R.xml.general_preferences, false);

@@ -35,7 +35,11 @@ public class BasePreferenceFragment extends PreferenceFragment implements OnShar
 
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-        updatePrefSummary(key);
+        if (key.equals(G.PREF_DEBUG)) {
+            G.DEBUG = sharedPreferences.getBoolean(key, false);
+        } else {
+            updatePrefSummary(key);
+        }
     }
 
     protected void updatePrefSummary(String aKey) {

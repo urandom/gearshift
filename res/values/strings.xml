@@ -111,7 +111,7 @@
     <string name="create_profile_in_settings">Create a new profile in the settings</string>
     
     <string name="no_profiles_empty_list">&lt;h2&gt;No profile seems to have been created yet.&lt;/h2&gt;You should add one by visiting the &lt;i&gt;settings&lt;/i&gt;.</string>
-    <string name="just_connected_empty_list"><![CDATA[<h2>You are connected!</h2>The torrent list is being fetched.]]></string>
+    <string name="connecting_empty_list"><![CDATA[<h2>Connecting</h2>]]></string>
     <string name="no_torrents_empty_list">&lt;h2&gt;You are connected!&lt;/h2&gt;The daemon doesn\'t manage any torrents at the moment.</string>
     <string name="no_filtered_torrents_empty_list">No torrents match the current filter</string>
     <string name="no_connectivity_empty_list">&lt;h2&gt;&lt;font color="#cc0000"&gt;You need an active network connection!&lt;/font&gt;&lt;/h2&gt;</string>
@@ -119,7 +119,8 @@
     <string name="no_json_empty_list">&lt;h2&gt;&lt;font color="#cc0000"&gt;Unexpected response!&lt;/font&gt;&lt;/h2&gt;Please check if the RPC path in your current profile is correct.</string>
     <string name="no_connection_empty_list">&lt;h2&gt;&lt;font color="#cc0000"&gt;Unable to connect!&lt;/font&gt;&lt;/h2&gt;Please check if the server address and port in your current profile are correct.</string>
     <string name="thread_error_empty_list">&lt;h2&gt;&lt;font color="#cc0000"&gt;Internal error!&lt;/font&gt;&lt;/h2&gt;</string>
-    <string name="response_error_empty_list">&lt;h2&gt;&lt;font color="#cc0000"&gt;Transmission Daemon Error!&lt;/font&gt;&lt;/h2&gt;A request to the daemon was not successful. See the logcat for more details.</string>
+    <string name="response_error_empty_list">&lt;h2&gt;&lt;font color="#cc0000"&gt;Transmission daemon error!&lt;/font&gt;&lt;/h2&gt;A request to the daemon was not successful. See the logcat for more details.</string>
+    <string name="timeout_empty_list"><![CDATA[<h2><font color="#cc0000>Connection timeout!</font></h2>]]></string>
     
     <string name="traffic_downloading_format">%1$s of %2$s (%3$s)%4$s</string>
     <string name="traffic_downloading_percentage_format">%1$s%%</string>
@@ -252,4 +253,10 @@
     <string name="sorting_option">Sorting option</string>
         
     <string name="show_all_filter_summary">If hidden, clicking on a selected filter will unselect it</string>
+        
+    <string name="developer_options">Developer options</string>
+        
+    <string name="debug">Debug</string>
+        
+    <string name="debug_summary">Display debug information in the logcat</string>
 </resources>

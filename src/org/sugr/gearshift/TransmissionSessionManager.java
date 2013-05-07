@@ -345,6 +345,8 @@ public class TransmissionSessionManager {
             }
 
             return contentAsString;
+        } catch (java.net.SocketTimeoutException e) {
+            throw new ManagerException("timeout", -1);
         } catch (IOException e) {
             throw new ManagerException(e.getMessage(), -1);
         } finally {

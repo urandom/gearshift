@@ -9,7 +9,7 @@ import android.content.Context;
 import android.util.Log;
 
 class G {
-    private static final boolean DEBUG = false;
+    public static final String PREF_DEBUG = "debug";
 
     public static final String PREF_UPDATE_ACTIVE = "update_active_torrents";
     public static final String PREF_FULL_UPDATE = "full_update";
@@ -106,6 +106,8 @@ class G {
         }
 
     };
+
+    public static boolean DEBUG = false;
 
     public static void logE(String message, Object[] args, Exception e) {
         Log.e(LogTag, String.format(message, args), e);

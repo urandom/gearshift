@@ -150,7 +150,7 @@ public class TorrentListFragment extends ListFragment {
                 mCurrentProfile = profiles[0];
             }
             if (mCurrentProfile != null) {
-                setEmptyText(R.string.just_connected_empty_list);
+                setEmptyText(R.string.connecting_empty_list);
                 ((TransmissionSessionInterface) getActivity()).setProfile(mCurrentProfile);
                 getActivity().getSupportLoaderManager().initLoader(G.SESSION_LOADER_ID,
                         null, mTorrentLoaderCallbacks);
@@ -243,6 +243,8 @@ public class TorrentListFragment extends ListFragment {
                             text.setText(Html.fromHtml(getString(R.string.thread_error_empty_list)));
                         } else if (data.error == TransmissionSessionData.Errors.RESPONSE_ERROR) {
                             text.setText(Html.fromHtml(getString(R.string.response_error_empty_list)));
+                        } else if (data.error == TransmissionSessionData.Errors.TIMEOUT) {
+                            text.setText(Html.fromHtml(getString(R.string.timeout_empty_list)));
                         }
                     }
                 }
