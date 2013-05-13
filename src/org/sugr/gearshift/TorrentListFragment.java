@@ -965,7 +965,9 @@ public class TorrentListFragment extends ListFragment {
         }
 
         public void repeatFilter() {
-            getFilter().filter(mCurrentConstraint, mCurrentFilterListener);
+            if (mCurrentProfile != null) {
+                getFilter().filter(mCurrentConstraint, mCurrentFilterListener);
+            }
         }
 
         private void applyFilter(String value, String pref) {

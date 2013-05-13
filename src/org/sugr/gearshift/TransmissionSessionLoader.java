@@ -292,7 +292,7 @@ public class TransmissionSessionLoader extends AsyncTaskLoader<TransmissionSessi
 
         }
 
-        if (mCurrentTorrents == null && (mSession == null || mIteration % 3 == 0)) {
+        if (mSession == null || mCurrentTorrents == null && mIteration % 3 == 0) {
             Thread thread = new Thread(new Runnable() {
                 @Override
                 public void run() {
