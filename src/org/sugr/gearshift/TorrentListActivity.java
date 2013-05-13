@@ -73,6 +73,10 @@ public class TorrentListActivity extends SlidingFragmentActivity
             toggleRightPane(false);
         }
 
+        if (savedInstanceState != null) {
+            mIntentConsumed = true;
+        }
+
         setBehindContentView(R.layout.sliding_menu_frame);
 
         SlidingMenu sm = getSlidingMenu();

@@ -1,3 +1,4 @@
+* Find all download directories and use them for the Move dialog
 * Add session configuration fragment
 * Show a small indicator on each torrent row that has tracker errors
 * Experiment with swipe-to-delete pattern (example from dashclock)
