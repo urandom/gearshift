@@ -459,8 +459,8 @@ public class TorrentListFragment extends ListFragment {
                                 getActivity(), android.R.layout.simple_spinner_item);
 
                         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-                        adapter.add(mSession.getDownloadDir());
-                        adapter.addAll(mCurrentProfile.getDirectories());
+                        adapter.addAll(mSession.getDownloadDirectories());
+                        adapter.sort();
 
                         location = (Spinner) dialog.findViewById(R.id.location_choice);
                         location.setAdapter(adapter);

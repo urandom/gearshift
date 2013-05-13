@@ -234,8 +234,8 @@ public class TorrentDetailFragment extends Fragment {
                         getActivity(), android.R.layout.simple_spinner_item);
 
                 adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-                adapter.add(((TransmissionSessionInterface) getActivity()).getSession().getDownloadDir());
-                adapter.addAll(((TransmissionSessionInterface) getActivity()).getProfile().getDirectories());
+                adapter.addAll(((TransmissionSessionInterface) getActivity()).getSession().getDownloadDirectories());
+                adapter.sort();
 
                 location = (Spinner) dialog.findViewById(R.id.location_choice);
                 location.setAdapter(adapter);

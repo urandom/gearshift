@@ -1,5 +1,9 @@
 package org.sugr.gearshift;
 
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
 import org.sugr.gearshift.TransmissionSessionManager.Exclude;
 
 import com.google.gson.annotations.SerializedName;
@@ -64,6 +68,8 @@ public class TransmissionSession {
         public static final String PREFERRED = "preferred";
         public static final String TOLERATED = "tolerated";
     }
+
+    @Exclude private Set<String> mDownloadDirectories = new HashSet<String>();
 
     public boolean isAltSpeedEnabled() {
         return mAltSpeedEnabled;
@@ -279,5 +285,19 @@ public class TransmissionSession {
 
     public void setVersion(String version) {
         mVersion = version;
+    }
+
+    public void setDownloadDirectories(TransmissionProfile profile, List<Torrent> torrents) {
+        mDownloadDirectories.clear();
+        mDownloadDirectories.add(mDownloadDir);
+        mDownloadDirectories.addAll(profile.getDirectories());
+
+        for (Torrent t : torrents) {
+            mDownloadDirectories.add(t.getDownloadDir());
+        }
+    }
+
+    public Set<String> getDownloadDirectories() {
+        return mDownloadDirectories;
     }
 }

@@ -321,8 +321,8 @@ public class TorrentListActivity extends SlidingFragmentActivity
                     this, android.R.layout.simple_spinner_item);
 
             adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-            adapter.add(getSession().getDownloadDir());
-            adapter.addAll(getProfile().getDirectories());
+            adapter.addAll(getSession().getDownloadDirectories());
+            adapter.sort();
 
             location = (Spinner) view.findViewById(R.id.location_choice);
             location.setAdapter(adapter);

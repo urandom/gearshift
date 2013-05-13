@@ -558,9 +558,13 @@ public class TransmissionSessionLoader extends AsyncTaskLoader<TransmissionSessi
             }
         }
 
+        ArrayList<Torrent> torrentList = convertSparseArray(mTorrentMap);
+        mSession.setDownloadDirectories(mProfile, torrentList);
+
         mIteration++;
+
         return new TransmissionSessionData(
-                mSession, mSessionStats, convertSparseArray(mTorrentMap),
+                mSession, mSessionStats, torrentList,
                 hasRemoved, hasAdded, hasStatusChanged, hasMetadataNeeded);
     }
 
