@@ -44,6 +44,7 @@ public class TorrentListActivity extends SlidingFragmentActivity
     private TransmissionSession mSession;
 
     private boolean mIntentConsumed = false;
+    private boolean mDialogShown = false;
 
     private static final String STATE_INTENT_CONSUMED = "intent_consumed";
 
@@ -286,8 +287,7 @@ public class TorrentListActivity extends SlidingFragmentActivity
     public void setSession(TransmissionSession session) {
         mSession = session;
 
-        if (!mIntentConsumed) {
-            mIntentConsumed = true;
+        if (!mIntentConsumed && !mDialogShown) {
             consumeIntent();
         }
     }
@@ -312,6 +312,7 @@ public class TorrentListActivity extends SlidingFragmentActivity
         String action = intent.getAction();
 
         if (Intent.ACTION_VIEW.equals(action)) {
+            mDialogShown = true;
             final Uri data = intent.getData();
 
             SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
@@ -323,7 +324,14 @@ public class TorrentListActivity extends SlidingFragmentActivity
             final AlertDialog.Builder builder = new AlertDialog.Builder(this)
                 .setCancelable(false)
                 .setNegativeButton(android.R.string.cancel, null)
-                .setView(view);
+                .setView(view)
+                .setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        mIntentConsumed = true;
+                    }
+
+                });;
 
             Spinner location;
             TransmissionProfileDirectoryAdapter adapter =
@@ -352,6 +360,7 @@ public class TorrentListActivity extends SlidingFragmentActivity
                                 data.toString(), null, dir, paused.isChecked());
 
                         setRefreshing(true);
+                        mIntentConsumed = true;
                     }
                 });
 
@@ -370,6 +379,7 @@ public class TorrentListActivity extends SlidingFragmentActivity
                                 null, data, dir, paused.isChecked());
 
                         setRefreshing(true);
+                        mIntentConsumed = true;
                     }
                 });
 

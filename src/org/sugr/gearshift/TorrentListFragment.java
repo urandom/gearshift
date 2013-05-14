@@ -150,7 +150,7 @@ public class TorrentListFragment extends ListFragment {
                 mCurrentProfile = profiles[0];
             }
             if (mCurrentProfile != null) {
-                setEmptyText(R.string.connecting_empty_list);
+                //setEmptyText(R.string.connecting_empty_list);
                 ((TransmissionSessionInterface) getActivity()).setProfile(mCurrentProfile);
                 getActivity().getSupportLoaderManager().initLoader(G.SESSION_LOADER_ID,
                         null, mTorrentLoaderCallbacks);
