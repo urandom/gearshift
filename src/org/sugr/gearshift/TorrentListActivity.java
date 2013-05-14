@@ -45,6 +45,8 @@ public class TorrentListActivity extends SlidingFragmentActivity
 
     private boolean mIntentConsumed = false;
 
+    private static final String STATE_INTENT_CONSUMED = "intent_consumed";
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -74,7 +76,9 @@ public class TorrentListActivity extends SlidingFragmentActivity
         }
 
         if (savedInstanceState != null) {
-            mIntentConsumed = true;
+            if (savedInstanceState.containsKey(STATE_INTENT_CONSUMED)) {
+                mIntentConsumed = savedInstanceState.getBoolean(STATE_INTENT_CONSUMED);
+            }
         }
 
         setBehindContentView(R.layout.sliding_menu_frame);
@@ -188,6 +192,12 @@ public class TorrentListActivity extends SlidingFragmentActivity
                 return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putBoolean(STATE_INTENT_CONSUMED, mIntentConsumed);
     }
 
     public boolean isDetailsPanelShown() {
