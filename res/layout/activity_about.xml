@@ -31,7 +31,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:textSize="14sp"
+            android:textSize="15sp"
             android:textStyle="bold" />
 
         <TextView
@@ -41,16 +41,30 @@
             android:layout_marginTop="8dp"
             android:gravity="center"
             android:text="@string/about_description"
+            android:textSize="15sp" />
+
+        <TextView
+            android:id="@+id/about_contact"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginTop="24dp"
+            android:gravity="center"
+            android:paddingLeft="8dp"
+        	android:paddingRight="8dp"
             android:textSize="14sp" />
+
         
         <TextView
             android:id="@+id/about_donation"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="24dp"
+            android:layout_marginTop="16dp"
             android:layout_marginBottom="24dp"
             android:layout_gravity="center"
             android:gravity="center"
+            android:paddingLeft="8dp"
+        	android:paddingRight="8dp"
             android:textSize="12sp" />
     </LinearLayout>
     

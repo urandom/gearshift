@@ -1,3 +1,14 @@
+* Add an option to check/uncheck all selected files in a torrent
+
+* Remove background colors from fullscreen views,
+  change the windowBackground in the style instead
+
+* Use style="?android:listSeparatorTextViewStyle" for
+  list view headers
+
+* Use android:foreground="?android:selectableItemBackground" for
+  selectable views
+
 * Add session configuration fragment
 * Show a small indicator on each torrent row that has tracker errors
 * Experiment with swipe-to-delete pattern (example from dashclock)

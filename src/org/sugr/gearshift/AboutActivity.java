@@ -20,6 +20,10 @@ public class AboutActivity extends FragmentActivity {
         } catch (NameNotFoundException e) {
             G.logE("Error getting the app version", e);
         }
+        TextView contact = (TextView) findViewById(R.id.about_contact);
+        contact.setText(Html.fromHtml(getString(R.string.about_contact)));
+        contact.setMovementMethod(LinkMovementMethod.getInstance());
+
         TextView donation = (TextView) findViewById(R.id.about_donation);
         donation.setText(Html.fromHtml(getString(R.string.about_donation)));
         donation.setMovementMethod(LinkMovementMethod.getInstance());
