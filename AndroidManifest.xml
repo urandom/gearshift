@@ -17,7 +17,7 @@
         android:logo="@drawable/ic_home"
         android:label="@string/app_name"
         android:theme="@style/AppTheme"
-        android:backupAgent="org.sugr.gearshift.GearShiftBackupAgent" >
+        android:backupAgent=".GearShiftBackupAgent" >
         <activity
             android:name="org.sugr.gearshift.TorrentListActivity"
             android:label="@string/app_name" >
@@ -40,7 +40,7 @@
             </intent-filter>            
         </activity>
         <activity
-            android:name="org.sugr.gearshift.TorrentDetailActivity"
+            android:name=".TorrentDetailActivity"
             android:label="@string/title_torrent_detail"
             android:parentActivityName=".TorrentListActivity" >
             <meta-data
@@ -48,16 +48,16 @@
                 android:value=".TorrentListActivity" />
         </activity>
         <activity
-            android:name="org.sugr.gearshift.SettingsActivity"
+            android:name=".SettingsActivity"
             android:label="@string/settings"
-            android:parentActivityName="org.sugr.gearshift.TorrentListActivity">
+            android:parentActivityName=".TorrentListActivity">
             <intent-filter>
 		        <action android:name="android.intent.action.MANAGE_NETWORK_USAGE" />
 		        <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
         <activity
-            android:name="org.sugr.gearshift.AboutActivity"
+            android:name=".AboutActivity"
             android:label="@string/about_item"
             android:parentActivityName="org.sugr.gearshift.TorrentListActivity">
         </activity>

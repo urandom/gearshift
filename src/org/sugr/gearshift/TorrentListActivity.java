@@ -8,11 +8,15 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.res.Configuration;
 import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.v4.app.ActionBarDrawerToggle;
+import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.content.Loader;
+import android.support.v4.widget.DrawerLayout;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -24,10 +28,8 @@ import android.widget.Spinner;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.slidingmenu.lib.SlidingMenu;
-import com.slidingmenu.lib.app.SlidingFragmentActivity;
 
-public class TorrentListActivity extends SlidingFragmentActivity
+public class TorrentListActivity extends FragmentActivity
         implements TransmissionSessionInterface, TorrentListFragment.Callbacks,
                    TorrentDetailFragment.PagerCallbacks {
 
@@ -38,7 +40,6 @@ public class TorrentListActivity extends SlidingFragmentActivity
     private boolean mTwoPane;
 
     private ArrayList<Torrent> mTorrents = new ArrayList<Torrent>();
-    private int mCurrentTorrent = 0;
 
     private TransmissionProfile mProfile;
     private TransmissionSession mSession;
@@ -47,6 +48,9 @@ public class TorrentListActivity extends SlidingFragmentActivity
     private boolean mDialogShown = false;
 
     private static final String STATE_INTENT_CONSUMED = "intent_consumed";
+
+    private DrawerLayout mDrawerLayout;
+    private ActionBarDrawerToggle mDrawerToggle;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -72,8 +76,6 @@ public class TorrentListActivity extends SlidingFragmentActivity
             ((TorrentListFragment) getSupportFragmentManager()
                     .findFragmentById(R.id.torrent_list))
                     .setActivateOnItemClick(true);
-
-            toggleRightPane(false);
         }
 
         if (savedInstanceState != null) {
@@ -82,18 +84,31 @@ public class TorrentListActivity extends SlidingFragmentActivity
             }
         }
 
-        setBehindContentView(R.layout.sliding_menu_frame);
+        mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
+        mDrawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED,
+                findViewById(R.id.sliding_menu_frame));
+        mDrawerToggle = new ActionBarDrawerToggle(this, mDrawerLayout, R.drawable.ic_drawer,
+                R.string.open_drawer, R.string.close_drawer) { };
+        mDrawerLayout.setDrawerListener(mDrawerToggle);
 
-        SlidingMenu sm = getSlidingMenu();
-        sm.setMode(SlidingMenu.LEFT);
-        sm.setTouchModeAbove(SlidingMenu.TOUCHMODE_NONE);
-        sm.setBehindWidthRes(R.dimen.sliding_menu_offset);
-        sm.setShadowWidthRes(R.dimen.shadow_width);
-        sm.setShadowDrawable(R.drawable.shadow);
-
-        setSlidingActionBarEnabled(false);
-        getActionBar().setDisplayHomeAsUpEnabled(false);
+        if (mTwoPane) {
+            toggleRightPane(false);
+        }
     }
+
+    @Override
+    protected void onPostCreate(Bundle savedInstanceState) {
+        super.onPostCreate(savedInstanceState);
+        // Sync the toggle state after onRestoreInstanceState has occurred.
+        mDrawerToggle.syncState();
+    }
+
+    @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+        mDrawerToggle.onConfigurationChanged(newConfig);
+    }
+
 
     /**
      * Callback method from {@link TorrentListFragment.Callbacks}
@@ -103,21 +118,21 @@ public class TorrentListActivity extends SlidingFragmentActivity
     public void onItemSelected(Torrent torrent) {
         if (mTwoPane) {
             toggleRightPane(true);
-            mCurrentTorrent = mTorrents.indexOf(torrent);
+            int current = mTorrents.indexOf(torrent);
+
             FragmentManager manager = getSupportFragmentManager();
             TorrentDetailFragment fragment = (TorrentDetailFragment) manager.findFragmentByTag(
                     TorrentDetailFragment.TAG);
             if (fragment == null) {
                 Bundle arguments = new Bundle();
-                arguments.putInt(TorrentDetailFragment.ARG_PAGE_POSITION,
-                        mCurrentTorrent);
+                arguments.putInt(TorrentDetailFragment.ARG_PAGE_POSITION, current);
                 fragment = new TorrentDetailFragment();
                 fragment.setArguments(arguments);
                 manager.beginTransaction()
                         .replace(R.id.torrent_detail_container, fragment, TorrentDetailFragment.TAG)
                         .commit();
             } else {
-                fragment.setCurrentTorrent(mCurrentTorrent);
+                fragment.setCurrentTorrent(current);
             }
         } else {
             // In single-pane mode, simply start the detail activity
@@ -168,11 +183,14 @@ public class TorrentListActivity extends SlidingFragmentActivity
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
+        if (mDrawerToggle.onOptionsItemSelected(item)) {
+            return true;
+        }
+
         switch(item.getItemId()) {
             case android.R.id.home:
-                if (!mTwoPane || getSlidingMenu().isMenuShowing()) {
-                    toggle();
-                    return true;
+                if (!mTwoPane) {
+                    return super.onOptionsItemSelected(item);
                 }
 
                 TorrentListFragment fragment = ((TorrentListFragment) getSupportFragmentManager()
@@ -180,7 +198,6 @@ public class TorrentListActivity extends SlidingFragmentActivity
 
                 int position = fragment.getListView().getCheckedItemPosition();
                 if (position == ListView.INVALID_POSITION) {
-                    toggle();
                     return true;
                 } else {
                     toggleRightPane(false);
@@ -215,7 +232,9 @@ public class TorrentListActivity extends SlidingFragmentActivity
                 // LayoutAnimationController controller = AnimationUtils.loadLayoutAnimation(
                 //         this, R.anim.layout_slide_right);
                 // panel.setLayoutAnimation(controller);
-                getSlidingMenu().setTouchModeAbove(SlidingMenu.TOUCHMODE_NONE);
+                mDrawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED,
+                        findViewById(R.id.sliding_menu_frame));
+                mDrawerToggle.setDrawerIndicatorEnabled(false);
 
                 Loader<TransmissionSessionData> loader =
                         getSupportLoaderManager().getLoader(G.SESSION_LOADER_ID);
@@ -229,7 +248,9 @@ public class TorrentListActivity extends SlidingFragmentActivity
         } else {
             if (panel.getVisibility() != View.GONE) {
                 panel.setVisibility(View.GONE);
-                getSlidingMenu().setTouchModeAbove(SlidingMenu.TOUCHMODE_MARGIN);
+                mDrawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED,
+                        findViewById(R.id.sliding_menu_frame));
+                mDrawerToggle.setDrawerIndicatorEnabled(true);
                 Loader<TransmissionSessionData> loader = getSupportLoaderManager().getLoader(G.SESSION_LOADER_ID);
                 if (loader != null) {
                     ((TransmissionSessionLoader) loader).setAllCurrentTorrents(false);
@@ -270,10 +291,12 @@ public class TorrentListActivity extends SlidingFragmentActivity
         mProfile = profile;
         toggleRightPane(false);
         if (profile == null) {
-            getSlidingMenu().setTouchModeAbove(SlidingMenu.TOUCHMODE_NONE);
+            mDrawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED,
+                    findViewById(R.id.sliding_menu_frame));
             getActionBar().setDisplayHomeAsUpEnabled(false);
         } else {
-            getSlidingMenu().setTouchModeAbove(SlidingMenu.TOUCHMODE_MARGIN);
+            mDrawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED,
+                    findViewById(R.id.sliding_menu_frame));
             getActionBar().setDisplayHomeAsUpEnabled(true);
         }
     }

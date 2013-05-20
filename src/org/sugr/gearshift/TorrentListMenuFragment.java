@@ -13,8 +13,10 @@ import org.sugr.gearshift.G.SortOrder;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
+import android.support.v4.widget.DrawerLayout;
 import android.text.Html;
 import android.util.SparseBooleanArray;
 import android.view.ContextThemeWrapper;
@@ -26,8 +28,6 @@ import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
-
-import com.slidingmenu.lib.app.SlidingFragmentActivity;
 
 public class TorrentListMenuFragment extends Fragment {
     private ListView mFilterList;
@@ -52,6 +52,14 @@ public class TorrentListMenuFragment extends Fragment {
         = new HashMap<String, ListItem>();
 
     private SharedPreferences mSharedPrefs;
+
+    private Handler mCloseHandler = new Handler();
+    private Runnable mCloseRunnable = new Runnable() {
+        @Override public void run() {
+            DrawerLayout drawer = ((DrawerLayout) getActivity().findViewById(R.id.drawer_layout));
+            drawer.closeDrawer(getActivity().findViewById(R.id.sliding_menu_frame));
+        }
+    };
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -182,7 +190,9 @@ public class TorrentListMenuFragment extends Fragment {
                     ((TorrentListFragment) getFragmentManager().findFragmentById(R.id.torrent_list));
             mDirectoryPosition = ListView.INVALID_POSITION;
             fragment.setListFilter((String) null);
-            ((SlidingFragmentActivity) getActivity()).showContent();
+
+            mCloseHandler.removeCallbacks(mCloseRunnable);
+            mCloseHandler.post(mCloseRunnable);
         }
 
         Object[] speed = {
@@ -304,7 +314,8 @@ public class TorrentListMenuFragment extends Fragment {
             }
         }
 
-        ((SlidingFragmentActivity) getActivity()).showContent();
+        mCloseHandler.removeCallbacks(mCloseRunnable);
+        mCloseHandler.post(mCloseRunnable);
     }
 
     private void fillMenuItems() {

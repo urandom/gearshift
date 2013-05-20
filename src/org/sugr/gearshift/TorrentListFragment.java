@@ -33,7 +33,6 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.Window;
 import android.widget.AbsListView.MultiChoiceModeListener;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemLongClickListener;
@@ -300,7 +299,6 @@ public class TorrentListFragment extends ListFragment {
         super.onCreate(savedInstanceState);
 
         setHasOptionsMenu(true);
-        getActivity().requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
         getActivity().setProgressBarIndeterminateVisibility(true);
 
         ActionBar actionBar = getActivity().getActionBar();
