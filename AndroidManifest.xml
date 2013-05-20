@@ -59,6 +59,7 @@
         <activity
             android:name=".AboutActivity"
             android:label="@string/about_item"
+            android:theme="@android:style/Theme.Holo.Light.DialogWhenLarge.NoActionBar"
             android:parentActivityName="org.sugr.gearshift.TorrentListActivity">
         </activity>
 
