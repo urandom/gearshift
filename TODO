@@ -4,9 +4,6 @@
 * Use style="?android:listSeparatorTextViewStyle" for
   list view headers
 
-* Use android:foreground="?android:selectableItemBackground" for
-  selectable views
-
 * Experiment with the new SlidingPaneLayout as a replacement for the
   two pane setup
 

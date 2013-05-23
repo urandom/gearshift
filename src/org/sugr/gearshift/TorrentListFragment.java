@@ -850,21 +850,21 @@ public class TorrentListFragment extends ListFragment {
             traffic.setText(torrent.getTrafficText());
             status.setText(torrent.getStatusText());
 
-            int color;
+            boolean enabled = true;
             switch(torrent.getStatus()) {
                 case Torrent.Status.STOPPED:
                 case Torrent.Status.CHECK_WAITING:
                 case Torrent.Status.DOWNLOAD_WAITING:
                 case Torrent.Status.SEED_WAITING:
-                    color = getContext().getResources().getColor(android.R.color.darker_gray);
+                    enabled = false;
                     break;
                 default:
-                    color = getContext().getResources().getColor(android.R.color.primary_text_light);
+                    enabled = true;
                     break;
             }
-            name.setTextColor(color);
-            traffic.setTextColor(color);
-            status.setTextColor(color);
+            name.setEnabled(enabled);
+            traffic.setEnabled(enabled);
+            status.setEnabled(enabled);
 
             return rowView;
         }
