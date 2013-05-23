@@ -22,7 +22,11 @@ public class TransmissionProfileDirectoryAdapter extends ArrayAdapter<String> {
 
         int lastSlash = text.lastIndexOf('/');
         if (lastSlash > -1) {
-            textView.setText(text.substring(lastSlash + 1) + " (" + text.substring(0, lastSlash - 1) + ')');
+            if (lastSlash == 0) {
+                textView.setText(text.substring(lastSlash + 1) + " (/)");
+            } else {
+                textView.setText(text.substring(lastSlash + 1) + " (" + text.substring(0, lastSlash) + ')');
+            }
         }
 
         return view;
@@ -37,7 +41,11 @@ public class TransmissionProfileDirectoryAdapter extends ArrayAdapter<String> {
 
         int lastSlash = text.lastIndexOf('/');
         if (lastSlash > -1) {
-            textView.setText(text.substring(lastSlash + 1) + " (" + text.substring(0, lastSlash - 1) + ')');
+            if (lastSlash == 0) {
+                textView.setText(text.substring(lastSlash + 1) + " (/)");
+            } else {
+                textView.setText(text.substring(lastSlash + 1) + " (" + text.substring(0, lastSlash) + ')');
+            }
         }
 
         return view;

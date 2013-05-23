@@ -241,8 +241,13 @@ public class TransmissionProfileDirectoriesSettingsFragment extends ListFragment
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
                     EditText text = (EditText) ((AlertDialog) dialog).findViewById(R.id.dialog_entry);
+                    String dir = text.getText().toString().trim();
 
-                    mDirectories.add(text.getText().toString().trim());
+                    while (dir.endsWith("/")) {
+                        dir = dir.substring(0, dir.length() - 1);
+                    }
+
+                    mDirectories.add(dir);
 
                     setAdapterDirectories();
                 }
@@ -267,7 +272,13 @@ public class TransmissionProfileDirectoriesSettingsFragment extends ListFragment
                     EditText text = (EditText) ((AlertDialog) dialog).findViewById(R.id.dialog_entry);
 
                     mDirectories.remove(directory);
-                    mDirectories.add(text.getText().toString().trim());
+                    String dir = text.getText().toString().trim();
+
+                    while (dir.endsWith("/")) {
+                        dir = dir.substring(0, dir.length() - 1);
+                    }
+
+                    mDirectories.add(dir);
 
                     setAdapterDirectories();
                 }
