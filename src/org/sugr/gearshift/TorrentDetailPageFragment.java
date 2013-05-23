@@ -117,7 +117,7 @@ public class TorrentDetailPageFragment extends Fragment {
     private FilesDataSetObserver mFilesObserver;
 
     private ActionMode mActionMode;
-    Set<View> mSelectedFiles = new HashSet<View>();
+    private Set<View> mSelectedFiles = new HashSet<View>();
 
     private ActionMode.Callback mActionModeFiles = new ActionMode.Callback() {
 
@@ -143,8 +143,8 @@ public class TorrentDetailPageFragment extends Fragment {
 
         @Override
         public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
-            String priorityKey;
-            int priority;
+            String key;
+            Integer priority = null;
             switch (item.getItemId()) {
                 case R.id.select_all:
                     List<View> files = mFilesAdapter.getViews();
@@ -157,19 +157,26 @@ public class TorrentDetailPageFragment extends Fragment {
                             }
                         }
                     }
+                    invalidateFileActionMenu(mode.getMenu());
 
                     return true;
                 case R.id.priority_low:
-                    priorityKey = Torrent.SetterFields.FILES_LOW;
+                    key = Torrent.SetterFields.FILES_LOW;
                     priority = Torrent.Priority.LOW;
                     break;
                 case R.id.priority_normal:
-                    priorityKey = Torrent.SetterFields.FILES_NORMAL;
+                    key = Torrent.SetterFields.FILES_NORMAL;
                     priority = Torrent.Priority.NORMAL;
                     break;
                 case R.id.priority_high:
-                    priorityKey = Torrent.SetterFields.FILES_HIGH;
+                    key = Torrent.SetterFields.FILES_HIGH;
                     priority = Torrent.Priority.HIGH;
+                    break;
+                case R.id.check_selected:
+                    key = Torrent.SetterFields.FILES_UNWANTED;
+                    break;
+                case R.id.uncheck_selected:
+                    key = Torrent.SetterFields.FILES_WANTED;
                     break;
                 default:
                     return false;
@@ -178,15 +185,34 @@ public class TorrentDetailPageFragment extends Fragment {
             List<Integer> indexes = new ArrayList<Integer>();
             for (View v : mSelectedFiles) {
                 TorrentFile file = mFilesAdapter.getItem(allViews.indexOf(v));
-                if (file.stat.getPriority() != priority) {
-                    indexes.add(file.index);
-                    file.changed = true;
-                    file.stat.setPriority(priority);
+                if (priority == null) {
+                    if ((file.stat.isWanted()
+                            && key.equals(
+                                Torrent.SetterFields.FILES_UNWANTED))
+                    || (!file.stat.isWanted()
+                            && key.equals(
+                                Torrent.SetterFields.FILES_WANTED))
+                    ) {
+                        indexes.add(file.index);
+                    }
+                } else {
+                    if (file.stat.getPriority() != priority) {
+                        indexes.add(file.index);
+                        file.changed = true;
+                        file.stat.setPriority(priority);
+                    }
                 }
             }
             if (indexes.size() > 0) {
-                setTorrentProperty(priorityKey, indexes);
+                setTorrentProperty(key, indexes);
                 mFilesAdapter.notifyDataSetChanged();
+                if (priority == null) {
+                    mode.finish();
+                    ((TransmissionSessionInterface) getActivity()).setRefreshing(true);
+                    Loader<TransmissionSessionData> loader = getActivity().getSupportLoaderManager()
+                        .getLoader(G.SESSION_LOADER_ID);
+                    loader.onContentChanged();
+                }
             }
             return true;
         }
@@ -698,6 +724,34 @@ public class TorrentDetailPageFragment extends Fragment {
         }
     }
 
+    private void invalidateFileActionMenu(Menu menu) {
+        boolean hasChecked = false, hasUnchecked = false;
+        MenuItem checked = menu.findItem(R.id.check_selected);
+        MenuItem unchecked = menu.findItem(R.id.uncheck_selected);
+        List<View> allViews = mFilesAdapter.getViews();
+
+        for (View v : mSelectedFiles) {
+            TorrentFile file = mFilesAdapter.getItem(allViews.indexOf(v));
+            if (file.stat.isWanted()) {
+                hasChecked = true;
+                checked.setVisible(true);
+            } else {
+                hasUnchecked = true;
+                unchecked.setVisible(true);
+            }
+
+            if (hasChecked && hasUnchecked) {
+                break;
+            }
+        }
+        if (!hasChecked) {
+            checked.setVisible(false);
+        }
+        if (!hasUnchecked) {
+            unchecked.setVisible(false);
+        }
+    }
+
     private class TorrentFile {
         int index = -1;
         Torrent.File info;
@@ -792,10 +846,13 @@ public class TorrentDetailPageFragment extends Fragment {
                                     mSelectedFiles.remove(buttonView);
                                     if (mSelectedFiles.size() == 0) {
                                         mActionMode.finish();
+                                    } else {
+                                        invalidateFileActionMenu(mActionMode.getMenu());
                                     }
                                 } else {
                                     buttonView.setActivated(true);
                                     mSelectedFiles.add(buttonView);
+                                    invalidateFileActionMenu(mActionMode.getMenu());
                                 }
                                 return;
                             }
@@ -814,9 +871,10 @@ public class TorrentDetailPageFragment extends Fragment {
                             if (mActionMode != null) {
                                 return false;
                             }
-                            mActionMode = getActivity().startActionMode(mActionModeFiles);
                             v.setActivated(true);
                             mSelectedFiles.add(v);
+                            mActionMode = getActivity().startActionMode(mActionModeFiles);
+                            invalidateFileActionMenu(mActionMode.getMenu());
                             return true;
                         }
                     });
@@ -841,6 +899,7 @@ public class TorrentDetailPageFragment extends Fragment {
                     G.readableFileSize(file.info.getLength()),
                     priority
                 )));
+
                 row.setChecked(file.stat.isWanted());
 
                 if (initial) {

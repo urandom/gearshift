@@ -3,7 +3,7 @@
     <item android:id="@+id/select_all"
 	    android:title="@string/ic_menu_select_all"
 	    android:icon="@drawable/ic_menu_select_all"
-	    android:showAsAction="always" />
+	    android:showAsAction="ifRoom" />
     
     <item android:id="@+id/priority_low"
 	    android:title="@string/menu_low_priority"
@@ -19,5 +19,16 @@
 	    android:title="@string/menu_high_priority"
 	    android:icon="@drawable/ic_menu_priority_high"
 	    android:showAsAction="always" />
+    
+    <item android:id="@+id/check_selected"
+        android:title="@string/unwant_file"
+        android:showAsAction="never"
+        android:visible="false"/>
+
+        
+    <item android:id="@+id/uncheck_selected"
+        android:title="@string/want_file"
+        android:showAsAction="never"
+        android:visible="false"/>
     
 </menu>

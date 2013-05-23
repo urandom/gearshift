@@ -185,7 +185,9 @@ public class TorrentListActivity extends FragmentActivity
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        if (mDrawerToggle.onOptionsItemSelected(item)) {
+        if (mDrawerLayout.getDrawerLockMode(
+                findViewById(R.id.sliding_menu_frame)
+            ) == DrawerLayout.LOCK_MODE_UNLOCKED && mDrawerToggle.onOptionsItemSelected(item)) {
             return true;
         }
 
