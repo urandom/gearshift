@@ -1,5 +1,3 @@
-* Add an option to check/uncheck all selected files in a torrent
-
 * Remove background colors from fullscreen views,
   change the windowBackground in the style instead
 
