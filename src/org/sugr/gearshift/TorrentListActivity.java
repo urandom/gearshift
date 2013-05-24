@@ -4,6 +4,7 @@ import java.util.ArrayList;
 
 import org.sugr.gearshift.TransmissionSessionManager.TransmissionExclusionStrategy;
 
+import android.animation.Animator;
 import android.animation.AnimatorInflater;
 import android.animation.ValueAnimator;
 import android.app.AlertDialog;
@@ -24,7 +25,6 @@ import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.CheckBox;
 import android.widget.LinearLayout;
 import android.widget.ListView;
@@ -58,6 +58,8 @@ public class TorrentListActivity extends FragmentActivity
 
     private ValueAnimator mDetailSlideAnimator;
 
+    private boolean mDetailPanelShown;
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -87,6 +89,22 @@ public class TorrentListActivity extends FragmentActivity
             final View detailPanel = findViewById(R.id.torrent_detail_panel);
 
             mDetailSlideAnimator = (ValueAnimator) AnimatorInflater.loadAnimator(this, R.anim.weight_animator);
+            mDetailSlideAnimator.addListener(new Animator.AnimatorListener() {
+                @Override public void onAnimationStart(Animator animation) {
+                }
+
+                @Override public void onAnimationRepeat(Animator animation) {
+                }
+
+                @Override public void onAnimationEnd(Animator animation) {
+                    final View pager = findViewById(R.id.torrent_detail_pager);
+                    pager.setVisibility(View.VISIBLE);
+                    pager.animate().alpha((float) 1.0);
+                }
+
+                @Override public void onAnimationCancel(Animator animation) {
+                }
+            });
             mDetailSlideAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
                 @Override
                 public void onAnimationUpdate(ValueAnimator animation) {
@@ -107,6 +125,7 @@ public class TorrentListActivity extends FragmentActivity
             }
         }
 
+        getWindow().setBackgroundDrawable(null);
         mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
         mDrawerLayout.setDrawerShadow(R.drawable.drawer_shadow, GravityCompat.START);
         mDrawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED,
@@ -141,7 +160,6 @@ public class TorrentListActivity extends FragmentActivity
     @Override
     public void onItemSelected(Torrent torrent) {
         if (mTwoPane) {
-            toggleRightPane(true);
             int current = mTorrents.indexOf(torrent);
 
             FragmentManager manager = getSupportFragmentManager();
@@ -158,6 +176,7 @@ public class TorrentListActivity extends FragmentActivity
             } else {
                 fragment.setCurrentTorrent(current);
             }
+            toggleRightPane(true);
         } else {
             // In single-pane mode, simply start the detail activity
             // for the selected item ID.
@@ -251,14 +270,11 @@ public class TorrentListActivity extends FragmentActivity
     private boolean toggleRightPane(boolean show) {
         if (!mTwoPane) return false;
 
-        ViewGroup panel = (ViewGroup) findViewById(R.id.torrent_detail_panel);
+        View pager = findViewById(R.id.torrent_detail_pager);
         if (show) {
-            if (panel.getVisibility() != View.VISIBLE) {
-                panel.setVisibility(View.VISIBLE);
+            if (!mDetailPanelShown) {
+                mDetailPanelShown = true;
                 mDetailSlideAnimator.start();
-                // LayoutAnimationController controller = AnimationUtils.loadLayoutAnimation(
-                //         this, R.anim.layout_slide_right);
-                // panel.setLayoutAnimation(controller);
                 mDrawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED,
                         findViewById(R.id.sliding_menu_frame));
                 mDrawerToggle.setDrawerIndicatorEnabled(false);
@@ -273,11 +289,15 @@ public class TorrentListActivity extends FragmentActivity
                 return true;
             }
         } else {
-            if (panel.getVisibility() != View.GONE) {
+            if (mDetailPanelShown) {
+                mDetailPanelShown = false;
                 LinearLayout.LayoutParams params = (LinearLayout.LayoutParams)
                         findViewById(R.id.torrent_detail_panel).getLayoutParams();
                 params.weight = 0;
-                panel.setVisibility(View.GONE);
+                if (pager != null) {
+                    pager.setAlpha(0);
+                    pager.setVisibility(View.GONE);
+                }
                 mDrawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED,
                         findViewById(R.id.sliding_menu_frame));
                 mDrawerToggle.setDrawerIndicatorEnabled(true);
