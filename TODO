@@ -1,6 +1,3 @@
-* Remove background colors from fullscreen views,
-  change the windowBackground in the style instead
-
 * Use style="?android:listSeparatorTextViewStyle" for
   list view headers
 
