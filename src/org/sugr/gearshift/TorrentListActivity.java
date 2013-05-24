@@ -263,8 +263,8 @@ public class TorrentListActivity extends FragmentActivity
         outState.putBoolean(STATE_INTENT_CONSUMED, mIntentConsumed);
     }
 
-    public boolean isDetailsPanelShown() {
-        return mTwoPane && findViewById(R.id.torrent_detail_panel).getVisibility() == View.VISIBLE;
+    public boolean isDetailPanelShown() {
+        return mTwoPane && mDetailPanelShown;
     }
 
     private boolean toggleRightPane(boolean show) {
@@ -331,7 +331,7 @@ public class TorrentListActivity extends FragmentActivity
 
     @Override
     public Torrent[] getCurrentTorrents() {
-        if (!isDetailsPanelShown()) return new Torrent[] {};
+        if (!isDetailPanelShown()) return new Torrent[] {};
 
         return mTorrents.toArray(new Torrent[mTorrents.size()]);
     }

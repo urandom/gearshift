@@ -362,7 +362,7 @@ public class TorrentListFragment extends ListFragment {
             public boolean onItemLongClick(AdapterView<?> parent, View view,
                     int position, long id) {
 
-                if (!((TorrentListActivity) getActivity()).isDetailsPanelShown()) {
+                if (!((TorrentListActivity) getActivity()).isDetailPanelShown()) {
                     list.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE_MODAL);
                     setActivatedPosition(position);
                     return true;

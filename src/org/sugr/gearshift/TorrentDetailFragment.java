@@ -118,7 +118,7 @@ public class TorrentDetailFragment extends Fragment {
         super.onCreateOptionsMenu(menu, inflater);
 
         if (!(getActivity() instanceof TorrentListActivity)
-                || ((TorrentListActivity) getActivity()).isDetailsPanelShown()) {
+                || ((TorrentListActivity) getActivity()).isDetailPanelShown()) {
             inflater.inflate(R.menu.torrent_detail_fragment, menu);
 
             ArrayList<Torrent> torrents = ((TransmissionSessionInterface) getActivity()).getTorrents();

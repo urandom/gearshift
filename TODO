@@ -1,9 +1,6 @@
 * Use style="?android:listSeparatorTextViewStyle" for
   list view headers
 
-* Experiment with the new SlidingPaneLayout as a replacement for the
-  two pane setup
-
 * Add session configuration fragment
 * Show a small indicator on each torrent row that has tracker errors
 * Experiment with swipe-to-delete pattern (example from dashclock)
