@@ -26,6 +26,7 @@ import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.Loader;
 import android.text.Html;
 import android.text.Spanned;
+import android.util.SparseBooleanArray;
 import android.view.ActionMode;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -752,6 +753,7 @@ public class TorrentListFragment extends ListFragment {
         private SortBy mBaseSort = mTorrentComparator.getBaseSort();
         private SortOrder mSortOrder = mTorrentComparator.getSortOrder();
         private String mDirectory;
+        private SparseBooleanArray mTorrentAdded = new SparseBooleanArray();
 
         private SharedPreferences mSharedPrefs;
 
@@ -866,6 +868,14 @@ public class TorrentListFragment extends ListFragment {
             traffic.setEnabled(enabled);
             status.setEnabled(enabled);
 
+            if (!mTorrentAdded.get(torrent.getId(), false)) {
+                rowView.setTranslationY(100);
+                rowView.setAlpha((float) 0.3);
+                rowView.setRotationX(10);
+                rowView.animate().setDuration(300).translationY(0).alpha(1).rotationX(0).start();
+                mTorrentAdded.append(torrent.getId(), true);
+            }
+
             return rowView;
         }
 
@@ -890,6 +900,7 @@ public class TorrentListFragment extends ListFragment {
                     mObjects.clear();
                 }
                 super.clear();
+                mTorrentAdded = new SparseBooleanArray();
             }
         }
 
@@ -974,6 +985,7 @@ public class TorrentListFragment extends ListFragment {
             e.apply();
             mTorrentComparator.setSortingMethod(mSortBy, mSortOrder);
             repeatFilter();
+            mTorrentAdded = new SparseBooleanArray();
         }
 
         private class TorrentFilter extends Filter {
