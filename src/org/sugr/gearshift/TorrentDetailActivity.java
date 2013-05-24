@@ -182,8 +182,6 @@ public class TorrentDetailActivity extends FragmentActivity implements Transmiss
 
         getSupportLoaderManager().restartLoader(
                 G.SESSION_LOADER_ID, null, mTorrentLoaderCallbacks);
-
-        getWindow().setBackgroundDrawable(null);
     }
 
     @Override

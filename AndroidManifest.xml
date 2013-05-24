@@ -20,6 +20,7 @@
         android:backupAgent=".GearShiftBackupAgent" >
         <activity
             android:name="org.sugr.gearshift.TorrentListActivity"
+            android:theme="@style/AppTheme.NoBackground"
             android:label="@string/app_name" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -42,6 +43,7 @@
         <activity
             android:name=".TorrentDetailActivity"
             android:label="@string/title_torrent_detail"
+            android:theme="@style/AppTheme.NoBackground"
             android:parentActivityName=".TorrentListActivity" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"

@@ -85,7 +85,6 @@ public class TorrentListActivity extends FragmentActivity
             }
         }
 
-        getWindow().setBackgroundDrawable(null);
         mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
         mDrawerLayout.setDrawerShadow(R.drawable.drawer_shadow, GravityCompat.START);
         mDrawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED,
@@ -295,15 +294,6 @@ public class TorrentListActivity extends FragmentActivity
     public void setProfile(TransmissionProfile profile) {
         mProfile = profile;
         toggleRightPane(false);
-        if (profile == null) {
-            mDrawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED,
-                    findViewById(R.id.sliding_menu_frame));
-            getActionBar().setDisplayHomeAsUpEnabled(false);
-        } else {
-            mDrawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED,
-                    findViewById(R.id.sliding_menu_frame));
-            getActionBar().setDisplayHomeAsUpEnabled(true);
-        }
     }
 
     @Override
@@ -313,10 +303,25 @@ public class TorrentListActivity extends FragmentActivity
 
     @Override
     public void setSession(TransmissionSession session) {
-        mSession = session;
+        if (session == null) {
+            if (mSession != session) {
+                mDrawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED,
+                        findViewById(R.id.sliding_menu_frame));
+                getActionBar().setDisplayHomeAsUpEnabled(false);
+            }
 
-        if (!mIntentConsumed && !mDialogShown) {
-            consumeIntent();
+            mSession = session;
+        } else {
+            if (mSession != session) {
+                mDrawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED,
+                        findViewById(R.id.sliding_menu_frame));
+                getActionBar().setDisplayHomeAsUpEnabled(true);
+            }
+
+            mSession = session;
+            if (!mIntentConsumed && !mDialogShown) {
+                consumeIntent();
+            }
         }
     }
 
