@@ -4,6 +4,8 @@ import java.util.ArrayList;
 
 import org.sugr.gearshift.TransmissionSessionManager.TransmissionExclusionStrategy;
 
+import android.animation.AnimatorInflater;
+import android.animation.ValueAnimator;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -24,6 +26,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.Spinner;
 
@@ -53,6 +56,8 @@ public class TorrentListActivity extends FragmentActivity
     private DrawerLayout mDrawerLayout;
     private ActionBarDrawerToggle mDrawerToggle;
 
+    private ValueAnimator mDetailSlideAnimator;
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -77,6 +82,23 @@ public class TorrentListActivity extends FragmentActivity
             ((TorrentListFragment) getSupportFragmentManager()
                     .findFragmentById(R.id.torrent_list))
                     .setActivateOnItemClick(true);
+
+            final LinearLayout slidingLayout = (LinearLayout) findViewById(R.id.sliding_layout);
+            final View detailPanel = findViewById(R.id.torrent_detail_panel);
+
+            mDetailSlideAnimator = (ValueAnimator) AnimatorInflater.loadAnimator(this, R.anim.weight_animator);
+            mDetailSlideAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+                @Override
+                public void onAnimationUpdate(ValueAnimator animation) {
+                    float value = ((Float) animation.getAnimatedValue()).floatValue();
+                    LinearLayout.LayoutParams params = (LinearLayout.LayoutParams)
+                            detailPanel.getLayoutParams();
+
+                    params.weight = value;
+                    slidingLayout.requestLayout();
+                }
+
+            });
         }
 
         if (savedInstanceState != null) {
@@ -233,6 +255,7 @@ public class TorrentListActivity extends FragmentActivity
         if (show) {
             if (panel.getVisibility() != View.VISIBLE) {
                 panel.setVisibility(View.VISIBLE);
+                mDetailSlideAnimator.start();
                 // LayoutAnimationController controller = AnimationUtils.loadLayoutAnimation(
                 //         this, R.anim.layout_slide_right);
                 // panel.setLayoutAnimation(controller);
@@ -251,6 +274,9 @@ public class TorrentListActivity extends FragmentActivity
             }
         } else {
             if (panel.getVisibility() != View.GONE) {
+                LinearLayout.LayoutParams params = (LinearLayout.LayoutParams)
+                        findViewById(R.id.torrent_detail_panel).getLayoutParams();
+                params.weight = 0;
                 panel.setVisibility(View.GONE);
                 mDrawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED,
                         findViewById(R.id.sliding_menu_frame));
