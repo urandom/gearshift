@@ -900,7 +900,6 @@ public class TorrentListFragment extends ListFragment {
                     mObjects.clear();
                 }
                 super.clear();
-                mTorrentAdded = new SparseBooleanArray();
             }
         }
 
@@ -950,27 +949,32 @@ public class TorrentListFragment extends ListFragment {
 
             mCurrentFilterListener = listener;
             getFilter().filter(mCurrentConstraint, listener);
+            mTorrentAdded = new SparseBooleanArray();
         }
         */
 
         public void filter(FilterBy by) {
             mFilterBy = by;
             applyFilter(by.name(), G.PREF_LIST_FILTER);
+            mTorrentAdded = new SparseBooleanArray();
         }
 
         public void filter(SortBy by) {
             mSortBy = by;
             applyFilter(by.name(), G.PREF_LIST_SORT_BY);
+            mTorrentAdded = new SparseBooleanArray();
         }
 
         public void filter(SortOrder order) {
             mSortOrder = order;
             applyFilter(order.name(), G.PREF_LIST_SORT_ORDER);
+            mTorrentAdded = new SparseBooleanArray();
         }
 
         public void filterDirectory(String directory) {
             mDirectory = directory;
             applyFilter(directory, G.PREF_LIST_DIRECTORY);
+            mTorrentAdded = new SparseBooleanArray();
         }
 
         public void repeatFilter() {
@@ -985,7 +989,6 @@ public class TorrentListFragment extends ListFragment {
             e.apply();
             mTorrentComparator.setSortingMethod(mSortBy, mSortOrder);
             repeatFilter();
-            mTorrentAdded = new SparseBooleanArray();
         }
 
         private class TorrentFilter extends Filter {
