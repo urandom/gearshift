@@ -11,6 +11,7 @@
 	    <EditTextPreference
 	        android:key="profile_host"
 	        android:defaultValue="@string/empty_string"
+	        android:inputType="textNoSuggestions|textVisiblePassword"
 	        android:title="@string/con_host"
 	        android:dialogTitle="@string/con_host" />
 	    <EditTextPreference
@@ -22,11 +23,13 @@
   	    <EditTextPreference
 	        android:key="profile_path"
 	        android:defaultValue="@string/con_path_default"
+	        android:inputType="textNoSuggestions|textVisiblePassword"
 	        android:title="@string/con_path"
 	        android:dialogTitle="@string/con_path" />
 	    <EditTextPreference
 	        android:key="profile_username"
 	        android:defaultValue="@string/empty_string"
+	        android:inputType="textNoSuggestions|textVisiblePassword"
 	        android:title="@string/con_username"
 	        android:dialogTitle="@string/con_username" />
 	    <EditTextPreference
