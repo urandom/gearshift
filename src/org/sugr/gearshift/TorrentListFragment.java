@@ -89,6 +89,8 @@ public class TorrentListFragment extends ListFragment {
     private TransmissionSession mSession = new TransmissionSession();
 //    private TransmissionSessionStats mSessionStats;
 
+    private boolean mScrollToTop = false;
+
     /**
      * A callback interface that all activities containing this fragment must
      * implement. This mechanism allows activities to be notified of item
@@ -662,18 +664,22 @@ public class TorrentListFragment extends ListFragment {
 
     public void setListFilter(FilterBy e) {
         mTorrentListAdapter.filter(e);
+        mScrollToTop = true;
     }
 
     public void setListFilter(SortBy e) {
         mTorrentListAdapter.filter(e);
+        mScrollToTop = true;
     }
 
     public void setListFilter(SortOrder e) {
         mTorrentListAdapter.filter(e);
+        mScrollToTop = true;
     }
 
     public void setListFilter(String e) {
         mTorrentListAdapter.filterDirectory(e);
+        mScrollToTop = true;
     }
 
     public void setRefreshing(boolean refreshing) {
@@ -1118,6 +1124,8 @@ public class TorrentListFragment extends ListFragment {
                     }
                     notifyDataSetInvalidated();
                 }
+                if (mScrollToTop)
+                    getListView().setSelectionAfterHeaderView();
             }
         }
     }
