@@ -173,6 +173,8 @@ public class TorrentDetailActivity extends FragmentActivity implements Transmiss
             Bundle arguments = new Bundle();
             arguments.putInt(TorrentDetailFragment.ARG_PAGE_POSITION,
                     mCurrentTorrent);
+            arguments.putBoolean(TorrentDetailFragment.ARG_SHOW_PAGER,
+                    true);
             TorrentDetailFragment fragment = new TorrentDetailFragment();
             fragment.setArguments(arguments);
             getSupportFragmentManager().beginTransaction()

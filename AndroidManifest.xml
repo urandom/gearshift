@@ -48,6 +48,12 @@
                 android:value=".TorrentListActivity" />
         </activity>
         <activity
+            android:name=".TransmissionSessionActivity"
+            android:label="@string/session_settings_item"
+            android:theme="@style/AppTheme.CardsActivity"
+            android:parentActivityName="org.sugr.gearshift.TorrentListActivity">
+        </activity>
+        <activity
             android:name=".SettingsActivity"
             android:label="@string/settings"
             android:parentActivityName=".TorrentListActivity">

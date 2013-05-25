@@ -9,6 +9,6 @@
         android:layout_height="match_parent"
         android:alpha="0"
         android:visibility="gone" />
-    
+
 </FrameLayout>
 

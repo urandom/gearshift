@@ -22,6 +22,7 @@ import android.widget.Spinner;
 public class TorrentDetailFragment extends Fragment {
     public static final String TAG = "detail_fragment";
     public static final String ARG_PAGE_POSITION = "page_position";
+    public static final String ARG_SHOW_PAGER = "show_pager";
     public interface PagerCallbacks {
         public void onPageSelected(int position);
     }
@@ -88,6 +89,13 @@ public class TorrentDetailFragment extends Fragment {
         });
 
         mPager.setCurrentItem(mCurrentPosition);
+
+        if (getArguments().containsKey(ARG_SHOW_PAGER)) {
+            if (getArguments().getBoolean(ARG_SHOW_PAGER)) {
+                mPager.setVisibility(View.VISIBLE);
+                mPager.setAlpha(1);
+            }
+        }
 
         return root;
     }

@@ -18,12 +18,4 @@
         android:orderInCategory="25"
         android:title="@string/alt_speed_label_on"
         android:titleCondensed="@string/alt_speed"/>
-
-    <item android:id="@+id/menu_settings"
-        android:visible="true"
-        android:showAsAction="never"
-        android:menuCategory="system"
-        android:orderInCategory="30"
-        android:title="@string/settings"
-        android:titleCondensed="@string/settings" />
 </menu>

@@ -1,11 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    style="@style/CardContainer"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content" >
+    style="@style/SessionCardContainer">
 
     <LinearLayout
-        android:id="@+id/torrent_detail_limits_expander"
+        android:id="@+id/transmission_session_general_expander"
         style="@style/CardHeaderExpander" >
 
         <TextView
@@ -19,7 +17,7 @@
 
     <TableLayout
         android:id="@+id/torrent_detail_limits_content"
-        style="@style/CardContentCollapsed" >
+        style="@style/CardContent" >
         
         <TableRow
             android:layout_width="wrap_content"

@@ -21,9 +21,15 @@
         <item name="android:windowBackground">@null</item>
     </style>
     
+    <style name="AppTheme.CardsActivity" parent="AppTheme">
+        <item name="android:windowBackground">@color/detail_background</item>
+    </style>
+    
     <style name="TorrentTitle">
-	   	<item name="android:paddingLeft">4dp</item>
-	    <item name="android:paddingBottom">4dp</item>
+	   	<item name="android:paddingLeft">16dp</item>
+	   	<item name="android:paddingRight">16dp</item>
+	    <item name="android:paddingTop">8dp</item>
+	    <item name="android:paddingBottom">16dp</item>
 	    <item name="android:textColor">#333</item>
 	    <item name="android:textSize">16sp</item>
 	    <item name="android:textStyle">bold</item>
@@ -37,12 +43,16 @@
 	    <item name="android:layout_height">wrap_content</item>
     </style>
     
-    <style name="TorrentDetailContainer">
+    <style name="CardContainer">
    	    <item name="android:background">@drawable/card_background</item>
-   	    <item name="android:layout_marginTop">8dp</item>
+        <item name="android:layout_marginLeft">12dp</item>
+        <item name="android:layout_marginRight">12dp</item>
+   	    <item name="android:layout_marginTop">4dp</item>
+   	    <item name="android:layout_marginBottom">4dp</item>
+        <item name="android:orientation">vertical</item>
     </style>
         
-    <style name="TorrentDetailExpander">
+    <style name="CardHeaderExpander">
         <item name="android:background">?android:attr/selectableItemBackground</item>
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">wrap_content</item>
@@ -54,7 +64,7 @@
    	    <item name="android:paddingRight">16dp</item>
     </style>
     
-    <style name="TorrentDetailExpanderText">
+    <style name="CardHeaderExpanderText">
         <item name="android:textSize">18sp</item>
         <item name="android:textStyle">bold</item>
         <item name="android:textColor">#900000</item>
@@ -65,7 +75,7 @@
         <item name="android:layout_gravity">center_vertical</item>
     </style>
     
-    <style name="TorrentDetailExpanderImage">
+    <style name="CardHeaderExpanderImage">
         <item name="android:layout_width">32dp</item>
         <item name="android:layout_height">32dp</item>
         <item name="android:layout_gravity">center_vertical</item>
@@ -73,11 +83,11 @@
         <item name="android:background">@drawable/ic_section_expand</item>
     </style>
     
-    <style name="TorrentDetailExpanderImageCollapse" parent="@style/TorrentDetailExpanderImage">
+    <style name="CardHeaderExpanderImageCollapse" parent="@style/CardHeaderExpanderImage">
         <item name="android:background">@drawable/ic_section_collapse</item>
     </style>
 
-    <style name="TorrentDetailContent">
+    <style name="CardContent">
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:orientation">vertical</item>
@@ -89,11 +99,11 @@
    	    <item name="android:stretchColumns">1</item>
     </style>
     
-    <style name="TorrentDetailContentCollapsed" parent="@style/TorrentDetailContent">
+    <style name="CardContentCollapsed" parent="@style/CardContent">
         <item name="android:visibility">gone</item>
     </style>
     
-    <style name="TorrentDetailOverviewHeading">
+    <style name="CardHeading">
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:textSize">16sp</item>
@@ -106,7 +116,7 @@
         <item name="android:layout_weight">1</item>
     </style>
     
-    <style name="TorrentDetailEntry">
+    <style name="CardEntry">
         <!-- <item name="android:clickable">true</item> -->
         <!-- <item name="android:background">@drawable/clickable_selector_holo_light</item> -->
         <item name="android:imeOptions">actionDone|flagNoExtractUi</item>
@@ -117,12 +127,17 @@
         <item name="android:selectAllOnFocus">true</item>
     </style>
     
-    <style name="TorrentDetailTextColumn">
+    <style name="CardTextColumn">
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:fontFamily">sans-serif-light</item>
         <item name="android:paddingBottom">8dp</item>
         <item name="android:paddingRight">8dp</item>
         <item name="android:textSize">13sp</item>
+    </style>
+
+    <style name="SessionCardContainer" parent="CardContainer">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
     </style>
 </resources>

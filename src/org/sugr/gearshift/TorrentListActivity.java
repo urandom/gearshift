@@ -90,11 +90,9 @@ public class TorrentListActivity extends FragmentActivity
 
             mDetailSlideAnimator = (ValueAnimator) AnimatorInflater.loadAnimator(this, R.anim.weight_animator);
             mDetailSlideAnimator.addListener(new Animator.AnimatorListener() {
-                @Override public void onAnimationStart(Animator animation) {
-                }
+                @Override public void onAnimationStart(Animator animation) { }
 
-                @Override public void onAnimationRepeat(Animator animation) {
-                }
+                @Override public void onAnimationRepeat(Animator animation) { }
 
                 @Override public void onAnimationEnd(Animator animation) {
                     final View pager = findViewById(R.id.torrent_detail_pager);
@@ -102,8 +100,7 @@ public class TorrentListActivity extends FragmentActivity
                     pager.animate().alpha((float) 1.0);
                 }
 
-                @Override public void onAnimationCancel(Animator animation) {
-                }
+                @Override public void onAnimationCancel(Animator animation) { }
             });
             mDetailSlideAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
                 @Override
@@ -221,6 +218,12 @@ public class TorrentListActivity extends FragmentActivity
 
         getMenuInflater().inflate(R.menu.torrent_list_activity, menu);
 
+        if (mSession == null) {
+            menu.findItem(R.id.menu_session_settings).setVisible(false);
+        } else {
+            menu.findItem(R.id.menu_session_settings).setVisible(true);
+        }
+
         return true;
     }
 
@@ -232,6 +235,7 @@ public class TorrentListActivity extends FragmentActivity
             return true;
         }
 
+        Intent intent;
         switch(item.getItemId()) {
             case android.R.id.home:
                 if (!mTwoPane) {
@@ -249,8 +253,19 @@ public class TorrentListActivity extends FragmentActivity
                     fragment.getListView().setItemChecked(position, false);
                     return true;
                 }
+            case R.id.menu_session_settings:
+                intent = new Intent(this, TransmissionSessionActivity.class);
+                intent.putExtra(TransmissionSessionActivity.ARG_PROFILE, mProfile);
+                Gson gson = new GsonBuilder().setExclusionStrategies(new TransmissionExclusionStrategy()).create();
+                intent.putExtra(TransmissionSessionActivity.ARG_JSON_SESSION, gson.toJson(mSession));
+                startActivity(intent);
+                return true;
+            case R.id.menu_settings:
+                intent = new Intent(this, SettingsActivity.class);
+                startActivity(intent);
+                return true;
             case R.id.menu_about:
-                Intent intent = new Intent(this, AboutActivity.class);
+                intent = new Intent(this, AboutActivity.class);
                 startActivity(intent);
                 return true;
         }
@@ -354,6 +369,8 @@ public class TorrentListActivity extends FragmentActivity
                 mDrawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED,
                         findViewById(R.id.sliding_menu_frame));
                 getActionBar().setDisplayHomeAsUpEnabled(false);
+
+                invalidateOptionsMenu();
             }
 
             mSession = session;
@@ -362,6 +379,8 @@ public class TorrentListActivity extends FragmentActivity
                 mDrawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED,
                         findViewById(R.id.sliding_menu_frame));
                 getActionBar().setDisplayHomeAsUpEnabled(true);
+
+                invalidateOptionsMenu();
             }
 
             mSession = session;

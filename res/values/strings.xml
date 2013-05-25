@@ -268,4 +268,6 @@
     <string name="unwant_file">Skip</string>
         
     <string name="want_file">Download</string>
+        
+    <string name="session_settings_item">Session settings</string>
 </resources>

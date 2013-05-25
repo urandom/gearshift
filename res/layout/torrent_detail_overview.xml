@@ -1,33 +1,32 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    style="@style/TorrentDetailContainer"
+    style="@style/CardContainer"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:orientation="vertical" >
+    android:layout_height="wrap_content">
 
     <LinearLayout
         android:id="@+id/torrent_detail_overview_expander"
-        style="@style/TorrentDetailExpander" >
+        style="@style/CardHeaderExpander" >
 
         <TextView
-            style="@style/TorrentDetailExpanderText"
+            style="@style/CardHeaderExpanderText"
             android:text="@string/torrent_overview" />
 
         <View
             android:id="@+id/torrent_detail_overview_expander_image"
-            style="@style/TorrentDetailExpanderImageCollapse" />
+            style="@style/CardHeaderExpanderImageCollapse" />
     </LinearLayout>
 
     <TableLayout
         android:id="@+id/torrent_detail_overview_content"
-        style="@style/TorrentDetailContent" >
+        style="@style/CardContent" >
         
         <TableRow
             android:layout_width="match_parent"
             android:layout_height="wrap_content" >
             
 	        <TextView
-	            style="@style/TorrentDetailOverviewHeading"
+	            style="@style/CardHeading"
 	            android:layout_span="2"
 	            android:text="@string/torrent_activity" />
 
@@ -37,7 +36,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" >
 
-            <TextView style="@style/TorrentDetailTextColumn" android:text="@string/torrent_have" />
+            <TextView style="@style/CardTextColumn" android:text="@string/torrent_have" />
 
             <TextView android:id="@+id/torrent_have" />
         </TableRow>
@@ -46,7 +45,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" >
 
-            <TextView style="@style/TorrentDetailTextColumn" android:text="@string/torrent_downloaded" />
+            <TextView style="@style/CardTextColumn" android:text="@string/torrent_downloaded" />
 
             <TextView android:id="@+id/torrent_downloaded" />
         </TableRow>
@@ -55,7 +54,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" >
 
-            <TextView style="@style/TorrentDetailTextColumn" android:text="@string/torrent_uploaded" />
+            <TextView style="@style/CardTextColumn" android:text="@string/torrent_uploaded" />
 
             <TextView android:id="@+id/torrent_uploaded" />
         </TableRow>
@@ -64,7 +63,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" >
 
-            <TextView style="@style/TorrentDetailTextColumn" android:text="@string/torrent_state" />
+            <TextView style="@style/CardTextColumn" android:text="@string/torrent_state" />
 
             <TextView android:id="@+id/torrent_state" />
         </TableRow>
@@ -73,7 +72,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" >
 
-            <TextView style="@style/TorrentDetailTextColumn" android:text="@string/torrent_running_time" />
+            <TextView style="@style/CardTextColumn" android:text="@string/torrent_running_time" />
 
             <TextView android:id="@+id/torrent_running_time" />
         </TableRow>
@@ -82,7 +81,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" >
 
-            <TextView style="@style/TorrentDetailTextColumn" android:text="@string/torrent_remaining_time" />
+            <TextView style="@style/CardTextColumn" android:text="@string/torrent_remaining_time" />
 
             <TextView android:id="@+id/torrent_remaining_time" />
         </TableRow>
@@ -91,7 +90,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" >
 
-            <TextView style="@style/TorrentDetailTextColumn" android:text="@string/torrent_last_activity" />
+            <TextView style="@style/CardTextColumn" android:text="@string/torrent_last_activity" />
 
             <TextView android:id="@+id/torrent_last_activity" />
         </TableRow>
@@ -100,7 +99,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" >
 
-            <TextView style="@style/TorrentDetailTextColumn" android:text="@string/torrent_error" />
+            <TextView style="@style/CardTextColumn" android:text="@string/torrent_error" />
 
             <TextView android:id="@+id/torrent_error" />
         </TableRow>                                                                                                    
@@ -110,7 +109,7 @@
             android:layout_height="wrap_content" >
 
 	        <TextView
-	            style="@style/TorrentDetailOverviewHeading"
+	            style="@style/CardHeading"
 	            android:layout_span="2"
 	            android:text="@string/torrent_details" />
 	        
@@ -120,7 +119,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" >
 
-            <TextView style="@style/TorrentDetailTextColumn" android:text="@string/torrent_size" />
+            <TextView style="@style/CardTextColumn" android:text="@string/torrent_size" />
 
             <TextView android:id="@+id/torrent_size" />
         </TableRow>
@@ -129,7 +128,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" >
 
-            <TextView style="@style/TorrentDetailTextColumn" android:text="@string/torrent_location" />
+            <TextView style="@style/CardTextColumn" android:text="@string/torrent_location" />
 
             <TextView android:id="@+id/torrent_location" />
         </TableRow>
@@ -138,7 +137,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" >
 
-            <TextView style="@style/TorrentDetailTextColumn" android:text="@string/torrent_hash" />
+            <TextView style="@style/CardTextColumn" android:text="@string/torrent_hash" />
 
             <TextView android:id="@+id/torrent_hash" />
         </TableRow>
@@ -147,7 +146,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" >
 
-            <TextView style="@style/TorrentDetailTextColumn" android:text="@string/torrent_privacy" />
+            <TextView style="@style/CardTextColumn" android:text="@string/torrent_privacy" />
 
             <TextView android:id="@+id/torrent_privacy" />
         </TableRow>
@@ -156,7 +155,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" >
 
-            <TextView style="@style/TorrentDetailTextColumn" android:text="@string/torrent_origin" />
+            <TextView style="@style/CardTextColumn" android:text="@string/torrent_origin" />
 
             <TextView android:id="@+id/torrent_origin" />
         </TableRow>
@@ -165,7 +164,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" >
 
-            <TextView style="@style/TorrentDetailTextColumn" android:text="@string/torrent_comment" />
+            <TextView style="@style/CardTextColumn" android:text="@string/torrent_comment" />
 
             <TextView android:id="@+id/torrent_comment" />
         </TableRow>

@@ -1,5 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android" >
+    <item android:id="@+id/menu_session_settings"
+        android:visible="false"
+        android:showAsAction="never"
+        android:menuCategory="system"
+        android:orderInCategory="80"
+        android:title="@string/session_settings_item" />
+
+    <item android:id="@+id/menu_settings"
+        android:visible="true"
+        android:showAsAction="never"
+        android:menuCategory="system"
+        android:orderInCategory="90"
+        android:title="@string/settings"
+        android:titleCondensed="@string/settings" />
+
      <item android:id="@+id/menu_about"
         android:visible="true"
         android:showAsAction="never"

@@ -15,7 +15,6 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.os.Bundle;
@@ -629,10 +628,6 @@ public class TorrentListFragment extends ListFragment {
                     mRefreshing = !mRefreshing;
                     getActivity().invalidateOptionsMenu();
                 }
-                return true;
-            case R.id.menu_settings:
-                Intent i = new Intent(getActivity(), SettingsActivity.class);
-                getActivity().startActivity(i);
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
