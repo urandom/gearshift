@@ -350,7 +350,7 @@ public class TorrentListActivity extends FragmentActivity
     @Override
     public void setSession(TransmissionSession session) {
         if (session == null) {
-            if (mSession != session) {
+            if (mSession != null) {
                 mDrawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED,
                         findViewById(R.id.sliding_menu_frame));
                 getActionBar().setDisplayHomeAsUpEnabled(false);
@@ -358,7 +358,7 @@ public class TorrentListActivity extends FragmentActivity
 
             mSession = session;
         } else {
-            if (mSession != session) {
+            if (mSession == null) {
                 mDrawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED,
                         findViewById(R.id.sliding_menu_frame));
                 getActionBar().setDisplayHomeAsUpEnabled(true);
