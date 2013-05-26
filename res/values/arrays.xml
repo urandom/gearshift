@@ -110,4 +110,16 @@
 		<item>RATE_UPLOAD</item>
 		<item>QUEUE</item>
     </string-array>
+
+    <string-array name="session_settings_encryption">
+        <item>Required</item>
+        <item>Preferred</item>
+        <item>Tolerated</item>
+    </string-array>
+    <string-array name="session_settings_encryption_values" translatable="false">
+        <item>required</item>
+        <item>preferred</item>
+        <item>tolerated</item>
+    </string-array>
+    
 </resources>

@@ -8,15 +8,15 @@
 
         <TextView
             style="@style/CardHeaderExpanderText"
-            android:text="@string/torrent_limits" />
+            android:text="@string/session_settings_general" />
 
         <View
-            android:id="@+id/torrent_detail_limits_expander_image"
+            android:id="@+id/transmission_session_general_expander_image"
             style="@style/CardHeaderExpanderImage" />
     </LinearLayout>
 
     <TableLayout
-        android:id="@+id/torrent_detail_limits_content"
+        android:id="@+id/transmission_session_general_content"
         style="@style/CardContent" >
         
         <TableRow
@@ -25,69 +25,9 @@
             
 	        <TextView
 	            style="@style/CardHeading"
-	            android:text="@string/torrent_bandwidth"
+	            android:text="@string/session_settings_environment"
 	            android:layout_span="2" />
         </TableRow>
-
-        <TableRow
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" >
-
-            <CheckBox
-                android:id="@+id/torrent_global_limits"
-                android:layout_span="2"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/torrent_global_limits" />
-
-        </TableRow>
-
-        <TableRow
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" >
-            
-            <TextView
-                 style="@style/CardTextColumn"
-                 android:text="@string/torrent_priority" />
-
-            <Spinner
-                android:id="@+id/torrent_priority"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:entries="@array/torrent_priority" />
-            
-        </TableRow>
-
-        <TableRow
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:focusable="true"
-    		android:focusableInTouchMode="true"
-    		android:descendantFocusability="beforeDescendants" >
-            
-            <TextView style="@style/CardTextColumn"
-                 android:text="@string/torrent_queue_position" />
-
-            <EditText
-                android:id="@+id/torrent_queue_position"
-                android:inputType="number"
-                style="@style/CardEntry" >
-            </EditText>
-            
-        </TableRow>
-
-        <TableRow
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" >
-
-            <CheckBox
-                android:id="@+id/torrent_limit_download_check"
-                android:layout_span="2"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/torrent_limit_download" />
-
-        </TableRow>
         
         <TableRow
             android:layout_width="wrap_content"
@@ -97,11 +37,21 @@
     		android:descendantFocusability="beforeDescendants" >
             
             <TextView style="@style/CardTextColumn"
-                android:text="@string/torrent_limit_speed_amount" />
-            
+                android:layout_span="2"
+                android:text="@string/session_settings_download_directory" />
+        </TableRow>
+        
+        <TableRow
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:focusable="true"
+    		android:focusableInTouchMode="true"
+    		android:descendantFocusability="beforeDescendants" >
+
             <EditText
-                android:id="@+id/torrent_limit_download"
-                android:inputType="number"
+                android:id="@+id/transmission_session_download_directory"
+                android:layout_span="2"
+                android:inputType="textNoSuggestions|textVisiblePassword"
                 style="@style/CardEntry" >
             </EditText>
             
@@ -112,11 +62,11 @@
             android:layout_height="wrap_content" >
 
             <CheckBox
-                android:id="@+id/torrent_limit_upload_check"
+                android:id="@+id/transmission_session_incomplete_download_check"
                 android:layout_span="2"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/torrent_limit_upload" />
+                android:text="@string/session_settings_incomplete_download_directory" />
 
         </TableRow>
         
@@ -127,11 +77,56 @@
     		android:focusableInTouchMode="true"
     		android:descendantFocusability="beforeDescendants" >
             
-            <TextView style="@style/CardTextColumn"
-                android:text="@string/torrent_limit_speed_amount" />
+            <EditText
+                android:id="@+id/transmission_session_incomplete_download_directory"
+                android:layout_span="2"
+                android:inputType="textNoSuggestions|textVisiblePassword"
+                style="@style/CardEntry" >
+            </EditText>
+            
+        </TableRow>
+
+        <TableRow
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" >
+
+            <CheckBox
+                android:id="@+id/transmission_session_done_script_check"
+                android:layout_span="2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/session_settings_script_to_run_when_torrent_finishes" />
+
+        </TableRow>
+        
+        <TableRow
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:focusable="true"
+    		android:focusableInTouchMode="true"
+    		android:descendantFocusability="beforeDescendants" >
             
             <EditText
-                android:id="@+id/torrent_limit_upload"
+                android:id="@+id/transmission_session_done_script"
+                android:layout_span="2"
+                android:inputType="textNoSuggestions|textVisiblePassword"
+                style="@style/CardEntry" >
+            </EditText>
+            
+        </TableRow>
+
+        <TableRow
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:focusable="true"
+    		android:focusableInTouchMode="true"
+    		android:descendantFocusability="beforeDescendants" >
+            
+            <TextView style="@style/CardTextColumn"
+                 android:text="@string/session_settings_cache_size" />
+
+            <EditText
+                android:id="@+id/transmission_session_cache_size"
                 android:inputType="number"
                 style="@style/CardEntry" >
             </EditText>
@@ -144,70 +139,47 @@
             
 	        <TextView
 	            style="@style/CardHeading"
-	            android:text="@string/torrent_seeding"
+	            android:text="@string/session_settings_behavior"
 	            android:layout_span="2" />
 	        
 	    </TableRow>
-
+        
         <TableRow
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" >
-            
-            <TextView style="@style/CardTextColumn" android:text="@string/torrent_seed_ratio_mode" />
 
-            <Spinner
-                android:id="@+id/torrent_seed_ratio_mode"
+            <CheckBox
+                android:id="@+id/transmission_session_rename_partial_check"
+                android:layout_span="2"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:entries="@array/torrent_seed_ratio_mode" />
-            
-        </TableRow>
+                android:text="@string/session_settings_rename_partial_files" />
 
-        <TableRow
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:focusable="true"
-    		android:focusableInTouchMode="true"
-    		android:descendantFocusability="beforeDescendants" >
-            
-            <TextView style="@style/CardTextColumn" android:text="@string/torrent_seed_ratio_limit" />
-
-            <EditText
-                android:id="@+id/torrent_seed_ratio_limit"
-                android:inputType="numberDecimal"
-                style="@style/CardEntry" >
-            </EditText>
-            
         </TableRow>
-                   
+        
         <TableRow
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" >
-            
-	                
-	        <TextView
-	            style="@style/CardHeading"
-	            android:text="@string/torrent_peers"
-	            android:layout_span="2" />
-       	</TableRow>
 
+            <CheckBox
+                android:id="@+id/transmission_session_trash_original_check"
+                android:layout_span="2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/session_settings_trash_original" />
+
+        </TableRow>
+        
         <TableRow
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:focusable="true"
-    		android:focusableInTouchMode="true"
-    		android:descendantFocusability="beforeDescendants" >
+            android:layout_height="wrap_content" >
 
-            
-            <TextView style="@style/CardTextColumn"
-                android:text="@string/torrent_peer_limit" />
-
-            <EditText
-                android:id="@+id/torrent_peer_limit"
-                android:inputType="number"
-                style="@style/CardEntry" >
-            </EditText>
-                
+            <CheckBox
+                android:id="@+id/transmission_session_start_added_check"
+                android:layout_span="2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/session_settings_start_added_torrents" />
 
         </TableRow>
         

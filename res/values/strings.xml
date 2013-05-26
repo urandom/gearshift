@@ -270,4 +270,94 @@
     <string name="want_file">Download</string>
         
     <string name="session_settings_item">Session settings</string>
+        
+    <string name="session_settings_general">General</string>
+        
+    <string name="session_settings_environment">Environment</string>
+        
+    <string name="session_settings_download_directory">Download directory</string>
+        
+    <string name="session_settings_incomplete_download_directory">Incomplete download directory</string>
+        
+    <string name="session_settings_script_to_run_when_torrent_finishes">Script to run when a torrent is done</string>
+        
+    <string name="session_settings_cache_size">Cache size (MiB)</string>
+        
+    <string name="session_settings_behavior">Behavior</string>
+        
+    <string name="session_settings_rename_partial_files">Rename partial files</string>
+        
+    <string name="session_settings_trash_original">Delete files added from the watch directory</string>
+        
+    <string name="session_settings_start_added_torrents">Start added torrents</string>
+        
+    <string name="session_settings_connections">Connections</string>
+        
+    <string name="session_settings_peer_port">Peer port</string>
+        
+    <string name="session_settings_port_test">Test</string>
+        
+    <string name="session_settings_encryption">Encryption</string>
+        
+    <string name="session_settings_random_port">Random peer port on start</string>
+        
+    <string name="session_settings_port_forwarding">Peer port forwarding</string>
+        
+    <string name="session_settings_protocol">Protocol</string>
+        
+    <string name="session_settings_peer_exchange">Peer exchange (PEX)</string>
+        
+    <string name="session_settings_distributed_hash_table">Distributed Hash Table (DHT)</string>
+        
+    <string name="session_settings_local_discovery">Local peer discovery</string>
+        
+    <string name="session_settings_blocklist">Blocklist</string>
+        
+    <string name="session_settings_blocklist_url">URL</string>
+        
+    <string name="session_settings_blocklist_enable_format">Enable (%1$d entries)</string>
+        
+    <string name="session_settings_blocklist_update">Update</string>
+        
+    <string name="session_settings_bandwidth">Bandwidth</string>
+        
+    <string name="session_settings_general_limits">General limits</string>
+        
+    <string name="session_settings_down_limit">Download limit (KiB/s)</string>
+        
+    <string name="session_settings_upload_limit">Upload limit (KiB/s)</string>
+        
+    <string name="session_settings_alt_limits">Alternate limits</string>
+        
+    <string name="session_settings_enable_alt_limits">Enable alternate speed limits</string>
+        
+    <string name="session_settings_alt_time_range">Alternate time range</string>
+        
+    <string name="session_settings_alt_time">Time</string>
+
+    <string name="session_settings_alt_limit_time_format">%1$d:%2$d</string>
+
+    <string name="session_settings_alt_down_limit">Alternate Download limit (KiB/s)</string>
+        
+    <string name="session_settings_alt_upload_limit">Alternate Upload limit (KiB/s)</string>
+        
+    <string name="session_settings_seeding">Seeding</string>
+        
+    <string name="session_settings_seed_ratio_limit">Seed ratio limit</string>
+        
+    <string name="session_settings_queues">Queues</string>
+        
+    <string name="session_settings_download_size">Download size</string>
+        
+    <string name="session_settings_seed_size">Seed size</string>
+        
+    <string name="session_settings_ignore_stalled_torrents">Ignore stalled torrents</string>
+        
+    <string name="session_settings_ignore_stalled_minutes">Minutes</string>
+        
+    <string name="session_settings_peers">Peers</string>
+        
+    <string name="session_settings_global_peer_limit">Global peer limit</string>
+        
+    <string name="session_settings_torrent_peer_limit">Per torrent peer limit</string>
 </resources>
