@@ -294,10 +294,10 @@ public class TorrentListActivity extends FragmentActivity
                         findViewById(R.id.sliding_menu_frame));
                 mDrawerToggle.setDrawerIndicatorEnabled(false);
 
-                Loader<TransmissionSessionData> loader =
+                Loader<TransmissionData> loader =
                         getSupportLoaderManager().getLoader(G.SESSION_LOADER_ID);
                 if (loader != null) {
-                    ((TransmissionSessionLoader) loader).setAllCurrentTorrents(true);
+                    ((TransmissionDataLoader) loader).setAllCurrentTorrents(true);
                 }
 
                 invalidateOptionsMenu();
@@ -316,9 +316,9 @@ public class TorrentListActivity extends FragmentActivity
                 mDrawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED,
                         findViewById(R.id.sliding_menu_frame));
                 mDrawerToggle.setDrawerIndicatorEnabled(true);
-                Loader<TransmissionSessionData> loader = getSupportLoaderManager().getLoader(G.SESSION_LOADER_ID);
+                Loader<TransmissionData> loader = getSupportLoaderManager().getLoader(G.SESSION_LOADER_ID);
                 if (loader != null) {
-                    ((TransmissionSessionLoader) loader).setAllCurrentTorrents(false);
+                    ((TransmissionDataLoader) loader).setAllCurrentTorrents(false);
                 }
 
                 invalidateOptionsMenu();
@@ -416,7 +416,7 @@ public class TorrentListActivity extends FragmentActivity
             SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
             LayoutInflater inflater = getLayoutInflater();
             View view = inflater.inflate(R.layout.add_torrent_dialog, null);
-            final Loader<TransmissionSessionData> loader = getSupportLoaderManager()
+            final Loader<TransmissionData> loader = getSupportLoaderManager()
                     .getLoader(G.SESSION_LOADER_ID);
 
             final AlertDialog.Builder builder = new AlertDialog.Builder(this)
@@ -454,7 +454,7 @@ public class TorrentListActivity extends FragmentActivity
                         CheckBox paused = (CheckBox) ((AlertDialog) dialog).findViewById(R.id.start_paused);
 
                         String dir = (String) location.getSelectedItem();
-                        ((TransmissionSessionLoader) loader).addTorrent(
+                        ((TransmissionDataLoader) loader).addTorrent(
                                 data.toString(), null, dir, paused.isChecked());
 
                         setRefreshing(true);
@@ -473,7 +473,7 @@ public class TorrentListActivity extends FragmentActivity
                         CheckBox paused = (CheckBox) ((AlertDialog) dialog).findViewById(R.id.start_paused);
 
                         String dir = (String) location.getSelectedItem();
-                        ((TransmissionSessionLoader) loader).addTorrent(
+                        ((TransmissionDataLoader) loader).addTorrent(
                                 null, data, dir, paused.isChecked());
 
                         setRefreshing(true);

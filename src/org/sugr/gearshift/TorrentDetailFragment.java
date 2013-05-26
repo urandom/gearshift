@@ -160,7 +160,7 @@ public class TorrentDetailFragment extends Fragment {
 
     @Override
     public boolean onOptionsItemSelected(final MenuItem item) {
-        final Loader<TransmissionSessionData> loader = getActivity().getSupportLoaderManager()
+        final Loader<TransmissionData> loader = getActivity().getSupportLoaderManager()
             .getLoader(G.SESSION_LOADER_ID);
 
         final TransmissionSessionInterface context = ((TransmissionSessionInterface) getActivity());
@@ -184,7 +184,7 @@ public class TorrentDetailFragment extends Fragment {
                     new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int id) {
-                        ((TransmissionSessionLoader) loader).setTorrentsRemove(ids, item.getItemId() == R.id.delete);
+                        ((TransmissionDataLoader) loader).setTorrentsRemove(ids, item.getItemId() == R.id.delete);
                         context.setRefreshing(true);
                     }
                 })
@@ -206,10 +206,10 @@ public class TorrentDetailFragment extends Fragment {
                         action = "torrent-start";
                         break;
                 }
-                ((TransmissionSessionLoader) loader).setTorrentsAction(action, ids);
+                ((TransmissionDataLoader) loader).setTorrentsAction(action, ids);
                 break;
             case R.id.pause:
-                ((TransmissionSessionLoader) loader).setTorrentsAction("torrent-stop", ids);
+                ((TransmissionDataLoader) loader).setTorrentsAction("torrent-stop", ids);
                 break;
             case R.id.move:
                 LayoutInflater inflater = getActivity().getLayoutInflater();
@@ -226,7 +226,7 @@ public class TorrentDetailFragment extends Fragment {
                         CheckBox move = (CheckBox) ((AlertDialog) dialog).findViewById(R.id.move);
 
                         String dir = (String) location.getSelectedItem();
-                        ((TransmissionSessionLoader) loader).setTorrentsLocation(
+                        ((TransmissionDataLoader) loader).setTorrentsLocation(
                                 ids, dir, move.isChecked());
 
                         context.setRefreshing(true);
@@ -250,10 +250,10 @@ public class TorrentDetailFragment extends Fragment {
 
                 return true;
             case R.id.verify:
-                ((TransmissionSessionLoader) loader).setTorrentsAction("torrent-verify", ids);
+                ((TransmissionDataLoader) loader).setTorrentsAction("torrent-verify", ids);
                 break;
             case R.id.reannounce:
-                ((TransmissionSessionLoader) loader).setTorrentsAction("torrent-reannounce", ids);
+                ((TransmissionDataLoader) loader).setTorrentsAction("torrent-reannounce", ids);
                 break;
             default:
                 return true;

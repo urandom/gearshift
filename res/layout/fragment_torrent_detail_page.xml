@@ -17,11 +17,11 @@
             style="@style/TorrentTitle" />
 
         <include layout="@layout/torrent_detail_overview" />
-		
-		<include layout="@layout/torrent_detail_files" />
-        
+
+        <include layout="@layout/torrent_detail_files" />
+
         <include layout="@layout/torrent_detail_limits" />
 
     </LinearLayout>
 
-</ScrollView><!-- android:background="@android:drawable/dialog_holo_light_frame" -->
+</ScrollView>

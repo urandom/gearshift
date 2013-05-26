@@ -19,7 +19,7 @@ import android.support.v4.content.AsyncTaskLoader;
 import android.util.SparseArray;
 
 
-class TransmissionSessionData {
+class TransmissionData {
     public TransmissionSession session = null;
     public TransmissionSessionStats stats = null;
     public ArrayList<Torrent> torrents = new ArrayList<Torrent>();
@@ -43,13 +43,13 @@ class TransmissionSessionData {
         public static final int TIMEOUT = 1 << 9;
     };
 
-    public TransmissionSessionData(TransmissionSession session, TransmissionSessionStats stats, int error) {
+    public TransmissionData(TransmissionSession session, TransmissionSessionStats stats, int error) {
         this.session = session;
         this.stats = stats;
         this.error = error;
     }
 
-    public TransmissionSessionData(TransmissionSession session,
+    public TransmissionData(TransmissionSession session,
             TransmissionSessionStats stats,
             ArrayList<Torrent> torrents,
             boolean hasRemoved,
@@ -69,7 +69,7 @@ class TransmissionSessionData {
     }
 }
 
-public class TransmissionSessionLoader extends AsyncTaskLoader<TransmissionSessionData> {
+public class TransmissionDataLoader extends AsyncTaskLoader<TransmissionData> {
     private SparseArray<Torrent> mTorrentMap;
     private TransmissionProfile mProfile;
 
@@ -116,7 +116,7 @@ public class TransmissionSessionLoader extends AsyncTaskLoader<TransmissionSessi
 
     private Object mLock = new Object();
 
-    public TransmissionSessionLoader(Context context, TransmissionProfile profile) {
+    public TransmissionDataLoader(Context context, TransmissionProfile profile) {
         super(context);
 
         mProfile = profile;
@@ -126,7 +126,7 @@ public class TransmissionSessionLoader extends AsyncTaskLoader<TransmissionSessi
         mTorrentMap = new SparseArray<Torrent>();
     }
 
-    public TransmissionSessionLoader(Context context, TransmissionProfile profile,
+    public TransmissionDataLoader(Context context, TransmissionProfile profile,
             ArrayList<Torrent> torrents, Torrent[] current) {
         this(context, profile);
 
@@ -215,7 +215,7 @@ public class TransmissionSessionLoader extends AsyncTaskLoader<TransmissionSessi
     }
 
     @Override
-    public TransmissionSessionData loadInBackground() {
+    public TransmissionData loadInBackground() {
         /* Remove any previous waiting runners */
         mIntervalHandler.removeCallbacks(mIntervalRunner);
         mStopUpdates = false;
@@ -239,14 +239,14 @@ public class TransmissionSessionLoader extends AsyncTaskLoader<TransmissionSessi
             hasRemoved = true;
         }
         if (!mSessManager.hasConnectivity()) {
-            mLastError = TransmissionSessionData.Errors.NO_CONNECTIVITY;
-            return new TransmissionSessionData(mSession, mSessionStats, mLastError);
+            mLastError = TransmissionData.Errors.NO_CONNECTIVITY;
+            return new TransmissionData(mSession, mSessionStats, mLastError);
         }
 
         G.logD("Fetching data");
 
         if (mTorrentActionIds != null) {
-            TransmissionSessionData actionData = executeTorrentsAction(
+            TransmissionData actionData = executeTorrentsAction(
                 mTorrentActionIds, mTorrentAction, mTorrentLocation,
                 mTorrentSetKey, mTorrentSetValue, mDeleteData, mMoveData);
 
@@ -563,13 +563,13 @@ public class TransmissionSessionLoader extends AsyncTaskLoader<TransmissionSessi
 
         mIteration++;
 
-        return new TransmissionSessionData(
+        return new TransmissionData(
                 mSession, mSessionStats, torrentList,
                 hasRemoved, hasAdded, hasStatusChanged, hasMetadataNeeded);
     }
 
     @Override
-    public void deliverResult(TransmissionSessionData data) {
+    public void deliverResult(TransmissionData data) {
         if (isReset()) {
             return;
         }
@@ -590,10 +590,10 @@ public class TransmissionSessionLoader extends AsyncTaskLoader<TransmissionSessi
 
         mStopUpdates = false;
         if (mLastError > 0) {
-            deliverResult(new TransmissionSessionData(
+            deliverResult(new TransmissionData(
                         mSession, mSessionStats, mLastError));
         } else if (mTorrentMap.size() > 0) {
-            deliverResult(new TransmissionSessionData(
+            deliverResult(new TransmissionData(
                     mSession, mSessionStats,
                     convertSparseArray(mTorrentMap),
                     false, false, false, false));
@@ -630,7 +630,7 @@ public class TransmissionSessionLoader extends AsyncTaskLoader<TransmissionSessi
             mIntervalHandler.postDelayed(mIntervalRunner, update * 1000);
     }
 
-    private TransmissionSessionData executeTorrentsAction(int[] ids,
+    private TransmissionData executeTorrentsAction(int[] ids,
                 String action, String location, String setKey,
                 Object setValue, boolean deleteData, boolean moveData) {
         try {
@@ -650,7 +650,7 @@ public class TransmissionSessionLoader extends AsyncTaskLoader<TransmissionSessi
         return null;
     }
 
-    private TransmissionSessionData handleError(ManagerException e) {
+    private TransmissionData handleError(ManagerException e) {
         mStopUpdates = true;
 
         G.logD("Got an error while fetching data: " + e.getMessage() + " and this code: " + e.getCode());
@@ -658,45 +658,45 @@ public class TransmissionSessionLoader extends AsyncTaskLoader<TransmissionSessi
         switch(e.getCode()) {
             case 401:
             case 403:
-                mLastError = TransmissionSessionData.Errors.ACCESS_DENIED;
+                mLastError = TransmissionData.Errors.ACCESS_DENIED;
                 break;
             case 200:
                 if (e.getMessage().equals("no-json")) {
-                    mLastError = TransmissionSessionData.Errors.NO_JSON;
+                    mLastError = TransmissionData.Errors.NO_JSON;
                 }
                 break;
             case -1:
                 if (e.getMessage().equals("timeout")) {
-                    mLastError = TransmissionSessionData.Errors.TIMEOUT;
+                    mLastError = TransmissionData.Errors.TIMEOUT;
                 } else {
-                    mLastError = TransmissionSessionData.Errors.NO_CONNECTION;
+                    mLastError = TransmissionData.Errors.NO_CONNECTION;
                 }
                 break;
             case -2:
                 if (e.getMessage().equals("duplicate torrent")) {
-                    mLastError = TransmissionSessionData.Errors.DUPLICATE_TORRENT;
+                    mLastError = TransmissionData.Errors.DUPLICATE_TORRENT;
                 } else if (e.getMessage().equals("invalid or corrupt torrent file")) {
-                    mLastError = TransmissionSessionData.Errors.INVALID_TORRENT;
+                    mLastError = TransmissionData.Errors.INVALID_TORRENT;
                 } else {
-                    mLastError = TransmissionSessionData.Errors.RESPONSE_ERROR;
+                    mLastError = TransmissionData.Errors.RESPONSE_ERROR;
                     G.logE("Transmission Daemon Error!", e);
                 }
                 break;
             default:
-                mLastError = TransmissionSessionData.Errors.GENERIC_HTTP;
+                mLastError = TransmissionData.Errors.GENERIC_HTTP;
                 break;
         }
 
-        return new TransmissionSessionData(mSession, mSessionStats, mLastError);
+        return new TransmissionData(mSession, mSessionStats, mLastError);
     }
 
-    private TransmissionSessionData handleError(InterruptedException e) {
+    private TransmissionData handleError(InterruptedException e) {
         mStopUpdates = true;
 
-        mLastError = TransmissionSessionData.Errors.THREAD_ERROR;
+        mLastError = TransmissionData.Errors.THREAD_ERROR;
         G.logE("Got an error when processing the threads", e);
 
-        return new TransmissionSessionData(mSession, mSessionStats, mLastError);
+        return new TransmissionData(mSession, mSessionStats, mLastError);
     }
 
     private ArrayList<Torrent> convertSparseArray(SparseArray<Torrent> array) {

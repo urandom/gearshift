@@ -125,6 +125,7 @@
         <item name="android:layout_margin">4dp</item>
         <item name="android:padding">4dp</item>
         <item name="android:selectAllOnFocus">true</item>
+        <item name="android:textSize">16sp</item>
     </style>
 
     <style name="CardButton">
@@ -142,7 +143,7 @@
         <item name="android:fontFamily">sans-serif-light</item>
         <item name="android:paddingBottom">8dp</item>
         <item name="android:paddingRight">8dp</item>
-        <item name="android:textSize">13sp</item>
+        <item name="android:textSize">14sp</item>
     </style>
 
     <style name="SessionCardContainer" parent="CardContainer">

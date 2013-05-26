@@ -166,23 +166,23 @@ public class TorrentListFragment extends ListFragment {
 
     };
 
-    private LoaderCallbacks<TransmissionSessionData> mTorrentLoaderCallbacks = new LoaderCallbacks<TransmissionSessionData>() {
+    private LoaderCallbacks<TransmissionData> mTorrentLoaderCallbacks = new LoaderCallbacks<TransmissionData>() {
 
         @Override
-        public android.support.v4.content.Loader<TransmissionSessionData> onCreateLoader(
+        public android.support.v4.content.Loader<TransmissionData> onCreateLoader(
                 int id, Bundle args) {
             G.logD("Starting the torrents loader with profile " + mCurrentProfile);
             if (mCurrentProfile == null) return null;
 
-            TransmissionSessionLoader loader = new TransmissionSessionLoader(getActivity(), mCurrentProfile);
+            TransmissionDataLoader loader = new TransmissionDataLoader(getActivity(), mCurrentProfile);
 
             return loader;
         }
 
         @Override
         public void onLoadFinished(
-                android.support.v4.content.Loader<TransmissionSessionData> loader,
-                TransmissionSessionData data) {
+                android.support.v4.content.Loader<TransmissionData> loader,
+                TransmissionData data) {
 
             if (data.session != null) {
                 mSession = data.session;
@@ -223,28 +223,28 @@ public class TorrentListFragment extends ListFragment {
                         filtered = true;
                     }
                 } else {
-                    if (data.error == TransmissionSessionData.Errors.DUPLICATE_TORRENT) {
+                    if (data.error == TransmissionData.Errors.DUPLICATE_TORRENT) {
                         Toast.makeText(getActivity(), R.string.duplicate_torrent, Toast.LENGTH_SHORT).show();
-                    } else if (data.error == TransmissionSessionData.Errors.INVALID_TORRENT) {
+                    } else if (data.error == TransmissionData.Errors.INVALID_TORRENT) {
                         Toast.makeText(getActivity(), R.string.invalid_torrent, Toast.LENGTH_SHORT).show();
                     } else {
                         error.setVisibility(View.VISIBLE);
                         TextView text = (TextView) getView().findViewById(R.id.transmission_error);
                         ((TransmissionSessionInterface) getActivity()).setProfile(null);
 
-                        if (data.error == TransmissionSessionData.Errors.NO_CONNECTIVITY) {
+                        if (data.error == TransmissionData.Errors.NO_CONNECTIVITY) {
                             text.setText(Html.fromHtml(getString(R.string.no_connectivity_empty_list)));
-                        } else if (data.error == TransmissionSessionData.Errors.ACCESS_DENIED) {
+                        } else if (data.error == TransmissionData.Errors.ACCESS_DENIED) {
                             text.setText(Html.fromHtml(getString(R.string.access_denied_empty_list)));
-                        } else if (data.error == TransmissionSessionData.Errors.NO_JSON) {
+                        } else if (data.error == TransmissionData.Errors.NO_JSON) {
                             text.setText(Html.fromHtml(getString(R.string.no_json_empty_list)));
-                        } else if (data.error == TransmissionSessionData.Errors.NO_CONNECTION) {
+                        } else if (data.error == TransmissionData.Errors.NO_CONNECTION) {
                             text.setText(Html.fromHtml(getString(R.string.no_connection_empty_list)));
-                        } else if (data.error == TransmissionSessionData.Errors.THREAD_ERROR) {
+                        } else if (data.error == TransmissionData.Errors.THREAD_ERROR) {
                             text.setText(Html.fromHtml(getString(R.string.thread_error_empty_list)));
-                        } else if (data.error == TransmissionSessionData.Errors.RESPONSE_ERROR) {
+                        } else if (data.error == TransmissionData.Errors.RESPONSE_ERROR) {
                             text.setText(Html.fromHtml(getString(R.string.response_error_empty_list)));
-                        } else if (data.error == TransmissionSessionData.Errors.TIMEOUT) {
+                        } else if (data.error == TransmissionData.Errors.TIMEOUT) {
                             text.setText(Html.fromHtml(getString(R.string.timeout_empty_list)));
                         }
                     }
@@ -284,7 +284,7 @@ public class TorrentListFragment extends ListFragment {
 
         @Override
         public void onLoaderReset(
-                android.support.v4.content.Loader<TransmissionSessionData> loader) {
+                android.support.v4.content.Loader<TransmissionData> loader) {
         }
 
     };
@@ -314,13 +314,13 @@ public class TorrentListFragment extends ListFragment {
                 public boolean onNavigationItemSelected(int pos, long id) {
                     TransmissionProfile profile = mProfileAdapter.getItem(pos);
                     if (profile != TransmissionProfileListAdapter.EMPTY_PROFILE) {
-                        final Loader<TransmissionSessionData> loader = getActivity().getSupportLoaderManager()
+                        final Loader<TransmissionData> loader = getActivity().getSupportLoaderManager()
                                 .getLoader(G.SESSION_LOADER_ID);
 
                         mCurrentProfile = profile;
                         TransmissionProfile.setCurrentProfile(profile, getActivity());
                         ((TransmissionSessionInterface) getActivity()).setProfile(profile);
-                        ((TransmissionSessionLoader) loader).setProfile(profile);
+                        ((TransmissionDataLoader) loader).setProfile(profile);
 
                         mRefreshing = true;
                         getActivity().invalidateOptionsMenu();
@@ -377,7 +377,7 @@ public class TorrentListFragment extends ListFragment {
 
             @Override
             public boolean onActionItemClicked(final ActionMode mode, final MenuItem item) {
-                final Loader<TransmissionSessionData> loader = getActivity().getSupportLoaderManager()
+                final Loader<TransmissionData> loader = getActivity().getSupportLoaderManager()
                     .getLoader(G.SESSION_LOADER_ID);
 
                 if (loader == null)
@@ -408,7 +408,7 @@ public class TorrentListFragment extends ListFragment {
                             new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int id) {
-                                ((TransmissionSessionLoader) loader).setTorrentsRemove(ids, item.getItemId() == R.id.delete);
+                                ((TransmissionDataLoader) loader).setTorrentsRemove(ids, item.getItemId() == R.id.delete);
                                 mRefreshing = true;
                                 getActivity().invalidateOptionsMenu();
 
@@ -421,10 +421,10 @@ public class TorrentListFragment extends ListFragment {
                         .show();
                         return true;
                     case R.id.resume:
-                        ((TransmissionSessionLoader) loader).setTorrentsAction("torrent-start", ids);
+                        ((TransmissionDataLoader) loader).setTorrentsAction("torrent-start", ids);
                         break;
                     case R.id.pause:
-                        ((TransmissionSessionLoader) loader).setTorrentsAction("torrent-stop", ids);
+                        ((TransmissionDataLoader) loader).setTorrentsAction("torrent-stop", ids);
                         break;
                     case R.id.move:
                         LayoutInflater inflater = getActivity().getLayoutInflater();
@@ -441,7 +441,7 @@ public class TorrentListFragment extends ListFragment {
                                 CheckBox move = (CheckBox) ((AlertDialog) dialog).findViewById(R.id.move);
 
                                 String dir = (String) location.getSelectedItem();
-                                ((TransmissionSessionLoader) loader).setTorrentsLocation(
+                                ((TransmissionDataLoader) loader).setTorrentsLocation(
                                         ids, dir, move.isChecked());
                                 mRefreshing = true;
                                 getActivity().invalidateOptionsMenu();
@@ -467,10 +467,10 @@ public class TorrentListFragment extends ListFragment {
 
                         return true;
                     case R.id.verify:
-                        ((TransmissionSessionLoader) loader).setTorrentsAction("torrent-verify", ids);
+                        ((TransmissionDataLoader) loader).setTorrentsAction("torrent-verify", ids);
                         break;
                     case R.id.reannounce:
-                        ((TransmissionSessionLoader) loader).setTorrentsAction("torrent-reannounce", ids);
+                        ((TransmissionDataLoader) loader).setTorrentsAction("torrent-reannounce", ids);
                         break;
                     default:
                         return true;
@@ -608,7 +608,7 @@ public class TorrentListFragment extends ListFragment {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        Loader<TransmissionSessionData> loader;
+        Loader<TransmissionData> loader;
         switch (item.getItemId()) {
             case R.id.menu_alt_speed:
                 loader = getActivity().getSupportLoaderManager()
@@ -616,7 +616,7 @@ public class TorrentListFragment extends ListFragment {
                 if (loader != null) {
                     mAltSpeed = !mAltSpeed;
                     mSession.setAltSpeedEnabled(mAltSpeed);
-                    ((TransmissionSessionLoader) loader).setSession(mSession, "alt-speed-enabled");
+                    ((TransmissionDataLoader) loader).setSession(mSession, "alt-speed-enabled");
                     getActivity().invalidateOptionsMenu();
                 }
                 return true;

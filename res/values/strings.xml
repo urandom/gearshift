@@ -315,7 +315,9 @@
         
     <string name="session_settings_blocklist_url">URL</string>
         
-    <string name="session_settings_blocklist_enable_format">Enable (%1$d entries)</string>
+    <string name="session_settings_blocklist_enable">Enable the blocklist</string>
+
+    <string name="session_settings_blocklist_count_format">%1$d entries</string>
         
     <string name="session_settings_blocklist_update">Update</string>
         

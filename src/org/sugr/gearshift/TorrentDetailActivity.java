@@ -46,15 +46,15 @@ public class TorrentDetailActivity extends FragmentActivity implements Transmiss
     private TransmissionProfile mProfile;
     private TransmissionSession mSession;
 
-    private LoaderCallbacks<TransmissionSessionData> mTorrentLoaderCallbacks = new LoaderCallbacks<TransmissionSessionData>() {
+    private LoaderCallbacks<TransmissionData> mTorrentLoaderCallbacks = new LoaderCallbacks<TransmissionData>() {
 
         @Override
-        public android.support.v4.content.Loader<TransmissionSessionData> onCreateLoader(
+        public android.support.v4.content.Loader<TransmissionData> onCreateLoader(
                 int id, Bundle args) {
             G.logD("Starting the torrents loader with profile " + mProfile);
             if (mProfile == null) return null;
 
-            TransmissionSessionLoader loader = new TransmissionSessionLoader(
+            TransmissionDataLoader loader = new TransmissionDataLoader(
                     TorrentDetailActivity.this, mProfile, mTorrents, getCurrentTorrents());
 
             return loader;
@@ -62,8 +62,8 @@ public class TorrentDetailActivity extends FragmentActivity implements Transmiss
 
         @Override
         public void onLoadFinished(
-                android.support.v4.content.Loader<TransmissionSessionData> loader,
-                TransmissionSessionData data) {
+                android.support.v4.content.Loader<TransmissionData> loader,
+                TransmissionData data) {
 
             if (data.session != null) {
                 mSession = data.session;
@@ -77,28 +77,28 @@ public class TorrentDetailActivity extends FragmentActivity implements Transmiss
             View error = findViewById(R.id.fatal_error_layer);
             error.setVisibility(View.GONE);
             if (data.error > 0) {
-                if (data.error == TransmissionSessionData.Errors.DUPLICATE_TORRENT) {
+                if (data.error == TransmissionData.Errors.DUPLICATE_TORRENT) {
                     Toast.makeText(TorrentDetailActivity.this,
                             R.string.duplicate_torrent, Toast.LENGTH_SHORT).show();
-                } else if (data.error == TransmissionSessionData.Errors.INVALID_TORRENT) {
+                } else if (data.error == TransmissionData.Errors.INVALID_TORRENT) {
                     Toast.makeText(TorrentDetailActivity.this,
                             R.string.invalid_torrent, Toast.LENGTH_SHORT).show();
                 } else {
                     error.setVisibility(View.VISIBLE);
                     TextView text = (TextView) findViewById(R.id.transmission_error);
-                    if (data.error == TransmissionSessionData.Errors.NO_CONNECTIVITY) {
+                    if (data.error == TransmissionData.Errors.NO_CONNECTIVITY) {
                         text.setText(Html.fromHtml(getString(R.string.no_connectivity_empty_list)));
-                    } else if (data.error == TransmissionSessionData.Errors.ACCESS_DENIED) {
+                    } else if (data.error == TransmissionData.Errors.ACCESS_DENIED) {
                         text.setText(Html.fromHtml(getString(R.string.access_denied_empty_list)));
-                    } else if (data.error == TransmissionSessionData.Errors.NO_JSON) {
+                    } else if (data.error == TransmissionData.Errors.NO_JSON) {
                         text.setText(Html.fromHtml(getString(R.string.no_json_empty_list)));
-                    } else if (data.error == TransmissionSessionData.Errors.NO_CONNECTION) {
+                    } else if (data.error == TransmissionData.Errors.NO_CONNECTION) {
                         text.setText(Html.fromHtml(getString(R.string.no_connection_empty_list)));
-                    } else if (data.error == TransmissionSessionData.Errors.THREAD_ERROR) {
+                    } else if (data.error == TransmissionData.Errors.THREAD_ERROR) {
                         text.setText(Html.fromHtml(getString(R.string.thread_error_empty_list)));
-                    } else if (data.error == TransmissionSessionData.Errors.RESPONSE_ERROR) {
+                    } else if (data.error == TransmissionData.Errors.RESPONSE_ERROR) {
                         text.setText(Html.fromHtml(getString(R.string.response_error_empty_list)));
-                    } else if (data.error == TransmissionSessionData.Errors.TIMEOUT) {
+                    } else if (data.error == TransmissionData.Errors.TIMEOUT) {
                         text.setText(Html.fromHtml(getString(R.string.timeout_empty_list)));
                     }
                 }
@@ -144,7 +144,7 @@ public class TorrentDetailActivity extends FragmentActivity implements Transmiss
 
         @Override
         public void onLoaderReset(
-                android.support.v4.content.Loader<TransmissionSessionData> loader) {
+                android.support.v4.content.Loader<TransmissionData> loader) {
         }
 
     };
@@ -188,10 +188,10 @@ public class TorrentDetailActivity extends FragmentActivity implements Transmiss
 
     @Override
     public void onDestroy() {
-        Loader<TransmissionSessionData> loader = getSupportLoaderManager()
+        Loader<TransmissionData> loader = getSupportLoaderManager()
             .getLoader(G.SESSION_LOADER_ID);
 
-        ((TransmissionSessionLoader) loader).setAllCurrentTorrents(false);
+        ((TransmissionDataLoader) loader).setAllCurrentTorrents(false);
 
         super.onDestroy();
     }
@@ -213,7 +213,7 @@ public class TorrentDetailActivity extends FragmentActivity implements Transmiss
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        Loader<TransmissionSessionData> loader;
+        Loader<TransmissionData> loader;
 
         switch (item.getItemId()) {
             case android.R.id.home:
@@ -273,10 +273,10 @@ public class TorrentDetailActivity extends FragmentActivity implements Transmiss
     public void onPageSelected(int position) {
         mCurrentTorrent = position;
 
-        Loader<TransmissionSessionData> loader = getSupportLoaderManager()
+        Loader<TransmissionData> loader = getSupportLoaderManager()
             .getLoader(G.SESSION_LOADER_ID);
 
-        ((TransmissionSessionLoader) loader).setCurrentTorrents(getCurrentTorrents());
+        ((TransmissionDataLoader) loader).setCurrentTorrents(getCurrentTorrents());
     }
 
     @Override

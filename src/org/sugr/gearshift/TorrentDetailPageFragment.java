@@ -209,7 +209,7 @@ public class TorrentDetailPageFragment extends Fragment {
                 if (priority == null) {
                     mode.finish();
                     ((TransmissionSessionInterface) getActivity()).setRefreshing(true);
-                    Loader<TransmissionSessionData> loader = getActivity().getSupportLoaderManager()
+                    Loader<TransmissionData> loader = getActivity().getSupportLoaderManager()
                         .getLoader(G.SESSION_LOADER_ID);
                     loader.onContentChanged();
                 }
@@ -481,10 +481,10 @@ public class TorrentDetailPageFragment extends Fragment {
 
     private void setTorrentProperty(String key, Object value) {
 
-        Loader<TransmissionSessionData> loader = getActivity()
+        Loader<TransmissionData> loader = getActivity()
             .getSupportLoaderManager().getLoader(
                     G.SESSION_LOADER_ID);
-        ((TransmissionSessionLoader) loader).setTorrentProperty(mTorrent.getId(), key, value);
+        ((TransmissionDataLoader) loader).setTorrentProperty(mTorrent.getId(), key, value);
     }
 
     private void updateFields(View root) {

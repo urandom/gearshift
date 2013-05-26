@@ -32,13 +32,14 @@
         <TableRow
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:descendantFocusability="beforeDescendants"
             android:focusable="true"
-    		android:focusableInTouchMode="true"
-    		android:descendantFocusability="beforeDescendants"
-    		android:gravity="center_vertical" >
+            android:focusableInTouchMode="true"
+            android:gravity="center" >
             
-            <TextView style="@style/CardTextColumn"
-                 android:text="@string/session_settings_peer_port" />
+            <TextView
+                style="@style/CardTextColumn"
+                android:text="@string/session_settings_peer_port" />
             
             <LinearLayout
                 android:layout_width="wrap_content"
@@ -175,19 +176,35 @@
                
             <CheckBox
                 android:id="@+id/transmission_session_blocklist_check"
-                android:layout_width="0dp"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_weight="4"
-                android:text="@string/session_settings_blocklist_enable_format" />	            
+                android:layout_span="2"
+                android:text="@string/session_settings_blocklist_enable" />	            
+
+        </TableRow>
             	            
-            <Button
-                style="@style/CardButton"
-                android:id="@+id/transmission_session_blocklist_update"
-                android:layout_width="0dp"
-                android:layout_weight="1"
-                android:ellipsize="end"
-                android:text="@string/session_settings_blocklist_update"/>
-            
+        <TableRow
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="bottom" >
+
+            <TextView
+                 style="@style/CardTextColumn"
+                 android:id="@+id/transmission_session_blocklist_size"
+                 android:text="@string/session_settings_blocklist_count_format" />
+
+            <FrameLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" >
+
+                <Button
+                    android:id="@+id/transmission_session_blocklist_update"
+                    style="@style/CardButton"
+                    android:ellipsize="end"
+                    android:text="@string/session_settings_blocklist_update" />
+
+            </FrameLayout>
+
         </TableRow>
         
         <TableRow

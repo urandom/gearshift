@@ -18,13 +18,21 @@ public class TransmissionSession {
     @SerializedName("alt-speed-time-end") private int mAltSpeedTimeEnd;
 
     @SerializedName("blocklist-enabled") private boolean mBlocklistEnabled;
-    @SerializedName("blocklist-size") private int mBlocklistSize;
+    @SerializedName("blocklist-size") private long mBlocklistSize;
+    @SerializedName("blocklist-url") private String mBlocklistURL;
 
     @SerializedName("dht-enabled") private boolean mDHTEnabled;
     @SerializedName("encryption") private String mEncryption;
 
+    @SerializedName("cache-size-mb") private long mCacheSize;
+
     @SerializedName("download-dir") private String mDownloadDir;
     @SerializedName("download-dir-free-space") private long mDownloadDirFreeSpace;
+
+    @SerializedName("incomplete-dir") private String mIncompleteDir;
+    @SerializedName("incomplete-dir-enabled") private boolean mIncompleteDirEnabled;
+
+    @SerializedName("lpd-enabled") private boolean mLPDEnabled;
 
     @SerializedName("peer-limit-global") private int mPeerLimitGlobal;
     @SerializedName("peer-limit-per-torrent") private int mPeerLimitPerTorrent;
@@ -36,8 +44,13 @@ public class TransmissionSession {
 
     @SerializedName("port-forwarding-enabled") private boolean mPortForwardingEnabled;
 
+    @SerializedName("rename-partial-files") private boolean mRenamePartial;
+
     @SerializedName("rpc-version") private int mRPCVersion;
     @SerializedName("rpc-version-minimum") private int mRPCVersionMin;
+
+    @SerializedName("script-torrent-done-filename") private String mDoneScript;
+    @SerializedName("script-torrent-done-enabled") private boolean mDoneScriptEnabled;
 
     @SerializedName("seedRatioLimit") private float mSeedRatioLimit;
     @SerializedName("seedRatioLimited") private boolean mSeedRatioLimited;
@@ -46,6 +59,9 @@ public class TransmissionSession {
     @SerializedName("speed-limit-down-enabled") private boolean mSpeedLimitDownEnabled;
     @SerializedName("speed-limit-up") private long mSpeedLimitUp;
     @SerializedName("speed-limit-up-enabled") private boolean mSpeedLimitUpEnabled;
+
+    @SerializedName("start-added-torrents") private boolean mStartAdded;
+    @SerializedName("trash-original-torrent-files") private boolean mTrashOriginal;
 
     @SerializedName("version") private String mVersion;
 
@@ -99,8 +115,12 @@ public class TransmissionSession {
         return mBlocklistEnabled;
     }
 
-    public int getBlocklistSize() {
+    public long getBlocklistSize() {
         return mBlocklistSize;
+    }
+
+    public String getBlocklistURL() {
+        return mBlocklistURL;
     }
 
     public boolean isDHTEnabled() {
@@ -111,12 +131,28 @@ public class TransmissionSession {
         return mEncryption;
     }
 
+    public long getCacheSize() {
+        return mCacheSize;
+    }
+
     public String getDownloadDir() {
         return mDownloadDir;
     }
 
     public long getDownloadDirFreeSpace() {
         return mDownloadDirFreeSpace;
+    }
+
+    public String getIncompleteDir() {
+        return mIncompleteDir;
+    }
+
+    public boolean isIncompleteDirEnabled() {
+        return mIncompleteDirEnabled;
+    }
+
+    public boolean isLPDEnabled() {
+        return mLPDEnabled;
     }
 
     public int getPeerLimitGlobal() {
@@ -143,12 +179,24 @@ public class TransmissionSession {
         return mPortForwardingEnabled;
     }
 
+    public boolean isRenamePartialFilesEnabled() {
+        return mRenamePartial;
+    }
+
     public int getRPCVersion() {
         return mRPCVersion;
     }
 
     public int getRPCVersionMin() {
         return mRPCVersionMin;
+    }
+
+    public String getDoneScript() {
+        return mDoneScript;
+    }
+
+    public boolean isDoneScriptEnabled() {
+        return mDoneScriptEnabled;
     }
 
     public float getSeedRatioLimit() {
@@ -173,6 +221,14 @@ public class TransmissionSession {
 
     public boolean isSpeedLimitUpEnabled() {
         return mSpeedLimitUpEnabled;
+    }
+
+    public boolean isStartAddedTorrentsEnabled() {
+        return mStartAdded;
+    }
+
+    public boolean isTrashOriginalTorrentFilesEnabled() {
+        return mTrashOriginal;
     }
 
     public String getVersion() {
@@ -207,8 +263,12 @@ public class TransmissionSession {
         mBlocklistEnabled = blocklistEnabled;
     }
 
-    public void setBlocklistSize(int blocklistSize) {
+    public void setBlocklistSize(long blocklistSize) {
         mBlocklistSize = blocklistSize;
+    }
+
+    public void setBlocklistURL(String url) {
+        mBlocklistURL = url;
     }
 
     public void setDHTEnabled(boolean dHTEnabled) {
@@ -219,12 +279,28 @@ public class TransmissionSession {
         mEncryption = encryption;
     }
 
+    public void setCacheSize(long size) {
+        mCacheSize = size;
+    }
+
     public void setDownloadDir(String downloadDir) {
         mDownloadDir = downloadDir;
     }
 
     public void setDownloadDirFreeSpace(long freeSpace) {
         mDownloadDirFreeSpace = freeSpace;
+    }
+
+    public void setIncompleteDir(String dir) {
+        mIncompleteDir = dir;
+    }
+
+    public void setLPDEnabled(boolean enable) {
+        mLPDEnabled = enable;
+    }
+
+    public void setIncompleteDirEnabled(boolean enable) {
+        mIncompleteDirEnabled = enable;
     }
 
     public void setPeerLimitGlobal(int peerLimitGlobal) {
@@ -251,12 +327,24 @@ public class TransmissionSession {
         mPortForwardingEnabled = portForwardingEnabled;
     }
 
+    public void setRenamePartialFilesEnabled(boolean rename) {
+        mRenamePartial = rename;
+    }
+
     public void setRPCVersion(int rPCVersion) {
         mRPCVersion = rPCVersion;
     }
 
     public void setRPCVersionMin(int rPCVersionMin) {
         mRPCVersionMin = rPCVersionMin;
+    }
+
+    public void setDoneScript(String script) {
+        mDoneScript = script;
+    }
+
+    public void setDoneScriptEnabled(boolean enabled) {
+        mDoneScriptEnabled = enabled;
     }
 
     public void setSeedRatioLimit(float seedRatioLimit) {
@@ -281,6 +369,14 @@ public class TransmissionSession {
 
     public void setSpeedLimitUpEnabled(boolean speedLimitUpEnabled) {
         mSpeedLimitUpEnabled = speedLimitUpEnabled;
+    }
+
+    public void setStartAddedTorrentsEnabled(boolean enable) {
+        mStartAdded = enable;
+    }
+
+    public void setTrashOriginalTorrentFilesEnabled(boolean enable) {
+        mTrashOriginal = enable;
     }
 
     public void setVersion(String version) {
