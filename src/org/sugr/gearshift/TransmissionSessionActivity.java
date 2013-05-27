@@ -14,9 +14,12 @@ import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.AsyncTaskLoader;
 import android.support.v4.content.Loader;
+import android.view.KeyEvent;
 import android.view.View;
+import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
 import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.ScrollView;
 import android.widget.Spinner;
@@ -126,11 +129,6 @@ public class TransmissionSessionActivity extends FragmentActivity {
 
         setContentView(R.layout.activity_transmission_session);
 
-        findViewById(R.id.transmission_session_general_expander).setOnClickListener(mExpanderListener);
-        findViewById(R.id.transmission_session_connections_expander).setOnClickListener(mExpanderListener);
-        findViewById(R.id.transmission_session_bandwidth_expander).setOnClickListener(mExpanderListener);
-        findViewById(R.id.transmission_session_limits_expander).setOnClickListener(mExpanderListener);
-
         if (savedInstanceState != null) {
             new Handler().post(new Runnable() {
                 @Override
@@ -152,6 +150,8 @@ public class TransmissionSessionActivity extends FragmentActivity {
         }
 
         mEncryptionValues = Arrays.asList(getResources().getStringArray(R.array.session_settings_encryption_values));
+
+        initListeners();
 
         updateFields(null, true);
 
@@ -490,6 +490,50 @@ public class TransmissionSessionActivity extends FragmentActivity {
                 .setText(Integer.toString(mSession.getTorrentPeerLimit()));
         }
 
+    }
+
+    private void initListeners() {
+        findViewById(R.id.transmission_session_general_expander).setOnClickListener(mExpanderListener);
+        findViewById(R.id.transmission_session_connections_expander).setOnClickListener(mExpanderListener);
+        findViewById(R.id.transmission_session_bandwidth_expander).setOnClickListener(mExpanderListener);
+        findViewById(R.id.transmission_session_limits_expander).setOnClickListener(mExpanderListener);
+
+        CheckBox check = null;
+        EditText edit = null;
+
+        edit = (EditText) findViewById(R.id.transmission_session_download_directory);
+        edit.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+            @Override public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                if (actionId == EditorInfo.IME_ACTION_DONE) {
+                    String dir = ((String) v.getText()).trim();
+                    if (!mSession.getDownloadDir().equals(dir)) {
+                        mSession.setDownloadDir(dir);
+                        setSession(TransmissionSession.SetterFields.DOWNLOAD_DIR);
+                    }
+                }
+                return false;
+            }
+        });
+
+        check = (CheckBox) findViewById(R.id.transmission_session_incomplete_download_check);
+        check.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                findViewById(R.id.transmission_session_incomplete_download_directory).setEnabled(isChecked);
+                if (mSession.isIncompleteDirEnabled() != isChecked) {
+                    mSession.setIncompleteDirEnabled(isChecked);
+                    setSession(TransmissionSession.SetterFields.INCOMPLETE_DIR_ENABLED);
+                }
+            }
+        });
+    }
+
+    private void setSession(String... keys) {
+        Loader<TransmissionData> l = getSupportLoaderManager()
+            .getLoader(SESSION_LOADER_ID);
+
+        final TransmissionSessionLoader loader = (TransmissionSessionLoader) l;
+
+        loader.setSession(mSession, keys);
     }
 }
 

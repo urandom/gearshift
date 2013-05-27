@@ -1,3 +1,5 @@
+* Implement Share via 'torrent-get' magnetLink field
+
 * Use style="?android:listSeparatorTextViewStyle" for
   list view headers
 

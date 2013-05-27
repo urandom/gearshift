@@ -9,6 +9,12 @@ import org.sugr.gearshift.TransmissionSessionManager.Exclude;
 import com.google.gson.annotations.SerializedName;
 
 public class TransmissionSession {
+    @Exclude public static final class SetterFields {
+        public static final String DOWNLOAD_DIR = "download-dir";
+        public static final String INCOMPLETE_DIR = "incomplete-dir";
+        public static final String INCOMPLETE_DIR_ENABLED = "incomplete-dir-enabled";
+    }
+
     @SerializedName("alt-speed-enabled") private boolean mAltSpeedEnabled;
     @SerializedName("alt-speed-down") private long mAltSpeedDown;
     @SerializedName("alt-speed-up") private long mAltSpeedUp;
