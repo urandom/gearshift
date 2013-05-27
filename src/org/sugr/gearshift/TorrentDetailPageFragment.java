@@ -101,6 +101,8 @@ public class TorrentDetailPageFragment extends Fragment {
 
             if (content.getVisibility() == View.GONE) {
                 content.setVisibility(View.VISIBLE);
+                content.setAlpha(0);
+                content.animate().alpha(1);
                 image.setBackgroundResource(R.drawable.ic_section_collapse);
                 mExpandedStates[index] = true;
                 updateFields(getView());

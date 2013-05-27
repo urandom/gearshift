@@ -15,6 +15,7 @@ import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.AsyncTaskLoader;
 import android.support.v4.content.Loader;
 import android.view.View;
+import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ScrollView;
@@ -100,7 +101,7 @@ public class TransmissionSessionActivity extends FragmentActivity {
             if (content.getVisibility() == View.GONE) {
                 content.setVisibility(View.VISIBLE);
                 content.setAlpha(0);
-                content.animate().alpha((float) 1.0);
+                content.animate().alpha(1);
                 image.setBackgroundResource(R.drawable.ic_section_collapse);
                 mExpandedStates[index] = true;
             } else {
@@ -299,6 +300,7 @@ public class TransmissionSessionActivity extends FragmentActivity {
             ((CheckBox) findViewById(R.id.transmission_session_blocklist_check))
                 .setChecked(mSession.isBlocklistEnabled());
             findViewById(R.id.transmission_session_blocklist_url).setEnabled(mSession.isBlocklistEnabled());
+            findViewById(R.id.transmission_session_blocklist_update).setEnabled(mSession.isBlocklistEnabled());
         }
 
         if (initial || mSession.getBlocklistSize() != session.getBlocklistSize()) {
@@ -315,6 +317,177 @@ public class TransmissionSessionActivity extends FragmentActivity {
                 mSession.setBlocklistURL(session.getBlocklistURL());
             ((EditText) findViewById(R.id.transmission_session_blocklist_url))
                 .setText(mSession.getBlocklistURL());
+        }
+
+        if (initial || mSession.isDownloadSpeedLimited() != session.isDownloadSpeedLimited()) {
+            if (!initial)
+                mSession.setSpeedLimitDownEnabled(session.isDownloadSpeedLimited());
+            ((CheckBox) findViewById(R.id.transmission_session_down_limit_check))
+                .setChecked(mSession.isDownloadSpeedLimited());
+            findViewById(R.id.transmission_session_down_limit).setEnabled(mSession.isDownloadSpeedLimited());
+        }
+
+        if (initial || mSession.getDownloadSpeedLimit() != session.getDownloadSpeedLimit()) {
+            if (!initial)
+                mSession.setSpeedLimitDown(session.getDownloadSpeedLimit());
+            ((EditText) findViewById(R.id.transmission_session_down_limit))
+                .setText(Long.toString(mSession.getDownloadSpeedLimit()));
+        }
+
+        if (initial || mSession.isUploadSpeedLimited() != session.isUploadSpeedLimited()) {
+            if (!initial)
+                mSession.setSpeedLimitUpEnabled(session.isUploadSpeedLimited());
+            ((CheckBox) findViewById(R.id.transmission_session_up_limit_check))
+                .setChecked(mSession.isUploadSpeedLimited());
+            findViewById(R.id.transmission_session_up_limit).setEnabled(mSession.isUploadSpeedLimited());
+        }
+
+        if (initial || mSession.getUploadSpeedLimit() != session.getUploadSpeedLimit()) {
+            if (!initial)
+                mSession.setSpeedLimitUp(session.getUploadSpeedLimit());
+            ((EditText) findViewById(R.id.transmission_session_up_limit))
+                .setText(Long.toString(mSession.getUploadSpeedLimit()));
+        }
+
+        if (initial || mSession.isAltSpeedEnabled() != session.isAltSpeedEnabled()) {
+            if (!initial)
+                mSession.setAltSpeedEnabled(session.isAltSpeedEnabled());
+            ((CheckBox) findViewById(R.id.transmission_session_alt_limits_check))
+                .setChecked(mSession.isAltSpeedEnabled());
+            findViewById(R.id.transmission_session_alt_down_limit).setEnabled(mSession.isAltSpeedEnabled());
+            findViewById(R.id.transmission_session_alt_up_limit).setEnabled(mSession.isAltSpeedEnabled());
+        }
+
+        if (initial || mSession.getAltSpeedDown() != session.getAltSpeedDown()) {
+            if (!initial)
+                mSession.setAltSpeedDown(session.getAltSpeedDown());
+            ((EditText) findViewById(R.id.transmission_session_alt_down_limit))
+                .setText(Long.toString(mSession.getAltSpeedDown()));
+        }
+
+        if (initial || mSession.getAltSpeedUp() != session.getAltSpeedUp()) {
+            if (!initial)
+                mSession.setAltSpeedUp(session.getAltSpeedUp());
+            ((EditText) findViewById(R.id.transmission_session_alt_up_limit))
+                .setText(Long.toString(mSession.getAltSpeedUp()));
+        }
+
+        if (initial || mSession.isAltSpeedTimeEnabled() != session.isAltSpeedTimeEnabled()) {
+            if (!initial)
+                mSession.setAltSpeedTimeEnabled(session.isAltSpeedTimeEnabled());
+            ((CheckBox) findViewById(R.id.transmission_session_alt_limits_time_check))
+                .setChecked(mSession.isAltSpeedTimeEnabled());
+            findViewById(R.id.transmission_session_alt_limit_time_from).setEnabled(mSession.isAltSpeedTimeEnabled());
+            findViewById(R.id.transmission_session_alt_limit_time_to).setEnabled(mSession.isAltSpeedTimeEnabled());
+        }
+
+        if (initial || mSession.getAltSpeedTimeBegin() != session.getAltSpeedTimeBegin()) {
+            if (!initial)
+                mSession.setAltSpeedTimeBegin(session.getAltSpeedTimeBegin());
+            ((Button) findViewById(R.id.transmission_session_alt_limit_time_from))
+                .setText(String.format(
+                    getString(R.string.session_settings_alt_limit_time_format),
+                    mSession.getAltSpeedTimeBegin() / 60,
+                    mSession.getAltSpeedTimeBegin() % 60));
+        }
+
+        if (initial || mSession.getAltSpeedTimeEnd() != session.getAltSpeedTimeEnd()) {
+            if (!initial)
+                mSession.setAltSpeedTimeEnd(session.getAltSpeedTimeEnd());
+            ((Button) findViewById(R.id.transmission_session_alt_limit_time_to))
+                .setText(String.format(
+                    getString(R.string.session_settings_alt_limit_time_format),
+                    mSession.getAltSpeedTimeEnd() / 60,
+                    mSession.getAltSpeedTimeEnd() % 60));
+        }
+
+        if (initial || mSession.isUploadSpeedLimited() != session.isUploadSpeedLimited()) {
+            if (!initial)
+                mSession.setSpeedLimitUpEnabled(session.isUploadSpeedLimited());
+            ((CheckBox) findViewById(R.id.transmission_session_up_limit_check))
+                .setChecked(mSession.isUploadSpeedLimited());
+            findViewById(R.id.transmission_session_up_limit).setEnabled(mSession.isUploadSpeedLimited());
+        }
+
+        if (initial || mSession.getUploadSpeedLimit() != session.getUploadSpeedLimit()) {
+            if (!initial)
+                mSession.setSpeedLimitUp(session.getUploadSpeedLimit());
+            ((EditText) findViewById(R.id.transmission_session_up_limit))
+                .setText(Long.toString(mSession.getUploadSpeedLimit()));
+        }
+
+        if (initial || mSession.isSeedRatioLimited() != session.isSeedRatioLimited()) {
+            if (!initial)
+                mSession.setSeedRatioLimited(session.isSeedRatioLimited());
+            ((CheckBox) findViewById(R.id.transmission_session_seed_ratio_limit_check))
+                .setChecked(mSession.isSeedRatioLimited());
+            findViewById(R.id.transmission_session_seed_ratio_limit).setEnabled(mSession.isSeedRatioLimited());
+        }
+
+        if (initial || mSession.getSeedRatioLimit() != session.getSeedRatioLimit()) {
+            if (!initial)
+                mSession.setSeedRatioLimit(session.getSeedRatioLimit());
+            ((EditText) findViewById(R.id.transmission_session_seed_ratio_limit))
+                .setText(Float.toString(mSession.getSeedRatioLimit()));
+        }
+
+        if (initial || mSession.isDownloadQueueEnabled() != session.isDownloadQueueEnabled()) {
+            if (!initial)
+                mSession.setDownloadQueueEnabled(session.isDownloadQueueEnabled());
+            ((CheckBox) findViewById(R.id.transmission_session_download_queue_size_check))
+                .setChecked(mSession.isDownloadQueueEnabled());
+            findViewById(R.id.transmission_session_download_queue_size).setEnabled(mSession.isDownloadQueueEnabled());
+        }
+
+        if (initial || mSession.getDownloadQueueSize() != session.getDownloadQueueSize()) {
+            if (!initial)
+                mSession.setDownloadQueueSize(session.getDownloadQueueSize());
+            ((EditText) findViewById(R.id.transmission_session_download_queue_size))
+                .setText(Integer.toString(mSession.getDownloadQueueSize()));
+        }
+
+        if (initial || mSession.isSeedQueueEnabled() != session.isSeedQueueEnabled()) {
+            if (!initial)
+                mSession.setSeedQueueEnabled(session.isSeedQueueEnabled());
+            ((CheckBox) findViewById(R.id.transmission_session_seed_queue_size_check))
+                .setChecked(mSession.isSeedQueueEnabled());
+            findViewById(R.id.transmission_session_seed_queue_size).setEnabled(mSession.isSeedQueueEnabled());
+        }
+
+        if (initial || mSession.getSeedQueueSize() != session.getSeedQueueSize()) {
+            if (!initial)
+                mSession.setSeedQueueSize(session.getSeedQueueSize());
+            ((EditText) findViewById(R.id.transmission_session_seed_queue_size))
+                .setText(Integer.toString(mSession.getSeedQueueSize()));
+        }
+
+        if (initial || mSession.isStalledQueueEnabled() != session.isStalledQueueEnabled()) {
+            if (!initial)
+                mSession.setStalledQueueEnabled(session.isStalledQueueEnabled());
+            ((CheckBox) findViewById(R.id.transmission_session_stalled_queue_size_check))
+                .setChecked(mSession.isStalledQueueEnabled());
+            findViewById(R.id.transmission_session_stalled_queue_size).setEnabled(mSession.isStalledQueueEnabled());
+        }
+
+        if (initial || mSession.getStalledQueueSize() != session.getStalledQueueSize()) {
+            if (!initial)
+                mSession.setStalledQueueSize(session.getStalledQueueSize());
+            ((EditText) findViewById(R.id.transmission_session_stalled_queue_size))
+                .setText(Integer.toString(mSession.getStalledQueueSize()));
+        }
+
+        if (initial || mSession.getGlobalPeerLimit() != session.getGlobalPeerLimit()) {
+            if (!initial)
+                mSession.setGlobalPeerLimit(session.getGlobalPeerLimit());
+            ((EditText) findViewById(R.id.transmission_session_global_peer_limit))
+                .setText(Integer.toString(mSession.getGlobalPeerLimit()));
+        }
+
+        if (initial || mSession.getTorrentPeerLimit() != session.getTorrentPeerLimit()) {
+            if (!initial)
+                mSession.setTorrentPeerLimit(session.getTorrentPeerLimit());
+            ((EditText) findViewById(R.id.transmission_session_torrent_peer_limit))
+                .setText(Integer.toString(mSession.getTorrentPeerLimit()));
         }
 
     }

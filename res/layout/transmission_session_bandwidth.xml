@@ -114,6 +114,38 @@
         <TableRow
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" >
+            
+            <TextView
+                 style="@style/CardTextColumn"
+                 android:text="@string/session_settings_download" />
+
+            <EditText
+                android:id="@+id/transmission_session_alt_down_limit"
+                android:inputType="number"
+                style="@style/CardEntry" >
+            </EditText>
+            
+        </TableRow>
+        
+        <TableRow
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" >
+            
+            <TextView
+                 style="@style/CardTextColumn"
+                 android:text="@string/session_settings_upload" />
+
+            <EditText
+                android:id="@+id/transmission_session_alt_up_limit"
+                android:inputType="number"
+                style="@style/CardEntry" >
+            </EditText>
+            
+        </TableRow>
+         
+        <TableRow
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" >
 
             <CheckBox
                 android:id="@+id/transmission_session_alt_limits_time_check"
@@ -155,64 +187,6 @@
                 android:text="@string/session_settings_alt_limit_time_format"/>
                 
             </LinearLayout>
-            
-        </TableRow>
-        
-        <TableRow
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" >
-
-            <CheckBox
-                android:id="@+id/transmission_session_alt_up_limit_check"
-                android:layout_span="2"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/session_settings_alt_upload_limit" />
-
-        </TableRow>
-
-        <TableRow
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" >
-            
-            <TextView
-                 style="@style/CardTextColumn"
-                 android:text="@string/torrent_limit_speed_amount" />
-
-            <EditText
-                android:id="@+id/transmission_session_alt_up_limit"
-                android:inputType="number"
-                style="@style/CardEntry" >
-            </EditText>
-            
-        </TableRow>
-         
-        <TableRow
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" >
-
-            <CheckBox
-                android:id="@+id/transmission_session_alt_down_limit_check"
-                android:layout_span="2"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/session_settings_alt_down_limit" />
-
-        </TableRow>
-
-        <TableRow
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" >
-            
-            <TextView
-                 style="@style/CardTextColumn"
-                 android:text="@string/torrent_limit_speed_amount" />
-
-            <EditText
-                android:id="@+id/transmission_session_alt_down_limit"
-                android:inputType="number"
-                style="@style/CardEntry" >
-            </EditText>
             
         </TableRow>
         

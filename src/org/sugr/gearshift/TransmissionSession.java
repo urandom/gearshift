@@ -29,13 +29,16 @@ public class TransmissionSession {
     @SerializedName("download-dir") private String mDownloadDir;
     @SerializedName("download-dir-free-space") private long mDownloadDirFreeSpace;
 
+    @SerializedName("download-queue-size") private int mDownloadQueueSize;
+    @SerializedName("download-queue-enabled") private boolean mDownloadQueueEnabled;
+
     @SerializedName("incomplete-dir") private String mIncompleteDir;
     @SerializedName("incomplete-dir-enabled") private boolean mIncompleteDirEnabled;
 
     @SerializedName("lpd-enabled") private boolean mLPDEnabled;
 
-    @SerializedName("peer-limit-global") private int mPeerLimitGlobal;
-    @SerializedName("peer-limit-per-torrent") private int mPeerLimitPerTorrent;
+    @SerializedName("peer-limit-global") private int mGlobalPeerLimit;
+    @SerializedName("peer-limit-per-torrent") private int mTorrentPeerLimit;
 
     @SerializedName("pex-enabled") private boolean mPEXEnabled;
 
@@ -52,6 +55,9 @@ public class TransmissionSession {
     @SerializedName("script-torrent-done-filename") private String mDoneScript;
     @SerializedName("script-torrent-done-enabled") private boolean mDoneScriptEnabled;
 
+    @SerializedName("seed-queue-size") private int mSeedQueueSize;
+    @SerializedName("seed-queue-enabled") private boolean mSeedQueueEnabled;
+
     @SerializedName("seedRatioLimit") private float mSeedRatioLimit;
     @SerializedName("seedRatioLimited") private boolean mSeedRatioLimited;
 
@@ -59,6 +65,9 @@ public class TransmissionSession {
     @SerializedName("speed-limit-down-enabled") private boolean mSpeedLimitDownEnabled;
     @SerializedName("speed-limit-up") private long mSpeedLimitUp;
     @SerializedName("speed-limit-up-enabled") private boolean mSpeedLimitUpEnabled;
+
+    @SerializedName("queue-stalled-minutes") private int mStalledQueueSize;
+    @SerializedName("queue-stalled-enabled") private boolean mStalledQueueEnabled;
 
     @SerializedName("start-added-torrents") private boolean mStartAdded;
     @SerializedName("trash-original-torrent-files") private boolean mTrashOriginal;
@@ -143,6 +152,14 @@ public class TransmissionSession {
         return mDownloadDirFreeSpace;
     }
 
+    public int getDownloadQueueSize() {
+        return mDownloadQueueSize;
+    }
+
+    public boolean isDownloadQueueEnabled() {
+        return mDownloadQueueEnabled;
+    }
+
     public String getIncompleteDir() {
         return mIncompleteDir;
     }
@@ -155,12 +172,12 @@ public class TransmissionSession {
         return mLPDEnabled;
     }
 
-    public int getPeerLimitGlobal() {
-        return mPeerLimitGlobal;
+    public int getGlobalPeerLimit() {
+        return mGlobalPeerLimit;
     }
 
-    public int getPeerLimitPerTorrent() {
-        return mPeerLimitPerTorrent;
+    public int getTorrentPeerLimit() {
+        return mTorrentPeerLimit;
     }
 
     public boolean isPEXEnabled() {
@@ -199,6 +216,14 @@ public class TransmissionSession {
         return mDoneScriptEnabled;
     }
 
+    public int getSeedQueueSize() {
+        return mSeedQueueSize;
+    }
+
+    public boolean isSeedQueueEnabled() {
+        return mSeedQueueEnabled;
+    }
+
     public float getSeedRatioLimit() {
         return mSeedRatioLimit;
     }
@@ -207,20 +232,28 @@ public class TransmissionSession {
         return mSeedRatioLimited;
     }
 
-    public long getSpeedLimitDown() {
+    public long getDownloadSpeedLimit() {
         return mSpeedLimitDown;
     }
 
-    public boolean isSpeedLimitDownEnabled() {
+    public boolean isDownloadSpeedLimited() {
         return mSpeedLimitDownEnabled;
     }
 
-    public long getSpeedLimitUp() {
+    public long getUploadSpeedLimit() {
         return mSpeedLimitUp;
     }
 
-    public boolean isSpeedLimitUpEnabled() {
+    public boolean isUploadSpeedLimited() {
         return mSpeedLimitUpEnabled;
+    }
+
+    public int getStalledQueueSize() {
+        return mStalledQueueSize;
+    }
+
+    public boolean isStalledQueueEnabled() {
+        return mStalledQueueEnabled;
     }
 
     public boolean isStartAddedTorrentsEnabled() {
@@ -291,6 +324,14 @@ public class TransmissionSession {
         mDownloadDirFreeSpace = freeSpace;
     }
 
+    public void setDownloadQueueSize(int size) {
+        mDownloadQueueSize = size;
+    }
+
+    public void setDownloadQueueEnabled(boolean enable) {
+        mDownloadQueueEnabled = enable;
+    }
+
     public void setIncompleteDir(String dir) {
         mIncompleteDir = dir;
     }
@@ -303,12 +344,12 @@ public class TransmissionSession {
         mIncompleteDirEnabled = enable;
     }
 
-    public void setPeerLimitGlobal(int peerLimitGlobal) {
-        mPeerLimitGlobal = peerLimitGlobal;
+    public void setGlobalPeerLimit(int limit) {
+        mGlobalPeerLimit = limit;
     }
 
-    public void setPeerLimitPerTorrent(int peerLimitPerTorrent) {
-        mPeerLimitPerTorrent = peerLimitPerTorrent;
+    public void setTorrentPeerLimit(int limit) {
+        mTorrentPeerLimit = limit;
     }
 
     public void setPEXEnabled(boolean pEXEnabled) {
@@ -347,6 +388,14 @@ public class TransmissionSession {
         mDoneScriptEnabled = enabled;
     }
 
+    public void setSeedQueueSize(int size) {
+        mSeedQueueSize = size;
+    }
+
+    public void setSeedQueueEnabled(boolean enable) {
+        mSeedQueueEnabled = enable;
+    }
+
     public void setSeedRatioLimit(float seedRatioLimit) {
         mSeedRatioLimit = seedRatioLimit;
     }
@@ -369,6 +418,14 @@ public class TransmissionSession {
 
     public void setSpeedLimitUpEnabled(boolean speedLimitUpEnabled) {
         mSpeedLimitUpEnabled = speedLimitUpEnabled;
+    }
+
+    public void setStalledQueueSize(int size) {
+        mStalledQueueSize = size;
+    }
+
+    public void setStalledQueueEnabled(boolean enable) {
+        mStalledQueueEnabled = enable;
     }
 
     public void setStartAddedTorrentsEnabled(boolean enable) {

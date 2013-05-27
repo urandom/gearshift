@@ -206,17 +206,17 @@ public class TorrentListMenuFragment extends Fragment {
         }
 
 
-        if (session.isSpeedLimitDownEnabled() || session.isAltSpeedEnabled()) {
+        if (session.isDownloadSpeedLimited() || session.isAltSpeedEnabled()) {
             speed[1] = " (" + G.readableFileSize((
                 session.isAltSpeedEnabled()
                     ? session.getAltSpeedDown()
-                    : session.getSpeedLimitDown()) * 1024) + "/s)";
+                    : session.getDownloadSpeedLimit()) * 1024) + "/s)";
         }
-        if (session.isSpeedLimitUpEnabled() || session.isAltSpeedEnabled()) {
+        if (session.isUploadSpeedLimited() || session.isAltSpeedEnabled()) {
             speed[3] = " (" + G.readableFileSize((
                 session.isAltSpeedEnabled()
                     ? session.getAltSpeedUp()
-                    : session.getSpeedLimitUp()) * 1024) + "/s)";
+                    : session.getUploadSpeedLimit()) * 1024) + "/s)";
         }
 
         setStatus(speed,

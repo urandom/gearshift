@@ -62,13 +62,13 @@
             android:layout_height="wrap_content" >
 
             <CheckBox
-                android:id="@+id/transmission_session_download_size_queue_check"
+                android:id="@+id/transmission_session_download_queue_size_check"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/session_settings_download_size" />
             
             <EditText
-                android:id="@+id/transmission_session_download_size_queue"
+                android:id="@+id/transmission_session_download_queue_size"
                 android:inputType="number"
                 style="@style/CardEntry" >
             </EditText>
@@ -80,13 +80,13 @@
             android:layout_height="wrap_content" >
 
             <CheckBox
-                android:id="@+id/transmission_session_seed_size_queue_check"
+                android:id="@+id/transmission_session_seed_queue_size_check"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/session_settings_seed_size" />
             
             <EditText
-                android:id="@+id/transmission_session_seed_size_queue"
+                android:id="@+id/transmission_session_seed_queue_size"
                 android:inputType="number"
                 style="@style/CardEntry" >
             </EditText>
@@ -98,7 +98,7 @@
             android:layout_height="wrap_content" >
 
             <CheckBox
-                android:id="@+id/transmission_session_ignore_stalled_check"
+                android:id="@+id/transmission_session_stalled_queue_size_check"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_span="2"
@@ -117,7 +117,7 @@
                  android:text="@string/session_settings_ignore_stalled_minutes" />
 
             <EditText
-                android:id="@+id/transmission_session_ignore_stalled"
+                android:id="@+id/transmission_session_stalled_queue_size"
                 android:inputType="number"
                 style="@style/CardEntry" >
             </EditText>
@@ -146,7 +146,7 @@
                  android:text="@string/session_settings_global_peer_limit" />
 
             <EditText
-                android:id="@+id/transmission_settings_global_peer_limit"
+                android:id="@+id/transmission_session_global_peer_limit"
                 android:inputType="number"
                 style="@style/CardEntry" >
             </EditText>
@@ -164,7 +164,7 @@
                  android:text="@string/session_settings_torrent_peer_limit" />
 
             <EditText
-                android:id="@+id/transmission_settings_torrent_peer_limit"
+                android:id="@+id/transmission_session_torrent_peer_limit"
                 android:inputType="number"
                 style="@style/CardEntry" >
             </EditText>
