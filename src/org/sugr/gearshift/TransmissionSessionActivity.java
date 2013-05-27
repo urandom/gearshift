@@ -505,7 +505,7 @@ public class TransmissionSessionActivity extends FragmentActivity {
         edit.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
                 if (actionId == EditorInfo.IME_ACTION_DONE) {
-                    String dir = ((String) v.getText()).trim();
+                    String dir = v.getText().toString().trim();
                     if (!mSession.getDownloadDir().equals(dir)) {
                         mSession.setDownloadDir(dir);
                         setSession(TransmissionSession.SetterFields.DOWNLOAD_DIR);
