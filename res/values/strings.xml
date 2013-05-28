@@ -371,7 +371,7 @@
         
     <string name="port_test_error">Error</string>
         
-    <string name="port_test_closed">Port: closed</string>
+    <string name="port_test_closed">Closed</string>
         
-    <string name="port_test_open">Port: open</string>
+    <string name="port_test_open">Open</string>
 </resources>

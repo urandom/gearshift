@@ -278,6 +278,17 @@ public class TorrentListActivity extends FragmentActivity
         outState.putBoolean(STATE_INTENT_CONSUMED, mIntentConsumed);
     }
 
+    @Override
+    public void onNewIntent(Intent intent) {
+        if (!mDialogShown) {
+            mIntentConsumed = false;
+            setIntent(intent);
+            if (mSession != null) {
+                consumeIntent();
+            }
+        }
+    }
+
     public boolean isDetailPanelShown() {
         return mTwoPane && mDetailPanelShown;
     }
