@@ -220,6 +220,12 @@ public class TorrentDetailPageFragment extends Fragment {
         }
     };
 
+    private Runnable mLoseFocus = new Runnable() {
+        @Override public void run() {
+            getView().findViewById(R.id.torrent_detail_page_container).requestFocus();
+        }
+    };
+
     /**
      * Mandatory empty constructor for the fragment manager to instantiate the
      * fragment (e.g. upon screen orientation changes).
@@ -324,6 +330,7 @@ public class TorrentDetailPageFragment extends Fragment {
                         setTorrentProperty(Torrent.SetterFields.QUEUE_POSITION, Integer.valueOf(position));
                     }
                 }
+                new Handler().post(mLoseFocus);
                 return false;
             }
         });
@@ -350,6 +357,7 @@ public class TorrentDetailPageFragment extends Fragment {
                 if (mTorrent.getDownloadLimit() != limit) {
                     setTorrentProperty(Torrent.SetterFields.DOWNLOAD_LIMIT, Long.valueOf(limit));
                 }
+                new Handler().post(mLoseFocus);
                 return false;
             }
 
@@ -377,6 +385,7 @@ public class TorrentDetailPageFragment extends Fragment {
                 if (mTorrent.getUploadLimit() != limit) {
                     setTorrentProperty(Torrent.SetterFields.UPLOAD_LIMIT, Long.valueOf(limit));
                 }
+                new Handler().post(mLoseFocus);
                 return false;
             }
 
@@ -413,6 +422,7 @@ public class TorrentDetailPageFragment extends Fragment {
                 if (mTorrent.getSeedRatioLimit() != limit) {
                     setTorrentProperty(Torrent.SetterFields.SEED_RATIO_LIMIT, Float.valueOf(limit));
                 }
+                new Handler().post(mLoseFocus);
                 return false;
             }
 
@@ -430,6 +440,7 @@ public class TorrentDetailPageFragment extends Fragment {
                 if (mTorrent.getPeerLimit() != limit) {
                     setTorrentProperty(Torrent.SetterFields.PEER_LIMIT, Integer.valueOf(limit));
                 }
+                new Handler().post(mLoseFocus);
                 return false;
             }
 

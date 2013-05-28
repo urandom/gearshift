@@ -117,6 +117,12 @@ public class TransmissionSessionActivity extends FragmentActivity {
     };
 
 
+    private Runnable mLoseFocus = new Runnable() {
+        @Override public void run() {
+            findViewById(R.id.transmission_session_container).requestFocus();
+        }
+    };
+
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
         Intent in = getIntent();
@@ -511,6 +517,7 @@ public class TransmissionSessionActivity extends FragmentActivity {
                         setSession(TransmissionSession.SetterFields.DOWNLOAD_DIR);
                     }
                 }
+                new Handler().post(mLoseFocus);
                 return false;
             }
         });
