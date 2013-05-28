@@ -1,7 +1,9 @@
 package org.sugr.gearshift;
 
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.sugr.gearshift.TransmissionSessionManager.ManagerException;
 import org.sugr.gearshift.TransmissionSessionManager.TransmissionExclusionStrategy;
@@ -247,7 +249,7 @@ public class TransmissionSessionActivity extends FragmentActivity {
         if (initial || mSession.isStartAddedTorrentsEnabled() != session.isStartAddedTorrentsEnabled()) {
             if (!initial)
                 mSession.setStartAddedTorrentsEnabled(session.isStartAddedTorrentsEnabled());
-            ((CheckBox) findViewById(R.id.transmission_session_rename_partial_check))
+            ((CheckBox) findViewById(R.id.transmission_session_start_added_check))
                 .setChecked(mSession.isStartAddedTorrentsEnabled());
         }
 
@@ -511,9 +513,9 @@ public class TransmissionSessionActivity extends FragmentActivity {
         edit.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
                 if (actionId == EditorInfo.IME_ACTION_DONE) {
-                    String dir = v.getText().toString().trim();
-                    if (!mSession.getDownloadDir().equals(dir)) {
-                        mSession.setDownloadDir(dir);
+                    String value = v.getText().toString().trim();
+                    if (!mSession.getDownloadDir().equals(value)) {
+                        mSession.setDownloadDir(value);
                         setSession(TransmissionSession.SetterFields.DOWNLOAD_DIR);
                     }
                 }
@@ -532,6 +534,98 @@ public class TransmissionSessionActivity extends FragmentActivity {
                 }
             }
         });
+
+        edit = (EditText) findViewById(R.id.transmission_session_incomplete_download_directory);
+        edit.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+            @Override public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                if (actionId == EditorInfo.IME_ACTION_DONE) {
+                    String value = v.getText().toString().trim();
+                    if (!mSession.getIncompleteDir().equals(value)) {
+                        mSession.setIncompleteDir(value);
+                        setSession(TransmissionSession.SetterFields.INCOMPLETE_DIR);
+                    }
+                }
+                new Handler().post(mLoseFocus);
+                return false;
+            }
+        });
+
+        check = (CheckBox) findViewById(R.id.transmission_session_done_script_check);
+        check.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                findViewById(R.id.transmission_session_done_script).setEnabled(isChecked);
+                if (mSession.isDoneScriptEnabled() != isChecked) {
+                    mSession.setDoneScriptEnabled(isChecked);
+                    setSession(TransmissionSession.SetterFields.DONE_SCRIPT_ENABLED);
+                }
+            }
+        });
+
+        edit = (EditText) findViewById(R.id.transmission_session_done_script);
+        edit.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+            @Override public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                if (actionId == EditorInfo.IME_ACTION_DONE) {
+                    String value = v.getText().toString().trim();
+                    if (!mSession.getDoneScript().equals(value)) {
+                        mSession.setDoneScript(value);
+                        setSession(TransmissionSession.SetterFields.DONE_SCRIPT);
+                    }
+                }
+                new Handler().post(mLoseFocus);
+                return false;
+            }
+        });
+
+        edit = (EditText) findViewById(R.id.transmission_session_cache_size);
+        edit.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+            @Override public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                if (actionId == EditorInfo.IME_ACTION_DONE) {
+                    long value;
+                    try {
+                        value = Long.parseLong(v.getText().toString().trim());
+                    } catch (NumberFormatException e) {
+                        return false;
+                    }
+                    if (mSession.getCacheSize() != value) {
+                        mSession.setCacheSize(value);
+                        setSession(TransmissionSession.SetterFields.CACHE_SIZE);
+                    }
+                }
+                new Handler().post(mLoseFocus);
+                return false;
+            }
+        });
+
+        check = (CheckBox) findViewById(R.id.transmission_session_rename_partial_check);
+        check.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (mSession.isRenamePartialFilesEnabled() != isChecked) {
+                    mSession.setRenamePartialFilesEnabled(isChecked);
+                    setSession(TransmissionSession.SetterFields.RENAME_PARTIAL);
+                }
+            }
+        });
+
+        check = (CheckBox) findViewById(R.id.transmission_session_trash_original_check);
+        check.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (mSession.isTrashOriginalTorrentFilesEnabled() != isChecked) {
+                    mSession.setTrashOriginalTorrentFilesEnabled(isChecked);
+                    setSession(TransmissionSession.SetterFields.TRASH_ORIGINAL);
+                }
+            }
+        });
+
+        check = (CheckBox) findViewById(R.id.transmission_session_start_added_check);
+        check.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (mSession.isStartAddedTorrentsEnabled() != isChecked) {
+                    mSession.setStartAddedTorrentsEnabled(isChecked);
+                    setSession(TransmissionSession.SetterFields.START_ADDED);
+                }
+            }
+        });
+
     }
 
     private void setSession(String... keys) {
@@ -550,7 +644,8 @@ class TransmissionSessionLoader extends AsyncTaskLoader<TransmissionData> {
 
     private TransmissionProfile mProfile;
     private TransmissionSession mSessionSet;
-    private String[] mSessionSetKeys;
+    private Set<String> mSessionSetKeys = new HashSet<String>();
+    private final Object mLock = new Object();
 
     private int mLastError;
 
@@ -563,7 +658,11 @@ class TransmissionSessionLoader extends AsyncTaskLoader<TransmissionData> {
 
     public void setSession(TransmissionSession session, String... keys) {
         mSessionSet = session;
-        mSessionSetKeys = keys;
+        synchronized(mLock) {
+            for (String key : keys) {
+                mSessionSetKeys.add(key);
+            }
+        }
         onContentChanged();
     }
 
@@ -582,12 +681,18 @@ class TransmissionSessionLoader extends AsyncTaskLoader<TransmissionData> {
 
         if (mSessionSet != null) {
             try {
-                mSessManager.setSession(mSessionSet, mSessionSetKeys);
+                synchronized(mLock) {
+                    mSessManager.setSession(mSessionSet,
+                        mSessionSetKeys.toArray(new String[mSessionSetKeys.size()]));
+                    mSessionSetKeys.clear();
+                }
             } catch (ManagerException e) {
+                synchronized(mLock) {
+                    mSessionSetKeys.clear();
+                }
                 return handleError(e);
             } finally {
                 mSessionSet = null;
-                mSessionSetKeys = null;
             }
         }
 

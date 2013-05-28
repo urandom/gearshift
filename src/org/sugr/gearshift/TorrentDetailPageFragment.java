@@ -322,7 +322,7 @@ public class TorrentDetailPageFragment extends Fragment {
                 if (actionId == EditorInfo.IME_ACTION_DONE) {
                     int position;
                     try {
-                        position = Integer.parseInt(v.getText().toString());
+                        position = Integer.parseInt(v.getText().toString().trim());
                     } catch (NumberFormatException e) {
                         return false;
                     }
@@ -350,7 +350,7 @@ public class TorrentDetailPageFragment extends Fragment {
             @Override public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
                 long limit;
                 try {
-                    limit = Long.parseLong(v.getText().toString());
+                    limit = Long.parseLong(v.getText().toString().trim());
                 } catch (NumberFormatException e) {
                     return false;
                 }
@@ -378,7 +378,7 @@ public class TorrentDetailPageFragment extends Fragment {
             @Override public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
                 long limit;
                 try {
-                    limit = Long.parseLong(v.getText().toString());
+                    limit = Long.parseLong(v.getText().toString().trim());
                 } catch (NumberFormatException e) {
                     return false;
                 }
@@ -415,7 +415,7 @@ public class TorrentDetailPageFragment extends Fragment {
             @Override public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
                 float limit;
                 try {
-                    limit = Float.parseFloat(v.getText().toString());
+                    limit = Float.parseFloat(v.getText().toString().trim());
                 } catch (NumberFormatException e) {
                     return false;
                 }
@@ -433,7 +433,7 @@ public class TorrentDetailPageFragment extends Fragment {
             @Override public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
                 int limit;
                 try {
-                    limit = Integer.parseInt(v.getText().toString());
+                    limit = Integer.parseInt(v.getText().toString().trim());
                 } catch (NumberFormatException e) {
                     return false;
                 }

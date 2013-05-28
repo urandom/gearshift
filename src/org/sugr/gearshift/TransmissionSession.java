@@ -13,6 +13,12 @@ public class TransmissionSession {
         public static final String DOWNLOAD_DIR = "download-dir";
         public static final String INCOMPLETE_DIR = "incomplete-dir";
         public static final String INCOMPLETE_DIR_ENABLED = "incomplete-dir-enabled";
+        public static final String DONE_SCRIPT = "script-torrent-done-filename";
+        public static final String DONE_SCRIPT_ENABLED = "script-torrent-done-enabled";
+        public static final String CACHE_SIZE = "cache-size-mb";
+        public static final String RENAME_PARTIAL = "rename-partial-files";
+        public static final String TRASH_ORIGINAL = "trash-original-torrent-files";
+        public static final String START_ADDED = "start-added-torrents";
     }
 
     @SerializedName("alt-speed-enabled") private boolean mAltSpeedEnabled;
