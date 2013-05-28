@@ -10,6 +10,7 @@ import org.sugr.gearshift.TransmissionSessionManager.TransmissionExclusionStrate
 
 import android.content.Context;
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.FragmentActivity;
@@ -258,6 +259,8 @@ public class TransmissionSessionActivity extends FragmentActivity {
                 mSession.setPeerPort(session.getPeerPort());
             ((EditText) findViewById(R.id.transmission_session_peer_port))
                 .setText(Long.toString(mSession.getPeerPort()));
+            ((Button) findViewById(R.id.transmission_session_port_test))
+                .setText(R.string.session_settings_port_test);
         }
 
         if (initial || mSession.getEncryption() != session.getEncryption()) {
@@ -626,6 +629,38 @@ public class TransmissionSessionActivity extends FragmentActivity {
             }
         });
 
+        edit = (EditText) findViewById(R.id.transmission_session_peer_port);
+        edit.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+            @Override public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                if (actionId == EditorInfo.IME_ACTION_DONE) {
+                    int value;
+                    try {
+                        value = Integer.parseInt(v.getText().toString().trim());
+                    } catch (NumberFormatException e) {
+                        return false;
+                    }
+                    if (value > 65535) {
+                        value = 65535;
+                        v.setText(Integer.valueOf(value));
+                    }
+                    if (mSession.getPeerPort() != value) {
+                        mSession.setPeerPort(value);
+                        setSession(TransmissionSession.SetterFields.PEER_PORT);
+                        ((Button) findViewById(R.id.transmission_session_port_test))
+                            .setText(R.string.session_settings_port_test);
+                    }
+                }
+                new Handler().post(mLoseFocus);
+                return false;
+            }
+        });
+
+        Button button = (Button) findViewById(R.id.transmission_session_port_test);
+        button.setOnClickListener(new View.OnClickListener() {
+            @Override  public void onClick(View v) {
+                new PortTestAsyncTask().execute();
+            }
+        });
     }
 
     private void setSession(String... keys) {
@@ -635,6 +670,47 @@ public class TransmissionSessionActivity extends FragmentActivity {
         final TransmissionSessionLoader loader = (TransmissionSessionLoader) l;
 
         loader.setSession(mSession, keys);
+    }
+
+
+    private class PortTestAsyncTask extends AsyncTask<Void, Void, Boolean> {
+        @Override
+        protected Boolean doInBackground(Void... params) {
+            TransmissionSessionManager manager = new TransmissionSessionManager(
+                    TransmissionSessionActivity.this, mProfile);
+
+            if (!manager.hasConnectivity()) {
+                return null;
+            }
+
+            try {
+                return manager.testPort();
+            } catch (ManagerException e) {
+                return null;
+            }
+        }
+
+        @Override
+        protected void onPreExecute() {
+            Button test = (Button) TransmissionSessionActivity.this.findViewById(
+                    R.id.transmission_session_port_test);
+
+            test.setText(R.string.port_test_testing);
+        }
+
+        @Override
+        protected void onPostExecute(Boolean result) {
+            Button test = (Button) TransmissionSessionActivity.this.findViewById(
+                    R.id.transmission_session_port_test);
+            if (result == null) {
+                test.setText(R.string.port_test_error);
+            } else if (result == true) {
+                test.setText(R.string.port_test_open);
+            } else if (result == false) {
+                test.setText(R.string.port_test_closed);
+            }
+
+        }
     }
 }
 

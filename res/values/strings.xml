@@ -366,4 +366,12 @@
     <string name="session_settings_upload">Upload (KiB/s)</string>
         
     <string name="session_settings_download">Download (KiB/s)</string>
+        
+    <string name="port_test_testing">Testing...</string>
+        
+    <string name="port_test_error">Error</string>
+        
+    <string name="port_test_closed">Port: closed</string>
+        
+    <string name="port_test_open">Port: open</string>
 </resources>

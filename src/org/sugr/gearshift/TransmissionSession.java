@@ -19,6 +19,7 @@ public class TransmissionSession {
         public static final String RENAME_PARTIAL = "rename-partial-files";
         public static final String TRASH_ORIGINAL = "trash-original-torrent-files";
         public static final String START_ADDED = "start-added-torrents";
+        public static final String PEER_PORT = "peer-port";
     }
 
     @SerializedName("alt-speed-enabled") private boolean mAltSpeedEnabled;
@@ -36,16 +37,16 @@ public class TransmissionSession {
     @SerializedName("dht-enabled") private boolean mDHTEnabled;
     @SerializedName("encryption") private String mEncryption;
 
-    @SerializedName("cache-size-mb") private long mCacheSize;
+    @SerializedName(SetterFields.CACHE_SIZE) private long mCacheSize;
 
-    @SerializedName("download-dir") private String mDownloadDir;
+    @SerializedName(SetterFields.DOWNLOAD_DIR) private String mDownloadDir;
     @SerializedName("download-dir-free-space") private long mDownloadDirFreeSpace;
 
     @SerializedName("download-queue-size") private int mDownloadQueueSize;
     @SerializedName("download-queue-enabled") private boolean mDownloadQueueEnabled;
 
-    @SerializedName("incomplete-dir") private String mIncompleteDir;
-    @SerializedName("incomplete-dir-enabled") private boolean mIncompleteDirEnabled;
+    @SerializedName(SetterFields.INCOMPLETE_DIR) private String mIncompleteDir;
+    @SerializedName(SetterFields.INCOMPLETE_DIR_ENABLED) private boolean mIncompleteDirEnabled;
 
     @SerializedName("lpd-enabled") private boolean mLPDEnabled;
 
@@ -54,18 +55,18 @@ public class TransmissionSession {
 
     @SerializedName("pex-enabled") private boolean mPEXEnabled;
 
-    @SerializedName("peer-port") private int mPeerPort;
+    @SerializedName(SetterFields.PEER_PORT) private int mPeerPort;
     @SerializedName("peer-port-random-on-start") private boolean mPeerPortRandomOnStart;
 
     @SerializedName("port-forwarding-enabled") private boolean mPortForwardingEnabled;
 
-    @SerializedName("rename-partial-files") private boolean mRenamePartial;
+    @SerializedName(SetterFields.RENAME_PARTIAL) private boolean mRenamePartial;
 
     @SerializedName("rpc-version") private int mRPCVersion;
     @SerializedName("rpc-version-minimum") private int mRPCVersionMin;
 
-    @SerializedName("script-torrent-done-filename") private String mDoneScript;
-    @SerializedName("script-torrent-done-enabled") private boolean mDoneScriptEnabled;
+    @SerializedName(SetterFields.DONE_SCRIPT) private String mDoneScript;
+    @SerializedName(SetterFields.DONE_SCRIPT_ENABLED) private boolean mDoneScriptEnabled;
 
     @SerializedName("seed-queue-size") private int mSeedQueueSize;
     @SerializedName("seed-queue-enabled") private boolean mSeedQueueEnabled;
@@ -81,8 +82,8 @@ public class TransmissionSession {
     @SerializedName("queue-stalled-minutes") private int mStalledQueueSize;
     @SerializedName("queue-stalled-enabled") private boolean mStalledQueueEnabled;
 
-    @SerializedName("start-added-torrents") private boolean mStartAdded;
-    @SerializedName("trash-original-torrent-files") private boolean mTrashOriginal;
+    @SerializedName(SetterFields.START_ADDED) private boolean mStartAdded;
+    @SerializedName(SetterFields.TRASH_ORIGINAL) private boolean mTrashOriginal;
 
     @SerializedName("version") private String mVersion;
 

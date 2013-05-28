@@ -259,6 +259,19 @@ public class TransmissionSessionManager {
         return response.getTorrent();
     }
 
+    public boolean testPort() throws ManagerException {
+        PortTestRequest request = new PortTestRequest();
+
+        String json = requestData(request);
+        Gson gson = new GsonBuilder().setExclusionStrategies(new TransmissionExclusionStrategy()).create();
+        PortTestResponse response = gson.fromJson(json, PortTestResponse.class);
+        if (!response.getResult().equals("success")) {
+            throw new ManagerException(response.getResult(), -2);
+        }
+
+        return response.isPortOpen();
+    }
+
     private String requestData(Object data, ExclusionStrategy... strategies) throws ManagerException {
         OutputStream os = null;
         InputStream is = null;
@@ -612,6 +625,10 @@ public class TransmissionSessionManager {
         }
     }
 
+    private static class PortTestRequest {
+        @SerializedName("method") private final String method = "port-test";
+    }
+
 
     public static class Response {
         @SerializedName("result") protected final String mResult = null;
@@ -687,6 +704,18 @@ public class TransmissionSessionManager {
 
         private class AddTorrentArguments {
             @SerializedName("torrent-added") public Torrent torrent;
+        }
+    }
+
+    public static class PortTestResponse extends Response {
+        @SerializedName("arguments") private final PortTestArguments mArguments = null;
+
+        public boolean isPortOpen() {
+            return mArguments.open;
+        }
+
+        private class PortTestArguments {
+            @SerializedName("port-is-open") public boolean open;
         }
     }
 
