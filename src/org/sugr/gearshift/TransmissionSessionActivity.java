@@ -361,13 +361,13 @@ public class TransmissionSessionActivity extends FragmentActivity {
                 .setText(Long.toString(mSession.getUploadSpeedLimit()));
         }
 
-        if (initial || mSession.isAltSpeedEnabled() != session.isAltSpeedEnabled()) {
+        if (initial || mSession.isAltSpeedLimitEnabled() != session.isAltSpeedLimitEnabled()) {
             if (!initial)
-                mSession.setAltSpeedEnabled(session.isAltSpeedEnabled());
+                mSession.setAltSpeedLimitEnabled(session.isAltSpeedLimitEnabled());
             ((CheckBox) findViewById(R.id.transmission_session_alt_limits_check))
-                .setChecked(mSession.isAltSpeedEnabled());
-            findViewById(R.id.transmission_session_alt_down_limit).setEnabled(mSession.isAltSpeedEnabled());
-            findViewById(R.id.transmission_session_alt_up_limit).setEnabled(mSession.isAltSpeedEnabled());
+                .setChecked(mSession.isAltSpeedLimitEnabled());
+            findViewById(R.id.transmission_session_alt_down_limit).setEnabled(mSession.isAltSpeedLimitEnabled());
+            findViewById(R.id.transmission_session_alt_up_limit).setEnabled(mSession.isAltSpeedLimitEnabled());
         }
 
         if (initial || mSession.getAltSpeedDown() != session.getAltSpeedDown()) {
@@ -384,13 +384,13 @@ public class TransmissionSessionActivity extends FragmentActivity {
                 .setText(Long.toString(mSession.getAltSpeedUp()));
         }
 
-        if (initial || mSession.isAltSpeedTimeEnabled() != session.isAltSpeedTimeEnabled()) {
+        if (initial || mSession.isAltSpeedLimitTimeEnabled() != session.isAltSpeedLimitTimeEnabled()) {
             if (!initial)
-                mSession.setAltSpeedTimeEnabled(session.isAltSpeedTimeEnabled());
+                mSession.setAltSpeedLimitTimeEnabled(session.isAltSpeedLimitTimeEnabled());
             ((CheckBox) findViewById(R.id.transmission_session_alt_limits_time_check))
-                .setChecked(mSession.isAltSpeedTimeEnabled());
-            findViewById(R.id.transmission_session_alt_limit_time_from).setEnabled(mSession.isAltSpeedTimeEnabled());
-            findViewById(R.id.transmission_session_alt_limit_time_to).setEnabled(mSession.isAltSpeedTimeEnabled());
+                .setChecked(mSession.isAltSpeedLimitTimeEnabled());
+            findViewById(R.id.transmission_session_alt_limit_time_from).setEnabled(mSession.isAltSpeedLimitTimeEnabled());
+            findViewById(R.id.transmission_session_alt_limit_time_to).setEnabled(mSession.isAltSpeedLimitTimeEnabled());
         }
 
         if (initial || mSession.getAltSpeedTimeBegin() != session.getAltSpeedTimeBegin()) {
@@ -428,12 +428,12 @@ public class TransmissionSessionActivity extends FragmentActivity {
                 .setText(Long.toString(mSession.getUploadSpeedLimit()));
         }
 
-        if (initial || mSession.isSeedRatioLimited() != session.isSeedRatioLimited()) {
+        if (initial || mSession.isSeedRatioLimitEnabled() != session.isSeedRatioLimitEnabled()) {
             if (!initial)
-                mSession.setSeedRatioLimited(session.isSeedRatioLimited());
+                mSession.setSeedRatioLimitEnabled(session.isSeedRatioLimitEnabled());
             ((CheckBox) findViewById(R.id.transmission_session_seed_ratio_limit_check))
-                .setChecked(mSession.isSeedRatioLimited());
-            findViewById(R.id.transmission_session_seed_ratio_limit).setEnabled(mSession.isSeedRatioLimited());
+                .setChecked(mSession.isSeedRatioLimitEnabled());
+            findViewById(R.id.transmission_session_seed_ratio_limit).setEnabled(mSession.isSeedRatioLimitEnabled());
         }
 
         if (initial || mSession.getSeedRatioLimit() != session.getSeedRatioLimit()) {
@@ -757,6 +757,132 @@ public class TransmissionSessionActivity extends FragmentActivity {
                 }
                 new Handler().post(mLoseFocus);
                 return false;
+            }
+        });
+
+        check = (CheckBox) findViewById(R.id.transmission_session_down_limit_check);
+        check.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                findViewById(R.id.transmission_session_down_limit).setEnabled(isChecked);
+                if (mSession.isDownloadSpeedLimitEnabled() != isChecked) {
+                    mSession.setDownloadSpeedLimitEnabled(isChecked);
+                    setSession(TransmissionSession.SetterFields.DOWNLOAD_SPEED_LIMIT_ENABLED);
+                }
+            }
+        });
+
+        edit = (EditText) findViewById(R.id.transmission_session_down_limit);
+        edit.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+            @Override public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                if (actionId == EditorInfo.IME_ACTION_DONE) {
+                    long value;
+                    try {
+                        value = Long.parseLong(v.getText().toString().trim());
+                    } catch (NumberFormatException e) {
+                        return false;
+                    }
+                    if (mSession.getDownloadSpeedLimit() != value) {
+                        mSession.setDownloadSpeedLimit(value);
+                        setSession(TransmissionSession.SetterFields.DOWNLOAD_SPEED_LIMIT);
+                    }
+                }
+                new Handler().post(mLoseFocus);
+                return false;
+            }
+        });
+
+        check = (CheckBox) findViewById(R.id.transmission_session_up_limit_check);
+        check.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                findViewById(R.id.transmission_session_up_limit).setEnabled(isChecked);
+                if (mSession.isUploadSpeedLimitEnabled() != isChecked) {
+                    mSession.setUploadSpeedLimitEnabled(isChecked);
+                    setSession(TransmissionSession.SetterFields.UPLOAD_SPEED_LIMIT_ENABLED);
+                }
+            }
+        });
+
+        edit = (EditText) findViewById(R.id.transmission_session_up_limit);
+        edit.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+            @Override public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                if (actionId == EditorInfo.IME_ACTION_DONE) {
+                    long value;
+                    try {
+                        value = Long.parseLong(v.getText().toString().trim());
+                    } catch (NumberFormatException e) {
+                        return false;
+                    }
+                    if (mSession.getUploadSpeedLimit() != value) {
+                        mSession.setUploadSpeedLimit(value);
+                        setSession(TransmissionSession.SetterFields.UPLOAD_SPEED_LIMIT);
+                    }
+                }
+                new Handler().post(mLoseFocus);
+                return false;
+            }
+        });
+
+        check = (CheckBox) findViewById(R.id.transmission_session_alt_limits_check);
+        check.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                findViewById(R.id.transmission_session_alt_down_limit).setEnabled(isChecked);
+                findViewById(R.id.transmission_session_alt_up_limit).setEnabled(isChecked);
+                if (mSession.isAltSpeedLimitEnabled() != isChecked) {
+                    mSession.setAltSpeedLimitEnabled(isChecked);
+                    setSession(TransmissionSession.SetterFields.ALT_SPEED_LIMIT_ENABLED);
+                }
+            }
+        });
+
+        edit = (EditText) findViewById(R.id.transmission_session_alt_down_limit);
+        edit.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+            @Override public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                if (actionId == EditorInfo.IME_ACTION_DONE) {
+                    long value;
+                    try {
+                        value = Long.parseLong(v.getText().toString().trim());
+                    } catch (NumberFormatException e) {
+                        return false;
+                    }
+                    if (mSession.getAltDownloadSpeedLimit() != value) {
+                        mSession.setAltDownloadSpeedLimit(value);
+                        setSession(TransmissionSession.SetterFields.ALT_DOWNLOAD_SPEED_LIMIT);
+                    }
+                }
+                new Handler().post(mLoseFocus);
+                return false;
+            }
+        });
+
+        edit = (EditText) findViewById(R.id.transmission_session_alt_up_limit);
+        edit.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+            @Override public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                if (actionId == EditorInfo.IME_ACTION_DONE) {
+                    long value;
+                    try {
+                        value = Long.parseLong(v.getText().toString().trim());
+                    } catch (NumberFormatException e) {
+                        return false;
+                    }
+                    if (mSession.getAltUploadSpeedLimit() != value) {
+                        mSession.setAltUploadSpeedLimit(value);
+                        setSession(TransmissionSession.SetterFields.ALT_UPLOAD_SPEED_LIMIT);
+                    }
+                }
+                new Handler().post(mLoseFocus);
+                return false;
+            }
+        });
+
+        check = (CheckBox) findViewById(R.id.transmission_session_alt_limits_time_check);
+        check.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                findViewById(R.id.transmission_session_alt_limit_time_from).setEnabled(isChecked);
+                findViewById(R.id.transmission_session_alt_limit_time_to).setEnabled(isChecked);
+                if (mSession.isAltSpeedLimitTimeEnabled() != isChecked) {
+                    mSession.setAltSpeedLimitTimeEnabled(isChecked);
+                    setSession(TransmissionSession.SetterFields.ALT_SPEED_LIMIT_ENABLED);
+                }
             }
         });
 

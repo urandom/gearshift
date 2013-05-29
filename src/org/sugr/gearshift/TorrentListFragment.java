@@ -192,8 +192,8 @@ public class TorrentListFragment extends ListFragment {
                 mSessionStats = data.stats;*/
 
             boolean invalidateMenu = false;
-            if (mAltSpeed != mSession.isAltSpeedEnabled()) {
-                mAltSpeed = mSession.isAltSpeedEnabled();
+            if (mAltSpeed != mSession.isAltSpeedLimitEnabled()) {
+                mAltSpeed = mSession.isAltSpeedLimitEnabled();
                 invalidateMenu = true;
             }
 
@@ -620,7 +620,7 @@ public class TorrentListFragment extends ListFragment {
                     .getLoader(G.SESSION_LOADER_ID);
                 if (loader != null) {
                     mAltSpeed = !mAltSpeed;
-                    mSession.setAltSpeedEnabled(mAltSpeed);
+                    mSession.setAltSpeedLimitEnabled(mAltSpeed);
                     ((TransmissionDataLoader) loader).setSession(mSession, "alt-speed-enabled");
                     getActivity().invalidateOptionsMenu();
                 }

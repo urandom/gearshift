@@ -10,12 +10,23 @@ import com.google.gson.annotations.SerializedName;
 
 public class TransmissionSession {
     @Exclude public static final class SetterFields {
+        public static final String ALT_SPEED_LIMIT_ENABLED = "alt-speed-enabled";
+        public static final String ALT_DOWNLOAD_SPEED_LIMIT = "alt-speed-down";
+        public static final String ALT_UPLOAD_SPEED_LIMIT = "alt-speed-up";
+        public static final String ALT_SPEED_LIMIT_TIME_ENABLED = "alt-speed-enabled""alt-speed-time-enabled";
+        public static final String ALT_SPEED_LIMIT_TIME_BEGIN = "alt-speed-time-begin";
+        public static final String ALT_SPEED_LIMIT_TIME_END = "alt-speed-time-end";
         public static final String BLOCKLIST_ENABLED = "blocklist-enabled";
         public static final String BLOCKLIST_URL = "blocklist-url";
         public static final String CACHE_SIZE = "cache-size-mb";
         public static final String DHT = "dht-enabled";
         public static final String DOWNLOAD_DIR = "download-dir";
+        public static final String DOWNLOAD_QUEUE_SIZE = "download-queue-size";
+        public static final String DOWNLOAD_QUEUE_SIZE_ENABLED = "download-queue-enabled";
+        public static final String DOWNLOAD_SPEED_LIMIT = "speed-limit-down";
+        public static final String DOWNLOAD_SPEED_LIMIT_ENABLED = "speed-limit-down-enabled";
         public static final String ENCRYPTION = "encryption";
+        public static final String GLOBAL_PEER_LIMIT = "peer-limit-global";
         public static final String INCOMPLETE_DIR = "incomplete-dir";
         public static final String INCOMPLETE_DIR_ENABLED = "incomplete-dir-enabled";
         public static final String LOCAL_DISCOVERY = "lpd-enabled";
@@ -26,17 +37,26 @@ public class TransmissionSession {
         public static final String RENAME_PARTIAL = "rename-partial-files";
         public static final String DONE_SCRIPT = "script-torrent-done-filename";
         public static final String DONE_SCRIPT_ENABLED = "script-torrent-done-enabled";
-        public static final String TRASH_ORIGINAL = "trash-original-torrent-files";
+        public static final String SEED_QUEUE_SIZE = "seed-queue-size";
+        public static final String SEED_QUEUE_SIZE_ENABLED = "seed-queue-enabled";
+        public static final String SEED_RATIO_LIMIT = "seedRatioLimit";
+        public static final String SEED_RATIO_LIMIT_ENABLED = "seedRatioLimited";
+        public static final String STALLED_QUEUE_SIZE = "queue-stalled-minutes";
+        public static final String STALLED_QUEUE_SIZE_ENABLED = "queue-stalled-enabled";
         public static final String START_ADDED = "start-added-torrents";
+        public static final String TORRENT_PEER_LIMIT = "peer-limit-per-torrent";
+        public static final String TRASH_ORIGINAL = "trash-original-torrent-files";
+        public static final String UPLOAD_SPEED_LIMIT = "speed-limit-up";
+        public static final String UPLOAD_SPEED_LIMIT_ENABLED = "speed-limit-up-enabled";
     }
 
-    @SerializedName("alt-speed-enabled") private boolean mAltSpeedEnabled;
-    @SerializedName("alt-speed-down") private long mAltSpeedDown;
-    @SerializedName("alt-speed-up") private long mAltSpeedUp;
+    @SerializedName(SetterFields.ALT_SPEED_LIMIT_ENABLED) private boolean mAltSpeedEnabled;
+    @SerializedName(SetterFields.ALT_DOWNLOAD_SPEED_LIMIT) private long mAltSpeedDown;
+    @SerializedName(SetterFields.ALT_UPLOAD_SPEED_LIMIT) private long mAltSpeedUp;
 
-    @SerializedName("alt-speed-time-enabled") private boolean mAltSpeedTimeEnabled;
-    @SerializedName("alt-speed-time-begin") private int mAltSpeedTimeBegin;
-    @SerializedName("alt-speed-time-end") private int mAltSpeedTimeEnd;
+    @SerializedName(SetterFields.ALT_SPEED_LIMIT_TIME_ENABLED) private boolean mAltSpeedTimeEnabled;
+    @SerializedName(SetterFields.ALT_SPEED_LIMIT_TIME_BEGIN) private int mAltSpeedTimeBegin;
+    @SerializedName(SetterFields.ALT_SPEED_LIMIT_TIME_END) private int mAltSpeedTimeEnd;
 
     @SerializedName(SetterFields.BLOCKLIST_ENABLED) private boolean mBlocklistEnabled;
     @SerializedName("blocklist-size") private long mBlocklistSize;
@@ -49,8 +69,11 @@ public class TransmissionSession {
     @SerializedName(SetterFields.DOWNLOAD_DIR) private String mDownloadDir;
     @SerializedName("download-dir-free-space") private long mDownloadDirFreeSpace;
 
-    @SerializedName("download-queue-size") private int mDownloadQueueSize;
-    @SerializedName("download-queue-enabled") private boolean mDownloadQueueEnabled;
+    @SerializedName(SetterFields.DOWNLOAD_QUEUE_SIZE) private int mDownloadQueueSize;
+    @SerializedName(SetterFields.DOWNLOAD_QUEUE_SIZE_ENABLED) private boolean mDownloadQueueEnabled;
+
+    @SerializedName(SetterFields.DOWNLOAD_SPEED_LIMIT) private long mSpeedLimitDown;
+    @SerializedName(SetterFields.DOWNLOAD_SPEED_LIMIT_ENABLED) private boolean mSpeedLimitDownEnabled;
 
     @SerializedName(SetterFields.ENCRYPTION) private String mEncryption;
 
@@ -59,8 +82,8 @@ public class TransmissionSession {
 
     @SerializedName(SetterFields.LOCAL_DISCOVERY) private boolean mLPDEnabled;
 
-    @SerializedName("peer-limit-global") private int mGlobalPeerLimit;
-    @SerializedName("peer-limit-per-torrent") private int mTorrentPeerLimit;
+    @SerializedName(SetterFields.GLOBAL_PEER_LIMIT) private int mGlobalPeerLimit;
+    @SerializedName(SetterFields.TORRENT_PEER_LIMIT) private int mTorrentPeerLimit;
 
     @SerializedName(SetterFields.PEER_EXCHANGE) private boolean mPEXEnabled;
 
@@ -76,19 +99,17 @@ public class TransmissionSession {
     @SerializedName(SetterFields.DONE_SCRIPT) private String mDoneScript;
     @SerializedName(SetterFields.DONE_SCRIPT_ENABLED) private boolean mDoneScriptEnabled;
 
-    @SerializedName("seed-queue-size") private int mSeedQueueSize;
-    @SerializedName("seed-queue-enabled") private boolean mSeedQueueEnabled;
+    @SerializedName(SetterFields.SEED_QUEUE_SIZE) private int mSeedQueueSize;
+    @SerializedName(SetterFields.SEED_QUEUE_SIZE_ENABLED) private boolean mSeedQueueEnabled;
 
-    @SerializedName("seedRatioLimit") private float mSeedRatioLimit;
-    @SerializedName("seedRatioLimited") private boolean mSeedRatioLimited;
+    @SerializedName(SetterFields.SEED_RATIO_LIMIT) private float mSeedRatioLimit;
+    @SerializedName(SetterFields.SEED_RATIO_LIMIT_ENABLED) private boolean mSeedRatioLimited;
 
-    @SerializedName("speed-limit-down") private long mSpeedLimitDown;
-    @SerializedName("speed-limit-down-enabled") private boolean mSpeedLimitDownEnabled;
-    @SerializedName("speed-limit-up") private long mSpeedLimitUp;
-    @SerializedName("speed-limit-up-enabled") private boolean mSpeedLimitUpEnabled;
+    @SerializedName(SetterFields.UPLOAD_SPEED_LIMIT) private long mSpeedLimitUp;
+    @SerializedName(SetterFields.UPLOAD_SPEED_LIMIT_ENABLED) private boolean mSpeedLimitUpEnabled;
 
-    @SerializedName("queue-stalled-minutes") private int mStalledQueueSize;
-    @SerializedName("queue-stalled-enabled") private boolean mStalledQueueEnabled;
+    @SerializedName(SetterFields.STALLED_QUEUE_SIZE) private int mStalledQueueSize;
+    @SerializedName(SetterFields.STALLED_QUEUE_SIZE_ENABLED) private boolean mStalledQueueEnabled;
 
     @SerializedName(SetterFields.START_ADDED) private boolean mStartAdded;
     @SerializedName(SetterFields.TRASH_ORIGINAL) private boolean mTrashOriginal;
@@ -117,19 +138,19 @@ public class TransmissionSession {
 
     @Exclude private Set<String> mDownloadDirectories = new HashSet<String>();
 
-    public boolean isAltSpeedEnabled() {
+    public boolean isAltSpeedLimitEnabled() {
         return mAltSpeedEnabled;
     }
 
-    public long getAltSpeedDown() {
+    public long getAltDownloadSpeedLimit() {
         return mAltSpeedDown;
     }
 
-    public long getAltSpeedUp() {
+    public long getAltUploadSpeedLimit() {
         return mAltSpeedUp;
     }
 
-    public boolean isAltSpeedTimeEnabled() {
+    public boolean isAltSpeedLimitTimeEnabled() {
         return mAltSpeedTimeEnabled;
     }
 
@@ -249,7 +270,7 @@ public class TransmissionSession {
         return mSeedRatioLimit;
     }
 
-    public boolean isSeedRatioLimited() {
+    public boolean isSeedRatioLimitEnabled() {
         return mSeedRatioLimited;
     }
 
@@ -257,7 +278,7 @@ public class TransmissionSession {
         return mSpeedLimitDown;
     }
 
-    public boolean isDownloadSpeedLimited() {
+    public boolean isDownloadSpeedLimitEnabled() {
         return mSpeedLimitDownEnabled;
     }
 
@@ -265,7 +286,7 @@ public class TransmissionSession {
         return mSpeedLimitUp;
     }
 
-    public boolean isUploadSpeedLimited() {
+    public boolean isUploadSpeedLimitEnabled() {
         return mSpeedLimitUpEnabled;
     }
 
@@ -289,19 +310,19 @@ public class TransmissionSession {
         return mVersion;
     }
 
-    public void setAltSpeedEnabled(boolean altSpeedEnabled) {
+    public void setAltSpeedLimitEnabled(boolean altSpeedEnabled) {
         mAltSpeedEnabled = altSpeedEnabled;
     }
 
-    public void setAltSpeedDown(long altSpeedDown) {
+    public void setAltDownloadSpeedLimit(long altSpeedDown) {
         mAltSpeedDown = altSpeedDown;
     }
 
-    public void setAltSpeedUp(long altSpeedUp) {
+    public void setAltUploadSpeedLimit(long altSpeedUp) {
         mAltSpeedUp = altSpeedUp;
     }
 
-    public void setAltSpeedTimeEnabled(boolean altSpeedTimeEnabled) {
+    public void setAltSpeedLimitTimeEnabled(boolean altSpeedTimeEnabled) {
         mAltSpeedTimeEnabled = altSpeedTimeEnabled;
     }
 
@@ -421,23 +442,23 @@ public class TransmissionSession {
         mSeedRatioLimit = seedRatioLimit;
     }
 
-    public void setSeedRatioLimited(boolean seedRatioLimited) {
+    public void setSeedRatioLimitEnabled(boolean seedRatioLimited) {
         mSeedRatioLimited = seedRatioLimited;
     }
 
-    public void setSpeedLimitDown(long speedLimitDown) {
+    public void setDownloadSpeedLimit(long speedLimitDown) {
         mSpeedLimitDown = speedLimitDown;
     }
 
-    public void setSpeedLimitDownEnabled(boolean speedLimitDownEnabled) {
+    public void setDownloadSpeedLimitEnabled(boolean speedLimitDownEnabled) {
         mSpeedLimitDownEnabled = speedLimitDownEnabled;
     }
 
-    public void setSpeedLimitUp(long speedLimitUp) {
+    public void setUploadSpeedLimit(long speedLimitUp) {
         mSpeedLimitUp = speedLimitUp;
     }
 
-    public void setSpeedLimitUpEnabled(boolean speedLimitUpEnabled) {
+    public void setUploadSpeedLimitEnabled(boolean speedLimitUpEnabled) {
         mSpeedLimitUpEnabled = speedLimitUpEnabled;
     }
 
