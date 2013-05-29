@@ -20,6 +20,7 @@ import android.support.v4.content.Loader;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
+import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
@@ -661,6 +662,104 @@ public class TransmissionSessionActivity extends FragmentActivity {
                 new PortTestAsyncTask().execute();
             }
         });
+
+        Spinner spinner = (Spinner) findViewById(R.id.transmission_session_encryption);
+        spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
+                String value = mEncryptionValues.get(pos);
+                if (!mSession.getEncryption().equals(value)) {
+                    mSession.setEncryption(value);
+                    setSession(TransmissionSession.SetterFields.ENCRYPTION);
+                }
+            }
+
+            @Override public void onNothingSelected(AdapterView<?> parent) { }
+        });
+
+        check = (CheckBox) findViewById(R.id.transmission_session_random_port);
+        check.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (mSession.isPeerPortRandomOnStart() != isChecked) {
+                    mSession.setPeerPortRandomOnStart(isChecked);
+                    setSession(TransmissionSession.SetterFields.RANDOM_PORT);
+                }
+            }
+        });
+
+        check = (CheckBox) findViewById(R.id.transmission_session_port_forwarding);
+        check.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (mSession.isPortForwardingEnabled() != isChecked) {
+                    mSession.setPortForwardingEnabled(isChecked);
+                    setSession(TransmissionSession.SetterFields.PORT_FORWARDING);
+                }
+            }
+        });
+
+        check = (CheckBox) findViewById(R.id.transmission_session_peer_exchange);
+        check.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (mSession.isPeerExchangeEnabled() != isChecked) {
+                    mSession.setPeerExchangeEnabled(isChecked);
+                    setSession(TransmissionSession.SetterFields.PEER_EXCHANGE);
+                }
+            }
+        });
+
+        check = (CheckBox) findViewById(R.id.transmission_session_hash_table);
+        check.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (mSession.isDHTEnabled() != isChecked) {
+                    mSession.setDHTEnabled(isChecked);
+                    setSession(TransmissionSession.SetterFields.DHT);
+                }
+            }
+        });
+
+        check = (CheckBox) findViewById(R.id.transmission_session_local_discovery);
+        check.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (mSession.isLocalDiscoveryEnabled() != isChecked) {
+                    mSession.setLocalDiscoveryEnabled(isChecked);
+                    setSession(TransmissionSession.SetterFields.LOCAL_DISCOVERY);
+                }
+            }
+        });
+
+        check = (CheckBox) findViewById(R.id.transmission_session_blocklist_check);
+        check.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                findViewById(R.id.transmission_session_blocklist_update).setEnabled(isChecked);
+                findViewById(R.id.transmission_session_blocklist_url).setEnabled(isChecked);
+                if (mSession.isBlocklistEnabled() != isChecked) {
+                    mSession.setBlocklistEnabled(isChecked);
+                    setSession(TransmissionSession.SetterFields.BLOCKLIST_ENABLED);
+                }
+            }
+        });
+
+        Button button = (Button) findViewById(R.id.transmission_session_blocklist_update);
+        button.setOnClickListener(new View.OnClickListener() {
+            @Override  public void onClick(View v) {
+                new BlocklistUpdateAsyncTask().execute();
+            }
+        });
+
+        edit = (EditText) findViewById(R.id.transmission_session_blocklist_url);
+        edit.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+            @Override public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                if (actionId == EditorInfo.IME_ACTION_DONE) {
+                    String value = v.getText().toString().trim();
+                    if (!mSession.getBlocklistURL().equals(value)) {
+                        mSession.setBlocklistURL(value);
+                        setSession(TransmissionSession.SetterFields.BLOCKLIST_URL);
+                    }
+                }
+                new Handler().post(mLoseFocus);
+                return false;
+            }
+        });
+
     }
 
     private void setSession(String... keys) {
@@ -703,13 +802,57 @@ public class TransmissionSessionActivity extends FragmentActivity {
             Button test = (Button) TransmissionSessionActivity.this.findViewById(
                     R.id.transmission_session_port_test);
             if (result == null) {
-                test.setText(R.string.port_test_error);
+                test.setText(Html.fromHtml(getString(R.string.port_test_error)));
             } else if (result == true) {
-                test.setText(R.string.port_test_open);
+                test.setTextHtml.fromHtml(getString((R.string.port_test_open)));
             } else if (result == false) {
-                test.setText(R.string.port_test_closed);
+                test.setText(Html.fromHtml(getString(R.string.port_test_closed)));
             }
 
+        }
+    }
+
+    private class BlocklistUpdateAsyncTask extends AsyncTask<Void, Void, Long> {
+        @Override
+        protected Boolean doInBackground(Void... params) {
+            TransmissionSessionManager manager = new TransmissionSessionManager(
+                    TransmissionSessionActivity.this, mProfile);
+
+            if (!manager.hasConnectivity()) {
+                return null;
+            }
+
+            try {
+                return manager.blocklistUpdate();
+            } catch (ManagerException e) {
+                return null;
+            }
+        }
+
+        @Override
+        protected void onPreExecute() {
+            Button test = (Button) TransmissionSessionActivity.this.findViewById(
+                    R.id.transmission_session_blocklist_update);
+
+            test.setText(R.string.blocklist_updating);
+        }
+
+        @Override
+        protected void onPostExecute(Long result) {
+            Button test = (Button) TransmissionSessionActivity.this.findViewById(
+                    R.id.transmission_session_blocklist_update);
+            if (result == null) {
+                test.setText(Html.fromHtml(getString(R.string.blocklist_update_error)));
+            } else {
+                test.setText(R.string.session_settings_blocklist_update);
+                TextView text = (TextView) TransmissionSessionActivity.this.findViewById(
+                        R.id.transmission_session_blocklist_size);
+                text.setText(String.format(
+                        getString(R.string.session_settings_blocklist_count_format),
+                        result
+                ));
+
+            }
         }
     }
 }

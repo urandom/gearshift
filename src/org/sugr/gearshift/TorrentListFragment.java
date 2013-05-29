@@ -597,12 +597,17 @@ public class TorrentListFragment extends ListFragment {
             item.setActionView(null);
 
         item = menu.findItem(R.id.menu_alt_speed);
-        if (mAltSpeed) {
-            item.setIcon(R.drawable.ic_menu_alt_speed_on);
-            item.setTitle(R.string.alt_speed_label_off);
+        if (mSession == null) {
+            item.setVisible(false);
         } else {
-            item.setIcon(R.drawable.ic_menu_alt_speed_off);
-            item.setTitle(R.string.alt_speed_label_on);
+            item.setVisible(true);
+            if (mAltSpeed) {
+                item.setIcon(R.drawable.ic_menu_alt_speed_on);
+                item.setTitle(R.string.alt_speed_label_off);
+            } else {
+                item.setIcon(R.drawable.ic_menu_alt_speed_off);
+                item.setTitle(R.string.alt_speed_label_on);
+            }
         }
     }
 

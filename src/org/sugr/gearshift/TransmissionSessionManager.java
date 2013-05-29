@@ -272,6 +272,19 @@ public class TransmissionSessionManager {
         return response.isPortOpen();
     }
 
+    public long blocklistUpdate() throws ManagerException {
+        BlocklistUpdateRequest request = new BlocklistUpdateRequest();
+
+        String json = requestData(request);
+        Gson gson = new GsonBuilder().setExclusionStrategies(new TransmissionExclusionStrategy()).create();
+        BlocklistUpdateResponse response = gson.fromJson(json, BlocklistUpdateResponse.class);
+        if (!response.getResult().equals("success")) {
+            throw new ManagerException(response.getResult(), -2);
+        }
+
+        return response.getBlocklistSize();
+    }
+
     private String requestData(Object data, ExclusionStrategy... strategies) throws ManagerException {
         OutputStream os = null;
         InputStream is = null;
@@ -629,6 +642,10 @@ public class TransmissionSessionManager {
         @SerializedName("method") private final String method = "port-test";
     }
 
+    private static class BlocklistUpdateRequest {
+        @SerializedName("method") private final String method = "blocklist-update";
+    }
+
 
     public static class Response {
         @SerializedName("result") protected final String mResult = null;
@@ -716,6 +733,18 @@ public class TransmissionSessionManager {
 
         private class PortTestArguments {
             @SerializedName("port-is-open") public boolean open;
+        }
+    }
+
+    public static class BlocklistUpdateResponse extends Response {
+        @SerializedName("arguments") private final BlocklistUpdateArguments mArguments = null;
+
+        public long getBlocklistSize() {
+            return mArguments.size;
+        }
+
+        private class BlocklistUpdateArguments {
+            @SerializedName("blocklist-size") public long size;
         }
     }
 

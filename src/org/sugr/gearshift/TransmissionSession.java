@@ -10,16 +10,24 @@ import com.google.gson.annotations.SerializedName;
 
 public class TransmissionSession {
     @Exclude public static final class SetterFields {
+        public static final String BLOCKLIST_ENABLED = "blocklist-enabled";
+        public static final String BLOCKLIST_URL = "blocklist-url";
+        public static final String CACHE_SIZE = "cache-size-mb";
+        public static final String DHT = "dht-enabled";
         public static final String DOWNLOAD_DIR = "download-dir";
+        public static final String ENCRYPTION = "encryption";
         public static final String INCOMPLETE_DIR = "incomplete-dir";
         public static final String INCOMPLETE_DIR_ENABLED = "incomplete-dir-enabled";
+        public static final String LOCAL_DISCOVERY = "lpd-enabled";
+        public static final String PEER_EXCHANGE = "pex-enabled";
+        public static final String PEER_PORT = "peer-port";
+        public static final String PORT_FORWARDING = "port-forwarding-enabled";
+        public static final String RANDOM_PORT = "peer-port-random-on-start";
+        public static final String RENAME_PARTIAL = "rename-partial-files";
         public static final String DONE_SCRIPT = "script-torrent-done-filename";
         public static final String DONE_SCRIPT_ENABLED = "script-torrent-done-enabled";
-        public static final String CACHE_SIZE = "cache-size-mb";
-        public static final String RENAME_PARTIAL = "rename-partial-files";
         public static final String TRASH_ORIGINAL = "trash-original-torrent-files";
         public static final String START_ADDED = "start-added-torrents";
-        public static final String PEER_PORT = "peer-port";
     }
 
     @SerializedName("alt-speed-enabled") private boolean mAltSpeedEnabled;
@@ -30,14 +38,13 @@ public class TransmissionSession {
     @SerializedName("alt-speed-time-begin") private int mAltSpeedTimeBegin;
     @SerializedName("alt-speed-time-end") private int mAltSpeedTimeEnd;
 
-    @SerializedName("blocklist-enabled") private boolean mBlocklistEnabled;
+    @SerializedName(SetterFields.BLOCKLIST_ENABLED) private boolean mBlocklistEnabled;
     @SerializedName("blocklist-size") private long mBlocklistSize;
-    @SerializedName("blocklist-url") private String mBlocklistURL;
-
-    @SerializedName("dht-enabled") private boolean mDHTEnabled;
-    @SerializedName("encryption") private String mEncryption;
+    @SerializedName(SetterFields.BLOCKLIST_URL) private String mBlocklistURL;
 
     @SerializedName(SetterFields.CACHE_SIZE) private long mCacheSize;
+
+    @SerializedName(SetterFields.DHT) private boolean mDHTEnabled;
 
     @SerializedName(SetterFields.DOWNLOAD_DIR) private String mDownloadDir;
     @SerializedName("download-dir-free-space") private long mDownloadDirFreeSpace;
@@ -45,20 +52,21 @@ public class TransmissionSession {
     @SerializedName("download-queue-size") private int mDownloadQueueSize;
     @SerializedName("download-queue-enabled") private boolean mDownloadQueueEnabled;
 
+    @SerializedName(SetterFields.ENCRYPTION) private String mEncryption;
+
     @SerializedName(SetterFields.INCOMPLETE_DIR) private String mIncompleteDir;
     @SerializedName(SetterFields.INCOMPLETE_DIR_ENABLED) private boolean mIncompleteDirEnabled;
 
-    @SerializedName("lpd-enabled") private boolean mLPDEnabled;
+    @SerializedName(SetterFields.LOCAL_DISCOVERY) private boolean mLPDEnabled;
 
     @SerializedName("peer-limit-global") private int mGlobalPeerLimit;
     @SerializedName("peer-limit-per-torrent") private int mTorrentPeerLimit;
 
-    @SerializedName("pex-enabled") private boolean mPEXEnabled;
+    @SerializedName(SetterFields.PEER_EXCHANGE) private boolean mPEXEnabled;
 
     @SerializedName(SetterFields.PEER_PORT) private int mPeerPort;
-    @SerializedName("peer-port-random-on-start") private boolean mPeerPortRandomOnStart;
-
-    @SerializedName("port-forwarding-enabled") private boolean mPortForwardingEnabled;
+    @SerializedName(SetterFields.PORT_FORWARDING) private boolean mPortForwardingEnabled;
+    @SerializedName(SetterFields.RANDOM_PORT) private boolean mPeerPortRandomOnStart;
 
     @SerializedName(SetterFields.RENAME_PARTIAL) private boolean mRenamePartial;
 
@@ -181,7 +189,7 @@ public class TransmissionSession {
         return mIncompleteDirEnabled;
     }
 
-    public boolean isLPDEnabled() {
+    public boolean isLocalDiscoveryEnabled() {
         return mLPDEnabled;
     }
 
@@ -193,7 +201,7 @@ public class TransmissionSession {
         return mTorrentPeerLimit;
     }
 
-    public boolean isPEXEnabled() {
+    public boolean isPeerExchangeEnabled() {
         return mPEXEnabled;
     }
 
@@ -349,7 +357,7 @@ public class TransmissionSession {
         mIncompleteDir = dir;
     }
 
-    public void setLPDEnabled(boolean enable) {
+    public void setLocalDiscoveryEnabled(boolean enable) {
         mLPDEnabled = enable;
     }
 
@@ -365,8 +373,8 @@ public class TransmissionSession {
         mTorrentPeerLimit = limit;
     }
 
-    public void setPEXEnabled(boolean pEXEnabled) {
-        mPEXEnabled = pEXEnabled;
+    public void setPeerExchangeEnabled(boolean enable) {
+        mPEXEnabled = enable;
     }
 
     public void setPeerPort(int peerPort) {
