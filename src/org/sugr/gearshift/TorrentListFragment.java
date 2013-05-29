@@ -153,7 +153,7 @@ public class TorrentListFragment extends ListFragment {
             if (mCurrentProfile != null) {
                 //setEmptyText(R.string.connecting_empty_list);
                 ((TransmissionSessionInterface) getActivity()).setProfile(mCurrentProfile);
-                getActivity().getSupportLoaderManager().initLoader(G.SESSION_LOADER_ID,
+                getActivity().getSupportLoaderManager().initLoader(G.TORRENTS_LOADER_ID,
                         null, mTorrentLoaderCallbacks);
             }
         }
@@ -315,7 +315,7 @@ public class TorrentListFragment extends ListFragment {
                     TransmissionProfile profile = mProfileAdapter.getItem(pos);
                     if (profile != TransmissionProfileListAdapter.EMPTY_PROFILE) {
                         final Loader<TransmissionData> loader = getActivity().getSupportLoaderManager()
-                                .getLoader(G.SESSION_LOADER_ID);
+                                .getLoader(G.TORRENTS_LOADER_ID);
 
                         mCurrentProfile = profile;
                         TransmissionProfile.setCurrentProfile(profile, getActivity());
@@ -378,7 +378,7 @@ public class TorrentListFragment extends ListFragment {
             @Override
             public boolean onActionItemClicked(final ActionMode mode, final MenuItem item) {
                 final Loader<TransmissionData> loader = getActivity().getSupportLoaderManager()
-                    .getLoader(G.SESSION_LOADER_ID);
+                    .getLoader(G.TORRENTS_LOADER_ID);
 
                 if (loader == null)
                     return false;
@@ -617,7 +617,7 @@ public class TorrentListFragment extends ListFragment {
         switch (item.getItemId()) {
             case R.id.menu_alt_speed:
                 loader = getActivity().getSupportLoaderManager()
-                    .getLoader(G.SESSION_LOADER_ID);
+                    .getLoader(G.TORRENTS_LOADER_ID);
                 if (loader != null) {
                     mAltSpeed = !mAltSpeed;
                     mSession.setAltSpeedLimitEnabled(mAltSpeed);
@@ -627,7 +627,7 @@ public class TorrentListFragment extends ListFragment {
                 return true;
             case R.id.menu_refresh:
                 loader = getActivity().getSupportLoaderManager()
-                    .getLoader(G.SESSION_LOADER_ID);
+                    .getLoader(G.TORRENTS_LOADER_ID);
                 if (loader != null) {
                     loader.onContentChanged();
                     mRefreshing = !mRefreshing;

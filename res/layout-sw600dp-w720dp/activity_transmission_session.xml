@@ -16,6 +16,7 @@
             android:orientation="horizontal"
             android:descendantFocusability="beforeDescendants"
             android:focusableInTouchMode="true"
+            android:baselineAligned="false"
             android:padding="8dp"
             android:paddingBottom="16dp"
             android:paddingTop="16dp" >

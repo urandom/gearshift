@@ -161,7 +161,7 @@ public class TorrentDetailFragment extends Fragment {
     @Override
     public boolean onOptionsItemSelected(final MenuItem item) {
         final Loader<TransmissionData> loader = getActivity().getSupportLoaderManager()
-            .getLoader(G.SESSION_LOADER_ID);
+            .getLoader(G.TORRENTS_LOADER_ID);
 
         final TransmissionSessionInterface context = ((TransmissionSessionInterface) getActivity());
         ArrayList<Torrent> torrents = context.getTorrents();

@@ -306,7 +306,7 @@ public class TorrentListActivity extends FragmentActivity
                 mDrawerToggle.setDrawerIndicatorEnabled(false);
 
                 Loader<TransmissionData> loader =
-                        getSupportLoaderManager().getLoader(G.SESSION_LOADER_ID);
+                        getSupportLoaderManager().getLoader(G.TORRENTS_LOADER_ID);
                 if (loader != null) {
                     ((TransmissionDataLoader) loader).setAllCurrentTorrents(true);
                 }
@@ -327,7 +327,7 @@ public class TorrentListActivity extends FragmentActivity
                 mDrawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED,
                         findViewById(R.id.sliding_menu_frame));
                 mDrawerToggle.setDrawerIndicatorEnabled(true);
-                Loader<TransmissionData> loader = getSupportLoaderManager().getLoader(G.SESSION_LOADER_ID);
+                Loader<TransmissionData> loader = getSupportLoaderManager().getLoader(G.TORRENTS_LOADER_ID);
                 if (loader != null) {
                     ((TransmissionDataLoader) loader).setAllCurrentTorrents(false);
                 }
@@ -428,7 +428,7 @@ public class TorrentListActivity extends FragmentActivity
             LayoutInflater inflater = getLayoutInflater();
             View view = inflater.inflate(R.layout.add_torrent_dialog, null);
             final Loader<TransmissionData> loader = getSupportLoaderManager()
-                    .getLoader(G.SESSION_LOADER_ID);
+                    .getLoader(G.TORRENTS_LOADER_ID);
 
             final AlertDialog.Builder builder = new AlertDialog.Builder(this)
                 .setCancelable(false)

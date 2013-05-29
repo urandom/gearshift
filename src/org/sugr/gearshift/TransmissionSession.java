@@ -13,7 +13,7 @@ public class TransmissionSession {
         public static final String ALT_SPEED_LIMIT_ENABLED = "alt-speed-enabled";
         public static final String ALT_DOWNLOAD_SPEED_LIMIT = "alt-speed-down";
         public static final String ALT_UPLOAD_SPEED_LIMIT = "alt-speed-up";
-        public static final String ALT_SPEED_LIMIT_TIME_ENABLED = "alt-speed-enabled""alt-speed-time-enabled";
+        public static final String ALT_SPEED_LIMIT_TIME_ENABLED = "alt-speed-time-enabled";
         public static final String ALT_SPEED_LIMIT_TIME_BEGIN = "alt-speed-time-begin";
         public static final String ALT_SPEED_LIMIT_TIME_END = "alt-speed-time-end";
         public static final String BLOCKLIST_ENABLED = "blocklist-enabled";
@@ -22,7 +22,7 @@ public class TransmissionSession {
         public static final String DHT = "dht-enabled";
         public static final String DOWNLOAD_DIR = "download-dir";
         public static final String DOWNLOAD_QUEUE_SIZE = "download-queue-size";
-        public static final String DOWNLOAD_QUEUE_SIZE_ENABLED = "download-queue-enabled";
+        public static final String DOWNLOAD_QUEUE_ENABLED = "download-queue-enabled";
         public static final String DOWNLOAD_SPEED_LIMIT = "speed-limit-down";
         public static final String DOWNLOAD_SPEED_LIMIT_ENABLED = "speed-limit-down-enabled";
         public static final String ENCRYPTION = "encryption";
@@ -38,11 +38,11 @@ public class TransmissionSession {
         public static final String DONE_SCRIPT = "script-torrent-done-filename";
         public static final String DONE_SCRIPT_ENABLED = "script-torrent-done-enabled";
         public static final String SEED_QUEUE_SIZE = "seed-queue-size";
-        public static final String SEED_QUEUE_SIZE_ENABLED = "seed-queue-enabled";
+        public static final String SEED_QUEUE_ENABLED = "seed-queue-enabled";
         public static final String SEED_RATIO_LIMIT = "seedRatioLimit";
         public static final String SEED_RATIO_LIMIT_ENABLED = "seedRatioLimited";
         public static final String STALLED_QUEUE_SIZE = "queue-stalled-minutes";
-        public static final String STALLED_QUEUE_SIZE_ENABLED = "queue-stalled-enabled";
+        public static final String STALLED_QUEUE_ENABLED = "queue-stalled-enabled";
         public static final String START_ADDED = "start-added-torrents";
         public static final String TORRENT_PEER_LIMIT = "peer-limit-per-torrent";
         public static final String TRASH_ORIGINAL = "trash-original-torrent-files";
@@ -70,7 +70,7 @@ public class TransmissionSession {
     @SerializedName("download-dir-free-space") private long mDownloadDirFreeSpace;
 
     @SerializedName(SetterFields.DOWNLOAD_QUEUE_SIZE) private int mDownloadQueueSize;
-    @SerializedName(SetterFields.DOWNLOAD_QUEUE_SIZE_ENABLED) private boolean mDownloadQueueEnabled;
+    @SerializedName(SetterFields.DOWNLOAD_QUEUE_ENABLED) private boolean mDownloadQueueEnabled;
 
     @SerializedName(SetterFields.DOWNLOAD_SPEED_LIMIT) private long mSpeedLimitDown;
     @SerializedName(SetterFields.DOWNLOAD_SPEED_LIMIT_ENABLED) private boolean mSpeedLimitDownEnabled;
@@ -100,7 +100,7 @@ public class TransmissionSession {
     @SerializedName(SetterFields.DONE_SCRIPT_ENABLED) private boolean mDoneScriptEnabled;
 
     @SerializedName(SetterFields.SEED_QUEUE_SIZE) private int mSeedQueueSize;
-    @SerializedName(SetterFields.SEED_QUEUE_SIZE_ENABLED) private boolean mSeedQueueEnabled;
+    @SerializedName(SetterFields.SEED_QUEUE_ENABLED) private boolean mSeedQueueEnabled;
 
     @SerializedName(SetterFields.SEED_RATIO_LIMIT) private float mSeedRatioLimit;
     @SerializedName(SetterFields.SEED_RATIO_LIMIT_ENABLED) private boolean mSeedRatioLimited;
@@ -109,7 +109,7 @@ public class TransmissionSession {
     @SerializedName(SetterFields.UPLOAD_SPEED_LIMIT_ENABLED) private boolean mSpeedLimitUpEnabled;
 
     @SerializedName(SetterFields.STALLED_QUEUE_SIZE) private int mStalledQueueSize;
-    @SerializedName(SetterFields.STALLED_QUEUE_SIZE_ENABLED) private boolean mStalledQueueEnabled;
+    @SerializedName(SetterFields.STALLED_QUEUE_ENABLED) private boolean mStalledQueueEnabled;
 
     @SerializedName(SetterFields.START_ADDED) private boolean mStartAdded;
     @SerializedName(SetterFields.TRASH_ORIGINAL) private boolean mTrashOriginal;

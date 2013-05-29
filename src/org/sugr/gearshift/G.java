@@ -73,7 +73,8 @@ class G {
     public static final String ARG_PAGE_POSITION = "page_position";
 
     public static final int PROFILES_LOADER_ID = 1;
-    public static final int SESSION_LOADER_ID = 2;
+    public static final int TORRENTS_LOADER_ID = 2;
+    public static final int SESSION_LOADER_ID = 3;
 
     private static final String LogTag = "GearShift";
 

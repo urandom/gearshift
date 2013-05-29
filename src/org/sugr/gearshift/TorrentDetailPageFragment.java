@@ -212,7 +212,7 @@ public class TorrentDetailPageFragment extends Fragment {
                     mode.finish();
                     ((TransmissionSessionInterface) getActivity()).setRefreshing(true);
                     Loader<TransmissionData> loader = getActivity().getSupportLoaderManager()
-                        .getLoader(G.SESSION_LOADER_ID);
+                        .getLoader(G.TORRENTS_LOADER_ID);
                     loader.onContentChanged();
                 }
             }
@@ -496,7 +496,7 @@ public class TorrentDetailPageFragment extends Fragment {
 
         Loader<TransmissionData> loader = getActivity()
             .getSupportLoaderManager().getLoader(
-                    G.SESSION_LOADER_ID);
+                    G.TORRENTS_LOADER_ID);
         ((TransmissionDataLoader) loader).setTorrentProperty(mTorrent.getId(), key, value);
     }
 

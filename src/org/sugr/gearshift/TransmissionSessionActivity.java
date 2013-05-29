@@ -1,6 +1,7 @@
 package org.sugr.gearshift;
 
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -8,15 +9,20 @@ import java.util.Set;
 import org.sugr.gearshift.TransmissionSessionManager.ManagerException;
 import org.sugr.gearshift.TransmissionSessionManager.TransmissionExclusionStrategy;
 
+import android.app.Dialog;
+import android.app.TimePickerDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.AsyncTaskLoader;
 import android.support.v4.content.Loader;
+import android.text.Html;
+import android.text.format.DateFormat;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
@@ -28,6 +34,7 @@ import android.widget.EditText;
 import android.widget.ScrollView;
 import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.TimePicker;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -38,8 +45,6 @@ public class TransmissionSessionActivity extends FragmentActivity {
 
     private TransmissionProfile mProfile;
     private TransmissionSession mSession;
-
-    private static final int SESSION_LOADER_ID = 10;
 
     private LoaderCallbacks<TransmissionData> mSessionLoaderCallbacks = new LoaderCallbacks<TransmissionData>() {
 
@@ -161,12 +166,12 @@ public class TransmissionSessionActivity extends FragmentActivity {
 
         mEncryptionValues = Arrays.asList(getResources().getStringArray(R.array.session_settings_encryption_values));
 
-        initListeners();
-
         updateFields(null, true);
 
+        initListeners();
+
         getSupportLoaderManager().restartLoader(
-                SESSION_LOADER_ID, null, mSessionLoaderCallbacks);
+                G.SESSION_LOADER_ID, null, mSessionLoaderCallbacks);
     }
 
     @Override
@@ -174,7 +179,7 @@ public class TransmissionSessionActivity extends FragmentActivity {
         super.onResume();
 
         Loader<TransmissionData> loader = getSupportLoaderManager()
-            .getLoader(SESSION_LOADER_ID);
+            .getLoader(G.SESSION_LOADER_ID);
 
         loader.onContentChanged();
     }
@@ -187,6 +192,17 @@ public class TransmissionSessionActivity extends FragmentActivity {
         if (scroll != null) {
             outState.putInt(STATE_SCROLL_POSITION, scroll.getScrollY());
         }
+    }
+
+
+    public void setAltSpeedLimitTimeBegin(int time) {
+        mSession.setAltSpeedTimeBegin(time);
+        setSession(TransmissionSession.SetterFields.ALT_SPEED_LIMIT_TIME_BEGIN);
+    }
+
+    public void setAltSpeedLimitTimeEnd(int time) {
+        mSession.setAltSpeedTimeEnd(time);
+        setSession(TransmissionSession.SetterFields.ALT_SPEED_LIMIT_TIME_END);
     }
 
     private void updateFields(TransmissionSession session, boolean initial) {
@@ -285,11 +301,11 @@ public class TransmissionSessionActivity extends FragmentActivity {
                 .setChecked(mSession.isPortForwardingEnabled());
         }
 
-        if (initial || mSession.isPEXEnabled() != session.isPEXEnabled()) {
+        if (initial || mSession.isPeerExchangeEnabled() != session.isPeerExchangeEnabled()) {
             if (!initial)
-                mSession.setPEXEnabled(session.isPEXEnabled());
+                mSession.setPeerExchangeEnabled(session.isPeerExchangeEnabled());
             ((CheckBox) findViewById(R.id.transmission_session_peer_exchange))
-                .setChecked(mSession.isPEXEnabled());
+                .setChecked(mSession.isPeerExchangeEnabled());
         }
 
         if (initial || mSession.isDHTEnabled() != session.isDHTEnabled()) {
@@ -299,11 +315,11 @@ public class TransmissionSessionActivity extends FragmentActivity {
                 .setChecked(mSession.isDHTEnabled());
         }
 
-        if (initial || mSession.isLPDEnabled() != session.isLPDEnabled()) {
+        if (initial || mSession.isLocalDiscoveryEnabled() != session.isLocalDiscoveryEnabled()) {
             if (!initial)
-                mSession.setLPDEnabled(session.isLPDEnabled());
+                mSession.setLocalDiscoveryEnabled(session.isLocalDiscoveryEnabled());
             ((CheckBox) findViewById(R.id.transmission_session_random_port))
-                .setChecked(mSession.isLPDEnabled());
+                .setChecked(mSession.isLocalDiscoveryEnabled());
         }
 
         if (initial || mSession.isBlocklistEnabled() != session.isBlocklistEnabled()) {
@@ -331,32 +347,32 @@ public class TransmissionSessionActivity extends FragmentActivity {
                 .setText(mSession.getBlocklistURL());
         }
 
-        if (initial || mSession.isDownloadSpeedLimited() != session.isDownloadSpeedLimited()) {
+        if (initial || mSession.isDownloadSpeedLimitEnabled() != session.isDownloadSpeedLimitEnabled()) {
             if (!initial)
-                mSession.setSpeedLimitDownEnabled(session.isDownloadSpeedLimited());
+                mSession.setDownloadSpeedLimitEnabled(session.isDownloadSpeedLimitEnabled());
             ((CheckBox) findViewById(R.id.transmission_session_down_limit_check))
-                .setChecked(mSession.isDownloadSpeedLimited());
-            findViewById(R.id.transmission_session_down_limit).setEnabled(mSession.isDownloadSpeedLimited());
+                .setChecked(mSession.isDownloadSpeedLimitEnabled());
+            findViewById(R.id.transmission_session_down_limit).setEnabled(mSession.isDownloadSpeedLimitEnabled());
         }
 
         if (initial || mSession.getDownloadSpeedLimit() != session.getDownloadSpeedLimit()) {
             if (!initial)
-                mSession.setSpeedLimitDown(session.getDownloadSpeedLimit());
+                mSession.setDownloadSpeedLimit(session.getDownloadSpeedLimit());
             ((EditText) findViewById(R.id.transmission_session_down_limit))
                 .setText(Long.toString(mSession.getDownloadSpeedLimit()));
         }
 
-        if (initial || mSession.isUploadSpeedLimited() != session.isUploadSpeedLimited()) {
+        if (initial || mSession.isUploadSpeedLimitEnabled() != session.isUploadSpeedLimitEnabled()) {
             if (!initial)
-                mSession.setSpeedLimitUpEnabled(session.isUploadSpeedLimited());
+                mSession.setUploadSpeedLimitEnabled(session.isUploadSpeedLimitEnabled());
             ((CheckBox) findViewById(R.id.transmission_session_up_limit_check))
-                .setChecked(mSession.isUploadSpeedLimited());
-            findViewById(R.id.transmission_session_up_limit).setEnabled(mSession.isUploadSpeedLimited());
+                .setChecked(mSession.isUploadSpeedLimitEnabled());
+            findViewById(R.id.transmission_session_up_limit).setEnabled(mSession.isUploadSpeedLimitEnabled());
         }
 
         if (initial || mSession.getUploadSpeedLimit() != session.getUploadSpeedLimit()) {
             if (!initial)
-                mSession.setSpeedLimitUp(session.getUploadSpeedLimit());
+                mSession.setUploadSpeedLimit(session.getUploadSpeedLimit());
             ((EditText) findViewById(R.id.transmission_session_up_limit))
                 .setText(Long.toString(mSession.getUploadSpeedLimit()));
         }
@@ -370,18 +386,18 @@ public class TransmissionSessionActivity extends FragmentActivity {
             findViewById(R.id.transmission_session_alt_up_limit).setEnabled(mSession.isAltSpeedLimitEnabled());
         }
 
-        if (initial || mSession.getAltSpeedDown() != session.getAltSpeedDown()) {
+        if (initial || mSession.getAltDownloadSpeedLimit() != session.getAltDownloadSpeedLimit()) {
             if (!initial)
-                mSession.setAltSpeedDown(session.getAltSpeedDown());
+                mSession.setAltDownloadSpeedLimit(session.getAltDownloadSpeedLimit());
             ((EditText) findViewById(R.id.transmission_session_alt_down_limit))
-                .setText(Long.toString(mSession.getAltSpeedDown()));
+                .setText(Long.toString(mSession.getAltDownloadSpeedLimit()));
         }
 
-        if (initial || mSession.getAltSpeedUp() != session.getAltSpeedUp()) {
+        if (initial || mSession.getAltUploadSpeedLimit() != session.getAltUploadSpeedLimit()) {
             if (!initial)
-                mSession.setAltSpeedUp(session.getAltSpeedUp());
+                mSession.setAltUploadSpeedLimit(session.getAltUploadSpeedLimit());
             ((EditText) findViewById(R.id.transmission_session_alt_up_limit))
-                .setText(Long.toString(mSession.getAltSpeedUp()));
+                .setText(Long.toString(mSession.getAltUploadSpeedLimit()));
         }
 
         if (initial || mSession.isAltSpeedLimitTimeEnabled() != session.isAltSpeedLimitTimeEnabled()) {
@@ -413,17 +429,17 @@ public class TransmissionSessionActivity extends FragmentActivity {
                     mSession.getAltSpeedTimeEnd() % 60));
         }
 
-        if (initial || mSession.isUploadSpeedLimited() != session.isUploadSpeedLimited()) {
+        if (initial || mSession.isUploadSpeedLimitEnabled() != session.isUploadSpeedLimitEnabled()) {
             if (!initial)
-                mSession.setSpeedLimitUpEnabled(session.isUploadSpeedLimited());
+                mSession.setUploadSpeedLimitEnabled(session.isUploadSpeedLimitEnabled());
             ((CheckBox) findViewById(R.id.transmission_session_up_limit_check))
-                .setChecked(mSession.isUploadSpeedLimited());
-            findViewById(R.id.transmission_session_up_limit).setEnabled(mSession.isUploadSpeedLimited());
+                .setChecked(mSession.isUploadSpeedLimitEnabled());
+            findViewById(R.id.transmission_session_up_limit).setEnabled(mSession.isUploadSpeedLimitEnabled());
         }
 
         if (initial || mSession.getUploadSpeedLimit() != session.getUploadSpeedLimit()) {
             if (!initial)
-                mSession.setSpeedLimitUp(session.getUploadSpeedLimit());
+                mSession.setUploadSpeedLimit(session.getUploadSpeedLimit());
             ((EditText) findViewById(R.id.transmission_session_up_limit))
                 .setText(Long.toString(mSession.getUploadSpeedLimit()));
         }
@@ -738,7 +754,7 @@ public class TransmissionSessionActivity extends FragmentActivity {
             }
         });
 
-        Button button = (Button) findViewById(R.id.transmission_session_blocklist_update);
+        button = (Button) findViewById(R.id.transmission_session_blocklist_update);
         button.setOnClickListener(new View.OnClickListener() {
             @Override  public void onClick(View v) {
                 new BlocklistUpdateAsyncTask().execute();
@@ -886,17 +902,208 @@ public class TransmissionSessionActivity extends FragmentActivity {
             }
         });
 
+        button = (Button) findViewById(R.id.transmission_session_alt_limit_time_from);
+        button.setOnClickListener(new View.OnClickListener() {
+            @Override  public void onClick(View v) {
+                showTimePickerDialog(true,
+                    mSession.getAltSpeedTimeBegin() / 60,
+                    mSession.getAltSpeedTimeBegin() % 60);
+            }
+        });
+
+        button = (Button) findViewById(R.id.transmission_session_alt_limit_time_to);
+        button.setOnClickListener(new View.OnClickListener() {
+            @Override  public void onClick(View v) {
+                showTimePickerDialog(false,
+                    mSession.getAltSpeedTimeEnd() / 60,
+                    mSession.getAltSpeedTimeEnd() % 60);
+            }
+        });
+
+        check = (CheckBox) findViewById(R.id.transmission_session_seed_ratio_limit_check);
+        check.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                findViewById(R.id.transmission_session_seed_ratio_limit).setEnabled(isChecked);
+                if (mSession.isSeedRatioLimitEnabled() != isChecked) {
+                    mSession.setSeedRatioLimitEnabled(isChecked);
+                    setSession(TransmissionSession.SetterFields.SEED_RATIO_LIMIT_ENABLED);
+                }
+            }
+        });
+
+        edit = (EditText) findViewById(R.id.transmission_session_seed_ratio_limit);
+        edit.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+            @Override public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                if (actionId == EditorInfo.IME_ACTION_DONE) {
+                    float value;
+                    try {
+                        value = Float.parseFloat(v.getText().toString().trim());
+                    } catch (NumberFormatException e) {
+                        return false;
+                    }
+                    if (mSession.getSeedRatioLimit() != value) {
+                        mSession.setSeedRatioLimit(value);
+                        setSession(TransmissionSession.SetterFields.SEED_RATIO_LIMIT);
+                    }
+                }
+                new Handler().post(mLoseFocus);
+                return false;
+            }
+        });
+
+        check = (CheckBox) findViewById(R.id.transmission_session_download_queue_size_check);
+        check.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                findViewById(R.id.transmission_session_download_queue_size).setEnabled(isChecked);
+                if (mSession.isDownloadQueueEnabled() != isChecked) {
+                    mSession.setDownloadQueueEnabled(isChecked);
+                    setSession(TransmissionSession.SetterFields.DOWNLOAD_QUEUE_ENABLED);
+                }
+            }
+        });
+
+        edit = (EditText) findViewById(R.id.transmission_session_download_queue_size);
+        edit.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+            @Override public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                if (actionId == EditorInfo.IME_ACTION_DONE) {
+                    int value;
+                    try {
+                        value = Integer.parseInt(v.getText().toString().trim());
+                    } catch (NumberFormatException e) {
+                        return false;
+                    }
+                    if (mSession.getDownloadQueueSize() != value) {
+                        mSession.setDownloadQueueSize(value);
+                        setSession(TransmissionSession.SetterFields.DOWNLOAD_QUEUE_SIZE);
+                    }
+                }
+                new Handler().post(mLoseFocus);
+                return false;
+            }
+        });
+
+        check = (CheckBox) findViewById(R.id.transmission_session_seed_queue_size_check);
+        check.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                findViewById(R.id.transmission_session_seed_queue_size).setEnabled(isChecked);
+                if (mSession.isSeedQueueEnabled() != isChecked) {
+                    mSession.setSeedQueueEnabled(isChecked);
+                    setSession(TransmissionSession.SetterFields.SEED_QUEUE_ENABLED);
+                }
+            }
+        });
+
+        edit = (EditText) findViewById(R.id.transmission_session_seed_queue_size);
+        edit.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+            @Override public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                if (actionId == EditorInfo.IME_ACTION_DONE) {
+                    int value;
+                    try {
+                        value = Integer.parseInt(v.getText().toString().trim());
+                    } catch (NumberFormatException e) {
+                        return false;
+                    }
+                    if (mSession.getSeedQueueSize() != value) {
+                        mSession.setSeedQueueSize(value);
+                        setSession(TransmissionSession.SetterFields.SEED_QUEUE_SIZE);
+                    }
+                }
+                new Handler().post(mLoseFocus);
+                return false;
+            }
+        });
+
+        check = (CheckBox) findViewById(R.id.transmission_session_stalled_queue_size_check);
+        check.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                findViewById(R.id.transmission_session_stalled_queue_size).setEnabled(isChecked);
+                if (mSession.isStalledQueueEnabled() != isChecked) {
+                    mSession.setStalledQueueEnabled(isChecked);
+                    setSession(TransmissionSession.SetterFields.STALLED_QUEUE_ENABLED);
+                }
+            }
+        });
+
+        edit = (EditText) findViewById(R.id.transmission_session_stalled_queue_size);
+        edit.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+            @Override public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                if (actionId == EditorInfo.IME_ACTION_DONE) {
+                    int value;
+                    try {
+                        value = Integer.parseInt(v.getText().toString().trim());
+                    } catch (NumberFormatException e) {
+                        return false;
+                    }
+                    if (mSession.getStalledQueueSize() != value) {
+                        mSession.setStalledQueueSize(value);
+                        setSession(TransmissionSession.SetterFields.STALLED_QUEUE_SIZE);
+                    }
+                }
+                new Handler().post(mLoseFocus);
+                return false;
+            }
+        });
+
+        edit = (EditText) findViewById(R.id.transmission_session_global_peer_limit);
+        edit.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+            @Override public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                if (actionId == EditorInfo.IME_ACTION_DONE) {
+                    int value;
+                    try {
+                        value = Integer.parseInt(v.getText().toString().trim());
+                    } catch (NumberFormatException e) {
+                        return false;
+                    }
+                    if (mSession.getGlobalPeerLimit() != value) {
+                        mSession.setGlobalPeerLimit(value);
+                        setSession(TransmissionSession.SetterFields.GLOBAL_PEER_LIMIT);
+                    }
+                }
+                new Handler().post(mLoseFocus);
+                return false;
+            }
+        });
+
+        edit = (EditText) findViewById(R.id.transmission_session_torrent_peer_limit);
+        edit.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+            @Override public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                if (actionId == EditorInfo.IME_ACTION_DONE) {
+                    int value;
+                    try {
+                        value = Integer.parseInt(v.getText().toString().trim());
+                    } catch (NumberFormatException e) {
+                        return false;
+                    }
+                    if (mSession.getTorrentPeerLimit() != value) {
+                        mSession.setTorrentPeerLimit(value);
+                        setSession(TransmissionSession.SetterFields.TORRENT_PEER_LIMIT);
+                    }
+                }
+                new Handler().post(mLoseFocus);
+                return false;
+            }
+        });
+
     }
 
     private void setSession(String... keys) {
         Loader<TransmissionData> l = getSupportLoaderManager()
-            .getLoader(SESSION_LOADER_ID);
+            .getLoader(G.SESSION_LOADER_ID);
 
-        final TransmissionSessionLoader loader = (TransmissionSessionLoader) l;
+        TransmissionSessionLoader loader = (TransmissionSessionLoader) l;
 
         loader.setSession(mSession, keys);
     }
 
+    private void showTimePickerDialog(boolean begin, int hour, int minute) {
+        DialogFragment newFragment = new TimePickerFragment();
+        Bundle bundle = new Bundle();
+        bundle.putBoolean(TimePickerFragment.ARG_BEGIN, begin);
+        bundle.putInt(TimePickerFragment.ARG_HOUR, hour);
+        bundle.putInt(TimePickerFragment.ARG_MINUTE, minute);
+        newFragment.setArguments(bundle);
+        newFragment.show(getSupportFragmentManager(), "timePicker");
+    }
 
     private class PortTestAsyncTask extends AsyncTask<Void, Void, Boolean> {
         @Override
@@ -930,7 +1137,7 @@ public class TransmissionSessionActivity extends FragmentActivity {
             if (result == null) {
                 test.setText(Html.fromHtml(getString(R.string.port_test_error)));
             } else if (result == true) {
-                test.setTextHtml.fromHtml(getString((R.string.port_test_open)));
+                test.setText(Html.fromHtml(getString(R.string.port_test_open)));
             } else if (result == false) {
                 test.setText(Html.fromHtml(getString(R.string.port_test_closed)));
             }
@@ -940,7 +1147,7 @@ public class TransmissionSessionActivity extends FragmentActivity {
 
     private class BlocklistUpdateAsyncTask extends AsyncTask<Void, Void, Long> {
         @Override
-        protected Boolean doInBackground(Void... params) {
+        protected Long doInBackground(Void... params) {
             TransmissionSessionManager manager = new TransmissionSessionManager(
                     TransmissionSessionActivity.this, mProfile);
 
@@ -1083,3 +1290,55 @@ class TransmissionSessionLoader extends AsyncTaskLoader<TransmissionData> {
         return new TransmissionData(null, null, mLastError);
     }
 }
+
+class TimePickerFragment extends DialogFragment
+    implements TimePickerDialog.OnTimeSetListener {
+
+    public static final String ARG_HOUR = "hour";
+    public static final String ARG_MINUTE = "minute";
+    public static final String ARG_BEGIN = "begin";
+
+    @Override
+    public Dialog onCreateDialog(Bundle savedInstanceState) {
+        // Use the current time as the default values for the picker
+        final Calendar c = Calendar.getInstance();
+
+        int hour, minute;
+
+        if (getArguments().containsKey(ARG_HOUR)) {
+            hour = getArguments().getInt(ARG_HOUR);
+            c.set(Calendar.HOUR_OF_DAY, hour);
+        } else {
+            hour = c.get(Calendar.HOUR_OF_DAY);
+        }
+
+        if (getArguments().containsKey(ARG_MINUTE)) {
+            minute = getArguments().getInt(ARG_MINUTE);
+            c.set(Calendar.MINUTE, minute);
+        } else {
+            minute = c.get(Calendar.MINUTE);
+        }
+
+        // Create a new instance of TimePickerDialog and return it
+        return new TimePickerDialog(getActivity(), this, hour, minute,
+                DateFormat.is24HourFormat(getActivity()));
+    }
+
+    @Override
+    public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
+        Button button;
+        if (getArguments().containsKey(ARG_BEGIN) && getArguments().getBoolean(ARG_BEGIN)) {
+            button = (Button) getActivity().findViewById(R.id.transmission_session_alt_limit_time_from);
+            ((TransmissionSessionActivity) getActivity()).setAltSpeedLimitTimeBegin(hourOfDay * 60 + minute);
+        } else {
+            button = (Button) getActivity().findViewById(R.id.transmission_session_alt_limit_time_to);
+            ((TransmissionSessionActivity) getActivity()).setAltSpeedLimitTimeEnd(hourOfDay * 60 + minute);
+        }
+
+        button.setText(String.format(
+                getActivity().getString(R.string.session_settings_alt_limit_time_format),
+                hourOfDay,
+                minute));
+    }
+}
+

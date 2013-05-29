@@ -183,13 +183,13 @@ public class TorrentDetailActivity extends FragmentActivity implements Transmiss
         }
 
         getSupportLoaderManager().restartLoader(
-                G.SESSION_LOADER_ID, null, mTorrentLoaderCallbacks);
+                G.TORRENTS_LOADER_ID, null, mTorrentLoaderCallbacks);
     }
 
     @Override
     public void onDestroy() {
         Loader<TransmissionData> loader = getSupportLoaderManager()
-            .getLoader(G.SESSION_LOADER_ID);
+            .getLoader(G.TORRENTS_LOADER_ID);
 
         ((TransmissionDataLoader) loader).setAllCurrentTorrents(false);
 
@@ -221,7 +221,7 @@ public class TorrentDetailActivity extends FragmentActivity implements Transmiss
                 return true;
             case R.id.menu_refresh:
                 loader = getSupportLoaderManager()
-                    .getLoader(G.SESSION_LOADER_ID);
+                    .getLoader(G.TORRENTS_LOADER_ID);
                 if (loader != null) {
                     loader.onContentChanged();
                     mRefreshing = !mRefreshing;
@@ -274,7 +274,7 @@ public class TorrentDetailActivity extends FragmentActivity implements Transmiss
         mCurrentTorrent = position;
 
         Loader<TransmissionData> loader = getSupportLoaderManager()
-            .getLoader(G.SESSION_LOADER_ID);
+            .getLoader(G.TORRENTS_LOADER_ID);
 
         ((TransmissionDataLoader) loader).setCurrentTorrents(getCurrentTorrents());
     }
