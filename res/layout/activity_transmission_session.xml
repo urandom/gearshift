@@ -1,28 +1,35 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/session_scroll"
+<FrameLayout  xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent" >
 
-    <LinearLayout
-        android:id="@+id/transmission_session_container"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:descendantFocusability="beforeDescendants"
-        android:focusableInTouchMode="true"
-        android:paddingBottom="16dp"
-        android:paddingTop="16dp" >
+	<ScrollView
+	    android:id="@+id/session_scroll"
+	    android:layout_width="match_parent"
+	    android:layout_height="match_parent" >
+	
+	        <LinearLayout
+	            android:id="@+id/transmission_session_container"
+	            android:layout_width="match_parent"
+	            android:layout_height="wrap_content"
+	            android:orientation="vertical"
+	            android:descendantFocusability="beforeDescendants"
+	            android:focusableInTouchMode="true"
+	            android:paddingBottom="16dp"
+	            android:paddingTop="16dp" >
+	
+	            <include layout="@layout/transmission_session_general" />
+	
+	            <include layout="@layout/transmission_session_connections" />
+	
+	            <include layout="@layout/transmission_session_bandwidth" />
+	
+	            <include layout="@layout/transmission_session_limits" />
+	
+	        </LinearLayout>
+	
+	</ScrollView>
 
-        <include layout="@layout/transmission_session_general" />
+    <include layout="@layout/error_layer" />
 
-        <include layout="@layout/transmission_session_connections" />
-
-        <include layout="@layout/transmission_session_bandwidth" />
-
-        <include layout="@layout/transmission_session_limits" />
-
-        <include layout="@layout/error_layer" />
-
-    </LinearLayout>
-</ScrollView>
+</FrameLayout>

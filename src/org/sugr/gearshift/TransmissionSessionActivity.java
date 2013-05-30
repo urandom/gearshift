@@ -57,6 +57,37 @@ public class TransmissionSessionActivity extends FragmentActivity {
 
         @Override public void onLoadFinished(Loader<TransmissionData> loader,
                 TransmissionData data) {
+
+            if (data.session == null) {
+                mSession = null;
+                if (data.error > 0) {
+                    findViewById(R.id.fatal_error_layer).setVisibility(View.VISIBLE);
+                    TextView text = (TextView) findViewById(R.id.transmission_error);
+
+                    if (data.error == TransmissionData.Errors.NO_CONNECTIVITY) {
+                        text.setText(Html.fromHtml(getString(R.string.no_connectivity_empty_list)));
+                    } else if (data.error == TransmissionData.Errors.ACCESS_DENIED) {
+                        text.setText(Html.fromHtml(getString(R.string.access_denied_empty_list)));
+                    } else if (data.error == TransmissionData.Errors.NO_JSON) {
+                        text.setText(Html.fromHtml(getString(R.string.no_json_empty_list)));
+                    } else if (data.error == TransmissionData.Errors.NO_CONNECTION) {
+                        text.setText(Html.fromHtml(getString(R.string.no_connection_empty_list)));
+                    } else if (data.error == TransmissionData.Errors.THREAD_ERROR) {
+                        text.setText(Html.fromHtml(getString(R.string.thread_error_empty_list)));
+                    } else if (data.error == TransmissionData.Errors.RESPONSE_ERROR) {
+                        text.setText(Html.fromHtml(getString(R.string.response_error_empty_list)));
+                    } else if (data.error == TransmissionData.Errors.TIMEOUT) {
+                        text.setText(Html.fromHtml(getString(R.string.timeout_empty_list)));
+                    }
+                }
+            } else {
+                if (mSession == null) {
+                    mSession = data.session;
+                    updateFields(null, true);
+                } else {
+                    updateFields(data.session, false);
+                }
+            }
         }
 
         @Override public void onLoaderReset(Loader<TransmissionData> loader) {
