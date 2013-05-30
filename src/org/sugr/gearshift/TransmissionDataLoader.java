@@ -659,17 +659,21 @@ public class TransmissionDataLoader extends AsyncTaskLoader<TransmissionData> {
             case 401:
             case 403:
                 mLastError = TransmissionData.Errors.ACCESS_DENIED;
+                mSession = null;
                 break;
             case 200:
                 if (e.getMessage().equals("no-json")) {
                     mLastError = TransmissionData.Errors.NO_JSON;
+                    mSession = null;
                 }
                 break;
             case -1:
                 if (e.getMessage().equals("timeout")) {
                     mLastError = TransmissionData.Errors.TIMEOUT;
+                    mSession = null;
                 } else {
                     mLastError = TransmissionData.Errors.NO_CONNECTION;
+                    mSession = null;
                 }
                 break;
             case -2:
@@ -679,11 +683,13 @@ public class TransmissionDataLoader extends AsyncTaskLoader<TransmissionData> {
                     mLastError = TransmissionData.Errors.INVALID_TORRENT;
                 } else {
                     mLastError = TransmissionData.Errors.RESPONSE_ERROR;
+                    mSession = null;
                     G.logE("Transmission Daemon Error!", e);
                 }
                 break;
             default:
                 mLastError = TransmissionData.Errors.GENERIC_HTTP;
+                mSession = null;
                 break;
         }
 
@@ -696,6 +702,7 @@ public class TransmissionDataLoader extends AsyncTaskLoader<TransmissionData> {
         mLastError = TransmissionData.Errors.THREAD_ERROR;
         G.logE("Got an error when processing the threads", e);
 
+        mSession = null;
         return new TransmissionData(mSession, mSessionStats, mLastError);
     }
 

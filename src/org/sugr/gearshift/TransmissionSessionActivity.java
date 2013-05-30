@@ -162,6 +162,11 @@ public class TransmissionSessionActivity extends FragmentActivity {
                     }
                 }
             });
+        } else {
+            mExpandedStates[Expanders.GENERAL] = findViewById(R.id.transmission_session_general_content).getVisibility() != View.GONE;
+            mExpandedStates[Expanders.CONNECTIONS] = findViewById(R.id.transmission_session_connections_content).getVisibility() != View.GONE;
+            mExpandedStates[Expanders.BANDWIDTH] = findViewById(R.id.transmission_session_bandwidth_content).getVisibility() != View.GONE;
+            mExpandedStates[Expanders.LIMITS] = findViewById(R.id.transmission_session_limits_content).getVisibility() != View.GONE;
         }
 
         mEncryptionValues = Arrays.asList(getResources().getStringArray(R.array.session_settings_encryption_values));
@@ -318,7 +323,7 @@ public class TransmissionSessionActivity extends FragmentActivity {
         if (initial || mSession.isLocalDiscoveryEnabled() != session.isLocalDiscoveryEnabled()) {
             if (!initial)
                 mSession.setLocalDiscoveryEnabled(session.isLocalDiscoveryEnabled());
-            ((CheckBox) findViewById(R.id.transmission_session_random_port))
+            ((CheckBox) findViewById(R.id.transmission_session_local_discovery))
                 .setChecked(mSession.isLocalDiscoveryEnabled());
         }
 

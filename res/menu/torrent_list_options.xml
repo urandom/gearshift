@@ -12,7 +12,7 @@
     
     <item android:id="@+id/menu_alt_speed"
         android:icon="@drawable/ic_menu_alt_speed_off"
-        android:visible="true"
+        android:visible="false"
         android:showAsAction="ifRoom"
         android:menuCategory="system"
         android:orderInCategory="25"

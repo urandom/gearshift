@@ -1,9 +1,16 @@
+* Add a refresh button to the session settings activity
+
+* Bug: The current filter is lost on error
+
+* The loader should return a null session on error
+
+* Add session configuration fragment
+
 * Implement Share via 'torrent-get' magnetLink field
 
 * Use style="?android:listSeparatorTextViewStyle" for
   list view headers
 
-* Add session configuration fragment
 * Show a small indicator on each torrent row that has tracker errors
 * Experiment with swipe-to-delete pattern (example from dashclock)
 

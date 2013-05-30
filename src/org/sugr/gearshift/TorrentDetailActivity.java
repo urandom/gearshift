@@ -65,10 +65,8 @@ public class TorrentDetailActivity extends FragmentActivity implements Transmiss
                 android.support.v4.content.Loader<TransmissionData> loader,
                 TransmissionData data) {
 
-            if (data.session != null) {
-                mSession = data.session;
-                setSession(data.session);
-            }
+            mSession = data.session;
+            setSession(data.session);
            /* if (data.stats != null)
                 mSessionStats = data.stats;*/
 

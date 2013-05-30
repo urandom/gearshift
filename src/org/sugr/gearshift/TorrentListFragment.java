@@ -85,7 +85,7 @@ public class TorrentListFragment extends ListFragment {
     private TorrentListAdapter mTorrentListAdapter;
 
     private TransmissionProfile mCurrentProfile;
-    private TransmissionSession mSession = new TransmissionSession();
+    private TransmissionSession mSession;
 //    private TransmissionSessionStats mSessionStats;
 
     private boolean mScrollToTop = false;
@@ -184,15 +184,15 @@ public class TorrentListFragment extends ListFragment {
                 android.support.v4.content.Loader<TransmissionData> loader,
                 TransmissionData data) {
 
-            if (data.session != null) {
-                mSession = data.session;
-                ((TransmissionSessionInterface) getActivity()).setSession(data.session);
-            }
+            boolean invalidateMenu = false;
+
+            mSession = data.session;
+            ((TransmissionSessionInterface) getActivity()).setSession(data.session);
+
            /* if (data.stats != null)
                 mSessionStats = data.stats;*/
 
-            boolean invalidateMenu = false;
-            if (mAltSpeed != mSession.isAltSpeedLimitEnabled()) {
+            if (mSession != null && mAltSpeed != mSession.isAltSpeedLimitEnabled()) {
                 mAltSpeed = mSession.isAltSpeedLimitEnabled();
                 invalidateMenu = true;
             }
