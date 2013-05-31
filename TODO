@@ -1,5 +1,3 @@
-* Add a refresh button to the session settings activity
-
 * Bug: The current filter is lost on error
 
 * Add session configuration fragment
