@@ -13,9 +13,11 @@ import android.app.Dialog;
 import android.app.TimePickerDialog;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
+import android.preference.PreferenceManager;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
@@ -1275,6 +1277,17 @@ class TransmissionSessionLoader extends AsyncTaskLoader<TransmissionData> {
     private TransmissionSession mSessionSet;
     private Set<String> mSessionSetKeys = new HashSet<String>();
     private final Object mLock = new Object();
+    private boolean mStopUpdates = false;
+
+    private Handler mIntervalHandler = new Handler();
+    private Runnable mIntervalRunner = new Runnable() {
+        @Override
+        public void run() {
+            if (!mStopUpdates)
+                onContentChanged();
+        }
+    };
+
 
     private int mLastError;
 
@@ -1298,6 +1311,9 @@ class TransmissionSessionLoader extends AsyncTaskLoader<TransmissionData> {
 
     @Override
     public TransmissionData loadInBackground() {
+        mIntervalHandler.removeCallbacks(mIntervalRunner);
+        mStopUpdates = false;
+
         if (mLastError > 0) {
             mLastError = 0;
         }
@@ -1335,7 +1351,23 @@ class TransmissionSessionLoader extends AsyncTaskLoader<TransmissionData> {
         return new TransmissionData(session, null, mLastError);
     }
 
+    @Override
+    public void deliverResult(TransmissionData data) {
+        super.deliverResult(data);
+
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getContext());
+        int update = Integer.parseInt(prefs.getString(G.PREF_UPDATE_INTERVAL, "-1"));
+        if (update >= 0 && !isReset()) {
+            if (update < 10) {
+                update = 10;
+            }
+            mIntervalHandler.postDelayed(mIntervalRunner, update * 1000);
+        }
+    }
+
     private TransmissionData handleError(ManagerException e) {
+        mStopUpdates = true;
+
         G.logD("Got an error while fetching data: " + e.getMessage() + " and this code: " + e.getCode());
 
         switch(e.getCode()) {
