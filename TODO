@@ -1,7 +1,3 @@
-* Bug: The current filter is lost on error
-
-* Add session configuration fragment
-
 * Implement Share via 'torrent-get' magnetLink field
 
 * Use style="?android:listSeparatorTextViewStyle" for
@@ -11,3 +7,5 @@
 * Experiment with swipe-to-delete pattern (example from dashclock)
 
 * Add trackers and peers to the details fragment
+
+* Investigate creating a widget, and adding notifications

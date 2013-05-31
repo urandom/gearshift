@@ -257,18 +257,20 @@ public class TorrentListFragment extends ListFragment {
                     mTorrentListAdapter.notifyDataSetInvalidated();
                 }
 
-                FragmentManager manager = getActivity().getSupportFragmentManager();
-                TorrentListMenuFragment menu = (TorrentListMenuFragment) manager.findFragmentById(R.id.torrent_list_menu);
-                if (menu != null) {
-                    menu.notifyTorrentListUpdate(data.torrents, data.session);
-                }
-                if (!filtered) {
-                    TorrentDetailFragment detail = (TorrentDetailFragment) manager.findFragmentByTag(
-                            TorrentDetailFragment.TAG);
-                    if (detail != null) {
-                        detail.notifyTorrentListChanged(data.hasRemoved, data.hasAdded, data.hasStatusChanged);
-                        if (data.hasStatusChanged) {
-                            invalidateMenu = true;
+                if (data.error == 0) {
+                    FragmentManager manager = getActivity().getSupportFragmentManager();
+                    TorrentListMenuFragment menu = (TorrentListMenuFragment) manager.findFragmentById(R.id.torrent_list_menu);
+                    if (menu != null) {
+                        menu.notifyTorrentListUpdate(data.torrents, data.session);
+                    }
+                    if (!filtered) {
+                        TorrentDetailFragment detail = (TorrentDetailFragment) manager.findFragmentByTag(
+                                TorrentDetailFragment.TAG);
+                        if (detail != null) {
+                            detail.notifyTorrentListChanged(data.hasRemoved, data.hasAdded, data.hasStatusChanged);
+                            if (data.hasStatusChanged) {
+                                invalidateMenu = true;
+                            }
                         }
                     }
                 }
