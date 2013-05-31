@@ -87,6 +87,7 @@ public class TransmissionSessionActivity extends FragmentActivity {
                     }
                 }
             } else {
+                findViewById(R.id.fatal_error_layer).setVisibility(View.GONE);
                 if (mSession == null) {
                     mSession = data.session;
                     updateFields(null, true);
