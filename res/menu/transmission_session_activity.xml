@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android" >
+     <item android:id="@+id/menu_refresh"
+        android:icon="@drawable/ic_menu_refresh"
+        android:visible="true"
+        android:showAsAction="always"
+        android:menuCategory="system"
+        android:orderInCategory="1"
+        android:title="@string/refresh"
+        android:titleCondensed="@string/refresh"/>
+</menu>

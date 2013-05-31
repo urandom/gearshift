@@ -24,6 +24,8 @@ import android.support.v4.content.Loader;
 import android.text.Html;
 import android.text.format.DateFormat;
 import android.view.KeyEvent;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.widget.AdapterView;
@@ -45,6 +47,8 @@ public class TransmissionSessionActivity extends FragmentActivity {
 
     private TransmissionProfile mProfile;
     private TransmissionSession mSession;
+
+    private boolean mRefreshing = false;
 
     private LoaderCallbacks<TransmissionData> mSessionLoaderCallbacks = new LoaderCallbacks<TransmissionData>() {
 
@@ -87,6 +91,11 @@ public class TransmissionSessionActivity extends FragmentActivity {
                 } else {
                     updateFields(data.session, false);
                 }
+            }
+
+            if (mRefreshing) {
+                mRefreshing = false;
+                invalidateOptionsMenu();
             }
         }
 
@@ -230,6 +239,38 @@ public class TransmissionSessionActivity extends FragmentActivity {
         }
     }
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        super.onCreateOptionsMenu(menu);
+
+        getMenuInflater().inflate(R.menu.transmission_session_activity, menu);
+
+        MenuItem item = menu.findItem(R.id.menu_refresh);
+        if (mRefreshing)
+            item.setActionView(R.layout.action_progress_bar);
+        else
+            item.setActionView(null);
+
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        Loader<TransmissionData> loader;
+
+        switch (item.getItemId()) {
+            case R.id.menu_refresh:
+                loader = getSupportLoaderManager()
+                    .getLoader(G.SESSION_LOADER_ID);
+                if (loader != null) {
+                    loader.onContentChanged();
+                    mRefreshing = !mRefreshing;
+                    invalidateOptionsMenu();
+                }
+                return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
 
     public void setAltSpeedLimitTimeBegin(int time) {
         mSession.setAltSpeedTimeBegin(time);
