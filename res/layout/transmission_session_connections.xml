@@ -182,6 +182,24 @@
                 android:text="@string/session_settings_blocklist_enable" />	            
 
         </TableRow>
+        
+        <TableRow
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:focusable="true"
+    		android:focusableInTouchMode="true"
+    		android:descendantFocusability="beforeDescendants" >
+            
+            <TextView style="@style/CardTextColumn"
+                android:text="@string/session_settings_blocklist_url" />
+            
+            <EditText
+                android:id="@+id/transmission_session_blocklist_url"
+                android:inputType="textNoSuggestions|textVisiblePassword"
+                style="@style/CardEntry" >
+            </EditText>
+            
+        </TableRow>
             	            
         <TableRow
             android:layout_width="wrap_content"
@@ -205,24 +223,6 @@
 
             </FrameLayout>
 
-        </TableRow>
-        
-        <TableRow
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:focusable="true"
-    		android:focusableInTouchMode="true"
-    		android:descendantFocusability="beforeDescendants" >
-            
-            <TextView style="@style/CardTextColumn"
-                android:text="@string/session_settings_blocklist_url" />
-            
-            <EditText
-                android:id="@+id/transmission_session_blocklist_url"
-                android:inputType="textNoSuggestions|textVisiblePassword"
-                style="@style/CardEntry" >
-            </EditText>
-            
         </TableRow>
 
     </TableLayout>

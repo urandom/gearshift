@@ -411,6 +411,13 @@ public class TransmissionSessionActivity extends FragmentActivity {
             findViewById(R.id.transmission_session_blocklist_update).setEnabled(mSession.isBlocklistEnabled());
         }
 
+        if (initial || mSession.getBlocklistURL() != session.getBlocklistURL()) {
+            if (!initial)
+                mSession.setBlocklistURL(session.getBlocklistURL());
+            ((EditText) findViewById(R.id.transmission_session_blocklist_url))
+                .setText(mSession.getBlocklistURL());
+        }
+
         if (initial || mSession.getBlocklistSize() != session.getBlocklistSize()) {
             if (!initial)
                 mSession.setBlocklistSize(session.getBlocklistSize());
@@ -418,13 +425,6 @@ public class TransmissionSessionActivity extends FragmentActivity {
                 getString(R.string.session_settings_blocklist_count_format),
                 mSession.getBlocklistSize()
             ));
-        }
-
-        if (initial || mSession.getBlocklistURL() != session.getBlocklistURL()) {
-            if (!initial)
-                mSession.setBlocklistURL(session.getBlocklistURL());
-            ((EditText) findViewById(R.id.transmission_session_blocklist_url))
-                .setText(mSession.getBlocklistURL());
         }
 
         if (initial || mSession.isDownloadSpeedLimitEnabled() != session.isDownloadSpeedLimitEnabled()) {
@@ -834,13 +834,6 @@ public class TransmissionSessionActivity extends FragmentActivity {
             }
         });
 
-        button = (Button) findViewById(R.id.transmission_session_blocklist_update);
-        button.setOnClickListener(new View.OnClickListener() {
-            @Override  public void onClick(View v) {
-                new BlocklistUpdateAsyncTask().execute();
-            }
-        });
-
         edit = (EditText) findViewById(R.id.transmission_session_blocklist_url);
         edit.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
@@ -853,6 +846,13 @@ public class TransmissionSessionActivity extends FragmentActivity {
                 }
                 new Handler().post(mLoseFocus);
                 return false;
+            }
+        });
+
+        button = (Button) findViewById(R.id.transmission_session_blocklist_update);
+        button.setOnClickListener(new View.OnClickListener() {
+            @Override  public void onClick(View v) {
+                new BlocklistUpdateAsyncTask().execute();
             }
         });
 
@@ -1208,12 +1208,14 @@ public class TransmissionSessionActivity extends FragmentActivity {
                     R.id.transmission_session_port_test);
 
             test.setText(R.string.port_test_testing);
+            test.setEnabled(false);
         }
 
         @Override
         protected void onPostExecute(Boolean result) {
             Button test = (Button) TransmissionSessionActivity.this.findViewById(
                     R.id.transmission_session_port_test);
+            test.setEnabled(true);
             if (result == null) {
                 test.setText(Html.fromHtml(getString(R.string.port_test_error)));
             } else if (result == true) {
@@ -1244,20 +1246,22 @@ public class TransmissionSessionActivity extends FragmentActivity {
 
         @Override
         protected void onPreExecute() {
-            Button test = (Button) TransmissionSessionActivity.this.findViewById(
+            Button update = (Button) TransmissionSessionActivity.this.findViewById(
                     R.id.transmission_session_blocklist_update);
 
-            test.setText(R.string.blocklist_updating);
+            update.setText(R.string.blocklist_updating);
+            update.setEnabled(false);
         }
 
         @Override
         protected void onPostExecute(Long result) {
-            Button test = (Button) TransmissionSessionActivity.this.findViewById(
+            Button update = (Button) TransmissionSessionActivity.this.findViewById(
                     R.id.transmission_session_blocklist_update);
+            update.setEnabled(true);
             if (result == null) {
-                test.setText(Html.fromHtml(getString(R.string.blocklist_update_error)));
+                update.setText(Html.fromHtml(getString(R.string.blocklist_update_error)));
             } else {
-                test.setText(R.string.session_settings_blocklist_update);
+                update.setText(R.string.session_settings_blocklist_update);
                 TextView text = (TextView) TransmissionSessionActivity.this.findViewById(
                         R.id.transmission_session_blocklist_size);
                 text.setText(String.format(
