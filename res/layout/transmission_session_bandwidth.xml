@@ -12,7 +12,7 @@
 
         <View
             android:id="@+id/transmission_session_bandwidth_expander_image"
-            style="@style/CardHeaderExpanderImage" />
+            style="@style/CardHeaderExpanderImageCollapse" />
     </LinearLayout>
 
     <TableLayout
