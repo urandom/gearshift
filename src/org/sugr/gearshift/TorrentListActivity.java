@@ -14,8 +14,10 @@ import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.support.v4.app.ActionBarDrawerToggle;
+import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.content.Loader;
@@ -60,6 +62,8 @@ public class TorrentListActivity extends FragmentActivity
 
     private boolean mDetailPanelShown;
 
+    private Bundle mDetailArguments;
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -95,9 +99,28 @@ public class TorrentListActivity extends FragmentActivity
                 @Override public void onAnimationRepeat(Animator animation) { }
 
                 @Override public void onAnimationEnd(Animator animation) {
-                    final View pager = findViewById(R.id.torrent_detail_pager);
-                    pager.setVisibility(View.VISIBLE);
-                    pager.animate().alpha((float) 1.0);
+                    final FragmentManager manager = getSupportFragmentManager();
+                    TorrentDetailFragment fragment = (TorrentDetailFragment) manager.findFragmentByTag(
+                            TorrentDetailFragment.TAG);
+                    if (fragment == null) {
+                        Fragment frag = new TorrentDetailFragment();
+                        frag.setArguments(mDetailArguments);
+                        manager.beginTransaction()
+                                .replace(R.id.torrent_detail_container, frag, TorrentDetailFragment.TAG)
+                                .commit();
+                    }
+                    Handler handler = new Handler();
+                    handler.post(new Runnable() {
+                       @Override public void run() {
+                           View bg = findViewById(R.id.torrent_detail_placeholder_background);
+                           if (bg != null) {
+                               bg.setVisibility(View.GONE);
+                           }
+                           View pager = findViewById(R.id.torrent_detail_pager);
+                           pager.setVisibility(View.VISIBLE);
+                           pager.animate().alpha((float) 1.0);
+                       }
+                    });
                 }
 
                 @Override public void onAnimationCancel(Animator animation) { }
@@ -163,13 +186,9 @@ public class TorrentListActivity extends FragmentActivity
             TorrentDetailFragment fragment = (TorrentDetailFragment) manager.findFragmentByTag(
                     TorrentDetailFragment.TAG);
             if (fragment == null) {
-                Bundle arguments = new Bundle();
-                arguments.putInt(TorrentDetailFragment.ARG_PAGE_POSITION, current);
-                fragment = new TorrentDetailFragment();
-                fragment.setArguments(arguments);
-                manager.beginTransaction()
-                        .replace(R.id.torrent_detail_container, fragment, TorrentDetailFragment.TAG)
-                        .commit();
+                mDetailArguments = new Bundle();
+                mDetailArguments.putInt(
+                        TorrentDetailFragment.ARG_PAGE_POSITION, current);
             } else {
                 fragment.setCurrentTorrent(current);
             }
