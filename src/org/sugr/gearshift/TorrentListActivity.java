@@ -27,6 +27,7 @@ import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.animation.DecelerateInterpolator;
 import android.widget.CheckBox;
 import android.widget.LinearLayout;
 import android.widget.ListView;
@@ -93,6 +94,8 @@ public class TorrentListActivity extends FragmentActivity
             final View detailPanel = findViewById(R.id.torrent_detail_panel);
 
             mDetailSlideAnimator = (ValueAnimator) AnimatorInflater.loadAnimator(this, R.anim.weight_animator);
+            mDetailSlideAnimator.setDuration(getResources().getInteger(android.R.integer.config_shortAnimTime));
+            mDetailSlideAnimator.setInterpolator(new DecelerateInterpolator());
             mDetailSlideAnimator.addListener(new Animator.AnimatorListener() {
                 @Override public void onAnimationStart(Animator animation) { }
 
