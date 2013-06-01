@@ -124,6 +124,7 @@ public class TorrentListFragment extends ListFragment {
                 android.support.v4.content.Loader<TransmissionProfile[]> loader,
                 TransmissionProfile[] profiles) {
 
+            mCurrentProfile = null;
             mProfileAdapter.clear();
             if (profiles.length > 0) {
                 mProfileAdapter.addAll(profiles);
@@ -150,10 +151,12 @@ public class TorrentListFragment extends ListFragment {
             if (mCurrentProfile == null && profiles.length > 0) {
                 mCurrentProfile = profiles[0];
             }
-            if (mCurrentProfile != null) {
-                //setEmptyText(R.string.connecting_empty_list);
-                ((TransmissionSessionInterface) getActivity()).setProfile(mCurrentProfile);
-                getActivity().getSupportLoaderManager().initLoader(G.TORRENTS_LOADER_ID,
+
+            ((TransmissionSessionInterface) getActivity()).setProfile(mCurrentProfile);
+            if (mCurrentProfile == null) {
+                getActivity().getSupportLoaderManager().destroyLoader(G.TORRENTS_LOADER_ID);
+            } else {
+                getActivity().getSupportLoaderManager().restartLoader(G.TORRENTS_LOADER_ID,
                         null, mTorrentLoaderCallbacks);
             }
         }
@@ -287,6 +290,8 @@ public class TorrentListFragment extends ListFragment {
         @Override
         public void onLoaderReset(
                 android.support.v4.content.Loader<TransmissionData> loader) {
+            mTorrentListAdapter.clear();
+            mTorrentListAdapter.notifyDataSetChanged();
         }
 
     };
@@ -903,8 +908,9 @@ public class TorrentListFragment extends ListFragment {
         public void clear() {
             synchronized (mLock) {
                 if (mOriginalValues != null) {
-                    mOriginalValues.clear();
-                } else if (mObjects != null) {
+                    mOriginalValues = null;
+                }
+                if (mObjects != null) {
                     mObjects.clear();
                 }
                 super.clear();
