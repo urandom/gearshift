@@ -977,7 +977,7 @@ public class TransmissionSessionActivity extends FragmentActivity {
                 findViewById(R.id.transmission_session_alt_limit_time_to).setEnabled(isChecked);
                 if (mSession.isAltSpeedLimitTimeEnabled() != isChecked) {
                     mSession.setAltSpeedLimitTimeEnabled(isChecked);
-                    setSession(TransmissionSession.SetterFields.ALT_SPEED_LIMIT_ENABLED);
+                    setSession(TransmissionSession.SetterFields.ALT_SPEED_LIMIT_TIME_ENABLED);
                 }
             }
         });
