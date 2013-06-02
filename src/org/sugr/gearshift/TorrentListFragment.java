@@ -291,7 +291,6 @@ public class TorrentListFragment extends ListFragment {
         public void onLoaderReset(
                 android.support.v4.content.Loader<TransmissionData> loader) {
             mTorrentListAdapter.clear();
-            mTorrentListAdapter.notifyDataSetChanged();
         }
 
     };
