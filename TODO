@@ -1,3 +1,5 @@
+* Make the list divider be part of the list item itself
+
 * Implement Share via 'torrent-get' magnetLink field
 
 * Action-bar search in the torrent list

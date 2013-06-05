@@ -51,15 +51,14 @@
 	                android:id="@+id/transmission_session_peer_port"
 	                android:inputType="number"
 	                android:layout_width="0dp"
-	                android:layout_weight="2"
+	                android:layout_weight="1"
 	                style="@style/CardEntry" >
 	            </EditText>
 	            
 	            <Button
                     style="@style/CardButton"
 	                android:id="@+id/transmission_session_port_test"
-	                android:layout_width="0dp"
-	                android:layout_weight="2"
+	                android:layout_width="wrap_content"
 	                android:ellipsize="end"
                     android:text="@string/session_settings_port_test"/>
                 
