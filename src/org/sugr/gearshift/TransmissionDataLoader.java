@@ -399,6 +399,31 @@ public class TransmissionDataLoader extends AsyncTaskLoader<TransmissionData> {
             thread.start();
         }
 
+        if (mSession != null && mSession.getRPCVersion() > 14) {
+            Thread thread = new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    synchronized(mLock) {
+                        if (exceptions.size() > 0) {
+                            return;
+                        }
+                    }
+                    try {
+                        long freeSpace = mSessManager.getFreeSpace(mSession.getDownloadDir());
+                        if (freeSpace > -1) {
+                            mSession.setDownloadDirFreeSpace(freeSpace);
+                        }
+                    } catch (ManagerException e) {
+                        synchronized(mLock) {
+                            exceptions.add(e);
+                        };
+                    }
+                }
+            });
+            threads.add(thread);
+            thread.start();
+        }
+
         boolean active = mDefaultPrefs.getBoolean(G.PREF_UPDATE_ACTIVE, false);
         Torrent [] torrents;
         int[] removed = null;

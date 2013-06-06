@@ -683,7 +683,7 @@ public class TorrentListFragment extends ListFragment {
         mScrollToTop = true;
     }
 
-    public void setListFilter(String e) {
+    public void setListDirectoryFilter(String e) {
         mTorrentListAdapter.filterDirectory(e);
         mScrollToTop = true;
     }
@@ -969,25 +969,21 @@ public class TorrentListFragment extends ListFragment {
         public void filter(FilterBy by) {
             mFilterBy = by;
             applyFilter(by.name(), G.PREF_LIST_FILTER);
-            mTorrentAdded = new SparseBooleanArray();
         }
 
         public void filter(SortBy by) {
             mSortBy = by;
             applyFilter(by.name(), G.PREF_LIST_SORT_BY);
-            mTorrentAdded = new SparseBooleanArray();
         }
 
         public void filter(SortOrder order) {
             mSortOrder = order;
             applyFilter(order.name(), G.PREF_LIST_SORT_ORDER);
-            mTorrentAdded = new SparseBooleanArray();
         }
 
         public void filterDirectory(String directory) {
             mDirectory = directory;
             applyFilter(directory, G.PREF_LIST_DIRECTORY);
-            mTorrentAdded = new SparseBooleanArray();
         }
 
         public void repeatFilter() {
@@ -1002,6 +998,7 @@ public class TorrentListFragment extends ListFragment {
             e.apply();
             mTorrentComparator.setSortingMethod(mSortBy, mSortOrder);
             repeatFilter();
+            mTorrentAdded = new SparseBooleanArray();
         }
 
         private class TorrentFilter extends Filter {

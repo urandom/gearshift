@@ -252,11 +252,13 @@ public class TransmissionSessionManager {
         String json = requestData(request, new KeyExclusionStrategy(keys));
         Gson gson = new GsonBuilder().setExclusionStrategies(new TransmissionExclusionStrategy()).create();
         AddTorrentResponse response = gson.fromJson(json, AddTorrentResponse.class);
-        if (!response.getResult().equals("success")) {
+        if (response.getResult().equals("success")) {
+            return response.getTorrent();
+        } else if (response.isDuplicate()) {
+            throw new ManagerException("duplicate torrent", -2);
+        } else {
             throw new ManagerException(response.getResult(), -2);
         }
-
-        return response.getTorrent();
     }
 
     public boolean testPort() throws ManagerException {
@@ -283,6 +285,23 @@ public class TransmissionSessionManager {
         }
 
         return response.getBlocklistSize();
+    }
+
+    public long getFreeSpace(String defaultPath) throws ManagerException {
+        FreeSpaceRequest request = new FreeSpaceRequest(
+                mDefaultPrefs.getString(G.PREF_LIST_DIRECTORY, null), defaultPath);
+
+        String json = requestData(request);
+        Gson gson = new GsonBuilder().setExclusionStrategies(new TransmissionExclusionStrategy()).create();
+        FreeSpaceResponse response = gson.fromJson(json, FreeSpaceResponse.class);
+
+        if (response.getResult().equals("success")) {
+            return response.getFreeSpace();
+        } else if (response.getResult().equals("method name not recognized")) {
+            return -1;
+        } else {
+            throw new ManagerException(response.getResult(), -2);
+        }
     }
 
     private String requestData(Object data, ExclusionStrategy... strategies) throws ManagerException {
@@ -646,6 +665,25 @@ public class TransmissionSessionManager {
         @SerializedName("method") private final String method = "blocklist-update";
     }
 
+    private static class FreeSpaceRequest {
+        @SerializedName("method") private final String method = "free-space";
+        @SerializedName("arguments") private Arguments arguments;
+
+        public FreeSpaceRequest(String path, String defaultPath) {
+            if (path == null) {
+                path = defaultPath;
+            }
+            this.arguments = new Arguments(path);
+        }
+
+        private static class Arguments {
+            @SerializedName("path") private String path;
+
+            public Arguments(String path) {
+                this.path = path;
+            }
+        }
+    }
 
     public static class Response {
         @SerializedName("result") protected final String mResult = null;
@@ -719,8 +757,13 @@ public class TransmissionSessionManager {
             return mArguments.torrent;
         }
 
+        public boolean isDuplicate() {
+            return mArguments.duplicate != null;
+        }
+
         private class AddTorrentArguments {
             @SerializedName("torrent-added") public Torrent torrent;
+            @SerializedName("torrent-duplicate") public Torrent duplicate;
         }
     }
 
@@ -745,6 +788,19 @@ public class TransmissionSessionManager {
 
         private class BlocklistUpdateArguments {
             @SerializedName("blocklist-size") public long size;
+        }
+    }
+
+    public static class FreeSpaceResponse extends Response {
+        @SerializedName("arguments") private final FreeSpaceArguments mArguments = null;
+
+        public long getFreeSpace() {
+            return mArguments.freeSpace;
+        }
+
+        private class FreeSpaceArguments {
+            @SerializedName("size-bytes") public long freeSpace;
+            @SerializedName("path") public String path;
         }
     }
 

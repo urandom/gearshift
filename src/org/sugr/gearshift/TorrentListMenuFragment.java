@@ -189,7 +189,7 @@ public class TorrentListMenuFragment extends Fragment {
             TorrentListFragment fragment =
                     ((TorrentListFragment) getFragmentManager().findFragmentById(R.id.torrent_list));
             mDirectoryPosition = ListView.INVALID_POSITION;
-            fragment.setListFilter((String) null);
+            fragment.setListDirectoryFilter((String) null);
 
             mCloseHandler.removeCallbacks(mCloseRunnable);
             mCloseHandler.post(mCloseRunnable);
@@ -285,11 +285,11 @@ public class TorrentListMenuFragment extends Fragment {
                     mFilterList.setItemChecked(mDirectoryPosition, false);
                     if (mDirectoryPosition == position) {
                         mDirectoryPosition = ListView.INVALID_POSITION;
-                        fragment.setListFilter((String) null);
+                        fragment.setListDirectoryFilter((String) null);
                     } else {
                         mFilterList.setItemChecked(position, true);
                         mDirectoryPosition = position;
-                        fragment.setListFilter(item.getValueString());
+                        fragment.setListDirectoryFilter(item.getValueString());
                     }
                     break;
                 case SORT_BY:
