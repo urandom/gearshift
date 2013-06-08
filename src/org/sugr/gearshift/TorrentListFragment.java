@@ -1129,8 +1129,10 @@ public class TorrentListFragment extends ListFragment {
                     }
                     notifyDataSetInvalidated();
                 }
-                if (mScrollToTop)
+                if (mScrollToTop) {
+                    mScrollToTop = false;
                     getListView().setSelectionAfterHeaderView();
+                }
             }
         }
     }
