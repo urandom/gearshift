@@ -224,13 +224,13 @@ public class TorrentListActivity extends FragmentActivity
         TorrentListFragment fragment = ((TorrentListFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.torrent_list));
 
-    	int position = fragment.getListView().getCheckedItemPosition();
-    	if (position == ListView.INVALID_POSITION) {
-    		super.onBackPressed();
-    	} else {
-        	toggleRightPane(false);
-    		fragment.getListView().setItemChecked(position, false);
-    	}
+        int position = fragment.getListView().getCheckedItemPosition();
+        if (position == ListView.INVALID_POSITION) {
+            super.onBackPressed();
+        } else {
+            toggleRightPane(false);
+            fragment.getListView().setItemChecked(position, false);
+        }
     }
 
 
@@ -460,6 +460,7 @@ public class TorrentListActivity extends FragmentActivity
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         mIntentConsumed = true;
+                        mDialogShown = false;
                     }
 
                 });;
@@ -492,6 +493,7 @@ public class TorrentListActivity extends FragmentActivity
 
                         setRefreshing(true);
                         mIntentConsumed = true;
+                        mDialogShown = false;
                     }
                 });
 
@@ -511,12 +513,15 @@ public class TorrentListActivity extends FragmentActivity
 
                         setRefreshing(true);
                         mIntentConsumed = true;
+                        mDialogShown = false;
                     }
                 });
 
                 AlertDialog dialog = builder.create();
                 dialog.show();
             }
+        } else {
+            mIntentConsumed = true;
         }
     }
 }
