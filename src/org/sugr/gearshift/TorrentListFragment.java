@@ -189,6 +189,7 @@ public class TorrentListFragment extends ListFragment {
 
             boolean invalidateMenu = false;
 
+            G.logD("Data loaded: " + data.torrents.size() + " torrents, error: " + data.error + " , removed: " + data.hasRemoved + ", added: " + data.hasAdded + ", changed: " + data.hasStatusChanged + ", metadata: " + data.hasMetadataNeeded);
             mSession = data.session;
             ((TransmissionSessionInterface) getActivity()).setSession(data.session);
 
