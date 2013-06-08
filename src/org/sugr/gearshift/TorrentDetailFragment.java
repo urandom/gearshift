@@ -137,16 +137,12 @@ public class TorrentDetailFragment extends Fragment {
             boolean resumeState = false;
             boolean pauseState = false;
             if (torrent != null) {
-                switch (torrent.getStatus()) {
-                    case Torrent.Status.STOPPED:
-                    case Torrent.Status.DOWNLOAD_WAITING:
-                    case Torrent.Status.SEED_WAITING:
-                        resumeState = true;
-                        pauseState = false;
-                        break;
-                    default:
-                        resumeState = false;
-                        pauseState = true;
+                if (torrent.isActive()) {
+                    resumeState = false;
+                    pauseState = true;
+                } else {
+                    resumeState = true;
+                    pauseState = false;
                 }
             }
 

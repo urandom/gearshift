@@ -865,18 +865,7 @@ public class TorrentListFragment extends ListFragment {
             traffic.setText(torrent.getTrafficText());
             status.setText(torrent.getStatusText());
 
-            boolean enabled = true;
-            switch(torrent.getStatus()) {
-                case Torrent.Status.STOPPED:
-                case Torrent.Status.CHECK_WAITING:
-                case Torrent.Status.DOWNLOAD_WAITING:
-                case Torrent.Status.SEED_WAITING:
-                    enabled = false;
-                    break;
-                default:
-                    enabled = true;
-                    break;
-            }
+            boolean enabled = torrent.isActive();
             name.setEnabled(enabled);
             traffic.setEnabled(enabled);
             status.setEnabled(enabled);

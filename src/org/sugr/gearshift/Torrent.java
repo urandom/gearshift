@@ -849,6 +849,18 @@ public class Torrent {
         return getStatus() == Status.SEEDING;
     }
 
+    public boolean isActive() {
+        switch(getStatus()) {
+            case Status.STOPPED:
+            case Status.CHECK_WAITING:
+            case Status.DOWNLOAD_WAITING:
+            case Status.SEED_WAITING:
+                return false;
+            default:
+                return true;
+        }
+    }
+
     public void setTrafficText(Context context) {
         float seedLimit = getActiveSeedRatioLimit();
         switch(getStatus()) {
