@@ -12,6 +12,7 @@ import org.sugr.gearshift.G.SortOrder;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
@@ -61,6 +62,17 @@ public class TorrentListMenuFragment extends Fragment {
         }
     };
 
+    private boolean mFiltersChanged;
+
+    private OnSharedPreferenceChangeListener mSharedPrefListener = new OnSharedPreferenceChangeListener() {
+        @Override public void onSharedPreferenceChanged(SharedPreferences prefs, String key) {
+            if (key.matches(G.PREF_FILTER_MATCH_TEST)) {
+                mFiltersChanged = true;
+            }
+        }
+    };
+
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState) {
@@ -93,10 +105,10 @@ public class TorrentListMenuFragment extends Fragment {
         });
 
         mSharedPrefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
+        mSharedPrefs.registerOnSharedPreferenceChangeListener(mSharedPrefListener);
 
         fillMenuItems();
         checkSelectedItems();
-
         return root;
     }
 
@@ -104,6 +116,12 @@ public class TorrentListMenuFragment extends Fragment {
     public void onResume() {
         super.onResume();
 
+        if (mFiltersChanged) {
+            mFiltersChanged = false;
+            mDirectories.clear();
+            fillMenuItems();
+            checkSelectedItems();
+        }
         setStatus(null, null);
     }
 

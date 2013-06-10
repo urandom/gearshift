@@ -9,12 +9,21 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.security.KeyManagementException;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.InflaterInputStream;
+
+import javax.net.ssl.HostnameVerifier;
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLSession;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.X509TrustManager;
 
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -314,6 +323,37 @@ public class TransmissionSessionManager {
                 + mProfile.getHost() + ":" + mProfile.getPort()
                 + mProfile.getPath());
             conn = (HttpURLConnection) url.openConnection();
+            if (mProfile.isUseSSL()) {
+                try {
+                    SSLContext sc = SSLContext.getInstance("TLS");
+                    sc.init(null, new TrustManager[] {
+                        new X509TrustManager() {
+                            @Override public java.security.cert.X509Certificate[] getAcceptedIssuers() {
+                                return null;
+                            }
+                            @Override public void checkClientTrusted(
+                                    java.security.cert.X509Certificate[] certs,
+                                    String authType) {}
+                            @Override public void checkServerTrusted(
+                                    java.security.cert.X509Certificate[] certs,
+                                    String authType) {}
+                        }
+                    }, new java.security.SecureRandom());
+                    ((HttpsURLConnection) conn).setSSLSocketFactory(sc.getSocketFactory());
+                    ((HttpsURLConnection) conn).setHostnameVerifier(new HostnameVerifier() {
+                        @Override public boolean verify(String hostname, SSLSession session) {
+                            return true;
+                        }
+
+                    });
+                } catch (NoSuchAlgorithmException e) {
+                    G.logE("Error creating an SSL context", e);
+                    throw new ManagerException("ssl", -1);
+                } catch (KeyManagementException e) {
+                    G.logE("Error initializing the SSL context", e);
+                    throw new ManagerException("ssl", -1);
+                }
+            }
             int timeout = mProfile.getTimeout() > 0
                 ? mProfile.getTimeout() * 1000
                 : 10000;

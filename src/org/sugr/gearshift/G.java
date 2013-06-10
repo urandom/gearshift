@@ -64,6 +64,8 @@ class G {
 
     public static final String PREF_BASE_SORT = "base_sort";
 
+    public static final String PREF_FILTER_MATCH_TEST = "^(?:filter_|sort_).+$";
+
     public static final String ARG_JSON_TORRENTS = "json_torrents";
     public static final String ARG_JSON_SESSION = "json_session";
     public static final String ARG_PROFILE = "profile";
