@@ -217,7 +217,7 @@
     <string name="menu_filters_downloading">Downloading</string>
     <string name="menu_filters_seeding">Seeding</string>
     <string name="menu_filters_paused">Paused</string>
-    <string name="menu_filters_complete">Compete</string>
+    <string name="menu_filters_complete">Complete</string>
     <string name="menu_filters_incomplete">Incomplete</string>
     <string name="menu_filters_active">Active</string>
     <string name="menu_filters_checking">Checking</string>
