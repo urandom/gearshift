@@ -5,6 +5,7 @@
     android:layout_height="wrap_content"
     android:background="@drawable/list_activated_holo_light"
     android:fontFamily="sans-serif-light"
+    android:paddingLeft="@dimen/checkbox_padding_left"
     android:paddingTop="8dp"
     android:paddingBottom="8dp" >
 </CheckBox>

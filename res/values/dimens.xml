@@ -6,5 +6,7 @@
     
     <dimen name="torrent_list_name_text_size">16sp</dimen>
     <dimen name="torrent_list_traffic_text_size">10sp</dimen>
-    <dimen name="torrent_list_status_text_size">12sp</dimen>    
+    <dimen name="torrent_list_status_text_size">12sp</dimen>
+    
+    <dimen name="checkbox_padding_left">36dp</dimen>
 </resources>
