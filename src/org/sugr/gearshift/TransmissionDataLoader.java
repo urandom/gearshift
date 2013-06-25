@@ -240,6 +240,8 @@ public class TransmissionDataLoader extends AsyncTaskLoader<TransmissionData> {
         }
         if (!mSessManager.hasConnectivity()) {
             mLastError = TransmissionData.Errors.NO_CONNECTIVITY;
+            mSession = null;
+            mStopUpdates = true;
             return new TransmissionData(mSession, mSessionStats, mLastError);
         }
 
@@ -617,6 +619,7 @@ public class TransmissionDataLoader extends AsyncTaskLoader<TransmissionData> {
 
         mStopUpdates = false;
         if (mLastError > 0) {
+            mSession = null;
             deliverResult(new TransmissionData(
                         mSession, mSessionStats, mLastError));
         } else if (mTorrentMap.size() > 0) {

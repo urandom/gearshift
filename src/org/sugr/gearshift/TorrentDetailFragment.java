@@ -229,6 +229,11 @@ public class TorrentDetailFragment extends Fragment {
                     }
                 }).setView(inflater.inflate(R.layout.torrent_location_dialog, null));
 
+                TransmissionSession session = ((TransmissionSessionInterface) getActivity()).getSession();
+                if (session == null) {
+                    return true;
+                }
+
                 AlertDialog dialog = builder.create();
                 dialog.show();
 
@@ -238,7 +243,7 @@ public class TorrentDetailFragment extends Fragment {
                         getActivity(), android.R.layout.simple_spinner_item);
 
                 adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-                adapter.addAll(((TransmissionSessionInterface) getActivity()).getSession().getDownloadDirectories());
+                adapter.addAll(session.getDownloadDirectories());
                 adapter.sort();
 
                 location = (Spinner) dialog.findViewById(R.id.location_choice);

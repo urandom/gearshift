@@ -65,7 +65,6 @@ public class TorrentDetailActivity extends FragmentActivity implements Transmiss
                 android.support.v4.content.Loader<TransmissionData> loader,
                 TransmissionData data) {
 
-            mSession = data.session;
             setSession(data.session);
            /* if (data.stats != null)
                 mSessionStats = data.stats;*/
@@ -155,7 +154,7 @@ public class TorrentDetailActivity extends FragmentActivity implements Transmiss
         mTorrents = new ArrayList<Torrent>(Arrays.asList(
                 gson.fromJson(in.getStringExtra(ARG_JSON_TORRENTS), Torrent[].class)));
         mProfile = in.getParcelableExtra(ARG_PROFILE);
-        mSession = gson.fromJson(in.getStringExtra(ARG_JSON_SESSION), TransmissionSession.class);
+        setSession(gson.fromJson(in.getStringExtra(ARG_JSON_SESSION), TransmissionSession.class));
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_torrent_detail);
