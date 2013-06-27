@@ -127,9 +127,10 @@ public class TransmissionDataLoader extends AsyncTaskLoader<TransmissionData> {
     }
 
     public TransmissionDataLoader(Context context, TransmissionProfile profile,
-            ArrayList<Torrent> torrents, Torrent[] current) {
+            TransmissionSession session, ArrayList<Torrent> torrents, Torrent[] current) {
         this(context, profile);
 
+        mSession = session;
         setCurrentTorrents(current);
         for (Torrent t : torrents) {
             mTorrentMap.put(t.getId(), t);

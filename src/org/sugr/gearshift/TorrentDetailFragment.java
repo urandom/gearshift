@@ -125,6 +125,10 @@ public class TorrentDetailFragment extends Fragment {
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         super.onCreateOptionsMenu(menu, inflater);
 
+        if (((TransmissionSessionInterface) getActivity()).getSession() == null) {
+            return;
+        }
+
         if (!(getActivity() instanceof TorrentListActivity)
                 || ((TorrentListActivity) getActivity()).isDetailPanelShown()) {
             inflater.inflate(R.menu.torrent_detail_fragment, menu);

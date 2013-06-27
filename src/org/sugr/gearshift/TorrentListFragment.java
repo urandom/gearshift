@@ -235,6 +235,10 @@ public class TorrentListFragment extends ListFragment {
                         error.setVisibility(View.VISIBLE);
                         TextView text = (TextView) getView().findViewById(R.id.transmission_error);
                         ((TransmissionSessionInterface) getActivity()).setProfile(null);
+                        if (mActionMode != null) {
+                            mActionMode.finish();
+                            mActionMode = null;
+                        }
 
                         if (data.error == TransmissionData.Errors.NO_CONNECTIVITY) {
                             text.setText(Html.fromHtml(getString(R.string.no_connectivity_empty_list)));
@@ -456,6 +460,10 @@ public class TorrentListFragment extends ListFragment {
                                 mode.finish();
                             }
                         }).setView(inflater.inflate(R.layout.torrent_location_dialog, null));
+
+                        if (mSession == null) {
+                            return true;
+                        }
 
                         AlertDialog dialog = builder.create();
                         dialog.show();

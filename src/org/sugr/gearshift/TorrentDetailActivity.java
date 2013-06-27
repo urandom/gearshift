@@ -55,7 +55,7 @@ public class TorrentDetailActivity extends FragmentActivity implements Transmiss
             if (mProfile == null) return null;
 
             TransmissionDataLoader loader = new TransmissionDataLoader(
-                    TorrentDetailActivity.this, mProfile, mTorrents, getCurrentTorrents());
+                    TorrentDetailActivity.this, mProfile, mSession, mTorrents, getCurrentTorrents());
 
             return loader;
         }
@@ -98,6 +98,7 @@ public class TorrentDetailActivity extends FragmentActivity implements Transmiss
                     } else if (data.error == TransmissionData.Errors.TIMEOUT) {
                         text.setText(Html.fromHtml(getString(R.string.timeout_empty_list)));
                     }
+                    invalidateOptionsMenu();
                 }
             } else {
                 if (data.torrents.size() > 0) {
