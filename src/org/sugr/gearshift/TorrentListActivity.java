@@ -40,6 +40,8 @@ public class TorrentListActivity extends FragmentActivity
         implements TransmissionSessionInterface, TorrentListFragment.Callbacks,
                    TorrentDetailFragment.PagerCallbacks {
 
+    public static final String ARG_FILE_DATA = "torrent_file_data";
+    public final static String ACTION_OPEN = "torrent_file_open_action";
     /**
      * Whether or not the activity is in two-pane mode, i.e. running on a tablet
      * device.
@@ -439,10 +441,10 @@ public class TorrentListActivity extends FragmentActivity
     }
 
     private void consumeIntent() {
-        Intent intent = getIntent();
+        final Intent intent = getIntent();
         String action = intent.getAction();
 
-        if (Intent.ACTION_VIEW.equals(action)) {
+        if (Intent.ACTION_VIEW.equals(action) || ACTION_OPEN.equals(action)) {
             mDialogShown = true;
             final Uri data = intent.getData();
 
@@ -463,7 +465,7 @@ public class TorrentListActivity extends FragmentActivity
                         mDialogShown = false;
                     }
 
-                });;
+                });
 
             Spinner location;
             TransmissionProfileDirectoryAdapter adapter =
@@ -506,10 +508,12 @@ public class TorrentListActivity extends FragmentActivity
                     public void onClick(final DialogInterface dialog, int id) {
                         Spinner location = (Spinner) ((AlertDialog) dialog).findViewById(R.id.location_choice);
                         CheckBox paused = (CheckBox) ((AlertDialog) dialog).findViewById(R.id.start_paused);
+                        CheckBox remove = (CheckBox) ((AlertDialog) dialog).findViewById(R.id.remove_file);
 
                         String dir = (String) location.getSelectedItem();
                         ((TransmissionDataLoader) loader).addTorrent(
-                                null, data, dir, paused.isChecked());
+                                null, intent.getStringExtra(ARG_FILE_DATA),
+                                dir, paused.isChecked());
 
                         setRefreshing(true);
                         mIntentConsumed = true;
@@ -519,6 +523,12 @@ public class TorrentListActivity extends FragmentActivity
 
                 AlertDialog dialog = builder.create();
                 dialog.show();
+
+                /* FIXME: either remove the singleTask launch mode, or create a new activity for this */
+                if (data.getScheme().equals("content") && data.getPath().startsWith("/all_downloads/")
+                        || data.getScheme().equals("file")) {
+                    dialog.findViewById(R.id.remove_file).setVisibility(View.VISIBLE);
+                }
             }
         } else {
             mIntentConsumed = true;

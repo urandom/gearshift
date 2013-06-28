@@ -1,18 +1,12 @@
 package org.sugr.gearshift;
 
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
 
 import org.sugr.gearshift.TransmissionSessionManager.ActiveTorrentGetResponse;
 import org.sugr.gearshift.TransmissionSessionManager.ManagerException;
-import org.sugr.gearshift.util.Base64;
 
-import android.content.ContentResolver;
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.net.Uri;
 import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.support.v4.content.AsyncTaskLoader;
@@ -109,7 +103,7 @@ public class TransmissionDataLoader extends AsyncTaskLoader<TransmissionData> {
     private Object mTorrentSetValue;
     private boolean mMoveData = false;
     private String mTorrentAddUri;
-    private Uri mTorrentAddMeta;
+    private String mTorrentAddData;
     private boolean mTorrentAddPaused;
 
     private int mNewTorrentAdded;
@@ -207,9 +201,9 @@ public class TransmissionDataLoader extends AsyncTaskLoader<TransmissionData> {
         onContentChanged();
     }
 
-    public void addTorrent(String uri, Uri meta, String location, boolean paused) {
+    public void addTorrent(String uri, String data, String location, boolean paused) {
         mTorrentAddUri = uri;
-        mTorrentAddMeta = meta;
+        mTorrentAddData = data;
         mTorrentAddPaused = paused;
         mTorrentLocation = location;
         onContentChanged();
@@ -339,7 +333,7 @@ public class TransmissionDataLoader extends AsyncTaskLoader<TransmissionData> {
         }
 
         mNewTorrentAdded = 0;
-        if (mTorrentAddUri != null || mTorrentAddMeta != null) {
+        if (mTorrentAddUri != null || mTorrentAddData != null) {
             Thread thread = new Thread(new Runnable() {
                 @Override
                 public void run() {
@@ -349,39 +343,7 @@ public class TransmissionDataLoader extends AsyncTaskLoader<TransmissionData> {
                         }
                     }
                     try {
-                        String meta = null;
-                        if (mTorrentAddMeta != null) {
-                            ContentResolver cr = getContext().getContentResolver();
-                            InputStream stream = null;
-                            Base64.InputStream base64 = null;
-                            try {
-                                stream = cr.openInputStream(mTorrentAddMeta);
-                            } catch (FileNotFoundException e) {
-                                /* FIXME: proper error handling */
-                                G.logE("Error while reading the torrent file", e);
-                                return;
-                            }
-                            base64 = new Base64.InputStream(stream, Base64.ENCODE | Base64.DO_BREAK_LINES);
-                            StringBuilder fileContent = new StringBuilder("");
-                            int ch;
-                            try {
-                                while( (ch = base64.read()) != -1)
-                                  fileContent.append((char)ch);
-                            } catch (IOException e) {
-                                /* FIXME: proper error handling */
-                                G.logE("Error while reading the torrent file", e);
-                                return;
-                            } finally {
-                                try {
-                                    base64.close();
-                                } catch (IOException e) {
-                                    return;
-                                }
-                            }
-
-                            meta = fileContent.toString();
-                        }
-                        Torrent torrent = mSessManager.addTorrent(mTorrentAddUri, meta,
+                        Torrent torrent = mSessManager.addTorrent(mTorrentAddUri, mTorrentAddData,
                                 mTorrentLocation, mTorrentAddPaused);
 
                         if (torrent != null) {
@@ -394,7 +356,7 @@ public class TransmissionDataLoader extends AsyncTaskLoader<TransmissionData> {
                         };
                     } finally {
                         mTorrentAddUri = null;
-                        mTorrentAddMeta = null;
+                        mTorrentAddData = null;
                     }
                 }
             });

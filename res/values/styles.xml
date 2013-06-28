@@ -21,6 +21,11 @@
         <item name="android:windowBackground">@null</item>
     </style>
     
+    <style name="AppTheme.DialogNoTitle" parent="android:style/Theme.Holo.Dialog.MinWidth">
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowFullscreen">false</item>
+    </style>
+    
     <style name="AppTheme.CardsActivity" parent="AppTheme">
         <item name="android:windowBackground">@color/detail_background</item>
     </style>

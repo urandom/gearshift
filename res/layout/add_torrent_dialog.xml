@@ -17,6 +17,14 @@
         android:layout_height="wrap_content"
         android:fontFamily="sans-serif-condensed"
         android:text="@string/start_paused_checkbox" />
-
+    
+    <CheckBox
+        android:id="@+id/remove_file"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:fontFamily="sans-serif-condensed"
+        android:text="@string/remove_file_checkbox"
+        android:visibility="gone" />
 
 </LinearLayout>

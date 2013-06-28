@@ -185,6 +185,7 @@
     <string name="add_magnet">New magnet link</string>
     <string name="add_torrent">New torrent</string>
     <string name="start_paused_checkbox">Start paused</string>
+    <string name="remove_file_checkbox">Remove .torrent file</string>
     
     <string name="no_tracker_errors">No errors</string>
     
@@ -378,4 +379,10 @@
     <string name="blocklist_update_error"><![CDATA[<font color="#CC0000">Error</font>]]></string>
 
     <string name="blocklist_updating">Updating</string>
+
+    <string name="title_torrent_file_read">Opening .torrent file</string>
+
+    <string name="reading_torrent_file">Reading .torrent file ...</string>
+
+    <string name="error_reading_torrent_file">Error while reading the torrent file</string>
 </resources>
