@@ -675,19 +675,21 @@ public class TorrentListFragment extends ListFragment {
 
                 @Override public boolean onMenuItemActionCollapse(MenuItem item) {
                     mFindShown = false;
+                    mFindQuery = null;
+                    setListFilter((String) null);
                     return true;
                 }
             });
             SearchView searchView = (SearchView) menu.findItem(R.id.menu_find).getActionView();
             searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
                 @Override public boolean onQueryTextSubmit(String query) {
-                    // TODO Auto-generated method stub
-                    G.logD("Search query " + query);
-                    mFindQuery = query;
-                    return true;
+                    return false;
                 }
 
                 @Override public boolean onQueryTextChange(String newText) {
+                    G.logD("Search query " + newText);
+                    mFindQuery = newText;
+                    setListFilter(newText);
                     return false;
                 }
             });
@@ -861,7 +863,6 @@ public class TorrentListFragment extends ListFragment {
         private SortBy mSortBy = mTorrentComparator.getSortBy();
         private SortBy mBaseSort = mTorrentComparator.getBaseSort();
         private SortOrder mSortOrder = mTorrentComparator.getSortOrder();
-        private String mQuery;
         private String mDirectory;
         private SparseBooleanArray mTorrentAdded = new SparseBooleanArray();
 
@@ -871,10 +872,12 @@ public class TorrentListFragment extends ListFragment {
             super(context, R.layout.torrent_list_item, R.id.name);
 
             mSharedPrefs = PreferenceManager.getDefaultSharedPreferences(getContext());
+            /*
             if (mSharedPrefs.contains(G.PREF_LIST_SEARCH)) {
                 mCurrentConstraint = mSharedPrefs.getString(
                         G.PREF_LIST_SEARCH, null);
             }
+            */
             if (mSharedPrefs.contains(G.PREF_LIST_FILTER)) {
                 try {
                     mFilterBy = FilterBy.valueOf(
@@ -1038,20 +1041,10 @@ public class TorrentListFragment extends ListFragment {
             return mFilter;
         }
 
-        /*
-        public void filter(CharSequence constraint, FilterListener listener) {
-            String prefix = constraint.toString().toLowerCase(Locale.getDefault());
-            Editor e = mSharedPrefs.edit();
-
-            mCurrentConstraint = constraint;
-            e.putString(G.PREF_LIST_SEARCH, prefix);
-            e.apply();
-
-            mCurrentFilterListener = listener;
-            getFilter().filter(mCurrentConstraint, listener);
-            mTorrentAdded = new SparseBooleanArray();
+        public void filter(String query) {
+            mCurrentConstraint = query;
+            applyFilter(query, G.PREF_LIST_SEARCH);
         }
-        */
 
         public void filter(FilterBy by) {
             mFilterBy = by;
@@ -1068,10 +1061,6 @@ public class TorrentListFragment extends ListFragment {
             applyFilter(order.name(), G.PREF_LIST_SORT_ORDER);
         }
 
-        public void filter(String query) {
-            mQuery = query;
-        }
-
         public void filterDirectory(String directory) {
             mDirectory = directory;
             applyFilter(directory, G.PREF_LIST_DIRECTORY);
@@ -1084,9 +1073,11 @@ public class TorrentListFragment extends ListFragment {
         }
 
         private void applyFilter(String value, String pref) {
-            Editor e = mSharedPrefs.edit();
-            e.putString(pref, value);
-            e.apply();
+            if (pref != null) {
+                Editor e = mSharedPrefs.edit();
+                e.putString(pref, value);
+                e.apply();
+            }
             mTorrentComparator.setSortingMethod(mSortBy, mSortOrder);
             repeatFilter();
             mTorrentAdded = new SparseBooleanArray();
@@ -1164,19 +1155,27 @@ public class TorrentListFragment extends ListFragment {
                             newValues.add(torrent);
                         } else if (prefix.length() > 0) {
                             final String valueText = torrent.getName().toLowerCase(Locale.getDefault());
-                            if (valueText.startsWith(prefixString)) {
-                                newValues.add(torrent);
-                            } else {
-                                final String[] words = valueText.split(" ");
-                                final int wordCount = words.length;
+                            int lastIndex = -1;
+                            boolean match = false;
 
-                                // Start at index 0, in case valueText starts with space(s)
-                                for (int k = 0; k < wordCount; k++) {
-                                    if (words[k].startsWith(prefixString)) {
-                                        newValues.add(torrent);
-                                        break;
-                                    }
+                            for (int j = 0; j < prefixString.length(); ++j) {
+                                char c = prefixString.charAt(j);
+                                if (Character.isWhitespace(c)) {
+                                    continue;
                                 }
+                                int newIndex = valueText.indexOf(c, lastIndex);
+                                if (newIndex > -1 && (lastIndex == -1 || newIndex - lastIndex < 3)) {
+                                    lastIndex = newIndex;
+                                    if (j == prefixString.length() - 1) {
+                                        match = true;
+                                    }
+                                } else {
+                                    break;
+                                }
+                            }
+
+                            if (match) {
+                                newValues.add(torrent);
                             }
                         }
                     }
