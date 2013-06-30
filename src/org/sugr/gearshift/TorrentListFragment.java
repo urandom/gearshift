@@ -42,6 +42,7 @@ import android.widget.Filter;
 import android.widget.Filter.FilterListener;
 import android.widget.ListView;
 import android.widget.ProgressBar;
+import android.widget.SearchView;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -61,6 +62,9 @@ public class TorrentListFragment extends ListFragment {
      * activated item position. Only used on tablets.
      */
     private static final String STATE_ACTIVATED_POSITION = "activated_position";
+    private static final String STATE_FIND_SHOWN = "find_shown";
+    private static final String STATE_FIND_QUERY = "find_query";
+    private static final String STATE_CURRENT_PROFILE = "current_profile";
 
     /**
      * The fragment's current callback object, which is notified of list item
@@ -91,6 +95,9 @@ public class TorrentListFragment extends ListFragment {
     private boolean mScrollToTop = false;
 
     private boolean mFindShown = false;
+    private String mFindQuery;
+
+    private boolean mPreventRefreshIndicator;
 
     /**
      * A callback interface that all activities containing this fragment must
@@ -126,6 +133,8 @@ public class TorrentListFragment extends ListFragment {
                 android.support.v4.content.Loader<TransmissionProfile[]> loader,
                 TransmissionProfile[] profiles) {
 
+            TransmissionProfile oldProfile = mCurrentProfile;
+
             mCurrentProfile = null;
             mProfileAdapter.clear();
             if (profiles.length > 0) {
@@ -158,8 +167,20 @@ public class TorrentListFragment extends ListFragment {
             if (mCurrentProfile == null) {
                 getActivity().getSupportLoaderManager().destroyLoader(G.TORRENTS_LOADER_ID);
             } else {
-                getActivity().getSupportLoaderManager().restartLoader(G.TORRENTS_LOADER_ID,
+                /* The torrents might be loaded before the navigation
+                 * callback fires, which will cause the refresh indicator to
+                 * appear until the next server request */
+                mPreventRefreshIndicator = true;
+
+                if (oldProfile != null && oldProfile.getId() == mCurrentProfile.getId()) {
+                    getActivity().getSupportLoaderManager().initLoader(
+                        G.TORRENTS_LOADER_ID,
                         null, mTorrentLoaderCallbacks);
+                } else {
+                    getActivity().getSupportLoaderManager().restartLoader(
+                        G.TORRENTS_LOADER_ID,
+                        null, mTorrentLoaderCallbacks);
+                }
             }
         }
 
@@ -335,8 +356,10 @@ public class TorrentListFragment extends ListFragment {
                         ((TransmissionSessionInterface) getActivity()).setProfile(profile);
                         ((TransmissionDataLoader) loader).setProfile(profile);
 
-                        mRefreshing = true;
-                        getActivity().invalidateOptionsMenu();
+                        if (!mPreventRefreshIndicator) {
+                            mRefreshing = true;
+                            getActivity().invalidateOptionsMenu();
+                        }
                     }
 
                     return false;
@@ -344,6 +367,11 @@ public class TorrentListFragment extends ListFragment {
             });
 
             actionBar.setDisplayOptions(0, ActionBar.DISPLAY_SHOW_TITLE);
+        }
+
+        if (savedInstanceState != null
+                && savedInstanceState.containsKey(STATE_CURRENT_PROFILE)) {
+            mCurrentProfile = savedInstanceState.getParcelable(STATE_CURRENT_PROFILE);
         }
 
         getActivity().getSupportLoaderManager().initLoader(G.PROFILES_LOADER_ID, null, mProfileLoaderCallbacks);
@@ -354,9 +382,16 @@ public class TorrentListFragment extends ListFragment {
         super.onViewCreated(view, savedInstanceState);
 
         // Restore the previously serialized activated item position.
-        if (savedInstanceState != null
-                && savedInstanceState.containsKey(STATE_ACTIVATED_POSITION)) {
-            setActivatedPosition(savedInstanceState.getInt(STATE_ACTIVATED_POSITION));
+        if (savedInstanceState != null) {
+            if (savedInstanceState.containsKey(STATE_ACTIVATED_POSITION)){
+                setActivatedPosition(savedInstanceState.getInt(STATE_ACTIVATED_POSITION));
+            }
+            if (savedInstanceState.containsKey(STATE_FIND_SHOWN)) {
+                mFindShown = savedInstanceState.getBoolean(STATE_FIND_SHOWN);
+                if (savedInstanceState.containsKey(STATE_FIND_QUERY)) {
+                    mFindQuery = savedInstanceState.getString(STATE_FIND_QUERY);
+                }
+            }
         }
 
         mTorrentListAdapter = new TorrentListAdapter(getActivity());
@@ -589,10 +624,13 @@ public class TorrentListFragment extends ListFragment {
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
+        outState.putParcelable(STATE_CURRENT_PROFILE, mCurrentProfile);
         if (mActivatedPosition != ListView.INVALID_POSITION) {
             // Serialize and persist the activated item position.
             outState.putInt(STATE_ACTIVATED_POSITION, mActivatedPosition);
         }
+        outState.putBoolean(STATE_FIND_SHOWN, mFindShown);
+        outState.putString(STATE_FIND_QUERY, mFindQuery);
     }
 
     @Override
@@ -630,19 +668,35 @@ public class TorrentListFragment extends ListFragment {
         item = menu.findItem(R.id.menu_find);
         if (mFindShown) {
             item.expandActionView();
+            item.setOnActionExpandListener(new MenuItem.OnActionExpandListener() {
+                @Override public boolean onMenuItemActionExpand(MenuItem item) {
+                    return true;
+                }
+
+                @Override public boolean onMenuItemActionCollapse(MenuItem item) {
+                    mFindShown = false;
+                    return true;
+                }
+            });
+            SearchView searchView = (SearchView) menu.findItem(R.id.menu_find).getActionView();
+            searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+                @Override public boolean onQueryTextSubmit(String query) {
+                    // TODO Auto-generated method stub
+                    G.logD("Search query " + query);
+                    mFindQuery = query;
+                    return true;
+                }
+
+                @Override public boolean onQueryTextChange(String newText) {
+                    return false;
+                }
+            });
+            if (mFindQuery != null) {
+                searchView.setQuery(mFindQuery, true);
+            }
         } else {
             item.collapseActionView();
         }
-        item.setOnActionExpandListener(new MenuItem.OnActionExpandListener() {
-            @Override public boolean onMenuItemActionExpand(MenuItem item) {
-                return true;
-            }
-
-            @Override public boolean onMenuItemActionCollapse(MenuItem item) {
-                mFindShown = false;
-                return true;
-            }
-        });
     }
 
     @Override
