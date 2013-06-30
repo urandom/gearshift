@@ -2,8 +2,6 @@
 
 * Implement Share via 'torrent-get' magnetLink field
 
-* Action-bar search in the torrent list
-
 * Use style="?android:listSeparatorTextViewStyle" for
   list view headers
 
