@@ -18,4 +18,10 @@
         android:orderInCategory="25"
         android:title="@string/alt_speed_label_on"
         android:titleCondensed="@string/alt_speed"/>
+    
+    <item android:id="@+id/menu_find"
+        android:visible="false"
+        android:actionViewClass="android.widget.SearchView"
+        android:showAsAction="never|collapseActionView"
+        android:title="@string/find" />
 </menu>

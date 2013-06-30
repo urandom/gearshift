@@ -90,6 +90,8 @@ public class TorrentListFragment extends ListFragment {
 
     private boolean mScrollToTop = false;
 
+    private boolean mFindShown = false;
+
     /**
      * A callback interface that all activities containing this fragment must
      * implement. This mechanism allows activities to be notified of item
@@ -624,6 +626,23 @@ public class TorrentListFragment extends ListFragment {
                 item.setTitle(R.string.alt_speed_label_on);
             }
         }
+
+        item = menu.findItem(R.id.menu_find);
+        if (mFindShown) {
+            item.expandActionView();
+        } else {
+            item.collapseActionView();
+        }
+        item.setOnActionExpandListener(new MenuItem.OnActionExpandListener() {
+            @Override public boolean onMenuItemActionExpand(MenuItem item) {
+                return true;
+            }
+
+            @Override public boolean onMenuItemActionCollapse(MenuItem item) {
+                mFindShown = false;
+                return true;
+            }
+        });
     }
 
     @Override
@@ -677,6 +696,11 @@ public class TorrentListFragment extends ListFragment {
         getListView().setChoiceMode(mChoiceMode);
     }
 
+    public void setListFilter(String query) {
+        mTorrentListAdapter.filter(query);
+        mScrollToTop = true;
+    }
+
     public void setListFilter(FilterBy e) {
         mTorrentListAdapter.filter(e);
         mScrollToTop = true;
@@ -700,6 +724,16 @@ public class TorrentListFragment extends ListFragment {
     public void setRefreshing(boolean refreshing) {
         mRefreshing = refreshing;
         getActivity().invalidateOptionsMenu();
+    }
+
+
+    public void showFind() {
+        mFindShown = true;
+        getActivity().invalidateOptionsMenu();
+    }
+
+    public boolean isFindShown() {
+        return mFindShown;
     }
 
     private void setActivatedPosition(int position) {
@@ -773,6 +807,7 @@ public class TorrentListFragment extends ListFragment {
         private SortBy mSortBy = mTorrentComparator.getSortBy();
         private SortBy mBaseSort = mTorrentComparator.getBaseSort();
         private SortOrder mSortOrder = mTorrentComparator.getSortOrder();
+        private String mQuery;
         private String mDirectory;
         private SparseBooleanArray mTorrentAdded = new SparseBooleanArray();
 
@@ -977,6 +1012,10 @@ public class TorrentListFragment extends ListFragment {
         public void filter(SortOrder order) {
             mSortOrder = order;
             applyFilter(order.name(), G.PREF_LIST_SORT_ORDER);
+        }
+
+        public void filter(String query) {
+            mQuery = query;
         }
 
         public void filterDirectory(String directory) {

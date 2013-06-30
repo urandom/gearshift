@@ -368,7 +368,7 @@
         
     <string name="session_settings_download">Download (KiB/s)</string>
         
-    <string name="port_test_testing">Testing...</string>
+    <string name="port_test_testing">Testing …</string>
         
     <string name="port_test_error"><![CDATA[<font color="#CC0000">Error</font>]]></string>
         
@@ -382,7 +382,9 @@
 
     <string name="title_torrent_file_read">Opening .torrent file</string>
 
-    <string name="reading_torrent_file">Reading .torrent file ...</string>
+    <string name="reading_torrent_file">Reading .torrent file …</string>
 
     <string name="error_reading_torrent_file">Error while reading the torrent file</string>
+
+    <string name="find">Find</string>
 </resources>

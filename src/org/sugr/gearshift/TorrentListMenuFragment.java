@@ -39,7 +39,7 @@ public class TorrentListMenuFragment extends Fragment {
     private int mDirectoryPosition = ListView.INVALID_POSITION;
 
     private enum Type {
-        FILTER, DIRECTORY, SORT_BY, SORT_ORDER, HEADER
+        FIND, FILTER, DIRECTORY, SORT_BY, SORT_ORDER, HEADER
     };
 
     private static final String FILTERS_HEADER_KEY = "filters_header";
@@ -284,6 +284,12 @@ public class TorrentListMenuFragment extends Fragment {
                     ((TorrentListFragment) getFragmentManager().findFragmentById(R.id.torrent_list));
 
             switch(item.getType()) {
+                case FIND:
+                    if (!fragment.isFindShown()) {
+                        fragment.showFind();
+                    }
+                    mFilterList.setItemChecked(position, false);
+                    break;
                 case FILTER:
                     FilterBy value;
                     if (position == mFilterPosition) {
@@ -341,6 +347,8 @@ public class TorrentListMenuFragment extends Fragment {
 
         mFilterAdapter.setNotifyOnChange(false);
         mFilterAdapter.clear();
+
+        mFilterAdapter.add(new ListItem(Type.FIND, "", R.string.find));
 
         for (FilterBy filter : FilterBy.values()) {
             ListItem item;
@@ -519,12 +527,20 @@ public class TorrentListMenuFragment extends Fragment {
                 mListItemMap.get(selectedFilter.name()));
         if (mFilterPosition > -1) {
             mFilterList.setItemChecked(mFilterPosition, true);
+        } else if (selectedFilter != FilterBy.ALL) {
+            mFilterPosition = mFilterAdapter.getPosition(
+                    mListItemMap.get(selectedFilter.name()));
+            if (mFilterPosition > -1) {
+                mFilterList.setItemChecked(0, true);
+                TorrentListFragment fragment =
+                        ((TorrentListFragment) getFragmentManager().findFragmentById(R.id.torrent_list));
+                mFilterPosition = ListView.INVALID_POSITION;
+                fragment.setListFilter(FilterBy.ALL);
+            } else {
+                mFilterPosition = ListView.INVALID_POSITION;
+            }
         } else {
-            mFilterList.setItemChecked(0, true);
-            TorrentListFragment fragment =
-                    ((TorrentListFragment) getFragmentManager().findFragmentById(R.id.torrent_list));
             mFilterPosition = ListView.INVALID_POSITION;
-            fragment.setListFilter(FilterBy.ALL);
         }
 
         SortBy selectedSort = SortBy.STATUS;
@@ -663,6 +679,7 @@ public class TorrentListMenuFragment extends Fragment {
                         convertView = mInflater.inflate(mHeaderLayout, parent, false);
                         break;
 
+                    case FIND:
                     case FILTER:
                     case DIRECTORY:
                     case SORT_BY:

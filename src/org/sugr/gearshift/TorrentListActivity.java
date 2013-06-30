@@ -505,10 +505,9 @@ public class TorrentListActivity extends FragmentActivity
                 builder.setTitle(R.string.add_torrent).setPositiveButton(android.R.string.ok,
                         new DialogInterface.OnClickListener() {
                     @Override
-                    public void onClick(final DialogInterface dialog, int id) {
+                    public void onClick(final DialogInterface dialog, int which) {
                         Spinner location = (Spinner) ((AlertDialog) dialog).findViewById(R.id.location_choice);
                         CheckBox paused = (CheckBox) ((AlertDialog) dialog).findViewById(R.id.start_paused);
-                        CheckBox remove = (CheckBox) ((AlertDialog) dialog).findViewById(R.id.remove_file);
 
                         String dir = (String) location.getSelectedItem();
                         ((TransmissionDataLoader) loader).addTorrent(
@@ -523,12 +522,6 @@ public class TorrentListActivity extends FragmentActivity
 
                 AlertDialog dialog = builder.create();
                 dialog.show();
-
-                /* FIXME: either remove the singleTask launch mode, or create a new activity for this */
-                if (data.getScheme().equals("content") && data.getPath().startsWith("/all_downloads/")
-                        || data.getScheme().equals("file")) {
-                    dialog.findViewById(R.id.remove_file).setVisibility(View.VISIBLE);
-                }
             }
         } else {
             mIntentConsumed = true;
