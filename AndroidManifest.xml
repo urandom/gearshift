@@ -2,8 +2,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     android:installLocation="preferExternal"
     package="org.sugr.gearshift"
-    android:versionCode="17"
-    android:versionName="0.9.17" >
+    android:versionCode="18"
+    android:versionName="0.9.18" >
 
     <uses-sdk
         android:minSdkVersion="15"
