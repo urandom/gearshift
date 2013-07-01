@@ -681,6 +681,7 @@ public class TorrentListFragment extends ListFragment {
                 }
             });
             SearchView searchView = (SearchView) menu.findItem(R.id.menu_find).getActionView();
+            searchView.setQueryHint(getActivity().getString(R.string.filter));
             searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
                 @Override public boolean onQueryTextSubmit(String query) {
                     return false;
@@ -1043,7 +1044,7 @@ public class TorrentListFragment extends ListFragment {
 
         public void filter(String query) {
             mCurrentConstraint = query;
-            applyFilter(query, G.PREF_LIST_SEARCH);
+            applyFilter(query, G.PREF_LIST_SEARCH, false);
         }
 
         public void filter(FilterBy by) {
@@ -1072,7 +1073,7 @@ public class TorrentListFragment extends ListFragment {
             }
         }
 
-        private void applyFilter(String value, String pref) {
+        private void applyFilter(String value, String pref, boolean animate) {
             if (pref != null) {
                 Editor e = mSharedPrefs.edit();
                 e.putString(pref, value);
@@ -1080,7 +1081,13 @@ public class TorrentListFragment extends ListFragment {
             }
             mTorrentComparator.setSortingMethod(mSortBy, mSortOrder);
             repeatFilter();
-            mTorrentAdded = new SparseBooleanArray();
+            if (animate) {
+                mTorrentAdded = new SparseBooleanArray();
+            }
+        }
+
+        private void applyFilter(String value, String pref) {
+            applyFilter(value, pref, true);
         }
 
         private class TorrentFilter extends Filter {

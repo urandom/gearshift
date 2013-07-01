@@ -387,4 +387,6 @@
     <string name="error_reading_torrent_file">Error while reading the torrent file</string>
 
     <string name="find">Find</string>
+
+    <string name="filter">Filter</string>
 </resources>
