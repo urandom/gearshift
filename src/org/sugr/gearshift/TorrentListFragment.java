@@ -1172,7 +1172,7 @@ public class TorrentListFragment extends ListFragment {
                                 }
                                 int newIndex = valueText.indexOf(c, lastIndex);
                                 if (newIndex > -1 && (lastIndex == -1 || newIndex - lastIndex < 3)) {
-                                    lastIndex = newIndex;
+                                    lastIndex = newIndex + 1;
                                     if (j == prefixString.length() - 1) {
                                         match = true;
                                     }
