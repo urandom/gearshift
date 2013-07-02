@@ -1,5 +1,10 @@
 package org.sugr.gearshift;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
+import java.net.URI;
 import java.util.ArrayList;
 
 import org.sugr.gearshift.TransmissionSessionManager.TransmissionExclusionStrategy;
@@ -32,6 +37,7 @@ import android.widget.CheckBox;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.Spinner;
+import android.widget.Toast;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -40,7 +46,7 @@ public class TorrentListActivity extends FragmentActivity
         implements TransmissionSessionInterface, TorrentListFragment.Callbacks,
                    TorrentDetailFragment.PagerCallbacks {
 
-    public static final String ARG_FILE_DATA = "torrent_file_data";
+    public static final String ARG_FILE_URI = "torrent_file_uri";
     public final static String ACTION_OPEN = "torrent_file_open_action";
     /**
      * Whether or not the activity is in two-pane mode, i.e. running on a tablet
@@ -508,13 +514,39 @@ public class TorrentListActivity extends FragmentActivity
                     public void onClick(final DialogInterface dialog, int which) {
                         Spinner location = (Spinner) ((AlertDialog) dialog).findViewById(R.id.location_choice);
                         CheckBox paused = (CheckBox) ((AlertDialog) dialog).findViewById(R.id.start_paused);
+                        BufferedReader reader = null;
 
-                        String dir = (String) location.getSelectedItem();
-                        ((TransmissionDataLoader) loader).addTorrent(
-                                null, intent.getStringExtra(ARG_FILE_DATA),
-                                dir, paused.isChecked());
+                        try {
+                            String dir = (String) location.getSelectedItem();
+                            File file = new File(new URI(intent.getStringExtra(ARG_FILE_URI)));
 
-                        setRefreshing(true);
+                            reader = new BufferedReader(new FileReader(file));
+                            StringBuilder filedata = new StringBuilder();
+                            String line;
+
+                            while ((line = reader.readLine()) != null) {
+                                filedata.append(line + "\n");
+                            }
+
+                            file.delete();
+
+                            ((TransmissionDataLoader) loader).addTorrent(
+                                    null, filedata.toString(),
+                                    dir, paused.isChecked());
+
+                            setRefreshing(true);
+                        } catch (Exception e) {
+                            Toast.makeText(TorrentListActivity.this,
+                                    R.string.error_reading_torrent_file, Toast.LENGTH_SHORT).show();
+                        } finally {
+                            if (reader != null) {
+                                try {
+                                    reader.close();
+                                } catch (IOException e) {
+                                    e.printStackTrace();
+                                }
+                            }
+                        }
                         mIntentConsumed = true;
                         mDialogShown = false;
                     }

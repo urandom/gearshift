@@ -1,5 +1,8 @@
 package org.sugr.gearshift;
 
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 
@@ -29,10 +32,10 @@ public class TorrentFileReadActivity extends FragmentActivity {
         }
     }
 
-    private class ReadDataAsyncTask extends AsyncTask<Uri, Void, String> {
+    private class ReadDataAsyncTask extends AsyncTask<Uri, Void, File> {
         private Uri mUri;
 
-        @Override protected String doInBackground(Uri... params) {
+        @Override protected File doInBackground(Uri... params) {
             mUri = params[0];
             ContentResolver cr = getContentResolver();
             InputStream stream = null;
@@ -48,7 +51,18 @@ public class TorrentFileReadActivity extends FragmentActivity {
                 while( (ch = base64.read()) != -1)
                   fileContent.append((char)ch);
 
-                return fileContent.toString();
+                File file = new File(TorrentFileReadActivity.this.getCacheDir(), "torrentdata");
+
+                if (file.exists()) {
+                    file.delete();
+                }
+
+                file.createNewFile();
+                BufferedWriter bw = new BufferedWriter(new FileWriter(file));
+                bw.append(fileContent);
+                bw.close();
+
+                return file;
             } catch (Exception e) {
                 /* FIXME: proper error handling */
                 G.logE("Error while reading the torrent file", e);
@@ -65,12 +79,12 @@ public class TorrentFileReadActivity extends FragmentActivity {
             }
         }
 
-        @Override protected void onPostExecute(String data) {
-            if (data != null) {
+        @Override protected void onPostExecute(File file) {
+            if (file != null) {
                 Intent listIntent = new Intent(TorrentFileReadActivity.this, TorrentListActivity.class);
                 listIntent.setAction(TorrentListActivity.ACTION_OPEN);
                 listIntent.setData(mUri);
-                listIntent.putExtra(TorrentListActivity.ARG_FILE_DATA, data);
+                listIntent.putExtra(TorrentListActivity.ARG_FILE_URI, file.toURI().toString());
 
                 startActivity(listIntent);
 
