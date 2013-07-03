@@ -490,6 +490,8 @@ public class TransmissionSession {
         for (Torrent t : torrents) {
             mDownloadDirectories.add(t.getDownloadDir());
         }
+
+        mDownloadDirectories.remove(null);
     }
 
     public Set<String> getDownloadDirectories() {
