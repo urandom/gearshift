@@ -1019,7 +1019,11 @@ public class Torrent {
 
                 break;
             case Torrent.Status.STOPPED:
-                formattedStatus = context.getString(R.string.status_state_stopped);
+                formattedStatus = context.getString(
+                    isPaused()
+                        ? R.string.status_state_paused
+                        : R.string.status_state_stopped
+                );
 
                 break;
             default:

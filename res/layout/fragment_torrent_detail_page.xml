@@ -14,6 +14,7 @@
         <TextView
             android:id="@+id/torrent_detail_title"
             android:fontFamily="sans-serif-condensed"
+            android:textIsSelectable="true"
             style="@style/TorrentTitle" />
 
         <include layout="@layout/torrent_detail_overview" />

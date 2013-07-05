@@ -532,7 +532,9 @@ public class TorrentDetailPageFragment extends Fragment {
                 int state = R.string.none;
                 switch(mTorrent.getStatus()) {
                     case Torrent.Status.STOPPED:
-                        state = R.string.status_stopped;
+                        state = mTorrent.isPaused()
+                            ? R.string.status_paused
+                            : R.string.status_stopped;
                         break;
                     case Torrent.Status.CHECK_WAITING:
                         state = R.string.status_check_waiting;

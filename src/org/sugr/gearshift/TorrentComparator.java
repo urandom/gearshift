@@ -55,12 +55,14 @@ public class TorrentComparator implements Comparator<Torrent> {
                 ret = (int) (a.getTotalSize() - b.getTotalSize());
                 break;
             case STATUS:
-                ret = (a.getStatus() == Torrent.Status.STOPPED
+                ret = (a.isPaused()
+                        ? a.getStatus() + 40  : a.getStatus() == Torrent.Status.STOPPED
                         ? a.getStatus() + 100 : a.getStatus() == Torrent.Status.CHECK_WAITING
                         ? a.getStatus() + 10  : a.getStatus() == Torrent.Status.DOWNLOAD_WAITING
                         ? a.getStatus() + 20  : a.getStatus() == Torrent.Status.SEED_WAITING
                         ? a.getStatus() + 30  : a.getStatus())
-                    - (b.getStatus() == Torrent.Status.STOPPED
+                    - (b.isPaused()
+                        ? b.getStatus() + 40  : b.getStatus() == Torrent.Status.STOPPED
                         ? b.getStatus() + 100 : b.getStatus() == Torrent.Status.CHECK_WAITING
                         ? b.getStatus() + 10  : b.getStatus() == Torrent.Status.DOWNLOAD_WAITING
                         ? b.getStatus() + 20  : b.getStatus() == Torrent.Status.SEED_WAITING
