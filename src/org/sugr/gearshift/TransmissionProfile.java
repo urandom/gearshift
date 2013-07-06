@@ -131,11 +131,13 @@ public class TransmissionProfile implements Parcelable, Comparable<TransmissionP
         mDirectories = directories;
     }
 
-    public void load(Context context) {
-        SharedPreferences pref = context.getSharedPreferences(
+    public SharedPreferences getPreferences(Context context) {
+        return context.getSharedPreferences(
                 G.PREF_PREFIX + mId, Activity.MODE_PRIVATE);
+    }
 
-        load(pref);
+    public void load(Context context) {
+        load(getPreferences(context));
     }
 
     public void load(SharedPreferences pref) {
@@ -155,7 +157,7 @@ public class TransmissionProfile implements Parcelable, Comparable<TransmissionP
     }
 
     public void save(Context context) {
-        SharedPreferences pref = context.getSharedPreferences(G.PREF_PREFIX + mId, Activity.MODE_PRIVATE);
+        SharedPreferences pref = getPreferences(context);
         Editor e = pref.edit();
 
         e.putString(G.PREF_NAME, mName);
@@ -195,7 +197,7 @@ public class TransmissionProfile implements Parcelable, Comparable<TransmissionP
     }
 
     public void delete(Context context) {
-        SharedPreferences pref = context.getSharedPreferences(G.PREF_PREFIX + mId, Activity.MODE_PRIVATE);
+        SharedPreferences pref = getPreferences(context);
         Editor e = pref.edit();
 
         e.clear();

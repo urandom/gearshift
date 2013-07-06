@@ -323,6 +323,22 @@ public class TorrentListFragment extends ListFragment {
 
     };
 
+    private SharedPreferences.OnSharedPreferenceChangeListener mProfileListener =
+            new SharedPreferences.OnSharedPreferenceChangeListener() {
+                @Override
+                public void onSharedPreferenceChanged(SharedPreferences sharedPreferences,
+                        String key) {
+                    Loader<TransmissionData> loader = getActivity().getSupportLoaderManager()
+                            .getLoader(G.TORRENTS_LOADER_ID);
+
+                    mCurrentProfile.load(sharedPreferences);
+                    TransmissionProfile.setCurrentProfile(mCurrentProfile, getActivity());
+                    ((TransmissionSessionInterface) getActivity()).setProfile(mCurrentProfile);
+                    ((TransmissionDataLoader) loader).setProfile(mCurrentProfile);
+                    loader.onContentChanged();
+                }
+            };
+
     /**
      * Mandatory empty constructor for the fragment manager to instantiate the
      * fragment (e.g. upon screen orientation changes).
@@ -351,10 +367,21 @@ public class TorrentListFragment extends ListFragment {
                         final Loader<TransmissionData> loader = getActivity().getSupportLoaderManager()
                                 .getLoader(G.TORRENTS_LOADER_ID);
 
+                        if (mCurrentProfile != null) {
+                            SharedPreferences prefs = mCurrentProfile.getPreferences(getActivity());
+                            if (prefs != null) {
+                                prefs.unregisterOnSharedPreferenceChangeListener(mProfileListener);
+                            }
+                        }
+
                         mCurrentProfile = profile;
                         TransmissionProfile.setCurrentProfile(profile, getActivity());
                         ((TransmissionSessionInterface) getActivity()).setProfile(profile);
                         ((TransmissionDataLoader) loader).setProfile(profile);
+                        loader.onContentChanged();
+
+                        SharedPreferences prefs = mCurrentProfile.getPreferences(getActivity());
+                        prefs.registerOnSharedPreferenceChangeListener(mProfileListener);
 
                         if (!mPreventRefreshIndicator) {
                             mRefreshing = true;
