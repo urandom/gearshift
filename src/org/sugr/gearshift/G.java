@@ -86,8 +86,8 @@ class G {
     };
 
     public static enum SortBy {
-        NAME, SIZE, STATUS, ACTIVITY, AGE, PROGRESS, RATIO, LOCATION,
-        PEERS, RATE_DOWNLOAD, RATE_UPLOAD, QUEUE
+        NAME, SIZE, STATUS, RATE_DOWNLOAD, RATE_UPLOAD, AGE,
+        PROGRESS, RATIO, ACTIVITY, LOCATION, PEERS, QUEUE
     };
 
     public static enum SortOrder {

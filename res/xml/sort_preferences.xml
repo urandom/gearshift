@@ -14,8 +14,12 @@
             android:title="@string/menu_sort_status"
             android:defaultValue="true" />
         <CheckBoxPreference
-            android:key="sort_activity"
-            android:title="@string/menu_sort_activity"
+            android:key="sort_rate_download"
+            android:title="@string/menu_sort_download_speed"
+            android:defaultValue="true" />
+        <CheckBoxPreference
+            android:key="sort_rate_upload"
+            android:title="@string/menu_sort_upload_speed"
             android:defaultValue="true" />
         <CheckBoxPreference
             android:key="sort_age"
@@ -30,20 +34,16 @@
             android:title="@string/menu_sort_ratio"
             android:defaultValue="true" />
         <CheckBoxPreference
+            android:key="sort_activity"
+            android:title="@string/menu_sort_activity"
+            android:defaultValue="true" />
+        <CheckBoxPreference
             android:key="sort_location"
             android:title="@string/menu_sort_location"
             android:defaultValue="true" />
         <CheckBoxPreference
             android:key="sort_peers"
             android:title="@string/menu_sort_peers"
-            android:defaultValue="true" />
-        <CheckBoxPreference
-            android:key="sort_rate_download"
-            android:title="@string/menu_sort_download_speed"
-            android:defaultValue="true" />
-        <CheckBoxPreference
-            android:key="sort_rate_upload"
-            android:title="@string/menu_sort_upload_speed"
             android:defaultValue="true" />
         <CheckBoxPreference
             android:key="sort_queue"
