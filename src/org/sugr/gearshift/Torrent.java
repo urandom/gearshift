@@ -1046,7 +1046,7 @@ public class Torrent {
         switch(mSeedRatioMode) {
             case Torrent.SeedRatioMode.GLOBAL_LIMIT:
                 if (mSession == null || !mSession.isSeedRatioLimitEnabled())
-                    return -1;
+                    return mSeedRatioLimit;
 
                 return mSession.getSeedRatioLimit();
             case Torrent.SeedRatioMode.TORRENT_LIMIT:

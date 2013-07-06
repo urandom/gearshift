@@ -88,7 +88,7 @@ public class TorrentListFragment extends ListFragment {
     private TransmissionProfileListAdapter mProfileAdapter;
     private TorrentListAdapter mTorrentListAdapter;
 
-    private TransmissionProfile mCurrentProfile;
+    private TransmissionProfile mProfile;
     private TransmissionSession mSession;
 //    private TransmissionSessionStats mSessionStats;
 
@@ -133,9 +133,9 @@ public class TorrentListFragment extends ListFragment {
                 android.support.v4.content.Loader<TransmissionProfile[]> loader,
                 TransmissionProfile[] profiles) {
 
-            TransmissionProfile oldProfile = mCurrentProfile;
+            TransmissionProfile oldProfile = mProfile;
 
-            mCurrentProfile = null;
+            mProfile = null;
             mProfileAdapter.clear();
             if (profiles.length > 0) {
                 mProfileAdapter.addAll(profiles);
@@ -153,18 +153,18 @@ public class TorrentListFragment extends ListFragment {
                     ActionBar actionBar = getActivity().getActionBar();
                     if (actionBar != null)
                         actionBar.setSelectedNavigationItem(index);
-                    mCurrentProfile = prof;
+                    mProfile = prof;
                     break;
                 }
                 index++;
             }
 
-            if (mCurrentProfile == null && profiles.length > 0) {
-                mCurrentProfile = profiles[0];
+            if (mProfile == null && profiles.length > 0) {
+                mProfile = profiles[0];
             }
 
-            ((TransmissionSessionInterface) getActivity()).setProfile(mCurrentProfile);
-            if (mCurrentProfile == null) {
+            ((TransmissionSessionInterface) getActivity()).setProfile(mProfile);
+            if (mProfile == null) {
                 getActivity().getSupportLoaderManager().destroyLoader(G.TORRENTS_LOADER_ID);
             } else {
                 /* The torrents might be loaded before the navigation
@@ -172,7 +172,7 @@ public class TorrentListFragment extends ListFragment {
                  * appear until the next server request */
                 mPreventRefreshIndicator = true;
 
-                if (oldProfile != null && oldProfile.getId() == mCurrentProfile.getId()) {
+                if (oldProfile != null && oldProfile.getId() == mProfile.getId()) {
                     getActivity().getSupportLoaderManager().initLoader(
                         G.TORRENTS_LOADER_ID,
                         null, mTorrentLoaderCallbacks);
@@ -197,10 +197,10 @@ public class TorrentListFragment extends ListFragment {
         @Override
         public android.support.v4.content.Loader<TransmissionData> onCreateLoader(
                 int id, Bundle args) {
-            G.logD("Starting the torrents loader with profile " + mCurrentProfile);
-            if (mCurrentProfile == null) return null;
+            G.logD("Starting the torrents loader with profile " + mProfile);
+            if (mProfile == null) return null;
 
-            TransmissionDataLoader loader = new TransmissionDataLoader(getActivity(), mCurrentProfile);
+            TransmissionDataLoader loader = new TransmissionDataLoader(getActivity(), mProfile);
 
             return loader;
         }
@@ -228,7 +228,7 @@ public class TorrentListFragment extends ListFragment {
             View error = getView().findViewById(R.id.fatal_error_layer);
             if (data.error == 0 && error.getVisibility() != View.GONE) {
                 error.setVisibility(View.GONE);
-                ((TransmissionSessionInterface) getActivity()).setProfile(mCurrentProfile);
+                ((TransmissionSessionInterface) getActivity()).setProfile(mProfile);
             }
             if (data.torrents.size() > 0 || data.error > 0
                     || mTorrentListAdapter.getUnfilteredCount() > 0) {
@@ -323,18 +323,18 @@ public class TorrentListFragment extends ListFragment {
 
     };
 
-    private SharedPreferences.OnSharedPreferenceChangeListener mProfileListener =
+    private SharedPreferences.OnSharedPreferenceChangeListener mProfileChangeListener =
             new SharedPreferences.OnSharedPreferenceChangeListener() {
                 @Override
-                public void onSharedPreferenceChanged(SharedPreferences sharedPreferences,
-                        String key) {
+                public void onSharedPreferenceChanged(SharedPreferences prefs, String key) {
                     Loader<TransmissionData> loader = getActivity().getSupportLoaderManager()
                             .getLoader(G.TORRENTS_LOADER_ID);
 
-                    mCurrentProfile.load(sharedPreferences);
-                    TransmissionProfile.setCurrentProfile(mCurrentProfile, getActivity());
-                    ((TransmissionSessionInterface) getActivity()).setProfile(mCurrentProfile);
-                    ((TransmissionDataLoader) loader).setProfile(mCurrentProfile);
+                    mProfile.load(prefs);
+
+                    TransmissionProfile.setCurrentProfile(mProfile, getActivity());
+                    ((TransmissionSessionInterface) getActivity()).setProfile(mProfile);
+                    ((TransmissionDataLoader) loader).setProfile(mProfile);
                     loader.onContentChanged();
                 }
             };
@@ -367,21 +367,21 @@ public class TorrentListFragment extends ListFragment {
                         final Loader<TransmissionData> loader = getActivity().getSupportLoaderManager()
                                 .getLoader(G.TORRENTS_LOADER_ID);
 
-                        if (mCurrentProfile != null) {
-                            SharedPreferences prefs = mCurrentProfile.getPreferences(getActivity());
-                            if (prefs != null) {
-                                prefs.unregisterOnSharedPreferenceChangeListener(mProfileListener);
-                            }
+                        if (mProfile != null) {
+                            SharedPreferences prefs = mProfile.getPreferences(getActivity());
+                            if (prefs != null)
+                                prefs.unregisterOnSharedPreferenceChangeListener(mProfileChangeListener);
                         }
 
-                        mCurrentProfile = profile;
+                        mProfile = profile;
                         TransmissionProfile.setCurrentProfile(profile, getActivity());
                         ((TransmissionSessionInterface) getActivity()).setProfile(profile);
                         ((TransmissionDataLoader) loader).setProfile(profile);
                         loader.onContentChanged();
 
-                        SharedPreferences prefs = mCurrentProfile.getPreferences(getActivity());
-                        prefs.registerOnSharedPreferenceChangeListener(mProfileListener);
+                        SharedPreferences prefs = mProfile.getPreferences(getActivity());
+                        if (prefs != null)
+                            prefs.registerOnSharedPreferenceChangeListener(mProfileChangeListener);
 
                         if (!mPreventRefreshIndicator) {
                             mRefreshing = true;
@@ -398,7 +398,7 @@ public class TorrentListFragment extends ListFragment {
 
         if (savedInstanceState != null
                 && savedInstanceState.containsKey(STATE_CURRENT_PROFILE)) {
-            mCurrentProfile = savedInstanceState.getParcelable(STATE_CURRENT_PROFILE);
+            mProfile = savedInstanceState.getParcelable(STATE_CURRENT_PROFILE);
         }
 
         getActivity().getSupportLoaderManager().initLoader(G.PROFILES_LOADER_ID, null, mProfileLoaderCallbacks);
@@ -651,7 +651,7 @@ public class TorrentListFragment extends ListFragment {
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        outState.putParcelable(STATE_CURRENT_PROFILE, mCurrentProfile);
+        outState.putParcelable(STATE_CURRENT_PROFILE, mProfile);
         if (mActivatedPosition != ListView.INVALID_POSITION) {
             // Serialize and persist the activated item position.
             outState.putInt(STATE_ACTIVATED_POSITION, mActivatedPosition);
@@ -721,7 +721,9 @@ public class TorrentListFragment extends ListFragment {
                     return false;
                 }
             });
-            if (mFindQuery != null) {
+            if (mFindQuery == null) {
+                searchView.setQuery("", false);
+            } else {
                 searchView.setQuery(mFindQuery, true);
             }
         } else {
@@ -813,6 +815,7 @@ public class TorrentListFragment extends ListFragment {
 
     public void showFind() {
         mFindShown = true;
+        mFindQuery = null;
         getActivity().invalidateOptionsMenu();
     }
 
@@ -1095,7 +1098,7 @@ public class TorrentListFragment extends ListFragment {
         }
 
         public void repeatFilter() {
-            if (mCurrentProfile != null) {
+            if (mProfile != null) {
                 getFilter().filter(mCurrentConstraint, mCurrentFilterListener);
             }
         }
