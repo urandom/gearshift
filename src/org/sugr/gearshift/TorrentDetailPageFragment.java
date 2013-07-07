@@ -534,7 +534,7 @@ public class TorrentDetailPageFragment extends Fragment {
                     case Torrent.Status.STOPPED:
                         state = mTorrent.isPaused()
                             ? R.string.status_paused
-                            : R.string.status_stopped;
+                            : R.string.status_finished;
                         break;
                     case Torrent.Status.CHECK_WAITING:
                         state = R.string.status_check_waiting;
@@ -560,7 +560,7 @@ public class TorrentDetailPageFragment extends Fragment {
                 ((TextView) root.findViewById(R.id.torrent_state)).setText(state);
                 ((TextView) root.findViewById(R.id.torrent_running_time)).setText(
                     mTorrent.getStatus() == Torrent.Status.STOPPED
-                        ? getString(R.string.status_stopped)
+                        ? getString(R.string.status_finished)
                         : mTorrent.getStartDate() > 0
                             ? G.readableRemainingTime(now - mTorrent.getStartDate(), getActivity())
                             : getString(R.string.unknown)
@@ -614,7 +614,9 @@ public class TorrentDetailPageFragment extends Fragment {
                 int state;
                 switch(mTorrent.getStatus()) {
                     case Torrent.Status.STOPPED:
-                        state = R.string.status_stopped;
+                        state = mTorrent.isPaused()
+                            ? R.string.status_paused
+                            : R.string.status_finished;
                         break;
                     case Torrent.Status.DOWNLOAD_WAITING:
                         state = R.string.status_download_waiting;

@@ -322,16 +322,16 @@ public class TorrentListFragment extends ListFragment {
         }
 
     };
-
+    
     private SharedPreferences.OnSharedPreferenceChangeListener mProfileChangeListener =
             new SharedPreferences.OnSharedPreferenceChangeListener() {
                 @Override
                 public void onSharedPreferenceChanged(SharedPreferences prefs, String key) {
                     Loader<TransmissionData> loader = getActivity().getSupportLoaderManager()
                             .getLoader(G.TORRENTS_LOADER_ID);
-
+                    
                     mProfile.load(prefs);
-
+                    
                     TransmissionProfile.setCurrentProfile(mProfile, getActivity());
                     ((TransmissionSessionInterface) getActivity()).setProfile(mProfile);
                     ((TransmissionDataLoader) loader).setProfile(mProfile);
@@ -366,7 +366,7 @@ public class TorrentListFragment extends ListFragment {
                     if (profile != TransmissionProfileListAdapter.EMPTY_PROFILE) {
                         final Loader<TransmissionData> loader = getActivity().getSupportLoaderManager()
                                 .getLoader(G.TORRENTS_LOADER_ID);
-
+                        
                         if (mProfile != null) {
                             SharedPreferences prefs = mProfile.getPreferences(getActivity());
                             if (prefs != null)
@@ -378,7 +378,7 @@ public class TorrentListFragment extends ListFragment {
                         ((TransmissionSessionInterface) getActivity()).setProfile(profile);
                         ((TransmissionDataLoader) loader).setProfile(profile);
                         loader.onContentChanged();
-
+                        
                         SharedPreferences prefs = mProfile.getPreferences(getActivity());
                         if (prefs != null)
                             prefs.registerOnSharedPreferenceChangeListener(mProfileChangeListener);

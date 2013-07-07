@@ -137,7 +137,7 @@
     <string name="status_state_download_waiting">&lt;b&gt;Queued for downloading&lt;/b&gt;</string>
     <string name="status_state_seed_waiting">&lt;b&gt;Queued for seeding&lt;/b&gt;</string>
     <string name="status_state_paused"><![CDATA[<b>Paused</b>]]></string>
-    <string name="status_state_stopped">&lt;b&gt;Stopped&lt;/b&gt;</string>
+    <string name="status_state_finished"><![CDATA[<b>Finished</b>]]></string>
     <string name="status_state_check_waiting">&lt;b&gt;Queued for checking&lt;/b&gt;</string>
     <string name="status_state_checking">&lt;b&gt;Checking&lt;/b&gt; (%1$s%% tested)</string>
     <string name="status_more_downloading_format"> from %1$d of %2$d connected peers - &lt;i&gt;%3$s&lt;/i&gt;</string>
@@ -168,7 +168,7 @@
     <string name="unknown">Unknown</string>
 
     <string name="status_paused">Paused</string>
-    <string name="status_stopped">Stopped</string>
+    <string name="status_finished">Finished</string>
     <string name="status_check_waiting">Queued check</string>
     <string name="status_checking">Checking</string>
     <string name="status_download_waiting">Queued download</string>

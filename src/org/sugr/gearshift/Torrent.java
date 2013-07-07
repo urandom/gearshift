@@ -842,7 +842,11 @@ public class Torrent {
     }
 
     public boolean isPaused() {
-        return getStatus() == Status.STOPPED && !mFinished;
+        if (getStatus() != Status.STOPPED) {
+            return false;
+        }
+
+        return mUploadRatio < getActiveSeedRatioLimit();
     }
 
     public boolean isSeeding() {
@@ -1022,7 +1026,7 @@ public class Torrent {
                 formattedStatus = context.getString(
                     isPaused()
                         ? R.string.status_state_paused
-                        : R.string.status_state_stopped
+                        : R.string.status_state_finished
                 );
 
                 break;
@@ -1046,7 +1050,7 @@ public class Torrent {
         switch(mSeedRatioMode) {
             case Torrent.SeedRatioMode.GLOBAL_LIMIT:
                 if (mSession == null || !mSession.isSeedRatioLimitEnabled())
-                    return mSeedRatioLimit;
+                    return -1;
 
                 return mSession.getSeedRatioLimit();
             case Torrent.SeedRatioMode.TORRENT_LIMIT:
