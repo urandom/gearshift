@@ -183,7 +183,6 @@ public class TorrentListActivity extends FragmentActivity
         mDrawerToggle.onConfigurationChanged(newConfig);
     }
 
-
     /**
      * Callback method from {@link TorrentListFragment.Callbacks}
      * indicating that the item with the given ID was selected.
@@ -416,16 +415,18 @@ public class TorrentListActivity extends FragmentActivity
 
             mSession = session;
         } else {
+            boolean initial = false;
             if (mSession == null) {
                 mDrawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED,
                         findViewById(R.id.sliding_menu_frame));
                 getActionBar().setDisplayHomeAsUpEnabled(true);
 
                 invalidateOptionsMenu();
+                initial = true;
             }
 
             mSession = session;
-            if (!mIntentConsumed && !mDialogShown) {
+            if (initial && !mIntentConsumed && !mDialogShown) {
                 consumeIntent();
             }
         }
@@ -447,10 +448,11 @@ public class TorrentListActivity extends FragmentActivity
     }
 
     private void consumeIntent() {
-        final Intent intent = getIntent();
+        Intent intent = getIntent();
         String action = intent.getAction();
 
-        if (Intent.ACTION_VIEW.equals(action) || ACTION_OPEN.equals(action)) {
+        if ((intent.getFlags() & Intent.FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY) == 0
+                && (Intent.ACTION_VIEW.equals(action) || ACTION_OPEN.equals(action))) {
             mDialogShown = true;
             final Uri data = intent.getData();
 
@@ -462,7 +464,6 @@ public class TorrentListActivity extends FragmentActivity
 
             final AlertDialog.Builder builder = new AlertDialog.Builder(this)
                 .setCancelable(false)
-                .setNegativeButton(android.R.string.cancel, null)
                 .setView(view)
                 .setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
                     @Override
@@ -515,6 +516,8 @@ public class TorrentListActivity extends FragmentActivity
                 AlertDialog dialog = builder.create();
                 dialog.show();
             } else {
+                final String fileURI = intent.getStringExtra(ARG_FILE_URI);
+
                 builder.setTitle(R.string.add_torrent).setPositiveButton(android.R.string.ok,
                         new DialogInterface.OnClickListener() {
                     @Override
@@ -525,7 +528,7 @@ public class TorrentListActivity extends FragmentActivity
 
                         try {
                             String dir = (String) location.getSelectedItem();
-                            File file = new File(new URI(intent.getStringExtra(ARG_FILE_URI)));
+                            File file = new File(new URI(fileURI));
 
                             reader = new BufferedReader(new FileReader(file));
                             StringBuilder filedata = new StringBuilder();

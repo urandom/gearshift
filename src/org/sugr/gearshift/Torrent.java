@@ -149,7 +149,7 @@ public class Torrent {
         public static final int OK = 0;
         public static final int TRACKER_WARNING = 1;
         public static final int TRACKER_ERROR = 2;
-        public static final int LOCLA_ERROR = 3;
+        public static final int LOCAL_ERROR = 3;
     }
 
     @Exclude public static class Priority {
