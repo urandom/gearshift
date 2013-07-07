@@ -178,6 +178,8 @@ public class TransmissionDataLoader extends AsyncTaskLoader<TransmissionData> {
         mTorrentLocation = location;
         mTorrentActionIds = ids;
         mMoveData = move;
+
+        mProfile.setLastDownloadDirectory(location);
         onContentChanged();
     }
 
@@ -206,6 +208,8 @@ public class TransmissionDataLoader extends AsyncTaskLoader<TransmissionData> {
         mTorrentAddData = data;
         mTorrentAddPaused = paused;
         mTorrentLocation = location;
+
+        mProfile.setLastDownloadDirectory(location);
         onContentChanged();
     }
 

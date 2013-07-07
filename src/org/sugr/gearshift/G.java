@@ -30,6 +30,7 @@ class G {
     public static final String PREF_TIMEOUT = "profile_timeout";
     public static final String PREF_RETRIES = "profile_retries";
     public static final String PREF_DIRECTORIES = "profile_directories";
+    public static final String PREF_LAST_DIRECTORY = "profile_last_directory";
     public static final String PREF_PREFIX = "profile_";
 
     public static final String PREF_LIST_SORT_BY = "torrents_sort_by";

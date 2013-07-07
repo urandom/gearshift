@@ -32,7 +32,7 @@ public class TransmissionProfileSettingsFragment extends BasePreferenceFragment 
         }
 
         if (id == null)
-            mProfile = new TransmissionProfile();
+            mProfile = new TransmissionProfile(getActivity());
         else
             mProfile = new TransmissionProfile(id, getActivity());
 
@@ -103,7 +103,7 @@ public class TransmissionProfileSettingsFragment extends BasePreferenceFragment 
 
                     mProfile.load(mSharedPrefs);
                     if (mNew) {
-                        mProfile.save(getActivity());
+                        mProfile.save();
                     }
 
                     mSaved = true;
@@ -141,7 +141,7 @@ public class TransmissionProfileSettingsFragment extends BasePreferenceFragment 
                 if (!mNew) {
                     /* FIXME: show undo bar https://plus.google.com/113735310430199015092/posts/RA9WEEGWYp6 */
 
-                    mProfile.delete(getActivity());
+                    mProfile.delete();
 
                     mSaved = true;
                 }
@@ -163,7 +163,7 @@ public class TransmissionProfileSettingsFragment extends BasePreferenceFragment 
     public void onDestroy() {
         if (!mSaved) {
             if (!mNew && mProfile != null) {
-                mProfile.save(getActivity());
+                mProfile.save();
             }
         }
 

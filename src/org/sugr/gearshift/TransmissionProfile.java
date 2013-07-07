@@ -22,6 +22,7 @@ public class TransmissionProfile implements Parcelable, Comparable<TransmissionP
     private String mPath = "/transmission/rpc";
     private String mUsername = "";
     private String mPassword = "";
+    private String mLastDirectory;
 
     private boolean mUseSSL = false;
 
@@ -29,6 +30,8 @@ public class TransmissionProfile implements Parcelable, Comparable<TransmissionP
     private int mRetries = 3;
 
     private Set<String> mDirectories = new HashSet<String>();
+
+    private Context mContext;
 
     public static TransmissionProfile[] readProfiles(Context context) {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
@@ -56,14 +59,17 @@ public class TransmissionProfile implements Parcelable, Comparable<TransmissionP
         e.commit();
     }
 
-    public TransmissionProfile() {
+    public TransmissionProfile(Context context) {
         mId = UUID.randomUUID().toString();
+
+        mContext = context;
     }
 
     public TransmissionProfile(String id, Context context) {
         mId = id;
 
-        load(context);
+        mContext = context;
+        load();
     }
 
     public String getId() {
@@ -136,8 +142,8 @@ public class TransmissionProfile implements Parcelable, Comparable<TransmissionP
                 G.PREF_PREFIX + mId, Activity.MODE_PRIVATE);
     }
 
-    public void load(Context context) {
-        load(getPreferences(context));
+    public void load() {
+        load(getPreferences(mContext));
     }
 
     public void load(SharedPreferences pref) {
@@ -156,8 +162,8 @@ public class TransmissionProfile implements Parcelable, Comparable<TransmissionP
             new Object[] {mId, mName, mHost, mPort});
     }
 
-    public void save(Context context) {
-        SharedPreferences pref = getPreferences(context);
+    public void save() {
+        SharedPreferences pref = getPreferences(mContext);
         Editor e = pref.edit();
 
         e.putString(G.PREF_NAME, mName);
@@ -176,7 +182,7 @@ public class TransmissionProfile implements Parcelable, Comparable<TransmissionP
         G.logD("Saving profile to prefs: id %s, name %s, host %s, port %d",
             new Object[] {mId, mName, mHost, mPort});
 
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(mContext);
         e = prefs.edit();
 
         Set<String> ids = prefs.getStringSet(G.PREF_PROFILES, new HashSet<String>());
@@ -196,14 +202,14 @@ public class TransmissionProfile implements Parcelable, Comparable<TransmissionP
         }
     }
 
-    public void delete(Context context) {
-        SharedPreferences pref = getPreferences(context);
+    public void delete() {
+        SharedPreferences pref = getPreferences(mContext);
         Editor e = pref.edit();
 
         e.clear();
         e.commit();
 
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(mContext);
         e = prefs.edit();
 
         Set<String> ids = prefs.getStringSet(G.PREF_PROFILES, new HashSet<String>());
@@ -220,6 +226,20 @@ public class TransmissionProfile implements Parcelable, Comparable<TransmissionP
 
         G.logD("Deleting profile from prefs: id %s, name %s, host %s, port %d",
                 new Object[] {mId, mName, mHost, mPort});
+    }
+
+    public String getLastDownloadDirectory() {
+        return mLastDirectory;
+    }
+
+    public void setLastDownloadDirectory(String directory) {
+        SharedPreferences pref = getPreferences(mContext);
+        Editor e = pref.edit();
+
+        mLastDirectory = directory;
+
+        e.putString(G.PREF_LAST_DIRECTORY, directory);
+        e.commit();
     }
 
     @Override

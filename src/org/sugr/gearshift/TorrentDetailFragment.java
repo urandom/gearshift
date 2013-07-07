@@ -241,7 +241,6 @@ public class TorrentDetailFragment extends Fragment {
                 AlertDialog dialog = builder.create();
                 dialog.show();
 
-                Spinner location;
                 TransmissionProfileDirectoryAdapter adapter =
                         new TransmissionProfileDirectoryAdapter(
                         getActivity(), android.R.layout.simple_spinner_item);
@@ -250,8 +249,17 @@ public class TorrentDetailFragment extends Fragment {
                 adapter.addAll(session.getDownloadDirectories());
                 adapter.sort();
 
-                location = (Spinner) dialog.findViewById(R.id.location_choice);
+                Spinner location = (Spinner) dialog.findViewById(R.id.location_choice);
                 location.setAdapter(adapter);
+
+                TransmissionProfile profile = ((TransmissionSessionInterface) getActivity()).getProfile();
+                if (profile.getLastDownloadDirectory() != null) {
+                    int position = adapter.getPosition(profile.getLastDownloadDirectory());
+
+                    if (position > -1) {
+                        location.setSelection(position);
+                    }
+                }
 
                 return true;
             case R.id.verify:

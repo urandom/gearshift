@@ -322,16 +322,16 @@ public class TorrentListFragment extends ListFragment {
         }
 
     };
-    
+
     private SharedPreferences.OnSharedPreferenceChangeListener mProfileChangeListener =
             new SharedPreferences.OnSharedPreferenceChangeListener() {
                 @Override
                 public void onSharedPreferenceChanged(SharedPreferences prefs, String key) {
                     Loader<TransmissionData> loader = getActivity().getSupportLoaderManager()
                             .getLoader(G.TORRENTS_LOADER_ID);
-                    
+
                     mProfile.load(prefs);
-                    
+
                     TransmissionProfile.setCurrentProfile(mProfile, getActivity());
                     ((TransmissionSessionInterface) getActivity()).setProfile(mProfile);
                     ((TransmissionDataLoader) loader).setProfile(mProfile);
@@ -366,7 +366,7 @@ public class TorrentListFragment extends ListFragment {
                     if (profile != TransmissionProfileListAdapter.EMPTY_PROFILE) {
                         final Loader<TransmissionData> loader = getActivity().getSupportLoaderManager()
                                 .getLoader(G.TORRENTS_LOADER_ID);
-                        
+
                         if (mProfile != null) {
                             SharedPreferences prefs = mProfile.getPreferences(getActivity());
                             if (prefs != null)
@@ -378,7 +378,7 @@ public class TorrentListFragment extends ListFragment {
                         ((TransmissionSessionInterface) getActivity()).setProfile(profile);
                         ((TransmissionDataLoader) loader).setProfile(profile);
                         loader.onContentChanged();
-                        
+
                         SharedPreferences prefs = mProfile.getPreferences(getActivity());
                         if (prefs != null)
                             prefs.registerOnSharedPreferenceChangeListener(mProfileChangeListener);
@@ -532,7 +532,6 @@ public class TorrentListFragment extends ListFragment {
                         AlertDialog dialog = builder.create();
                         dialog.show();
 
-                        Spinner location;
                         TransmissionProfileDirectoryAdapter adapter =
                                 new TransmissionProfileDirectoryAdapter(
                                 getActivity(), android.R.layout.simple_spinner_item);
@@ -541,8 +540,16 @@ public class TorrentListFragment extends ListFragment {
                         adapter.addAll(mSession.getDownloadDirectories());
                         adapter.sort();
 
-                        location = (Spinner) dialog.findViewById(R.id.location_choice);
+                        Spinner location = (Spinner) dialog.findViewById(R.id.location_choice);
                         location.setAdapter(adapter);
+
+                        if (mProfile.getLastDownloadDirectory() != null) {
+                            int position = adapter.getPosition(mProfile.getLastDownloadDirectory());
+
+                            if (position > -1) {
+                                location.setSelection(position);
+                            }
+                        }
 
                         return true;
                     case R.id.verify:
@@ -834,7 +841,7 @@ public class TorrentListFragment extends ListFragment {
     }
 
     private static class TransmissionProfileListAdapter extends ArrayAdapter<TransmissionProfile> {
-        public static final TransmissionProfile EMPTY_PROFILE = new TransmissionProfile();
+        public static final TransmissionProfile EMPTY_PROFILE = new TransmissionProfile(null);
 
         public TransmissionProfileListAdapter(Context context) {
             super(context, 0);

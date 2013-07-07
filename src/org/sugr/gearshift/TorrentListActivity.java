@@ -473,7 +473,6 @@ public class TorrentListActivity extends FragmentActivity
 
                 });
 
-            Spinner location;
             TransmissionProfileDirectoryAdapter adapter =
                     new TransmissionProfileDirectoryAdapter(
                     this, android.R.layout.simple_spinner_item);
@@ -482,8 +481,16 @@ public class TorrentListActivity extends FragmentActivity
             adapter.addAll(getSession().getDownloadDirectories());
             adapter.sort();
 
-            location = (Spinner) view.findViewById(R.id.location_choice);
+            Spinner location = (Spinner) view.findViewById(R.id.location_choice);
             location.setAdapter(adapter);
+
+            if (mProfile.getLastDownloadDirectory() != null) {
+                int position = adapter.getPosition(mProfile.getLastDownloadDirectory());
+
+                if (position > -1) {
+                    location.setSelection(position);
+                }
+            }
 
             ((CheckBox) view.findViewById(R.id.start_paused)).setChecked(prefs.getBoolean(G.PREF_START_PAUSED, false));
 
