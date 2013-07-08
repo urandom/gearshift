@@ -40,7 +40,7 @@
     <string name="torrent_running_time">Running time:</string>
     <string name="torrent_remaining_time">Remaining time:</string>
     <string name="torrent_last_activity">Last activity:</string>
-    <string name="torrent_error">Tracker Error:</string>
+    <string name="torrent_error">Torrent error</string>
     
     <string name="torrent_details">Details</string>
     <string name="torrent_size">Size:</string>

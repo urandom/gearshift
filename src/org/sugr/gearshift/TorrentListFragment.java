@@ -1008,6 +1008,12 @@ public class TorrentListFragment extends ListFragment {
             traffic.setEnabled(enabled);
             status.setEnabled(enabled);
 
+            rowView.findViewById(R.id.error_indicator).setVisibility(
+                torrent.getError() == Torrent.Error.OK
+                    ? View.GONE
+                    : View.VISIBLE
+            );
+
             if (!mTorrentAdded.get(torrent.getId(), false)) {
                 rowView.setTranslationY(100);
                 rowView.setAlpha((float) 0.3);
