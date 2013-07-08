@@ -335,7 +335,6 @@ public class TorrentListFragment extends ListFragment {
                     TransmissionProfile.setCurrentProfile(mProfile, getActivity());
                     ((TransmissionSessionInterface) getActivity()).setProfile(mProfile);
                     ((TransmissionDataLoader) loader).setProfile(mProfile);
-                    loader.onContentChanged();
                 }
             };
 
@@ -377,13 +376,14 @@ public class TorrentListFragment extends ListFragment {
                         TransmissionProfile.setCurrentProfile(profile, getActivity());
                         ((TransmissionSessionInterface) getActivity()).setProfile(profile);
                         ((TransmissionDataLoader) loader).setProfile(profile);
-                        loader.onContentChanged();
 
                         SharedPreferences prefs = mProfile.getPreferences(getActivity());
                         if (prefs != null)
                             prefs.registerOnSharedPreferenceChangeListener(mProfileChangeListener);
 
-                        if (!mPreventRefreshIndicator) {
+                        if (mPreventRefreshIndicator) {
+                            mPreventRefreshIndicator = false;
+                        } else {
                             mRefreshing = true;
                             getActivity().invalidateOptionsMenu();
                         }
