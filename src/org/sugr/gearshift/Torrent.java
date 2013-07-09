@@ -168,7 +168,7 @@ public class Torrent {
 
         // commonly used fields which need to be periodically refreshed
         public static final String[] STATS = {
-            "id", "error", "eta", "isFinished", "isStalled",
+            "id", "error", "errorString", "eta", "isFinished", "isStalled",
             "leftUntilDone", "metadataPercentComplete", "peersConnected",
             "peersGettingFromUs", "peersSendingToUs", "percentDone",
             SetterFields.QUEUE_POSITION, "rateDownload", "rateUpload",
@@ -187,7 +187,7 @@ public class Torrent {
         public static final String[] STATS_EXTRA = {
             "activityDate", SetterFields.TORRENT_PRIORITY, "corruptEver",
             "desiredAvailable", "downloadedEver", SetterFields.DOWNLOAD_LIMIT,
-            SetterFields.DOWNLOAD_LIMITED, "errorString", "fileStats", "haveUnchecked",
+            SetterFields.DOWNLOAD_LIMITED, "fileStats", "haveUnchecked",
             "haveValid", SetterFields.SESSION_LIMITS, SetterFields.PEER_LIMIT, "peers",
             "startDate", /*"trackerStats",*/ SetterFields.UPLOAD_LIMIT,
             SetterFields.UPLOAD_LIMITED, "webseedsSendingToUs"

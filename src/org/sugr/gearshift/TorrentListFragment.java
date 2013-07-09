@@ -974,6 +974,7 @@ public class TorrentListFragment extends ListFragment {
             TextView traffic = (TextView) rowView.findViewById(R.id.traffic);
             ProgressBar progress = (ProgressBar) rowView.findViewById(R.id.progress);
             TextView status = (TextView) rowView.findViewById(R.id.status);
+            TextView errorText = (TextView) rowView.findViewById(R.id.error_text);
 
             name.setText(torrent.getName());
 
@@ -1007,12 +1008,16 @@ public class TorrentListFragment extends ListFragment {
             name.setEnabled(enabled);
             traffic.setEnabled(enabled);
             status.setEnabled(enabled);
+            errorText.setEnabled(enabled);
 
-            rowView.findViewById(R.id.error_indicator).setVisibility(
-                torrent.getError() == Torrent.Error.OK
-                    ? View.INVISIBLE
-                    : View.VISIBLE
-            );
+            if (torrent.getError() == Torrent.Error.OK) {
+                errorText.setVisibility(View.GONE);
+            } else {
+                errorText.setVisibility(View.VISIBLE);
+                errorText.setText(torrent.getErrorString());
+            }
+
+
 
             if (!mTorrentAdded.get(torrent.getId(), false)) {
                 rowView.setTranslationY(100);
