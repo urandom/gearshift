@@ -1010,7 +1010,7 @@ public class TorrentListFragment extends ListFragment {
 
             rowView.findViewById(R.id.error_indicator).setVisibility(
                 torrent.getError() == Torrent.Error.OK
-                    ? View.GONE
+                    ? View.INVISIBLE
                     : View.VISIBLE
             );
 
