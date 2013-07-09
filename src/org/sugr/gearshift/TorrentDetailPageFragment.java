@@ -578,11 +578,13 @@ public class TorrentDetailPageFragment extends Fragment {
                             ? getString(R.string.torrent_active_now)
                             : G.readableRemainingTime(lastActive, getActivity())
                 );
+                TextView errorText =((TextView) root.findViewById(R.id.torrent_error));
                 if (mTorrent.getError() == Torrent.Error.OK) {
-                    ((TextView) root.findViewById(R.id.torrent_error)).setText(
-                            R.string.no_tracker_errors);
+                    errorText.setText(R.string.no_tracker_errors);
+                    errorText.setEnabled(false);
                 } else {
-                    ((TextView) root.findViewById(R.id.torrent_error)).setText(mTorrent.getErrorString());
+                    errorText.setText(mTorrent.getErrorString());
+                    errorText.setEnabled(true);
                 }
                 ((TextView) root.findViewById(R.id.torrent_size)).setText(
                         String.format(
