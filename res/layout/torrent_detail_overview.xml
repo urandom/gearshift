@@ -101,7 +101,8 @@
 
             <TextView style="@style/CardTextColumn" android:text="@string/torrent_error" />
 
-            <TextView android:id="@+id/torrent_error" />
+            <TextView android:id="@+id/torrent_error"
+                    android:textColor="@drawable/list_item_error_color"/>
         </TableRow>                                                                                                    
         
         <TableRow
