@@ -156,6 +156,7 @@ public class TorrentDetailActivity extends FragmentActivity implements Transmiss
                 gson.fromJson(in.getStringExtra(ARG_JSON_TORRENTS), Torrent[].class)));
         mProfile = in.getParcelableExtra(ARG_PROFILE);
         setSession(gson.fromJson(in.getStringExtra(ARG_JSON_SESSION), TransmissionSession.class));
+        mSession.setDownloadDirectories(mProfile, mTorrents);
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_torrent_detail);

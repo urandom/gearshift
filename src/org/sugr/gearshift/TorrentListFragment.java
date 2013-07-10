@@ -327,6 +327,8 @@ public class TorrentListFragment extends ListFragment {
             new SharedPreferences.OnSharedPreferenceChangeListener() {
                 @Override
                 public void onSharedPreferenceChanged(SharedPreferences prefs, String key) {
+                    if (getActivity() == null || mProfile == null) return;
+
                     Loader<TransmissionData> loader = getActivity().getSupportLoaderManager()
                             .getLoader(G.TORRENTS_LOADER_ID);
 
