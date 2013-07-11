@@ -213,6 +213,7 @@ public class TorrentListActivity extends FragmentActivity
             detailIntent.putExtra(TorrentDetailActivity.ARG_JSON_TORRENTS,
                     gson.toJson(mTorrents.toArray(new Torrent[mTorrents.size()])));
             detailIntent.putExtra(TorrentDetailActivity.ARG_JSON_SESSION, gson.toJson(mSession));
+            detailIntent.putExtra(TorrentDetailActivity.ARG_JSON_DIRECTORIES, gson.toJson(mSession.getDownloadDirectories()));
             startActivity(detailIntent);
         }
     }

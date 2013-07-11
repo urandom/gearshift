@@ -1,5 +1,6 @@
 package org.sugr.gearshift;
 
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -492,6 +493,10 @@ public class TransmissionSession {
         }
 
         mDownloadDirectories.remove(null);
+    }
+
+    public void setDownloadDirectories(Collection<String> directories) {
+        mDownloadDirectories.addAll(directories);
     }
 
     public Set<String> getDownloadDirectories() {

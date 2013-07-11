@@ -37,6 +37,7 @@ public class TorrentDetailActivity extends FragmentActivity implements Transmiss
     public static final String ARG_PROFILE = "profile";
     public static final String ARG_JSON_TORRENTS = "json_torrents";
     public static final String ARG_JSON_SESSION = "json_session";
+    public static final String ARG_JSON_DIRECTORIES = "json_directories";
 
     private boolean mRefreshing = false;
 
@@ -157,7 +158,9 @@ public class TorrentDetailActivity extends FragmentActivity implements Transmiss
         mProfile = in.getParcelableExtra(ARG_PROFILE);
         mProfile.setContext(this);
         setSession(gson.fromJson(in.getStringExtra(ARG_JSON_SESSION), TransmissionSession.class));
-        mSession.setDownloadDirectories(mProfile, mTorrents);
+        mSession.setDownloadDirectories(Arrays.asList(
+                    gson.fromJson(in.getStringExtra(ARG_JSON_DIRECTORIES),
+                        String[].class)));
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_torrent_detail);
