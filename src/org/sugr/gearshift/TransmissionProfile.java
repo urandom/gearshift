@@ -242,6 +242,14 @@ public class TransmissionProfile implements Parcelable, Comparable<TransmissionP
         e.commit();
     }
 
+    public Context getContext() {
+        return mContext;
+    }
+
+    public void setContext(Context context) {
+        mContext = context;
+    }
+
     @Override
     public int compareTo(TransmissionProfile another) {
         return mName.compareToIgnoreCase(another.getName());
