@@ -5,4 +5,5 @@
         android:showAsAction="always|withText"
         android:icon="@drawable/ic_menu_cancel"
         android:title="@string/delete" />
+
 </menu>

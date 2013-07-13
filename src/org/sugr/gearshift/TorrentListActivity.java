@@ -1,14 +1,5 @@
 package org.sugr.gearshift;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
-import java.net.URI;
-import java.util.ArrayList;
-
-import org.sugr.gearshift.TransmissionSessionManager.TransmissionExclusionStrategy;
-
 import android.animation.Animator;
 import android.animation.AnimatorInflater;
 import android.animation.ValueAnimator;
@@ -41,6 +32,15 @@ import android.widget.Toast;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+
+import org.sugr.gearshift.TransmissionSessionManager.TransmissionExclusionStrategy;
+
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
+import java.net.URI;
+import java.util.ArrayList;
 
 public class TorrentListActivity extends FragmentActivity
         implements TransmissionSessionInterface, TorrentListFragment.Callbacks,
@@ -213,7 +213,8 @@ public class TorrentListActivity extends FragmentActivity
             detailIntent.putExtra(TorrentDetailActivity.ARG_JSON_TORRENTS,
                     gson.toJson(mTorrents.toArray(new Torrent[mTorrents.size()])));
             detailIntent.putExtra(TorrentDetailActivity.ARG_JSON_SESSION, gson.toJson(mSession));
-            detailIntent.putExtra(TorrentDetailActivity.ARG_JSON_DIRECTORIES, gson.toJson(mSession.getDownloadDirectories()));
+            detailIntent.putExtra(G.ARG_DIRECTORIES,
+                    new ArrayList<String>(mSession.getDownloadDirectories()));
             startActivity(detailIntent);
         }
     }
@@ -266,6 +267,7 @@ public class TorrentListActivity extends FragmentActivity
         }
 
         Intent intent;
+        Gson gson = new GsonBuilder().setExclusionStrategies(new TransmissionExclusionStrategy()).create();
         switch(item.getItemId()) {
             case android.R.id.home:
                 if (!mTwoPane) {
@@ -286,12 +288,15 @@ public class TorrentListActivity extends FragmentActivity
             case R.id.menu_session_settings:
                 intent = new Intent(this, TransmissionSessionActivity.class);
                 intent.putExtra(TransmissionSessionActivity.ARG_PROFILE, mProfile);
-                Gson gson = new GsonBuilder().setExclusionStrategies(new TransmissionExclusionStrategy()).create();
                 intent.putExtra(TransmissionSessionActivity.ARG_JSON_SESSION, gson.toJson(mSession));
                 startActivity(intent);
                 return true;
             case R.id.menu_settings:
                 intent = new Intent(this, SettingsActivity.class);
+                ArrayList<String> directories = new ArrayList<String>(mSession.getDownloadDirectories());
+                directories.remove(mSession.getDownloadDir());
+                intent.putExtra(G.ARG_DIRECTORIES, directories);
+                intent.putExtra(SettingsActivity.ARG_PROFILE_ID, mProfile.getId());
                 startActivity(intent);
                 return true;
             case R.id.menu_about:

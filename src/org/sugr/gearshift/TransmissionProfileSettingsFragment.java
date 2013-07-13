@@ -26,8 +26,9 @@ public class TransmissionProfileSettingsFragment extends BasePreferenceFragment 
         super.onCreate(savedInstanceState);
 
         String id = null;
-        if (getArguments().containsKey(G.ARG_PROFILE_ID)) {
-            id = getArguments().getString(G.ARG_PROFILE_ID);
+        Bundle args = getArguments();
+        if (args.containsKey(G.ARG_PROFILE_ID)) {
+            id = args.getString(G.ARG_PROFILE_ID);
             mNew = false;
         }
 
@@ -69,6 +70,10 @@ public class TransmissionProfileSettingsFragment extends BasePreferenceFragment 
 
         Bundle dirBundle = getPreferenceManager().findPreference(G.PREF_DIRECTORIES).getExtras();
         dirBundle.putString(G.ARG_PROFILE_ID, prefname);
+        if (args.containsKey(G.ARG_DIRECTORIES)) {
+            dirBundle.putStringArrayList(G.ARG_DIRECTORIES,
+                    args.getStringArrayList(G.ARG_DIRECTORIES));
+        }
     }
 
     @Override

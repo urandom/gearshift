@@ -1,10 +1,8 @@
 package org.sugr.gearshift;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import android.app.LoaderManager;
 import android.content.Context;
+import android.content.Intent;
 import android.content.Loader;
 import android.os.Bundle;
 import android.preference.PreferenceActivity;
@@ -18,8 +16,13 @@ import android.widget.ArrayAdapter;
 import android.widget.ListAdapter;
 import android.widget.TextView;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class SettingsActivity extends PreferenceActivity
         implements LoaderManager.LoaderCallbacks<TransmissionProfile[]> {
+
+    public static final String ARG_PROFILE_ID = "profile_id";
 
     private Header mAppPreferencesHeader;
     private Header mFiltersHeader;
@@ -89,10 +92,11 @@ public class SettingsActivity extends PreferenceActivity
         switch(item.getItemId()) {
         case R.id.menu_add_profile:
             String name = TransmissionProfileSettingsFragment.class.getCanonicalName();
+            Bundle args = new Bundle();
             if (!onIsHidingHeaders() && onIsMultiPane())
-                switchToHeader(name, new Bundle());
+                switchToHeader(name, args);
             else
-                startWithFragment(name, new Bundle(), null, 0);
+                startWithFragment(name, args, null, 0);
 
             return true;
         }
@@ -147,6 +151,12 @@ public class SettingsActivity extends PreferenceActivity
         header.fragment = TransmissionProfileSettingsFragment.class.getCanonicalName();
         Bundle args = new Bundle();
         args.putString(G.ARG_PROFILE_ID, profile.getId());
+
+        Intent intent = getIntent();
+        if (profile.getId().equals(intent.getStringExtra(SettingsActivity.ARG_PROFILE_ID))) {
+            args.putStringArrayList(G.ARG_DIRECTORIES,
+                    intent.getStringArrayListExtra(G.ARG_DIRECTORIES));
+        }
         header.fragmentArguments = args;
 
         return header;

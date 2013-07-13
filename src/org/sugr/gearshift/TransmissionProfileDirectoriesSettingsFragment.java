@@ -1,9 +1,5 @@
 package org.sugr.gearshift;
 
-import java.util.Comparator;
-import java.util.HashSet;
-import java.util.Set;
-
 import android.app.ActionBar;
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -32,6 +28,11 @@ import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashSet;
+import java.util.Set;
+
 public class TransmissionProfileDirectoriesSettingsFragment extends ListFragment {
     private SharedPreferences mSharedPrefs;
     private Set<String> mDirectories = new HashSet<String>();
@@ -47,10 +48,21 @@ public class TransmissionProfileDirectoriesSettingsFragment extends ListFragment
 
     };
 
+    private ArrayList<String> mSessionDirectories = new ArrayList<String>();
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
+
+        Bundle args = getArguments();
+        if (args.containsKey(G.ARG_DIRECTORIES)) {
+            ArrayList<String> directories = args.getStringArrayList(G.ARG_DIRECTORIES);
+            if (directories != null && directories.size() > 0) {
+                mSessionDirectories.clear();
+                mSessionDirectories.addAll(directories);
+            }
+        }
     }
 
     @Override
@@ -231,28 +243,35 @@ public class TransmissionProfileDirectoriesSettingsFragment extends ListFragment
         inflater.inflate(R.menu.add_directory_option, menu);
         if (mSharedPrefs == null)
             menu.findItem(R.id.menu_add_directory).setVisible(false);
+
+        MenuItem item = menu.findItem(R.id.import_directories);
+        item.setVisible(mSessionDirectories.size() > 0);
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch(item.getItemId()) {
-        case R.id.menu_add_directory:
-            createEntryDialog(new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                    EditText text = (EditText) ((AlertDialog) dialog).findViewById(R.id.dialog_entry);
-                    String dir = text.getText().toString().trim();
+            case R.id.menu_add_directory:
+                createEntryDialog(new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        EditText text = (EditText) ((AlertDialog) dialog).findViewById(R.id.dialog_entry);
+                        String dir = text.getText().toString().trim();
 
-                    while (dir.endsWith("/")) {
-                        dir = dir.substring(0, dir.length() - 1);
+                        while (dir.endsWith("/")) {
+                            dir = dir.substring(0, dir.length() - 1);
+                        }
+
+                        mDirectories.add(dir);
+
+                        setAdapterDirectories();
                     }
-
-                    mDirectories.add(dir);
-
-                    setAdapterDirectories();
-                }
-            });
-            return true;
+                });
+                return true;
+            case R.id.import_directories:
+                mDirectories.addAll(mSessionDirectories);
+                setAdapterDirectories();
+                return true;
         }
         return super.onOptionsItemSelected(item);
     }

@@ -391,4 +391,5 @@
     <string name="find">Find</string>
 
     <string name="filter">Filter</string>
+    <string name="import_session_directories">Import sesssion directories</string>
 </resources>

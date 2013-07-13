@@ -1,12 +1,12 @@
 package org.sugr.gearshift;
 
+import android.content.Context;
+import android.util.Log;
+
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.text.DecimalFormat;
 import java.util.Comparator;
-
-import android.content.Context;
-import android.util.Log;
 
 class G {
     public static final String PREF_DEBUG = "debug";
@@ -71,6 +71,7 @@ class G {
     public static final String ARG_JSON_SESSION = "json_session";
     public static final String ARG_PROFILE = "profile";
     public static final String ARG_PROFILE_ID = "profile_id";
+    public static final String ARG_DIRECTORIES = "directories";
 
     public static final String DETAIL_FRAGMENT_TAG = "detail_fragment";
     public static final String ARG_PAGE_POSITION = "page_position";
