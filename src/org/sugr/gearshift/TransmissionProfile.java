@@ -158,6 +158,8 @@ public class TransmissionProfile implements Parcelable, Comparable<TransmissionP
         mRetries = Integer.parseInt(pref.getString(G.PREF_RETRIES, "-1"));
         mDirectories = pref.getStringSet(G.PREF_DIRECTORIES, new HashSet<String>());
 
+        mLastDirectory = pref.getString(G.PREF_LAST_DIRECTORY, "");
+
         G.logD("Loading profile from prefs: id %s, name %s, host %s, port %d   ",
             new Object[] {mId, mName, mHost, mPort});
     }
