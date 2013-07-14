@@ -34,8 +34,11 @@ public class TorrentDetailFragment extends Fragment {
     private int mCurrentPosition = 0;
 
     private static final String STATE_LOCATION_POSITION = "location_position";
+    private static final String STATE_ACTION_MOVE_IDS = "action_move_ids";
 
     private int mLocationPosition = AdapterView.INVALID_POSITION;
+
+    private int[] mActionMoveIds;
 
     private static PagerCallbacks sDummyCallbacks = new PagerCallbacks() {
         @Override
@@ -65,6 +68,12 @@ public class TorrentDetailFragment extends Fragment {
         if (savedInstanceState != null) {
             if (savedInstanceState.containsKey(STATE_LOCATION_POSITION)) {
                 mLocationPosition = savedInstanceState.getInt(STATE_LOCATION_POSITION);
+            }
+            if (savedInstanceState.containsKey(STATE_ACTION_MOVE_IDS)) {
+                mActionMoveIds = savedInstanceState.getIntArray(STATE_ACTION_MOVE_IDS);
+                if (mActionMoveIds != null) {
+                    showMoveDialog(mActionMoveIds);
+                }
             }
         }
 
@@ -222,66 +231,8 @@ public class TorrentDetailFragment extends Fragment {
                 ((TransmissionDataLoader) loader).setTorrentsAction("torrent-stop", ids);
                 break;
             case R.id.move:
-                LayoutInflater inflater = getActivity().getLayoutInflater();
-
-                builder = new AlertDialog.Builder(getActivity())
-                    .setTitle(R.string.set_location)
-                    .setCancelable(false)
-                    .setNegativeButton(android.R.string.no, null)
-                    .setPositiveButton(android.R.string.yes,
-                    new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int id) {
-                        Spinner location = (Spinner) ((AlertDialog) dialog).findViewById(R.id.location_choice);
-                        CheckBox move = (CheckBox) ((AlertDialog) dialog).findViewById(R.id.move);
-
-                        String dir = (String) location.getSelectedItem();
-                        ((TransmissionDataLoader) loader).setTorrentsLocation(
-                                ids, dir, move.isChecked());
-
-                        context.setRefreshing(true);
-                    }
-                }).setView(inflater.inflate(R.layout.torrent_location_dialog, null));
-
-                TransmissionSession session = ((TransmissionSessionInterface) getActivity()).getSession();
-                if (session == null) {
-                    return true;
-                }
-
-                AlertDialog dialog = builder.create();
-                dialog.show();
-
-                TransmissionProfileDirectoryAdapter adapter =
-                        new TransmissionProfileDirectoryAdapter(
-                        getActivity(), android.R.layout.simple_spinner_item);
-
-                adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-                adapter.addAll(session.getDownloadDirectories());
-                adapter.sort();
-
-                Spinner location = (Spinner) dialog.findViewById(R.id.location_choice);
-                location.setAdapter(adapter);
-
-                TransmissionProfile profile = ((TransmissionSessionInterface) getActivity()).getProfile();
-                if (mLocationPosition == AdapterView.INVALID_POSITION) {
-                    if (profile.getLastDownloadDirectory() != null) {
-                        int position = adapter.getPosition(profile.getLastDownloadDirectory());
-
-                        if (position > -1) {
-                            location.setSelection(position);
-                        }
-                    }
-                } else {
-                    location.setSelection(mLocationPosition);
-                }
-                location.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-                    @Override public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
-                        mLocationPosition = i;
-                    }
-                    @Override public void onNothingSelected(AdapterView<?> adapterView) {}
-                });
-
-                return true;
+                mActionMoveIds = ids;
+                return showMoveDialog(ids);
             case R.id.verify:
                 ((TransmissionDataLoader) loader).setTorrentsAction("torrent-verify", ids);
                 break;
@@ -301,6 +252,7 @@ public class TorrentDetailFragment extends Fragment {
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putInt(STATE_LOCATION_POSITION, mLocationPosition);
+        outState.putIntArray(STATE_ACTION_MOVE_IDS, mActionMoveIds);
     }
 
     public void setCurrentTorrent(int position) {
@@ -341,5 +293,77 @@ public class TorrentDetailFragment extends Fragment {
             if (page == null) continue;
             page.notifyTorrentUpdate(t);
         }
+    }
+
+    private boolean showMoveDialog(final int[] ids) {
+        LayoutInflater inflater = getActivity().getLayoutInflater();
+        final TransmissionSessionInterface context = ((TransmissionSessionInterface) getActivity());
+        final Loader<TransmissionData> loader = getActivity().getSupportLoaderManager()
+            .getLoader(G.TORRENTS_LOADER_ID);
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity())
+            .setTitle(R.string.set_location)
+            .setCancelable(false)
+            .setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
+                @Override public void onClick(DialogInterface dialogInterface, int i) {
+                    mActionMoveIds = null;
+                }
+            })
+            .setPositiveButton(android.R.string.yes,
+            new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int id) {
+                Spinner location = (Spinner) ((AlertDialog) dialog).findViewById(R.id.location_choice);
+                CheckBox move = (CheckBox) ((AlertDialog) dialog).findViewById(R.id.move);
+
+                String dir = (String) location.getSelectedItem();
+                ((TransmissionDataLoader) loader).setTorrentsLocation(
+                        ids, dir, move.isChecked());
+
+                context.setRefreshing(true);
+                mActionMoveIds = null;
+            }
+        }).setView(inflater.inflate(R.layout.torrent_location_dialog, null));
+
+        TransmissionSession session = ((TransmissionSessionInterface) getActivity()).getSession();
+
+        if (session == null) {
+            return true;
+        }
+
+        AlertDialog dialog = builder.create();
+        dialog.show();
+
+        TransmissionProfileDirectoryAdapter adapter =
+                new TransmissionProfileDirectoryAdapter(
+                getActivity(), android.R.layout.simple_spinner_item);
+
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        adapter.addAll(session.getDownloadDirectories());
+        adapter.sort();
+
+        Spinner location = (Spinner) dialog.findViewById(R.id.location_choice);
+        location.setAdapter(adapter);
+
+        TransmissionProfile profile = ((TransmissionSessionInterface) getActivity()).getProfile();
+        if (mLocationPosition == AdapterView.INVALID_POSITION) {
+            if (profile.getLastDownloadDirectory() != null) {
+                int position = adapter.getPosition(profile.getLastDownloadDirectory());
+
+                if (position > -1) {
+                    location.setSelection(position);
+                }
+            }
+        } else {
+            location.setSelection(mLocationPosition);
+        }
+        location.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+                mLocationPosition = i;
+            }
+            @Override public void onNothingSelected(AdapterView<?> adapterView) {}
+        });
+
+        return true;
     }
 }
