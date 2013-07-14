@@ -24,6 +24,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.animation.DecelerateInterpolator;
+import android.widget.AdapterView;
 import android.widget.CheckBox;
 import android.widget.LinearLayout;
 import android.widget.ListView;
@@ -63,6 +64,7 @@ public class TorrentListActivity extends FragmentActivity
     private boolean mDialogShown = false;
 
     private static final String STATE_INTENT_CONSUMED = "intent_consumed";
+    private static final String STATE_LOCATION_POSITION = "location_position";
 
     private DrawerLayout mDrawerLayout;
     private ActionBarDrawerToggle mDrawerToggle;
@@ -72,6 +74,8 @@ public class TorrentListActivity extends FragmentActivity
     private boolean mDetailPanelShown;
 
     private Bundle mDetailArguments;
+
+    private int mLocationPosition = AdapterView.INVALID_POSITION;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -153,6 +157,9 @@ public class TorrentListActivity extends FragmentActivity
         if (savedInstanceState != null) {
             if (savedInstanceState.containsKey(STATE_INTENT_CONSUMED)) {
                 mIntentConsumed = savedInstanceState.getBoolean(STATE_INTENT_CONSUMED);
+            }
+            if (savedInstanceState.containsKey(STATE_LOCATION_POSITION)) {
+                mLocationPosition = savedInstanceState.getInt(STATE_LOCATION_POSITION);
             }
         }
 
@@ -311,6 +318,7 @@ public class TorrentListActivity extends FragmentActivity
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putBoolean(STATE_INTENT_CONSUMED, mIntentConsumed);
+        outState.putInt(STATE_LOCATION_POSITION, mLocationPosition);
     }
 
     @Override
@@ -491,13 +499,23 @@ public class TorrentListActivity extends FragmentActivity
             Spinner location = (Spinner) view.findViewById(R.id.location_choice);
             location.setAdapter(adapter);
 
-            if (mProfile.getLastDownloadDirectory() != null) {
-                int position = adapter.getPosition(mProfile.getLastDownloadDirectory());
+            if (mLocationPosition == AdapterView.INVALID_POSITION) {
+                if (mProfile.getLastDownloadDirectory() != null) {
+                    int position = adapter.getPosition(mProfile.getLastDownloadDirectory());
 
-                if (position > -1) {
-                    location.setSelection(position);
+                    if (position > -1) {
+                        location.setSelection(position);
+                    }
                 }
+            } else {
+                location.setSelection(mLocationPosition);
             }
+            location.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+                @Override public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+                    mLocationPosition = i;
+                }
+                @Override public void onNothingSelected(AdapterView<?> adapterView) {}
+            });
 
             ((CheckBox) view.findViewById(R.id.start_paused)).setChecked(prefs.getBoolean(G.PREF_START_PAUSED, false));
 

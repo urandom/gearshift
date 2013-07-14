@@ -1,8 +1,5 @@
 package org.sugr.gearshift;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
@@ -16,8 +13,12 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.CheckBox;
 import android.widget.Spinner;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class TorrentDetailFragment extends Fragment {
     public static final String TAG = "detail_fragment";
@@ -31,6 +32,10 @@ public class TorrentDetailFragment extends Fragment {
     private ViewPager mPager;
     private int mCurrentTorrentId = -1;
     private int mCurrentPosition = 0;
+
+    private static final String STATE_LOCATION_POSITION = "location_position";
+
+    private int mLocationPosition = AdapterView.INVALID_POSITION;
 
     private static PagerCallbacks sDummyCallbacks = new PagerCallbacks() {
         @Override
@@ -56,6 +61,11 @@ public class TorrentDetailFragment extends Fragment {
             mCurrentTorrentId = torrents.size() > mCurrentPosition
                 ? torrents.get(mCurrentPosition).getId()
                 : -1;
+        }
+        if (savedInstanceState != null) {
+            if (savedInstanceState.containsKey(STATE_LOCATION_POSITION)) {
+                mLocationPosition = savedInstanceState.getInt(STATE_LOCATION_POSITION);
+            }
         }
 
         setHasOptionsMenu(true);
@@ -253,13 +263,23 @@ public class TorrentDetailFragment extends Fragment {
                 location.setAdapter(adapter);
 
                 TransmissionProfile profile = ((TransmissionSessionInterface) getActivity()).getProfile();
-                if (profile.getLastDownloadDirectory() != null) {
-                    int position = adapter.getPosition(profile.getLastDownloadDirectory());
+                if (mLocationPosition == AdapterView.INVALID_POSITION) {
+                    if (profile.getLastDownloadDirectory() != null) {
+                        int position = adapter.getPosition(profile.getLastDownloadDirectory());
 
-                    if (position > -1) {
-                        location.setSelection(position);
+                        if (position > -1) {
+                            location.setSelection(position);
+                        }
                     }
+                } else {
+                    location.setSelection(mLocationPosition);
                 }
+                location.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+                    @Override public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+                        mLocationPosition = i;
+                    }
+                    @Override public void onNothingSelected(AdapterView<?> adapterView) {}
+                });
 
                 return true;
             case R.id.verify:
@@ -275,6 +295,12 @@ public class TorrentDetailFragment extends Fragment {
         context.setRefreshing(true);
 
         return true;
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putInt(STATE_LOCATION_POSITION, mLocationPosition);
     }
 
     public void setCurrentTorrent(int position) {

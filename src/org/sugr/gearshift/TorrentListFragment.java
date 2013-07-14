@@ -65,6 +65,7 @@ public class TorrentListFragment extends ListFragment {
     private static final String STATE_FIND_SHOWN = "find_shown";
     private static final String STATE_FIND_QUERY = "find_query";
     private static final String STATE_CURRENT_PROFILE = "current_profile";
+    private static final String STATE_LOCATION_POSITION = "location_position";
 
     /**
      * The fragment's current callback object, which is notified of list item
@@ -98,6 +99,8 @@ public class TorrentListFragment extends ListFragment {
     private String mFindQuery;
 
     private boolean mPreventRefreshIndicator;
+
+    private int mLocationPosition = AdapterView.INVALID_POSITION;
 
     /**
      * A callback interface that all activities containing this fragment must
@@ -421,6 +424,9 @@ public class TorrentListFragment extends ListFragment {
                     mFindQuery = savedInstanceState.getString(STATE_FIND_QUERY);
                 }
             }
+            if (savedInstanceState.containsKey(STATE_LOCATION_POSITION)) {
+                mLocationPosition = savedInstanceState.getInt(STATE_LOCATION_POSITION);
+            }
         }
 
         mTorrentListAdapter = new TorrentListAdapter(getActivity());
@@ -545,13 +551,23 @@ public class TorrentListFragment extends ListFragment {
                         Spinner location = (Spinner) dialog.findViewById(R.id.location_choice);
                         location.setAdapter(adapter);
 
-                        if (mProfile.getLastDownloadDirectory() != null) {
-                            int position = adapter.getPosition(mProfile.getLastDownloadDirectory());
+                        if (mLocationPosition == AdapterView.INVALID_POSITION) {
+                            if (mProfile.getLastDownloadDirectory() != null) {
+                                int position = adapter.getPosition(mProfile.getLastDownloadDirectory());
 
-                            if (position > -1) {
-                                location.setSelection(position);
+                                if (position > -1) {
+                                    location.setSelection(position);
+                                }
                             }
+                        } else {
+                            location.setSelection(mLocationPosition);
                         }
+                        location.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+                            @Override public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+                                mLocationPosition = i;
+                            }
+                            @Override public void onNothingSelected(AdapterView<?> adapterView) {}
+                        });
 
                         return true;
                     case R.id.verify:
@@ -667,6 +683,7 @@ public class TorrentListFragment extends ListFragment {
         }
         outState.putBoolean(STATE_FIND_SHOWN, mFindShown);
         outState.putString(STATE_FIND_QUERY, mFindQuery);
+        outState.putInt(STATE_LOCATION_POSITION, mLocationPosition);
     }
 
     @Override

@@ -1,11 +1,5 @@
 package org.sugr.gearshift;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.UUID;
-
 import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -13,6 +7,12 @@ import android.content.SharedPreferences.Editor;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.preference.PreferenceManager;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.UUID;
 
 public class TransmissionProfile implements Parcelable, Comparable<TransmissionProfile> {
     private final String mId;
@@ -279,6 +279,7 @@ public class TransmissionProfile implements Parcelable, Comparable<TransmissionP
         in.writeInt(mTimeout);
         in.writeInt(mRetries);
         in.writeStringList(new ArrayList<String>(mDirectories));
+        in.writeString(mLastDirectory);
     }
 
     public static final Parcelable.Creator<TransmissionProfile> CREATOR
@@ -308,5 +309,6 @@ public class TransmissionProfile implements Parcelable, Comparable<TransmissionP
         ArrayList<String> directories = new ArrayList<String>();
         in.readStringList(directories);
         mDirectories = new HashSet<String>(directories);
+        mLastDirectory = in.readString();
     }
 }
