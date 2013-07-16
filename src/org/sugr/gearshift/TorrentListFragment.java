@@ -425,6 +425,7 @@ public class TorrentListFragment extends ListFragment {
         }
 
         mTorrentListAdapter = new TorrentListAdapter(getActivity());
+        setListAdapter(mTorrentListAdapter);
         if (savedInstanceState != null) {
             if (savedInstanceState.containsKey(STATE_TORRENTS)) {
                 mTorrentListAdapter.setNotifyOnChange(false);
@@ -437,10 +438,6 @@ public class TorrentListFragment extends ListFragment {
                 setActivatedPosition(savedInstanceState.getInt(STATE_ACTIVATED_POSITION));
             }
         }
-        // SwingLeftInAnimationAdapter wrapperAdapter = new SwingLeftInAnimationAdapter(mTorrentListAdapter);
-        // wrapperAdapter.setListView(getListView());
-        // setListAdapter(wrapperAdapter);
-        setListAdapter(mTorrentListAdapter);
     }
 
     @Override
@@ -1287,7 +1284,6 @@ public class TorrentListFragment extends ListFragment {
                 return results;
             }
 
-            @SuppressWarnings("unchecked")
             @Override
             protected void publishResults(CharSequence constraint, FilterResults results) {
                 mObjects = (ArrayList<Torrent>) results.values;
