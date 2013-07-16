@@ -1,10 +1,5 @@
 package org.sugr.gearshift;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-
-import org.sugr.gearshift.TransmissionSessionManager.TransmissionExclusionStrategy;
-
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
@@ -22,6 +17,10 @@ import android.widget.Toast;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
+import org.sugr.gearshift.TransmissionSessionManager.TransmissionExclusionStrategy;
+
+import java.util.ArrayList;
+
 
 /**
  * An activity representing a single Torrent detail screen. This
@@ -35,7 +34,7 @@ import com.google.gson.GsonBuilder;
 public class TorrentDetailActivity extends FragmentActivity implements TransmissionSessionInterface,
        TorrentDetailFragment.PagerCallbacks {
     public static final String ARG_PROFILE = "profile";
-    public static final String ARG_JSON_TORRENTS = "json_torrents";
+    public static final String ARG_TORRENTS = "torrents";
     public static final String ARG_JSON_SESSION = "json_session";
 
     private boolean mRefreshing = false;
@@ -153,8 +152,7 @@ public class TorrentDetailActivity extends FragmentActivity implements Transmiss
 
         Gson gson = new GsonBuilder().setExclusionStrategies(
                 new TransmissionExclusionStrategy()).create();
-        mTorrents = new ArrayList<Torrent>(Arrays.asList(
-                gson.fromJson(in.getStringExtra(ARG_JSON_TORRENTS), Torrent[].class)));
+        mTorrents = in.getParcelableArrayListExtra(ARG_TORRENTS);
         mProfile = in.getParcelableExtra(ARG_PROFILE);
         mProfile.setContext(this);
         setSession(gson.fromJson(in.getStringExtra(ARG_JSON_SESSION), TransmissionSession.class));

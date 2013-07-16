@@ -65,8 +65,6 @@ public class TorrentListFragment extends ListFragment {
     private static final String STATE_FIND_SHOWN = "find_shown";
     private static final String STATE_FIND_QUERY = "find_query";
     private static final String STATE_CURRENT_PROFILE = "current_profile";
-    private static final String STATE_LOCATION_POSITION = "location_position";
-    private static final String STATE_ACTION_MOVE_IDS = "action_move_ids";
     private static final String STATE_TORRENTS = "torrents";
 
     /**
@@ -101,10 +99,6 @@ public class TorrentListFragment extends ListFragment {
     private String mFindQuery;
 
     private boolean mPreventRefreshIndicator;
-
-    private int mLocationPosition = AdapterView.INVALID_POSITION;
-
-    private int[] mActionMoveIds;
 
     /**
      * A callback interface that all activities containing this fragment must
@@ -318,9 +312,7 @@ public class TorrentListFragment extends ListFragment {
                 mRefreshing = false;
                 invalidateMenu = true;
             }
-            if (mActionMoveIds != null) {
-                showMoveDialog(mActionMoveIds);
-            }
+
             if (invalidateMenu)
                 getActivity().invalidateOptionsMenu();
         }
@@ -428,12 +420,7 @@ public class TorrentListFragment extends ListFragment {
                     mFindQuery = savedInstanceState.getString(STATE_FIND_QUERY);
                 }
             }
-            if (savedInstanceState.containsKey(STATE_LOCATION_POSITION)) {
-                mLocationPosition = savedInstanceState.getInt(STATE_LOCATION_POSITION);
-            }
-            if (savedInstanceState.containsKey(STATE_ACTION_MOVE_IDS)) {
-                mActionMoveIds = savedInstanceState.getIntArray(STATE_ACTION_MOVE_IDS);
-            }
+
             mRefreshing = false;
         }
 
@@ -530,7 +517,6 @@ public class TorrentListFragment extends ListFragment {
                         ((TransmissionDataLoader) loader).setTorrentsAction("torrent-stop", ids);
                         break;
                     case R.id.move:
-                        mActionMoveIds = ids;
                         return showMoveDialog(ids);
                     case R.id.verify:
                         ((TransmissionDataLoader) loader).setTorrentsAction("torrent-verify", ids);
@@ -645,8 +631,6 @@ public class TorrentListFragment extends ListFragment {
         }
         outState.putBoolean(STATE_FIND_SHOWN, mFindShown);
         outState.putString(STATE_FIND_QUERY, mFindQuery);
-        outState.putInt(STATE_LOCATION_POSITION, mLocationPosition);
-        outState.putIntArray(STATE_ACTION_MOVE_IDS, mActionMoveIds);
         outState.putParcelableArrayList(STATE_TORRENTS, mTorrentListAdapter.getUnfilteredItems());
     }
 
@@ -806,6 +790,9 @@ public class TorrentListFragment extends ListFragment {
     public void showFind() {
         mFindShown = true;
         mFindQuery = null;
+        if (mActionMode != null) {
+            mActionMode.finish();
+        }
         getActivity().invalidateOptionsMenu();
     }
 
@@ -831,11 +818,7 @@ public class TorrentListFragment extends ListFragment {
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity())
             .setTitle(R.string.set_location)
             .setCancelable(false)
-            .setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
-                @Override public void onClick(DialogInterface dialogInterface, int i) {
-                    mActionMoveIds = null;
-                }
-            })
+            .setNegativeButton(android.R.string.no, null)
             .setPositiveButton(android.R.string.yes,
             new DialogInterface.OnClickListener() {
             @Override public void onClick(DialogInterface dialog, int id) {
@@ -848,7 +831,6 @@ public class TorrentListFragment extends ListFragment {
                 mRefreshing = true;
                 getActivity().invalidateOptionsMenu();
 
-                mActionMoveIds = null;
                 if (mActionMode != null) {
                     mActionMode.finish();
                 }
@@ -873,23 +855,13 @@ public class TorrentListFragment extends ListFragment {
         Spinner location = (Spinner) dialog.findViewById(R.id.location_choice);
         location.setAdapter(adapter);
 
-        if (mLocationPosition == AdapterView.INVALID_POSITION) {
-            if (mProfile.getLastDownloadDirectory() != null) {
-                int position = adapter.getPosition(mProfile.getLastDownloadDirectory());
+        if (mProfile.getLastDownloadDirectory() != null) {
+            int position = adapter.getPosition(mProfile.getLastDownloadDirectory());
 
-                if (position > -1) {
-                    location.setSelection(position);
-                }
+            if (position > -1) {
+                location.setSelection(position);
             }
-        } else {
-            location.setSelection(mLocationPosition);
         }
-        location.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
-                mLocationPosition = i;
-            }
-            @Override public void onNothingSelected(AdapterView<?> adapterView) {}
-        });
 
         return true;
     }
@@ -1186,11 +1158,16 @@ public class TorrentListFragment extends ListFragment {
         }
 
         private void applyFilter(String value, String pref, boolean animate) {
+            if (mActionMode != null) {
+                mActionMode.finish();
+            }
+
             if (pref != null) {
                 Editor e = mSharedPrefs.edit();
                 e.putString(pref, value);
                 e.apply();
             }
+
             mTorrentComparator.setSortingMethod(mSortBy, mSortOrder);
             repeatFilter();
             if (animate) {

@@ -217,8 +217,8 @@ public class TorrentListActivity extends FragmentActivity
             detailIntent.putExtra(TorrentDetailFragment.ARG_PAGE_POSITION, mTorrents.indexOf(torrent));
             detailIntent.putExtra(TorrentDetailActivity.ARG_PROFILE, mProfile);
             Gson gson = new GsonBuilder().setExclusionStrategies(new TransmissionExclusionStrategy()).create();
-            detailIntent.putExtra(TorrentDetailActivity.ARG_JSON_TORRENTS,
-                    gson.toJson(mTorrents.toArray(new Torrent[mTorrents.size()])));
+            detailIntent.putParcelableArrayListExtra(
+                    TorrentDetailActivity.ARG_TORRENTS, mTorrents);
             detailIntent.putExtra(TorrentDetailActivity.ARG_JSON_SESSION, gson.toJson(mSession));
             detailIntent.putExtra(G.ARG_DIRECTORIES,
                     new ArrayList<String>(mSession.getDownloadDirectories()));

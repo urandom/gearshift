@@ -1,14 +1,14 @@
 package org.sugr.gearshift;
 
-import org.sugr.gearshift.TransmissionSessionManager.Exclude;
-
 import android.content.Context;
-import android.text.Html;
-import android.text.Spanned;
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.text.Html;
+import android.text.Spanned;
 
 import com.google.gson.annotations.SerializedName;
+
+import org.sugr.gearshift.TransmissionSessionManager.Exclude;
 
 public class Torrent implements Parcelable {
     @Exclude public static final class SetterFields {
@@ -1222,20 +1222,13 @@ public class Torrent implements Parcelable {
         in.writeByte((byte) (mStalled ? 1 : 0));
         in.writeByte((byte) (mFinished ? 1 : 0));
         in.writeString(mDownloadDir);
+
+        in.writeLong(mSizeWhenDone);
+        in.writeLong(mLeftUntilDone);
+        in.writeLong(mUploadedEver);
+        in.writeLong(mEta);
+        in.writeLong(mTotalSize);
     }
-
-    public static final Parcelable.Creator<Torrent> CREATOR
-            = new Parcelable.Creator<Torrent>() {
-        @Override
-        public Torrent createFromParcel(Parcel in) {
-            return new Torrent(in);
-        }
-
-        @Override
-        public Torrent[] newArray(int size) {
-            return new Torrent[size];
-        }
-    };
 
     private Torrent(Parcel in) {
         mId = in.readInt();
@@ -1253,5 +1246,25 @@ public class Torrent implements Parcelable {
         mStalled = in.readByte() == 1;
         mFinished = in.readByte() == 1;
         mDownloadDir = in.readString();
+
+        mSizeWhenDone = in.readLong();
+        mLeftUntilDone = in.readLong();
+        mUploadedEver = in.readLong();
+        mEta = in.readLong();
+        mTotalSize = in.readLong();
     }
+
+    public static final Parcelable.Creator<Torrent> CREATOR
+            = new Parcelable.Creator<Torrent>() {
+        @Override
+        public Torrent createFromParcel(Parcel in) {
+            return new Torrent(in);
+        }
+
+        @Override
+        public Torrent[] newArray(int size) {
+            return new Torrent[size];
+        }
+    };
+
 }
