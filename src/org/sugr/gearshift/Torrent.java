@@ -5,10 +5,12 @@ import org.sugr.gearshift.TransmissionSessionManager.Exclude;
 import android.content.Context;
 import android.text.Html;
 import android.text.Spanned;
+import android.os.Parcel;
+import android.os.Parcelable;
 
 import com.google.gson.annotations.SerializedName;
 
-public class Torrent {
+public class Torrent implements Parcelable {
     @Exclude public static final class SetterFields {
         public static final String DOWNLOAD_LIMIT = "downloadLimit";
         public static final String DOWNLOAD_LIMITED = "downloadLimited";
@@ -345,46 +347,46 @@ public class Torrent {
             return mRateToPeer;
         }
         public void setAddress(String address) {
-            this.mAddress = address;
+            mAddress = address;
         }
         public void setClientName(String clientName) {
-            this.mClientName = clientName;
+            mClientName = clientName;
         }
         public void setClientChoked(boolean clientChoked) {
-            this.mClientChoked = clientChoked;
+            mClientChoked = clientChoked;
         }
         public void setClientInterested(boolean clientInterested) {
-            this.mClientInterested = clientInterested;
+            mClientInterested = clientInterested;
         }
         public void setDownloadingFrom(boolean downloadingFrom) {
-            this.mDownloadingFrom = downloadingFrom;
+            mDownloadingFrom = downloadingFrom;
         }
         public void setEncrypted(boolean encrypted) {
-            this.mEncrypted = encrypted;
+            mEncrypted = encrypted;
         }
         public void setIncoming(boolean incoming) {
-            this.mIncoming = incoming;
+            mIncoming = incoming;
         }
         public void setUploadingTo(boolean uploadingTo) {
-            this.mUploadingTo = uploadingTo;
+            mUploadingTo = uploadingTo;
         }
         public void setPeerChoked(boolean peerChoked) {
-            this.mPeerChoked = peerChoked;
+            mPeerChoked = peerChoked;
         }
         public void setPeerInterested(boolean peerInterested) {
-            this.mPeerInterested = peerInterested;
+            mPeerInterested = peerInterested;
         }
         public void setPort(int port) {
-            this.mPort = port;
+            mPort = port;
         }
         public void setProgress(float progress) {
-            this.mProgress = progress;
+            mProgress = progress;
         }
         public void setRateToClient(long rateToClient) {
-            this.mRateToClient = rateToClient;
+            mRateToClient = rateToClient;
         }
         public void setRateToPeer(long rateToPeer) {
-            this.mRateToPeer = rateToPeer;
+            mRateToPeer = rateToPeer;
         }
     }
 
@@ -630,175 +632,175 @@ public class Torrent {
     }
 
     public void setId(int id) {
-        this.mId = id;
+        mId = id;
     }
 
     public void setStatus(int status) {
-        this.mStatus = status;
+        mStatus = status;
     }
 
     public void setName(String name) {
-        this.mName = name;
+        mName = name;
     }
 
     public void setError(int error) {
-        this.mError = error;
+        mError = error;
     }
 
     public void setErrorString(String errorString) {
-        this.mErrorString = errorString;
+        mErrorString = errorString;
     }
 
     public void setMetadataPercentComplete(float metadataPercentComplete) {
-        this.mMetadataPercentComplete = metadataPercentComplete;
+        mMetadataPercentComplete = metadataPercentComplete;
     }
 
     public void setPercentDone(float percentDone) {
-        this.mPercentDone = percentDone;
+        mPercentDone = percentDone;
     }
 
     public void setEta(long eta) {
-        this.mEta = eta;
+        mEta = eta;
     }
 
     public void setFinished(boolean finished) {
-        this.mFinished = finished;
+        mFinished = finished;
     }
 
     public void setStalled(boolean stalled) {
-        this.mStalled = stalled;
+        mStalled = stalled;
     }
 
     public void setPeersConnected(int peersConnected) {
-        this.mPeersConnected = peersConnected;
+        mPeersConnected = peersConnected;
     }
 
     public void setPeersGettingFromUs(int peersGettingFromUs) {
-        this.mPeersGettingFromUs = peersGettingFromUs;
+        mPeersGettingFromUs = peersGettingFromUs;
     }
 
     public void setPeersSendingToUs(int peersSendingToUs) {
-        this.mPeersSendingToUs = peersSendingToUs;
+        mPeersSendingToUs = peersSendingToUs;
     }
 
     public void setLeftUntilDone(long leftUntilDone) {
-        this.mLeftUntilDone = leftUntilDone;
+        mLeftUntilDone = leftUntilDone;
     }
 
     public void setDesiredAvailable(long desiredAvailable) {
-        this.mDesiredAvailable = desiredAvailable;
+        mDesiredAvailable = desiredAvailable;
     }
 
     public void setTotalSize(long totalSize) {
-        this.mTotalSize = totalSize;
+        mTotalSize = totalSize;
     }
 
     public void setSizeWhenDone(long sizeWhenDone) {
-        this.mSizeWhenDone = sizeWhenDone;
+        mSizeWhenDone = sizeWhenDone;
     }
 
     public void setRateDownload(long rateDownload) {
-        this.mRateDownload = rateDownload;
+        mRateDownload = rateDownload;
     }
 
     public void setRateUpload(long rateUpload) {
-        this.mRateUpload = rateUpload;
+        mRateUpload = rateUpload;
     }
 
     public void setQueuePosition(int queuePosition) {
-        this.mQueuePosition = queuePosition;
+        mQueuePosition = queuePosition;
     }
 
     public void setRecheckProgress(float recheckProgress) {
-        this.mRecheckProgress = recheckProgress;
+        mRecheckProgress = recheckProgress;
     }
 
     public void setSeedRatioMode(int seedRatioMode) {
-        this.mSeedRatioMode = seedRatioMode;
+        mSeedRatioMode = seedRatioMode;
     }
 
     public void setSeedRatioLimit(float seedRatioLimit) {
-        this.mSeedRatioLimit = seedRatioLimit;
+        mSeedRatioLimit = seedRatioLimit;
     }
 
     public void setUploadedEver(long uploadedEver) {
-        this.mUploadedEver = uploadedEver;
+        mUploadedEver = uploadedEver;
     }
 
     public void setUploadRatio(float uploadRatio) {
-        this.mUploadRatio = uploadRatio;
+        mUploadRatio = uploadRatio;
     }
 
     public void setAddedDate(long addedDate) {
-        this.mAddedDate = addedDate;
+        mAddedDate = addedDate;
     }
 
     public void setDoneDate(long doneDate) {
-        this.mDoneDate = doneDate;
+        mDoneDate = doneDate;
     }
 
     public void setStartDate(long startDate) {
-        this.mStartDate = startDate;
+        mStartDate = startDate;
     }
 
     public void setActivityDate(long activityDate) {
-        this.mActivityDate = activityDate;
+        mActivityDate = activityDate;
     }
 
     public void setCorruptEver(long corruptEver) {
-        this.mCorruptEver = corruptEver;
+        mCorruptEver = corruptEver;
     }
 
     public void setDownloadDir(String downloadDir) {
-        this.mDownloadDir = downloadDir;
+        mDownloadDir = downloadDir;
     }
 
     public void setDownloadedEver(long downloadedEver) {
-        this.mDownloadedEver = downloadedEver;
+        mDownloadedEver = downloadedEver;
     }
 
     public void setHaveUnchecked(long haveUnchecked) {
-        this.mHaveUnchecked = haveUnchecked;
+        mHaveUnchecked = haveUnchecked;
     }
 
     public void setHaveValid(long haveValid) {
-        this.mHaveValid = haveValid;
+        mHaveValid = haveValid;
     }
 
     public void setTrackers(Tracker[] trackers) {
-        this.mTrackers = trackers;
+        mTrackers = trackers;
     }
 
     public void setTorrentPriority(int priority) {
-        this.mTorrentPriority = priority;
+        mTorrentPriority = priority;
     }
 
     public void setComment(String comment) {
-        this.mComment = comment;
+        mComment = comment;
     }
 
     public void setCreator(String creator) {
-        this.mCreator = creator;
+        mCreator = creator;
     }
 
     public void setDateCreated(long dateCreated) {
-        this.mDateCreated = dateCreated;
+        mDateCreated = dateCreated;
     }
 
     public void setDownloadLimit(long limit) {
-        this.mDownloadLimit = limit;
+        mDownloadLimit = limit;
     }
 
     public void setDownloadLimited(boolean limited) {
-        this.mDownloadLimited = limited;
+        mDownloadLimited = limited;
     }
 
     public void setFiles(File[] files) {
-        this.mFiles = files;
+        mFiles = files;
     }
 
     public void setHashString(String hashString) {
-        this.mHashString = hashString;
+        mHashString = hashString;
     }
 
     public void setHonorsSessionLimits(boolean limits) {
@@ -806,35 +808,35 @@ public class Torrent {
     }
 
     public void setPrivate(boolean priv) {
-        this.mPrivate = priv;
+        mPrivate = priv;
     }
 
     public void setPieceCount(int pieceCount) {
-        this.mPieceCount = pieceCount;
+        mPieceCount = pieceCount;
     }
 
     public void setPieceSize(long pieceSize) {
-        this.mPieceSize = pieceSize;
+        mPieceSize = pieceSize;
     }
 
     public void setUploadLimit(long limit) {
-        this.mUploadLimit = limit;
+        mUploadLimit = limit;
     }
 
     public void setUploadLimited(boolean limited) {
-        this.mUploadLimited = limited;
+        mUploadLimited = limited;
     }
 
     public void setFileStats(FileStat[] fileStats) {
-        this.mFileStats = fileStats;
+        mFileStats = fileStats;
     }
 
     public void setWebseedsSendingToUs(int webseedsSendingToUs) {
-        this.mWebseedsSendingToUs = webseedsSendingToUs;
+        mWebseedsSendingToUs = webseedsSendingToUs;
     }
 
     public void setPeers(Peer[] peers) {
-        this.mPeers = peers;
+        mPeers = peers;
     }
 
     public void setPeerLimit(int peers) {
@@ -1195,5 +1197,61 @@ public class Torrent {
     @Override
     public String toString() {
         return mId + ": " + mName;
+    }
+
+    /* Just enough to regenerate the torrent list */
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel in, int flags) {
+        in.writeInt(mId);
+        in.writeString(mName);
+        in.writeFloat(mMetadataPercentComplete);
+        in.writeFloat(mPercentDone);
+        in.writeInt(mSeedRatioMode);
+        in.writeFloat(mSeedRatioLimit);
+        in.writeFloat(mUploadRatio);
+        in.writeString(Html.toHtml(mTrafficText));
+        in.writeString(Html.toHtml(mStatusText));
+        in.writeInt(getStatus());
+        in.writeInt(mError);
+        in.writeString(mErrorString);
+        in.writeByte((byte) (mStalled ? 1 : 0));
+        in.writeByte((byte) (mFinished ? 1 : 0));
+        in.writeString(mDownloadDir);
+    }
+
+    public static final Parcelable.Creator<Torrent> CREATOR
+            = new Parcelable.Creator<Torrent>() {
+        @Override
+        public Torrent createFromParcel(Parcel in) {
+            return new Torrent(in);
+        }
+
+        @Override
+        public Torrent[] newArray(int size) {
+            return new Torrent[size];
+        }
+    };
+
+    private Torrent(Parcel in) {
+        mId = in.readInt();
+        mName = in.readString();
+        mMetadataPercentComplete = in.readFloat();
+        mPercentDone = in.readFloat();
+        mSeedRatioMode = in.readInt();
+        mSeedRatioLimit = in.readFloat();
+        mUploadRatio = in.readFloat();
+        mTrafficText = Html.fromHtml(in.readString());
+        mStatusText = Html.fromHtml(in.readString());
+        mStatus = in.readInt();
+        mError = in.readInt();
+        mErrorString = in.readString();
+        mStalled = in.readByte() == 1;
+        mFinished = in.readByte() == 1;
+        mDownloadDir = in.readString();
     }
 }

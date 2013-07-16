@@ -67,6 +67,7 @@ public class TorrentListFragment extends ListFragment {
     private static final String STATE_CURRENT_PROFILE = "current_profile";
     private static final String STATE_LOCATION_POSITION = "location_position";
     private static final String STATE_ACTION_MOVE_IDS = "action_move_ids";
+    private static final String STATE_TORRENTS = "torrents";
 
     /**
      * The fragment's current callback object, which is notified of list item
@@ -421,9 +422,6 @@ public class TorrentListFragment extends ListFragment {
 
         // Restore the previously serialized activated item position.
         if (savedInstanceState != null) {
-            if (savedInstanceState.containsKey(STATE_ACTIVATED_POSITION)){
-                setActivatedPosition(savedInstanceState.getInt(STATE_ACTIVATED_POSITION));
-            }
             if (savedInstanceState.containsKey(STATE_FIND_SHOWN)) {
                 mFindShown = savedInstanceState.getBoolean(STATE_FIND_SHOWN);
                 if (savedInstanceState.containsKey(STATE_FIND_QUERY)) {
@@ -440,6 +438,18 @@ public class TorrentListFragment extends ListFragment {
         }
 
         mTorrentListAdapter = new TorrentListAdapter(getActivity());
+        if (savedInstanceState != null) {
+            if (savedInstanceState.containsKey(STATE_TORRENTS)) {
+                mTorrentListAdapter.setNotifyOnChange(false);
+                mTorrentListAdapter.clear();
+                ArrayList<Torrent> torrents = savedInstanceState.getParcelableArrayList(STATE_TORRENTS);
+                mTorrentListAdapter.addAll(torrents);
+                mTorrentListAdapter.repeatFilter();
+            }
+            if (savedInstanceState.containsKey(STATE_ACTIVATED_POSITION)){
+                setActivatedPosition(savedInstanceState.getInt(STATE_ACTIVATED_POSITION));
+            }
+        }
         // SwingLeftInAnimationAdapter wrapperAdapter = new SwingLeftInAnimationAdapter(mTorrentListAdapter);
         // wrapperAdapter.setListView(getListView());
         // setListAdapter(wrapperAdapter);
@@ -637,6 +647,7 @@ public class TorrentListFragment extends ListFragment {
         outState.putString(STATE_FIND_QUERY, mFindQuery);
         outState.putInt(STATE_LOCATION_POSITION, mLocationPosition);
         outState.putIntArray(STATE_ACTION_MOVE_IDS, mActionMoveIds);
+        outState.putParcelableArrayList(STATE_TORRENTS, mTorrentListAdapter.getUnfilteredItems());
     }
 
     @Override
@@ -1111,6 +1122,16 @@ public class TorrentListFragment extends ListFragment {
                     return mOriginalValues.size();
                 } else {
                     return mObjects.size();
+                }
+            }
+        }
+
+        public ArrayList<Torrent> getUnfilteredItems() {
+            synchronized(mLock) {
+                if (mOriginalValues != null) {
+                    return mOriginalValues;
+                } else {
+                    return mObjects;
                 }
             }
         }
