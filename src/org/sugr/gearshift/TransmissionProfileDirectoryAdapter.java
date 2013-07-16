@@ -1,6 +1,7 @@
 package org.sugr.gearshift;
 
 import android.content.Context;
+import android.text.TextUtils;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
@@ -18,6 +19,7 @@ public class TransmissionProfileDirectoryAdapter extends ArrayAdapter<String> {
         View view = super.getView(position, convertView, parent);
 
         TextView textView = (TextView) view.findViewById(android.R.id.text1);
+        textView.setEllipsize(TextUtils.TruncateAt.MIDDLE);
         String text = (String) textView.getText();
 
         int lastSlash = text.lastIndexOf('/');
@@ -37,6 +39,7 @@ public class TransmissionProfileDirectoryAdapter extends ArrayAdapter<String> {
         View view = super.getDropDownView(position, convertView, parent);
 
         TextView textView = (TextView) view.findViewById(android.R.id.text1);
+        textView.setEllipsize(TextUtils.TruncateAt.MIDDLE);
         String text = (String) textView.getText();
 
         int lastSlash = text.lastIndexOf('/');
