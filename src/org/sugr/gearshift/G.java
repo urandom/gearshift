@@ -71,9 +71,9 @@ class G {
     public static final String ARG_PROFILE = "profile";
     public static final String ARG_PROFILE_ID = "profile_id";
     public static final String ARG_DIRECTORIES = "directories";
+    public static final String ARG_PAGE_POSITION = "page_position";
 
     public static final String DETAIL_FRAGMENT_TAG = "detail_fragment";
-    public static final String ARG_PAGE_POSITION = "page_position";
 
     public static final int PROFILES_LOADER_ID = 1;
     public static final int TORRENTS_LOADER_ID = 2;

@@ -44,9 +44,6 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
 public class TransmissionSessionActivity extends FragmentActivity {
-    public static final String ARG_PROFILE = "profile";
-    public static final String ARG_JSON_SESSION = "json_session";
-
     private TransmissionProfile mProfile;
     private TransmissionSession mSession;
 
@@ -180,8 +177,8 @@ public class TransmissionSessionActivity extends FragmentActivity {
         Intent in = getIntent();
         Gson gson = new GsonBuilder().setExclusionStrategies(new TransmissionExclusionStrategy()).create();
 
-        mProfile = in.getParcelableExtra(ARG_PROFILE);
-        mSession = gson.fromJson(in.getStringExtra(ARG_JSON_SESSION), TransmissionSession.class);
+        mProfile = in.getParcelableExtra(G.ARG_PROFILE);
+        mSession = gson.fromJson(in.getStringExtra(G.ARG_JSON_SESSION), TransmissionSession.class);
 
         super.onCreate(savedInstanceState);
 

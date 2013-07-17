@@ -238,8 +238,8 @@ public class TorrentDetailPageFragment extends Fragment {
         super.onCreate(savedInstanceState);
         mExpandedStates[Expanders.OVERVIEW] = true;
 
-        if (getArguments().containsKey(TorrentDetailFragment.ARG_PAGE_POSITION)) {
-            int position = getArguments().getInt(TorrentDetailFragment.ARG_PAGE_POSITION);
+        if (getArguments().containsKey(G.ARG_PAGE_POSITION)) {
+            int position = getArguments().getInt(G.ARG_PAGE_POSITION);
             ArrayList<Torrent> torrents = ((TransmissionSessionInterface) getActivity()).getTorrents();
 
             if (position < torrents.size())

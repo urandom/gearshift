@@ -204,8 +204,7 @@ public class TorrentListActivity extends FragmentActivity
                     TorrentDetailFragment.TAG);
             if (fragment == null) {
                 mDetailArguments = new Bundle();
-                mDetailArguments.putInt(
-                        TorrentDetailFragment.ARG_PAGE_POSITION, current);
+                mDetailArguments.putInt(G.ARG_PAGE_POSITION, current);
             } else {
                 fragment.setCurrentTorrent(current);
             }
@@ -214,12 +213,12 @@ public class TorrentListActivity extends FragmentActivity
             // In single-pane mode, simply start the detail activity
             // for the selected item ID.
             Intent detailIntent = new Intent(this, TorrentDetailActivity.class);
-            detailIntent.putExtra(TorrentDetailFragment.ARG_PAGE_POSITION, mTorrents.indexOf(torrent));
-            detailIntent.putExtra(TorrentDetailActivity.ARG_PROFILE, mProfile);
+            detailIntent.putExtra(G.ARG_PAGE_POSITION, mTorrents.indexOf(torrent));
+            detailIntent.putExtra(G.ARG_PROFILE, mProfile);
             Gson gson = new GsonBuilder().setExclusionStrategies(new TransmissionExclusionStrategy()).create();
             detailIntent.putParcelableArrayListExtra(
                     TorrentDetailActivity.ARG_TORRENTS, mTorrents);
-            detailIntent.putExtra(TorrentDetailActivity.ARG_JSON_SESSION, gson.toJson(mSession));
+            detailIntent.putExtra(G.ARG_JSON_SESSION, gson.toJson(mSession));
             detailIntent.putExtra(G.ARG_DIRECTORIES,
                     new ArrayList<String>(mSession.getDownloadDirectories()));
             startActivity(detailIntent);
@@ -294,8 +293,8 @@ public class TorrentListActivity extends FragmentActivity
                 }
             case R.id.menu_session_settings:
                 intent = new Intent(this, TransmissionSessionActivity.class);
-                intent.putExtra(TransmissionSessionActivity.ARG_PROFILE, mProfile);
-                intent.putExtra(TransmissionSessionActivity.ARG_JSON_SESSION, gson.toJson(mSession));
+                intent.putExtra(G.ARG_PROFILE, mProfile);
+                intent.putExtra(G.ARG_JSON_SESSION, gson.toJson(mSession));
                 startActivity(intent);
                 return true;
             case R.id.menu_settings:
@@ -305,7 +304,7 @@ public class TorrentListActivity extends FragmentActivity
                     directories.remove(mSession.getDownloadDir());
                     intent.putExtra(G.ARG_DIRECTORIES, directories);
                 }
-                intent.putExtra(SettingsActivity.ARG_PROFILE_ID, mProfile.getId());
+                intent.putExtra(G.ARG_PROFILE_ID, mProfile.getId());
                 startActivity(intent);
                 return true;
             case R.id.menu_about:

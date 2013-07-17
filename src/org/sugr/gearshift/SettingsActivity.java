@@ -22,8 +22,6 @@ import java.util.List;
 public class SettingsActivity extends PreferenceActivity
         implements LoaderManager.LoaderCallbacks<TransmissionProfile[]> {
 
-    public static final String ARG_PROFILE_ID = "profile_id";
-
     private Header mAppPreferencesHeader;
     private Header mFiltersHeader;
     private Header mSortHeader;
@@ -153,7 +151,7 @@ public class SettingsActivity extends PreferenceActivity
         args.putString(G.ARG_PROFILE_ID, profile.getId());
 
         Intent intent = getIntent();
-        if (profile.getId().equals(intent.getStringExtra(SettingsActivity.ARG_PROFILE_ID))) {
+        if (profile.getId().equals(intent.getStringExtra(G.ARG_PROFILE_ID))) {
             args.putStringArrayList(G.ARG_DIRECTORIES,
                     intent.getStringArrayListExtra(G.ARG_DIRECTORIES));
         }

@@ -33,9 +33,7 @@ import java.util.ArrayList;
  */
 public class TorrentDetailActivity extends FragmentActivity implements TransmissionSessionInterface,
        TorrentDetailFragment.PagerCallbacks {
-    public static final String ARG_PROFILE = "profile";
     public static final String ARG_TORRENTS = "torrents";
-    public static final String ARG_JSON_SESSION = "json_session";
 
     private boolean mRefreshing = false;
 
@@ -153,9 +151,9 @@ public class TorrentDetailActivity extends FragmentActivity implements Transmiss
         Gson gson = new GsonBuilder().setExclusionStrategies(
                 new TransmissionExclusionStrategy()).create();
         mTorrents = in.getParcelableArrayListExtra(ARG_TORRENTS);
-        mProfile = in.getParcelableExtra(ARG_PROFILE);
+        mProfile = in.getParcelableExtra(G.ARG_PROFILE);
         mProfile.setContext(this);
-        setSession(gson.fromJson(in.getStringExtra(ARG_JSON_SESSION), TransmissionSession.class));
+        setSession(gson.fromJson(in.getStringExtra(G.ARG_JSON_SESSION), TransmissionSession.class));
         mSession.setDownloadDirectories(in.getStringArrayListExtra(G.ARG_DIRECTORIES));
 
         super.onCreate(savedInstanceState);
@@ -164,14 +162,13 @@ public class TorrentDetailActivity extends FragmentActivity implements Transmiss
         // Show the Up button in the action bar.
         getActionBar().setDisplayHomeAsUpEnabled(true);
 
-        mCurrentTorrent = in.getIntExtra(TorrentDetailFragment.ARG_PAGE_POSITION, 0);
+        mCurrentTorrent = in.getIntExtra(G.ARG_PAGE_POSITION, 0);
         if (mCurrentTorrent < 0) {
             mCurrentTorrent = 0;
         }
         if (savedInstanceState == null) {
             Bundle arguments = new Bundle();
-            arguments.putInt(TorrentDetailFragment.ARG_PAGE_POSITION,
-                    mCurrentTorrent);
+            arguments.putInt(G.ARG_PAGE_POSITION, mCurrentTorrent);
             arguments.putBoolean(TorrentDetailFragment.ARG_SHOW_PAGER,
                     true);
             TorrentDetailFragment fragment = new TorrentDetailFragment();

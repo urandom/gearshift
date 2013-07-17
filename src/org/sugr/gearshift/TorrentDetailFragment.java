@@ -22,7 +22,6 @@ import java.util.List;
 
 public class TorrentDetailFragment extends Fragment {
     public static final String TAG = "detail_fragment";
-    public static final String ARG_PAGE_POSITION = "page_position";
     public static final String ARG_SHOW_PAGER = "show_pager";
     public interface PagerCallbacks {
         public void onPageSelected(int position);
@@ -55,8 +54,8 @@ public class TorrentDetailFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        if (getArguments().containsKey(ARG_PAGE_POSITION)) {
-            mCurrentPosition = getArguments().getInt(ARG_PAGE_POSITION);
+        if (getArguments().containsKey(G.ARG_PAGE_POSITION)) {
+            mCurrentPosition = getArguments().getInt(G.ARG_PAGE_POSITION);
             if (mCurrentPosition < 0) {
                 mCurrentPosition = 0;
             }
