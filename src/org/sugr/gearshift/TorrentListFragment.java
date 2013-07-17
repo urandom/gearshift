@@ -8,6 +8,7 @@ import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.os.Bundle;
+import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.ListFragment;
@@ -409,7 +410,7 @@ public class TorrentListFragment extends ListFragment {
     }
 
     @Override
-    public void onViewCreated(View view, Bundle savedInstanceState) {
+    public void onViewCreated(View view, final Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
         // Restore the previously serialized activated item position.
@@ -426,17 +427,24 @@ public class TorrentListFragment extends ListFragment {
 
         mTorrentListAdapter = new TorrentListAdapter(getActivity());
         setListAdapter(mTorrentListAdapter);
-        if (savedInstanceState != null) {
-            if (savedInstanceState.containsKey(STATE_TORRENTS)) {
-                mTorrentListAdapter.setNotifyOnChange(false);
-                mTorrentListAdapter.clear();
-                ArrayList<Torrent> torrents = savedInstanceState.getParcelableArrayList(STATE_TORRENTS);
-                mTorrentListAdapter.addAll(torrents);
-                mTorrentListAdapter.repeatFilter();
-            }
-            if (savedInstanceState.containsKey(STATE_ACTIVATED_POSITION)){
-                setActivatedPosition(savedInstanceState.getInt(STATE_ACTIVATED_POSITION));
-            }
+        if (savedInstanceState != null &&
+                (savedInstanceState.containsKey(STATE_TORRENTS) || savedInstanceState.containsKey(STATE_ACTIVATED_POSITION))) {
+            new Handler().post(new Runnable() {
+                @Override
+                public void run() {
+                    if (savedInstanceState.containsKey(STATE_TORRENTS)) {
+                        mTorrentListAdapter.setNotifyOnChange(false);
+                        mTorrentListAdapter.clear();
+                        ArrayList<Torrent> torrents = savedInstanceState.getParcelableArrayList(STATE_TORRENTS);
+                        mTorrentListAdapter.addAll(torrents);
+                        mTorrentListAdapter.repeatFilter();
+                    }
+                    if (savedInstanceState.containsKey(STATE_ACTIVATED_POSITION)) {
+                        setActivatedPosition(savedInstanceState.getInt(STATE_ACTIVATED_POSITION));
+                    }
+                }
+            });
+
         }
     }
 
@@ -988,6 +996,7 @@ public class TorrentListFragment extends ListFragment {
             Torrent torrent = getItem(position);
 
             if (rowView == null) {
+                G.logD("Creating a new torrent row");
                 LayoutInflater vi = (LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
                 rowView = vi.inflate(R.layout.torrent_list_item, parent, false);
             }
