@@ -149,13 +149,27 @@ public class TransmissionProfile implements Parcelable, Comparable<TransmissionP
     public void load(SharedPreferences pref) {
         mName = pref.getString(G.PREF_NAME, "").trim();
         mHost = pref.getString(G.PREF_HOST, "").trim();
-        mPort = Integer.parseInt(pref.getString(G.PREF_PORT, "-1"));
+        try {
+            mPort = Integer.parseInt(pref.getString(G.PREF_PORT, "9091"));
+            if (mPort < 1) mPort = 1;
+            else if (mPort > 65535) mPort = 65535;
+        } catch (NumberFormatException e) {
+            mPort = 65535;
+        }
         mPath = pref.getString(G.PREF_PATH, "").trim();
         mUsername = pref.getString(G.PREF_USER, "").trim();
         mPassword = pref.getString(G.PREF_PASS, "").trim();
         mUseSSL = pref.getBoolean(G.PREF_SSL, false);
-        mTimeout = Integer.parseInt(pref.getString(G.PREF_TIMEOUT, "-1"));
-        mRetries = Integer.parseInt(pref.getString(G.PREF_RETRIES, "-1"));
+        try {
+            mTimeout = Integer.parseInt(pref.getString(G.PREF_TIMEOUT, "-1"));
+        } catch (NumberFormatException e) {
+            mTimeout = Integer.MAX_VALUE;
+        }
+        try {
+            mRetries = Integer.parseInt(pref.getString(G.PREF_RETRIES, "-1"));
+        } catch (NumberFormatException e) {
+            mRetries = Integer.MAX_VALUE;
+        }
         mDirectories = pref.getStringSet(G.PREF_DIRECTORIES, new HashSet<String>());
 
         mLastDirectory = pref.getString(G.PREF_LAST_DIRECTORY, "");

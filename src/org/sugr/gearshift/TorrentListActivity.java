@@ -300,9 +300,11 @@ public class TorrentListActivity extends FragmentActivity
                 return true;
             case R.id.menu_settings:
                 intent = new Intent(this, SettingsActivity.class);
-                ArrayList<String> directories = new ArrayList<String>(mSession.getDownloadDirectories());
-                directories.remove(mSession.getDownloadDir());
-                intent.putExtra(G.ARG_DIRECTORIES, directories);
+                if (mSession != null) {
+                    ArrayList<String> directories = new ArrayList<String>(mSession.getDownloadDirectories());
+                    directories.remove(mSession.getDownloadDir());
+                    intent.putExtra(G.ARG_DIRECTORIES, directories);
+                }
                 intent.putExtra(SettingsActivity.ARG_PROFILE_ID, mProfile.getId());
                 startActivity(intent);
                 return true;
