@@ -1,5 +1,8 @@
 package org.sugr.gearshift;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
@@ -9,7 +12,7 @@ import org.sugr.gearshift.TransmissionSessionManager.Exclude;
 
 import com.google.gson.annotations.SerializedName;
 
-public class TransmissionSession {
+public class TransmissionSession implements Parcelable {
     @Exclude public static final class SetterFields {
         public static final String ALT_SPEED_LIMIT_ENABLED = "alt-speed-enabled";
         public static final String ALT_DOWNLOAD_SPEED_LIMIT = "alt-speed-down";
@@ -502,4 +505,115 @@ public class TransmissionSession {
     public Set<String> getDownloadDirectories() {
         return mDownloadDirectories;
     }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel in, int flags) {
+        in.writeByte((byte) (mAltSpeedEnabled ? 1 : 0));
+        in.writeLong(mAltSpeedDown);
+        in.writeLong(mAltSpeedUp);
+        in.writeByte((byte) (mAltSpeedTimeEnabled ? 1 : 0));
+        in.writeInt(mAltSpeedTimeBegin);
+        in.writeInt(mAltSpeedTimeEnd);
+        in.writeByte((byte) (mBlocklistEnabled ? 1 : 0));
+        in.writeLong(mBlocklistSize);
+        in.writeString(mBlocklistURL);
+        in.writeByte((byte) (mDHTEnabled ? 1 : 0));
+        in.writeString(mEncryption);
+        in.writeLong(mCacheSize);
+        in.writeString(mDownloadDir);
+        in.writeLong(mDownloadDirFreeSpace);
+        in.writeInt(mDownloadQueueSize);
+        in.writeByte((byte) (mDownloadQueueEnabled ? 1 : 0));
+        in.writeString(mIncompleteDir);
+        in.writeByte((byte) (mIncompleteDirEnabled ? 1 : 0));
+        in.writeByte((byte) (mLPDEnabled ? 1 : 0));
+        in.writeInt(mGlobalPeerLimit);
+        in.writeInt(mTorrentPeerLimit);
+        in.writeByte((byte) (mPEXEnabled ? 1 : 0));
+        in.writeInt(mPeerPort);
+        in.writeByte((byte) (mPeerPortRandomOnStart ? 1 : 0));
+        in.writeByte((byte) (mPortForwardingEnabled ? 1 : 0));
+        in.writeByte((byte) (mRenamePartial ? 1 : 0));
+        in.writeInt(mRPCVersion);
+        in.writeInt(mRPCVersionMin);
+        in.writeString(mDoneScript);
+        in.writeByte((byte) (mDoneScriptEnabled ? 1 : 0));
+        in.writeInt(mSeedQueueSize);
+        in.writeByte((byte) (mSeedQueueEnabled ? 1 : 0));
+        in.writeFloat(mSeedRatioLimit);
+        in.writeByte((byte) (mSeedRatioLimited ? 1 : 0));
+        in.writeLong(mSpeedLimitDown);
+        in.writeByte((byte) (mSpeedLimitDownEnabled ? 1 : 0));
+        in.writeLong(mSpeedLimitUp);
+        in.writeByte((byte) (mSpeedLimitUpEnabled ? 1 : 0));
+        in.writeInt(mStalledQueueSize);
+        in.writeByte((byte) (mStalledQueueEnabled ? 1 : 0));
+        in.writeByte((byte) (mStartAdded ? 1 : 0));
+        in.writeByte((byte) (mTrashOriginal ? 1 : 0));
+        in.writeString(mVersion);
+    }
+
+    private TransmissionSession(Parcel in) {
+        mAltSpeedEnabled = in.readByte() == 1;
+        mAltSpeedDown = in.readLong();
+        mAltSpeedUp = in.readLong();
+        mAltSpeedTimeEnabled = in.readByte() == 1;
+        mAltSpeedTimeBegin = in.readInt();
+        mAltSpeedTimeEnd = in.readInt();
+        mBlocklistEnabled = in.readByte() == 1;
+        mBlocklistSize = in.readLong();
+        mBlocklistURL = in.readString();
+        mDHTEnabled = in.readByte() == 1;
+        mEncryption = in.readString();
+        mCacheSize = in.readLong();
+        mDownloadDir = in.readString();
+        mDownloadDirFreeSpace = in.readLong();
+        mDownloadQueueSize = in.readInt();
+        mDownloadQueueEnabled = in.readByte() == 1;
+        mIncompleteDir = in.readString();
+        mIncompleteDirEnabled = in.readByte() == 1;
+        mLPDEnabled = in.readByte() == 1;
+        mGlobalPeerLimit = in.readInt();
+        mTorrentPeerLimit = in.readInt();
+        mPEXEnabled = in.readByte() == 1;
+        mPeerPort = in.readInt();
+        mPeerPortRandomOnStart = in.readByte() == 1;
+        mPortForwardingEnabled = in.readByte() == 1;
+        mRenamePartial = in.readByte() == 1;
+        mRPCVersion = in.readInt();
+        mRPCVersionMin = in.readInt();
+        mDoneScript = in.readString();
+        mDoneScriptEnabled = in.readByte() == 1;
+        mSeedQueueSize = in.readInt();
+        mSeedQueueEnabled = in.readByte() == 1;
+        mSeedRatioLimit = in.readFloat();
+        mSeedRatioLimited = in.readByte() == 1;
+        mSpeedLimitDown = in.readLong();
+        mSpeedLimitDownEnabled = in.readByte() == 1;
+        mSpeedLimitUp = in.readLong();
+        mSpeedLimitUpEnabled = in.readByte() == 1;
+        mStalledQueueSize = in.readInt();
+        mStalledQueueEnabled = in.readByte() == 1;
+        mStartAdded = in.readByte() == 1;
+        mTrashOriginal = in.readByte() == 1;
+        mVersion = in.readString();
+    }
+
+    public static final Parcelable.Creator<TransmissionSession> CREATOR
+            = new Parcelable.Creator<TransmissionSession>() {
+        @Override
+        public TransmissionSession createFromParcel(Parcel in) {
+            return new TransmissionSession(in);
+        }
+
+        @Override
+        public TransmissionSession[] newArray(int size) {
+            return new TransmissionSession[size];
+        }
+    };
 }
