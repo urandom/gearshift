@@ -3,14 +3,15 @@ package org.sugr.gearshift;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import com.google.gson.annotations.SerializedName;
+
+import org.sugr.gearshift.TransmissionSessionManager.Exclude;
+
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-
-import org.sugr.gearshift.TransmissionSessionManager.Exclude;
-
-import com.google.gson.annotations.SerializedName;
 
 public class TransmissionSession implements Parcelable {
     @Exclude public static final class SetterFields {
@@ -140,7 +141,11 @@ public class TransmissionSession implements Parcelable {
         public static final String TOLERATED = "tolerated";
     }
 
-    @Exclude private Set<String> mDownloadDirectories = new HashSet<String>();
+    @Exclude private Set<String> mDownloadDirectories;
+
+    public TransmissionSession() {
+        mDownloadDirectories = new HashSet<String>();
+    }
 
     public boolean isAltSpeedLimitEnabled() {
         return mAltSpeedEnabled;
@@ -556,6 +561,7 @@ public class TransmissionSession implements Parcelable {
         in.writeByte((byte) (mStartAdded ? 1 : 0));
         in.writeByte((byte) (mTrashOriginal ? 1 : 0));
         in.writeString(mVersion);
+        in.writeStringList(new ArrayList<String>(mDownloadDirectories));
     }
 
     private TransmissionSession(Parcel in) {
@@ -602,6 +608,7 @@ public class TransmissionSession implements Parcelable {
         mStartAdded = in.readByte() == 1;
         mTrashOriginal = in.readByte() == 1;
         mVersion = in.readString();
+        mDownloadDirectories = new HashSet<String>(in.createStringArrayList());
     }
 
     public static final Parcelable.Creator<TransmissionSession> CREATOR
