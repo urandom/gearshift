@@ -326,6 +326,133 @@ public class TorrentListFragment extends ListFragment {
 
     };
 
+    private MultiChoiceModeListener mListChoiceListener = new MultiChoiceModeListener() {
+        private HashSet<Integer> mSelectedTorrentIds;
+
+        @Override
+        public boolean onActionItemClicked(final ActionMode mode, final MenuItem item) {
+            final Loader<TransmissionData> loader = getActivity().getSupportLoaderManager()
+                    .getLoader(G.TORRENTS_LOADER_ID);
+
+            if (loader == null)
+                return false;
+
+            final int[] ids = new int[mSelectedTorrentIds.size()];
+            int index = 0;
+            for (Integer id : mSelectedTorrentIds)
+                ids[index++] = id;
+
+            AlertDialog.Builder builder;
+            switch (item.getItemId()) {
+                case R.id.select_all:
+                    ListView v = getListView();
+                    for (int i = 0; i < mTorrentListAdapter.getCount(); i++) {
+                        if (!v.isItemChecked(i)) {
+                            v.setItemChecked(i, true);
+                        }
+                    }
+                    return true;
+                case R.id.remove:
+                case R.id.delete:
+                    builder = new AlertDialog.Builder(getActivity())
+                            .setCancelable(false)
+                            .setNegativeButton(android.R.string.no, null);
+
+                    builder.setPositiveButton(android.R.string.yes,
+                            new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int id) {
+                                    ((TransmissionDataLoader) loader).setTorrentsRemove(ids, item.getItemId() == R.id.delete);
+                                    mRefreshing = true;
+                                    getActivity().invalidateOptionsMenu();
+
+                                    mode.finish();
+                                }
+                            })
+                            .setMessage(item.getItemId() == R.id.delete
+                                    ? R.string.delete_selected_confirmation
+                                    : R.string.remove_selected_confirmation)
+                            .show();
+                    return true;
+                case R.id.resume:
+                    ((TransmissionDataLoader) loader).setTorrentsAction("torrent-start", ids);
+                    break;
+                case R.id.pause:
+                    ((TransmissionDataLoader) loader).setTorrentsAction("torrent-stop", ids);
+                    break;
+                case R.id.move:
+                    return showMoveDialog(ids);
+                case R.id.verify:
+                    ((TransmissionDataLoader) loader).setTorrentsAction("torrent-verify", ids);
+                    break;
+                case R.id.reannounce:
+                    ((TransmissionDataLoader) loader).setTorrentsAction("torrent-reannounce", ids);
+                    break;
+                default:
+                    return true;
+            }
+
+
+
+            mRefreshing = true;
+            getActivity().invalidateOptionsMenu();
+
+            mode.finish();
+            return true;
+        }
+
+        @Override
+        public boolean onCreateActionMode(ActionMode mode, Menu menu) {
+            MenuInflater inflater = mode.getMenuInflater();
+            inflater.inflate(R.menu.torrent_list_multiselect, menu);
+
+            mSelectedTorrentIds = new HashSet<Integer>();
+            mActionMode = mode;
+            return true;
+        }
+
+        @Override
+        public void onDestroyActionMode(ActionMode mode) {
+            G.logD("Destroying context menu");
+            mActionMode = null;
+            mSelectedTorrentIds = null;
+        }
+
+        @Override
+        public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
+            return false;
+        }
+
+        @Override
+        public void onItemCheckedStateChanged(ActionMode mode,
+                                              int position, long id, boolean checked) {
+
+            if (checked)
+                mSelectedTorrentIds.add(mTorrentListAdapter.getItem(position).getId());
+            else
+                mSelectedTorrentIds.remove(mTorrentListAdapter.getItem(position).getId());
+
+            ArrayList<Torrent> torrents = ((TransmissionSessionInterface) getActivity()).getTorrents();
+            boolean hasPaused = false;
+            boolean hasRunning = false;
+            for (Torrent t : torrents) {
+                if (mSelectedTorrentIds.contains(t.getId())) {
+                    if (t.getStatus() == Torrent.Status.STOPPED) {
+                        hasPaused = true;
+                    } else {
+                        hasRunning = true;
+                    }
+                }
+            }
+            Menu menu = mode.getMenu();
+            MenuItem item = menu.findItem(R.id.resume);
+            item.setVisible(hasPaused).setEnabled(hasPaused);
+
+            item = menu.findItem(R.id.pause);
+            item.setVisible(hasRunning).setEnabled(hasRunning);
+        }
+    };
+
     private SharedPreferences.OnSharedPreferenceChangeListener mProfileChangeListener =
             new SharedPreferences.OnSharedPreferenceChangeListener() {
                 @Override
@@ -467,131 +594,7 @@ public class TorrentListFragment extends ListFragment {
                 return false;
             }});
 
-        list.setMultiChoiceModeListener(new MultiChoiceModeListener() {
-            private HashSet<Integer> mSelectedTorrentIds;
-
-            @Override
-            public boolean onActionItemClicked(final ActionMode mode, final MenuItem item) {
-                final Loader<TransmissionData> loader = getActivity().getSupportLoaderManager()
-                    .getLoader(G.TORRENTS_LOADER_ID);
-
-                if (loader == null)
-                    return false;
-
-                final int[] ids = new int[mSelectedTorrentIds.size()];
-                int index = 0;
-                for (Integer id : mSelectedTorrentIds)
-                    ids[index++] = id;
-
-                AlertDialog.Builder builder;
-                switch (item.getItemId()) {
-                    case R.id.select_all:
-                        ListView v = getListView();
-                        for (int i = 0; i < mTorrentListAdapter.getCount(); i++) {
-                            if (!v.isItemChecked(i)) {
-                                v.setItemChecked(i, true);
-                            }
-                        }
-                        return true;
-                    case R.id.remove:
-                    case R.id.delete:
-                        builder = new AlertDialog.Builder(getActivity())
-                            .setCancelable(false)
-                            .setNegativeButton(android.R.string.no, null);
-
-                        builder.setPositiveButton(android.R.string.yes,
-                            new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int id) {
-                                ((TransmissionDataLoader) loader).setTorrentsRemove(ids, item.getItemId() == R.id.delete);
-                                mRefreshing = true;
-                                getActivity().invalidateOptionsMenu();
-
-                                mode.finish();
-                            }
-                        })
-                            .setMessage(item.getItemId() == R.id.delete
-                                    ? R.string.delete_selected_confirmation
-                                    : R.string.remove_selected_confirmation)
-                        .show();
-                        return true;
-                    case R.id.resume:
-                        ((TransmissionDataLoader) loader).setTorrentsAction("torrent-start", ids);
-                        break;
-                    case R.id.pause:
-                        ((TransmissionDataLoader) loader).setTorrentsAction("torrent-stop", ids);
-                        break;
-                    case R.id.move:
-                        return showMoveDialog(ids);
-                    case R.id.verify:
-                        ((TransmissionDataLoader) loader).setTorrentsAction("torrent-verify", ids);
-                        break;
-                    case R.id.reannounce:
-                        ((TransmissionDataLoader) loader).setTorrentsAction("torrent-reannounce", ids);
-                        break;
-                    default:
-                        return true;
-                }
-
-
-
-                mRefreshing = true;
-                getActivity().invalidateOptionsMenu();
-
-                mode.finish();
-                return true;
-            }
-
-            @Override
-            public boolean onCreateActionMode(ActionMode mode, Menu menu) {
-                MenuInflater inflater = mode.getMenuInflater();
-                inflater.inflate(R.menu.torrent_list_multiselect, menu);
-
-                mSelectedTorrentIds = new HashSet<Integer>();
-                mActionMode = mode;
-                return true;
-            }
-
-            @Override
-            public void onDestroyActionMode(ActionMode mode) {
-                G.logD("Destroying context menu");
-                mActionMode = null;
-                mSelectedTorrentIds = null;
-            }
-
-            @Override
-            public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
-                return false;
-            }
-
-            @Override
-            public void onItemCheckedStateChanged(ActionMode mode,
-                    int position, long id, boolean checked) {
-
-                if (checked)
-                    mSelectedTorrentIds.add(mTorrentListAdapter.getItem(position).getId());
-                else
-                    mSelectedTorrentIds.remove(mTorrentListAdapter.getItem(position).getId());
-
-                ArrayList<Torrent> torrents = ((TransmissionSessionInterface) getActivity()).getTorrents();
-                boolean hasPaused = false;
-                boolean hasRunning = false;
-                for (Torrent t : torrents) {
-                    if (mSelectedTorrentIds.contains(t.getId())) {
-                        if (t.getStatus() == Torrent.Status.STOPPED) {
-                            hasPaused = true;
-                        } else {
-                            hasRunning = true;
-                        }
-                    }
-                }
-                Menu menu = mode.getMenu();
-                MenuItem item = menu.findItem(R.id.resume);
-                item.setVisible(hasPaused).setEnabled(hasPaused);
-
-                item = menu.findItem(R.id.pause);
-                item.setVisible(hasRunning).setEnabled(hasRunning);
-            }});
+        list.setMultiChoiceModeListener(mListChoiceListener);
     }
 
     @Override
