@@ -31,9 +31,6 @@ import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.Toast;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-
 import org.sugr.gearshift.TransmissionSessionManager.TransmissionExclusionStrategy;
 
 import java.io.BufferedReader;
@@ -215,12 +212,8 @@ public class TorrentListActivity extends FragmentActivity
             Intent detailIntent = new Intent(this, TorrentDetailActivity.class);
             detailIntent.putExtra(G.ARG_PAGE_POSITION, mTorrents.indexOf(torrent));
             detailIntent.putExtra(G.ARG_PROFILE, mProfile);
-            Gson gson = new GsonBuilder().setExclusionStrategies(new TransmissionExclusionStrategy()).create();
-            detailIntent.putParcelableArrayListExtra(
-                    TorrentDetailActivity.ARG_TORRENTS, mTorrents);
-            detailIntent.putExtra(G.ARG_JSON_SESSION, gson.toJson(mSession));
-            detailIntent.putExtra(G.ARG_DIRECTORIES,
-                    new ArrayList<String>(mSession.getDownloadDirectories()));
+            detailIntent.putParcelableArrayListExtra(TorrentDetailActivity.ARG_TORRENTS, mTorrents);
+            detailIntent.putExtra(G.ARG_SESSION, mSession);
             startActivity(detailIntent);
         }
     }
@@ -273,7 +266,6 @@ public class TorrentListActivity extends FragmentActivity
         }
 
         Intent intent;
-        Gson gson = new GsonBuilder().setExclusionStrategies(new TransmissionExclusionStrategy()).create();
         switch(item.getItemId()) {
             case android.R.id.home:
                 if (!mTwoPane) {
@@ -294,7 +286,7 @@ public class TorrentListActivity extends FragmentActivity
             case R.id.menu_session_settings:
                 intent = new Intent(this, TransmissionSessionActivity.class);
                 intent.putExtra(G.ARG_PROFILE, mProfile);
-                intent.putExtra(G.ARG_JSON_SESSION, gson.toJson(mSession));
+                intent.putExtra(G.ARG_SESSION, mSession);
                 startActivity(intent);
                 return true;
             case R.id.menu_settings:

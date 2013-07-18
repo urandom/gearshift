@@ -67,7 +67,7 @@ class G {
 
     public static final String PREF_FILTER_MATCH_TEST = "^(?:filter_|sort_).+$";
 
-    public static final String ARG_JSON_SESSION = "json_session";
+    public static final String ARG_SESSION = "session";
     public static final String ARG_PROFILE = "profile";
     public static final String ARG_PROFILE_ID = "profile_id";
     public static final String ARG_DIRECTORIES = "directories";

@@ -14,9 +14,6 @@ import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-
 import org.sugr.gearshift.TransmissionSessionManager.TransmissionExclusionStrategy;
 
 import java.util.ArrayList;
@@ -148,13 +145,11 @@ public class TorrentDetailActivity extends FragmentActivity implements Transmiss
     protected void onCreate(Bundle savedInstanceState) {
         Intent in = getIntent();
 
-        Gson gson = new GsonBuilder().setExclusionStrategies(
-                new TransmissionExclusionStrategy()).create();
         mTorrents = in.getParcelableArrayListExtra(ARG_TORRENTS);
         mProfile = in.getParcelableExtra(G.ARG_PROFILE);
         mProfile.setContext(this);
-        setSession(gson.fromJson(in.getStringExtra(G.ARG_JSON_SESSION), TransmissionSession.class));
-        mSession.setDownloadDirectories(in.getStringArrayListExtra(G.ARG_DIRECTORIES));
+        mSession = in.getParcelableExtra(G.ARG_SESSION);
+        setSession(mSession);
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_torrent_detail);
