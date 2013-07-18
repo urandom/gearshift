@@ -996,7 +996,6 @@ public class TorrentListFragment extends ListFragment {
             Torrent torrent = getItem(position);
 
             if (rowView == null) {
-                G.logD("Creating a new torrent row");
                 LayoutInflater vi = (LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
                 rowView = vi.inflate(R.layout.torrent_list_item, parent, false);
             }
@@ -1293,6 +1292,7 @@ public class TorrentListFragment extends ListFragment {
                 return results;
             }
 
+            @SuppressWarnings("unchecked")
             @Override
             protected void publishResults(CharSequence constraint, FilterResults results) {
                 mObjects = (ArrayList<Torrent>) results.values;
