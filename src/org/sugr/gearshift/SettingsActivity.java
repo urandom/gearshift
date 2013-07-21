@@ -151,7 +151,8 @@ public class SettingsActivity extends PreferenceActivity
         args.putString(G.ARG_PROFILE_ID, profile.getId());
 
         Intent intent = getIntent();
-        if (profile.getId().equals(intent.getStringExtra(G.ARG_PROFILE_ID))) {
+        if (intent.hasExtra(G.ARG_PROFILE_ID) &&
+                profile.getId().equals(intent.getStringExtra(G.ARG_PROFILE_ID))) {
             args.putStringArrayList(G.ARG_DIRECTORIES,
                     intent.getStringArrayListExtra(G.ARG_DIRECTORIES));
         }

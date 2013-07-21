@@ -92,7 +92,8 @@ public class TorrentDetailFragment extends Fragment {
                 List<TorrentDetailPageFragment> pages = ((TorrentDetailPagerAdapter) mPager.getAdapter())
                         .getFragments();
 
-                if (mCurrentPosition != -1 && pages.size() > mCurrentPosition) {
+                if (mCurrentPosition != -1 && pages.size() > mCurrentPosition
+                        && pages.get(mCurrentPosition) != null) {
                     pages.get(mCurrentPosition).onPageUnselected();
                 }
                 mCurrentPosition = position;

@@ -296,7 +296,9 @@ public class TorrentListActivity extends FragmentActivity
                     directories.remove(mSession.getDownloadDir());
                     intent.putExtra(G.ARG_DIRECTORIES, directories);
                 }
-                intent.putExtra(G.ARG_PROFILE_ID, mProfile.getId());
+                if (mProfile != null) {
+                    intent.putExtra(G.ARG_PROFILE_ID, mProfile.getId());
+                }
                 startActivity(intent);
                 return true;
             case R.id.menu_about:

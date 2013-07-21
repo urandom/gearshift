@@ -1214,8 +1214,8 @@ public class Torrent implements Parcelable {
         in.writeInt(mSeedRatioMode);
         in.writeFloat(mSeedRatioLimit);
         in.writeFloat(mUploadRatio);
-        in.writeString(Html.toHtml(mTrafficText));
-        in.writeString(Html.toHtml(mStatusText));
+        in.writeString(mTrafficText == null ? "" : Html.toHtml(mTrafficText));
+        in.writeString(mStatusText == null ? "" : Html.toHtml(mStatusText));
         in.writeInt(getStatus());
         in.writeInt(mError);
         in.writeString(mErrorString);
