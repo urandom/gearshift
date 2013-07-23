@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TableLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/torrent_detail_trackers_row"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <TableRow
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" >
+
+        <TextView
+            android:id="@+id/tracker_url"
+            android:style="@style/CardTextColumn"
+            android:textStyle="bold"
+            android:textSize="16sp" />
+
+        <TextView
+            android:id="@+id/tracker_tier"
+            android:gravity="right"
+            style="@style/CardTextColumn" />
+
+    </TableRow>
+
+    <TableRow
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" >
+
+        <TextView
+            android:id="@+id/tracker_announce"
+            style="@style/CardTextColumn" />
+
+        <TextView
+            android:id="@+id/tracker_seeders"
+            android:gravity="right"
+            style="@style/CardTextColumn" />
+
+    </TableRow>
+
+    <TableRow
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" >
+
+        <TextView
+            android:id="@+id/tracker_scrape"
+            style="@style/CardTextColumn" />
+
+        <TextView
+            android:id="@+id/tracker_leechers"
+            android:gravity="right"
+            style="@style/CardTextColumn" />
+
+
+    </TableRow>
+
+</TableLayout>

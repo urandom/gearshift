@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    style="@style/CardContainer"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <LinearLayout
+        android:id="@+id/torrent_detail_trackers_expander"
+        style="@style/CardHeaderExpander" >
+
+        <TextView
+            style="@style/CardHeaderExpanderText"
+            android:text="@string/torrent_trackers" />
+
+        <View
+            android:id="@+id/torrent_detail_trackers_expander_image"
+            style="@style/CardHeaderExpanderImage" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/torrent_detail_trackers_content"
+        android:orientation="vertical"
+        style="@style/CardContentCollapsed" >
+    </LinearLayout>
+</LinearLayout>

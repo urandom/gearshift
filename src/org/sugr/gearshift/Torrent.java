@@ -94,6 +94,7 @@ public class Torrent implements Parcelable {
     @SerializedName("haveValid") private long mHaveValid;
 
     @SerializedName("trackers") private Tracker[] mTrackers;
+    @SerializedName("trackerStats") private TrackerStats[] mTrackerStats;
 
     @SerializedName("comment") private String mComment;
     @SerializedName("creator") private String mCreator;
@@ -191,7 +192,7 @@ public class Torrent implements Parcelable {
             "desiredAvailable", "downloadedEver", SetterFields.DOWNLOAD_LIMIT,
             SetterFields.DOWNLOAD_LIMITED, "fileStats", "haveUnchecked",
             "haveValid", SetterFields.SESSION_LIMITS, SetterFields.PEER_LIMIT, "peers",
-            "startDate", /*"trackerStats",*/ SetterFields.UPLOAD_LIMIT,
+            "startDate", "trackerStats", SetterFields.UPLOAD_LIMIT,
             SetterFields.UPLOAD_LIMITED, "webseedsSendingToUs"
         };
     };
@@ -199,9 +200,14 @@ public class Torrent implements Parcelable {
     @Exclude private static final int SEED = 0x21;
 
     public static class Tracker {
+        @SerializedName("id") private int mId;
         @SerializedName("announce") private String mAnnounce;
         @SerializedName("scrape") private String mScrape;
         @SerializedName("tier") private int mTier;
+
+        public int getId() {
+            return mId;
+        }
 
         public String getAnnounce() {
             return mAnnounce;
@@ -215,6 +221,10 @@ public class Torrent implements Parcelable {
             return mTier;
         }
 
+        public void setId(int id) {
+            mId = id;
+        }
+
         public void setAnnounce(String announce) {
             mAnnounce = announce;
         }
@@ -225,6 +235,120 @@ public class Torrent implements Parcelable {
 
         public void setTier(int tier) {
             mTier = tier;
+        }
+    }
+
+    public static class TrackerStats {
+        @SerializedName("id") private int mId;
+
+        @SerializedName("hasAnnounced") private boolean mAnnounced;
+        @SerializedName("lastAnnounceTime") private long mLastAnnouceTime;
+        @SerializedName("lastAnnounceSucceeded") private boolean mLastAnnouceSucceeded;
+        @SerializedName("lastAnnouncePeerCount") private int mLastAnnoucePeerCount;
+        @SerializedName("lastAnnounceResult") private String mLastAnnouceResult;
+
+        @SerializedName("hasScraped") private boolean mScraped;
+        @SerializedName("lastScrapeTime") private long mLastScrapeTime;
+        @SerializedName("lastScrapeSucceeded") private boolean mLastScrapeSucceeded;
+        @SerializedName("lastScrapeResult") private String mLastScrapeResult;
+
+        @SerializedName("seederCount") private int mSeederCount;
+        @SerializedName("leecherCount") private int mLeecherCount;
+
+        public int getId() {
+            return mId;
+        }
+
+        public boolean hasAnnounced() {
+            return mAnnounced;
+        }
+
+        public long getLastAnnouceTime() {
+            return mLastAnnouceTime;
+        }
+
+        public boolean hasLastAnnouceSucceeded() {
+            return mLastAnnouceSucceeded;
+        }
+
+        public int getLastAnnoucePeerCount() {
+            return mLastAnnoucePeerCount;
+        }
+
+        public String getLastAnnouceResult() {
+            return mLastAnnouceResult;
+        }
+
+        public boolean hasScraped() {
+            return mScraped;
+        }
+
+        public long getLastScrapeTime() {
+            return mLastScrapeTime;
+        }
+
+        public boolean hasLastScrapeSucceeded() {
+            return mLastScrapeSucceeded;
+        }
+
+        public String getLastScrapeResult() {
+            return mLastScrapeResult;
+        }
+
+        public int getSeederCount() {
+            return mSeederCount;
+        }
+
+        public int getLeecherCount() {
+            return mLeecherCount;
+        }
+
+        public void setId(int mId) {
+            mId = mId;
+        }
+
+        public void setAnnounced(boolean mAnnounced) {
+            mAnnounced = mAnnounced;
+        }
+
+        public void setLastAnnouceTime(long mLastAnnouceTime) {
+            mLastAnnouceTime = mLastAnnouceTime;
+        }
+
+        public void setLastAnnouceSucceeded(boolean mLastAnnouceSucceeded) {
+            mLastAnnouceSucceeded = mLastAnnouceSucceeded;
+        }
+
+        public void setLastAnnoucePeerCount(int mLastAnnoucePeerCount) {
+            mLastAnnoucePeerCount = mLastAnnoucePeerCount;
+        }
+
+        public void setLastAnnouceResult(String mLastAnnouceResult) {
+            mLastAnnouceResult = mLastAnnouceResult;
+        }
+
+        public void setScraped(boolean mScraped) {
+            mScraped = mScraped;
+        }
+
+        public void setLastScrapeTime(long mLastScrapeTime) {
+            mLastScrapeTime = mLastScrapeTime;
+        }
+
+        public void setLastScrapeSucceeded(boolean mLastScrapeSucceeded) {
+            mLastScrapeSucceeded = mLastScrapeSucceeded;
+        }
+
+        public void setLastScrapeResult(String mLastScrapeResult) {
+            mLastScrapeResult = mLastScrapeResult;
+        }
+
+        public void setSeederCount(int mSeederCount) {
+            mSeederCount = mSeederCount;
+        }
+
+        public void setLeecherCount(int mLeecherCount) {
+            mLeecherCount = mLeecherCount;
         }
     }
 
@@ -559,6 +683,10 @@ public class Torrent implements Parcelable {
         return mTrackers;
     }
 
+    public TrackerStats[] getTrackerStats() {
+        return mTrackerStats;
+    }
+
     public int getTorrentPriority() {
         return mTorrentPriority;
     }
@@ -769,6 +897,10 @@ public class Torrent implements Parcelable {
 
     public void setTrackers(Tracker[] trackers) {
         mTrackers = trackers;
+    }
+
+    public void setTrackerStats(TrackerStats[] stats) {
+        mTrackerStats = stats;
     }
 
     public void setTorrentPriority(int priority) {
@@ -1188,8 +1320,8 @@ public class Torrent implements Parcelable {
                 setStartDate(source.getStartDate());
             } else if (field.equals("webseedsSendingToUs")) {
                 setWebseedsSendingToUs(source.getWebseedsSendingToUs());
-            // } else if (field.equals("trackerStats")) {
-            //     setTrackerStats(source.getTrackerStats());
+            } else if (field.equals("trackerStats")) {
+                setTrackerStats(source.getTrackerStats());
             }
         }
     }
