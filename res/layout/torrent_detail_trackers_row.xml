@@ -2,7 +2,9 @@
 <TableLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/torrent_detail_trackers_row"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content">
+    android:layout_height="wrap_content"
+    android:stretchColumns="0"
+    android:shrinkColumns="0">
 
     <TableRow
         android:layout_width="wrap_content"
@@ -10,13 +12,15 @@
 
         <TextView
             android:id="@+id/tracker_url"
-            android:style="@style/CardTextColumn"
-            android:textStyle="bold"
-            android:textSize="16sp" />
+            style="@style/CardTextColumn"
+            android:fontFamily="sans-serif-condensed"
+            android:textStyle="bold"/>
 
         <TextView
             android:id="@+id/tracker_tier"
             android:gravity="right"
+            android:fontFamily="sans-serif-condensed"
+            android:textStyle="bold"
             style="@style/CardTextColumn" />
 
     </TableRow>

@@ -1,16 +1,5 @@
 package org.sugr.gearshift;
 
-import java.io.File;
-import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
 import android.content.Context;
 import android.database.DataSetObserver;
 import android.os.Bundle;
@@ -18,6 +7,7 @@ import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.Loader;
 import android.text.Html;
+import android.text.TextUtils;
 import android.view.ActionMode;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -36,6 +26,19 @@ import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.Spinner;
 import android.widget.TextView;
+
+import java.io.File;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 /**
  * A fragment representing a single Torrent detail screen.
@@ -64,11 +67,12 @@ public class TorrentDetailPageFragment extends Fragment {
     private static final String STATE_SCROLL_POSITION = "scroll_position_state";
 
     private static class Expanders {
-        public static final int TOTAL_EXPANDERS = 3;
+        public static final int TOTAL_EXPANDERS = 4;
 
         public static final int OVERVIEW = 0;
         public static final int FILES = 1;
         public static final int LIMITS = 2;
+        public static final int TRACKERS = 3;
     }
 
     private boolean[] mExpandedStates = new boolean[Expanders.TOTAL_EXPANDERS];
@@ -95,6 +99,11 @@ public class TorrentDetailPageFragment extends Fragment {
                     content = getView().findViewById(R.id.torrent_detail_limits_content);
                     index = Expanders.LIMITS;
                     break;
+                case R.id.torrent_detail_trackers_expander:
+                    image = v.findViewById(R.id.torrent_detail_trackers_expander_image);
+                    content = getView().findViewById(R.id.torrent_detail_trackers_content);
+                    index = Expanders.TRACKERS;
+                    break;
                 default:
                     return;
             }
@@ -117,6 +126,9 @@ public class TorrentDetailPageFragment extends Fragment {
 
     private FilesAdapter mFilesAdapter;
     private FilesDataSetObserver mFilesObserver;
+
+    private TrackersAdapter mTrackersAdapter;
+    private TrackersDataSetObserver mTrackersObserver;
 
     private ActionMode mActionMode;
     private Set<View> mSelectedFiles = new HashSet<View>();
@@ -259,6 +271,7 @@ public class TorrentDetailPageFragment extends Fragment {
         root.findViewById(R.id.torrent_detail_overview_expander).setOnClickListener(mExpanderListener);
         root.findViewById(R.id.torrent_detail_files_expander).setOnClickListener(mExpanderListener);
         root.findViewById(R.id.torrent_detail_limits_expander).setOnClickListener(mExpanderListener);
+        root.findViewById(R.id.torrent_detail_trackers_expander).setOnClickListener(mExpanderListener);
 
         if (mTorrent == null) return root;
 
@@ -285,6 +298,10 @@ public class TorrentDetailPageFragment extends Fragment {
         mFilesAdapter = new FilesAdapter();
         mFilesObserver = new FilesDataSetObserver(root);
         mFilesAdapter.registerDataSetObserver(mFilesObserver);
+
+        mTrackersAdapter = new TrackersAdapter();
+        mTrackersObserver = new TrackersDataSetObserver(root);
+        mTrackersAdapter.registerDataSetObserver(mTrackersObserver);
 
         updateFields(root);
 
@@ -638,7 +655,7 @@ public class TorrentDetailPageFragment extends Fragment {
             mFilesAdapter.setNotifyOnChange(false);
             if (mFilesAdapter.getCount() == 0) {
                 Torrent.File[] files = mTorrent.getFiles();
-                Torrent.FileStat[] stats = mTorrent.getFileStats();
+                Torrent.FileStats[] stats = mTorrent.getFileStats();
 
                 mFilesAdapter.clear();
                 ArrayList<TorrentFile> torrentFiles = new ArrayList<TorrentFile>();
@@ -741,6 +758,26 @@ public class TorrentDetailPageFragment extends Fragment {
                 mTextValues[PEER_LIMIT] = peers;
             }
         }
+
+        /* Trackers start */
+        if (root.findViewById(R.id.torrent_detail_trackers_content).getVisibility() != View.GONE
+                && mTorrent.getTrackers() != null && mTorrent.getTrackerStats() != null) {
+            mTrackersAdapter.setNotifyOnChange(false);
+            if (mTrackersAdapter.getCount() == 0) {
+                Torrent.Tracker[] tTrackers = mTorrent.getTrackers();
+                Torrent.TrackerStats[] stats = mTorrent.getTrackerStats();
+
+                mTrackersAdapter.clear();
+                ArrayList<Tracker> trackers = new ArrayList<Tracker>();
+                for (int i = 0; i < tTrackers.length; i++) {
+                    Tracker tracker = new Tracker(i, tTrackers[i], stats[i]);
+                    trackers.add(tracker);
+                }
+                Collections.sort(trackers, new TrackerComparator());
+                mTrackersAdapter.addAll(trackers);
+            }
+            mTrackersAdapter.notifyDataSetChanged();
+        }
     }
 
     private void invalidateFileActionMenu(Menu menu) {
@@ -774,14 +811,14 @@ public class TorrentDetailPageFragment extends Fragment {
     private class TorrentFile {
         int index = -1;
         Torrent.File info;
-        Torrent.FileStat stat;
+        Torrent.FileStats stat;
 
         String directory;
         String name;
 
         boolean changed = false;
 
-        public TorrentFile(int index, Torrent.File info, Torrent.FileStat stat) {
+        public TorrentFile(int index, Torrent.File info, Torrent.FileStats stat) {
             this.index = index;
             this.stat = stat;
 
@@ -800,7 +837,7 @@ public class TorrentDetailPageFragment extends Fragment {
             this.name = f.getName();
         }
 
-        public void setStat(Torrent.FileStat stat) {
+        public void setStat(Torrent.FileStats stat) {
             this.stat = stat;
         }
     }
@@ -943,7 +980,7 @@ public class TorrentDetailPageFragment extends Fragment {
 
         @Override public void onChanged() {
             Torrent.File[] files = mTorrent.getFiles();
-            Torrent.FileStat[] stats = mTorrent.getFileStats();
+            Torrent.FileStats[] stats = mTorrent.getFileStats();
             for (int i = 0; i < mFilesAdapter.getCount(); i++) {
                 TorrentFile file = mFilesAdapter.getItem(i);
                 View v = null;
@@ -965,7 +1002,7 @@ public class TorrentDetailPageFragment extends Fragment {
             mContainer.removeAllViews();
         }
 
-        private boolean fileChanged(TorrentFile file, Torrent.File tFile, Torrent.FileStat stat) {
+        private boolean fileChanged(TorrentFile file, Torrent.File tFile, Torrent.FileStats stat) {
             boolean changed = false;
 
             if (file.changed
@@ -974,6 +1011,198 @@ public class TorrentDetailPageFragment extends Fragment {
                     || file.stat.getPriority() != stat.getPriority()) {
                 file.setStat(stat);
                 file.changed = false;
+                changed = true;
+            }
+
+            return changed;
+        }
+    }
+
+    private class Tracker {
+        int index = -1;
+        Torrent.Tracker info;
+        Torrent.TrackerStats stat;
+
+        boolean changed = false;
+
+        String host;
+
+        public Tracker(int index, Torrent.Tracker info, Torrent.TrackerStats stat) {
+            this.index = index;
+            this.stat = stat;
+
+            setInfo(info);
+        }
+
+        public void setInfo(Torrent.Tracker info) {
+            this.info = info;
+
+            try {
+                URI uri = new URI(info.getAnnounce());
+                this.host = uri.getHost();
+            } catch (URISyntaxException e) {
+                this.host = getString(R.string.tracker_unknown_host);
+            }
+        }
+
+        public void setStat(Torrent.TrackerStats stat) {
+            this.stat = stat;
+        }
+    }
+
+    private class TrackerComparator implements Comparator<Tracker> {
+        @Override
+        public int compare(Tracker lhs, Tracker rhs) {
+            int tier = lhs.info.getTier() - rhs.info.getTier();
+
+            if (tier != 0) {
+                return tier;
+            }
+
+            return lhs.host.compareToIgnoreCase(rhs.host);
+        }
+
+    }
+
+    private class TrackersAdapter extends ArrayAdapter<Tracker> {
+        private static final int mFieldId = R.layout.torrent_detail_trackers_row;
+        private List<View> mViews = new ArrayList<View>();
+
+        public TrackersAdapter() {
+            super(getActivity(), mFieldId);
+        }
+
+        public List<View> getViews() {
+            return mViews;
+        }
+
+        @Override
+        public View getView(final int position, View convertView, ViewGroup parent) {
+            View rowView = convertView;
+            final Tracker tracker = getItem(position);
+            boolean initial = false;
+
+            if (rowView == null) {
+                LayoutInflater vi = (LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+                rowView = vi.inflate(mFieldId, null);
+                initial = true;
+            }
+
+            TextView url = (TextView) rowView.findViewById(R.id.tracker_url);
+            TextView tier = (TextView) rowView.findViewById(R.id.tracker_tier);
+            TextView seeders = (TextView) rowView.findViewById(R.id.tracker_seeders);
+            TextView leechers = (TextView) rowView.findViewById(R.id.tracker_leechers);
+            TextView announce = (TextView) rowView.findViewById(R.id.tracker_announce);
+            TextView scrape = (TextView) rowView.findViewById(R.id.tracker_scrape);
+
+            url.setText(tracker.host);
+            tier.setText(String.format(getString(R.string.tracker_tier),
+                    tracker.info.getTier()));
+
+            seeders.setText(String.format(getString(R.string.tracker_seeders),
+                    tracker.stat.getSeederCount()));
+            leechers.setText(String.format(getString(R.string.tracker_leechers),
+                    tracker.stat.getLeecherCount()));
+
+            long now = (new Date().getTime() / 1000);
+            if (tracker.stat.hasAnnounced()) {
+                String time = G.readableRemainingTime(now - tracker.stat.getLastAnnouceTime(),
+                        getActivity());
+                if (tracker.stat.hasLastAnnouceSucceeded()) {
+                    announce.setText(String.format(
+                            getString(R.string.tracker_announce_success),
+                            time, String.format(
+                                getResources().getQuantityString(R.plurals.tracker_peers,
+                                        tracker.stat.getLastAnnoucePeerCount(),
+                                        tracker.stat.getLastAnnoucePeerCount())
+                    )));
+                } else {
+                    announce.setText(String.format(
+                            getString(R.string.tracker_announce_error),
+                            TextUtils.isEmpty(tracker.stat.getLastAnnouceResult())
+                                ? ""
+                                : (tracker.stat.getLastAnnouceResult() + " - "),
+                            time
+                    ));
+                }
+            } else {
+                announce.setText(R.string.tracker_announce_never);
+            }
+
+            if (tracker.stat.hasScraped()) {
+                String time = G.readableRemainingTime(now - tracker.stat.getLastScrapeTime(),
+                        getActivity());
+                if (tracker.stat.hasLastScrapeSucceeded()) {
+                    scrape.setText(String.format(
+                            getString(R.string.tracker_scrape_success),
+                            time
+                    ));
+                } else {
+                    scrape.setText(String.format(
+                            getString(R.string.tracker_scrape_error),
+                            TextUtils.isEmpty(tracker.stat.getLastScrapeResult())
+                                    ? ""
+                                    : (tracker.stat.getLastScrapeResult() + " - "),
+                            time
+                    ));
+                }
+            } else {
+                scrape.setText(R.string.tracker_scrape_never);
+            }
+
+            if (initial) {
+                while (mViews.size() <= position)
+                    mViews.add(null);
+                mViews.set(position, rowView);
+            }
+
+            return rowView;
+        }
+    }
+
+    private class TrackersDataSetObserver extends DataSetObserver {
+        private View mRoot;
+        private LinearLayout mContainer;
+
+        public TrackersDataSetObserver(View root) {
+            mRoot = root;
+            mContainer = (LinearLayout) mRoot.findViewById(R.id.torrent_detail_trackers_content);
+        }
+
+        @Override public void onChanged() {
+            Torrent.Tracker[] trackers = mTorrent.getTrackers();
+            Torrent.TrackerStats[] stats = mTorrent.getTrackerStats();
+            for (int i = 0; i < mTrackersAdapter.getCount(); i++) {
+                Tracker tracker = mTrackersAdapter.getItem(i);
+                View v = null;
+                boolean hasChild = false;
+                if (i < mContainer.getChildCount()) {
+                    v = mContainer.getChildAt(i);
+                    hasChild = true;
+                }
+                if (!hasChild || (tracker.index != -1 && trackerChanged(tracker, trackers[tracker.index], stats[tracker.index]))) {
+                    v = mTrackersAdapter.getView(i, v, null);
+                    if (!hasChild) {
+                        mContainer.addView(v, i);
+                    }
+                }
+            }
+        }
+
+        @Override public void onInvalidated() {
+            mContainer.removeAllViews();
+        }
+
+        private boolean trackerChanged(Tracker tracker, Torrent.Tracker tTracker, Torrent.TrackerStats stat) {
+            boolean changed = false;
+
+            if (tracker.changed
+                    || tracker.stat.getLastAnnouceTime() != stat.getLastAnnouceTime()
+                    || tracker.stat.getLastScrapeTime() != stat.getLastScrapeTime()
+                    || tracker.stat.getLeecherCount() != stat.getLeecherCount()
+                    || tracker.stat.getSeederCount() != stat.getSeederCount()) {
+                tracker.setStat(stat);
+                tracker.changed = false;
                 changed = true;
             }
 

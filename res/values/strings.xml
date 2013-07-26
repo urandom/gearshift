@@ -394,15 +394,18 @@
     <string name="filter">Filter</string>
     <string name="import_session_directories">Import sesssion directories</string>
 
+    <string name="tracker_unknown_host">Unknown host</string>
     <string name="tracker_tier"><![CDATA[Tier %1$d]]></string>
     <string name="tracker_announce_success"><![CDATA[Last announce: %1$s (got %2$s)]]></string>
+    <string name="tracker_announce_never">Last announce: N/A</string>
     <string name="tracker_announce_error"><![CDATA[Announce error: %1$s%2$s]]></string>
 
     <string name="tracker_scrape_success"><![CDATA[Last scrape: %1$s]]></string>
+    <string name="tracker_scrape_never">Last scrape: N/A</string>
     <string name="tracker_scrape_error"><![CDATA[Scrape error: %1$s%2$s]]></string>
 
-    <string name="tracker_seeders"><![CDATA[Seeders %1$d]]></string>
-    <string name="tracker_leechers"><![CDATA[Leechers %1$d]]></string>
+    <string name="tracker_seeders"><![CDATA[Seeders: %1$d]]></string>
+    <string name="tracker_leechers"><![CDATA[Leechers: %1$d]]></string>
 
     <plurals name="tracker_peers">
         <item quantity="one">1 peer</item>

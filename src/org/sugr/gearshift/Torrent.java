@@ -108,7 +108,7 @@ public class Torrent implements Parcelable {
     @SerializedName(SetterFields.TORRENT_PRIORITY) private int mTorrentPriority;
     @SerializedName(SetterFields.DOWNLOAD_LIMIT) private long mDownloadLimit;
     @SerializedName(SetterFields.DOWNLOAD_LIMITED) private boolean mDownloadLimited;
-    @SerializedName("fileStats") private FileStat[] mFileStats;
+    @SerializedName("fileStats") private FileStats[] mFileStats;
     @SerializedName(SetterFields.SESSION_LIMITS) private boolean mHonorsSessionLimits;
     @SerializedName(SetterFields.UPLOAD_LIMIT) private long mUploadLimit;
     @SerializedName(SetterFields.UPLOAD_LIMITED) private boolean mUploadLimited;
@@ -382,7 +382,7 @@ public class Torrent implements Parcelable {
         }
     }
 
-    public static class FileStat {
+    public static class FileStats {
         @SerializedName("bytesCompleted") private long mBytesCompleted;
         @SerializedName("wanted") private boolean mWanted;
         @SerializedName("priority") private int mPriority = Priority.NORMAL;
@@ -743,7 +743,7 @@ public class Torrent implements Parcelable {
         return mUploadLimited;
     }
 
-    public FileStat[] getFileStats() {
+    public FileStats[] getFileStats() {
         return mFileStats;
     }
 
@@ -959,7 +959,7 @@ public class Torrent implements Parcelable {
         mUploadLimited = limited;
     }
 
-    public void setFileStats(FileStat[] fileStats) {
+    public void setFileStats(FileStats[] fileStats) {
         mFileStats = fileStats;
     }
 

@@ -22,6 +22,8 @@
 
         <include layout="@layout/torrent_detail_limits" />
 
+        <include layout="@layout/torrent_detail_trackers" />
+
     </LinearLayout>
 
 </ScrollView>
