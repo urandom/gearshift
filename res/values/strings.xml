@@ -244,13 +244,18 @@
     <string name="menu_order_descending">Descending</string>
 
     <string name="menu_directories_header">Directories</string>
+    <string name="menu_trackers_header">Trackers</string>
 
     <string name="filter_visibility">Filter visibility</string>
 
     <string name="directory_filters">Directory filters</string>
 
     <string name="show_directory_filters">Show directory filters</string>
-    
+
+    <string name="tracker_filters">Tracker filters</string>
+
+    <string name="show_tracker_filters">Show tracker filters</string>
+
     <string name="sort_visibility">Sorting options visibility</string>
     
     <string name="base_sort_method">Base sort method</string>

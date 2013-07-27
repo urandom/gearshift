@@ -1,8 +1,10 @@
 package org.sugr.gearshift;
 
-
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Set;
 import java.util.HashSet;
 import java.util.TreeSet;
 
@@ -37,17 +39,20 @@ public class TorrentListMenuFragment extends Fragment {
     private int mSortPosition = ListView.INVALID_POSITION;
     private int mOrderPosition = ListView.INVALID_POSITION;
     private int mDirectoryPosition = ListView.INVALID_POSITION;
+    private int mTrackerPosition = ListView.INVALID_POSITION;
 
     private enum Type {
-        FIND, FILTER, DIRECTORY, SORT_BY, SORT_ORDER, HEADER
+        FIND, FILTER, DIRECTORY, TRACKER, SORT_BY, SORT_ORDER, HEADER
     };
 
     private static final String FILTERS_HEADER_KEY = "filters_header";
     private static final String DIRECTORIES_HEADER_KEY = "directories_header";
+    private static final String TRACKERS_HEADER_KEY = "trackers_header";
     private static final String SORT_BY_HEADER_KEY = "sort_by_header";
     private static final String SORT_ORDER_HEADER_KEY = "sort_order_header";
 
     private TreeSet<String> mDirectories = new TreeSet<String>(G.SIMPLE_STRING_COMPARATOR);
+    private TreeSet<String> mTrackers = new TreeSet<String>(G.SIMPLE_STRING_COMPARATOR);
 
     private HashMap<String, ListItem> mListItemMap
         = new HashMap<String, ListItem>();
@@ -119,6 +124,7 @@ public class TorrentListMenuFragment extends Fragment {
         if (mFiltersChanged) {
             mFiltersChanged = false;
             mDirectories.clear();
+            mTrackers.clear();
             fillMenuItems();
             checkSelectedItems();
         }
@@ -127,26 +133,48 @@ public class TorrentListMenuFragment extends Fragment {
 
     public void notifyTorrentListUpdate(ArrayList<Torrent> torrents, TransmissionSession session) {
         long down = 0, up = 0;
-        HashSet<String> directories = new HashSet<String>();
+        boolean directoriesEnabled = mSharedPrefs.getBoolean(G.PREF_FILTER_DIRECTORIES, true);
+        boolean trackersEnabled = mSharedPrefs.getBoolean(G.PREF_FILTER_TRACKERS, false);
+        Set<String> directories = new HashSet<String>();
+        Set<String> trackers = new HashSet<String>();
         boolean equalDirectories = true;
+        boolean equalTrackers = true;
         boolean currentDirectoryTorrents = false;
+        boolean currentTrackerTorrents = false;
 
         if (torrents != null) {
             String dir = mSharedPrefs.getString(G.PREF_LIST_DIRECTORY, "");
+            String track = mSharedPrefs.getString(G.PREF_LIST_TRACKER, "");
             for (Torrent t : torrents) {
                 down += t.getRateDownload();
                 up += t.getRateUpload();
-                if (t.getDownloadDir() != null) {
+                if (directoriesEnabled && t.getDownloadDir() != null) {
                     directories.add(t.getDownloadDir());
                     if (!currentDirectoryTorrents && t.getDownloadDir().equals(dir)) {
                         currentDirectoryTorrents = true;
                     }
                 }
+                if (trackersEnabled && t.getTrackers() != null) {
+                    for (Torrent.Tracker tracker : t.getTrackers()) {
+                        String host;
+                        try {
+                            URI uri = new URI(tracker.getAnnounce());
+                            host = uri.getHost();
+                        } catch (URISyntaxException e) {
+                            host = getString(R.string.tracker_unknown_host);
+                        }
+                        trackers.add(host);
+                        if (!currentTrackerTorrents && host.equals(track)) {
+                            currentTrackerTorrents = true;
+                        }
+                    }
+                }
             }
         }
 
-        boolean updateFilter = false;
-        if (mSharedPrefs.getBoolean(G.PREF_FILTER_DIRECTORIES, true)) {
+        boolean updateDirectoryFilter = false;
+        boolean checkSelected = false;
+        if (directoriesEnabled) {
             if (directories.size() != mDirectories.size()) {
                 equalDirectories = false;
             } else {
@@ -185,13 +213,13 @@ public class TorrentListMenuFragment extends Fragment {
                             mFilterAdapter.insert(getDirectoryItem(d), position++);
                         }
                     }
-                    updateFilter = !currentDirectoryTorrents;
+                    updateDirectoryFilter = !currentDirectoryTorrents;
                 } else {
-                    updateFilter = true;
+                    updateDirectoryFilter = true;
                 }
 
                 mFilterAdapter.notifyDataSetChanged();
-                checkSelectedItems();
+                checkSelected = true;
             }
         } else {
             mFilterAdapter.setNotifyOnChange(false);
@@ -199,15 +227,83 @@ public class TorrentListMenuFragment extends Fragment {
             mFilterAdapter.notifyDataSetChanged();
 
             if (!mSharedPrefs.getString(G.PREF_LIST_DIRECTORY, "").equals("")) {
-                updateFilter = true;
+                updateDirectoryFilter = true;
             }
         }
 
-        if (updateFilter) {
+        boolean updateTrackerFilter = false;
+        if (trackersEnabled) {
+            if (trackers.size() != mTrackers.size()) {
+                equalTrackers = false;
+            } else {
+                for (String t : trackers) {
+                    if (!mTrackers.contains(t)) {
+                        equalTrackers = false;
+                        break;
+                    }
+                }
+            }
+            if (!equalTrackers) {
+                mTrackers.clear();
+                mTrackers.addAll(trackers);
+
+                mFilterAdapter.setNotifyOnChange(false);
+                int position = removeTrackersFilters();
+
+                if (mTrackers.size() > 1) {
+                    ListItem pivot = mListItemMap.get(SORT_BY_HEADER_KEY);
+                    position = mFilterAdapter.getPosition(pivot);
+
+                    if (position == -1) {
+                        pivot = mListItemMap.get(SORT_ORDER_HEADER_KEY);
+                        position = mFilterAdapter.getPosition(pivot);
+                    }
+
+                    ListItem header = mListItemMap.get(TRACKERS_HEADER_KEY);
+                    if (position == -1) {
+                        mFilterAdapter.add(header);
+                        for (String t : mTrackers) {
+                            mFilterAdapter.add(getTrackerItem(t));
+                        }
+                    } else {
+                        mFilterAdapter.insert(header, position++);
+                        for (String t : mTrackers) {
+                            mFilterAdapter.insert(getTrackerItem(t), position++);
+                        }
+                    }
+                    updateTrackerFilter = !currentTrackerTorrents;
+                } else {
+                    updateTrackerFilter = false;
+                }
+
+                mFilterAdapter.notifyDataSetChanged();
+                checkSelected = true;
+            }
+        } else {
+            mFilterAdapter.setNotifyOnChange(false);
+            removeTrackersFilters();
+            mFilterAdapter.notifyDataSetChanged();
+
+            if (!mSharedPrefs.getString(G.PREF_LIST_TRACKER, "").equals("")) {
+                updateTrackerFilter = true;
+            }
+        }
+
+        if (checkSelected) {
+            checkSelectedItems();
+        }
+
+        if (updateDirectoryFilter || updateTrackerFilter) {
             TorrentListFragment fragment =
                     ((TorrentListFragment) getFragmentManager().findFragmentById(R.id.torrent_list));
-            mDirectoryPosition = ListView.INVALID_POSITION;
-            fragment.setListDirectoryFilter((String) null);
+            if (updateDirectoryFilter) {
+                mDirectoryPosition = ListView.INVALID_POSITION;
+                fragment.setListDirectoryFilter((String) null);
+            }
+            if (updateTrackerFilter) {
+                mTrackerPosition = ListView.INVALID_POSITION;
+                fragment.setListTrackerFilter((String) null);
+            }
 
             mCloseHandler.removeCallbacks(mCloseRunnable);
             mCloseHandler.post(mCloseRunnable);
@@ -278,6 +374,7 @@ public class TorrentListMenuFragment extends Fragment {
             mSortPosition = ListView.INVALID_POSITION;
             mOrderPosition = ListView.INVALID_POSITION;
             mDirectoryPosition = ListView.INVALID_POSITION;
+            mTrackerPosition = ListView.INVALID_POSITION;
         } else {
             ListItem item = mFilterAdapter.getItem(position);
             TorrentListFragment fragment =
@@ -314,6 +411,17 @@ public class TorrentListMenuFragment extends Fragment {
                         mFilterList.setItemChecked(position, true);
                         mDirectoryPosition = position;
                         fragment.setListDirectoryFilter(item.getValueString());
+                    }
+                    break;
+                case TRACKER:
+                    mFilterList.setItemChecked(mTrackerPosition, false);
+                    if (mTrackerPosition == position) {
+                        mTrackerPosition = ListView.INVALID_POSITION;
+                        fragment.setListTrackerFilter((String) null);
+                    } else {
+                        mFilterList.setItemChecked(position, true);
+                        mTrackerPosition = position;
+                        fragment.setListTrackerFilter(item.getValueString());
                     }
                     break;
                 case SORT_BY:
@@ -412,6 +520,10 @@ public class TorrentListMenuFragment extends Fragment {
 
         if (!mListItemMap.containsKey(DIRECTORIES_HEADER_KEY)) {
             header = new ListItem(Type.HEADER, DIRECTORIES_HEADER_KEY, R.string.menu_directories_header);
+        }
+
+        if (!mListItemMap.containsKey(TRACKERS_HEADER_KEY)) {
+            header = new ListItem(Type.HEADER, TRACKERS_HEADER_KEY, R.string.menu_trackers_header);
         }
 
         for (SortBy sort : SortBy.values()) {
@@ -571,14 +683,28 @@ public class TorrentListMenuFragment extends Fragment {
             mOrderPosition = ListView.INVALID_POSITION;
         }
 
-        String selectedDirectory = null;
-        if (mSharedPrefs.contains(G.PREF_LIST_DIRECTORY)) {
-            selectedDirectory = mSharedPrefs.getString(G.PREF_LIST_DIRECTORY, null);
+        if (mSharedPrefs.getBoolean(G.PREF_FILTER_DIRECTORIES, true)) {
+            String selectedDirectory = null;
+            if (mSharedPrefs.contains(G.PREF_LIST_DIRECTORY)) {
+                selectedDirectory = mSharedPrefs.getString(G.PREF_LIST_DIRECTORY, null);
+            }
+            if (selectedDirectory != null) {
+                mDirectoryPosition = mFilterAdapter.getPosition(
+                        mListItemMap.get(selectedDirectory));
+                mFilterList.setItemChecked(mDirectoryPosition, true);
+            }
         }
-        if (selectedDirectory != null) {
-            mDirectoryPosition = mFilterAdapter.getPosition(
-                    mListItemMap.get(selectedDirectory));
-            mFilterList.setItemChecked(mDirectoryPosition, true);
+
+        if (mSharedPrefs.getBoolean(G.PREF_FILTER_TRACKERS, false)) {
+            String selectedTracker = null;
+            if (mSharedPrefs.contains(G.PREF_LIST_TRACKER)) {
+                selectedTracker = mSharedPrefs.getString(G.PREF_LIST_TRACKER, null);
+            }
+            if (selectedTracker != null) {
+                mTrackerPosition = mFilterAdapter.getPosition(
+                        mListItemMap.get(selectedTracker));
+                mFilterList.setItemChecked(mTrackerPosition, true);
+            }
         }
     }
 
@@ -608,6 +734,39 @@ public class TorrentListMenuFragment extends Fragment {
             for (int i = 0; i < mFilterAdapter.getCount(); i++) {
                 item = mFilterAdapter.getItem(i);
                 if (item.getType() == Type.DIRECTORY) {
+                    removal.add(item);
+                }
+            }
+
+            for (ListItem i : removal) {
+                mFilterAdapter.remove(i);
+            }
+        }
+
+        return position;
+    }
+
+    private ListItem getTrackerItem(String tracker) {
+        ListItem item;
+        if (mListItemMap.containsKey(tracker)) {
+            item = mListItemMap.get(tracker);
+        } else {
+            item = new ListItem(Type.TRACKER, tracker, tracker, G.PREF_FILTER_TRACKERS);
+        }
+
+        return item;
+    }
+
+    private int removeTrackersFilters() {
+        ListItem item = mListItemMap.get(TRACKERS_HEADER_KEY);
+        int position = mFilterAdapter.getPosition(item);
+
+        if (position != -1) {
+            ArrayList<ListItem> removal = new ArrayList<ListItem>();
+            removal.add(item);
+            for (int i = 0; i < mFilterAdapter.getCount(); i++) {
+                item = mFilterAdapter.getItem(i);
+                if (item.getType() == Type.TRACKER) {
                     removal.add(item);
                 }
             }
@@ -682,6 +841,7 @@ public class TorrentListMenuFragment extends Fragment {
                     case FIND:
                     case FILTER:
                     case DIRECTORY:
+                    case TRACKER:
                     case SORT_BY:
                     case SORT_ORDER:
                         convertView = mInflater.inflate(mItemLayout, parent, false);

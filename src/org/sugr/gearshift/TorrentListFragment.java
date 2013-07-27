@@ -42,6 +42,8 @@ import org.sugr.gearshift.G.FilterBy;
 import org.sugr.gearshift.G.SortBy;
 import org.sugr.gearshift.G.SortOrder;
 
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -789,6 +791,11 @@ public class TorrentListFragment extends ListFragment {
         mScrollToTop = true;
     }
 
+    public void setListTrackerFilter(String e) {
+        mTorrentListAdapter.filterTracker(e);
+        mScrollToTop = true;
+    }
+
     public void setRefreshing(boolean refreshing) {
         mRefreshing = refreshing;
         getActivity().invalidateOptionsMenu();
@@ -936,6 +943,7 @@ public class TorrentListFragment extends ListFragment {
         private SortBy mBaseSort = mTorrentComparator.getBaseSort();
         private SortOrder mSortOrder = mTorrentComparator.getSortOrder();
         private String mDirectory;
+        private String mTracker;
         private SparseBooleanArray mTorrentAdded = new SparseBooleanArray();
 
         private SharedPreferences mSharedPrefs;
@@ -961,6 +969,9 @@ public class TorrentListFragment extends ListFragment {
             }
             if (mSharedPrefs.contains(G.PREF_LIST_DIRECTORY)) {
                 mDirectory = mSharedPrefs.getString(G.PREF_LIST_DIRECTORY, null);
+            }
+            if (mSharedPrefs.contains(G.PREF_LIST_TRACKER)) {
+                mTracker = mSharedPrefs.getString(G.PREF_LIST_TRACKER, null);
             }
             if (mSharedPrefs.contains(G.PREF_LIST_SORT_BY)) {
                 try {
@@ -1159,6 +1170,11 @@ public class TorrentListFragment extends ListFragment {
             applyFilter(directory, G.PREF_LIST_DIRECTORY);
         }
 
+        public void filterTracker(String tracker) {
+            mTracker = tracker;
+            applyFilter(tracker, G.PREF_LIST_TRACKER);
+        }
+
         public void repeatFilter() {
             if (mProfile != null) {
                 getFilter().filter(mCurrentConstraint, mCurrentFilterListener);
@@ -1203,7 +1219,8 @@ public class TorrentListFragment extends ListFragment {
                     prefix = "";
                 }
 
-                if (prefix.length() == 0 && mFilterBy == FilterBy.ALL && mDirectory == null) {
+                if (prefix.length() == 0 && mFilterBy == FilterBy.ALL
+                        && mDirectory == null && mTracker == null) {
                     ArrayList<Torrent> list;
                     synchronized (mLock) {
                         list = new ArrayList<Torrent>(mOriginalValues);
@@ -1253,6 +1270,25 @@ public class TorrentListFragment extends ListFragment {
                             if (torrent.getDownloadDir() == null
                                     || !torrent.getDownloadDir().equals(mDirectory))
                                 continue;
+                        }
+
+                        if (mTracker != null) {
+                            Torrent.Tracker[] trackers = torrent.getTrackers();
+                            boolean hasMatch = false;
+                            if (trackers != null && trackers.length > 0) {
+                                for (Torrent.Tracker t : trackers) {
+                                    try {
+                                        URI uri = new URI(t.getAnnounce());
+                                        if (uri.getHost().equals(mTracker)) {
+                                            hasMatch = true;
+                                            break;
+                                        }
+                                    } catch (URISyntaxException e) {}
+                                }
+                            }
+                            if (!hasMatch) {
+                                continue;
+                            }
                         }
 
                         if (prefix.length() == 0) {

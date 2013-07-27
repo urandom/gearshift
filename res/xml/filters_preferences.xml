@@ -41,4 +41,10 @@
             android:title="@string/show_directory_filters"
             android:defaultValue="true" />
     </PreferenceCategory>
+    <PreferenceCategory android:title="@string/tracker_filters" >
+        <CheckBoxPreference
+            android:key="filter_trackers"
+            android:title="@string/show_tracker_filters"
+            android:defaultValue="false" />
+    </PreferenceCategory>
 </PreferenceScreen>

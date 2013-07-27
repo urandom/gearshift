@@ -37,6 +37,7 @@ class G {
     public static final String PREF_LIST_SORT_ORDER = "torrents_sort_order";
     public static final String PREF_LIST_FILTER = "torrents_filter";
     public static final String PREF_LIST_DIRECTORY = "torrents_directory";
+    public static final String PREF_LIST_TRACKER = "torrents_tracker";
     public static final String PREF_LIST_SEARCH = "torrents_search";
 
     public static final String PREF_FILTER_ALL = "filter_all";
@@ -49,6 +50,7 @@ class G {
     public static final String PREF_FILTER_ACTIVE = "filter_active";
     public static final String PREF_FILTER_CHECKING = "filter_checking";
     public static final String PREF_FILTER_DIRECTORIES = "filter_directories";
+    public static final String PREF_FILTER_TRACKERS = "filter_trackers";
 
     public static final String PREF_SORT_NAME = "sort_name";
     public static final String PREF_SORT_SIZE = "sort_size";
