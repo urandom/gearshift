@@ -1,13 +1,5 @@
 package org.sugr.gearshift;
 
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.InputStream;
-
-import org.sugr.gearshift.util.Base64;
-
 import android.content.ContentResolver;
 import android.content.Intent;
 import android.net.Uri;
@@ -15,6 +7,14 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.widget.Toast;
+
+import org.sugr.gearshift.util.Base64;
+
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.InputStream;
 
 public class TorrentFileReadActivity extends FragmentActivity {
     @Override
@@ -71,8 +71,10 @@ public class TorrentFileReadActivity extends FragmentActivity {
                 return null;
             } finally {
                 try {
-                    base64.close();
-                    stream.close();
+                    if (base64 != null)
+                        base64.close();
+                    if (stream != null)
+                        stream.close();
                 } catch (IOException e) {
                     return null;
                 }

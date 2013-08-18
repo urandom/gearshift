@@ -769,7 +769,7 @@ public class TorrentDetailPageFragment extends Fragment {
 
                 mTrackersAdapter.clear();
                 ArrayList<Tracker> trackers = new ArrayList<Tracker>();
-                for (int i = 0; i < tTrackers.length; i++) {
+                for (int i = 0; i < tTrackers.length && i < stats.length; i++) {
                     Tracker tracker = new Tracker(i, tTrackers[i], stats[i]);
                     trackers.add(tracker);
                 }
