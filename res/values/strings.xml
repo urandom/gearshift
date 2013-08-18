@@ -119,6 +119,7 @@
     <string name="access_denied_empty_list">&lt;h2&gt;&lt;font color="#cc0000"&gt;Access denied!&lt;/font&gt;&lt;/h2&gt;Your credentials might be incorrect, or your IP address might not be in the daemon\'s white list.</string>
     <string name="no_json_empty_list">&lt;h2&gt;&lt;font color="#cc0000"&gt;Unexpected response!&lt;/font&gt;&lt;/h2&gt;Please check if the RPC path in your current profile is correct.</string>
     <string name="no_connection_empty_list">&lt;h2&gt;&lt;font color="#cc0000"&gt;Unable to connect!&lt;/font&gt;&lt;/h2&gt;Please check if the server address and port in your current profile are correct.</string>
+    <string name="generic_http_empty_list"><![CDATA[<h2><font color="#cc0000>HTTP client error!</font></h2>The server might be expecting an SSL connection.]]></string>
     <string name="thread_error_empty_list">&lt;h2&gt;&lt;font color="#cc0000"&gt;Internal error!&lt;/font&gt;&lt;/h2&gt;</string>
     <string name="response_error_empty_list">&lt;h2&gt;&lt;font color="#cc0000"&gt;Transmission daemon error!&lt;/font&gt;&lt;/h2&gt;A request to the daemon was not successful. See the logcat for more details.</string>
     <string name="timeout_empty_list"><![CDATA[<h2><font color="#cc0000>Connection timeout!</font></h2>]]></string>

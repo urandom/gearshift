@@ -14,8 +14,6 @@ import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import org.sugr.gearshift.TransmissionSessionManager.TransmissionExclusionStrategy;
-
 import java.util.ArrayList;
 
 
@@ -85,6 +83,8 @@ public class TorrentDetailActivity extends FragmentActivity implements Transmiss
                         text.setText(Html.fromHtml(getString(R.string.no_json_empty_list)));
                     } else if (data.error == TransmissionData.Errors.NO_CONNECTION) {
                         text.setText(Html.fromHtml(getString(R.string.no_connection_empty_list)));
+                    } else if (data.error == TransmissionData.Errors.GENERIC_HTTP) {
+                        text.setText(Html.fromHtml(getString(R.string.generic_http_empty_list)));
                     } else if (data.error == TransmissionData.Errors.THREAD_ERROR) {
                         text.setText(Html.fromHtml(getString(R.string.thread_error_empty_list)));
                     } else if (data.error == TransmissionData.Errors.RESPONSE_ERROR) {
