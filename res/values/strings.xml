@@ -61,7 +61,7 @@
     
     <string name="torrent_seeding">Seeding</string>
     <string name="torrent_seed_ratio_mode">Seed ratio mode:</string>
-    <string name="torrent_seed_ratio_limit">Seed ratio limit (%):</string>
+    <string name="torrent_seed_ratio_limit">Seed ratio limit:</string>
     
     <string name="torrent_peers">Peers</string>
     <string name="torrent_peer_limit">Peer limit:</string>
