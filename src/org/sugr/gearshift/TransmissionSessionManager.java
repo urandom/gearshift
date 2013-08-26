@@ -1,5 +1,19 @@
 package org.sugr.gearshift;
 
+import android.content.Context;
+import android.content.SharedPreferences;
+import android.content.SharedPreferences.Editor;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
+import android.preference.PreferenceManager;
+import android.util.Base64;
+
+import com.google.gson.ExclusionStrategy;
+import com.google.gson.FieldAttributes;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.annotations.SerializedName;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -24,20 +38,6 @@ import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSession;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
-
-import android.content.Context;
-import android.content.SharedPreferences;
-import android.content.SharedPreferences.Editor;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
-import android.preference.PreferenceManager;
-import android.util.Base64;
-
-import com.google.gson.ExclusionStrategy;
-import com.google.gson.FieldAttributes;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.annotations.SerializedName;
 
 public class TransmissionSessionManager {
     @Retention(RetentionPolicy.RUNTIME)
@@ -627,6 +627,8 @@ public class TransmissionSessionManager {
             @SerializedName(Torrent.SetterFields.FILES_HIGH) private int[] filesHigh;
             @SerializedName(Torrent.SetterFields.FILES_NORMAL) private int[] filesNormal;
             @SerializedName(Torrent.SetterFields.FILES_LOW) private int[] filesLow;
+            @SerializedName(Torrent.SetterFields.TRACKER_ADD) private int[] trackerAdd;
+            @SerializedName(Torrent.SetterFields.TRACKER_REMOVE) private int[] trackerRemove;
 
             @SuppressWarnings("unchecked")
             public Arguments(int[] ids, String key, Object value) {
@@ -669,6 +671,10 @@ public class TransmissionSessionManager {
                     this.filesNormal = convertIntegerList((ArrayList<Integer>) value);
                 } else if (key.equals(Torrent.SetterFields.FILES_LOW)) {
                     this.filesLow = convertIntegerList((ArrayList<Integer>) value);
+                } else if (key.equals(Torrent.SetterFields.TRACKER_ADD)) {
+                    this.trackerAdd = convertIntegerList((ArrayList<Integer>) value);
+                } else if (key.equals(Torrent.SetterFields.TRACKER_REMOVE)) {
+                    this.trackerRemove = convertIntegerList((ArrayList<Integer>) value);
                 }
             }
         }

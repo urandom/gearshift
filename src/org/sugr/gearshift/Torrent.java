@@ -29,6 +29,9 @@ public class Torrent implements Parcelable {
         public static final String FILES_NORMAL = "priority-normal";
         public static final String FILES_LOW = "priority-low";
 
+        public static final String TRACKER_ADD = "trackerAdd";
+        public static final String TRACKER_REMOVE = "trackerRemove";
+
     }
 
     @Exclude public static final class AddFields {

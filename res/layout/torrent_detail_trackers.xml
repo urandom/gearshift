@@ -20,6 +20,27 @@
     <LinearLayout
         android:id="@+id/torrent_detail_trackers_content"
         android:orientation="vertical"
-        style="@style/CardContentCollapsed" >
+        android:paddingLeft="8dp"
+        android:paddingRight="8dp"
+        style="@style/CardContentCollapsed">
+
+        <LinearLayout
+            android:id="@+id/torrent_detail_trackers_list"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"/>
+
+        <Button
+                android:id="@+id/torrent_detail_add_tracker"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingLeft="8dp"
+                android:paddingRight="8dp"
+                android:text="@string/tracker_add"
+                android:textSize="15sp"
+                android:fontFamily="sans-serif"
+                android:textStyle="bold"
+                android:background="?android:attr/selectableItemBackground"/>
+
     </LinearLayout>
 </LinearLayout>

@@ -1,7 +1,11 @@
 package org.sugr.gearshift;
 
+import android.annotation.TargetApi;
+import android.content.ClipData;
+import android.content.ClipboardManager;
 import android.content.Context;
 import android.database.DataSetObserver;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.Fragment;
@@ -26,6 +30,7 @@ import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.io.File;
 import java.net.URI;
@@ -130,7 +135,7 @@ public class TorrentDetailPageFragment extends Fragment {
     private TrackersAdapter mTrackersAdapter;
     private TrackersDataSetObserver mTrackersObserver;
 
-    private ActionMode mActionMode;
+    private ActionMode mFileActionMode;
     private Set<View> mSelectedFiles = new HashSet<View>();
 
     private ActionMode.Callback mActionModeFiles = new ActionMode.Callback() {
@@ -142,7 +147,7 @@ public class TorrentDetailPageFragment extends Fragment {
 
         @Override
         public void onDestroyActionMode(ActionMode mode) {
-            mActionMode = null;
+            mFileActionMode = null;
             for (View v : mSelectedFiles) {
                 v.setActivated(false);
             }
@@ -228,6 +233,74 @@ public class TorrentDetailPageFragment extends Fragment {
                     loader.onContentChanged();
                 }
             }
+            return true;
+        }
+    };
+
+    private ActionMode mTrackerActionMode;
+    private Set<View> mSelectedTrackers = new HashSet<View>();
+
+    private ActionMode.Callback mActionModeTrackers = new ActionMode.Callback() {
+
+        @Override
+        public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
+            return false;
+        }
+
+        @Override
+        public void onDestroyActionMode(ActionMode mode) {
+            mTrackerActionMode = null;
+            for (View v : mSelectedTrackers) {
+                v.setActivated(false);
+            }
+            mSelectedTrackers.clear();
+        }
+
+        @Override
+        public boolean onCreateActionMode(ActionMode mode, Menu menu) {
+            mode.getMenuInflater().inflate(R.menu.torrent_detail_tracker_multiselect, menu);
+            return true;
+        }
+
+        @Override
+        public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
+            String key = null;
+            switch (item.getItemId()) {
+                case R.id.select_all:
+                    List<View> files = mTrackersAdapter.getViews();
+
+                    for (View v : files) {
+                        if (v != null) {
+                            if (!v.isActivated()) {
+                                v.setActivated(true);
+                                mSelectedTrackers.add(v);
+                            }
+                        }
+                    }
+
+                    return true;
+                case R.id.remove:
+                    key = Torrent.SetterFields.TRACKER_REMOVE;
+                    break;
+                default:
+                    return false;
+            }
+            List<Integer> ids = new ArrayList<Integer>();
+            List<String> urls = new ArrayList<String>();
+            for (View v : mSelectedTrackers) {
+                Tracker tracker = mTrackersAdapter.getItem(mTrackersAdapter.getViews().indexOf(v));
+                ids.add(tracker.info.getId());
+                mTrackersAdapter.remove(tracker);
+            }
+            if (ids.size() > 0) {
+                setTorrentProperty(key, ids);
+                mode.finish();
+                ((TransmissionSessionInterface) getActivity()).setRefreshing(true);
+                Loader<TransmissionData> loader = getActivity().getSupportLoaderManager()
+                        .getLoader(G.TORRENTS_LOADER_ID);
+                loader.onContentChanged();
+            }
+
             return true;
         }
     };
@@ -504,8 +577,11 @@ public class TorrentDetailPageFragment extends Fragment {
     }
 
     public void onPageUnselected() {
-        if (mActionMode != null) {
-            mActionMode.finish();
+        if (mFileActionMode != null) {
+            mFileActionMode.finish();
+        }
+        if (mTrackerActionMode != null) {
+            mTrackerActionMode.finish();
         }
     }
 
@@ -895,20 +971,20 @@ public class TorrentDetailPageFragment extends Fragment {
                 if (initial) {
                     row.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
                         @Override public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                            if (mActionMode != null) {
+                            if (mFileActionMode != null) {
                                 buttonView.setChecked(!isChecked);
                                 if (buttonView.isActivated()) {
                                     buttonView.setActivated(false);
                                     mSelectedFiles.remove(buttonView);
                                     if (mSelectedFiles.size() == 0) {
-                                        mActionMode.finish();
+                                        mFileActionMode.finish();
                                     } else {
-                                        invalidateFileActionMenu(mActionMode.getMenu());
+                                        invalidateFileActionMenu(mFileActionMode.getMenu());
                                     }
                                 } else {
                                     buttonView.setActivated(true);
                                     mSelectedFiles.add(buttonView);
-                                    invalidateFileActionMenu(mActionMode.getMenu());
+                                    invalidateFileActionMenu(mFileActionMode.getMenu());
                                 }
                                 return;
                             }
@@ -924,13 +1000,13 @@ public class TorrentDetailPageFragment extends Fragment {
                     row.setOnLongClickListener(new View.OnLongClickListener() {
                         @Override
                         public boolean onLongClick(View v) {
-                            if (mActionMode != null) {
+                            if (mFileActionMode != null) {
                                 return false;
                             }
                             v.setActivated(true);
                             mSelectedFiles.add(v);
-                            mActionMode = getActivity().startActionMode(mActionModeFiles);
-                            invalidateFileActionMenu(mActionMode.getMenu());
+                            mFileActionMode = getActivity().startActionMode(mActionModeFiles);
+                            invalidateFileActionMenu(mFileActionMode.getMenu());
                             return true;
                         }
                     });
@@ -1154,6 +1230,47 @@ public class TorrentDetailPageFragment extends Fragment {
                 while (mViews.size() <= position)
                     mViews.add(null);
                 mViews.set(position, rowView);
+
+                View row = rowView.findViewById(R.id.torrent_detail_trackers_row);
+
+                row.setOnLongClickListener(new View.OnLongClickListener() {
+                    @Override
+                    public boolean onLongClick(View v) {
+                        if (mTrackerActionMode != null) {
+                            return false;
+                        }
+                        v.setActivated(true);
+                        mSelectedTrackers.add(v);
+                        mTrackerActionMode = getActivity().startActionMode(mActionModeTrackers);
+                        return true;
+                    }
+                });
+                row.setOnClickListener(new View.OnClickListener() {
+                    @Override public void onClick(View v) {
+                        if (mTrackerActionMode != null) {
+                            if (v.isActivated()) {
+                                mSelectedTrackers.remove(v);
+                                v.setActivated(false);
+                                if (mSelectedTrackers.size() == 0) {
+                                    mTrackerActionMode.finish();
+                                }
+                            } else {
+                                mSelectedTrackers.add(v);
+                                v.setActivated(true);
+                            }
+
+                            return;
+                        }
+
+                        String url = tracker.info.getAnnounce();
+                        ClipboardManager clipboard = (ClipboardManager) getActivity().getSystemService(Context.CLIPBOARD_SERVICE);
+                        ClipData clip = ClipData.newPlainText(getString(R.string.tracker_announce_url), url);
+                        clipboard.setPrimaryClip(clip);
+
+                        Toast.makeText(getActivity(),
+                                R.string.tracker_url_copy, Toast.LENGTH_SHORT).show();
+                    }
+                });
             }
 
             return rowView;
@@ -1166,7 +1283,7 @@ public class TorrentDetailPageFragment extends Fragment {
 
         public TrackersDataSetObserver(View root) {
             mRoot = root;
-            mContainer = (LinearLayout) mRoot.findViewById(R.id.torrent_detail_trackers_content);
+            mContainer = (LinearLayout) mRoot.findViewById(R.id.torrent_detail_trackers_list);
         }
 
         @Override public void onChanged() {
@@ -1186,6 +1303,19 @@ public class TorrentDetailPageFragment extends Fragment {
                         mContainer.addView(v, i);
                     }
                 }
+            }
+
+            int starting = mTrackersAdapter.getCount();
+            List<View> views = mTrackersAdapter.getViews();
+            while (views.size() > starting) {
+                View v = views.get(starting);
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN)  {
+                    animateRemoveView(v);
+                } else {
+                    mContainer.removeView(v);
+                }
+
+                views.remove(starting);
             }
         }
 
@@ -1207,6 +1337,15 @@ public class TorrentDetailPageFragment extends Fragment {
             }
 
             return changed;
+        }
+
+        @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
+        private void animateRemoveView(final View v) {
+            v.animate().setDuration(100).alpha(0).translationXBy(200).withEndAction(new Runnable() {
+                @Override public void run() {
+                    mContainer.removeView(v);
+                }
+            });
         }
     }
 }

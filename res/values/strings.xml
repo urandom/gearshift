@@ -412,6 +412,9 @@
 
     <string name="tracker_seeders"><![CDATA[Seeders: %1$d]]></string>
     <string name="tracker_leechers"><![CDATA[Leechers: %1$d]]></string>
+    <string name="tracker_add">Add tracker</string>
+    <string name="tracker_announce_url">Tracker announce URL</string>
+    <string name="tracker_url_copy">The tracker\'s announce URL has been copied to the clipboard</string>
 
     <plurals name="tracker_peers">
         <item quantity="one">1 peer</item>
