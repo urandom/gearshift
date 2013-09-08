@@ -1295,7 +1295,7 @@ public class TorrentDetailPageFragment extends Fragment {
                         if (buttons.getVisibility() == View.GONE) {
                             buttons.setVisibility(View.VISIBLE);
                             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN)  {
-                                buttons.setAlpha((float) 0.3);
+                                buttons.setAlpha(0.3f);
                                 buttons.setTranslationY(-50);
                                 buttons.animate().setDuration(200).alpha(1).translationY(0).start();
                             }

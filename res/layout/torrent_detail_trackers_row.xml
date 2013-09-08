@@ -87,21 +87,21 @@
             <Button
                 style="@style/TrackerButton"
                 android:id="@+id/torrent_detail_tracker_remove"
-                android:text="Remove" />
+                android:text="@string/remove" />
 
             <View style="@style/TrackerButtonSeparator"/>
 
             <Button
                 style="@style/TrackerButton"
                 android:id="@+id/torrent_detail_tracker_replace"
-                android:text="Replace" />
+                android:text="@string/replace" />
 
             <View style="@style/TrackerButtonSeparator"/>
 
             <Button
                 style="@style/TrackerButton"
                 android:id="@+id/torrent_detail_tracker_copy"
-                android:text="Copy" />
+                android:text="@string/copy" />
 
         </LinearLayout>
 
