@@ -20,6 +20,9 @@
     <LinearLayout
         android:id="@+id/torrent_detail_files_content"
         android:orientation="vertical"
+        android:paddingLeft="8dp"
+        android:paddingRight="8dp"
         style="@style/CardContentCollapsed" >
     </LinearLayout>
+
 </LinearLayout>

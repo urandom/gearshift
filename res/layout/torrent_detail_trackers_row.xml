@@ -1,62 +1,110 @@
 <?xml version="1.0" encoding="utf-8"?>
-<TableLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/torrent_detail_trackers_row"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:paddingLeft="8dp"
-    android:paddingRight="8dp"
-    android:background="@drawable/list_activated_holo_light"
-    android:stretchColumns="0"
-    android:shrinkColumns="0">
+    android:orientation="vertical">
 
-    <TableRow
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content" >
+    <TableLayout
+        android:id="@+id/torrent_detail_trackers_row_info"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:stretchColumns="0"
+        android:background="@drawable/list_activated_holo_light"
+        android:paddingLeft="8dp"
+        android:paddingRight="8dp"
+        android:shrinkColumns="0">
 
-        <TextView
-            android:id="@+id/tracker_url"
-            style="@style/CardTextColumn"
-            android:fontFamily="sans-serif-condensed"
-            android:textStyle="bold"/>
+        <TableRow
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" >
 
-        <TextView
-            android:id="@+id/tracker_tier"
-            android:gravity="right"
-            android:fontFamily="sans-serif-condensed"
-            android:textStyle="bold"
-            style="@style/CardTextColumn" />
+            <TextView
+                android:id="@+id/tracker_url"
+                style="@style/CardTextColumn"
+                android:fontFamily="sans-serif-condensed"
+                android:textStyle="bold"/>
 
-    </TableRow>
+            <TextView
+                android:id="@+id/tracker_tier"
+                android:gravity="right"
+                android:fontFamily="sans-serif-condensed"
+                android:textStyle="bold"
+                style="@style/CardTextColumn" />
 
-    <TableRow
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content" >
+        </TableRow>
 
-        <TextView
-            android:id="@+id/tracker_announce"
-            style="@style/CardTextColumn" />
+        <TableRow
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" >
 
-        <TextView
-            android:id="@+id/tracker_seeders"
-            android:gravity="right"
-            style="@style/CardTextColumn" />
+            <TextView
+                android:id="@+id/tracker_announce"
+                style="@style/CardTextColumn" />
 
-    </TableRow>
+            <TextView
+                android:id="@+id/tracker_seeders"
+                android:gravity="right"
+                style="@style/CardTextColumn" />
 
-    <TableRow
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content" >
+        </TableRow>
 
-        <TextView
-            android:id="@+id/tracker_scrape"
-            style="@style/CardTextColumn" />
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" >
 
-        <TextView
-            android:id="@+id/tracker_leechers"
-            android:gravity="right"
-            style="@style/CardTextColumn" />
+            <TextView
+                android:id="@+id/tracker_scrape"
+                style="@style/CardTextColumn" />
+
+            <TextView
+                android:id="@+id/tracker_leechers"
+                android:gravity="right"
+                style="@style/CardTextColumn" />
 
 
-    </TableRow>
+        </TableRow>
 
-</TableLayout>
+    </TableLayout>
+
+    <FrameLayout
+        android:id="@+id/torrent_detail_tracker_buttons"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        android:background="@color/detail_background_edge">
+
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingLeft="8dp"
+            android:paddingRight="8dp"
+            android:layout_marginTop="1dp"
+            android:background="@color/detail_background"
+            >
+
+            <Button
+                style="@style/TrackerButton"
+                android:id="@+id/torrent_detail_tracker_remove"
+                android:text="Remove" />
+
+            <View style="@style/TrackerButtonSeparator"/>
+
+            <Button
+                style="@style/TrackerButton"
+                android:id="@+id/torrent_detail_tracker_replace"
+                android:text="Replace" />
+
+            <View style="@style/TrackerButtonSeparator"/>
+
+            <Button
+                style="@style/TrackerButton"
+                android:id="@+id/torrent_detail_tracker_copy"
+                android:text="Copy" />
+
+        </LinearLayout>
+
+    </FrameLayout>
+
+</LinearLayout>
