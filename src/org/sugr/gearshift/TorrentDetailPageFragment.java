@@ -289,7 +289,7 @@ public class TorrentDetailPageFragment extends Fragment {
             List<Integer> ids = new ArrayList<Integer>();
             List<String> urls = new ArrayList<String>();
             for (View v : mSelectedTrackers) {
-                Tracker tracker = mTrackersAdapter.getItem(mTrackersAdapter.getViews().indexOf(v));
+                Tracker tracker = mTrackersAdapter.getItem(mTrackersAdapter.getViews().indexOf(v.getParent()));
                 ids.add(tracker.info.getId());
                 mTrackersAdapter.remove(tracker);
             }
