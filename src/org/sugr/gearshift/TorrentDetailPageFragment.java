@@ -1296,9 +1296,8 @@ public class TorrentDetailPageFragment extends Fragment {
                             buttons.setVisibility(View.VISIBLE);
                             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN)  {
                                 buttons.setAlpha((float) 0.3);
-                                buttons.setTranslationX(200);
-                                buttons.animate().setDuration(150).alpha(1).translationX(0);
-                            } else {
+                                buttons.setTranslationY(-50);
+                                buttons.animate().setDuration(200).alpha(1).translationY(0).start();
                             }
                         } else {
                             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN)  {
@@ -1366,7 +1365,7 @@ public class TorrentDetailPageFragment extends Fragment {
 
         @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
         private void animateHideButtons(final View v) {
-            v.animate().setDuration(150).alpha(0).translationX(200).withEndAction(new Runnable() {
+            v.animate().setDuration(250).alpha(0).translationY(-50).withEndAction(new Runnable() {
                 @Override public void run() {
                     v.setVisibility(View.GONE);
                 }
@@ -1439,7 +1438,7 @@ public class TorrentDetailPageFragment extends Fragment {
 
         @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
         private void animateRemoveView(final View v) {
-            v.animate().setDuration(100).alpha(0).translationXBy(200).withEndAction(new Runnable() {
+            v.animate().setDuration(250).alpha(0).translationY(-50).withEndAction(new Runnable() {
                 @Override public void run() {
                     mContainer.removeView(v);
                 }
