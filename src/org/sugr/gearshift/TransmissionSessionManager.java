@@ -12,6 +12,11 @@ import com.google.gson.ExclusionStrategy;
 import com.google.gson.FieldAttributes;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonPrimitive;
+import com.google.gson.JsonSerializationContext;
+import com.google.gson.JsonSerializer;
 import com.google.gson.annotations.SerializedName;
 
 import java.io.BufferedReader;
@@ -21,6 +26,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.lang.reflect.Type;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.security.KeyManagementException;
@@ -239,7 +245,12 @@ public class TransmissionSessionManager {
     }
 
     public void setTorrentsProperty(int[] ids, String key, Object value) throws ManagerException {
-        TorrentsSetRequest request = new TorrentsSetRequest(ids, key, value);
+        Object request;
+        if (key.equals(Torrent.SetterFields.TRACKER_REPLACE)) {
+            request = new TrackerReplaceRequest(ids, value);
+        } else {
+            request = new TorrentsSetRequest(ids, key, value);
+        }
 
         String json = requestData(request, new KeyExclusionStrategy("ids", key));
         Gson gson = new GsonBuilder().setExclusionStrategies(new TransmissionExclusionStrategy()).create();
@@ -382,7 +393,10 @@ public class TransmissionSessionManager {
             os = conn.getOutputStream();
             Gson gson = new GsonBuilder().setExclusionStrategies(strategies)
                 .addSerializationExclusionStrategy(
-                        new TransmissionExclusionStrategy()).create();
+                    new TransmissionExclusionStrategy()
+                ).registerTypeAdapter(
+                    TrackerReplaceRequest.class, new TrackerReplaceRequestSerializer()
+                ).create();
             String json = gson.toJson(data);
             os.write(json.getBytes());
             os.flush();
@@ -627,7 +641,7 @@ public class TransmissionSessionManager {
             @SerializedName(Torrent.SetterFields.FILES_HIGH) private int[] filesHigh;
             @SerializedName(Torrent.SetterFields.FILES_NORMAL) private int[] filesNormal;
             @SerializedName(Torrent.SetterFields.FILES_LOW) private int[] filesLow;
-            @SerializedName(Torrent.SetterFields.TRACKER_ADD) private int[] trackerAdd;
+            @SerializedName(Torrent.SetterFields.TRACKER_ADD) private String[] trackerAdd;
             @SerializedName(Torrent.SetterFields.TRACKER_REMOVE) private int[] trackerRemove;
 
             @SuppressWarnings("unchecked")
@@ -672,10 +686,37 @@ public class TransmissionSessionManager {
                 } else if (key.equals(Torrent.SetterFields.FILES_LOW)) {
                     this.filesLow = convertIntegerList((ArrayList<Integer>) value);
                 } else if (key.equals(Torrent.SetterFields.TRACKER_ADD)) {
-                    this.trackerAdd = convertIntegerList((ArrayList<Integer>) value);
+                    this.trackerAdd = convertStringList((ArrayList<String>) value);
                 } else if (key.equals(Torrent.SetterFields.TRACKER_REMOVE)) {
                     this.trackerRemove = convertIntegerList((ArrayList<Integer>) value);
                 }
+            }
+        }
+    }
+
+    private static class TrackerReplaceRequest {
+        @SerializedName("method") private final String method = "torrent-set";
+        @SerializedName("arguments") private Arguments arguments;
+
+        public TrackerReplaceRequest(int[] ids, Object value) {
+            this.arguments = new Arguments(ids, (Torrent.TrackerReplaceTuple) value);
+        }
+
+        public Torrent.TrackerReplaceTuple getTuple() {
+            return this.arguments.getTuple();
+        }
+
+        private static class Arguments {
+            @SerializedName("ids") private int[] ids;
+            transient private Torrent.TrackerReplaceTuple trackerReplace;
+
+            public Arguments(int[] ids, Torrent.TrackerReplaceTuple value) {
+                this.ids = ids;
+                this.trackerReplace = value;
+            }
+
+            public Torrent.TrackerReplaceTuple getTuple() {
+                return this.trackerReplace;
             }
         }
     }
@@ -850,11 +891,44 @@ public class TransmissionSessionManager {
         }
     }
 
+
+    public static class TrackerReplaceRequestSerializer implements JsonSerializer<TrackerReplaceRequest> {
+        private static final Gson cleanGson = new Gson();
+
+        @Override
+        public JsonElement serialize(final TrackerReplaceRequest request, final Type typeOfSrc, final JsonSerializationContext context) {
+            JsonElement json = cleanGson.toJsonTree(request);
+            Torrent.TrackerReplaceTuple tuple = request.getTuple();
+
+            JsonArray array = new JsonArray();
+            List<Integer> ids = tuple.getIds();
+            List<String> urls = tuple.getUrls();
+
+            for (int i = 0; i < ids.size(); ++i) {
+                array.add(new JsonPrimitive(ids.get(i)));
+                array.add(new JsonPrimitive(urls.get(i)));
+            }
+
+            json.getAsJsonObject().getAsJsonObject("arguments").add(Torrent.SetterFields.TRACKER_REPLACE, array);
+
+            return json;
+        }
+    }
+
     public static int[] convertIntegerList(List<Integer> list) {
         int[] ret = new int[list.size()];
         Iterator<Integer> iterator = list.iterator();
         for (int i = 0; i < ret.length; i++) {
             ret[i] = iterator.next().intValue();
+        }
+
+        return ret;
+    }
+
+    public static String[] convertStringList(List<String> list) {
+        String[] ret = new String[list.size()];
+        for (int i = 0; i < ret.length; i++) {
+            ret[i] = list.get(i);
         }
 
         return ret;

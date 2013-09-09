@@ -1,9 +1,11 @@
 package org.sugr.gearshift;
 
 import android.annotation.TargetApi;
+import android.app.AlertDialog;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.database.DataSetObserver;
 import android.os.Build;
 import android.os.Bundle;
@@ -23,6 +25,7 @@ import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.EditText;
@@ -535,6 +538,38 @@ public class TorrentDetailPageFragment extends Fragment {
                 return false;
             }
 
+        });
+
+        Button addTracker = (Button) root.findViewById(R.id.torrent_detail_add_tracker);
+        addTracker.setOnClickListener(new View.OnClickListener() {
+            @Override public void onClick(View v) {
+                final List<String> urls = new ArrayList<String>();
+                LayoutInflater inflater = getActivity().getLayoutInflater();
+
+                AlertDialog.Builder builder = new AlertDialog.Builder(getActivity())
+                        .setTitle(R.string.tracker_add)
+                        .setCancelable(false)
+                        .setNegativeButton(android.R.string.no, null)
+                        .setPositiveButton(android.R.string.yes,
+                                new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int id) {
+                                        EditText url = (EditText) ((AlertDialog) dialog).findViewById(R.id.tracker_announce_url);
+
+                                        urls.add(url.getText().toString());
+
+                                        setTorrentProperty(Torrent.SetterFields.TRACKER_ADD, urls);
+
+                                        ((TransmissionSessionInterface) getActivity()).setRefreshing(true);
+                                        Loader<TransmissionData> loader = getActivity()
+                                                .getSupportLoaderManager().getLoader(
+                                                        G.TORRENTS_LOADER_ID);
+                                        loader.onContentChanged();
+                                    }
+                                }).setView(inflater.inflate(R.layout.replace_tracker_dialog, null));
+                AlertDialog dialog = builder.create();
+                dialog.show();
+            }
         });
 
         root.setOnTouchListener(new View.OnTouchListener() {
@@ -1309,6 +1344,10 @@ public class TorrentDetailPageFragment extends Fragment {
                     }
                 });
 
+                final TransmissionSessionInterface context = (TransmissionSessionInterface) getActivity();
+                final Loader<TransmissionData> loader = getActivity().getSupportLoaderManager()
+                        .getLoader(G.TORRENTS_LOADER_ID);
+
                 buttons.findViewById(R.id.torrent_detail_tracker_remove).setOnClickListener(new View.OnClickListener() {
                     @Override public void onClick(View v) {
                         mTrackersAdapter.remove(tracker);
@@ -1316,16 +1355,42 @@ public class TorrentDetailPageFragment extends Fragment {
                         ids.add(tracker.info.getId());
 
                         setTorrentProperty(Torrent.SetterFields.TRACKER_REMOVE, ids);
-                        ((TransmissionSessionInterface) getActivity()).setRefreshing(true);
-                        Loader<TransmissionData> loader = getActivity().getSupportLoaderManager()
-                                .getLoader(G.TORRENTS_LOADER_ID);
+                        context.setRefreshing(true);
                         loader.onContentChanged();
+
                         hideAllButtons(null);
                     }
                 });
 
                 buttons.findViewById(R.id.torrent_detail_tracker_replace).setOnClickListener(new View.OnClickListener() {
                     @Override public void onClick(View v) {
+                        final List<Integer> ids = new ArrayList<Integer>();
+                        ids.add(tracker.info.getId());
+
+                        final List<String> urls = new ArrayList<String>();
+                        LayoutInflater inflater = getActivity().getLayoutInflater();
+
+                        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity())
+                            .setTitle(R.string.tracker_replace)
+                            .setCancelable(false)
+                            .setNegativeButton(android.R.string.no, null)
+                            .setPositiveButton(android.R.string.yes,
+                                    new DialogInterface.OnClickListener() {
+                                        @Override
+                                        public void onClick(DialogInterface dialog, int id) {
+                                            EditText url = (EditText) ((AlertDialog) dialog).findViewById(R.id.tracker_announce_url);
+
+                                            urls.add(url.getText().toString());
+
+                                            setTorrentProperty(Torrent.SetterFields.TRACKER_REPLACE, new Torrent.TrackerReplaceTuple(ids, urls));
+
+                                            context.setRefreshing(true);
+                                            loader.onContentChanged();
+                                        }
+                                    }).setView(inflater.inflate(R.layout.replace_tracker_dialog, null));
+                        AlertDialog dialog = builder.create();
+                        dialog.show();
+
                         hideAllButtons(null);
                     }
                 });

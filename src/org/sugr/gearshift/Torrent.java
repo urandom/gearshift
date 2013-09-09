@@ -6,9 +6,17 @@ import android.os.Parcelable;
 import android.text.Html;
 import android.text.Spanned;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonPrimitive;
+import com.google.gson.JsonSerializationContext;
+import com.google.gson.JsonSerializer;
 import com.google.gson.annotations.SerializedName;
 
 import org.sugr.gearshift.TransmissionSessionManager.Exclude;
+
+import java.lang.reflect.Type;
+import java.util.List;
 
 public class Torrent implements Parcelable {
     @Exclude public static final class SetterFields {
@@ -31,6 +39,7 @@ public class Torrent implements Parcelable {
 
         public static final String TRACKER_ADD = "trackerAdd";
         public static final String TRACKER_REMOVE = "trackerRemove";
+        public static final String TRACKER_REPLACE = "trackerReplace";
 
     }
 
@@ -352,6 +361,32 @@ public class Torrent implements Parcelable {
 
         public void setLeecherCount(int mLeecherCount) {
             mLeecherCount = mLeecherCount;
+        }
+    }
+
+    @Exclude public static class TrackerReplaceTuple {
+        private List<Integer> ids;
+        private List<String> urls;
+
+        public TrackerReplaceTuple(List<Integer> ids, List<String> urls) {
+            setIds(ids);
+            setUrls(urls);
+        }
+
+        public List<Integer> getIds() {
+            return this.ids;
+        }
+
+        public List<String> getUrls() {
+            return this.urls;
+        }
+
+        public void setIds(List<Integer> ids) {
+            this.ids = ids;
+        }
+
+        public void setUrls(List<String> urls) {
+            this.urls = urls;
         }
     }
 
