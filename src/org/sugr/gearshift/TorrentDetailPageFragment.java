@@ -361,6 +361,7 @@ public class TorrentDetailPageFragment extends Fragment {
                         root.findViewById(R.id.torrent_detail_overview_content).setVisibility(mExpandedStates[Expanders.OVERVIEW] ? View.VISIBLE : View.GONE);
                         root.findViewById(R.id.torrent_detail_files_content).setVisibility(mExpandedStates[Expanders.FILES] ? View.VISIBLE : View.GONE);
                         root.findViewById(R.id.torrent_detail_limits_content).setVisibility(mExpandedStates[Expanders.LIMITS] ? View.VISIBLE : View.GONE);
+                        root.findViewById(R.id.torrent_detail_trackers_content).setVisibility(mExpandedStates[Expanders.TRACKERS] ? View.VISIBLE : View.GONE);
                         updateFields(root);
                     }
                     if (savedInstanceState.containsKey(STATE_SCROLL_POSITION)) {
@@ -875,7 +876,7 @@ public class TorrentDetailPageFragment extends Fragment {
         if (root.findViewById(R.id.torrent_detail_trackers_content).getVisibility() != View.GONE
                 && mTorrent.getTrackers() != null && mTorrent.getTrackerStats() != null) {
             mTrackersAdapter.setNotifyOnChange(false);
-            if (mTrackersAdapter.getCount() == 0) {
+            if (mTrackersAdapter.getCount() != mTorrent.getTrackers().length) {
                 Torrent.Tracker[] tTrackers = mTorrent.getTrackers();
                 Torrent.TrackerStats[] stats = mTorrent.getTrackerStats();
 
