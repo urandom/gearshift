@@ -267,7 +267,7 @@ public class TorrentDetailPageFragment extends Fragment {
 
         @Override
         public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
-            String key = null;
+            String key;
             switch (item.getItemId()) {
                 case R.id.select_all:
                     List<View> trackers = mTrackersAdapter.getViews();
@@ -293,7 +293,7 @@ public class TorrentDetailPageFragment extends Fragment {
             List<String> urls = new ArrayList<String>();
             for (View v : mSelectedTrackers) {
                 Tracker tracker = mTrackersAdapter.getItem(mTrackersAdapter.getViews().indexOf(v.getParent()));
-                ids.add(tracker.info.getId());
+                ids.add(tracker.id);
                 mTrackersAdapter.remove(tracker);
             }
             if (ids.size() > 0) {
@@ -1138,34 +1138,59 @@ public class TorrentDetailPageFragment extends Fragment {
     }
 
     private class Tracker {
-        int index = -1;
-        Torrent.Tracker info;
-        Torrent.TrackerStats stat;
+        public int index = -1;
+        public String host;
+        public int id;
+        public String announce;
+        public String scrape;
+        public int tier;
 
-        boolean changed = false;
+        public int seederCount;
+        public int leecherCount;
+        public boolean hasAnnounced;
+        public long lastAnnounceTime;
+        public boolean hasLastAnnounceSucceeded;
+        public int lastAnnouncePeerCount;
+        public String lastAnnounceResult;
 
-        String host;
+        public boolean hasScraped;
+        public long lastScrapeTime;
+        public boolean hasLastScrapeSucceeded;
+        public String lastScrapeResult;
 
         public Tracker(int index, Torrent.Tracker info, Torrent.TrackerStats stat) {
             this.index = index;
-            this.stat = stat;
 
             setInfo(info);
+            setStat(stat);
         }
 
         public void setInfo(Torrent.Tracker info) {
-            this.info = info;
-
             try {
                 URI uri = new URI(info.getAnnounce());
                 this.host = uri.getHost();
             } catch (URISyntaxException e) {
                 this.host = getString(R.string.tracker_unknown_host);
             }
+
+            this.id = info.getId();
+            this.announce = info.getAnnounce();
+            this.scrape = info.getScrape();
+            this.tier = info.getTier();
         }
 
         public void setStat(Torrent.TrackerStats stat) {
-            this.stat = stat;
+            this.seederCount = stat.getSeederCount();
+            this.leecherCount = stat.getLeecherCount();
+            this.hasAnnounced = stat.hasAnnounced();
+            this.lastAnnounceTime = stat.getLastAnnouceTime();
+            this.hasLastAnnounceSucceeded = stat.hasLastAnnouceSucceeded();
+            this.lastAnnouncePeerCount = stat.getLastAnnoucePeerCount();
+            this.lastAnnounceResult = stat.getLastAnnouceResult();
+            this.hasScraped = stat.hasScraped();
+            this.lastScrapeTime = stat.getLastScrapeTime();
+            this.hasLastScrapeSucceeded = stat.hasLastScrapeSucceeded();
+            this.lastScrapeResult = stat.getLastScrapeResult();
         }
 
         public void setIndex(int index) {
@@ -1176,7 +1201,7 @@ public class TorrentDetailPageFragment extends Fragment {
     private class TrackerComparator implements Comparator<Tracker> {
         @Override
         public int compare(Tracker lhs, Tracker rhs) {
-            int tier = lhs.info.getTier() - rhs.info.getTier();
+            int tier = lhs.tier - rhs.tier;
 
             if (tier != 0) {
                 return tier;
@@ -1234,31 +1259,31 @@ public class TorrentDetailPageFragment extends Fragment {
 
             url.setText(tracker.host);
             tier.setText(String.format(getString(R.string.tracker_tier),
-                    tracker.info.getTier()));
+                    tracker.tier));
 
             seeders.setText(String.format(getString(R.string.tracker_seeders),
-                    tracker.stat.getSeederCount()));
+                    tracker.seederCount));
             leechers.setText(String.format(getString(R.string.tracker_leechers),
-                    tracker.stat.getLeecherCount()));
+                    tracker.leecherCount));
 
             long now = (new Date().getTime() / 1000);
-            if (tracker.stat.hasAnnounced()) {
-                String time = G.readableRemainingTime(now - tracker.stat.getLastAnnouceTime(),
+            if (tracker.hasAnnounced) {
+                String time = G.readableRemainingTime(now - tracker.lastAnnounceTime,
                         getActivity());
-                if (tracker.stat.hasLastAnnouceSucceeded()) {
+                if (tracker.hasLastAnnounceSucceeded) {
                     announce.setText(String.format(
                             getString(R.string.tracker_announce_success),
                             time, String.format(
                                 getResources().getQuantityString(R.plurals.tracker_peers,
-                                        tracker.stat.getLastAnnoucePeerCount(),
-                                        tracker.stat.getLastAnnoucePeerCount())
+                                        tracker.lastAnnouncePeerCount,
+                                        tracker.lastAnnouncePeerCount)
                     )));
                 } else {
                     announce.setText(String.format(
                             getString(R.string.tracker_announce_error),
-                            TextUtils.isEmpty(tracker.stat.getLastAnnouceResult())
+                            TextUtils.isEmpty(tracker.lastAnnounceResult)
                                 ? ""
-                                : (tracker.stat.getLastAnnouceResult() + " - "),
+                                : (tracker.lastAnnounceResult + " - "),
                             time
                     ));
                 }
@@ -1266,10 +1291,10 @@ public class TorrentDetailPageFragment extends Fragment {
                 announce.setText(R.string.tracker_announce_never);
             }
 
-            if (tracker.stat.hasScraped()) {
-                String time = G.readableRemainingTime(now - tracker.stat.getLastScrapeTime(),
+            if (tracker.hasScraped) {
+                String time = G.readableRemainingTime(now - tracker.lastScrapeTime,
                         getActivity());
-                if (tracker.stat.hasLastScrapeSucceeded()) {
+                if (tracker.hasLastScrapeSucceeded) {
                     scrape.setText(String.format(
                             getString(R.string.tracker_scrape_success),
                             time
@@ -1277,9 +1302,9 @@ public class TorrentDetailPageFragment extends Fragment {
                 } else {
                     scrape.setText(String.format(
                             getString(R.string.tracker_scrape_error),
-                            TextUtils.isEmpty(tracker.stat.getLastScrapeResult())
+                            TextUtils.isEmpty(tracker.lastScrapeResult)
                                     ? ""
-                                    : (tracker.stat.getLastScrapeResult() + " - "),
+                                    : (tracker.lastScrapeResult + " - "),
                             time
                     ));
                 }
@@ -1353,7 +1378,7 @@ public class TorrentDetailPageFragment extends Fragment {
                     @Override public void onClick(View v) {
                         mTrackersAdapter.remove(tracker);
                         List<Integer> ids = new ArrayList<Integer>();
-                        ids.add(tracker.info.getId());
+                        ids.add(tracker.id);
 
                         setTorrentProperty(Torrent.SetterFields.TRACKER_REMOVE, ids);
                         context.setRefreshing(true);
@@ -1366,7 +1391,7 @@ public class TorrentDetailPageFragment extends Fragment {
                 buttons.findViewById(R.id.torrent_detail_tracker_replace).setOnClickListener(new View.OnClickListener() {
                     @Override public void onClick(View v) {
                         final List<Integer> ids = new ArrayList<Integer>();
-                        ids.add(tracker.info.getId());
+                        ids.add(tracker.id);
 
                         final List<String> urls = new ArrayList<String>();
                         LayoutInflater inflater = getActivity().getLayoutInflater();
@@ -1398,7 +1423,7 @@ public class TorrentDetailPageFragment extends Fragment {
 
                 buttons.findViewById(R.id.torrent_detail_tracker_copy).setOnClickListener(new View.OnClickListener() {
                     @Override public void onClick(View v) {
-                        String url = tracker.info.getAnnounce();
+                        String url = tracker.announce;
                         ClipboardManager clipboard = (ClipboardManager) getActivity().getSystemService(Context.CLIPBOARD_SERVICE);
                         ClipData clip = ClipData.newPlainText(getString(R.string.tracker_announce_url), url);
                         clipboard.setPrimaryClip(clip);
@@ -1489,13 +1514,11 @@ public class TorrentDetailPageFragment extends Fragment {
         private boolean trackerChanged(Tracker tracker, Torrent.Tracker tTracker, Torrent.TrackerStats stat) {
             boolean changed = false;
 
-            if (tracker.changed
-                    || tracker.stat.getLastAnnouceTime() != stat.getLastAnnouceTime()
-                    || tracker.stat.getLastScrapeTime() != stat.getLastScrapeTime()
-                    || tracker.stat.getLeecherCount() != stat.getLeecherCount()
-                    || tracker.stat.getSeederCount() != stat.getSeederCount()) {
+            if (tracker.lastAnnounceTime != stat.getLastAnnouceTime()
+                    || tracker.lastScrapeTime != stat.getLastScrapeTime()
+                    || tracker.leecherCount != stat.getLeecherCount()
+                    || tracker.seederCount != stat.getSeederCount()) {
                 tracker.setStat(stat);
-                tracker.changed = false;
                 changed = true;
             }
 
