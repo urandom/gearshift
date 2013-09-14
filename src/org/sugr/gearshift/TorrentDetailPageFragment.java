@@ -1174,8 +1174,8 @@ public class TorrentDetailPageFragment extends Fragment {
             }
 
             this.id = info.getId();
-            this.announce = info.getAnnounce();
-            this.scrape = info.getScrape();
+            this.announce = new String(info.getAnnounce());
+            this.scrape = new String(info.getScrape());
             this.tier = info.getTier();
         }
 
@@ -1186,11 +1186,11 @@ public class TorrentDetailPageFragment extends Fragment {
             this.lastAnnounceTime = stat.getLastAnnouceTime();
             this.hasLastAnnounceSucceeded = stat.hasLastAnnouceSucceeded();
             this.lastAnnouncePeerCount = stat.getLastAnnoucePeerCount();
-            this.lastAnnounceResult = stat.getLastAnnouceResult();
+            this.lastAnnounceResult = new String(stat.getLastAnnouceResult());
             this.hasScraped = stat.hasScraped();
             this.lastScrapeTime = stat.getLastScrapeTime();
             this.hasLastScrapeSucceeded = stat.hasLastScrapeSucceeded();
-            this.lastScrapeResult = stat.getLastScrapeResult();
+            this.lastScrapeResult = new String(stat.getLastScrapeResult());
         }
 
         public void setIndex(int index) {
@@ -1514,10 +1514,12 @@ public class TorrentDetailPageFragment extends Fragment {
         private boolean trackerChanged(Tracker tracker, Torrent.Tracker tTracker, Torrent.TrackerStats stat) {
             boolean changed = false;
 
-            if (tracker.lastAnnounceTime != stat.getLastAnnouceTime()
+            if (!tracker.announce.equals(tTracker.getAnnounce())
+                    || tracker.lastAnnounceTime != stat.getLastAnnouceTime()
                     || tracker.lastScrapeTime != stat.getLastScrapeTime()
                     || tracker.leecherCount != stat.getLeecherCount()
                     || tracker.seederCount != stat.getSeederCount()) {
+                tracker.setInfo(tTracker);
                 tracker.setStat(stat);
                 changed = true;
             }
