@@ -320,7 +320,9 @@ public class TransmissionSessionManager {
         } else if (response.getResult().equals("method name not recognized")) {
             return -1;
         } else {
-            throw new ManagerException(response.getResult(), -2);
+            G.logE("Transmission Daemon Error!",
+                    new Exception(response.getResult()));
+            return -1;
         }
     }
 
