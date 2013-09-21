@@ -30,7 +30,6 @@ import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.CheckBox;
 import android.widget.Filter;
-import android.widget.Filter.FilterListener;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.SearchView;
@@ -176,7 +175,7 @@ public class TorrentListFragment extends ListFragment {
                  * appear until the next server request */
                 mPreventRefreshIndicator = true;
 
-                if (oldProfile != null && oldProfile.getId() == mProfile.getId()) {
+                if (oldProfile != null && oldProfile.getId().equals(mProfile.getId())) {
                     getActivity().getSupportLoaderManager().initLoader(
                         G.TORRENTS_LOADER_ID,
                         null, mTorrentLoaderCallbacks);
@@ -204,9 +203,7 @@ public class TorrentListFragment extends ListFragment {
             G.logD("Starting the torrents loader with profile " + mProfile);
             if (mProfile == null) return null;
 
-            TransmissionDataLoader loader = new TransmissionDataLoader(getActivity(), mProfile);
-
-            return loader;
+            return new TransmissionDataLoader(getActivity(), mProfile);
         }
 
         @Override
@@ -408,7 +405,8 @@ public class TorrentListFragment extends ListFragment {
         @Override
         public boolean onCreateActionMode(ActionMode mode, Menu menu) {
             MenuInflater inflater = mode.getMenuInflater();
-            inflater.inflate(R.menu.torrent_list_multiselect, menu);
+            if (inflater != null)
+                inflater.inflate(R.menu.torrent_list_multiselect, menu);
 
             mSelectedTorrentIds = new HashSet<Integer>();
             mActionMode = mode;
@@ -450,10 +448,12 @@ public class TorrentListFragment extends ListFragment {
             }
             Menu menu = mode.getMenu();
             MenuItem item = menu.findItem(R.id.resume);
-            item.setVisible(hasPaused).setEnabled(hasPaused);
+            if (item != null)
+                item.setVisible(hasPaused).setEnabled(hasPaused);
 
             item = menu.findItem(R.id.pause);
-            item.setVisible(hasRunning).setEnabled(hasRunning);
+            if (item != null)
+                item.setVisible(hasRunning).setEnabled(hasRunning);
         }
     };
 
@@ -474,6 +474,14 @@ public class TorrentListFragment extends ListFragment {
                 }
             };
 
+    private Handler mFindHandler = new Handler();
+    private Runnable mFindRunnable = new Runnable() {
+        @Override public void run() {
+            G.logD("Search query " + mFindQuery);
+            setListFilter(mFindQuery);
+        }
+    };
+
     /**
      * Mandatory empty constructor for the fragment manager to instantiate the
      * fragment (e.g. upon screen orientation changes).
@@ -487,6 +495,11 @@ public class TorrentListFragment extends ListFragment {
 
         setHasOptionsMenu(true);
         getActivity().setProgressBarIndeterminateVisibility(true);
+
+        SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
+        Editor e = sharedPrefs.edit();
+        e.putString(G.PREF_LIST_SEARCH, "");
+        e.apply();
 
         ActionBar actionBar = getActivity().getActionBar();
         if (actionBar != null) {
@@ -649,13 +662,12 @@ public class TorrentListFragment extends ListFragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState) {
-        View rootView = inflater.inflate(R.layout.fragment_torrent_list, container, false);
 
-        return rootView;
+        return inflater.inflate(R.layout.fragment_torrent_list, container, false);
     }
 
     @Override
-    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+    public void onCreateOptionsMenu(final Menu menu, MenuInflater inflater) {
         inflater.inflate(R.menu.torrent_list_options, menu);
 
         MenuItem item = menu.findItem(R.id.menu_refresh);
@@ -678,42 +690,46 @@ public class TorrentListFragment extends ListFragment {
             }
         }
 
-        item = menu.findItem(R.id.menu_find);
         if (mFindShown) {
-            item.expandActionView();
+            /* TODO: turn this into a regular TextView if the detail fragment is visible */
+            final SearchView findView = new SearchView(
+                    getActivity().getActionBar().getThemedContext());
+            findView.setQueryHint(getActivity().getString(R.string.filter));
+            findView.setIconified(false);
+
+            item = menu.add(R.string.find).setActionView(findView);
+            item.setShowAsAction(MenuItem.SHOW_AS_ACTION_COLLAPSE_ACTION_VIEW);
+
             item.setOnActionExpandListener(new MenuItem.OnActionExpandListener() {
                 @Override public boolean onMenuItemActionExpand(MenuItem item) {
                     return true;
                 }
 
                 @Override public boolean onMenuItemActionCollapse(MenuItem item) {
-                    mFindShown = false;
                     mFindQuery = null;
+                    mFindShown = false;
                     setListFilter((String) null);
                     return true;
                 }
             });
-            SearchView searchView = (SearchView) menu.findItem(R.id.menu_find).getActionView();
-            searchView.setQueryHint(getActivity().getString(R.string.filter));
-            searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            item.expandActionView();
+
+            findView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
                 @Override public boolean onQueryTextSubmit(String query) {
                     return false;
                 }
 
                 @Override public boolean onQueryTextChange(String newText) {
-                    G.logD("Search query " + newText);
                     mFindQuery = newText;
-                    setListFilter(newText);
-                    return false;
+                    mFindHandler.removeCallbacks(mFindRunnable);
+                    mFindHandler.postDelayed(mFindRunnable, 500);
+                    return true;
                 }
             });
-            if (mFindQuery == null) {
-                searchView.setQuery("", false);
-            } else {
-                searchView.setQuery(mFindQuery, true);
-            }
-        } else {
-            item.collapseActionView();
+
+            SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
+
+            findView.setQuery(sharedPrefs.getString(G.PREF_LIST_SEARCH, ""), false);
         }
     }
 
@@ -938,7 +954,6 @@ public class TorrentListFragment extends ListFragment {
         private ArrayList<Torrent> mOriginalValues;
         private TorrentFilter mFilter;
         private CharSequence mCurrentConstraint;
-        private FilterListener mCurrentFilterListener;
         private TorrentComparator mTorrentComparator = new TorrentComparator();
         private FilterBy mFilterBy = FilterBy.ALL;
         private SortBy mSortBy = mTorrentComparator.getSortBy();
@@ -1148,38 +1163,59 @@ public class TorrentListFragment extends ListFragment {
         }
 
         public void filter(String query) {
+            if (query == null && mCurrentConstraint == null
+                    || query != null && query.equals(mCurrentConstraint))
+                return;
+
             mCurrentConstraint = query;
             applyFilter(query, G.PREF_LIST_SEARCH, false);
         }
 
         public void filter(FilterBy by) {
+            if (by == mFilterBy)
+                return;
+
             mFilterBy = by;
             applyFilter(by.name(), G.PREF_LIST_FILTER);
         }
 
         public void filter(SortBy by) {
+            if (by == mSortBy)
+                return;
+
             mSortBy = by;
             applyFilter(by.name(), G.PREF_LIST_SORT_BY);
         }
 
         public void filter(SortOrder order) {
+            if (order == mSortOrder)
+                return;
+
             mSortOrder = order;
             applyFilter(order.name(), G.PREF_LIST_SORT_ORDER);
         }
 
         public void filterDirectory(String directory) {
+            if (directory == null && mDirectory == null
+                    || directory != null && directory.equals(mDirectory))
+                return;
+
             mDirectory = directory;
             applyFilter(directory, G.PREF_LIST_DIRECTORY);
         }
 
         public void filterTracker(String tracker) {
+            if (tracker == null && mTracker == null
+                    || tracker != null && tracker.equals(mTracker))
+                return;
+
             mTracker = tracker;
             applyFilter(tracker, G.PREF_LIST_TRACKER);
         }
 
         public void repeatFilter() {
             if (mProfile != null) {
-                getFilter().filter(mCurrentConstraint, mCurrentFilterListener);
+                getFilter().filter(mCurrentConstraint, null);
             }
         }
 
@@ -1235,13 +1271,10 @@ public class TorrentListFragment extends ListFragment {
                         values = new ArrayList<Torrent>(mOriginalValues);
                     }
 
-                    final int count = values.size();
                     final ArrayList<Torrent> newValues = new ArrayList<Torrent>();
                     String prefixString = prefix.toString().toLowerCase(Locale.getDefault());
 
-                    for (int i = 0; i < count; i++) {
-                        final Torrent torrent = values.get(i);
-
+                    for (final Torrent torrent : values) {
                         if (mFilterBy == FilterBy.DOWNLOADING) {
                             if (torrent.getStatus() != Torrent.Status.DOWNLOADING)
                                 continue;
@@ -1259,8 +1292,8 @@ public class TorrentListFragment extends ListFragment {
                                 continue;
                         } else if (mFilterBy == FilterBy.ACTIVE) {
                             if (torrent.isStalled() || torrent.isFinished() || (
-                                   torrent.getStatus() != Torrent.Status.DOWNLOADING
-                                && torrent.getStatus() != Torrent.Status.SEEDING
+                                    torrent.getStatus() != Torrent.Status.DOWNLOADING
+                                            && torrent.getStatus() != Torrent.Status.SEEDING
                             ))
                                 continue;
                         } else if (mFilterBy == FilterBy.CHECKING) {
@@ -1285,7 +1318,8 @@ public class TorrentListFragment extends ListFragment {
                                             hasMatch = true;
                                             break;
                                         }
-                                    } catch (URISyntaxException e) {}
+                                    } catch (URISyntaxException ignored) {
+                                    }
                                 }
                             }
                             if (!hasMatch) {
