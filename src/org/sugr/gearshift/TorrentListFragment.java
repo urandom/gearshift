@@ -697,10 +697,11 @@ public class TorrentListFragment extends ListFragment {
             item = menu.add(R.string.find);
             item.setShowAsAction(MenuItem.SHOW_AS_ACTION_COLLAPSE_ACTION_VIEW);
 
+            mFindQuery = mSharedPrefs.getString(G.PREF_LIST_SEARCH, "");
+
             if (((TorrentListActivity) getActivity()).isDetailPanelShown()) {
                 item.setActionView(R.layout.action_search_query);
                 TextView query = ((TextView) item.getActionView().findViewById(R.id.action_search_query));
-                mFindQuery = mSharedPrefs.getString(G.PREF_LIST_SEARCH, "");
                 query.setText(mFindQuery);
             } else {
                 SearchView findView = new SearchView(
