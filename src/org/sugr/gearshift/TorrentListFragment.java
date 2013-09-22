@@ -694,12 +694,13 @@ public class TorrentListFragment extends ListFragment {
         }
 
         if (mFindShown) {
+            boolean detailVisible = ((TorrentListActivity) getActivity()).isDetailPanelShown();
             item = menu.add(R.string.find);
             item.setShowAsAction(MenuItem.SHOW_AS_ACTION_COLLAPSE_ACTION_VIEW);
 
             mFindQuery = mSharedPrefs.getString(G.PREF_LIST_SEARCH, "");
 
-            if (((TorrentListActivity) getActivity()).isDetailPanelShown()) {
+            if (detailVisible) {
                 item.setActionView(R.layout.action_search_query);
                 TextView query = ((TextView) item.getActionView().findViewById(R.id.action_search_query));
                 query.setText(mFindQuery);
@@ -708,21 +709,6 @@ public class TorrentListFragment extends ListFragment {
                         getActivity().getActionBar().getThemedContext());
                 findView.setQueryHint(getActivity().getString(R.string.filter));
                 findView.setIconified(false);
-
-                findView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
-                    @Override public boolean onQueryTextSubmit(String query) {
-                        return false;
-                    }
-
-                    @Override public boolean onQueryTextChange(String newText) {
-                        mFindQuery = newText;
-                        mFindHandler.removeCallbacks(mFindRunnable);
-                        mFindHandler.postDelayed(mFindRunnable, 500);
-                        return true;
-                    }
-                });
-
-                findView.setQuery(mSharedPrefs.getString(G.PREF_LIST_SEARCH, ""), false);
 
                 item.setActionView(findView);
             }
@@ -739,6 +725,24 @@ public class TorrentListFragment extends ListFragment {
                 }
             });
             item.expandActionView();
+
+            if (!detailVisible) {
+                SearchView findView = (SearchView) item.getActionView();
+
+                findView.setQuery(mSharedPrefs.getString(G.PREF_LIST_SEARCH, ""), false);
+                findView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+                    @Override public boolean onQueryTextSubmit(String query) {
+                        return false;
+                    }
+
+                    @Override public boolean onQueryTextChange(String newText) {
+                        mFindQuery = newText;
+                        mFindHandler.removeCallbacks(mFindRunnable);
+                        mFindHandler.postDelayed(mFindRunnable, 500);
+                        return true;
+                    }
+                });
+            }
         }
     }
 
