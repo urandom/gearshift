@@ -48,6 +48,8 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Locale;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * A list fragment representing a list of Torrents. This fragment
@@ -1284,6 +1286,23 @@ public class TorrentListFragment extends ListFragment {
 
                     final ArrayList<Torrent> newValues = new ArrayList<Torrent>();
                     String prefixString = prefix.toString().toLowerCase(Locale.getDefault());
+                    Pattern prefixPattern = null;
+
+                    if (prefixString.length() > 0) {
+                        String[] split = prefixString.toString().split("");
+                        StringBuilder pattern = new StringBuilder();
+                        for (int i = 0; i < split.length; i++) {
+                            if (split[i].equals("")) {
+                                continue;
+                            }
+                            pattern.append(split[i]);
+                            if (i < split.length - 1) {
+                                pattern.append(".{0,2}");
+                            }
+                        }
+
+                        prefixPattern = Pattern.compile(pattern.toString());
+                    }
 
                     for (final Torrent torrent : values) {
                         if (mFilterBy == FilterBy.DOWNLOADING) {
@@ -1341,27 +1360,10 @@ public class TorrentListFragment extends ListFragment {
                         if (prefix.length() == 0) {
                             newValues.add(torrent);
                         } else if (prefix.length() > 0) {
-                            final String valueText = torrent.getName().toLowerCase(Locale.getDefault());
-                            int lastIndex = -1;
-                            boolean match = false;
+                            Matcher m = prefixPattern.matcher(
+                                    torrent.getName().toLowerCase(Locale.getDefault()));
 
-                            for (int j = 0; j < prefixString.length(); ++j) {
-                                char c = prefixString.charAt(j);
-                                if (Character.isWhitespace(c)) {
-                                    continue;
-                                }
-                                int newIndex = valueText.indexOf(c, lastIndex);
-                                if (newIndex > -1 && (lastIndex == -1 || newIndex - lastIndex < 3)) {
-                                    lastIndex = newIndex + 1;
-                                    if (j == prefixString.length() - 1) {
-                                        match = true;
-                                    }
-                                } else {
-                                    break;
-                                }
-                            }
-
-                            if (match) {
+                            if (m.find()) {
                                 newValues.add(torrent);
                             }
                         }
