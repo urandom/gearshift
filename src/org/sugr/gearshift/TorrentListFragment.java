@@ -100,6 +100,8 @@ public class TorrentListFragment extends ListFragment {
     private boolean mFindShown = false;
     private String mFindQuery;
 
+    private SharedPreferences mSharedPrefs;
+
     private boolean mPreventRefreshIndicator;
 
     /**
@@ -493,13 +495,9 @@ public class TorrentListFragment extends ListFragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        mSharedPrefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
         setHasOptionsMenu(true);
         getActivity().setProgressBarIndeterminateVisibility(true);
-
-        SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
-        Editor e = sharedPrefs.edit();
-        e.putString(G.PREF_LIST_SEARCH, "");
-        e.apply();
 
         ActionBar actionBar = getActivity().getActionBar();
         if (actionBar != null) {
@@ -561,6 +559,11 @@ public class TorrentListFragment extends ListFragment {
         if (savedInstanceState != null) {
             if (savedInstanceState.containsKey(STATE_FIND_SHOWN)) {
                 mFindShown = savedInstanceState.getBoolean(STATE_FIND_SHOWN);
+                if (!mFindShown) {
+                    Editor e = mSharedPrefs.edit();
+                    e.putString(G.PREF_LIST_SEARCH, "");
+                    e.apply();
+                }
                 if (savedInstanceState.containsKey(STATE_FIND_QUERY)) {
                     mFindQuery = savedInstanceState.getString(STATE_FIND_QUERY);
                 }
@@ -691,15 +694,37 @@ public class TorrentListFragment extends ListFragment {
         }
 
         if (mFindShown) {
-            /* TODO: turn this into a regular TextView if the detail fragment is visible */
-            final SearchView findView = new SearchView(
-                    getActivity().getActionBar().getThemedContext());
-            findView.setQueryHint(getActivity().getString(R.string.filter));
-            findView.setIconified(false);
-
-            item = menu.add(R.string.find).setActionView(findView);
+            item = menu.add(R.string.find);
             item.setShowAsAction(MenuItem.SHOW_AS_ACTION_COLLAPSE_ACTION_VIEW);
 
+            if (((TorrentListActivity) getActivity()).isDetailPanelShown()) {
+                item.setActionView(R.layout.action_search_query);
+                TextView query = ((TextView) item.getActionView().findViewById(R.id.action_search_query));
+                mFindQuery = mSharedPrefs.getString(G.PREF_LIST_SEARCH, "");
+                query.setText(mFindQuery);
+            } else {
+                SearchView findView = new SearchView(
+                        getActivity().getActionBar().getThemedContext());
+                findView.setQueryHint(getActivity().getString(R.string.filter));
+                findView.setIconified(false);
+
+                findView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+                    @Override public boolean onQueryTextSubmit(String query) {
+                        return false;
+                    }
+
+                    @Override public boolean onQueryTextChange(String newText) {
+                        mFindQuery = newText;
+                        mFindHandler.removeCallbacks(mFindRunnable);
+                        mFindHandler.postDelayed(mFindRunnable, 500);
+                        return true;
+                    }
+                });
+
+                findView.setQuery(mSharedPrefs.getString(G.PREF_LIST_SEARCH, ""), false);
+
+                item.setActionView(findView);
+            }
             item.setOnActionExpandListener(new MenuItem.OnActionExpandListener() {
                 @Override public boolean onMenuItemActionExpand(MenuItem item) {
                     return true;
@@ -713,23 +738,6 @@ public class TorrentListFragment extends ListFragment {
                 }
             });
             item.expandActionView();
-
-            findView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
-                @Override public boolean onQueryTextSubmit(String query) {
-                    return false;
-                }
-
-                @Override public boolean onQueryTextChange(String newText) {
-                    mFindQuery = newText;
-                    mFindHandler.removeCallbacks(mFindRunnable);
-                    mFindHandler.postDelayed(mFindRunnable, 500);
-                    return true;
-                }
-            });
-
-            SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
-
-            findView.setQuery(sharedPrefs.getString(G.PREF_LIST_SEARCH, ""), false);
         }
     }
 
@@ -963,12 +971,9 @@ public class TorrentListFragment extends ListFragment {
         private String mTracker;
         private SparseBooleanArray mTorrentAdded = new SparseBooleanArray();
 
-        private SharedPreferences mSharedPrefs;
-
         public TorrentListAdapter(Context context) {
             super(context, R.layout.torrent_list_item, R.id.name);
 
-            mSharedPrefs = PreferenceManager.getDefaultSharedPreferences(getContext());
             /*
             if (mSharedPrefs.contains(G.PREF_LIST_SEARCH)) {
                 mCurrentConstraint = mSharedPrefs.getString(
@@ -1164,6 +1169,7 @@ public class TorrentListFragment extends ListFragment {
 
         public void filter(String query) {
             if (query == null && mCurrentConstraint == null
+                    || query != null && mCurrentConstraint == null && query.equals("")
                     || query != null && query.equals(mCurrentConstraint))
                 return;
 
