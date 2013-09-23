@@ -5,4 +5,7 @@
     <color name="transparent">#00000000</color>
     <color name="transparent_white">#66ffffff</color>
     <color name="highlight_dark">#222222</color>
+
+    <color name="filter_highlight_primary">#E68305</color>
+    <color name="filter_highlight_secondary">#C98733</color>
 </resources>

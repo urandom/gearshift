@@ -128,6 +128,7 @@ public class Torrent implements Parcelable {
     @SerializedName("peers") private Peer[] mPeers;
     @SerializedName(SetterFields.PEER_LIMIT) private int mPeerLimit;
 
+    @Exclude private Spanned mFilteredName;
     @Exclude private Spanned mTrafficText;
     @Exclude private Spanned mStatusText;
     @Exclude private TransmissionSession mSession;
@@ -1120,6 +1121,14 @@ public class Torrent implements Parcelable {
         }
     }
 
+    public Spanned getFilteredName() {
+        return mFilteredName;
+    }
+
+    public void setFilteredName(Spanned name) {
+        mFilteredName = name;
+    }
+
     public Spanned getTrafficText() {
         return mTrafficText;
     }
@@ -1384,6 +1393,7 @@ public class Torrent implements Parcelable {
         in.writeInt(mSeedRatioMode);
         in.writeFloat(mSeedRatioLimit);
         in.writeFloat(mUploadRatio);
+        in.writeString(mFilteredName == null ? "" : Html.toHtml(mFilteredName));
         in.writeString(mTrafficText == null ? "" : Html.toHtml(mTrafficText));
         in.writeString(mStatusText == null ? "" : Html.toHtml(mStatusText));
         in.writeInt(getStatus());
@@ -1408,6 +1418,7 @@ public class Torrent implements Parcelable {
         mSeedRatioMode = in.readInt();
         mSeedRatioLimit = in.readFloat();
         mUploadRatio = in.readFloat();
+        mFilteredName = Html.fromHtml(in.readString());
         mTrafficText = Html.fromHtml(in.readString());
         mStatusText = Html.fromHtml(in.readString());
         mStatus = in.readInt();

@@ -15,7 +15,9 @@ import android.support.v4.app.ListFragment;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.Loader;
 import android.text.Html;
+import android.text.SpannableString;
 import android.text.Spanned;
+import android.text.style.ForegroundColorSpan;
 import android.util.SparseBooleanArray;
 import android.view.ActionMode;
 import android.view.LayoutInflater;
@@ -561,17 +563,17 @@ public class TorrentListFragment extends ListFragment {
         if (savedInstanceState != null) {
             if (savedInstanceState.containsKey(STATE_FIND_SHOWN)) {
                 mFindShown = savedInstanceState.getBoolean(STATE_FIND_SHOWN);
-                if (!mFindShown) {
-                    Editor e = mSharedPrefs.edit();
-                    e.putString(G.PREF_LIST_SEARCH, "");
-                    e.apply();
-                }
                 if (savedInstanceState.containsKey(STATE_FIND_QUERY)) {
                     mFindQuery = savedInstanceState.getString(STATE_FIND_QUERY);
                 }
             }
 
             mRefreshing = false;
+        }
+        if (!mFindShown) {
+            Editor e = mSharedPrefs.edit();
+            e.putString(G.PREF_LIST_SEARCH, "");
+            e.apply();
         }
 
         mTorrentListAdapter = new TorrentListAdapter(getActivity());
@@ -1050,7 +1052,15 @@ public class TorrentListFragment extends ListFragment {
             TextView status = (TextView) rowView.findViewById(R.id.status);
             TextView errorText = (TextView) rowView.findViewById(R.id.error_text);
 
-            name.setText(torrent.getName());
+            if (mFindQuery != null && !mFindQuery.equals("")) {
+                if (torrent.getFilteredName() == null) {
+                    name.setText(torrent.getName());
+                } else {
+                    name.setText(torrent.getFilteredName(), TextView.BufferType.SPANNABLE);
+                }
+            } else {
+                name.setText(torrent.getName());
+            }
 
             if (torrent.getMetadataPercentComplete() < 1) {
                 progress.setSecondaryProgress((int) (torrent.getMetadataPercentComplete() * 100));
@@ -1287,6 +1297,8 @@ public class TorrentListFragment extends ListFragment {
                     final ArrayList<Torrent> newValues = new ArrayList<Torrent>();
                     String prefixString = prefix.toString().toLowerCase(Locale.getDefault());
                     Pattern prefixPattern = null;
+                    int hiPrimary = getResources().getColor(R.color.filter_highlight_primary);
+                    int hiSecondary = getResources().getColor(R.color.filter_highlight_secondary);
 
                     if (prefixString.length() > 0) {
                         String[] split = prefixString.toString().split("");
@@ -1295,9 +1307,9 @@ public class TorrentListFragment extends ListFragment {
                             if (split[i].equals("")) {
                                 continue;
                             }
-                            pattern.append(split[i]);
+                            pattern.append("\\Q" + split[i] + "\\E");
                             if (i < split.length - 1) {
-                                pattern.append(".{0,2}");
+                                pattern.append(".{0,2}?");
                             }
                         }
 
@@ -1364,6 +1376,30 @@ public class TorrentListFragment extends ListFragment {
                                     torrent.getName().toLowerCase(Locale.getDefault()));
 
                             if (m.find()) {
+                                SpannableString spannedName = new SpannableString(torrent.getName());
+                                spannedName.setSpan(
+                                    new ForegroundColorSpan(hiPrimary),
+                                    m.start(),
+                                    m.start() + 1,
+                                    Spanned.SPAN_INCLUSIVE_INCLUSIVE
+                                );
+                                if (m.end() - m.start() > 2) {
+                                    spannedName.setSpan(
+                                        new ForegroundColorSpan(hiSecondary),
+                                        m.start() + 1,
+                                        m.end() - 1,
+                                        Spanned.SPAN_INCLUSIVE_INCLUSIVE
+                                    );
+                                }
+                                if (m.end() - m.start() > 1) {
+                                    spannedName.setSpan(
+                                        new ForegroundColorSpan(hiPrimary),
+                                        m.end() - 1,
+                                        m.end(),
+                                        Spanned.SPAN_INCLUSIVE_INCLUSIVE
+                                    );
+                                }
+                                torrent.setFilteredName(spannedName);
                                 newValues.add(torrent);
                             }
                         }
