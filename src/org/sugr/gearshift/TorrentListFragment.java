@@ -335,6 +335,7 @@ public class TorrentListFragment extends ListFragment {
 
     private MultiChoiceModeListener mListChoiceListener = new MultiChoiceModeListener() {
         private HashSet<Integer> mSelectedTorrentIds;
+        private boolean hasQueued = false;
 
         @Override
         public boolean onActionItemClicked(final ActionMode mode, final MenuItem item) {
@@ -382,7 +383,9 @@ public class TorrentListFragment extends ListFragment {
                             .show();
                     return true;
                 case R.id.resume:
-                    ((TransmissionDataLoader) loader).setTorrentsAction("torrent-start", ids);
+                    ((TransmissionDataLoader) loader).setTorrentsAction(
+                        hasQueued ? "torrent-start-now" : "torrent-start",
+                        ids);
                     break;
                 case R.id.pause:
                     ((TransmissionDataLoader) loader).setTorrentsAction("torrent-stop", ids);
@@ -443,10 +446,14 @@ public class TorrentListFragment extends ListFragment {
             ArrayList<Torrent> torrents = ((TransmissionSessionInterface) getActivity()).getTorrents();
             boolean hasPaused = false;
             boolean hasRunning = false;
+
+            hasQueued = false;
             for (Torrent t : torrents) {
                 if (mSelectedTorrentIds.contains(t.getId())) {
                     if (t.getStatus() == Torrent.Status.STOPPED) {
                         hasPaused = true;
+                    } else if (!t.isActive()) {
+                        hasQueued = true;
                     } else {
                         hasRunning = true;
                     }
@@ -455,7 +462,7 @@ public class TorrentListFragment extends ListFragment {
             Menu menu = mode.getMenu();
             MenuItem item = menu.findItem(R.id.resume);
             if (item != null)
-                item.setVisible(hasPaused).setEnabled(hasPaused);
+                item.setVisible(hasPaused || hasQueued).setEnabled(hasPaused || hasQueued);
 
             item = menu.findItem(R.id.pause);
             if (item != null)

@@ -495,7 +495,7 @@ public class TorrentListActivity extends FragmentActivity
             location.setAdapter(adapter);
 
             if (mLocationPosition == AdapterView.INVALID_POSITION) {
-                if (mProfile.getLastDownloadDirectory() != null) {
+                if (mProfile != null && mProfile.getLastDownloadDirectory() != null) {
                     int position = adapter.getPosition(mProfile.getLastDownloadDirectory());
 
                     if (position > -1) {
