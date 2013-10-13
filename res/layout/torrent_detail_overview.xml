@@ -167,7 +167,9 @@
 
             <TextView style="@style/CardTextColumn" android:text="@string/torrent_comment" />
 
-            <TextView android:id="@+id/torrent_comment" />
+            <TextView
+                android:id="@+id/torrent_comment"
+                android:autoLink="all"/>
         </TableRow>
 
     </TableLayout>
