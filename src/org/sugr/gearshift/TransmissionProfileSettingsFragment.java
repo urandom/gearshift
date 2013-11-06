@@ -114,6 +114,7 @@ public class TransmissionProfileSettingsFragment extends BasePreferenceFragment 
                     mSaved = true;
 
                     PreferenceActivity context = (PreferenceActivity) getActivity();
+                    G.requestBackup(context);
 
                     if (context.onIsHidingHeaders() || !context.onIsMultiPane()) {
                         getActivity().finish();

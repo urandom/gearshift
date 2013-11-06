@@ -1,12 +1,12 @@
 package org.sugr.gearshift;
 
-import java.util.Arrays;
-
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.os.Bundle;
 import android.preference.Preference;
 import android.preference.PreferenceFragment;
+
+import java.util.Arrays;
 
 public class BasePreferenceFragment extends PreferenceFragment implements OnSharedPreferenceChangeListener {
     protected SharedPreferences mSharedPrefs;
@@ -38,6 +38,7 @@ public class BasePreferenceFragment extends PreferenceFragment implements OnShar
         if (key.equals(G.PREF_DEBUG)) {
             G.DEBUG = sharedPreferences.getBoolean(key, false);
         } else {
+            G.requestBackup(getActivity());
             updatePrefSummary(key);
         }
     }

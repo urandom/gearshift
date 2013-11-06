@@ -111,6 +111,19 @@
 		<item>QUEUE</item>
     </string-array>
 
+    <string-array name="pref_base_sort_order_entries">
+        <item>Ascending</item>
+        <item>Descending</item>
+        <item>Primary order</item>
+        <item>Reverse primary order</item>
+    </string-array>
+    <string-array name="pref_base_sort_order_values" translatable="false">
+        <item>ASCENDING</item>
+        <item>DESCENDING</item>
+        <item>PRIMARY</item>
+        <item>REVERSE</item>
+    </string-array>
+
     <string-array name="session_settings_encryption">
         <item>Required</item>
         <item>Preferred</item>

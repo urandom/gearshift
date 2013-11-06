@@ -105,6 +105,7 @@ public class TransmissionProfileDirectoriesSettingsFragment extends ListFragment
                     }
 
                     PreferenceActivity context = (PreferenceActivity) getActivity();
+                    G.requestBackup(context);
 
                     if (context.onIsHidingHeaders() || !context.onIsMultiPane()) {
                         getActivity().finish();

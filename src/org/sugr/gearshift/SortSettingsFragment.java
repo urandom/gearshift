@@ -19,6 +19,8 @@ public class SortSettingsFragment extends BasePreferenceFragment {
         mSummaryPrefs = new Object[][] {
             {G.PREF_BASE_SORT, getString(R.string.update_interval_summary_format),
              R.array.pref_base_sort_method_values, R.array.pref_base_sort_method_entries, ""},
+            {G.PREF_BASE_SORT_ORDER, getString(R.string.update_interval_summary_format),
+                    R.array.pref_base_sort_order_values, R.array.pref_base_sort_order_entries, ""},
         };
 
         ActionBar actionBar = getActivity().getActionBar();

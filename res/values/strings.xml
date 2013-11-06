@@ -419,6 +419,8 @@
     <string name="tracker_url_copy">The tracker\'s announce URL has been copied to the clipboard</string>
     <string name="tracker_replace">Change tracker</string>
     <string name="tracker_new_announce_url">New announce URL</string>
+    <string name="base_sort">Secondary sorting</string>
+    <string name="base_sort_order">Sorting direction</string>
 
     <plurals name="tracker_peers">
         <item quantity="one">1 peer</item>

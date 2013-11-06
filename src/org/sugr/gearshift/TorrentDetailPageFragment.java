@@ -647,7 +647,7 @@ public class TorrentDetailPageFragment extends Fragment {
                         G.readableFileSize(mTorrent.getSizeWhenDone()),
                         G.readablePercent(100 * (
                             mTorrent.getSizeWhenDone() > 0
-                                ? (mTorrent.getSizeWhenDone() - mTorrent.getLeftUntilDone()) / mTorrent.getSizeWhenDone()
+                                ? (float) (mTorrent.getSizeWhenDone() - mTorrent.getLeftUntilDone()) / mTorrent.getSizeWhenDone()
                                 : 1
                         ))
                     ));

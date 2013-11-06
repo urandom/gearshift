@@ -1,14 +1,15 @@
 package org.sugr.gearshift;
 
-import java.util.Comparator;
-
 import org.sugr.gearshift.G.SortBy;
 import org.sugr.gearshift.G.SortOrder;
+
+import java.util.Comparator;
 
 public class TorrentComparator implements Comparator<Torrent> {
     private SortBy mSortBy = SortBy.STATUS;
     private SortOrder mSortOrder = SortOrder.ASCENDING;
     private SortBy mBaseSort = SortBy.AGE;
+    private SortOrder mBaseSortOrder = SortOrder.DESCENDING;
 
     public void setSortingMethod(SortBy by, SortOrder order) {
         mSortBy = by;
@@ -23,19 +24,24 @@ public class TorrentComparator implements Comparator<Torrent> {
         return mSortOrder;
     }
 
-    public void setBaseSort(SortBy by) {
+    public void setBaseSort(SortBy by, SortOrder order) {
         mBaseSort = by;
+        mBaseSortOrder = order;
     }
 
     public SortBy getBaseSort() {
         return mBaseSort;
     }
 
+    public SortOrder getBaseSortOrder() {
+        return mBaseSortOrder;
+    }
+
     @Override
     public int compare(Torrent a, Torrent b) {
         int ret = compare(a, b, mSortBy, mSortOrder);
         if (ret == 0 && mBaseSort != mSortBy) {
-            ret = compare(a, b, mBaseSort, mSortOrder);
+            ret = compare(a, b, mBaseSort, mBaseSortOrder);
         }
 
         return ret;

@@ -1,5 +1,6 @@
 package org.sugr.gearshift;
 
+import android.app.backup.BackupManager;
 import android.content.Context;
 import android.util.Log;
 
@@ -66,6 +67,7 @@ class G {
     public static final String PREF_SORT_QUEUE = "sort_queue";
 
     public static final String PREF_BASE_SORT = "base_sort";
+    public static final String PREF_BASE_SORT_ORDER = "base_sort_order";
 
     public static final String PREF_FILTER_MATCH_TEST = "^(?:filter_|sort_).+$";
 
@@ -197,5 +199,10 @@ class G {
         }
 
         return s;
+    }
+
+    public static void requestBackup(Context context) {
+        BackupManager bm = new BackupManager(context);
+        bm.dataChanged();
     }
 }
