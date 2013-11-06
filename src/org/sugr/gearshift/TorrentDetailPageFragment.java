@@ -708,6 +708,9 @@ public class TorrentDetailPageFragment extends Fragment {
                             ? getString(R.string.torrent_active_now)
                             : G.readableRemainingTime(lastActive, getActivity())
                 );
+                ((TextView) root.findViewById(R.id.torrent_queue)).setText(
+                        Integer.toString(mTorrent.getQueuePosition())
+                );
                 TextView errorText =((TextView) root.findViewById(R.id.torrent_error));
                 if (mTorrent.getError() == Torrent.Error.OK) {
                     errorText.setText(R.string.no_tracker_errors);

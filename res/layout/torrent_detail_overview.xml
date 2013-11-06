@@ -99,12 +99,21 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" >
 
+            <TextView style="@style/CardTextColumn" android:text="@string/torrent_queue_position" />
+
+            <TextView android:id="@+id/torrent_queue" />
+        </TableRow>
+
+        <TableRow
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" >
+
             <TextView style="@style/CardTextColumn" android:text="@string/torrent_error" />
 
             <TextView android:id="@+id/torrent_error"
-                    android:textColor="@drawable/torrent_detail_error_color"/>
-        </TableRow>                                                                                                    
-        
+                android:textColor="@drawable/torrent_detail_error_color"/>
+        </TableRow>
+
         <TableRow
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" >
