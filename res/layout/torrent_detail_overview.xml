@@ -99,6 +99,15 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" >
 
+            <TextView style="@style/CardTextColumn" android:text="@string/torrent_added" />
+
+            <TextView android:id="@+id/torrent_added" />
+        </TableRow>
+
+        <TableRow
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" >
+
             <TextView style="@style/CardTextColumn" android:text="@string/torrent_queue_position" />
 
             <TextView android:id="@+id/torrent_queue" />

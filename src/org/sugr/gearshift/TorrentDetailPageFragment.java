@@ -706,7 +706,15 @@ public class TorrentDetailPageFragment extends Fragment {
                         ? getString(R.string.unknown)
                         : lastActive < 5
                             ? getString(R.string.torrent_active_now)
-                            : G.readableRemainingTime(lastActive, getActivity())
+                            : String.format(
+                                getString(R.string.torrent_added_format),
+                                G.readableRemainingTime(lastActive, getActivity()))
+                );
+                ((TextView) root.findViewById(R.id.torrent_added)).setText(
+                        String.format(
+                            getString(R.string.torrent_added_format),
+                            G.readableRemainingTime(now - mTorrent.getAddedDate(), getActivity())
+                        )
                 );
                 ((TextView) root.findViewById(R.id.torrent_queue)).setText(
                         Integer.toString(mTorrent.getQueuePosition())

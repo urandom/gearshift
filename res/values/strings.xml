@@ -167,6 +167,7 @@
 
     <string name="torrent_have_format">%1$s of %2$s (%3$s%%)</string>
     <string name="torrent_size_format">%1$s (%2$s pieces @ %3$s)</string>
+    <string name="torrent_added_format">%1$s ago</string>
 
     <string name="none">None</string>
     <string name="unknown">Unknown</string>
@@ -421,6 +422,7 @@
     <string name="tracker_new_announce_url">New announce URL</string>
     <string name="base_sort">Secondary sorting</string>
     <string name="base_sort_order">Sorting direction</string>
+    <string name="torrent_added">Added:</string>
 
     <plurals name="tracker_peers">
         <item quantity="one">1 peer</item>
