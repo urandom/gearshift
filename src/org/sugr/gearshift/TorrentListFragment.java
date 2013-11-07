@@ -470,6 +470,7 @@ public class TorrentListFragment extends ListFragment {
         }
     };
 
+    /* The callback will get garbage collected if its a mere anon class */
     private SharedPreferences.OnSharedPreferenceChangeListener mProfileChangeListener =
             new SharedPreferences.OnSharedPreferenceChangeListener() {
                 @Override
@@ -484,6 +485,16 @@ public class TorrentListFragment extends ListFragment {
                     TransmissionProfile.setCurrentProfile(mProfile, getActivity());
                     ((TransmissionSessionInterface) getActivity()).setProfile(mProfile);
                     ((TransmissionDataLoader) loader).setProfile(mProfile);
+                }
+            };
+
+    private SharedPreferences.OnSharedPreferenceChangeListener mSettingsChangeListener =
+            new SharedPreferences.OnSharedPreferenceChangeListener() {
+                @Override
+                public void onSharedPreferenceChanged(SharedPreferences prefs, String key) {
+                    if (key.equals(G.PREF_BASE_SORT_ORDER) || key.equals(G.PREF_BASE_SORT_ORDER)) {
+                        mTorrentListAdapter.resetBaseSort();
+                    }
                 }
             };
 
@@ -509,6 +520,10 @@ public class TorrentListFragment extends ListFragment {
         mSharedPrefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
         setHasOptionsMenu(true);
         getActivity().setProgressBarIndeterminateVisibility(true);
+
+        if (savedInstanceState == null) {
+            mSharedPrefs.registerOnSharedPreferenceChangeListener(mSettingsChangeListener);
+        }
 
         ActionBar actionBar = getActivity().getActionBar();
         if (actionBar != null) {
@@ -987,15 +1002,6 @@ public class TorrentListFragment extends ListFragment {
         private String mDirectory;
         private String mTracker;
         private SparseBooleanArray mTorrentAdded = new SparseBooleanArray();
-        private SharedPreferences.OnSharedPreferenceChangeListener mPrefListener = new SharedPreferences.OnSharedPreferenceChangeListener() {
-            @Override public void onSharedPreferenceChanged(SharedPreferences pref, String key) {
-                if (key.equals(G.PREF_BASE_SORT) || key.equals(G.PREF_BASE_SORT_ORDER)) {
-                    fillBaseSortOrder();
-                    mTorrentComparator.setBaseSort(mBaseSort, mBaseSortOrder);
-                    mTorrentListAdapter.repeatFilter();
-                }
-            }
-        };
 
         public TorrentListAdapter(Context context) {
             super(context, R.layout.torrent_list_item, R.id.name);
@@ -1030,15 +1036,6 @@ public class TorrentListFragment extends ListFragment {
                     mSortBy = mTorrentComparator.getSortBy();
                 }
             }
-            if (mSharedPrefs.contains(G.PREF_BASE_SORT)) {
-                try {
-                    mBaseSort = SortBy.valueOf(
-                        mSharedPrefs.getString(G.PREF_BASE_SORT, "")
-                    );
-                } catch (Exception e) {
-                    mBaseSort = mTorrentComparator.getBaseSort();
-                }
-            }
             if (mSharedPrefs.contains(G.PREF_LIST_SORT_ORDER)) {
                 try {
                     mSortOrder = SortOrder.valueOf(
@@ -1048,11 +1045,11 @@ public class TorrentListFragment extends ListFragment {
                     mSortOrder = mTorrentComparator.getSortOrder();
                 }
             }
-            fillBaseSortOrder();
+            mBaseSort = getBaseSort();
+            mBaseSortOrder = getBaseSortOrder();
+
             mTorrentComparator.setSortingMethod(mSortBy, mSortOrder);
             mTorrentComparator.setBaseSort(mBaseSort, mBaseSortOrder);
-
-            mSharedPrefs.registerOnSharedPreferenceChangeListener(mPrefListener);
         }
 
         @Override
@@ -1235,7 +1232,7 @@ public class TorrentListFragment extends ListFragment {
                 return;
 
             mSortOrder = order;
-            fillBaseSortOrder();
+            mBaseSortOrder = getBaseSortOrder();
             applyFilter(order.name(), G.PREF_LIST_SORT_ORDER);
         }
 
@@ -1263,6 +1260,45 @@ public class TorrentListFragment extends ListFragment {
             }
         }
 
+        public void resetBaseSort() {
+            mBaseSort = getBaseSort();
+            mBaseSortOrder = getBaseSortOrder();
+            mTorrentComparator.setBaseSort(mBaseSort, mBaseSortOrder);
+            repeatFilter();
+        }
+
+        private SortBy getBaseSort() {
+            if (mSharedPrefs.contains(G.PREF_BASE_SORT)) {
+                try {
+                    return SortBy.valueOf(
+                            mSharedPrefs.getString(G.PREF_BASE_SORT, "")
+                    );
+                } catch (Exception e) { }
+            }
+            return mTorrentComparator.getBaseSort();
+        }
+
+        private SortOrder getBaseSortOrder() {
+            if (mSharedPrefs.contains(G.PREF_BASE_SORT_ORDER)) {
+                String pref = mSharedPrefs.getString(G.PREF_BASE_SORT_ORDER, null);
+
+                if (pref != null) {
+                    if (pref.equals("ASCENDING")) {
+                        return SortOrder.ASCENDING;
+                    } else if (pref.equals("DESCENDING")) {
+                        return SortOrder.DESCENDING;
+                    } else if (pref.equals("PRIMARY")) {
+                        return mSortOrder;
+                    } else if (pref.equals("REVERSE")) {
+                        return mSortOrder == SortOrder.ASCENDING
+                                ? SortOrder.DESCENDING
+                                : SortOrder.ASCENDING;
+                    }
+                }
+            }
+            return mTorrentComparator.getBaseSortOrder();
+        }
+
         private void applyFilter(String value, String pref, boolean animate) {
             if (mActionMode != null) {
                 mActionMode.finish();
@@ -1285,28 +1321,6 @@ public class TorrentListFragment extends ListFragment {
 
         private void applyFilter(String value, String pref) {
             applyFilter(value, pref, true);
-        }
-
-        private void fillBaseSortOrder() {
-            if (mSharedPrefs.contains(G.PREF_BASE_SORT_ORDER)) {
-                String pref = mSharedPrefs.getString(G.PREF_BASE_SORT_ORDER, null);
-
-                if (pref == null) {
-                    mBaseSortOrder = mTorrentComparator.getBaseSortOrder();
-                } else {
-                    if (pref.equals("ASCENDING")) {
-                        mBaseSortOrder = SortOrder.ASCENDING;
-                    } else if (pref.equals("DESCENDING")) {
-                        mBaseSortOrder = SortOrder.DESCENDING;
-                    } else if (pref.equals("PRIMARY")) {
-                        mBaseSortOrder = mSortOrder;
-                    } else if (pref.equals("REVERSE")) {
-                        mBaseSortOrder = mSortOrder == SortOrder.ASCENDING
-                                ? SortOrder.DESCENDING
-                                : SortOrder.ASCENDING;
-                    }
-                }
-            }
         }
 
         private class TorrentFilter extends Filter {
