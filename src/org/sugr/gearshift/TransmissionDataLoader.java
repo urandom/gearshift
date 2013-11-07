@@ -1,16 +1,16 @@
 package org.sugr.gearshift;
 
-import java.util.ArrayList;
-
-import org.sugr.gearshift.TransmissionSessionManager.ActiveTorrentGetResponse;
-import org.sugr.gearshift.TransmissionSessionManager.ManagerException;
-
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.support.v4.content.AsyncTaskLoader;
 import android.util.SparseArray;
+
+import org.sugr.gearshift.TransmissionSessionManager.ActiveTorrentGetResponse;
+import org.sugr.gearshift.TransmissionSessionManager.ManagerException;
+
+import java.util.ArrayList;
 
 
 class TransmissionData {
@@ -378,9 +378,11 @@ public class TransmissionDataLoader extends AsyncTaskLoader<TransmissionData> {
                         }
                     }
                     try {
-                        long freeSpace = mSessManager.getFreeSpace(mSession.getDownloadDir());
-                        if (freeSpace > -1) {
-                            mSession.setDownloadDirFreeSpace(freeSpace);
+                        if (mSession != null) {
+                            long freeSpace = mSessManager.getFreeSpace(mSession.getDownloadDir());
+                            if (freeSpace > -1) {
+                                mSession.setDownloadDirFreeSpace(freeSpace);
+                            }
                         }
                     } catch (ManagerException e) {
                         synchronized(mLock) {
