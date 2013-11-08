@@ -494,6 +494,9 @@ public class TorrentListFragment extends ListFragment {
                 public void onSharedPreferenceChanged(SharedPreferences prefs, String key) {
                     if (key.equals(G.PREF_BASE_SORT_ORDER) || key.equals(G.PREF_BASE_SORT_ORDER)) {
                         mTorrentListAdapter.resetBaseSort();
+                    } else if (key.equals(G.PREF_PROFILES)) {
+                        mRefreshing = true;
+                        getActivity().invalidateOptionsMenu();
                     }
                 }
             };

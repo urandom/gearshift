@@ -20,15 +20,10 @@ public class GearShiftBackupAgent extends BackupAgentHelper {
         ArrayList<String> names = new ArrayList<String>();
         String packageName = getPackageName();
 
-        Log.d("GearShift", "#### Performing Backup!!!!");
-
         names.add(packageName + "_preferences");
-        Log.d("GearShift", "#### Scheduling " + packageName + "_preferences for backup!!!!");
-
 
         for (String id : profile_ids) {
             names.add(G.PREF_PREFIX + id);
-            Log.d("GearShift", "#### Scheduling " + G.PREF_PREFIX + id + " for backup!!!!");
         }
 
         SharedPreferencesBackupHelper helper =
