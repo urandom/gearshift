@@ -659,35 +659,6 @@ public class TorrentDetailPageFragment extends Fragment {
                 ((TextView) root.findViewById(R.id.torrent_uploaded)).setText(
                     G.readableFileSize(mTorrent.getUploadedEver())
                 );
-                int state = R.string.none;
-                switch(mTorrent.getStatus()) {
-                    case Torrent.Status.STOPPED:
-                        state = mTorrent.isPaused()
-                            ? R.string.status_paused
-                            : R.string.status_finished;
-                        break;
-                    case Torrent.Status.CHECK_WAITING:
-                        state = R.string.status_check_waiting;
-                        break;
-                    case Torrent.Status.CHECKING:
-                        state = R.string.status_checking;
-                        break;
-                    case Torrent.Status.DOWNLOAD_WAITING:
-                        state = R.string.status_download_waiting;
-                        break;
-                    case Torrent.Status.DOWNLOADING:
-                        state = mTorrent.getMetadataPercentComplete() < 0
-                            ? R.string.status_downloading_metadata
-                            : R.string.status_downloading;
-                        break;
-                    case Torrent.Status.SEED_WAITING:
-                        state = R.string.status_seed_waiting;
-                        break;
-                    case Torrent.Status.SEEDING:
-                        state = R.string.status_seeding;
-                        break;
-                }
-                ((TextView) root.findViewById(R.id.torrent_state)).setText(state);
                 ((TextView) root.findViewById(R.id.torrent_running_time)).setText(
                     mTorrent.getStatus() == Torrent.Status.STOPPED
                         ? getString(R.string.status_finished)
@@ -710,23 +681,6 @@ public class TorrentDetailPageFragment extends Fragment {
                                 getString(R.string.torrent_added_format),
                                 G.readableRemainingTime(lastActive, getActivity()))
                 );
-                ((TextView) root.findViewById(R.id.torrent_added)).setText(
-                        String.format(
-                            getString(R.string.torrent_added_format),
-                            G.readableRemainingTime(now - mTorrent.getAddedDate(), getActivity())
-                        )
-                );
-                ((TextView) root.findViewById(R.id.torrent_queue)).setText(
-                        Integer.toString(mTorrent.getQueuePosition())
-                );
-                TextView errorText =((TextView) root.findViewById(R.id.torrent_error));
-                if (mTorrent.getError() == Torrent.Error.OK) {
-                    errorText.setText(R.string.no_tracker_errors);
-                    errorText.setEnabled(false);
-                } else {
-                    errorText.setText(mTorrent.getErrorString());
-                    errorText.setEnabled(true);
-                }
                 ((TextView) root.findViewById(R.id.torrent_size)).setText(
                         String.format(
                             getString(R.string.torrent_size_format),
@@ -734,7 +688,6 @@ public class TorrentDetailPageFragment extends Fragment {
                             mTorrent.getPieceCount(),
                             G.readableFileSize(mTorrent.getPieceSize())
                         ));
-                ((TextView) root.findViewById(R.id.torrent_location)).setText(mTorrent.getDownloadDir());
                 ((TextView) root.findViewById(R.id.torrent_hash)).setText(mTorrent.getHashString());
                 ((TextView) root.findViewById(R.id.torrent_privacy)).setText(
                         mTorrent.isPrivate() ? R.string.torrent_private : R.string.torrent_public);
@@ -754,22 +707,54 @@ public class TorrentDetailPageFragment extends Fragment {
                 ((TextView) root.findViewById(R.id.torrent_comment)).setText(mTorrent.getComment());
             } else {
                 ((TextView) root.findViewById(R.id.torrent_have)).setText(R.string.none);
-                int state;
-                switch(mTorrent.getStatus()) {
-                    case Torrent.Status.STOPPED:
-                        state = mTorrent.isPaused()
+            }
+            int state = R.string.none;
+            switch(mTorrent.getStatus()) {
+                case Torrent.Status.STOPPED:
+                    state = mTorrent.isPaused()
                             ? R.string.status_paused
                             : R.string.status_finished;
-                        break;
-                    case Torrent.Status.DOWNLOAD_WAITING:
-                        state = R.string.status_download_waiting;
-                        break;
-                    default:
-                        state = R.string.status_downloading_metadata;
-                        break;
-                }
-                ((TextView) root.findViewById(R.id.torrent_state)).setText(state);
+                    break;
+                case Torrent.Status.CHECK_WAITING:
+                    state = R.string.status_check_waiting;
+                    break;
+                case Torrent.Status.CHECKING:
+                    state = R.string.status_checking;
+                    break;
+                case Torrent.Status.DOWNLOAD_WAITING:
+                    state = R.string.status_download_waiting;
+                    break;
+                case Torrent.Status.DOWNLOADING:
+                    state = mTorrent.getMetadataPercentComplete() < 0
+                            ? R.string.status_downloading_metadata
+                            : R.string.status_downloading;
+                    break;
+                case Torrent.Status.SEED_WAITING:
+                    state = R.string.status_seed_waiting;
+                    break;
+                case Torrent.Status.SEEDING:
+                    state = R.string.status_seeding;
+                    break;
             }
+            ((TextView) root.findViewById(R.id.torrent_state)).setText(state);
+            ((TextView) root.findViewById(R.id.torrent_added)).setText(
+                    String.format(
+                            getString(R.string.torrent_added_format),
+                            G.readableRemainingTime(now - mTorrent.getAddedDate(), getActivity())
+                    )
+            );
+            ((TextView) root.findViewById(R.id.torrent_queue)).setText(
+                    Integer.toString(mTorrent.getQueuePosition())
+            );
+            TextView errorText =((TextView) root.findViewById(R.id.torrent_error));
+            if (mTorrent.getError() == Torrent.Error.OK) {
+                errorText.setText(R.string.no_tracker_errors);
+                errorText.setEnabled(false);
+            } else {
+                errorText.setText(mTorrent.getErrorString());
+                errorText.setEnabled(true);
+            }
+            ((TextView) root.findViewById(R.id.torrent_location)).setText(mTorrent.getDownloadDir());
         }
 
         /* Files start */
