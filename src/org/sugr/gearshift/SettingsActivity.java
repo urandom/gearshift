@@ -4,8 +4,10 @@ import android.app.LoaderManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.Loader;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceActivity;
+import android.preference.PreferenceManager;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -32,6 +34,32 @@ public class SettingsActivity extends PreferenceActivity
     private TransmissionProfile[] mProfiles;
 
     private static final int LOADER_ID = 1;
+
+    private SharedPreferences.OnSharedPreferenceChangeListener mDefaultPrefListener
+            = new SharedPreferences.OnSharedPreferenceChangeListener() {
+        @Override
+        public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+            if (key.equals(G.PREF_PROFILES)) {
+                Loader loader = getLoaderManager().getLoader(LOADER_ID);
+
+                if (loader != null) {
+                    loader.onContentChanged();
+                }
+            }
+        }
+    };
+
+    private SharedPreferences.OnSharedPreferenceChangeListener mProfilesPrefListener
+            = new SharedPreferences.OnSharedPreferenceChangeListener() {
+        @Override
+        public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+            Loader loader = getLoaderManager().getLoader(LOADER_ID);
+
+            if (loader != null) {
+                loader.onContentChanged();
+            }
+        }
+    };
 
     @Override
     public void onBuildHeaders(List<Header> target) {
@@ -73,6 +101,12 @@ public class SettingsActivity extends PreferenceActivity
             G.logD("Creating the profile loader");
 
             getLoaderManager().initLoader(LOADER_ID, null, this);
+
+            SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+            prefs.registerOnSharedPreferenceChangeListener(mDefaultPrefListener);
+
+            prefs = TransmissionProfile.getPreferences(this);
+            prefs.registerOnSharedPreferenceChangeListener(mProfilesPrefListener);
         }
     }
 
@@ -99,10 +133,6 @@ public class SettingsActivity extends PreferenceActivity
             return true;
         }
         return super.onOptionsItemSelected(item);
-    }
-
-    public void onProfileListChange() {
-        getLoaderManager().getLoader(LOADER_ID).onContentChanged();
     }
 
     @Override

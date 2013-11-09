@@ -79,6 +79,8 @@ class G {
 
     public static final String DETAIL_FRAGMENT_TAG = "detail_fragment";
 
+    public static final String PROFILES_PREF_NAME = "profiles";
+
     public static final int PROFILES_LOADER_ID = 1;
     public static final int TORRENTS_LOADER_ID = 2;
     public static final int SESSION_LOADER_ID = 3;

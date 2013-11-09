@@ -18,7 +18,7 @@
 
     <application
         android:allowBackup="true"
-        android:backupAgent="org.sugr.gearshift.GearShiftBackupAgent"
+        android:backupAgent=".BackupAgent"
         android:restoreAnyVersion="true"
         android:icon="@drawable/ic_launcher"
         android:logo="@drawable/ic_home"

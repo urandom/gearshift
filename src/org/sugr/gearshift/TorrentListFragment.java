@@ -477,10 +477,12 @@ public class TorrentListFragment extends ListFragment {
                 public void onSharedPreferenceChanged(SharedPreferences prefs, String key) {
                     if (getActivity() == null || mProfile == null) return;
 
+                    if (!key.endsWith(mProfile.getId())) return;
+
                     Loader<TransmissionData> loader = getActivity().getSupportLoaderManager()
                             .getLoader(G.TORRENTS_LOADER_ID);
 
-                    mProfile.load(prefs);
+                    mProfile.load();
 
                     TransmissionProfile.setCurrentProfile(mProfile, getActivity());
                     ((TransmissionSessionInterface) getActivity()).setProfile(mProfile);

@@ -1,6 +1,5 @@
 package org.sugr.gearshift;
 
-import android.app.Activity;
 import android.content.AsyncTaskLoader;
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -38,6 +37,9 @@ public class TransmissionProfileLoader extends AsyncTaskLoader<TransmissionProfi
 
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getContext().getApplicationContext());
         prefs.registerOnSharedPreferenceChangeListener(mDefaultListener);
+
+        prefs = TransmissionProfile.getPreferences(getContext());
+        prefs.registerOnSharedPreferenceChangeListener(mListener);
     }
 
     @Override
@@ -46,12 +48,6 @@ public class TransmissionProfileLoader extends AsyncTaskLoader<TransmissionProfi
 
         G.logD("TPLoader: Read %d profiles", new Object[] {profiles.length});
 
-        for (TransmissionProfile prof : profiles) {
-            SharedPreferences prefs = getContext().getApplicationContext().getSharedPreferences(
-                    G.PREF_PREFIX + prof.getId(), Activity.MODE_PRIVATE);
-            prefs.registerOnSharedPreferenceChangeListener(mListener);
-        }
-
         return profiles;
     }
 
@@ -59,29 +55,16 @@ public class TransmissionProfileLoader extends AsyncTaskLoader<TransmissionProfi
     public void deliverResult(TransmissionProfile[] profiles) {
         if (isReset()) {
             if (profiles != null) {
-                onReleaseResources(profiles);
+                onReleaseResources();
                 return;
             }
         }
 
-        TransmissionProfile[] oldProfiles = mProfiles;
         mProfiles = profiles;
 
         if (isStarted()) {
             G.logD("TPLoader: Delivering results: %d profiles", new Object[] {profiles.length});
             super.deliverResult(profiles);
-        }
-
-        if (oldProfiles != null) {
-            for (TransmissionProfile prof : oldProfiles) {
-                for (TransmissionProfile newProf : mProfiles) {
-                    if (!prof.getId().equals(newProf.getId())) {
-                        SharedPreferences prefs = getContext().getApplicationContext().getSharedPreferences(
-                                G.PREF_PREFIX + prof.getId(), Activity.MODE_PRIVATE);
-                        prefs.unregisterOnSharedPreferenceChangeListener(mListener);
-                    }
-                }
-            }
         }
     }
 
@@ -89,7 +72,7 @@ public class TransmissionProfileLoader extends AsyncTaskLoader<TransmissionProfi
     public void onCanceled(TransmissionProfile[] profiles) {
         super.onCanceled(profiles);
 
-        onReleaseResources(profiles);
+        onReleaseResources();
     }
 
     @Override
@@ -124,21 +107,16 @@ public class TransmissionProfileLoader extends AsyncTaskLoader<TransmissionProfi
         onStopLoading();
 
         if (mProfiles != null) {
-            onReleaseResources(mProfiles);
+            onReleaseResources();
             mProfiles = null;
         }
     }
 
-    protected void onReleaseResources(TransmissionProfile[] profiles) {
-        if (profiles != null) {
-            for (TransmissionProfile prof : profiles) {
-                SharedPreferences prefs = getContext().getApplicationContext().getSharedPreferences(
-                        G.PREF_PREFIX + prof.getId(), Activity.MODE_PRIVATE);
-                prefs.unregisterOnSharedPreferenceChangeListener(mListener);
-            }
-        }
-
+    protected void onReleaseResources() {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getContext().getApplicationContext());
         prefs.unregisterOnSharedPreferenceChangeListener(mDefaultListener);
+
+        prefs = TransmissionProfile.getPreferences(getContext());
+        prefs.registerOnSharedPreferenceChangeListener(mListener);
     }
 }

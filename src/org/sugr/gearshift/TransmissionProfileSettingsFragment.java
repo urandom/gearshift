@@ -4,7 +4,6 @@ import android.app.ActionBar;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
-import android.content.SharedPreferences.Editor;
 import android.os.Bundle;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceManager;
@@ -18,7 +17,7 @@ import android.view.View.OnClickListener;
 public class TransmissionProfileSettingsFragment extends BasePreferenceFragment {
     private TransmissionProfile mProfile;
 
-    private boolean mNew = true;
+    private boolean mDeleted = false;
     private boolean mSaved = false;
 
     @Override
@@ -29,32 +28,22 @@ public class TransmissionProfileSettingsFragment extends BasePreferenceFragment 
         Bundle args = getArguments();
         if (args.containsKey(G.ARG_PROFILE_ID)) {
             id = args.getString(G.ARG_PROFILE_ID);
-            mNew = false;
         }
 
         if (id == null)
             mProfile = new TransmissionProfile(getActivity());
-        else
+        else {
             mProfile = new TransmissionProfile(id, getActivity());
-
-        G.logD("Editing (new ? %s) profile %s",
-            new Object[] {mNew, mProfile.getId()});
-
-        String prefname = G.PREF_PREFIX + (id == null ? "temp" : id);
-        mSharedPrefs = getActivity().getSharedPreferences(
-                prefname, Activity.MODE_PRIVATE);
-
-        getPreferenceManager().setSharedPreferencesName(prefname);
-        if (mNew) {
-            Editor e = mSharedPrefs.edit();
-
-            e.clear();
-            e.commit();
+            mProfile.fillTemporatyPreferences();
         }
+
+        mSharedPrefs = mProfile.getPreferences(getActivity());
+
+        getPreferenceManager().setSharedPreferencesName(G.PROFILES_PREF_NAME);
 
         addPreferencesFromResource(R.xml.torrent_profile_preferences);
         PreferenceManager.setDefaultValues(
-                getActivity(), G.PREF_PREFIX + (id == null ? "temp" : id),
+                getActivity(), G.PROFILES_PREF_NAME,
                 Activity.MODE_PRIVATE, R.xml.torrent_profile_preferences, true);
 
         mSummaryPrefs = new Object[][] {
@@ -69,7 +58,7 @@ public class TransmissionProfileSettingsFragment extends BasePreferenceFragment 
         };
 
         Bundle dirBundle = getPreferenceManager().findPreference(G.PREF_DIRECTORIES).getExtras();
-        dirBundle.putString(G.ARG_PROFILE_ID, prefname);
+        dirBundle.putString(G.ARG_PROFILE_ID, id);
         if (args.containsKey(G.ARG_DIRECTORIES)) {
             dirBundle.putStringArrayList(G.ARG_DIRECTORIES,
                     args.getStringArrayList(G.ARG_DIRECTORIES));
@@ -106,15 +95,9 @@ public class TransmissionProfileSettingsFragment extends BasePreferenceFragment 
                         return;
                     }
 
-                    mProfile.load(mSharedPrefs);
-                    if (mNew) {
-                        mProfile.save();
-                    }
-
                     mSaved = true;
 
                     PreferenceActivity context = (PreferenceActivity) getActivity();
-                    G.requestBackup(context);
 
                     if (context.onIsHidingHeaders() || !context.onIsMultiPane()) {
                         getActivity().finish();
@@ -144,13 +127,8 @@ public class TransmissionProfileSettingsFragment extends BasePreferenceFragment 
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.delete:
-                if (!mNew) {
-                    /* FIXME: show undo bar https://plus.google.com/113735310430199015092/posts/RA9WEEGWYp6 */
-
-                    mProfile.delete();
-
-                    mSaved = true;
-                }
+                /* FIXME: show undo bar https://plus.google.com/113735310430199015092/posts/RA9WEEGWYp6 */
+                mDeleted = true;
 
                 PreferenceActivity context = (PreferenceActivity) getActivity();
 
@@ -167,10 +145,17 @@ public class TransmissionProfileSettingsFragment extends BasePreferenceFragment 
 
     @Override
     public void onDestroy() {
-        if (!mSaved) {
-            if (!mNew && mProfile != null) {
-                mProfile.save();
-            }
+        if (mSaved) {
+            mProfile.save(true);
+        } else if (mDeleted) {
+            mProfile.delete();
+        }
+
+        TransmissionProfile.cleanTemporaryPreferences(getActivity());
+
+        if (mSaved || mDeleted) {
+            PreferenceActivity context = (PreferenceActivity) getActivity();
+            G.requestBackup(context);
         }
 
         super.onDestroy();
