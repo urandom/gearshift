@@ -40,4 +40,28 @@ android {
 
         instrumentTest.setRoot('tests')
     }
+
+    signingConfigs {
+        release
+    }
+
+    buildTypes {
+        release {
+            debuggable true
+            jniDebugBuild true
+            signingConfig signingConfigs.release
+
+            runProguard false
+            proguardFile 'proguard-project.txt'
+        }
+    }
+}
+
+def runTasks = gradle.startParameter.taskNames
+if ('assemble' in runTasks || 'assembleRelease' in runTasks) {
+    android.signingConfigs.release.storeFile = file('/home/urandom/.android/sugr.keystore')
+    android.signingConfigs.release.storePassword = System.console().readLine('KeyStore Password: ')
+    android.signingConfigs.release.keyAlias = "gearshift"
+    android.signingConfigs.release.keyPassword = System.console().readLine('Alias Password: ')
+    android.buildTypes.release.signingConfig = android.signingConfigs.release
 }
