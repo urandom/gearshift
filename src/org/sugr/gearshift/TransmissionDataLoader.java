@@ -10,6 +10,7 @@ import android.util.SparseArray;
 import org.sugr.gearshift.TransmissionSessionManager.ActiveTorrentGetResponse;
 import org.sugr.gearshift.TransmissionSessionManager.ManagerException;
 
+import java.io.File;
 import java.util.ArrayList;
 
 
@@ -105,6 +106,7 @@ public class TransmissionDataLoader extends AsyncTaskLoader<TransmissionData> {
     private String mTorrentAddUri;
     private String mTorrentAddData;
     private boolean mTorrentAddPaused;
+    private String mTorrentAddDeleteLocal;
 
     private int mNewTorrentAdded;
 
@@ -203,11 +205,12 @@ public class TransmissionDataLoader extends AsyncTaskLoader<TransmissionData> {
         onContentChanged();
     }
 
-    public void addTorrent(String uri, String data, String location, boolean paused) {
+    public void addTorrent(String uri, String data, String location, boolean paused, String deleteLocal) {
         mTorrentAddUri = uri;
         mTorrentAddData = data;
         mTorrentAddPaused = paused;
         mTorrentLocation = location;
+        mTorrentAddDeleteLocal = deleteLocal;
 
         mProfile.setLastDownloadDirectory(location);
         onContentChanged();
@@ -354,6 +357,12 @@ public class TransmissionDataLoader extends AsyncTaskLoader<TransmissionData> {
                             mNewTorrentAdded = torrent.getId();
                             mTorrentMap.put(torrent.getId(), torrent);
                         }
+                        if (mTorrentAddDeleteLocal != null) {
+                            File file = new File(mTorrentAddDeleteLocal);
+                            if (!file.delete()) {
+                                G.logD("Couldn't remove torrent " + file.getName());
+                            }
+                        }
                     } catch (ManagerException e) {
                         synchronized(mLock) {
                             exceptions.add(e);
@@ -361,6 +370,7 @@ public class TransmissionDataLoader extends AsyncTaskLoader<TransmissionData> {
                     } finally {
                         mTorrentAddUri = null;
                         mTorrentAddData = null;
+                        mTorrentAddDeleteLocal = null;
                     }
                 }
             });

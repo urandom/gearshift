@@ -2,6 +2,7 @@ package org.sugr.gearshift;
 
 import android.content.ContentResolver;
 import android.content.Intent;
+import android.database.Cursor;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -32,10 +33,15 @@ public class TorrentFileReadActivity extends FragmentActivity {
         }
     }
 
-    private class ReadDataAsyncTask extends AsyncTask<Uri, Void, File> {
+    private class TaskData {
+        public File file;
+        public String path;
+    }
+
+    private class ReadDataAsyncTask extends AsyncTask<Uri, Void, TaskData> {
         private Uri mUri;
 
-        @Override protected File doInBackground(Uri... params) {
+        @Override protected TaskData doInBackground(Uri... params) {
             mUri = params[0];
             ContentResolver cr = getContentResolver();
             InputStream stream = null;
@@ -62,7 +68,26 @@ public class TorrentFileReadActivity extends FragmentActivity {
                 bw.append(fileContent);
                 bw.close();
 
-                return file;
+                String path = null;
+                if ("content".equals(mUri.getScheme())) {
+                    Cursor cursor = cr.query(mUri,
+                        new String[] {
+                            android.provider.MediaStore.Files.FileColumns.DATA 
+                        }, null, null, null);
+                    if (cursor.moveToFirst()) {
+                        path = cursor.getString(0);
+                    }
+                    cursor.close();
+                } else if ("file".equals(mUri.getScheme())) {
+                    path = mUri.getPath();
+                }
+
+                G.logD("Torrent file path: " + path);
+
+                TaskData data = new TaskData();
+                data.file = file;
+                data.path = path;
+                return data;
             } catch (Exception e) {
                 /* FIXME: proper error handling */
                 G.logE("Error while reading the torrent file", e);
@@ -81,12 +106,13 @@ public class TorrentFileReadActivity extends FragmentActivity {
             }
         }
 
-        @Override protected void onPostExecute(File file) {
-            if (file != null) {
+        @Override protected void onPostExecute(TaskData data) {
+            if (data != null) {
                 Intent listIntent = new Intent(TorrentFileReadActivity.this, TorrentListActivity.class);
                 listIntent.setAction(TorrentListActivity.ACTION_OPEN);
                 listIntent.setData(mUri);
-                listIntent.putExtra(TorrentListActivity.ARG_FILE_URI, file.toURI().toString());
+                listIntent.putExtra(TorrentListActivity.ARG_FILE_URI, data.file.toURI().toString());
+                listIntent.putExtra(TorrentListActivity.ARG_FILE_PATH, data.path);
 
                 startActivity(listIntent);
 

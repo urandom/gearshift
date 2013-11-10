@@ -31,6 +31,11 @@
             android:title="@string/start_paused"
             android:defaultValue="false" />
 
+        <CheckBoxPreference
+            android:key="delete_local"
+            android:title="@string/delete_local"
+            android:defaultValue="false" />
+
     </PreferenceCategory>
     
     <PreferenceCategory

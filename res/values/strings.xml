@@ -87,6 +87,7 @@
     <string name="session_update_interval">Session update interval</string>
     <string name="torrents">Torrents</string>
     <string name="start_paused">Start paused</string>
+    <string name="delete_local">Delete local torrent file when adding</string>
     
     <string name="profile">Profile</string>
     <string name="profile_summary_format">%1$s</string>
@@ -192,7 +193,7 @@
     <string name="add_magnet">New magnet link</string>
     <string name="add_torrent">New torrent</string>
     <string name="start_paused_checkbox">Start paused</string>
-    <string name="remove_file_checkbox">Remove .torrent file</string>
+    <string name="delete_local_checkbox">Remove local torrent file</string>
     
     <string name="no_tracker_errors">No errors</string>
     

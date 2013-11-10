@@ -16,7 +16,7 @@ class G {
     public static final String PREF_FULL_UPDATE = "full_update";
     public static final String PREF_UPDATE_INTERVAL = "update_interval";
     public static final String PREF_START_PAUSED = "start_paused";
-    public static final String PREF_DELETE_LOCAL_TORRENT = "delete_local_torrent_file";
+    public static final String PREF_DELETE_LOCAL = "delete_local";
 
     public static final String PREF_PROFILES = "profiles";
     public static final String PREF_CURRENT_PROFILE = "default_profile";

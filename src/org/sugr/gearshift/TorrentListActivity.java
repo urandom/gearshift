@@ -45,6 +45,7 @@ public class TorrentListActivity extends FragmentActivity
                    TorrentDetailFragment.PagerCallbacks {
 
     public static final String ARG_FILE_URI = "torrent_file_uri";
+    public static final String ARG_FILE_PATH = "torrent_file_path";
     public final static String ACTION_OPEN = "torrent_file_open_action";
     /**
      * Whether or not the activity is in two-pane mode, i.e. running on a tablet
@@ -74,12 +75,14 @@ public class TorrentListActivity extends FragmentActivity
 
     private int mLocationPosition = AdapterView.INVALID_POSITION;
 
+    private SharedPreferences mSharedPrefs;
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
-        G.DEBUG = prefs.getBoolean(G.PREF_DEBUG, false);
+        mSharedPrefs = PreferenceManager.getDefaultSharedPreferences(this);
+        G.DEBUG = mSharedPrefs.getBoolean(G.PREF_DEBUG, false);
 
         setContentView(R.layout.activity_torrent_list);
 
@@ -465,7 +468,6 @@ public class TorrentListActivity extends FragmentActivity
             mDialogShown = true;
             final Uri data = intent.getData();
 
-            SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
             LayoutInflater inflater = getLayoutInflater();
             View view = inflater.inflate(R.layout.add_torrent_dialog, null);
             final Loader<TransmissionData> loader = getSupportLoaderManager()
@@ -512,7 +514,10 @@ public class TorrentListActivity extends FragmentActivity
                 @Override public void onNothingSelected(AdapterView<?> adapterView) {}
             });
 
-            ((CheckBox) view.findViewById(R.id.start_paused)).setChecked(prefs.getBoolean(G.PREF_START_PAUSED, false));
+            ((CheckBox) view.findViewById(R.id.start_paused)).setChecked(mSharedPrefs.getBoolean(G.PREF_START_PAUSED, false));
+
+            final CheckBox deleteLocal = ((CheckBox) view.findViewById(R.id.delete_local));
+            deleteLocal.setChecked(mSharedPrefs.getBoolean(G.PREF_DELETE_LOCAL, false));
 
             if (data.getScheme().equals("magnet")) {
                 builder.setTitle(R.string.add_magnet).setPositiveButton(android.R.string.ok,
@@ -524,7 +529,8 @@ public class TorrentListActivity extends FragmentActivity
 
                         String dir = (String) location.getSelectedItem();
                         ((TransmissionDataLoader) loader).addTorrent(
-                                data.toString(), null, dir, paused.isChecked());
+                                data.toString(), null, dir,
+                                paused.isChecked(), null);
 
                         setRefreshing(true);
                         mIntentConsumed = true;
@@ -536,7 +542,9 @@ public class TorrentListActivity extends FragmentActivity
                 dialog.show();
             } else {
                 final String fileURI = intent.getStringExtra(ARG_FILE_URI);
+                final String filePath = intent.getStringExtra(ARG_FILE_PATH);
 
+                deleteLocal.setVisibility(View.VISIBLE);
                 builder.setTitle(R.string.add_torrent).setPositiveButton(android.R.string.ok,
                         new DialogInterface.OnClickListener() {
                     @Override
@@ -559,9 +567,13 @@ public class TorrentListActivity extends FragmentActivity
 
                             file.delete();
 
+                            String path = filePath;
+                            if (!deleteLocal.isChecked()) {
+                                path = null;
+                            }
                             ((TransmissionDataLoader) loader).addTorrent(
                                     null, filedata.toString(),
-                                    dir, paused.isChecked());
+                                    dir, paused.isChecked(), path);
 
                             setRefreshing(true);
                         } catch (Exception e) {

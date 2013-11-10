@@ -47,11 +47,11 @@ android {
 
     buildTypes {
         release {
-            debuggable true
-            jniDebugBuild true
+            debuggable false
+            jniDebugBuild false
             signingConfig signingConfigs.release
 
-            runProguard false
+            runProguard true
             proguardFile 'proguard-project.txt'
         }
     }
