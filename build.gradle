@@ -52,16 +52,20 @@ android {
             signingConfig signingConfigs.release
 
             runProguard true
+            proguardFile getDefaultProguardFile('proguard-android.txt')
             proguardFile 'proguard-project.txt'
         }
     }
 }
 
 def runTasks = gradle.startParameter.taskNames
-if ('assemble' in runTasks || 'assembleRelease' in runTasks) {
+if ('assemble' in runTasks || 'assembleRelease' in runTasks || 'aR' in runTasks) {
+    def storePass = System.console().readPassword('\nKeyStore Password: ')
+    def keyPass = System.console().readPassword('Alias Password: ')
+
     android.signingConfigs.release.storeFile = file('/home/urandom/.android/sugr.keystore')
-    android.signingConfigs.release.storePassword = System.console().readLine('KeyStore Password: ')
+    android.signingConfigs.release.storePassword = new String(storePass)
     android.signingConfigs.release.keyAlias = "gearshift"
-    android.signingConfigs.release.keyPassword = System.console().readLine('Alias Password: ')
+    android.signingConfigs.release.keyPassword = new String(keyPass)
     android.buildTypes.release.signingConfig = android.signingConfigs.release
 }
