@@ -744,6 +744,8 @@ public class TorrentDetailPageFragment extends Fragment {
                                 G.readableRemainingTime(now - mTorrent.getAddedDate(), getActivity())
                         )
                 );
+            } else {
+                ((TextView) root.findViewById(R.id.torrent_added)).setText(R.string.unknown);
             }
             ((TextView) root.findViewById(R.id.torrent_queue)).setText(
                     Integer.toString(mTorrent.getQueuePosition())

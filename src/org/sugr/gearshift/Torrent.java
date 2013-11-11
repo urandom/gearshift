@@ -1230,7 +1230,10 @@ public class Torrent implements Parcelable {
     public float getActiveSeedRatioLimit() {
         switch(mSeedRatioMode) {
             case Torrent.SeedRatioMode.GLOBAL_LIMIT:
-                if (mSession == null || !mSession.isSeedRatioLimitEnabled())
+                if (mSession == null)
+                    return mSeedRatioLimit;
+
+                if (!mSession.isSeedRatioLimitEnabled())
                     return -1;
 
                 return mSession.getSeedRatioLimit();
@@ -1403,13 +1406,19 @@ public class Torrent implements Parcelable {
         in.writeByte((byte) (mFinished ? 1 : 0));
         in.writeString(mDownloadDir);
 
+        in.writeLong(mAddedDate);
+        in.writeLong(mStartDate);
+        in.writeLong(mActivityDate);
+        in.writeLong(mEta);
+
         in.writeLong(mSizeWhenDone);
         in.writeLong(mLeftUntilDone);
         in.writeLong(mUploadedEver);
-        in.writeLong(mEta);
         in.writeLong(mTotalSize);
-        in.writeLong(mAddedDate);
         in.writeInt(mQueuePosition);
+
+        in.writeLong(mDownloadedEver);
+        in.writeLong(mUploadedEver);
     }
 
     private Torrent(Parcel in) {
@@ -1430,13 +1439,19 @@ public class Torrent implements Parcelable {
         mFinished = in.readByte() == 1;
         mDownloadDir = in.readString();
 
+        mAddedDate = in.readLong();
+        mStartDate = in.readLong();
+        mActivityDate = in.readLong();
+        mEta = in.readLong();
+
         mSizeWhenDone = in.readLong();
         mLeftUntilDone = in.readLong();
         mUploadedEver = in.readLong();
-        mEta = in.readLong();
         mTotalSize = in.readLong();
-        mAddedDate = in.readLong();
         mQueuePosition = in.readInt();
+
+        mDownloadedEver = in.readLong();
+        mUploadedEver = in.readLong();
     }
 
     public static final Parcelable.Creator<Torrent> CREATOR
