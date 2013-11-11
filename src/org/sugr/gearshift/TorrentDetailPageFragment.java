@@ -737,12 +737,14 @@ public class TorrentDetailPageFragment extends Fragment {
                     break;
             }
             ((TextView) root.findViewById(R.id.torrent_state)).setText(state);
-            ((TextView) root.findViewById(R.id.torrent_added)).setText(
-                    String.format(
-                            getString(R.string.torrent_added_format),
-                            G.readableRemainingTime(now - mTorrent.getAddedDate(), getActivity())
-                    )
-            );
+            if (mTorrent.getAddedDate() > 0) {
+                ((TextView) root.findViewById(R.id.torrent_added)).setText(
+                        String.format(
+                                getString(R.string.torrent_added_format),
+                                G.readableRemainingTime(now - mTorrent.getAddedDate(), getActivity())
+                        )
+                );
+            }
             ((TextView) root.findViewById(R.id.torrent_queue)).setText(
                     Integer.toString(mTorrent.getQueuePosition())
             );

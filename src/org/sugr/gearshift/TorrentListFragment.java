@@ -612,8 +612,9 @@ public class TorrentListFragment extends ListFragment {
                 public void run() {
                     if (savedInstanceState.containsKey(STATE_TORRENTS)) {
                         mTorrentListAdapter.setNotifyOnChange(false);
-                        mTorrentListAdapter.clear();
                         ArrayList<Torrent> torrents = savedInstanceState.getParcelableArrayList(STATE_TORRENTS);
+                        ((TransmissionSessionInterface) getActivity()).setTorrents(torrents);
+                        mTorrentListAdapter.clear();
                         mTorrentListAdapter.addAll(torrents);
                         mTorrentListAdapter.repeatFilter();
                     }

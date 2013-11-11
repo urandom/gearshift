@@ -1408,6 +1408,8 @@ public class Torrent implements Parcelable {
         in.writeLong(mUploadedEver);
         in.writeLong(mEta);
         in.writeLong(mTotalSize);
+        in.writeLong(mAddedDate);
+        in.writeInt(mQueuePosition);
     }
 
     private Torrent(Parcel in) {
@@ -1433,6 +1435,8 @@ public class Torrent implements Parcelable {
         mUploadedEver = in.readLong();
         mEta = in.readLong();
         mTotalSize = in.readLong();
+        mAddedDate = in.readLong();
+        mQueuePosition = in.readInt();
     }
 
     public static final Parcelable.Creator<Torrent> CREATOR
