@@ -60,12 +60,12 @@ android {
 
 def runTasks = gradle.startParameter.taskNames
 if ('assemble' in runTasks || 'assembleRelease' in runTasks || 'aR' in runTasks) {
-    def storePass = System.console().readPassword('\nKeyStore Password: ')
-    def keyPass = System.console().readPassword('Alias Password: ')
+    def storePass = System.env.STORE_PASS ?: new String(System.console().readPassword('\nKeyStore Password: '))
+    def keyPass = System.env.KEY_PASS ?: new String(System.console().readPassword('Alias Password: '))
 
     android.signingConfigs.release.storeFile = file('/home/urandom/.android/sugr.keystore')
-    android.signingConfigs.release.storePassword = new String(storePass)
+    android.signingConfigs.release.storePassword = storePass
     android.signingConfigs.release.keyAlias = "gearshift"
-    android.signingConfigs.release.keyPassword = new String(keyPass)
+    android.signingConfigs.release.keyPassword = keyPass
     android.buildTypes.release.signingConfig = android.signingConfigs.release
 }
