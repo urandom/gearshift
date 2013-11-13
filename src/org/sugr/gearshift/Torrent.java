@@ -6,16 +6,10 @@ import android.os.Parcelable;
 import android.text.Html;
 import android.text.Spanned;
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonPrimitive;
-import com.google.gson.JsonSerializationContext;
-import com.google.gson.JsonSerializer;
 import com.google.gson.annotations.SerializedName;
 
 import org.sugr.gearshift.TransmissionSessionManager.Exclude;
 
-import java.lang.reflect.Type;
 import java.util.List;
 
 public class Torrent implements Parcelable {
@@ -1429,9 +1423,9 @@ public class Torrent implements Parcelable {
         mSeedRatioMode = in.readInt();
         mSeedRatioLimit = in.readFloat();
         mUploadRatio = in.readFloat();
-        mFilteredName = Html.fromHtml(in.readString());
-        mTrafficText = Html.fromHtml(in.readString());
-        mStatusText = Html.fromHtml(in.readString());
+        mFilteredName = (Spanned) trimTrailingWhitespace(Html.fromHtml(in.readString()));
+        mTrafficText = (Spanned) trimTrailingWhitespace(Html.fromHtml(in.readString()));
+        mStatusText = (Spanned) trimTrailingWhitespace(Html.fromHtml(in.readString()));
         mStatus = in.readInt();
         mError = in.readInt();
         mErrorString = in.readString();
@@ -1467,4 +1461,13 @@ public class Torrent implements Parcelable {
         }
     };
 
+    public static CharSequence trimTrailingWhitespace(CharSequence source) {
+        if (source == null)
+            return "";
+
+        int i = source.length();
+        while (--i >= 0 && Character.isWhitespace(source.charAt(i))) {}
+
+        return source.subSequence(0, i + 1);
+    }
 }

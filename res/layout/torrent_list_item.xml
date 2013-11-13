@@ -44,7 +44,7 @@
 
     <TextView
         android:id="@+id/status"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:fontFamily="sans-serif-light"
         android:textColor="@drawable/list_item_color"
@@ -53,7 +53,7 @@
 
     <TextView
         android:id="@+id/error_text"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:ellipsize="marquee"
         android:marqueeRepeatLimit ="marquee_forever"
