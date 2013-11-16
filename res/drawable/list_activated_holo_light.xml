@@ -2,5 +2,4 @@
     <item
         android:state_activated="true"
         android:drawable="@drawable/list_activated_holo" />
-
 </selector>

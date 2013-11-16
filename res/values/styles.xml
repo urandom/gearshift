@@ -176,4 +176,9 @@
         <item name="android:background">@color/detail_background_edge</item>
     </style>
 
+    <style name="TrackerInfoRow">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+    </style>
+
 </resources>
