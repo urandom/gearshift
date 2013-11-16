@@ -17,6 +17,7 @@ class G {
     public static final String PREF_UPDATE_INTERVAL = "update_interval";
     public static final String PREF_START_PAUSED = "start_paused";
     public static final String PREF_DELETE_LOCAL = "delete_local";
+    public static final String PREF_SHOW_STATUS = "show_status";
 
     public static final String PREF_PROFILES = "profiles";
     public static final String PREF_CURRENT_PROFILE = "default_profile";

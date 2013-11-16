@@ -429,4 +429,9 @@
         <item quantity="one">1 peer</item>
         <item quantity="other">%1$d peers</item>
     </plurals>
+
+    <string name="status_bar_format"><![CDATA[↓ %1$s%2$s, ↑ %3$s%4$s, ⊙ %5$s]]></string>
+    <string name="status_bar_limit_format"><![CDATA[ (<i>%1$s</i>)]]></string>
+    <string name="user_interface_header">User interface</string>
+    <string name="show_status_bar">Status bar below the torrent list</string>
 </resources>

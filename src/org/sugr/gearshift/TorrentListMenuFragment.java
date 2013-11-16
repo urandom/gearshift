@@ -1,17 +1,5 @@
 package org.sugr.gearshift;
 
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Set;
-import java.util.HashSet;
-import java.util.TreeSet;
-
-import org.sugr.gearshift.G.FilterBy;
-import org.sugr.gearshift.G.SortBy;
-import org.sugr.gearshift.G.SortOrder;
-
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
@@ -32,8 +20,21 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import org.sugr.gearshift.G.FilterBy;
+import org.sugr.gearshift.G.SortBy;
+import org.sugr.gearshift.G.SortOrder;
+
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.TreeSet;
+
 public class TorrentListMenuFragment extends Fragment {
     private ListView mFilterList;
+    private View mFooter;
     private FilterAdapter mFilterAdapter;
     private int mFilterPosition = ListView.INVALID_POSITION;
     private int mSortPosition = ListView.INVALID_POSITION;
@@ -73,6 +74,12 @@ public class TorrentListMenuFragment extends Fragment {
         @Override public void onSharedPreferenceChanged(SharedPreferences prefs, String key) {
             if (key.matches(G.PREF_FILTER_MATCH_TEST)) {
                 mFiltersChanged = true;
+            } else if (key.matches(G.PREF_SHOW_STATUS) && mFilterList != null) {
+                if (prefs.getBoolean(G.PREF_SHOW_STATUS, false)) {
+                    mFilterList.removeFooterView(mFooter);
+                } else {
+                    mFilterList.addFooterView(mFooter);
+                }
             }
         }
     };
@@ -89,8 +96,8 @@ public class TorrentListMenuFragment extends Fragment {
 
         mFilterList = (ListView) root.findViewById(R.id.filter_list);
 
-        View footer = localInflater.inflate(R.layout.menu_list_footer, mFilterList, false);
-        mFilterList.addFooterView(footer, null, false);
+        mFooter = localInflater.inflate(R.layout.menu_list_footer, mFilterList, false);
+        mFilterList.addFooterView(mFooter, null, false);
 
         /* TODO: The list items should have a count that indicates
          *  how many torrents are matched by the filter */
@@ -112,6 +119,10 @@ public class TorrentListMenuFragment extends Fragment {
         mSharedPrefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
         mSharedPrefs.registerOnSharedPreferenceChangeListener(mSharedPrefListener);
 
+        if (mSharedPrefs.getBoolean(G.PREF_SHOW_STATUS, false)) {
+            mFilterList.removeFooterView(mFooter);
+        }
+
         fillMenuItems();
         checkSelectedItems();
         return root;
@@ -131,7 +142,7 @@ public class TorrentListMenuFragment extends Fragment {
         setStatus(null, null);
     }
 
-    public void notifyTorrentListUpdate(ArrayList<Torrent> torrents, TransmissionSession session) {
+    public void notifyTorrentListUpdate(ArrayList<Torrent> torrents, TransmissionSession session, boolean showStatus) {
         long down = 0, up = 0;
         boolean directoriesEnabled = mSharedPrefs.getBoolean(G.PREF_FILTER_DIRECTORIES, true);
         boolean trackersEnabled = mSharedPrefs.getBoolean(G.PREF_FILTER_TRACKERS, false);
@@ -146,8 +157,10 @@ public class TorrentListMenuFragment extends Fragment {
             String dir = mSharedPrefs.getString(G.PREF_LIST_DIRECTORY, "");
             String track = mSharedPrefs.getString(G.PREF_LIST_TRACKER, "");
             for (Torrent t : torrents) {
-                down += t.getRateDownload();
-                up += t.getRateUpload();
+                if (showStatus) {
+                    down += t.getRateDownload();
+                    up += t.getRateUpload();
+                }
                 if (directoriesEnabled && t.getDownloadDir() != null) {
                     directories.add(t.getDownloadDir());
                     if (!currentDirectoryTorrents && t.getDownloadDir().equals(dir)) {
@@ -309,6 +322,10 @@ public class TorrentListMenuFragment extends Fragment {
             mCloseHandler.post(mCloseRunnable);
         }
 
+        if (!showStatus) {
+            return;
+        }
+
         Object[] speed = {
             G.readableFileSize(down), "",
             G.readableFileSize(up), ""
@@ -344,8 +361,13 @@ public class TorrentListMenuFragment extends Fragment {
         TextView speed = (TextView) getView().findViewById(R.id.status_speed);
         TextView space = (TextView) getView().findViewById(R.id.status_free_space);
 
-        if (speeds == null)
+        if (speed == null || space == null) {
+            return;
+        }
+
+        if (speeds == null) {
             speeds = new Object[] {"0 KB", "", "0 KB", ""};
+        }
 
         speed.setText(Html.fromHtml(String.format(getString(
                             R.string.speed_format), speeds)));

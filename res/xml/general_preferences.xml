@@ -37,6 +37,16 @@
             android:defaultValue="false" />
 
     </PreferenceCategory>
+
+    <PreferenceCategory
+        android:title="@string/user_interface_header">
+
+        <CheckBoxPreference
+            android:key="show_status"
+            android:title="@string/show_status_bar"
+            android:defaultValue="false" />
+
+    </PreferenceCategory>
     
     <PreferenceCategory
         android:title="@string/developer_options">

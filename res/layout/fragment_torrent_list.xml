@@ -14,7 +14,25 @@
             android:id="@+id/list_panel"
             android:layout_width="match_parent"
             android:layout_height="0dip"
-            android:layout_weight="1" />  
+            android:layout_weight="1" />
+
+        <TextView
+            android:id="@+id/status_bar_text"
+            android:visibility="gone"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingLeft="4dp"
+            android:paddingRight="8dp"
+            android:paddingTop="2dp"
+            android:paddingBottom="2dp"
+            android:background="@android:color/black"
+            android:fontFamily="sans-serif-condensed"
+            android:textSize="12sp"
+            android:textColor="?android:attr/colorForegroundInverse"
+            android:gravity="right"
+            android:ellipsize="marquee"
+            android:marqueeRepeatLimit="marquee_forever"
+            android:singleLine="true" />
 
     </LinearLayout>
 

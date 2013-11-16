@@ -299,10 +299,8 @@ public class TorrentListFragment extends ListFragment {
 
                 if (data.error == 0) {
                     FragmentManager manager = getActivity().getSupportFragmentManager();
-                    TorrentListMenuFragment menu = (TorrentListMenuFragment) manager.findFragmentById(R.id.torrent_list_menu);
-                    if (menu != null) {
-                        menu.notifyTorrentListUpdate(data.torrents, data.session);
-                    }
+
+                    updateStatus(data.torrents, data.session);
                     if (!filtered) {
                         TorrentDetailFragment detail = (TorrentDetailFragment) manager.findFragmentByTag(
                                 TorrentDetailFragment.TAG);
@@ -499,6 +497,9 @@ public class TorrentListFragment extends ListFragment {
                     } else if (key.equals(G.PREF_PROFILES)) {
                         mRefreshing = true;
                         getActivity().invalidateOptionsMenu();
+                    } else if (key.equals(G.PREF_SHOW_STATUS) && getView() != null) {
+                        View status = getView().findViewById(R.id.status_bar_text);
+                        status.setVisibility(prefs.getBoolean(key, false) ? View.VISIBLE : View.GONE);
                     }
                 }
             };
@@ -624,6 +625,12 @@ public class TorrentListFragment extends ListFragment {
                 }
             });
 
+        }
+
+        TextView status = (TextView) view.findViewById(R.id.status_bar_text);
+        status.setSelected(true);
+        if (mSharedPrefs.getBoolean(G.PREF_SHOW_STATUS, false)) {
+            status.setVisibility(View.VISIBLE);
         }
     }
 
@@ -942,6 +949,57 @@ public class TorrentListFragment extends ListFragment {
         }
 
         return true;
+    }
+
+    private void updateStatus(ArrayList<Torrent> torrents, TransmissionSession session) {
+        FragmentManager manager = getActivity().getSupportFragmentManager();
+        TorrentListMenuFragment menu = (TorrentListMenuFragment) manager.findFragmentById(R.id.torrent_list_menu);
+        boolean showStatus = mSharedPrefs.getBoolean(G.PREF_SHOW_STATUS, false);
+        if (menu != null) {
+            menu.notifyTorrentListUpdate(torrents, session, !showStatus);
+        }
+
+        TextView status = (TextView) getView().findViewById(R.id.status_bar_text);
+        if (showStatus) {
+            long down = 0, up = 0, free = 0;
+            String limitDown = "", limitUp = "";
+
+            for (Torrent t : torrents) {
+                down += t.getRateDownload();
+                up += t.getRateUpload();
+            }
+
+            if (session != null) {
+                free = session.getDownloadDirFreeSpace();
+                if (session.isDownloadSpeedLimitEnabled() || session.isAltSpeedLimitEnabled()) {
+                    limitDown = String.format(
+                        getString(R.string.status_bar_limit_format),
+                        G.readableFileSize((
+                            session.isAltSpeedLimitEnabled()
+                                ? session.getAltDownloadSpeedLimit()
+                                : session.getDownloadSpeedLimit()) * 1024) + "/s"
+                    );
+                }
+                if (session.isUploadSpeedLimitEnabled() || session.isAltSpeedLimitEnabled()) {
+                    limitUp = String.format(
+                        getString(R.string.status_bar_limit_format),
+                        G.readableFileSize((
+                            session.isAltSpeedLimitEnabled()
+                                ? session.getAltUploadSpeedLimit()
+                                : session.getUploadSpeedLimit()) * 1024) + "/s"
+                    );
+                }
+            }
+
+            status.setText(Html.fromHtml(String.format(
+                    getString(R.string.status_bar_format),
+                    G.readableFileSize(down),
+                    limitDown,
+                    G.readableFileSize(up),
+                    limitUp,
+                    free == 0 ? getString(R.string.unknown) : G.readableFileSize(free)
+            )));
+        }
     }
 
     private static class TransmissionProfileListAdapter extends ArrayAdapter<TransmissionProfile> {
