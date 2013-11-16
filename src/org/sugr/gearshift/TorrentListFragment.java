@@ -628,6 +628,7 @@ public class TorrentListFragment extends ListFragment {
         }
 
         TextView status = (TextView) view.findViewById(R.id.status_bar_text);
+        /* Enable the marquee animation */
         status.setSelected(true);
         if (mSharedPrefs.getBoolean(G.PREF_SHOW_STATUS, false)) {
             status.setVisibility(View.VISIBLE);
