@@ -63,6 +63,10 @@ public class TorrentListMenuFragment extends Fragment {
     private Handler mCloseHandler = new Handler();
     private Runnable mCloseRunnable = new Runnable() {
         @Override public void run() {
+            if (getActivity() == null) {
+                return;
+            }
+
             DrawerLayout drawer = ((DrawerLayout) getActivity().findViewById(R.id.drawer_layout));
             drawer.closeDrawer(getActivity().findViewById(R.id.sliding_menu_frame));
         }
