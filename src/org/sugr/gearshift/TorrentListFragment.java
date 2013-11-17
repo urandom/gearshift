@@ -85,7 +85,6 @@ public class TorrentListFragment extends ListFragment {
     private int mActivatedPosition = ListView.INVALID_POSITION;
 
     private boolean mAltSpeed = false;
-
     private boolean mRefreshing = true;
 
     private ActionMode mActionMode;
@@ -107,6 +106,13 @@ public class TorrentListFragment extends ListFragment {
     private SharedPreferences mSharedPrefs;
 
     private boolean mPreventRefreshIndicator;
+
+    private int mExpecting = 0;
+
+    private static class Expecting {
+        static int ALT_SPEED_ON = 1 << 0;
+        static int ALT_SPEED_OFF = 1 << 1;
+    }
 
     /**
      * A callback interface that all activities containing this fragment must
@@ -226,10 +232,20 @@ public class TorrentListFragment extends ListFragment {
            /* if (data.stats != null)
                 mSessionStats = data.stats;*/
 
-            if (mSession != null && mAltSpeed != mSession.isAltSpeedLimitEnabled()) {
-                mAltSpeed = mSession.isAltSpeedLimitEnabled();
-                invalidateMenu = true;
+            if (mSession != null) {
+                if (mAltSpeed == mSession.isAltSpeedLimitEnabled()) {
+                    mExpecting &= ~(Expecting.ALT_SPEED_ON | Expecting.ALT_SPEED_OFF);
+                } else {
+                    if (mExpecting == 0
+                            || (mExpecting & Expecting.ALT_SPEED_ON) > 0 && mSession.isAltSpeedLimitEnabled()
+                            || (mExpecting & Expecting.ALT_SPEED_OFF) > 0 && !mSession.isAltSpeedLimitEnabled()) {
+                        mAltSpeed = mSession.isAltSpeedLimitEnabled();
+                        mExpecting &= ~(Expecting.ALT_SPEED_ON | Expecting.ALT_SPEED_OFF);
+                        invalidateMenu = true;
+                    }
+                }
             }
+
 
             boolean filtered = false;
             View error = getView().findViewById(R.id.fatal_error_layer);
@@ -264,6 +280,7 @@ public class TorrentListFragment extends ListFragment {
                     } else {
                         error.setVisibility(View.VISIBLE);
                         TextView text = (TextView) getView().findViewById(R.id.transmission_error);
+                        mExpecting = 0;
                         ((TransmissionSessionInterface) getActivity()).setProfile(null);
                         if (mActionMode != null) {
                             mActionMode.finish();
@@ -794,7 +811,14 @@ public class TorrentListFragment extends ListFragment {
                 loader = getActivity().getSupportLoaderManager()
                     .getLoader(G.TORRENTS_LOADER_ID);
                 if (loader != null) {
-                    mAltSpeed = !mAltSpeed;
+                    mExpecting &= ~(Expecting.ALT_SPEED_ON | Expecting.ALT_SPEED_OFF);
+                    if (mAltSpeed) {
+                        mAltSpeed = false;
+                        mExpecting |= Expecting.ALT_SPEED_OFF;
+                    } else {
+                        mAltSpeed = true;
+                        mExpecting |= Expecting.ALT_SPEED_ON;
+                    }
                     mSession.setAltSpeedLimitEnabled(mAltSpeed);
                     ((TransmissionDataLoader) loader).setSession(mSession, "alt-speed-enabled");
                     getActivity().invalidateOptionsMenu();
