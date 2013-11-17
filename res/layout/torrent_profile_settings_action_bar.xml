@@ -25,7 +25,7 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical"
                 android:layout_marginRight="8dip"
-                android:src="@drawable/ic_menu_done"
+                android:src="@drawable/ic_action_accept"
                 android:description="@string/done" />
 
             <TextView

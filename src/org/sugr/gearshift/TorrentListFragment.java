@@ -725,10 +725,10 @@ public class TorrentListFragment extends ListFragment {
         } else {
             item.setVisible(true);
             if (mAltSpeed) {
-                item.setIcon(R.drawable.ic_menu_alt_speed_on);
+                item.setIcon(R.drawable.ic_action_data_usage_on);
                 item.setTitle(R.string.alt_speed_label_off);
             } else {
-                item.setIcon(R.drawable.ic_menu_alt_speed_off);
+                item.setIcon(R.drawable.ic_action_data_usage);
                 item.setTitle(R.string.alt_speed_label_on);
             }
         }

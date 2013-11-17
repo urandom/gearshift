@@ -2,7 +2,7 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android" >
     
     <item android:id="@+id/menu_refresh"
-        android:icon="@drawable/ic_menu_refresh"
+        android:icon="@drawable/ic_action_refresh"
         android:visible="true"
         android:showAsAction="ifRoom"
         android:menuCategory="system"
@@ -11,7 +11,7 @@
         android:titleCondensed="@string/refresh"/>
     
     <item android:id="@+id/menu_alt_speed"
-        android:icon="@drawable/ic_menu_alt_speed_off"
+        android:icon="@drawable/ic_action_data_usage"
         android:visible="false"
         android:showAsAction="ifRoom"
         android:menuCategory="system"

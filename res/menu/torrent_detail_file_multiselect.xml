@@ -2,22 +2,22 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android" >
     <item android:id="@+id/select_all"
 	    android:title="@string/ic_menu_select_all"
-	    android:icon="@drawable/ic_menu_select_all"
+	    android:icon="@drawable/ic_action_select_all"
 	    android:showAsAction="ifRoom" />
     
     <item android:id="@+id/priority_low"
 	    android:title="@string/menu_low_priority"
-	    android:icon="@drawable/ic_menu_priority_low"
+	    android:icon="@drawable/ic_action_not_important"
 	    android:showAsAction="always" />
     
     <item android:id="@+id/priority_normal"
 	    android:title="@string/menu_normal_priority"
-	    android:icon="@drawable/ic_menu_priority_normal"
+	    android:icon="@drawable/ic_action_half_important"
 	    android:showAsAction="always" />
     
     <item android:id="@+id/priority_high"
 	    android:title="@string/menu_high_priority"
-	    android:icon="@drawable/ic_menu_priority_high"
+	    android:icon="@drawable/ic_action_important"
 	    android:showAsAction="always" />
     
     <item android:id="@+id/check_selected"
