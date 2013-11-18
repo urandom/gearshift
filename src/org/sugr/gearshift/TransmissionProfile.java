@@ -327,7 +327,7 @@ public class TransmissionProfile implements Parcelable, Comparable<TransmissionP
 
         mLastDirectory = directory;
 
-        e.putString(G.PREF_LAST_DIRECTORY, directory);
+        e.putString(G.PREF_LAST_DIRECTORY + mId, directory);
         e.commit();
     }
 
