@@ -18,8 +18,8 @@ import com.google.gson.JsonPrimitive;
 import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
 import com.google.gson.annotations.SerializedName;
+import com.google.gson.stream.JsonReader;
 
-import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -142,9 +142,7 @@ public class TransmissionSessionManager {
     public TransmissionSession getSession() throws ManagerException {
         SessionGetRequest request = new SessionGetRequest();
 
-        String json = requestData(request);
-        Gson gson = new GsonBuilder().setExclusionStrategies(new TransmissionExclusionStrategy()).create();
-        SessionGetResponse response = gson.fromJson(json, SessionGetResponse.class);
+        SessionGetResponse response = (SessionGetResponse) requestData(request, SessionGetResponse.class);
         if (!response.getResult().equals("success")) {
             throw new ManagerException(response.getResult(), -2);
         }
@@ -155,9 +153,7 @@ public class TransmissionSessionManager {
     public TransmissionSessionStats getSessionStats() throws ManagerException {
         SessionStatsRequest request = new SessionStatsRequest();
 
-        String json = requestData(request);
-        Gson gson = new GsonBuilder().setExclusionStrategies(new TransmissionExclusionStrategy()).create();
-        SessionStatsResponse response = gson.fromJson(json, SessionStatsResponse.class);
+        SessionStatsResponse response = (SessionStatsResponse) requestData(request, SessionStatsResponse.class);
         if (!response.getResult().equals("success")) {
             throw new ManagerException(response.getResult(), -2);
         }
@@ -167,9 +163,8 @@ public class TransmissionSessionManager {
 
     public ActiveTorrentGetResponse getActiveTorrents(String[] fields) throws ManagerException {
         ActiveTorrentGetRequest request = new ActiveTorrentGetRequest(fields);
-        String json = requestData(request);
-        Gson gson = new GsonBuilder().setExclusionStrategies(new TransmissionExclusionStrategy()).create();
-        ActiveTorrentGetResponse response = gson.fromJson(json, ActiveTorrentGetResponse.class);
+
+        ActiveTorrentGetResponse response = (ActiveTorrentGetResponse) requestData(request, ActiveTorrentGetResponse.class);
         if (!response.getResult().equals("success")) {
             throw new ManagerException(response.getResult(), -2);
         }
@@ -180,9 +175,7 @@ public class TransmissionSessionManager {
     public Torrent[] getAllTorrents(String[] fields) throws ManagerException {
         AllTorrentGetRequest request = new AllTorrentGetRequest(fields);
 
-        String json = requestData(request);
-        Gson gson = new GsonBuilder().setExclusionStrategies(new TransmissionExclusionStrategy()).create();
-        TorrentGetResponse response = gson.fromJson(json, TorrentGetResponse.class);
+        TorrentGetResponse response = (TorrentGetResponse) requestData(request, TorrentGetResponse.class);
         if (!response.getResult().equals("success")) {
             throw new ManagerException(response.getResult(), -2);
         }
@@ -193,9 +186,7 @@ public class TransmissionSessionManager {
     public Torrent[] getTorrents(int[] ids, String[] fields) throws ManagerException {
         TorrentGetRequest request = new TorrentGetRequest(ids, fields);
 
-        String json = requestData(request);
-        Gson gson = new GsonBuilder().setExclusionStrategies(new TransmissionExclusionStrategy()).create();
-        TorrentGetResponse response = gson.fromJson(json, TorrentGetResponse.class);
+        TorrentGetResponse response = (TorrentGetResponse) requestData(request, TorrentGetResponse.class);
         if (!response.getResult().equals("success")) {
             throw new ManagerException(response.getResult(), -2);
         }
@@ -206,9 +197,7 @@ public class TransmissionSessionManager {
     public void setSession(TransmissionSession session, String... keys) throws ManagerException {
         SessionSetRequest request = new SessionSetRequest(session);
 
-        String json = requestData(request, new KeyExclusionStrategy(keys));
-        Gson gson = new GsonBuilder().setExclusionStrategies(new TransmissionExclusionStrategy()).create();
-        Response response = gson.fromJson(json, Response.class);
+        Response response = requestData(request, Response.class, new KeyExclusionStrategy(keys));
         if (!response.getResult().equals("success")) {
             throw new ManagerException(response.getResult(), -2);
         }
@@ -216,9 +205,8 @@ public class TransmissionSessionManager {
 
     public void setTorrentsRemove(int[] ids, boolean delete) throws ManagerException {
         TorrentsRemoveRequest request = new TorrentsRemoveRequest(ids, delete);
-        String json = requestData(request);
-        Gson gson = new GsonBuilder().setExclusionStrategies(new TransmissionExclusionStrategy()).create();
-        Response response = gson.fromJson(json, Response.class);
+
+        Response response = requestData(request, Response.class);
         if (!response.getResult().equals("success")) {
             throw new ManagerException(response.getResult(), -2);
         }
@@ -226,9 +214,8 @@ public class TransmissionSessionManager {
 
     public void setTorrentsAction(String action, int[] ids) throws ManagerException {
         TorrentsActionRequest request = new TorrentsActionRequest(action, ids);
-        String json = requestData(request);
-        Gson gson = new GsonBuilder().setExclusionStrategies(new TransmissionExclusionStrategy()).create();
-        Response response = gson.fromJson(json, Response.class);
+
+        Response response = requestData(request, Response.class);
         if (!response.getResult().equals("success")) {
             throw new ManagerException(response.getResult(), -2);
         }
@@ -236,9 +223,8 @@ public class TransmissionSessionManager {
 
     public void setTorrentsLocation(int[] ids, String location, boolean move) throws ManagerException {
         TorrentsSetLocationRequest request = new TorrentsSetLocationRequest(ids, location, move);
-        String json = requestData(request);
-        Gson gson = new GsonBuilder().setExclusionStrategies(new TransmissionExclusionStrategy()).create();
-        Response response = gson.fromJson(json, Response.class);
+
+        Response response = requestData(request, Response.class);
         if (!response.getResult().equals("success")) {
             throw new ManagerException(response.getResult(), -2);
         }
@@ -252,9 +238,7 @@ public class TransmissionSessionManager {
             request = new TorrentsSetRequest(ids, key, value);
         }
 
-        String json = requestData(request, new KeyExclusionStrategy("ids", key));
-        Gson gson = new GsonBuilder().setExclusionStrategies(new TransmissionExclusionStrategy()).create();
-        Response response = gson.fromJson(json, Response.class);
+        Response response = requestData(request, Response.class, new KeyExclusionStrategy("ids", key));
         if (!response.getResult().equals("success")) {
             throw new ManagerException(response.getResult(), -2);
         }
@@ -269,9 +253,7 @@ public class TransmissionSessionManager {
             Torrent.AddFields.LOCATION, Torrent.AddFields.PAUSED
         };
 
-        String json = requestData(request, new KeyExclusionStrategy(keys));
-        Gson gson = new GsonBuilder().setExclusionStrategies(new TransmissionExclusionStrategy()).create();
-        AddTorrentResponse response = gson.fromJson(json, AddTorrentResponse.class);
+        AddTorrentResponse response = (AddTorrentResponse) requestData(request, AddTorrentResponse.class, new KeyExclusionStrategy(keys));
         if (response.getResult().equals("success")) {
             return response.getTorrent();
         } else if (response.isDuplicate()) {
@@ -284,9 +266,7 @@ public class TransmissionSessionManager {
     public boolean testPort() throws ManagerException {
         PortTestRequest request = new PortTestRequest();
 
-        String json = requestData(request);
-        Gson gson = new GsonBuilder().setExclusionStrategies(new TransmissionExclusionStrategy()).create();
-        PortTestResponse response = gson.fromJson(json, PortTestResponse.class);
+        PortTestResponse response = (PortTestResponse) requestData(request, PortTestResponse.class);
         if (!response.getResult().equals("success")) {
             throw new ManagerException(response.getResult(), -2);
         }
@@ -297,9 +277,7 @@ public class TransmissionSessionManager {
     public long blocklistUpdate() throws ManagerException {
         BlocklistUpdateRequest request = new BlocklistUpdateRequest();
 
-        String json = requestData(request);
-        Gson gson = new GsonBuilder().setExclusionStrategies(new TransmissionExclusionStrategy()).create();
-        BlocklistUpdateResponse response = gson.fromJson(json, BlocklistUpdateResponse.class);
+        BlocklistUpdateResponse response = (BlocklistUpdateResponse) requestData(request, BlocklistUpdateResponse.class);
         if (!response.getResult().equals("success")) {
             throw new ManagerException(response.getResult(), -2);
         }
@@ -311,10 +289,7 @@ public class TransmissionSessionManager {
         FreeSpaceRequest request = new FreeSpaceRequest(
                 mDefaultPrefs.getString(G.PREF_LIST_DIRECTORY, null), defaultPath);
 
-        String json = requestData(request);
-        Gson gson = new GsonBuilder().setExclusionStrategies(new TransmissionExclusionStrategy()).create();
-        FreeSpaceResponse response = gson.fromJson(json, FreeSpaceResponse.class);
-
+        FreeSpaceResponse response = (FreeSpaceResponse) requestData(request, FreeSpaceResponse.class);
         if (response.getResult().equals("success")) {
             return response.getFreeSpace();
         } else if (response.getResult().equals("method name not recognized")) {
@@ -326,7 +301,7 @@ public class TransmissionSessionManager {
         }
     }
 
-    private String requestData(Object data, ExclusionStrategy... strategies) throws ManagerException {
+    private Response requestData(Object data, Class klass, ExclusionStrategy... strategies) throws ManagerException {
         OutputStream os = null;
         InputStream is = null;
         HttpURLConnection conn = null;
@@ -416,7 +391,7 @@ public class TransmissionSessionManager {
                 mSessionId = getSessionId(conn);
                 if (mInvalidSessionRetries < 3 && mSessionId != null) {
                     ++mInvalidSessionRetries;
-                    return requestData(data);
+                    return requestData(data, klass, strategies);
                 } else {
                     mInvalidSessionRetries = 0;
                 }
@@ -424,7 +399,7 @@ public class TransmissionSessionManager {
                 mInvalidSessionRetries = 0;
             }
 
-            String contentAsString = null;
+            Response response = null;
             switch(code) {
                 case 200:
                 case 201:
@@ -441,14 +416,13 @@ public class TransmissionSessionManager {
                     } else if (encoding != null && encoding.equalsIgnoreCase("deflate")) {
                         is = new InflaterInputStream(is);
                     }
-                    contentAsString = inputStreamToString(is);
+                    response = buildResponse(is, klass);
                     break;
                 default:
                     throw new ManagerException(conn.getResponseMessage(), code);
             }
 
-            G.logD("The response is " + contentAsString);
-            return contentAsString;
+            return response;
         } catch (java.net.SocketTimeoutException e) {
             throw new ManagerException("timeout", -1);
         } catch (IOException e) {
@@ -477,15 +451,135 @@ public class TransmissionSessionManager {
         return id;
     }
 
-    private String inputStreamToString(InputStream stream) throws IOException {
-        BufferedReader br = new BufferedReader(new InputStreamReader(stream));
-        StringBuilder sb = new StringBuilder();
-        String line;
-        while ((line = br.readLine()) != null) {
-            sb.append(line+"\n");
+    private static Response buildResponse(InputStream stream, Class klass) throws IOException {
+        JsonReader reader = new JsonReader(new InputStreamReader(stream, "UTF-8"));
+        Gson gson = new GsonBuilder().setExclusionStrategies(new TransmissionExclusionStrategy()).create();
+
+        try {
+            reader.beginObject();
+            String result = null;
+            Response response = null;
+
+            while (reader.hasNext()) {
+                String name = reader.nextName();
+                if (name.equals("result")) {
+                    result = reader.nextString();
+                } else if (name.equals("arguments")) {
+                    if (klass == SessionGetResponse.class) {
+                        response = new SessionGetResponse();
+                        TransmissionSession session = gson.fromJson(reader, TransmissionSession.class);
+                        ((SessionGetResponse) response).setSession(session);
+                    } else if (klass == SessionStatsResponse.class) {
+                        response = new SessionStatsResponse();
+                        TransmissionSessionStats stats = gson.fromJson(reader, TransmissionSessionStats.class);
+                        ((SessionStatsResponse) response).setStats(stats);
+                    } else if (klass == TorrentGetResponse.class || klass == ActiveTorrentGetResponse.class) {
+                        if (klass == TorrentGetResponse.class) {
+                            response = new TorrentGetResponse();
+                        } else {
+                            response = new ActiveTorrentGetResponse();
+                        }
+
+                        reader.beginObject();
+                        while (reader.hasNext()) {
+                            String argname = reader.nextName();
+                            if (argname.equals("torrents")) {
+                                Torrent[] torrents = gson.fromJson(reader, Torrent[].class);
+                                if (klass == TorrentGetResponse.class) {
+                                    ((TorrentGetResponse) response).setTorrents(torrents);
+                                } else {
+                                    ((ActiveTorrentGetResponse) response).setTorrents(torrents);
+                                }
+                            } else if (argname.equals("removed")) {
+                                int[] removed = gson.fromJson(reader, int[].class);
+                                ((ActiveTorrentGetResponse) response).setRemoved(removed);
+                            } else {
+                                reader.skipValue();
+                            }
+                        }
+                        reader.endObject();
+                    } else if (klass == AddTorrentResponse.class) {
+                        response = new AddTorrentResponse();
+
+                        reader.beginObject();
+                        while (reader.hasNext()) {
+                            String argname = reader.nextName();
+                            if (argname.equals("torrent-added")) {
+                                Torrent torrent = gson.fromJson(reader, Torrent.class);
+                                ((AddTorrentResponse) response).setTorrent(torrent);
+                            } else if (argname.equals("torrent-duplicate")) {
+                                Torrent torrent = gson.fromJson(reader, Torrent.class);
+                                ((AddTorrentResponse) response).setDuplicate(torrent);
+                            } else {
+                                reader.skipValue();
+                            }
+                        }
+                        reader.endObject();
+                    } else if (klass == PortTestResponse.class) {
+                        response = new PortTestResponse();
+
+                        reader.beginObject();
+                        while (reader.hasNext()) {
+                            String argname = reader.nextName();
+                            if (argname.equals("port-is-open")) {
+                                boolean isOpen = reader.nextBoolean();
+                                ((PortTestResponse) response).setPortOpen(isOpen);
+                            } else {
+                                reader.skipValue();
+                            }
+                        }
+                        reader.endObject();
+                    } else if (klass == BlocklistUpdateResponse.class) {
+                        response = new BlocklistUpdateResponse();
+
+                        reader.beginObject();
+                        while (reader.hasNext()) {
+                            String argname = reader.nextName();
+                            if (argname.equals("blocklist-size")) {
+                                long size = reader.nextLong();
+                                ((BlocklistUpdateResponse) response).setBlocklistSize(size);
+                            } else {
+                                reader.skipValue();
+                            }
+                        }
+                        reader.endObject();
+                    } else if (klass == FreeSpaceResponse.class) {
+                        response = new FreeSpaceResponse();
+
+                        reader.beginObject();
+                        while (reader.hasNext()) {
+                            String argname = reader.nextName();
+                            if (argname.equals("size-bytes")) {
+                                long size = reader.nextLong();
+                                ((FreeSpaceResponse) response).setFreeSpace(size);
+                            } else if (argname.equals("path")) {
+                                String path = reader.nextString();
+                                ((FreeSpaceResponse) response).setPath(path);
+                            } else {
+                                reader.skipValue();
+                            }
+                        }
+                        reader.endObject();
+                    } else {
+                        response = new Response();
+
+                        reader.skipValue();
+                    }
+                } else {
+                    reader.skipValue();
+                }
+            }
+
+            reader.endObject();
+
+            if (response != null) {
+                response.setResult(result);
+            }
+
+            return response;
+        } finally {
+            reader.close();
         }
-        br.close();
-        return sb.toString();
     }
 
     private static class SessionGetRequest {
@@ -775,79 +869,126 @@ public class TransmissionSessionManager {
     }
 
     public static class Response {
-        @SerializedName("result") protected final String mResult = null;
+        @SerializedName("result") protected String mResult = null;
 
         public String getResult() {
             return mResult;
         }
+        public void setResult(String result) {
+            mResult = result;
+        }
     }
 
     public static class SessionGetResponse extends Response {
-        @SerializedName("arguments") private final TransmissionSession mSession = null;
+        @SerializedName("arguments") private TransmissionSession mSession = null;
 
         public TransmissionSession getSession() {
             return mSession;
         }
+        public void setSession(TransmissionSession session) {
+            mSession = session;
+        }
     }
 
     public static class SessionStatsResponse extends Response {
-        @SerializedName("arguments") private final TransmissionSessionStats mStats = null;
+        @SerializedName("arguments") private TransmissionSessionStats mStats = null;
 
         public TransmissionSessionStats getStats() {
             return mStats;
         }
+        public void setStats(TransmissionSessionStats stats) {
+            mStats = stats;
+        }
     }
 
     public static class TorrentGetResponse extends Response {
-        @SerializedName("arguments") private final TorrentsArguments mTorrentsArguments = null;
+        @SerializedName("arguments") private TorrentsArguments mTorrentsArguments = null;
+
+        public TorrentGetResponse() {
+            mTorrentsArguments = new TorrentsArguments();
+        }
 
         public Torrent[] getTorrents() {
             return mTorrentsArguments.getTorrents();
         }
 
+        public void setTorrents(Torrent[] torrents) {
+            mTorrentsArguments.setTorrents(torrents);
+        }
+
         private static class TorrentsArguments {
-            @SerializedName("torrents") private final Torrent[] mTorrents = null;
+            @SerializedName("torrents") private Torrent[] mTorrents = null;
 
             public Torrent[] getTorrents() {
                 return mTorrents;
+            }
+            public void setTorrents(Torrent[] torrents) {
+                mTorrents = torrents;
             }
         }
     }
 
     public static class ActiveTorrentGetResponse extends Response {
-        @SerializedName("arguments") private final ActiveTorrentsArguments mActiveTorrentsArguments = null;
+        @SerializedName("arguments") private ActiveTorrentsArguments mActiveTorrentsArguments = null;
+
+        public ActiveTorrentGetResponse() {
+            mActiveTorrentsArguments = new ActiveTorrentsArguments();
+        }
 
         public Torrent[] getTorrents() {
             return mActiveTorrentsArguments.getTorrents();
         }
 
+        public void setTorrents(Torrent[] torrents) {
+            mActiveTorrentsArguments.setTorrents(torrents);
+        }
+
         public int[] getRemoved() {
             return mActiveTorrentsArguments.getRemoved();
         }
+        public void setRemoved(int[] removed) {
+            mActiveTorrentsArguments.setRemoved(removed);
+        }
 
         private static class ActiveTorrentsArguments {
-            @SerializedName("torrents") private final Torrent[] mTorrents = null;
-            @SerializedName("removed") private final int[] mRemoved = null;
+            @SerializedName("torrents") private Torrent[] mTorrents = null;
+            @SerializedName("removed") private int[] mRemoved = null;
 
             public Torrent[] getTorrents() {
                 return mTorrents;
+            }
+            public void setTorrents(Torrent[] torrents) {
+                mTorrents = torrents;
             }
 
             public int[] getRemoved() {
                 return mRemoved;
             }
+            public void setRemoved(int[] removed) {
+                mRemoved = removed;
+            }
         }
     }
 
     public static class AddTorrentResponse extends Response {
-        @SerializedName("arguments") private final AddTorrentArguments mArguments = null;
+        @SerializedName("arguments") private AddTorrentArguments mArguments = null;
+
+        public AddTorrentResponse() {
+            mArguments = new AddTorrentArguments();
+        }
 
         public Torrent getTorrent() {
             return mArguments.torrent;
         }
+        public void setTorrent(Torrent torrent) {
+            mArguments.torrent = torrent;
+        }
 
         public boolean isDuplicate() {
             return mArguments.duplicate != null;
+        }
+        public void setDuplicate(Torrent torrent) {
+            mArguments.duplicate = torrent;
         }
 
         private class AddTorrentArguments {
@@ -857,10 +998,17 @@ public class TransmissionSessionManager {
     }
 
     public static class PortTestResponse extends Response {
-        @SerializedName("arguments") private final PortTestArguments mArguments = null;
+        @SerializedName("arguments") private PortTestArguments mArguments = null;
+
+        public PortTestResponse() {
+            mArguments = new PortTestArguments();
+        }
 
         public boolean isPortOpen() {
             return mArguments.open;
+        }
+        public void setPortOpen(boolean isOpen) {
+            mArguments.open = isOpen;
         }
 
         private class PortTestArguments {
@@ -869,10 +1017,17 @@ public class TransmissionSessionManager {
     }
 
     public static class BlocklistUpdateResponse extends Response {
-        @SerializedName("arguments") private final BlocklistUpdateArguments mArguments = null;
+        @SerializedName("arguments") private BlocklistUpdateArguments mArguments = null;
+
+        public BlocklistUpdateResponse() {
+            mArguments = new BlocklistUpdateArguments();
+        }
 
         public long getBlocklistSize() {
             return mArguments.size;
+        }
+        public void setBlocklistSize(long size) {
+            mArguments.size = size;
         }
 
         private class BlocklistUpdateArguments {
@@ -881,10 +1036,21 @@ public class TransmissionSessionManager {
     }
 
     public static class FreeSpaceResponse extends Response {
-        @SerializedName("arguments") private final FreeSpaceArguments mArguments = null;
+        @SerializedName("arguments") private FreeSpaceArguments mArguments = null;
+
+        public FreeSpaceResponse() {
+            mArguments = new FreeSpaceArguments();
+        }
 
         public long getFreeSpace() {
             return mArguments.freeSpace;
+        }
+        public void setFreeSpace(long size) {
+            mArguments.freeSpace = size;
+        }
+
+        public void setPath(String path) {
+            mArguments.path = path;
         }
 
         private class FreeSpaceArguments {
