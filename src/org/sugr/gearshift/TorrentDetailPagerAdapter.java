@@ -1,27 +1,19 @@
 package org.sugr.gearshift;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import android.os.Bundle;
-import android.os.Parcelable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
+import android.support.v4.view.ViewPager;
 
 public class TorrentDetailPagerAdapter extends FragmentStatePagerAdapter {
-    private ArrayList<TorrentDetailPageFragment> mFragments = new ArrayList<TorrentDetailPageFragment>();
     private TransmissionSessionInterface mContext;
-    private FragmentManager mFragmentManager;
 
 	public TorrentDetailPagerAdapter(FragmentActivity activity) {
 	    super(activity.getSupportFragmentManager());
-	    mFragmentManager = activity.getSupportFragmentManager();
 
-	    if (activity instanceof TransmissionSessionInterface) {
-	        mContext = (TransmissionSessionInterface) activity;
-	    }
+	    mContext = (TransmissionSessionInterface) activity;
 	}
 
 	@Override
@@ -40,39 +32,21 @@ public class TorrentDetailPagerAdapter extends FragmentStatePagerAdapter {
         arguments.putInt(G.ARG_PAGE_POSITION, position);
         fragment.setArguments(arguments);
 
-        while (mFragments.size() <= position)
-            mFragments.add(null);
-        mFragments.set(position, fragment);
-
 		return fragment;
 	}
 
-	@Override
-    public void restoreState(Parcelable state, ClassLoader loader) {
-        if (state != null) {
-            Bundle bundle = (Bundle)state;
-            bundle.setClassLoader(loader);
-            mFragments.clear();
+    public TorrentDetailPageFragment getFragment(ViewPager container, int position) {
+        String name = makeFragmentName(container.getId(), position);
+        FragmentManager manager = ((FragmentActivity) mContext).getSupportFragmentManager();
 
-            Iterable<String> keys = bundle.keySet();
-            for (String key: keys) {
-                if (key.startsWith("f")) {
-                    int index = Integer.parseInt(key.substring(1));
-                    Fragment f = mFragmentManager.getFragment(bundle, key);
-                    if (f != null) {
-                        while (mFragments.size() <= index) {
-                            mFragments.add(null);
-                        }
-                        f.setMenuVisibility(false);
-                        mFragments.set(index, (TorrentDetailPageFragment) f);
-                    }
-                }
-            }
+        if (manager == null) {
+            return null;
+        } else {
+            return (TorrentDetailPageFragment) manager.findFragmentByTag(name);
         }
-        super.restoreState(state, loader);
     }
 
-	public List<TorrentDetailPageFragment> getFragments() {
-	    return mFragments;
-	}
+    private static String makeFragmentName(int viewId, int index) {
+        return "android:switcher:" + viewId + ":" + index;
+    }
 }

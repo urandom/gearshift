@@ -18,7 +18,6 @@ import android.widget.CheckBox;
 import android.widget.Spinner;
 
 import java.util.ArrayList;
-import java.util.List;
 
 public class TorrentDetailFragment extends Fragment {
     public static final String TAG = "detail_fragment";
@@ -89,13 +88,14 @@ public class TorrentDetailFragment extends Fragment {
         mPager.setOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
             @Override
             public void onPageSelected(int position) {
-                List<TorrentDetailPageFragment> pages = ((TorrentDetailPagerAdapter) mPager.getAdapter())
-                        .getFragments();
-
-                if (mCurrentPosition != -1 && pages.size() > mCurrentPosition
-                        && pages.get(mCurrentPosition) != null) {
-                    pages.get(mCurrentPosition).onPageUnselected();
+                if (mCurrentPosition != -1) {
+                    TorrentDetailPageFragment fragment
+                        = ((TorrentDetailPagerAdapter) mPager.getAdapter()).getFragment(mPager, mCurrentPosition);
+                    if (fragment != null) {
+                        fragment.onPageUnselected();
+                    }
                 }
+
                 mCurrentPosition = position;
                 ArrayList<Torrent> torrents = ((TransmissionSessionInterface) getActivity()).getTorrents();
                 mCurrentTorrentId = torrents.size() > position
@@ -284,14 +284,23 @@ public class TorrentDetailFragment extends Fragment {
         }
 
         Torrent[] currentTorrents = ((TransmissionSessionInterface) getActivity()).getCurrentTorrents();
-        List<TorrentDetailPageFragment> pages = ((TorrentDetailPagerAdapter) mPager.getAdapter()).getFragments();
-        for (Torrent t : currentTorrents) {
-            int index = torrents.indexOf(t);
-            if (index == -1) continue;
-            TorrentDetailPageFragment page = pages.size() > index
-                ? pages.get(index) : null;
-            if (page == null) continue;
-            page.notifyTorrentUpdate(t);
+
+        if (mCurrentPosition != -1) {
+            int limit = mPager.getOffscreenPageLimit();
+            int startPosition = mCurrentPosition - limit;
+            if (startPosition < 0) {
+                startPosition = 0;
+            }
+            for (int i = startPosition; i < mCurrentPosition + limit + 1; ++i) {
+                TorrentDetailPageFragment fragment
+                        = ((TorrentDetailPagerAdapter) mPager.getAdapter()).getFragment(mPager, i);
+                if (fragment != null) {
+                    if (currentTorrents.length > i) {
+                        fragment.notifyTorrentUpdate(currentTorrents[i]);
+                    }
+                }
+            }
+
         }
     }
 
