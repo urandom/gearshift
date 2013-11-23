@@ -48,8 +48,8 @@ android {
 
     buildTypes {
         release {
-            debuggable true
-            jniDebugBuild true
+            debuggable false
+            jniDebugBuild false
             signingConfig signingConfigs.release
 
             runProguard true
@@ -57,8 +57,8 @@ android {
             proguardFile 'proguard-project.txt'
         }
         beta {
-            debuggable true
-            jniDebugBuild true
+            debuggable false
+            jniDebugBuild false
             signingConfig signingConfigs.beta
 
             runProguard false
