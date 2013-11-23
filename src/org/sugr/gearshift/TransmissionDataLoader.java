@@ -318,6 +318,7 @@ public class TransmissionDataLoader extends AsyncTaskLoader<TransmissionData> {
             threads.add(thread);
             thread.start();
         }
+        /*
         if (mCurrentTorrents == null && mSessionStats == null) {
             Thread thread = new Thread(new Runnable() {
                 @Override
@@ -339,6 +340,7 @@ public class TransmissionDataLoader extends AsyncTaskLoader<TransmissionData> {
             threads.add(thread);
             thread.start();
         }
+        */
 
         mNewTorrentAdded = 0;
         if (mTorrentAddUri != null || mTorrentAddData != null) {

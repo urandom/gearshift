@@ -91,8 +91,6 @@ public class TorrentFileReadActivity extends FragmentActivity {
             } catch (Exception e) {
                 /* FIXME: proper error handling */
                 G.logE("Error while reading the torrent file", e);
-                Toast.makeText(TorrentFileReadActivity.this,
-                        R.string.error_reading_torrent_file, Toast.LENGTH_SHORT).show();
                 return null;
             } finally {
                 try {
@@ -107,7 +105,10 @@ public class TorrentFileReadActivity extends FragmentActivity {
         }
 
         @Override protected void onPostExecute(TaskData data) {
-            if (data != null) {
+            if (data == null) {
+                Toast.makeText(TorrentFileReadActivity.this,
+                        R.string.error_reading_torrent_file, Toast.LENGTH_SHORT).show();
+            } else {
                 Intent listIntent = new Intent(TorrentFileReadActivity.this, TorrentListActivity.class);
                 listIntent.setAction(TorrentListActivity.ACTION_OPEN);
                 listIntent.setData(mUri);
