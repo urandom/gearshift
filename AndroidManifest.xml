@@ -84,6 +84,8 @@
 
         <meta-data android:name="com.google.android.backup.api_key"
             android:value="AEdPqrEAAAAIPmUc7ecxzuRYH5xae0ephTNsrjJDOho8oAYxLA" />
+        
+        <service android:name=".DataService" android:exported="false" />
     </application>
 
 </manifest>
