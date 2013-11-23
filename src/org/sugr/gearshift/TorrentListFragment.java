@@ -303,6 +303,8 @@ public class TorrentListFragment extends ListFragment {
                             text.setText(Html.fromHtml(getString(R.string.response_error_empty_list)));
                         } else if (data.error == TransmissionData.Errors.TIMEOUT) {
                             text.setText(Html.fromHtml(getString(R.string.timeout_empty_list)));
+                        } else if (data.error == TransmissionData.Errors.OUT_OF_MEMORY) {
+                            text.setText(Html.fromHtml(getString(R.string.out_of_memory_empty_list)));
                         }
                     }
                 }

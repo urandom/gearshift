@@ -36,6 +36,7 @@ class TransmissionData {
         public static final int DUPLICATE_TORRENT = 1 << 7;
         public static final int INVALID_TORRENT = 1 << 8;
         public static final int TIMEOUT = 1 << 9;
+        public static final int OUT_OF_MEMORY = 1 << 10;
     };
 
     public TransmissionData(TransmissionSession session, TransmissionSessionStats stats, int error) {
@@ -696,6 +697,9 @@ public class TransmissionDataLoader extends AsyncTaskLoader<TransmissionData> {
                     G.logE("Transmission Daemon Error!", e);
                 }
                 break;
+            case -3:
+                mLastError = TransmissionData.Errors.OUT_OF_MEMORY;
+                mSession = null;
             default:
                 mLastError = TransmissionData.Errors.GENERIC_HTTP;
                 mSession = null;

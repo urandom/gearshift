@@ -2156,10 +2156,6 @@ com.google.gson.Gson -> a.a.a.k:
     void toJson(com.google.gson.JsonElement,java.lang.Appendable) -> a
     com.google.gson.stream.JsonWriter newJsonWriter(java.io.Writer) -> a
     void toJson(com.google.gson.JsonElement,com.google.gson.stream.JsonWriter) -> a
-    java.lang.Object fromJson(java.lang.String,java.lang.Class) -> a
-    java.lang.Object fromJson(java.lang.String,java.lang.reflect.Type) -> a
-    java.lang.Object fromJson(java.io.Reader,java.lang.reflect.Type) -> a
-    void assertFullConsumption(java.lang.Object,com.google.gson.stream.JsonReader) -> a
     java.lang.Object fromJson(com.google.gson.stream.JsonReader,java.lang.reflect.Type) -> a
     java.lang.String toString() -> toString
     void access$000(com.google.gson.Gson,double) -> a
@@ -2549,7 +2545,6 @@ com.google.gson.internal.Primitives -> a.a.a.b.af:
     java.util.Map WRAPPER_TO_PRIMITIVE_TYPE -> b
     void add(java.util.Map,java.util.Map,java.lang.Class,java.lang.Class) -> a
     boolean isPrimitive(java.lang.reflect.Type) -> a
-    java.lang.Class wrap(java.lang.Class) -> a
 com.google.gson.internal.Streams -> a.a.a.b.ag:
     com.google.gson.JsonElement parse(com.google.gson.stream.JsonReader) -> a
     void write(com.google.gson.JsonElement,com.google.gson.stream.JsonWriter) -> a
@@ -4806,9 +4801,9 @@ org.sugr.gearshift.TransmissionSessionManager -> org.sugr.gearshift.fu:
     boolean testPort() -> d
     long blocklistUpdate() -> e
     long getFreeSpace(java.lang.String) -> a
-    java.lang.String requestData(java.lang.Object,com.google.gson.ExclusionStrategy[]) -> a
+    org.sugr.gearshift.TransmissionSessionManager$Response requestData(java.lang.Object,java.lang.Class,com.google.gson.ExclusionStrategy[]) -> a
     java.lang.String getSessionId(java.net.HttpURLConnection) -> a
-    java.lang.String inputStreamToString(java.io.InputStream) -> a
+    org.sugr.gearshift.TransmissionSessionManager$Response buildResponse(java.io.InputStream,java.lang.Class) -> a
     int[] convertIntegerList(java.util.List) -> a
     java.lang.String[] convertStringList(java.util.List) -> b
 org.sugr.gearshift.TransmissionSessionManager$1 -> org.sugr.gearshift.fv:
@@ -4828,19 +4823,26 @@ org.sugr.gearshift.TransmissionSessionManager$ActiveTorrentGetRequest$Arguments 
 org.sugr.gearshift.TransmissionSessionManager$ActiveTorrentGetResponse -> org.sugr.gearshift.fz:
     org.sugr.gearshift.TransmissionSessionManager$ActiveTorrentGetResponse$ActiveTorrentsArguments mActiveTorrentsArguments -> b
     org.sugr.gearshift.Torrent[] getTorrents() -> a
+    void setTorrents(org.sugr.gearshift.Torrent[]) -> a
     int[] getRemoved() -> b
+    void setRemoved(int[]) -> a
 org.sugr.gearshift.TransmissionSessionManager$ActiveTorrentGetResponse$ActiveTorrentsArguments -> org.sugr.gearshift.ga:
     org.sugr.gearshift.Torrent[] mTorrents -> a
     int[] mRemoved -> b
     org.sugr.gearshift.Torrent[] getTorrents() -> a
+    void setTorrents(org.sugr.gearshift.Torrent[]) -> a
     int[] getRemoved() -> b
+    void setRemoved(int[]) -> a
 org.sugr.gearshift.TransmissionSessionManager$AddTorrentResponse -> org.sugr.gearshift.gb:
     org.sugr.gearshift.TransmissionSessionManager$AddTorrentResponse$AddTorrentArguments mArguments -> b
     org.sugr.gearshift.Torrent getTorrent() -> a
+    void setTorrent(org.sugr.gearshift.Torrent) -> a
     boolean isDuplicate() -> b
+    void setDuplicate(org.sugr.gearshift.Torrent) -> b
 org.sugr.gearshift.TransmissionSessionManager$AddTorrentResponse$AddTorrentArguments -> org.sugr.gearshift.gc:
     org.sugr.gearshift.Torrent torrent -> a
     org.sugr.gearshift.Torrent duplicate -> b
+    org.sugr.gearshift.TransmissionSessionManager$AddTorrentResponse this$0 -> c
 org.sugr.gearshift.TransmissionSessionManager$AllTorrentGetRequest -> org.sugr.gearshift.gd:
     java.lang.String method -> a
     org.sugr.gearshift.TransmissionSessionManager$AllTorrentGetRequest$Arguments arguments -> b
@@ -4851,8 +4853,10 @@ org.sugr.gearshift.TransmissionSessionManager$BlocklistUpdateRequest -> org.sugr
 org.sugr.gearshift.TransmissionSessionManager$BlocklistUpdateResponse -> org.sugr.gearshift.gg:
     org.sugr.gearshift.TransmissionSessionManager$BlocklistUpdateResponse$BlocklistUpdateArguments mArguments -> b
     long getBlocklistSize() -> a
+    void setBlocklistSize(long) -> a
 org.sugr.gearshift.TransmissionSessionManager$BlocklistUpdateResponse$BlocklistUpdateArguments -> org.sugr.gearshift.gh:
     long size -> a
+    org.sugr.gearshift.TransmissionSessionManager$BlocklistUpdateResponse this$0 -> b
 org.sugr.gearshift.TransmissionSessionManager$Exclude -> org.sugr.gearshift.gi:
 org.sugr.gearshift.TransmissionSessionManager$FreeSpaceRequest -> org.sugr.gearshift.gj:
     java.lang.String method -> a
@@ -4862,8 +4866,12 @@ org.sugr.gearshift.TransmissionSessionManager$FreeSpaceRequest$Arguments -> org.
 org.sugr.gearshift.TransmissionSessionManager$FreeSpaceResponse -> org.sugr.gearshift.gl:
     org.sugr.gearshift.TransmissionSessionManager$FreeSpaceResponse$FreeSpaceArguments mArguments -> b
     long getFreeSpace() -> a
+    void setFreeSpace(long) -> a
+    void setPath(java.lang.String) -> a
 org.sugr.gearshift.TransmissionSessionManager$FreeSpaceResponse$FreeSpaceArguments -> org.sugr.gearshift.gm:
     long freeSpace -> a
+    java.lang.String path -> b
+    org.sugr.gearshift.TransmissionSessionManager$FreeSpaceResponse this$0 -> c
 org.sugr.gearshift.TransmissionSessionManager$KeyExclusionStrategy -> org.sugr.gearshift.gn:
     java.util.HashSet mKeys -> a
     boolean shouldSkipClass(java.lang.Class) -> a
@@ -4877,16 +4885,20 @@ org.sugr.gearshift.TransmissionSessionManager$PortTestRequest -> org.sugr.gearsh
 org.sugr.gearshift.TransmissionSessionManager$PortTestResponse -> org.sugr.gearshift.gq:
     org.sugr.gearshift.TransmissionSessionManager$PortTestResponse$PortTestArguments mArguments -> b
     boolean isPortOpen() -> a
+    void setPortOpen(boolean) -> a
 org.sugr.gearshift.TransmissionSessionManager$PortTestResponse$PortTestArguments -> org.sugr.gearshift.gr:
     boolean open -> a
+    org.sugr.gearshift.TransmissionSessionManager$PortTestResponse this$0 -> b
 org.sugr.gearshift.TransmissionSessionManager$Response -> org.sugr.gearshift.gs:
     java.lang.String mResult -> a
     java.lang.String getResult() -> c
+    void setResult(java.lang.String) -> b
 org.sugr.gearshift.TransmissionSessionManager$SessionGetRequest -> org.sugr.gearshift.gt:
     java.lang.String method -> a
 org.sugr.gearshift.TransmissionSessionManager$SessionGetResponse -> org.sugr.gearshift.gu:
     org.sugr.gearshift.TransmissionSession mSession -> b
     org.sugr.gearshift.TransmissionSession getSession() -> a
+    void setSession(org.sugr.gearshift.TransmissionSession) -> a
 org.sugr.gearshift.TransmissionSessionManager$SessionSetRequest -> org.sugr.gearshift.gv:
     java.lang.String method -> a
     org.sugr.gearshift.TransmissionSession arguments -> b
@@ -4895,6 +4907,7 @@ org.sugr.gearshift.TransmissionSessionManager$SessionStatsRequest -> org.sugr.ge
 org.sugr.gearshift.TransmissionSessionManager$SessionStatsResponse -> org.sugr.gearshift.gx:
     org.sugr.gearshift.TransmissionSessionStats mStats -> b
     org.sugr.gearshift.TransmissionSessionStats getStats() -> a
+    void setStats(org.sugr.gearshift.TransmissionSessionStats) -> a
 org.sugr.gearshift.TransmissionSessionManager$TorrentAddRequest -> org.sugr.gearshift.gy:
     java.lang.String method -> a
     org.sugr.gearshift.TransmissionSessionManager$TorrentAddRequest$Arguments arguments -> b
@@ -4912,9 +4925,11 @@ org.sugr.gearshift.TransmissionSessionManager$TorrentGetRequest$Arguments -> org
 org.sugr.gearshift.TransmissionSessionManager$TorrentGetResponse -> org.sugr.gearshift.hc:
     org.sugr.gearshift.TransmissionSessionManager$TorrentGetResponse$TorrentsArguments mTorrentsArguments -> b
     org.sugr.gearshift.Torrent[] getTorrents() -> a
+    void setTorrents(org.sugr.gearshift.Torrent[]) -> a
 org.sugr.gearshift.TransmissionSessionManager$TorrentGetResponse$TorrentsArguments -> org.sugr.gearshift.hd:
     org.sugr.gearshift.Torrent[] mTorrents -> a
     org.sugr.gearshift.Torrent[] getTorrents() -> a
+    void setTorrents(org.sugr.gearshift.Torrent[]) -> a
 org.sugr.gearshift.TransmissionSessionManager$TorrentsActionRequest -> org.sugr.gearshift.he:
     java.lang.String method -> a
     org.sugr.gearshift.TransmissionSessionManager$TorrentsActionRequest$Arguments arguments -> b

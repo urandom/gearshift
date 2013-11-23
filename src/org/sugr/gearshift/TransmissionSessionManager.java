@@ -426,7 +426,11 @@ public class TransmissionSessionManager {
         } catch (java.net.SocketTimeoutException e) {
             throw new ManagerException("timeout", -1);
         } catch (IOException e) {
+            e.printStackTrace();
             throw new ManagerException(e.getMessage(), -1);
+        } catch (OutOfMemoryError e) {
+            e.printStackTrace();
+            throw new ManagerException("out of memory", -3);
         } finally {
             try {
                 if (os != null)
