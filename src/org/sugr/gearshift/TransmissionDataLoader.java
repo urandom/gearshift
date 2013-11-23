@@ -702,6 +702,7 @@ public class TransmissionDataLoader extends AsyncTaskLoader<TransmissionData> {
             case -3:
                 mLastError = TransmissionData.Errors.OUT_OF_MEMORY;
                 mSession = null;
+                break;
             default:
                 mLastError = TransmissionData.Errors.GENERIC_HTTP;
                 mSession = null;
