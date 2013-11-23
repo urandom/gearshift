@@ -226,6 +226,22 @@ public class TorrentDetailActivity extends FragmentActivity implements Transmiss
     }
 
     @Override
+    public void onTrimMemory(int level) {
+        switch (level) {
+            case TRIM_MEMORY_RUNNING_LOW:
+            case TRIM_MEMORY_RUNNING_CRITICAL:
+            case TRIM_MEMORY_COMPLETE:
+                break;
+            default:
+                return;
+        }
+        if (!isFinishing()) {
+            finish();
+            Toast.makeText(this, "Low memory", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    @Override
     public void setTorrents(ArrayList<Torrent> torrents) {
         mTorrents.clear();
         if (torrents != null) {

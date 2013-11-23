@@ -3468,6 +3468,7 @@ org.sugr.gearshift.TorrentDetailActivity -> org.sugr.gearshift.TorrentDetailActi
     void onDestroy() -> onDestroy
     boolean onCreateOptionsMenu(android.view.Menu) -> onCreateOptionsMenu
     boolean onOptionsItemSelected(android.view.MenuItem) -> onOptionsItemSelected
+    void onTrimMemory(int) -> onTrimMemory
     void setTorrents(java.util.ArrayList) -> a
     java.util.ArrayList getTorrents() -> g
     org.sugr.gearshift.Torrent[] getCurrentTorrents() -> h
