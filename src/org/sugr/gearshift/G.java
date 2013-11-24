@@ -9,7 +9,7 @@ import java.io.StringWriter;
 import java.text.DecimalFormat;
 import java.util.Comparator;
 
-public class G {
+public final class G {
     public static final String PREF_DEBUG = "debug";
 
     public static final String PREF_UPDATE_ACTIVE = "update_active_torrents";
