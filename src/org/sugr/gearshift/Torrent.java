@@ -174,7 +174,7 @@ public class Torrent implements Parcelable {
          * startup or when a magnet finishes downloading its metadata finishes
          * downloading its metadata
          * */
-        public static final String[] METADATA = { "addedDate", "name", "totalSize" };
+        public static final String[] METADATA = { "addedDate", "name", "totalSize", "id" };
 
         // commonly used fields which need to be periodically refreshed
         public static final String[] STATS = {
