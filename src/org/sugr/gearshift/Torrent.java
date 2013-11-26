@@ -106,6 +106,7 @@ public class Torrent implements Parcelable {
     @SerializedName("creator") private String mCreator;
     @SerializedName("dateCreated") private long mDateCreated;
     @SerializedName("files") private File[] mFiles;
+    @SerializedName("fileStats") private FileStats[] mFileStats;
     @SerializedName("hashString") private String mHashString;
     @SerializedName("isPrivate") private boolean mPrivate;
     @SerializedName("pieceCount") private int mPieceCount;
@@ -114,7 +115,6 @@ public class Torrent implements Parcelable {
     @SerializedName(SetterFields.TORRENT_PRIORITY) private int mTorrentPriority;
     @SerializedName(SetterFields.DOWNLOAD_LIMIT) private long mDownloadLimit;
     @SerializedName(SetterFields.DOWNLOAD_LIMITED) private boolean mDownloadLimited;
-    @SerializedName("fileStats") private FileStats[] mFileStats;
     @SerializedName(SetterFields.SESSION_LIMITS) private boolean mHonorsSessionLimits;
     @SerializedName(SetterFields.UPLOAD_LIMIT) private long mUploadLimit;
     @SerializedName(SetterFields.UPLOAD_LIMITED) private boolean mUploadLimited;

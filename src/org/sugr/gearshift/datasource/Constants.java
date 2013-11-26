@@ -45,7 +45,7 @@ public final class Constants {
     public static final String COLUMN_CREATOR = "comment";
     public static final String COLUMN_DATE_CREATED = "date_created";
     public static final String COLUMN_HASH_STRING = "hash_string";
-    public static final String COLUMN_IS_public = "is_public";
+    public static final String COLUMN_IS_PRIVATE = "is_private";
     public static final String COLUMN_PIECE_COUNT = "piece_count";
     public static final String COLUMN_PIECE_SIZE = "piece_size";
     public static final String COLUMN_TORRENT_PRIORITY = "torrent_priority";
@@ -137,7 +137,7 @@ public final class Constants {
         + COLUMN_CREATOR + " TEXT, "
         + COLUMN_DATE_CREATED + " INTEGER, "
         + COLUMN_HASH_STRING + " TEXT, "
-        + COLUMN_IS_public + " INTEGER, "
+        + COLUMN_IS_PRIVATE + " INTEGER, "
         + COLUMN_PIECE_COUNT + " INTEGER, "
         + COLUMN_PIECE_SIZE + " INTEGER, "
         + COLUMN_TORRENT_PRIORITY + " INTEGER, "
