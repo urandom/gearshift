@@ -42,7 +42,7 @@ public final class Constants {
     public static final String COLUMN_HAVE_UNCHECKED = "have_unchecked";
     public static final String COLUMN_HAVE_VALID = "have_valid";
     public static final String COLUMN_COMMENT = "comment";
-    public static final String COLUMN_CREATOR = "comment";
+    public static final String COLUMN_CREATOR = "creator";
     public static final String COLUMN_DATE_CREATED = "date_created";
     public static final String COLUMN_HASH_STRING = "hash_string";
     public static final String COLUMN_IS_PRIVATE = "is_private";
@@ -155,7 +155,7 @@ public final class Constants {
         + ");";
 
     public static final String T_TRACKERS_CREATE = "CREATE TABLE "
-        + T_TORRENTS + "("
+        + T_TRACKERS + "("
         + COLUMN_PROFILE + " TEXT NOT NULL, "
         + COLUMN_TORRENT_ID + " INTEGER NOT NULL, "
         + COLUMN_TRACKER_ID + " INTEGER, "

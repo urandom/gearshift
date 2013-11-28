@@ -20,6 +20,12 @@ import com.google.gson.JsonSerializer;
 import com.google.gson.annotations.SerializedName;
 import com.google.gson.stream.JsonReader;
 
+import net.minidev.json.JSONArray;
+import net.minidev.json.JSONObject;
+import net.minidev.json.JSONValue;
+
+import org.sugr.gearshift.datasource.TorrentDataSource;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -416,7 +422,26 @@ public class TransmissionSessionManager {
                     } else if (encoding != null && encoding.equalsIgnoreCase("deflate")) {
                         is = new InflaterInputStream(is);
                     }
-                    response = buildResponse(is, klass);
+
+                    if (klass == TorrentGetResponse.class && false) {
+                        long time = System.nanoTime();
+                        JSONObject resp = (JSONObject) JSONValue.parse(is);
+                        long res = System.nanoTime() - time;
+                        System.out.println(res);
+                        TorrentDataSource ds = new TorrentDataSource(mProfile.getContext());
+
+                        ds.open();
+
+                        ds.updateTorrents((JSONArray) resp.get("torrents"));
+
+                        ds.close();
+                    } else {
+                        long time = System.nanoTime();
+
+                        response = buildResponse(is, klass);
+                        long res = System.nanoTime() - time;
+                        System.out.println(res);
+                    }
                     break;
                 default:
                     throw new ManagerException(conn.getResponseMessage(), code);
