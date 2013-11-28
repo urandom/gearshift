@@ -157,7 +157,20 @@
                 android:text="@string/session_settings_local_discovery" />
 
         </TableRow>
-                
+
+        <TableRow
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" >
+
+            <CheckBox
+                android:id="@+id/transmission_session_utp"
+                android:layout_span="2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/session_settings_utp" />
+
+        </TableRow>
+
         <TableRow
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" >

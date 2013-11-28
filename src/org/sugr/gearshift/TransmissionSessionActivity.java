@@ -395,6 +395,13 @@ public class TransmissionSessionActivity extends FragmentActivity {
                 .setChecked(mSession.isLocalDiscoveryEnabled());
         }
 
+        if (initial || mSession.isUTPEnabled() != session.isUTPEnabled()) {
+            if (!initial)
+                mSession.setUTPEnabled(session.isUTPEnabled());
+            ((CheckBox) findViewById(R.id.transmission_session_utp))
+                    .setChecked(mSession.isUTPEnabled());
+        }
+
         if (initial || mSession.isBlocklistEnabled() != session.isBlocklistEnabled()) {
             if (!initial)
                 mSession.setBlocklistEnabled(session.isBlocklistEnabled());
@@ -811,6 +818,16 @@ public class TransmissionSessionActivity extends FragmentActivity {
                 if (mSession.isLocalDiscoveryEnabled() != isChecked) {
                     mSession.setLocalDiscoveryEnabled(isChecked);
                     setSession(TransmissionSession.SetterFields.LOCAL_DISCOVERY);
+                }
+            }
+        });
+
+        check = (CheckBox) findViewById(R.id.transmission_session_utp);
+        check.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (mSession.isUTPEnabled() != isChecked) {
+                    mSession.setUTPEnabled(isChecked);
+                    setSession(TransmissionSession.SetterFields.UTP);
                 }
             }
         });

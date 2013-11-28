@@ -35,6 +35,7 @@ public class TransmissionSession implements Parcelable {
         public static final String INCOMPLETE_DIR = "incomplete-dir";
         public static final String INCOMPLETE_DIR_ENABLED = "incomplete-dir-enabled";
         public static final String LOCAL_DISCOVERY = "lpd-enabled";
+        public static final String UTP = "utp-enabled";
         public static final String PEER_EXCHANGE = "pex-enabled";
         public static final String PEER_PORT = "peer-port";
         public static final String PORT_FORWARDING = "port-forwarding-enabled";
@@ -86,6 +87,7 @@ public class TransmissionSession implements Parcelable {
     @SerializedName(SetterFields.INCOMPLETE_DIR_ENABLED) private boolean mIncompleteDirEnabled;
 
     @SerializedName(SetterFields.LOCAL_DISCOVERY) private boolean mLPDEnabled;
+    @SerializedName(SetterFields.UTP) private boolean mUTPEnabled;
 
     @SerializedName(SetterFields.GLOBAL_PEER_LIMIT) private int mGlobalPeerLimit;
     @SerializedName(SetterFields.TORRENT_PEER_LIMIT) private int mTorrentPeerLimit;
@@ -223,6 +225,10 @@ public class TransmissionSession implements Parcelable {
         return mLPDEnabled;
     }
 
+    public boolean isUTPEnabled() {
+        return mUTPEnabled;
+    }
+
     public int getGlobalPeerLimit() {
         return mGlobalPeerLimit;
     }
@@ -355,8 +361,8 @@ public class TransmissionSession implements Parcelable {
         mBlocklistURL = url;
     }
 
-    public void setDHTEnabled(boolean dHTEnabled) {
-        mDHTEnabled = dHTEnabled;
+    public void setDHTEnabled(boolean enable) {
+        mDHTEnabled = enable;
     }
 
     public void setEncryption(String encryption) {
@@ -389,6 +395,10 @@ public class TransmissionSession implements Parcelable {
 
     public void setLocalDiscoveryEnabled(boolean enable) {
         mLPDEnabled = enable;
+    }
+
+    public void setUTPEnabled(boolean enable) {
+        mUTPEnabled = enable;
     }
 
     public void setIncompleteDirEnabled(boolean enable) {
@@ -537,6 +547,7 @@ public class TransmissionSession implements Parcelable {
         in.writeString(mIncompleteDir);
         in.writeByte((byte) (mIncompleteDirEnabled ? 1 : 0));
         in.writeByte((byte) (mLPDEnabled ? 1 : 0));
+        in.writeByte((byte) (mUTPEnabled ? 1 : 0));
         in.writeInt(mGlobalPeerLimit);
         in.writeInt(mTorrentPeerLimit);
         in.writeByte((byte) (mPEXEnabled ? 1 : 0));
@@ -584,6 +595,7 @@ public class TransmissionSession implements Parcelable {
         mIncompleteDir = in.readString();
         mIncompleteDirEnabled = in.readByte() == 1;
         mLPDEnabled = in.readByte() == 1;
+        mUTPEnabled = in.readByte() == 1;
         mGlobalPeerLimit = in.readInt();
         mTorrentPeerLimit = in.readInt();
         mPEXEnabled = in.readByte() == 1;

@@ -325,6 +325,8 @@
     <string name="session_settings_distributed_hash_table">Distributed Hash Table (DHT)</string>
         
     <string name="session_settings_local_discovery">Local peer discovery</string>
+
+    <string name="session_settings_utp">Micro Transport Protocol (µTP)</string>
         
     <string name="session_settings_blocklist">Blocklist</string>
         
