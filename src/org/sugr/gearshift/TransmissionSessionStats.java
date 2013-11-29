@@ -1,5 +1,6 @@
 package org.sugr.gearshift;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.gson.annotations.SerializedName;
 
 public class TransmissionSessionStats {
@@ -18,20 +19,20 @@ public class TransmissionSessionStats {
         @SerializedName("filesAdded") private int mFilesAdded;
         @SerializedName("sessionCount") private int mSessionCount;
         @SerializedName("secondsActive") private long mSecondsActive;
-        
-        public long getUploadedBytes() {
+
+        @JsonProperty("uploadedBytes") public long getUploadedBytes() {
             return mUploadedBytes;
         }
-        public long getDownloadedBytes() {
+        @JsonProperty("downloadedBytes") public long getDownloadedBytes() {
             return mDownloadedBytes;
         }
-        public int getFilesAdded() {
+        @JsonProperty("filesAdded") public int getFilesAdded() {
             return mFilesAdded;
         }
-        public int getSessionCount() {
+        @JsonProperty("sessionCount") public int getSessionCount() {
             return mSessionCount;
         }
-        public long getSecondsActive() {
+        @JsonProperty("secondsActive") public long getSecondsActive() {
             return mSecondsActive;
         }
         public void setUploadedBytes(long uploadedBytes) {
@@ -51,23 +52,23 @@ public class TransmissionSessionStats {
         }
     }
 
-    public int getActiveTorrentCount() {
+    @JsonProperty("activeTorrentCount") public int getActiveTorrentCount() {
         return mActiveTorrentCount;
     }
 
-    public long getDownloadSpeed() {
+    @JsonProperty("downloadSpeed") public long getDownloadSpeed() {
         return mDownloadSpeed;
     }
 
-    public int getPausedTorrentCount() {
+    @JsonProperty("pausedTorrentCount") public int getPausedTorrentCount() {
         return mPausedTorrentCount;
     }
 
-    public int getTorrentCount() {
+    @JsonProperty("torrentCount") public int getTorrentCount() {
         return mTorrentCount;
     }
 
-    public long getUploadSpeed() {
+    @JsonProperty("uploadSpeed") public long getUploadSpeed() {
         return mUploadSpeed;
     }
 

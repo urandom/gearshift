@@ -3,6 +3,8 @@ package org.sugr.gearshift;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.gson.annotations.SerializedName;
 
 import org.sugr.gearshift.TransmissionSessionManager.Exclude;
@@ -149,179 +151,179 @@ public class TransmissionSession implements Parcelable {
         mDownloadDirectories = new HashSet<String>();
     }
 
-    public boolean isAltSpeedLimitEnabled() {
+    @JsonProperty(SetterFields.ALT_SPEED_LIMIT_ENABLED) public boolean isAltSpeedLimitEnabled() {
         return mAltSpeedEnabled;
     }
 
-    public long getAltDownloadSpeedLimit() {
+    @JsonProperty(SetterFields.ALT_DOWNLOAD_SPEED_LIMIT) public long getAltDownloadSpeedLimit() {
         return mAltSpeedDown;
     }
 
-    public long getAltUploadSpeedLimit() {
+    @JsonProperty(SetterFields.ALT_UPLOAD_SPEED_LIMIT) public long getAltUploadSpeedLimit() {
         return mAltSpeedUp;
     }
 
-    public boolean isAltSpeedLimitTimeEnabled() {
+    @JsonProperty(SetterFields.ALT_SPEED_LIMIT_TIME_ENABLED) public boolean isAltSpeedLimitTimeEnabled() {
         return mAltSpeedTimeEnabled;
     }
 
-    public int getAltSpeedTimeBegin() {
+    @JsonProperty(SetterFields.ALT_SPEED_LIMIT_TIME_BEGIN) public int getAltSpeedTimeBegin() {
         return mAltSpeedTimeBegin;
     }
 
-    public int getAltSpeedTimeEnd() {
+    @JsonProperty(SetterFields.ALT_SPEED_LIMIT_TIME_END) public int getAltSpeedTimeEnd() {
         return mAltSpeedTimeEnd;
     }
 
-    public boolean isBlocklistEnabled() {
+    @JsonProperty(SetterFields.BLOCKLIST_ENABLED) public boolean isBlocklistEnabled() {
         return mBlocklistEnabled;
     }
 
-    public long getBlocklistSize() {
+    @JsonProperty("blocklist-size") public long getBlocklistSize() {
         return mBlocklistSize;
     }
 
-    public String getBlocklistURL() {
+    @JsonProperty(SetterFields.BLOCKLIST_URL) public String getBlocklistURL() {
         return mBlocklistURL;
     }
 
-    public boolean isDHTEnabled() {
+    @JsonProperty(SetterFields.DHT) public boolean isDHTEnabled() {
         return mDHTEnabled;
     }
 
-    public String getEncryption() {
+    @JsonProperty(SetterFields.ENCRYPTION) public String getEncryption() {
         return mEncryption;
     }
 
-    public long getCacheSize() {
+    @JsonProperty(SetterFields.CACHE_SIZE) public long getCacheSize() {
         return mCacheSize;
     }
 
-    public String getDownloadDir() {
+    @JsonProperty(SetterFields.DOWNLOAD_DIR) public String getDownloadDir() {
         return mDownloadDir;
     }
 
-    public long getDownloadDirFreeSpace() {
+    @JsonProperty("download-dir-free-space") public long getDownloadDirFreeSpace() {
         return mDownloadDirFreeSpace;
     }
 
-    public int getDownloadQueueSize() {
+    @JsonProperty(SetterFields.DOWNLOAD_QUEUE_SIZE) public int getDownloadQueueSize() {
         return mDownloadQueueSize;
     }
 
-    public boolean isDownloadQueueEnabled() {
+    @JsonProperty(SetterFields.DOWNLOAD_QUEUE_ENABLED) public boolean isDownloadQueueEnabled() {
         return mDownloadQueueEnabled;
     }
 
-    public String getIncompleteDir() {
+    @JsonProperty(SetterFields.INCOMPLETE_DIR) public String getIncompleteDir() {
         return mIncompleteDir;
     }
 
-    public boolean isIncompleteDirEnabled() {
+    @JsonProperty(SetterFields.INCOMPLETE_DIR_ENABLED) public boolean isIncompleteDirEnabled() {
         return mIncompleteDirEnabled;
     }
 
-    public boolean isLocalDiscoveryEnabled() {
+    @JsonProperty(SetterFields.LOCAL_DISCOVERY) public boolean isLocalDiscoveryEnabled() {
         return mLPDEnabled;
     }
 
-    public boolean isUTPEnabled() {
+    @JsonProperty(SetterFields.UTP) public boolean isUTPEnabled() {
         return mUTPEnabled;
     }
 
-    public int getGlobalPeerLimit() {
+    @JsonProperty(SetterFields.GLOBAL_PEER_LIMIT) public int getGlobalPeerLimit() {
         return mGlobalPeerLimit;
     }
 
-    public int getTorrentPeerLimit() {
+    @JsonProperty(SetterFields.TORRENT_PEER_LIMIT) public int getTorrentPeerLimit() {
         return mTorrentPeerLimit;
     }
 
-    public boolean isPeerExchangeEnabled() {
+    @JsonProperty(SetterFields.PEER_EXCHANGE) public boolean isPeerExchangeEnabled() {
         return mPEXEnabled;
     }
 
-    public int getPeerPort() {
+    @JsonProperty(SetterFields.PEER_PORT) public int getPeerPort() {
         return mPeerPort;
     }
 
-    public boolean isPeerPortRandomOnStart() {
+    @JsonProperty(SetterFields.RANDOM_PORT) public boolean isPeerPortRandomOnStart() {
         return mPeerPortRandomOnStart;
     }
 
-    public boolean isPortForwardingEnabled() {
+    @JsonProperty(SetterFields.PORT_FORWARDING) public boolean isPortForwardingEnabled() {
         return mPortForwardingEnabled;
     }
 
-    public boolean isRenamePartialFilesEnabled() {
+    @JsonProperty(SetterFields.RENAME_PARTIAL) public boolean isRenamePartialFilesEnabled() {
         return mRenamePartial;
     }
 
-    public int getRPCVersion() {
+    @JsonProperty("rpc-version") public int getRPCVersion() {
         return mRPCVersion;
     }
 
-    public int getRPCVersionMin() {
+    @JsonProperty("rpc-version-minimum") public int getRPCVersionMin() {
         return mRPCVersionMin;
     }
 
-    public String getDoneScript() {
+    @JsonProperty(SetterFields.DONE_SCRIPT) public String getDoneScript() {
         return mDoneScript;
     }
 
-    public boolean isDoneScriptEnabled() {
+    @JsonProperty(SetterFields.DONE_SCRIPT_ENABLED) public boolean isDoneScriptEnabled() {
         return mDoneScriptEnabled;
     }
 
-    public int getSeedQueueSize() {
+    @JsonProperty(SetterFields.SEED_QUEUE_SIZE) public int getSeedQueueSize() {
         return mSeedQueueSize;
     }
 
-    public boolean isSeedQueueEnabled() {
+    @JsonProperty(SetterFields.SEED_QUEUE_ENABLED) public boolean isSeedQueueEnabled() {
         return mSeedQueueEnabled;
     }
 
-    public float getSeedRatioLimit() {
+    @JsonProperty(SetterFields.SEED_RATIO_LIMIT) public float getSeedRatioLimit() {
         return mSeedRatioLimit;
     }
 
-    public boolean isSeedRatioLimitEnabled() {
+    @JsonProperty(SetterFields.SEED_RATIO_LIMIT_ENABLED) public boolean isSeedRatioLimitEnabled() {
         return mSeedRatioLimited;
     }
 
-    public long getDownloadSpeedLimit() {
+    @JsonProperty(SetterFields.DOWNLOAD_SPEED_LIMIT) public long getDownloadSpeedLimit() {
         return mSpeedLimitDown;
     }
 
-    public boolean isDownloadSpeedLimitEnabled() {
+    @JsonProperty(SetterFields.DOWNLOAD_SPEED_LIMIT_ENABLED) public boolean isDownloadSpeedLimitEnabled() {
         return mSpeedLimitDownEnabled;
     }
 
-    public long getUploadSpeedLimit() {
+    @JsonProperty(SetterFields.UPLOAD_SPEED_LIMIT) public long getUploadSpeedLimit() {
         return mSpeedLimitUp;
     }
 
-    public boolean isUploadSpeedLimitEnabled() {
+    @JsonProperty(SetterFields.UPLOAD_SPEED_LIMIT_ENABLED) public boolean isUploadSpeedLimitEnabled() {
         return mSpeedLimitUpEnabled;
     }
 
-    public int getStalledQueueSize() {
+    @JsonProperty(SetterFields.STALLED_QUEUE_SIZE) public int getStalledQueueSize() {
         return mStalledQueueSize;
     }
 
-    public boolean isStalledQueueEnabled() {
+    @JsonProperty(SetterFields.STALLED_QUEUE_ENABLED) public boolean isStalledQueueEnabled() {
         return mStalledQueueEnabled;
     }
 
-    public boolean isStartAddedTorrentsEnabled() {
+    @JsonProperty(SetterFields.START_ADDED) public boolean isStartAddedTorrentsEnabled() {
         return mStartAdded;
     }
 
-    public boolean isTrashOriginalTorrentFilesEnabled() {
+    @JsonProperty(SetterFields.TRASH_ORIGINAL) public boolean isTrashOriginalTorrentFilesEnabled() {
         return mTrashOriginal;
     }
 
-    public String getVersion() {
+    @JsonProperty("version") public String getVersion() {
         return mVersion;
     }
 
@@ -517,7 +519,7 @@ public class TransmissionSession implements Parcelable {
         mDownloadDirectories.addAll(directories);
     }
 
-    public Set<String> getDownloadDirectories() {
+    @JsonIgnore public Set<String> getDownloadDirectories() {
         return mDownloadDirectories;
     }
 
