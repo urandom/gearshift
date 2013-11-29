@@ -30,6 +30,7 @@ public class TransmissionSession implements Parcelable {
         public static final String ALT_SPEED_LIMIT_TIME_ENABLED = "alt-speed-time-enabled";
         public static final String ALT_SPEED_LIMIT_TIME_BEGIN = "alt-speed-time-begin";
         public static final String ALT_SPEED_LIMIT_TIME_END = "alt-speed-time-end";
+        public static final String ALT_SPEED_LIMIT_TIME_DAY = "alt-speed-time-day";
         public static final String BLOCKLIST_ENABLED = "blocklist-enabled";
         public static final String BLOCKLIST_URL = "blocklist-url";
         public static final String CACHE_SIZE = "cache-size-mb";
@@ -72,6 +73,7 @@ public class TransmissionSession implements Parcelable {
     @SerializedName(SetterFields.ALT_SPEED_LIMIT_TIME_ENABLED) private boolean mAltSpeedTimeEnabled;
     @SerializedName(SetterFields.ALT_SPEED_LIMIT_TIME_BEGIN) private int mAltSpeedTimeBegin;
     @SerializedName(SetterFields.ALT_SPEED_LIMIT_TIME_END) private int mAltSpeedTimeEnd;
+    private int mAltSpeedTimeDay;
 
     @SerializedName(SetterFields.BLOCKLIST_ENABLED) private boolean mBlocklistEnabled;
     @SerializedName("blocklist-size") private long mBlocklistSize;
@@ -180,6 +182,10 @@ public class TransmissionSession implements Parcelable {
 
     @JsonProperty(SetterFields.ALT_SPEED_LIMIT_TIME_END) public int getAltSpeedTimeEnd() {
         return mAltSpeedTimeEnd;
+    }
+
+    @JsonProperty(SetterFields.ALT_SPEED_LIMIT_TIME_DAY) public int getAltSpeedTimeDay() {
+        return mAltSpeedTimeDay;
     }
 
     @JsonProperty(SetterFields.BLOCKLIST_ENABLED) public boolean isBlocklistEnabled() {
@@ -356,6 +362,10 @@ public class TransmissionSession implements Parcelable {
 
     public void setAltSpeedTimeEnd(int altSpeedTimeEnd) {
         mAltSpeedTimeEnd = altSpeedTimeEnd;
+    }
+
+    public void setAltSpeedTimeDay(int days) {
+        mAltSpeedTimeDay = days;
     }
 
     public void setBlocklistEnabled(boolean blocklistEnabled) {

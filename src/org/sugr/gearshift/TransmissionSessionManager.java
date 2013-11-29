@@ -8,6 +8,10 @@ import android.net.NetworkInfo;
 import android.preference.PreferenceManager;
 import android.util.Base64;
 
+import com.fasterxml.jackson.core.JsonFactory;
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.ExclusionStrategy;
 import com.google.gson.FieldAttributes;
 import com.google.gson.Gson;
@@ -456,8 +460,11 @@ public class TransmissionSessionManager {
     }
 
     private static Response buildResponse(InputStream stream, Class klass) throws IOException {
-        JsonReader reader = new JsonReader(new InputStreamReader(stream, "UTF-8"));
-        Gson gson = new GsonBuilder().setExclusionStrategies(new TransmissionExclusionStrategy()).create();
+        ObjectMapper mapper = new ObjectMapper();
+        // mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+
+        JsonFactory factory = mapper.getFactory();
+        JsonParser parser = factory.createParser(stream);
 
         try {
             reader.beginObject();
