@@ -1,8 +1,15 @@
 package org.sugr.gearshift;
 
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.gson.annotations.SerializedName;
 
+@JsonAutoDetect(
+    fieldVisibility = JsonAutoDetect.Visibility.NONE,
+    creatorVisibility = JsonAutoDetect.Visibility.NONE,
+    getterVisibility = JsonAutoDetect.Visibility.PUBLIC_ONLY,
+    isGetterVisibility = JsonAutoDetect.Visibility.PUBLIC_ONLY,
+    setterVisibility = JsonAutoDetect.Visibility.NONE)
 public class TransmissionSessionStats {
     @SerializedName("activeTorrentCount") private int mActiveTorrentCount;
     @SerializedName("downloadSpeed") private long mDownloadSpeed;

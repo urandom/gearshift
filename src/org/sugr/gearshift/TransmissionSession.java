@@ -3,6 +3,7 @@ package org.sugr.gearshift;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.gson.annotations.SerializedName;
@@ -15,6 +16,12 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+@JsonAutoDetect(
+    fieldVisibility = JsonAutoDetect.Visibility.NONE,
+    creatorVisibility = JsonAutoDetect.Visibility.NONE,
+    getterVisibility = JsonAutoDetect.Visibility.PUBLIC_ONLY,
+    isGetterVisibility = JsonAutoDetect.Visibility.PUBLIC_ONLY,
+    setterVisibility = JsonAutoDetect.Visibility.NONE)
 public class TransmissionSession implements Parcelable {
     @Exclude public static final class SetterFields {
         public static final String ALT_SPEED_LIMIT_ENABLED = "alt-speed-enabled";

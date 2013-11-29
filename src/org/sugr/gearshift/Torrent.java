@@ -6,6 +6,7 @@ import android.os.Parcelable;
 import android.text.Html;
 import android.text.Spanned;
 
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.gson.annotations.SerializedName;
@@ -14,6 +15,12 @@ import org.sugr.gearshift.TransmissionSessionManager.Exclude;
 
 import java.util.List;
 
+@JsonAutoDetect(
+    fieldVisibility = JsonAutoDetect.Visibility.NONE,
+    creatorVisibility = JsonAutoDetect.Visibility.NONE,
+    getterVisibility = JsonAutoDetect.Visibility.PUBLIC_ONLY,
+    isGetterVisibility = JsonAutoDetect.Visibility.PUBLIC_ONLY,
+    setterVisibility = JsonAutoDetect.Visibility.NONE)
 public class Torrent implements Parcelable {
     @Exclude public static final class SetterFields {
         public static final String DOWNLOAD_LIMIT = "downloadLimit";
