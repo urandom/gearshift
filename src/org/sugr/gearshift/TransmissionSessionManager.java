@@ -9,8 +9,11 @@ import android.preference.PreferenceManager;
 import android.util.Base64;
 
 import com.fasterxml.jackson.core.JsonFactory;
+import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.ExclusionStrategy;
 import com.google.gson.FieldAttributes;
@@ -22,11 +25,9 @@ import com.google.gson.JsonPrimitive;
 import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
 import com.google.gson.annotations.SerializedName;
-import com.google.gson.stream.JsonReader;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -429,8 +430,14 @@ public class TransmissionSessionManager {
             return response;
         } catch (java.net.SocketTimeoutException e) {
             throw new ManagerException("timeout", -1);
+        } catch (JsonParseException e) {
+            G.logE("Error parsing JSON", e);
+            throw new ManagerException(e.getMessage(), -4);
+        } catch (JsonMappingException e) {
+            G.logE("Error parsing JSON", e);
+            throw new ManagerException(e.getMessage(), -4);
         } catch (IOException e) {
-            e.printStackTrace();
+            G.logE("Error reading stream", e);
             throw new ManagerException(e.getMessage(), -1);
         } catch (OutOfMemoryError e) {
             e.printStackTrace();
@@ -461,136 +468,138 @@ public class TransmissionSessionManager {
 
     private static Response buildResponse(InputStream stream, Class klass) throws IOException {
         ObjectMapper mapper = new ObjectMapper();
-        // mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+        mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 
         JsonFactory factory = mapper.getFactory();
         JsonParser parser = factory.createParser(stream);
 
-        try {
-            reader.beginObject();
-            String result = null;
-            Response response = null;
+        String result = null;
+        Response response = null;
 
-            while (reader.hasNext()) {
-                String name = reader.nextName();
-                if (name.equals("result")) {
-                    result = reader.nextString();
-                } else if (name.equals("arguments")) {
-                    if (klass == SessionGetResponse.class) {
-                        response = new SessionGetResponse();
-                        TransmissionSession session = gson.fromJson(reader, TransmissionSession.class);
-                        ((SessionGetResponse) response).setSession(session);
-                    } else if (klass == SessionStatsResponse.class) {
-                        response = new SessionStatsResponse();
-                        TransmissionSessionStats stats = gson.fromJson(reader, TransmissionSessionStats.class);
-                        ((SessionStatsResponse) response).setStats(stats);
-                    } else if (klass == TorrentGetResponse.class || klass == ActiveTorrentGetResponse.class) {
-                        if (klass == TorrentGetResponse.class) {
-                            response = new TorrentGetResponse();
-                        } else {
-                            response = new ActiveTorrentGetResponse();
-                        }
+        if (parser.nextToken() != JsonToken.START_OBJECT) {
+            throw new IOException("The server data is expected to be an object");
+        }
+        while (parser.nextToken() != JsonToken.END_OBJECT) {
+            String name = parser.getCurrentName();
 
-                        reader.beginObject();
-                        while (reader.hasNext()) {
-                            String argname = reader.nextName();
-                            if (argname.equals("torrents")) {
-                                Torrent[] torrents = gson.fromJson(reader, Torrent[].class);
-                                if (klass == TorrentGetResponse.class) {
-                                    ((TorrentGetResponse) response).setTorrents(torrents);
-                                } else {
-                                    ((ActiveTorrentGetResponse) response).setTorrents(torrents);
-                                }
-                            } else if (argname.equals("removed")) {
-                                int[] removed = gson.fromJson(reader, int[].class);
-                                ((ActiveTorrentGetResponse) response).setRemoved(removed);
-                            } else {
-                                reader.skipValue();
-                            }
-                        }
-                        reader.endObject();
-                    } else if (klass == AddTorrentResponse.class) {
-                        response = new AddTorrentResponse();
+            if (name.equals("result")) {
+                result = parser.nextTextValue();
+            } else if (name.equals("arguments")) {
+                if (klass == SessionGetResponse.class) {
+                    parser.nextValue();
 
-                        reader.beginObject();
-                        while (reader.hasNext()) {
-                            String argname = reader.nextName();
-                            if (argname.equals("torrent-added")) {
-                                Torrent torrent = gson.fromJson(reader, Torrent.class);
-                                ((AddTorrentResponse) response).setTorrent(torrent);
-                            } else if (argname.equals("torrent-duplicate")) {
-                                Torrent torrent = gson.fromJson(reader, Torrent.class);
-                                ((AddTorrentResponse) response).setDuplicate(torrent);
-                            } else {
-                                reader.skipValue();
-                            }
-                        }
-                        reader.endObject();
-                    } else if (klass == PortTestResponse.class) {
-                        response = new PortTestResponse();
+                    response = new SessionGetResponse();
+                    TransmissionSession session = mapper.readValue(parser, TransmissionSession.class);
+                    ((SessionGetResponse) response).setSession(session);
+                } else if (klass == SessionStatsResponse.class) {
+                    parser.nextValue();
 
-                        reader.beginObject();
-                        while (reader.hasNext()) {
-                            String argname = reader.nextName();
-                            if (argname.equals("port-is-open")) {
-                                boolean isOpen = reader.nextBoolean();
-                                ((PortTestResponse) response).setPortOpen(isOpen);
-                            } else {
-                                reader.skipValue();
-                            }
-                        }
-                        reader.endObject();
-                    } else if (klass == BlocklistUpdateResponse.class) {
-                        response = new BlocklistUpdateResponse();
-
-                        reader.beginObject();
-                        while (reader.hasNext()) {
-                            String argname = reader.nextName();
-                            if (argname.equals("blocklist-size")) {
-                                long size = reader.nextLong();
-                                ((BlocklistUpdateResponse) response).setBlocklistSize(size);
-                            } else {
-                                reader.skipValue();
-                            }
-                        }
-                        reader.endObject();
-                    } else if (klass == FreeSpaceResponse.class) {
-                        response = new FreeSpaceResponse();
-
-                        reader.beginObject();
-                        while (reader.hasNext()) {
-                            String argname = reader.nextName();
-                            if (argname.equals("size-bytes")) {
-                                long size = reader.nextLong();
-                                ((FreeSpaceResponse) response).setFreeSpace(size);
-                            } else if (argname.equals("path")) {
-                                String path = reader.nextString();
-                                ((FreeSpaceResponse) response).setPath(path);
-                            } else {
-                                reader.skipValue();
-                            }
-                        }
-                        reader.endObject();
+                    response = new SessionStatsResponse();
+                    TransmissionSessionStats stats = mapper.readValue(parser, TransmissionSessionStats.class);
+                    ((SessionStatsResponse) response).setStats(stats);
+                } else if (klass == TorrentGetResponse.class || klass == ActiveTorrentGetResponse.class) {
+                    if (klass == TorrentGetResponse.class) {
+                        response = new TorrentGetResponse();
                     } else {
-                        response = new Response();
+                        response = new ActiveTorrentGetResponse();
+                    }
 
-                        reader.skipValue();
+                    parser.nextToken();
+                    while (parser.nextToken() != JsonToken.END_OBJECT) {
+                        String argname = parser.getCurrentName();
+
+                        parser.nextToken();
+                        if (argname.equals("torrents")) {
+                            List<Torrent> torrents = new ArrayList<Torrent>();
+
+                            while (parser.nextToken() != JsonToken.END_ARRAY) {
+                                torrents.add(mapper.readValue(parser, Torrent.class));
+                            }
+
+
+                            if (klass == TorrentGetResponse.class) {
+                                ((TorrentGetResponse) response).setTorrents(torrents.toArray(new Torrent[torrents.size()]));
+                            } else {
+                                ((ActiveTorrentGetResponse) response).setTorrents(torrents.toArray(new Torrent[torrents.size()]));
+                            }
+                        } else if (argname.equals("removed")) {
+                            int[] removed = mapper.readValue(parser, int[].class);
+                            ((ActiveTorrentGetResponse) response).setRemoved(removed);
+                        }
+                    }
+                } else if (klass == AddTorrentResponse.class) {
+                    response = new AddTorrentResponse();
+
+                    parser.nextToken();
+                    while (parser.nextToken() != JsonToken.END_OBJECT) {
+                        String argname = parser.getCurrentName();
+
+                        parser.nextValue();
+                        if (argname.equals("torrent-added")) {
+                            Torrent torrent = mapper.readValue(parser, Torrent.class);
+                            ((AddTorrentResponse) response).setTorrent(torrent);
+                        } else if (argname.equals("torrent-duplicate")) {
+                            Torrent torrent = mapper.readValue(parser, Torrent.class);
+                            ((AddTorrentResponse) response).setDuplicate(torrent);
+                        }
+                    }
+                } else if (klass == PortTestResponse.class) {
+                    response = new PortTestResponse();
+
+                    parser.nextToken();
+                    while (parser.nextToken() != JsonToken.END_OBJECT) {
+                        String argname = parser.getCurrentName();
+                        if (argname.equals("port-is-open")) {
+                            boolean isOpen = parser.nextBooleanValue();
+                            ((PortTestResponse) response).setPortOpen(isOpen);
+                        } else {
+                            parser.nextToken();
+                        }
+                    }
+                } else if (klass == BlocklistUpdateResponse.class) {
+                    response = new BlocklistUpdateResponse();
+
+                    parser.nextToken();
+                    while (parser.nextToken() != JsonToken.END_OBJECT) {
+                        String argname = parser.getCurrentName();
+                        if (argname.equals("blocklist-size")) {
+                            long size = parser.nextLongValue(0);
+                            ((BlocklistUpdateResponse) response).setBlocklistSize(size);
+                        } else {
+                            parser.nextToken();
+                        }
+                    }
+                } else if (klass == FreeSpaceResponse.class) {
+                    response = new FreeSpaceResponse();
+
+                    parser.nextToken();
+                    while (parser.nextToken() != JsonToken.END_OBJECT) {
+                        String argname = parser.getCurrentName();
+                        if (argname.equals("size-bytes")) {
+                            long size = parser.nextLongValue(0);
+                            ((FreeSpaceResponse) response).setFreeSpace(size);
+                        } else if (argname.equals("path")) {
+                            String path = parser.nextTextValue();
+                            ((FreeSpaceResponse) response).setPath(path);
+                        } else {
+                            parser.nextToken();
+                        }
                     }
                 } else {
-                    reader.skipValue();
+                    response = new Response();
+
+                    parser.skipChildren();
                 }
+            } else {
+                parser.nextToken();
             }
-
-            reader.endObject();
-
-            if (response != null) {
-                response.setResult(result);
-            }
-
-            return response;
-        } finally {
-            reader.close();
         }
+
+        if (response != null) {
+            response.setResult(result);
+        }
+
+        return response;
     }
 
     private static class SessionGetRequest {

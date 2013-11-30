@@ -23,6 +23,7 @@ import java.util.Set;
     isGetterVisibility = JsonAutoDetect.Visibility.PUBLIC_ONLY,
     setterVisibility = JsonAutoDetect.Visibility.NONE)
 public class TransmissionSession implements Parcelable {
+    /* TODO: add "idle-seeding-limit" and "idle-seeding-limit-enabled" */
     @Exclude public static final class SetterFields {
         public static final String ALT_SPEED_LIMIT_ENABLED = "alt-speed-enabled";
         public static final String ALT_DOWNLOAD_SPEED_LIMIT = "alt-speed-down";
@@ -80,6 +81,7 @@ public class TransmissionSession implements Parcelable {
     @SerializedName(SetterFields.BLOCKLIST_URL) private String mBlocklistURL;
 
     @SerializedName(SetterFields.CACHE_SIZE) private long mCacheSize;
+    private String mConfigDir;
 
     @SerializedName(SetterFields.DHT) private boolean mDHTEnabled;
 
@@ -210,6 +212,10 @@ public class TransmissionSession implements Parcelable {
 
     @JsonProperty(SetterFields.CACHE_SIZE) public long getCacheSize() {
         return mCacheSize;
+    }
+
+    @JsonProperty("config-dir") public String getConfigDir() {
+        return mConfigDir;
     }
 
     @JsonProperty(SetterFields.DOWNLOAD_DIR) public String getDownloadDir() {
@@ -390,6 +396,10 @@ public class TransmissionSession implements Parcelable {
 
     public void setCacheSize(long size) {
         mCacheSize = size;
+    }
+
+    public void setConfigDir(String dir) {
+        mConfigDir = dir;
     }
 
     public void setDownloadDir(String downloadDir) {

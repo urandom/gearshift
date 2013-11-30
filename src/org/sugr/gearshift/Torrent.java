@@ -556,6 +556,8 @@ public class Torrent implements Parcelable {
         }
     }
 
+    public Torrent() {}
+
     public Torrent(int id, String name) {
         mId = id;
         mName = name;
