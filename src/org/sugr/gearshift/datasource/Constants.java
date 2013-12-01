@@ -1,12 +1,12 @@
 package org.sugr.gearshift.datasource;
 
 public final class Constants {
-    public static final String T_TORRENTS = "torrents";
-    public static final String T_TRACKERS = "trackers";
-    public static final String T_FILES = "files";
-    public static final String T_PEERS = "peers";
+    public static final String T_TORRENT= "torrent";
+    public static final String T_TRACKER= "tracker";
+    public static final String T_TORRENT_TRACKER = "torrent_tracker";
+    public static final String T_FILE= "file";
+    public static final String T_PEER= "peer";
 
-    public static final String COLUMN_PROFILE = "profile";
     public static final String COLUMN_TORRENT_ID = "torrent_id";
     public static final String COLUMN_STATUS = "status";
     public static final String COLUMN_NAME = "name";
@@ -96,9 +96,8 @@ public final class Constants {
     public static final String COLUMN_RATE_TO_CLIENT = "rate_to_client";
     public static final String COLUMN_RATE_TO_PEER = "rate_to_peer";
 
-    public static final String T_TORRENTS_CREATE = "CREATE TABLE "
-        + T_TORRENTS + "("
-        + COLUMN_PROFILE + " TEXT NOT NULL, "
+    public static final String T_TORRENT_CREATE= "CREATE TABLE "
+        + T_TORRENT + "("
         + COLUMN_TORRENT_ID + " INTEGER NOT NULL, "
         + COLUMN_STATUS + " INTEGER NOT NULL, "
         + COLUMN_NAME + " TEXT NOT NULL, "
@@ -151,15 +150,14 @@ public final class Constants {
         + COLUMN_TRAFFIC_TEXT + " TEXT, "
         + COLUMN_STATUS_TEXT + " TEXT, "
 
-        + "PRIMARY KEY (" + COLUMN_PROFILE + ", " + COLUMN_TORRENT_ID + ")"
+        + "PRIMARY KEY (" + COLUMN_TORRENT_ID + ")"
         + ");";
 
-    public static final String T_TRACKERS_CREATE = "CREATE TABLE "
-        + T_TRACKERS + "("
-        + COLUMN_PROFILE + " TEXT NOT NULL, "
-        + COLUMN_TORRENT_ID + " INTEGER NOT NULL, "
+    /* The tracker is not associated with a torrent */
+    public static final String T_TRACKER_CREATE= "CREATE TABLE "
+        + T_TRACKER + "("
         + COLUMN_TRACKER_ID + " INTEGER, "
-        + COLUMN_ANNOUNCE + " TEXT, "
+        + COLUMN_ANNOUNCE + " TEXT NOT NULL UNIQUE, "
         + COLUMN_SCRAPE + " TEXT, "
         + COLUMN_TIER + " INTEGER, "
         + COLUMN_HAS_ANNOUNCED + " INTEGER, "
@@ -174,12 +172,19 @@ public final class Constants {
         + COLUMN_SEEDER_COUNT + " TEXT, "
         + COLUMN_LEECHER_COUNT + " TEXT, "
 
-        + "PRIMARY KEY (" + COLUMN_PROFILE + ", " + COLUMN_TORRENT_ID + ")"
+        + "PRIMARY KEY (" + COLUMN_TRACKER_ID + ")"
         + ");";
 
-    public static final String T_FILES_CREATE = "CREATE TABLE "
-        + T_FILES + "("
-        + COLUMN_PROFILE + " TEXT NOT NULL, "
+    public static final String T_TORRENT_TRACKER_CREATE = "CREATE TABLE "
+        + T_TORRENT_TRACKER + "("
+        + COLUMN_TORRENT_ID + " INTEGER REFERENCES " + T_TORRENT + "(" + COLUMN_TORRENT_ID + ") ON DELETE CASCADE, "
+        + COLUMN_TRACKER_ID + " INTEGER REFERENCES " + T_TRACKER + "(" + COLUMN_TRACKER_ID + ") ON DELETE CASCADE, "
+
+        + "PRIMARY KEY (" + COLUMN_TORRENT_ID + ", " + COLUMN_TRACKER_ID + ")"
+        + ");";
+
+    public static final String T_FILE_CREATE= "CREATE TABLE "
+        + T_FILE + "("
         + COLUMN_TORRENT_ID + " INTEGER NOT NULL, "
         + COLUMN_NAME + " TEXT, "
         + COLUMN_LENGTH + " INTEGER, "
@@ -187,12 +192,11 @@ public final class Constants {
         + COLUMN_WANTED + " INTEGER, "
         + COLUMN_PRIORITY + " INTEGER, "
 
-        + "PRIMARY KEY (" + COLUMN_PROFILE + ", " + COLUMN_TORRENT_ID + ")"
+        + "PRIMARY KEY (" + COLUMN_TORRENT_ID + ")"
         + ");";
 
-    public static final String T_PEERS_CREATE = "CREATE TABLE "
-        + T_PEERS + "("
-        + COLUMN_PROFILE + " TEXT NOT NULL, "
+    public static final String T_PEER_CREATE= "CREATE TABLE "
+        + T_PEER + "("
         + COLUMN_TORRENT_ID + " INTEGER NOT NULL, "
         + COLUMN_ADDRESS + " TEXT, "
         + COLUMN_CLIENT_NAME + " TEXT, "
@@ -209,18 +213,6 @@ public final class Constants {
         + COLUMN_RATE_TO_CLIENT + " INTEGER, "
         + COLUMN_RATE_TO_PEER + " INTEGER, "
 
-        + "PRIMARY KEY (" + COLUMN_PROFILE + ", " + COLUMN_TORRENT_ID + ")"
+        + "PRIMARY KEY (" + COLUMN_TORRENT_ID + ")"
         + ");";
-
-    public static final String I_TORRENTS_PROFILE_CREATE = "CREATE INDEX "
-        + "torrents_idx_profile ON " + T_TORRENTS + "(" + COLUMN_PROFILE + ")";
-
-    public static final String I_TRACKERS_PROFILE_CREATE = "CREATE INDEX "
-        + "trackers_idx_profile ON " + T_TRACKERS + "(" + COLUMN_PROFILE + ")";
-
-    public static final String I_FILES_PROFILE_CREATE = "CREATE INDEX "
-        + "files_idx_profile ON " + T_FILES + "(" + COLUMN_PROFILE + ")";
-
-    public static final String I_PEERS_PROFILE_CREATE = "CREATE INDEX "
-        + "peers_idx_profile ON " + T_FILES + "(" + COLUMN_PROFILE + ")";
 }

@@ -16,20 +16,29 @@ public class SQLiteHelper extends SQLiteOpenHelper {
 
     @Override
     public void onCreate(SQLiteDatabase db) {
-        db.execSQL(Constants.T_TORRENTS_CREATE);
-        db.execSQL(Constants.T_TRACKERS_CREATE);
-        db.execSQL(Constants.T_FILES_CREATE);
-        db.execSQL(Constants.T_PEERS_CREATE);
+        db.execSQL(Constants.T_TORRENT_CREATE);
+        db.execSQL(Constants.T_TRACKER_CREATE);
+        db.execSQL(Constants.T_FILE_CREATE);
+        db.execSQL(Constants.T_PEER_CREATE);
     }
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         G.logD("Upgrading data source from version " + oldVersion + " to " + newVersion);
 
-        db.execSQL("DROP TABLE IF EXISTS " + Constants.T_TORRENTS);
-        db.execSQL("DROP TABLE IF EXISTS " + Constants.T_TRACKERS);
-        db.execSQL("DROP TABLE IF EXISTS " + Constants.T_FILES);
-        db.execSQL("DROP TABLE IF EXISTS " + Constants.T_PEERS);
+        db.execSQL("DROP TABLE IF EXISTS " + Constants.T_TORRENT);
+        db.execSQL("DROP TABLE IF EXISTS " + Constants.T_TRACKER);
+        db.execSQL("DROP TABLE IF EXISTS " + Constants.T_FILE);
+        db.execSQL("DROP TABLE IF EXISTS " + Constants.T_PEER);
         onCreate(db);
+    }
+
+    @Override
+    public void onOpen(SQLiteDatabase db) {
+        super.onOpen(db);
+        if (!db.isReadOnly()) {
+            // Enable foreign key constraints
+            db.execSQL("PRAGMA foreign_keys=ON;");
+        }
     }
 }
