@@ -6,5 +6,18 @@ gen/
 libs/android-support-v4.jar
 local.properties
 
-build/*
-!build/proguard/release/mapping.txt
+GearShift.iml
+build-log.xml
+build.log
+build/apk/
+build/classes-proguard/
+build/classes/
+build/incremental/
+build/libs/
+build/manifests/
+build/proguard/release/aapt_rules.txt
+build/proguard/release/dump.txt
+build/proguard/release/seeds.txt
+build/proguard/release/usage.txt
+build/res/
+build/source/
