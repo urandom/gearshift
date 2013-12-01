@@ -1,37 +1,44 @@
 package org.sugr.gearshift;
 
-import com.google.gson.annotations.SerializedName;
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
+@JsonAutoDetect(
+    fieldVisibility = JsonAutoDetect.Visibility.NONE,
+    creatorVisibility = JsonAutoDetect.Visibility.NONE,
+    getterVisibility = JsonAutoDetect.Visibility.PUBLIC_ONLY,
+    isGetterVisibility = JsonAutoDetect.Visibility.PUBLIC_ONLY,
+    setterVisibility = JsonAutoDetect.Visibility.NONE)
 public class TransmissionSessionStats {
-    @SerializedName("activeTorrentCount") private int mActiveTorrentCount;
-    @SerializedName("downloadSpeed") private long mDownloadSpeed;
-    @SerializedName("pausedTorrentCount") private int mPausedTorrentCount;
-    @SerializedName("torrentCount") private int mTorrentCount;
-    @SerializedName("uploadSpeed") private long mUploadSpeed;
+    private int mActiveTorrentCount;
+    private long mDownloadSpeed;
+    private int mPausedTorrentCount;
+    private int mTorrentCount;
+    private long mUploadSpeed;
 
-    @SerializedName("cumulative-stats") private Stats mCumulativeStats;
-    @SerializedName("current-stats") private Stats mCurrentStats;
+    private Stats mCumulativeStats;
+    private Stats mCurrentStats;
 
     public static class Stats {
-        @SerializedName("uploadedBytes") private long mUploadedBytes;
-        @SerializedName("downloadedBytes") private long mDownloadedBytes;
-        @SerializedName("filesAdded") private int mFilesAdded;
-        @SerializedName("sessionCount") private int mSessionCount;
-        @SerializedName("secondsActive") private long mSecondsActive;
-        
-        public long getUploadedBytes() {
+        private long mUploadedBytes;
+        private long mDownloadedBytes;
+        private int mFilesAdded;
+        private int mSessionCount;
+        private long mSecondsActive;
+
+        @JsonProperty("uploadedBytes") public long getUploadedBytes() {
             return mUploadedBytes;
         }
-        public long getDownloadedBytes() {
+        @JsonProperty("downloadedBytes") public long getDownloadedBytes() {
             return mDownloadedBytes;
         }
-        public int getFilesAdded() {
+        @JsonProperty("filesAdded") public int getFilesAdded() {
             return mFilesAdded;
         }
-        public int getSessionCount() {
+        @JsonProperty("sessionCount") public int getSessionCount() {
             return mSessionCount;
         }
-        public long getSecondsActive() {
+        @JsonProperty("secondsActive") public long getSecondsActive() {
             return mSecondsActive;
         }
         public void setUploadedBytes(long uploadedBytes) {
@@ -51,23 +58,23 @@ public class TransmissionSessionStats {
         }
     }
 
-    public int getActiveTorrentCount() {
+    @JsonProperty("activeTorrentCount") public int getActiveTorrentCount() {
         return mActiveTorrentCount;
     }
 
-    public long getDownloadSpeed() {
+    @JsonProperty("downloadSpeed") public long getDownloadSpeed() {
         return mDownloadSpeed;
     }
 
-    public int getPausedTorrentCount() {
+    @JsonProperty("pausedTorrentCount") public int getPausedTorrentCount() {
         return mPausedTorrentCount;
     }
 
-    public int getTorrentCount() {
+    @JsonProperty("torrentCount") public int getTorrentCount() {
         return mTorrentCount;
     }
 
-    public long getUploadSpeed() {
+    @JsonProperty("uploadSpeed") public long getUploadSpeed() {
         return mUploadSpeed;
     }
 

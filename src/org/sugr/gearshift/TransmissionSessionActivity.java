@@ -1,14 +1,5 @@
 package org.sugr.gearshift;
 
-import java.util.Arrays;
-import java.util.Calendar;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
-import org.sugr.gearshift.TransmissionSessionManager.ManagerException;
-import org.sugr.gearshift.TransmissionSessionManager.TransmissionExclusionStrategy;
-
 import android.app.Dialog;
 import android.app.TimePickerDialog;
 import android.content.Context;
@@ -39,6 +30,14 @@ import android.widget.ScrollView;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.TimePicker;
+
+import org.sugr.gearshift.TransmissionSessionManager.ManagerException;
+
+import java.util.Arrays;
+import java.util.Calendar;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 public class TransmissionSessionActivity extends FragmentActivity {
     private TransmissionProfile mProfile;
@@ -393,6 +392,13 @@ public class TransmissionSessionActivity extends FragmentActivity {
                 mSession.setLocalDiscoveryEnabled(session.isLocalDiscoveryEnabled());
             ((CheckBox) findViewById(R.id.transmission_session_local_discovery))
                 .setChecked(mSession.isLocalDiscoveryEnabled());
+        }
+
+        if (initial || mSession.isUTPEnabled() != session.isUTPEnabled()) {
+            if (!initial)
+                mSession.setUTPEnabled(session.isUTPEnabled());
+            ((CheckBox) findViewById(R.id.transmission_session_utp))
+                    .setChecked(mSession.isUTPEnabled());
         }
 
         if (initial || mSession.isBlocklistEnabled() != session.isBlocklistEnabled()) {
@@ -811,6 +817,16 @@ public class TransmissionSessionActivity extends FragmentActivity {
                 if (mSession.isLocalDiscoveryEnabled() != isChecked) {
                     mSession.setLocalDiscoveryEnabled(isChecked);
                     setSession(TransmissionSession.SetterFields.LOCAL_DISCOVERY);
+                }
+            }
+        });
+
+        check = (CheckBox) findViewById(R.id.transmission_session_utp);
+        check.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (mSession.isUTPEnabled() != isChecked) {
+                    mSession.setUTPEnabled(isChecked);
+                    setSession(TransmissionSession.SetterFields.UTP);
                 }
             }
         });

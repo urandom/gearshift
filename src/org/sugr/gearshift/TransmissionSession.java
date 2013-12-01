@@ -3,9 +3,9 @@ package org.sugr.gearshift;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-import com.google.gson.annotations.SerializedName;
-
-import org.sugr.gearshift.TransmissionSessionManager.Exclude;
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -13,14 +13,22 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+@JsonAutoDetect(
+    fieldVisibility = JsonAutoDetect.Visibility.NONE,
+    creatorVisibility = JsonAutoDetect.Visibility.NONE,
+    getterVisibility = JsonAutoDetect.Visibility.PUBLIC_ONLY,
+    isGetterVisibility = JsonAutoDetect.Visibility.PUBLIC_ONLY,
+    setterVisibility = JsonAutoDetect.Visibility.NONE)
 public class TransmissionSession implements Parcelable {
-    @Exclude public static final class SetterFields {
+    /* TODO: add "idle-seeding-limit" and "idle-seeding-limit-enabled" */
+    public static final class SetterFields {
         public static final String ALT_SPEED_LIMIT_ENABLED = "alt-speed-enabled";
         public static final String ALT_DOWNLOAD_SPEED_LIMIT = "alt-speed-down";
         public static final String ALT_UPLOAD_SPEED_LIMIT = "alt-speed-up";
         public static final String ALT_SPEED_LIMIT_TIME_ENABLED = "alt-speed-time-enabled";
         public static final String ALT_SPEED_LIMIT_TIME_BEGIN = "alt-speed-time-begin";
         public static final String ALT_SPEED_LIMIT_TIME_END = "alt-speed-time-end";
+        public static final String ALT_SPEED_LIMIT_TIME_DAY = "alt-speed-time-day";
         public static final String BLOCKLIST_ENABLED = "blocklist-enabled";
         public static final String BLOCKLIST_URL = "blocklist-url";
         public static final String CACHE_SIZE = "cache-size-mb";
@@ -35,6 +43,7 @@ public class TransmissionSession implements Parcelable {
         public static final String INCOMPLETE_DIR = "incomplete-dir";
         public static final String INCOMPLETE_DIR_ENABLED = "incomplete-dir-enabled";
         public static final String LOCAL_DISCOVERY = "lpd-enabled";
+        public static final String UTP = "utp-enabled";
         public static final String PEER_EXCHANGE = "pex-enabled";
         public static final String PEER_PORT = "peer-port";
         public static final String PORT_FORWARDING = "port-forwarding-enabled";
@@ -55,74 +64,77 @@ public class TransmissionSession implements Parcelable {
         public static final String UPLOAD_SPEED_LIMIT_ENABLED = "speed-limit-up-enabled";
     }
 
-    @SerializedName(SetterFields.ALT_SPEED_LIMIT_ENABLED) private boolean mAltSpeedEnabled;
-    @SerializedName(SetterFields.ALT_DOWNLOAD_SPEED_LIMIT) private long mAltSpeedDown;
-    @SerializedName(SetterFields.ALT_UPLOAD_SPEED_LIMIT) private long mAltSpeedUp;
+    private boolean mAltSpeedEnabled;
+    private long mAltSpeedDown;
+    private long mAltSpeedUp;
 
-    @SerializedName(SetterFields.ALT_SPEED_LIMIT_TIME_ENABLED) private boolean mAltSpeedTimeEnabled;
-    @SerializedName(SetterFields.ALT_SPEED_LIMIT_TIME_BEGIN) private int mAltSpeedTimeBegin;
-    @SerializedName(SetterFields.ALT_SPEED_LIMIT_TIME_END) private int mAltSpeedTimeEnd;
+    private boolean mAltSpeedTimeEnabled;
+    private int mAltSpeedTimeBegin;
+    private int mAltSpeedTimeEnd;
+    private int mAltSpeedTimeDay;
 
-    @SerializedName(SetterFields.BLOCKLIST_ENABLED) private boolean mBlocklistEnabled;
-    @SerializedName("blocklist-size") private long mBlocklistSize;
-    @SerializedName(SetterFields.BLOCKLIST_URL) private String mBlocklistURL;
+    private boolean mBlocklistEnabled;
+    private long mBlocklistSize;
+    private String mBlocklistURL;
 
-    @SerializedName(SetterFields.CACHE_SIZE) private long mCacheSize;
+    private long mCacheSize;
+    private String mConfigDir;
 
-    @SerializedName(SetterFields.DHT) private boolean mDHTEnabled;
+    private boolean mDHTEnabled;
 
-    @SerializedName(SetterFields.DOWNLOAD_DIR) private String mDownloadDir;
-    @SerializedName("download-dir-free-space") private long mDownloadDirFreeSpace;
+    private String mDownloadDir;
+    private long mDownloadDirFreeSpace;
 
-    @SerializedName(SetterFields.DOWNLOAD_QUEUE_SIZE) private int mDownloadQueueSize;
-    @SerializedName(SetterFields.DOWNLOAD_QUEUE_ENABLED) private boolean mDownloadQueueEnabled;
+    private int mDownloadQueueSize;
+    private boolean mDownloadQueueEnabled;
 
-    @SerializedName(SetterFields.DOWNLOAD_SPEED_LIMIT) private long mSpeedLimitDown;
-    @SerializedName(SetterFields.DOWNLOAD_SPEED_LIMIT_ENABLED) private boolean mSpeedLimitDownEnabled;
+    private long mSpeedLimitDown;
+    private boolean mSpeedLimitDownEnabled;
 
-    @SerializedName(SetterFields.ENCRYPTION) private String mEncryption;
+    private String mEncryption;
 
-    @SerializedName(SetterFields.INCOMPLETE_DIR) private String mIncompleteDir;
-    @SerializedName(SetterFields.INCOMPLETE_DIR_ENABLED) private boolean mIncompleteDirEnabled;
+    private String mIncompleteDir;
+    private boolean mIncompleteDirEnabled;
 
-    @SerializedName(SetterFields.LOCAL_DISCOVERY) private boolean mLPDEnabled;
+    private boolean mLPDEnabled;
+    private boolean mUTPEnabled;
 
-    @SerializedName(SetterFields.GLOBAL_PEER_LIMIT) private int mGlobalPeerLimit;
-    @SerializedName(SetterFields.TORRENT_PEER_LIMIT) private int mTorrentPeerLimit;
+    private int mGlobalPeerLimit;
+    private int mTorrentPeerLimit;
 
-    @SerializedName(SetterFields.PEER_EXCHANGE) private boolean mPEXEnabled;
+    private boolean mPEXEnabled;
 
-    @SerializedName(SetterFields.PEER_PORT) private int mPeerPort;
-    @SerializedName(SetterFields.PORT_FORWARDING) private boolean mPortForwardingEnabled;
-    @SerializedName(SetterFields.RANDOM_PORT) private boolean mPeerPortRandomOnStart;
+    private int mPeerPort;
+    private boolean mPortForwardingEnabled;
+    private boolean mPeerPortRandomOnStart;
 
-    @SerializedName(SetterFields.RENAME_PARTIAL) private boolean mRenamePartial;
+    private boolean mRenamePartial;
 
-    @SerializedName("rpc-version") private int mRPCVersion;
-    @SerializedName("rpc-version-minimum") private int mRPCVersionMin;
+    private int mRPCVersion;
+    private int mRPCVersionMin;
 
-    @SerializedName(SetterFields.DONE_SCRIPT) private String mDoneScript;
-    @SerializedName(SetterFields.DONE_SCRIPT_ENABLED) private boolean mDoneScriptEnabled;
+    private String mDoneScript;
+    private boolean mDoneScriptEnabled;
 
-    @SerializedName(SetterFields.SEED_QUEUE_SIZE) private int mSeedQueueSize;
-    @SerializedName(SetterFields.SEED_QUEUE_ENABLED) private boolean mSeedQueueEnabled;
+    private int mSeedQueueSize;
+    private boolean mSeedQueueEnabled;
 
-    @SerializedName(SetterFields.SEED_RATIO_LIMIT) private float mSeedRatioLimit;
-    @SerializedName(SetterFields.SEED_RATIO_LIMIT_ENABLED) private boolean mSeedRatioLimited;
+    private float mSeedRatioLimit;
+    private boolean mSeedRatioLimited;
 
-    @SerializedName(SetterFields.UPLOAD_SPEED_LIMIT) private long mSpeedLimitUp;
-    @SerializedName(SetterFields.UPLOAD_SPEED_LIMIT_ENABLED) private boolean mSpeedLimitUpEnabled;
+    private long mSpeedLimitUp;
+    private boolean mSpeedLimitUpEnabled;
 
-    @SerializedName(SetterFields.STALLED_QUEUE_SIZE) private int mStalledQueueSize;
-    @SerializedName(SetterFields.STALLED_QUEUE_ENABLED) private boolean mStalledQueueEnabled;
+    private int mStalledQueueSize;
+    private boolean mStalledQueueEnabled;
 
-    @SerializedName(SetterFields.START_ADDED) private boolean mStartAdded;
-    @SerializedName(SetterFields.TRASH_ORIGINAL) private boolean mTrashOriginal;
+    private boolean mStartAdded;
+    private boolean mTrashOriginal;
 
-    @SerializedName("version") private String mVersion;
+    private String mVersion;
 
     // https://trac.transmissionbt.com/browser/trunk/libtransmission/transmission.h - tr_sched_day
-    @Exclude public static class AltSpeedDay {
+    public static class AltSpeedDay {
         public static final int SUN = (1<<0);
         public static final int MON = (1<<1);
         public static final int TUE = (1<<2);
@@ -135,187 +147,199 @@ public class TransmissionSession implements Parcelable {
         public static final int ALL = (WEEKDAY|WEEKEND);
     }
 
-    @Exclude public static class Encryption {
+    public static class Encryption {
         public static final String REQUIRED = "required";
         public static final String PREFERRED = "preferred";
         public static final String TOLERATED = "tolerated";
     }
 
-    @Exclude private Set<String> mDownloadDirectories;
+    private Set<String> mDownloadDirectories;
 
     public TransmissionSession() {
         mDownloadDirectories = new HashSet<String>();
     }
 
-    public boolean isAltSpeedLimitEnabled() {
+    @JsonProperty(SetterFields.ALT_SPEED_LIMIT_ENABLED) public boolean isAltSpeedLimitEnabled() {
         return mAltSpeedEnabled;
     }
 
-    public long getAltDownloadSpeedLimit() {
+    @JsonProperty(SetterFields.ALT_DOWNLOAD_SPEED_LIMIT) public long getAltDownloadSpeedLimit() {
         return mAltSpeedDown;
     }
 
-    public long getAltUploadSpeedLimit() {
+    @JsonProperty(SetterFields.ALT_UPLOAD_SPEED_LIMIT) public long getAltUploadSpeedLimit() {
         return mAltSpeedUp;
     }
 
-    public boolean isAltSpeedLimitTimeEnabled() {
+    @JsonProperty(SetterFields.ALT_SPEED_LIMIT_TIME_ENABLED) public boolean isAltSpeedLimitTimeEnabled() {
         return mAltSpeedTimeEnabled;
     }
 
-    public int getAltSpeedTimeBegin() {
+    @JsonProperty(SetterFields.ALT_SPEED_LIMIT_TIME_BEGIN) public int getAltSpeedTimeBegin() {
         return mAltSpeedTimeBegin;
     }
 
-    public int getAltSpeedTimeEnd() {
+    @JsonProperty(SetterFields.ALT_SPEED_LIMIT_TIME_END) public int getAltSpeedTimeEnd() {
         return mAltSpeedTimeEnd;
     }
 
-    public boolean isBlocklistEnabled() {
+    @JsonProperty(SetterFields.ALT_SPEED_LIMIT_TIME_DAY) public int getAltSpeedTimeDay() {
+        return mAltSpeedTimeDay;
+    }
+
+    @JsonProperty(SetterFields.BLOCKLIST_ENABLED) public boolean isBlocklistEnabled() {
         return mBlocklistEnabled;
     }
 
-    public long getBlocklistSize() {
+    @JsonProperty("blocklist-size") public long getBlocklistSize() {
         return mBlocklistSize;
     }
 
-    public String getBlocklistURL() {
+    @JsonProperty(SetterFields.BLOCKLIST_URL) public String getBlocklistURL() {
         return mBlocklistURL;
     }
 
-    public boolean isDHTEnabled() {
+    @JsonProperty(SetterFields.DHT) public boolean isDHTEnabled() {
         return mDHTEnabled;
     }
 
-    public String getEncryption() {
+    @JsonProperty(SetterFields.ENCRYPTION) public String getEncryption() {
         return mEncryption;
     }
 
-    public long getCacheSize() {
+    @JsonProperty(SetterFields.CACHE_SIZE) public long getCacheSize() {
         return mCacheSize;
     }
 
-    public String getDownloadDir() {
+    @JsonProperty("config-dir") public String getConfigDir() {
+        return mConfigDir;
+    }
+
+    @JsonProperty(SetterFields.DOWNLOAD_DIR) public String getDownloadDir() {
         return mDownloadDir;
     }
 
-    public long getDownloadDirFreeSpace() {
+    @JsonProperty("download-dir-free-space") public long getDownloadDirFreeSpace() {
         return mDownloadDirFreeSpace;
     }
 
-    public int getDownloadQueueSize() {
+    @JsonProperty(SetterFields.DOWNLOAD_QUEUE_SIZE) public int getDownloadQueueSize() {
         return mDownloadQueueSize;
     }
 
-    public boolean isDownloadQueueEnabled() {
+    @JsonProperty(SetterFields.DOWNLOAD_QUEUE_ENABLED) public boolean isDownloadQueueEnabled() {
         return mDownloadQueueEnabled;
     }
 
-    public String getIncompleteDir() {
+    @JsonProperty(SetterFields.INCOMPLETE_DIR) public String getIncompleteDir() {
         return mIncompleteDir;
     }
 
-    public boolean isIncompleteDirEnabled() {
+    @JsonProperty(SetterFields.INCOMPLETE_DIR_ENABLED) public boolean isIncompleteDirEnabled() {
         return mIncompleteDirEnabled;
     }
 
-    public boolean isLocalDiscoveryEnabled() {
+    @JsonProperty(SetterFields.LOCAL_DISCOVERY) public boolean isLocalDiscoveryEnabled() {
         return mLPDEnabled;
     }
 
-    public int getGlobalPeerLimit() {
+    @JsonProperty(SetterFields.UTP) public boolean isUTPEnabled() {
+        return mUTPEnabled;
+    }
+
+    @JsonProperty(SetterFields.GLOBAL_PEER_LIMIT) public int getGlobalPeerLimit() {
         return mGlobalPeerLimit;
     }
 
-    public int getTorrentPeerLimit() {
+    @JsonProperty(SetterFields.TORRENT_PEER_LIMIT) public int getTorrentPeerLimit() {
         return mTorrentPeerLimit;
     }
 
-    public boolean isPeerExchangeEnabled() {
+    @JsonProperty(SetterFields.PEER_EXCHANGE) public boolean isPeerExchangeEnabled() {
         return mPEXEnabled;
     }
 
-    public int getPeerPort() {
+    @JsonProperty(SetterFields.PEER_PORT) public int getPeerPort() {
         return mPeerPort;
     }
 
-    public boolean isPeerPortRandomOnStart() {
+    @JsonProperty(SetterFields.RANDOM_PORT) public boolean isPeerPortRandomOnStart() {
         return mPeerPortRandomOnStart;
     }
 
-    public boolean isPortForwardingEnabled() {
+    @JsonProperty(SetterFields.PORT_FORWARDING) public boolean isPortForwardingEnabled() {
         return mPortForwardingEnabled;
     }
 
-    public boolean isRenamePartialFilesEnabled() {
+    @JsonProperty(SetterFields.RENAME_PARTIAL) public boolean isRenamePartialFilesEnabled() {
         return mRenamePartial;
     }
 
-    public int getRPCVersion() {
+    @JsonProperty("rpc-version") public int getRPCVersion() {
         return mRPCVersion;
     }
 
-    public int getRPCVersionMin() {
+    @JsonProperty("rpc-version-minimum") public int getRPCVersionMin() {
         return mRPCVersionMin;
     }
 
-    public String getDoneScript() {
+    @JsonProperty(SetterFields.DONE_SCRIPT) public String getDoneScript() {
         return mDoneScript;
     }
 
-    public boolean isDoneScriptEnabled() {
+    @JsonProperty(SetterFields.DONE_SCRIPT_ENABLED) public boolean isDoneScriptEnabled() {
         return mDoneScriptEnabled;
     }
 
-    public int getSeedQueueSize() {
+    @JsonProperty(SetterFields.SEED_QUEUE_SIZE) public int getSeedQueueSize() {
         return mSeedQueueSize;
     }
 
-    public boolean isSeedQueueEnabled() {
+    @JsonProperty(SetterFields.SEED_QUEUE_ENABLED) public boolean isSeedQueueEnabled() {
         return mSeedQueueEnabled;
     }
 
-    public float getSeedRatioLimit() {
+    @JsonProperty(SetterFields.SEED_RATIO_LIMIT) public float getSeedRatioLimit() {
         return mSeedRatioLimit;
     }
 
-    public boolean isSeedRatioLimitEnabled() {
+    @JsonProperty(SetterFields.SEED_RATIO_LIMIT_ENABLED) public boolean isSeedRatioLimitEnabled() {
         return mSeedRatioLimited;
     }
 
-    public long getDownloadSpeedLimit() {
+    @JsonProperty(SetterFields.DOWNLOAD_SPEED_LIMIT) public long getDownloadSpeedLimit() {
         return mSpeedLimitDown;
     }
 
-    public boolean isDownloadSpeedLimitEnabled() {
+    @JsonProperty(SetterFields.DOWNLOAD_SPEED_LIMIT_ENABLED) public boolean isDownloadSpeedLimitEnabled() {
         return mSpeedLimitDownEnabled;
     }
 
-    public long getUploadSpeedLimit() {
+    @JsonProperty(SetterFields.UPLOAD_SPEED_LIMIT) public long getUploadSpeedLimit() {
         return mSpeedLimitUp;
     }
 
-    public boolean isUploadSpeedLimitEnabled() {
+    @JsonProperty(SetterFields.UPLOAD_SPEED_LIMIT_ENABLED) public boolean isUploadSpeedLimitEnabled() {
         return mSpeedLimitUpEnabled;
     }
 
-    public int getStalledQueueSize() {
+    @JsonProperty(SetterFields.STALLED_QUEUE_SIZE) public int getStalledQueueSize() {
         return mStalledQueueSize;
     }
 
-    public boolean isStalledQueueEnabled() {
+    @JsonProperty(SetterFields.STALLED_QUEUE_ENABLED) public boolean isStalledQueueEnabled() {
         return mStalledQueueEnabled;
     }
 
-    public boolean isStartAddedTorrentsEnabled() {
+    @JsonProperty(SetterFields.START_ADDED) public boolean isStartAddedTorrentsEnabled() {
         return mStartAdded;
     }
 
-    public boolean isTrashOriginalTorrentFilesEnabled() {
+    @JsonProperty(SetterFields.TRASH_ORIGINAL) public boolean isTrashOriginalTorrentFilesEnabled() {
         return mTrashOriginal;
     }
 
-    public String getVersion() {
+    @JsonProperty("version") public String getVersion() {
         return mVersion;
     }
 
@@ -343,6 +367,10 @@ public class TransmissionSession implements Parcelable {
         mAltSpeedTimeEnd = altSpeedTimeEnd;
     }
 
+    public void setAltSpeedTimeDay(int days) {
+        mAltSpeedTimeDay = days;
+    }
+
     public void setBlocklistEnabled(boolean blocklistEnabled) {
         mBlocklistEnabled = blocklistEnabled;
     }
@@ -355,8 +383,8 @@ public class TransmissionSession implements Parcelable {
         mBlocklistURL = url;
     }
 
-    public void setDHTEnabled(boolean dHTEnabled) {
-        mDHTEnabled = dHTEnabled;
+    public void setDHTEnabled(boolean enable) {
+        mDHTEnabled = enable;
     }
 
     public void setEncryption(String encryption) {
@@ -365,6 +393,10 @@ public class TransmissionSession implements Parcelable {
 
     public void setCacheSize(long size) {
         mCacheSize = size;
+    }
+
+    public void setConfigDir(String dir) {
+        mConfigDir = dir;
     }
 
     public void setDownloadDir(String downloadDir) {
@@ -389,6 +421,10 @@ public class TransmissionSession implements Parcelable {
 
     public void setLocalDiscoveryEnabled(boolean enable) {
         mLPDEnabled = enable;
+    }
+
+    public void setUTPEnabled(boolean enable) {
+        mUTPEnabled = enable;
     }
 
     public void setIncompleteDirEnabled(boolean enable) {
@@ -507,7 +543,7 @@ public class TransmissionSession implements Parcelable {
         mDownloadDirectories.addAll(directories);
     }
 
-    public Set<String> getDownloadDirectories() {
+    @JsonIgnore public Set<String> getDownloadDirectories() {
         return mDownloadDirectories;
     }
 
@@ -537,6 +573,7 @@ public class TransmissionSession implements Parcelable {
         in.writeString(mIncompleteDir);
         in.writeByte((byte) (mIncompleteDirEnabled ? 1 : 0));
         in.writeByte((byte) (mLPDEnabled ? 1 : 0));
+        in.writeByte((byte) (mUTPEnabled ? 1 : 0));
         in.writeInt(mGlobalPeerLimit);
         in.writeInt(mTorrentPeerLimit);
         in.writeByte((byte) (mPEXEnabled ? 1 : 0));
@@ -584,6 +621,7 @@ public class TransmissionSession implements Parcelable {
         mIncompleteDir = in.readString();
         mIncompleteDirEnabled = in.readByte() == 1;
         mLPDEnabled = in.readByte() == 1;
+        mUTPEnabled = in.readByte() == 1;
         mGlobalPeerLimit = in.readInt();
         mTorrentPeerLimit = in.readInt();
         mPEXEnabled = in.readByte() == 1;
