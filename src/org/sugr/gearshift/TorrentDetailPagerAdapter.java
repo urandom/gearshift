@@ -3,9 +3,7 @@ package org.sugr.gearshift;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
-import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
-import android.support.v4.view.ViewPager;
 
 public class TorrentDetailPagerAdapter extends FragmentStatePagerAdapter {
     private TransmissionSessionInterface mContext;
@@ -34,19 +32,4 @@ public class TorrentDetailPagerAdapter extends FragmentStatePagerAdapter {
 
 		return fragment;
 	}
-
-    public TorrentDetailPageFragment getFragment(ViewPager container, int position) {
-        String name = makeFragmentName(container.getId(), position);
-        FragmentManager manager = ((FragmentActivity) mContext).getSupportFragmentManager();
-
-        if (manager == null) {
-            return null;
-        } else {
-            return (TorrentDetailPageFragment) manager.findFragmentByTag(name);
-        }
-    }
-
-    private static String makeFragmentName(int viewId, int index) {
-        return "android:switcher:" + viewId + ":" + index;
-    }
 }

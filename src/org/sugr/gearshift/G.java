@@ -77,10 +77,14 @@ class G {
     public static final String ARG_PROFILE_ID = "profile_id";
     public static final String ARG_DIRECTORIES = "directories";
     public static final String ARG_PAGE_POSITION = "page_position";
+    public static final String ARG_TORRENT_INDEX = "torrent_index";
 
     public static final String DETAIL_FRAGMENT_TAG = "detail_fragment";
 
     public static final String PROFILES_PREF_NAME = "profiles";
+
+    public static final String INTENT_TORRENT_UPDATE = "org.sugr.gearshift.TORRENT_UPDATE";
+    public static final String INTENT_PAGE_UNSELECTED = "org.sugr.gearshift.PAGE_UNSELECTED";
 
     public static final int PROFILES_LOADER_ID = 1;
     public static final int TORRENTS_LOADER_ID = 2;

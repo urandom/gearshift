@@ -3,6 +3,7 @@ package org.sugr.gearshift;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.Loader;
@@ -89,11 +90,10 @@ public class TorrentDetailFragment extends Fragment {
             @Override
             public void onPageSelected(int position) {
                 if (mCurrentPosition != -1) {
-                    TorrentDetailPageFragment fragment
-                        = ((TorrentDetailPagerAdapter) mPager.getAdapter()).getFragment(mPager, mCurrentPosition);
-                    if (fragment != null) {
-                        fragment.onPageUnselected();
-                    }
+                    Intent intent = new Intent(G.INTENT_PAGE_UNSELECTED);
+                    intent.putExtra(G.ARG_TORRENT_INDEX, mCurrentPosition);
+
+                    getActivity().sendBroadcast(intent);
                 }
 
                 mCurrentPosition = position;
@@ -283,8 +283,6 @@ public class TorrentDetailFragment extends Fragment {
             getActivity().invalidateOptionsMenu();
         }
 
-        Torrent[] currentTorrents = ((TransmissionSessionInterface) getActivity()).getCurrentTorrents();
-
         if (mCurrentPosition != -1) {
             int limit = mPager.getOffscreenPageLimit();
             int startPosition = mCurrentPosition - limit;
@@ -292,13 +290,10 @@ public class TorrentDetailFragment extends Fragment {
                 startPosition = 0;
             }
             for (int i = startPosition; i < mCurrentPosition + limit + 1; ++i) {
-                TorrentDetailPageFragment fragment
-                        = ((TorrentDetailPagerAdapter) mPager.getAdapter()).getFragment(mPager, i);
-                if (fragment != null) {
-                    if (currentTorrents.length > i) {
-                        fragment.notifyTorrentUpdate(currentTorrents[i]);
-                    }
-                }
+                Intent intent = new Intent(G.INTENT_TORRENT_UPDATE);
+                intent.putExtra(G.ARG_TORRENT_INDEX, i);
+
+                getActivity().sendBroadcast(intent);
             }
 
         }
