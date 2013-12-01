@@ -1,14 +1,5 @@
 package org.sugr.gearshift;
 
-import java.util.Arrays;
-import java.util.Calendar;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
-import org.sugr.gearshift.TransmissionSessionManager.ManagerException;
-import org.sugr.gearshift.TransmissionSessionManager.TransmissionExclusionStrategy;
-
 import android.app.Dialog;
 import android.app.TimePickerDialog;
 import android.content.Context;
@@ -39,6 +30,14 @@ import android.widget.ScrollView;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.TimePicker;
+
+import org.sugr.gearshift.TransmissionSessionManager.ManagerException;
+
+import java.util.Arrays;
+import java.util.Calendar;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 public class TransmissionSessionActivity extends FragmentActivity {
     private TransmissionProfile mProfile;

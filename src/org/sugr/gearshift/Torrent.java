@@ -9,11 +9,6 @@ import android.text.Spanned;
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.google.gson.annotations.SerializedName;
-
-import org.sugr.gearshift.TransmissionSessionManager.Exclude;
-
-import java.util.List;
 
 @JsonAutoDetect(
     fieldVisibility = JsonAutoDetect.Visibility.NONE,
@@ -22,7 +17,7 @@ import java.util.List;
     isGetterVisibility = JsonAutoDetect.Visibility.PUBLIC_ONLY,
     setterVisibility = JsonAutoDetect.Visibility.NONE)
 public class Torrent implements Parcelable {
-    @Exclude public static final class SetterFields {
+    public static final class SetterFields {
         public static final String DOWNLOAD_LIMIT = "downloadLimit";
         public static final String DOWNLOAD_LIMITED = "downloadLimited";
         public static final String PEER_LIMIT = "peer-limit";
@@ -46,98 +41,98 @@ public class Torrent implements Parcelable {
 
     }
 
-    @Exclude public static final class AddFields {
+    public static final class AddFields {
         public static final String URI = "filename";
         public static final String META = "metainfo";
         public static final String LOCATION = "download-dir";
         public static final String PAUSED = "paused";
     }
 
-    @SerializedName("id") private int mId;
-    @SerializedName("status") private int mStatus = Status.STOPPED;
+    private int mId;
+    private int mStatus = Status.STOPPED;
 
-    @SerializedName("name") private String mName = "";
+    private String mName = "";
 
-    @SerializedName("error") private int mError;
-    @SerializedName("errorString") private String mErrorString;
+    private int mError;
+    private String mErrorString;
 
-    @SerializedName("metadataPercentComplete") private float mMetadataPercentComplete = 0;
+    private float mMetadataPercentComplete = 0;
     /* User selected */
-    @SerializedName("percentDone") private float mPercentDone = 0;
+    private float mPercentDone = 0;
 
-    @SerializedName("eta") private long mEta;
+    private long mEta;
 
-    @SerializedName("isFinished") private boolean mFinished = false;
-    @SerializedName("isStalled") private boolean mStalled = true;
+    private boolean mFinished = false;
+    private boolean mStalled = true;
 
-    @SerializedName("peersConnected") private int mPeersConnected = 0;
-    @SerializedName("peersGettingFromUs") private int mPeersGettingFromUs = 0;
-    @SerializedName("peersSendingToUs") private int mPeersSendingToUs = 0;
+    private int mPeersConnected = 0;
+    private int mPeersGettingFromUs = 0;
+    private int mPeersSendingToUs = 0;
 
     /* In bytes */
-    @SerializedName("leftUntilDone") private long mLeftUntilDone;
+    private long mLeftUntilDone;
     /* 0 .. leftUntilDone */
-    @SerializedName("desiredAvailable")  private long mDesiredAvailable;
+     private long mDesiredAvailable;
 
-    @SerializedName("totalSize") private long mTotalSize;
-    @SerializedName("sizeWhenDone") private long mSizeWhenDone;
+    private long mTotalSize;
+    private long mSizeWhenDone;
 
-    @SerializedName("rateDownload") private long mRateDownload;
-    @SerializedName("rateUpload") private long mRateUpload;
+    private long mRateDownload;
+    private long mRateUpload;
 
-    @SerializedName(SetterFields.QUEUE_POSITION) private int mQueuePosition;
+    private int mQueuePosition;
 
-    @SerializedName("recheckProgress") private float mRecheckProgress;
+    private float mRecheckProgress;
 
-    @SerializedName(SetterFields.SEED_RATIO_MODE) private int mSeedRatioMode;
-    @SerializedName(SetterFields.SEED_RATIO_LIMIT) private float mSeedRatioLimit;
+    private int mSeedRatioMode;
+    private float mSeedRatioLimit;
 
-    @SerializedName("uploadedEver") private long mUploadedEver;
-    @SerializedName("uploadRatio") private float mUploadRatio;
+    private long mUploadedEver;
+    private float mUploadRatio;
 
-    @SerializedName("addedDate") private long mAddedDate = 0;
-    @SerializedName("doneDate") private long mDoneDate;
-    @SerializedName("startDate") private long mStartDate;
-    @SerializedName("activityDate") private long mActivityDate;
+    private long mAddedDate = 0;
+    private long mDoneDate;
+    private long mStartDate;
+    private long mActivityDate;
 
-    @SerializedName("corruptEver") private long mCorruptEver;
+    private long mCorruptEver;
 
-    @SerializedName("downloadDir") private String mDownloadDir;
-    @SerializedName("downloadedEver") private long mDownloadedEver;
+    private String mDownloadDir;
+    private long mDownloadedEver;
 
-    @SerializedName("haveUnchecked") private long mHaveUnchecked;
-    @SerializedName("haveValid") private long mHaveValid;
+    private long mHaveUnchecked;
+    private long mHaveValid;
 
-    @SerializedName("trackers") private Tracker[] mTrackers;
-    @SerializedName("trackerStats") private TrackerStats[] mTrackerStats;
+    private Tracker[] mTrackers;
+    private TrackerStats[] mTrackerStats;
 
-    @SerializedName("comment") private String mComment;
-    @SerializedName("creator") private String mCreator;
-    @SerializedName("dateCreated") private long mDateCreated;
-    @SerializedName("files") private File[] mFiles;
-    @SerializedName("hashString") private String mHashString;
-    @SerializedName("isPrivate") private boolean mPrivate;
-    @SerializedName("pieceCount") private int mPieceCount;
-    @SerializedName("pieceSize") private long mPieceSize;
+    private String mComment;
+    private String mCreator;
+    private long mDateCreated;
+    private File[] mFiles;
+    private String mHashString;
+    private boolean mPrivate;
+    private int mPieceCount;
+    private long mPieceSize;
 
-    @SerializedName(SetterFields.TORRENT_PRIORITY) private int mTorrentPriority;
-    @SerializedName(SetterFields.DOWNLOAD_LIMIT) private long mDownloadLimit;
-    @SerializedName(SetterFields.DOWNLOAD_LIMITED) private boolean mDownloadLimited;
-    @SerializedName("fileStats") private FileStats[] mFileStats;
-    @SerializedName(SetterFields.SESSION_LIMITS) private boolean mHonorsSessionLimits;
-    @SerializedName(SetterFields.UPLOAD_LIMIT) private long mUploadLimit;
-    @SerializedName(SetterFields.UPLOAD_LIMITED) private boolean mUploadLimited;
-    @SerializedName("webseedsSendingToUs") private int mWebseedsSendingToUs;
-    @SerializedName("peers") private Peer[] mPeers;
-    @SerializedName(SetterFields.PEER_LIMIT) private int mPeerLimit;
+    private int mTorrentPriority;
+    private long mDownloadLimit;
+    private boolean mDownloadLimited;
+    private FileStats[] mFileStats;
+    private boolean mHonorsSessionLimits;
+    private long mUploadLimit;
+    private boolean mUploadLimited;
+    private int mWebseedsSendingToUs;
+    private Peer[] mPeers;
+    private int mPeerLimit;
 
-    @Exclude private Spanned mFilteredName;
-    @Exclude private Spanned mTrafficText;
-    @Exclude private Spanned mStatusText;
-    @Exclude private TransmissionSession mSession;
+    private Spanned mFilteredName;
+    private Spanned mTrafficText;
+    private Spanned mStatusText;
+    private TransmissionSession mSession;
 
     // https://github.com/killemov/Shift/blob/master/shift.js#L864
-    @Exclude public static class Status {
+    public static class Status {
         public final static int ALL = -1;
         public final static int STOPPED = 0;
         public final static int CHECK_WAITING = 1;
@@ -148,8 +143,8 @@ public class Torrent implements Parcelable {
         public final static int SEEDING = 6;
     };
 
-    @Exclude private static final int NEW_STATUS_RPC_VERSION = 14;
-    @Exclude public static class OldStatus {
+    private static final int NEW_STATUS_RPC_VERSION = 14;
+    public static class OldStatus {
         public final static int CHECK_WAITING = 1;
         public final static int CHECKING = 2;
         public final static int DOWNLOADING = 4;
@@ -158,26 +153,26 @@ public class Torrent implements Parcelable {
     };
 
     // http://packages.python.org/transmissionrpc/reference/transmissionrpc.html
-    @Exclude public static class SeedRatioMode {
+    public static class SeedRatioMode {
         public final static int GLOBAL_LIMIT = 0;
         public final static int TORRENT_LIMIT = 1;
         public final static int NO_LIMIT = 2;
     }
 
-    @Exclude public static class Error {
+    public static class Error {
         public static final int OK = 0;
         public static final int TRACKER_WARNING = 1;
         public static final int TRACKER_ERROR = 2;
         public static final int LOCAL_ERROR = 3;
     }
 
-    @Exclude public static class Priority {
+    public static class Priority {
         public static final int LOW = -1;
         public static final int NORMAL = 0;
         public static final int HIGH = 1;
     }
 
-    @Exclude public static class Fields {
+    public static class Fields {
         /*
          * commonly used fields which only need to be loaded once, either on
          * startup or when a magnet finishes downloading its metadata finishes
@@ -213,13 +208,13 @@ public class Torrent implements Parcelable {
         };
     };
 
-    @Exclude private static final int SEED = 0x21;
+    private static final int SEED = 0x21;
 
     public static class Tracker {
-        @SerializedName("id") private int mId;
-        @SerializedName("announce") private String mAnnounce;
-        @SerializedName("scrape") private String mScrape;
-        @SerializedName("tier") private int mTier;
+        private int mId;
+        private String mAnnounce;
+        private String mScrape;
+        private int mTier;
 
         @JsonProperty("id") public int getId() {
             return mId;
@@ -255,21 +250,21 @@ public class Torrent implements Parcelable {
     }
 
     public static class TrackerStats {
-        @SerializedName("id") private int mId;
+        private int mId;
 
-        @SerializedName("hasAnnounced") private boolean mAnnounced;
-        @SerializedName("lastAnnounceTime") private long mLastAnnouceTime;
-        @SerializedName("lastAnnounceSucceeded") private boolean mLastAnnouceSucceeded;
-        @SerializedName("lastAnnouncePeerCount") private int mLastAnnoucePeerCount;
-        @SerializedName("lastAnnounceResult") private String mLastAnnouceResult;
+        private boolean mAnnounced;
+        private long mLastAnnounceTime;
+        private boolean mLastAnnounceSucceeded;
+        private int mLastAnnouncePeerCount;
+        private String mLastAnnounceResult;
 
-        @SerializedName("hasScraped") private boolean mScraped;
-        @SerializedName("lastScrapeTime") private long mLastScrapeTime;
-        @SerializedName("lastScrapeSucceeded") private boolean mLastScrapeSucceeded;
-        @SerializedName("lastScrapeResult") private String mLastScrapeResult;
+        private boolean mScraped;
+        private long mLastScrapeTime;
+        private boolean mLastScrapeSucceeded;
+        private String mLastScrapeResult;
 
-        @SerializedName("seederCount") private int mSeederCount;
-        @SerializedName("leecherCount") private int mLeecherCount;
+        private int mSeederCount;
+        private int mLeecherCount;
 
         @JsonProperty("id") public int getId() {
             return mId;
@@ -279,20 +274,20 @@ public class Torrent implements Parcelable {
             return mAnnounced;
         }
 
-        @JsonProperty("lastAnnounceTime") public long getLastAnnouceTime() {
-            return mLastAnnouceTime;
+        @JsonProperty("lastAnnounceTime") public long getLastAnnounceTime() {
+            return mLastAnnounceTime;
         }
 
-        @JsonProperty("lastAnnounceSucceeded") public boolean hasLastAnnouceSucceeded() {
-            return mLastAnnouceSucceeded;
+        @JsonProperty("lastAnnounceSucceeded") public boolean hasLastAnnounceSucceeded() {
+            return mLastAnnounceSucceeded;
         }
 
-        @JsonProperty("lastAnnouncePeerCount") public int getLastAnnoucePeerCount() {
-            return mLastAnnoucePeerCount;
+        @JsonProperty("lastAnnouncePeerCount") public int getLastAnnouncePeerCount() {
+            return mLastAnnouncePeerCount;
         }
 
-        @JsonProperty("lastAnnounceResult") public String getLastAnnouceResult() {
-            return mLastAnnouceResult;
+        @JsonProperty("lastAnnounceResult") public String getLastAnnounceResult() {
+            return mLastAnnounceResult;
         }
 
         @JsonProperty("hasScraped") public boolean hasScraped() {
@@ -319,85 +314,59 @@ public class Torrent implements Parcelable {
             return mLeecherCount;
         }
 
-        public void setId(int mId) {
-            mId = mId;
+        public void setId(int id) {
+            mId = id;
         }
 
-        public void setAnnounced(boolean mAnnounced) {
-            mAnnounced = mAnnounced;
+        public void setAnnounced(boolean announced) {
+            mAnnounced = announced;
         }
 
-        public void setLastAnnouceTime(long mLastAnnouceTime) {
-            mLastAnnouceTime = mLastAnnouceTime;
+        public void setLastAnnounceTime(long time) {
+            mLastAnnounceTime = time;
         }
 
-        public void setLastAnnouceSucceeded(boolean mLastAnnouceSucceeded) {
-            mLastAnnouceSucceeded = mLastAnnouceSucceeded;
+        public void setLastAnnounceSucceeded(boolean succeeded) {
+            mLastAnnounceSucceeded = succeeded;
         }
 
-        public void setLastAnnoucePeerCount(int mLastAnnoucePeerCount) {
-            mLastAnnoucePeerCount = mLastAnnoucePeerCount;
+        public void setLastAnnouncePeerCount(int count) {
+            mLastAnnouncePeerCount = count;
         }
 
-        public void setLastAnnouceResult(String mLastAnnouceResult) {
-            mLastAnnouceResult = mLastAnnouceResult;
+        public void setLastAnnounceResult(String result) {
+            mLastAnnounceResult = result;
         }
 
-        public void setScraped(boolean mScraped) {
-            mScraped = mScraped;
+        public void setScraped(boolean scraped) {
+            mScraped = scraped;
         }
 
-        public void setLastScrapeTime(long mLastScrapeTime) {
-            mLastScrapeTime = mLastScrapeTime;
+        public void setLastScrapeTime(long time) {
+            mLastScrapeTime = time;
         }
 
-        public void setLastScrapeSucceeded(boolean mLastScrapeSucceeded) {
-            mLastScrapeSucceeded = mLastScrapeSucceeded;
+        public void setLastScrapeSucceeded(boolean succeeded) {
+            mLastScrapeSucceeded = succeeded;
         }
 
-        public void setLastScrapeResult(String mLastScrapeResult) {
-            mLastScrapeResult = mLastScrapeResult;
+        public void setLastScrapeResult(String result) {
+            mLastScrapeResult = result;
         }
 
-        public void setSeederCount(int mSeederCount) {
-            mSeederCount = mSeederCount;
+        public void setSeederCount(int count) {
+            mSeederCount = count;
         }
 
-        public void setLeecherCount(int mLeecherCount) {
-            mLeecherCount = mLeecherCount;
-        }
-    }
-
-    @Exclude public static class TrackerReplaceTuple {
-        private List<Integer> ids;
-        private List<String> urls;
-
-        public TrackerReplaceTuple(List<Integer> ids, List<String> urls) {
-            setIds(ids);
-            setUrls(urls);
-        }
-
-        @JsonIgnore public List<Integer> getIds() {
-            return this.ids;
-        }
-
-        @JsonIgnore public List<String> getUrls() {
-            return this.urls;
-        }
-
-        public void setIds(List<Integer> ids) {
-            this.ids = ids;
-        }
-
-        public void setUrls(List<String> urls) {
-            this.urls = urls;
+        public void setLeecherCount(int count) {
+            mLeecherCount = count;
         }
     }
 
     public static class File {
-        @SerializedName("bytesCompleted") private long mBytesCompleted;
-        @SerializedName("length") private long mLength;
-        @SerializedName("name") private String mName;
+        private long mBytesCompleted;
+        private long mLength;
+        private String mName;
 
         @JsonProperty("bytesCompleted") public long getBytesCompleted() {
             return mBytesCompleted;
@@ -425,9 +394,9 @@ public class Torrent implements Parcelable {
     }
 
     public static class FileStats {
-        @SerializedName("bytesCompleted") private long mBytesCompleted;
-        @SerializedName("wanted") private boolean mWanted;
-        @SerializedName("priority") private int mPriority = Priority.NORMAL;
+        private long mBytesCompleted;
+        private boolean mWanted;
+        private int mPriority = Priority.NORMAL;
 
         @JsonProperty("bytesCompleted") public long getBytesCompleted() {
             return mBytesCompleted;
@@ -455,20 +424,20 @@ public class Torrent implements Parcelable {
     }
 
     public static class Peer {
-        @SerializedName("address") private String mAddress;
-        @SerializedName("clientName") private String mClientName;
-        @SerializedName("clientIsChoked") private boolean mClientChoked;
-        @SerializedName("clientIsInterested") private boolean mClientInterested;
-        @SerializedName("isDownloadingFrom") private boolean mDownloadingFrom;
-        @SerializedName("isEncrypted") private boolean mEncrypted;
-        @SerializedName("isIncoming") private boolean mIncoming;
-        @SerializedName("isUploadingTo") private boolean mUploadingTo;
-        @SerializedName("peerIsChoked") private boolean mPeerChoked;
-        @SerializedName("peerIsInterested") private boolean mPeerInterested;
-        @SerializedName("port") private int mPort;
-        @SerializedName("progress") private float mProgress;
-        @SerializedName("rateToClient") private long mRateToClient;
-        @SerializedName("rateToPeer") private long mRateToPeer;
+        private String mAddress;
+        private String mClientName;
+        private boolean mClientChoked;
+        private boolean mClientInterested;
+        private boolean mDownloadingFrom;
+        private boolean mEncrypted;
+        private boolean mIncoming;
+        private boolean mUploadingTo;
+        private boolean mPeerChoked;
+        private boolean mPeerInterested;
+        private int mPort;
+        private float mProgress;
+        private long mRateToClient;
+        private long mRateToPeer;
 
         @JsonProperty("address") public String getAddress() {
             return mAddress;

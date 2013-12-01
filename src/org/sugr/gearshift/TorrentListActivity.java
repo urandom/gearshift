@@ -31,8 +31,6 @@ import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.Toast;
 
-import org.sugr.gearshift.TransmissionSessionManager.TransmissionExclusionStrategy;
-
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;

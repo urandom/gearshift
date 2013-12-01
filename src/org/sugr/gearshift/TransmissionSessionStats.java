@@ -2,7 +2,6 @@ package org.sugr.gearshift;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.google.gson.annotations.SerializedName;
 
 @JsonAutoDetect(
     fieldVisibility = JsonAutoDetect.Visibility.NONE,
@@ -11,21 +10,21 @@ import com.google.gson.annotations.SerializedName;
     isGetterVisibility = JsonAutoDetect.Visibility.PUBLIC_ONLY,
     setterVisibility = JsonAutoDetect.Visibility.NONE)
 public class TransmissionSessionStats {
-    @SerializedName("activeTorrentCount") private int mActiveTorrentCount;
-    @SerializedName("downloadSpeed") private long mDownloadSpeed;
-    @SerializedName("pausedTorrentCount") private int mPausedTorrentCount;
-    @SerializedName("torrentCount") private int mTorrentCount;
-    @SerializedName("uploadSpeed") private long mUploadSpeed;
+    private int mActiveTorrentCount;
+    private long mDownloadSpeed;
+    private int mPausedTorrentCount;
+    private int mTorrentCount;
+    private long mUploadSpeed;
 
-    @SerializedName("cumulative-stats") private Stats mCumulativeStats;
-    @SerializedName("current-stats") private Stats mCurrentStats;
+    private Stats mCumulativeStats;
+    private Stats mCurrentStats;
 
     public static class Stats {
-        @SerializedName("uploadedBytes") private long mUploadedBytes;
-        @SerializedName("downloadedBytes") private long mDownloadedBytes;
-        @SerializedName("filesAdded") private int mFilesAdded;
-        @SerializedName("sessionCount") private int mSessionCount;
-        @SerializedName("secondsActive") private long mSecondsActive;
+        private long mUploadedBytes;
+        private long mDownloadedBytes;
+        private int mFilesAdded;
+        private int mSessionCount;
+        private long mSecondsActive;
 
         @JsonProperty("uploadedBytes") public long getUploadedBytes() {
             return mUploadedBytes;

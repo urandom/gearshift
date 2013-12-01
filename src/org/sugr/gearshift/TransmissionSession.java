@@ -6,9 +6,6 @@ import android.os.Parcelable;
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.google.gson.annotations.SerializedName;
-
-import org.sugr.gearshift.TransmissionSessionManager.Exclude;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -24,7 +21,7 @@ import java.util.Set;
     setterVisibility = JsonAutoDetect.Visibility.NONE)
 public class TransmissionSession implements Parcelable {
     /* TODO: add "idle-seeding-limit" and "idle-seeding-limit-enabled" */
-    @Exclude public static final class SetterFields {
+    public static final class SetterFields {
         public static final String ALT_SPEED_LIMIT_ENABLED = "alt-speed-enabled";
         public static final String ALT_DOWNLOAD_SPEED_LIMIT = "alt-speed-down";
         public static final String ALT_UPLOAD_SPEED_LIMIT = "alt-speed-up";
@@ -67,77 +64,77 @@ public class TransmissionSession implements Parcelable {
         public static final String UPLOAD_SPEED_LIMIT_ENABLED = "speed-limit-up-enabled";
     }
 
-    @SerializedName(SetterFields.ALT_SPEED_LIMIT_ENABLED) private boolean mAltSpeedEnabled;
-    @SerializedName(SetterFields.ALT_DOWNLOAD_SPEED_LIMIT) private long mAltSpeedDown;
-    @SerializedName(SetterFields.ALT_UPLOAD_SPEED_LIMIT) private long mAltSpeedUp;
+    private boolean mAltSpeedEnabled;
+    private long mAltSpeedDown;
+    private long mAltSpeedUp;
 
-    @SerializedName(SetterFields.ALT_SPEED_LIMIT_TIME_ENABLED) private boolean mAltSpeedTimeEnabled;
-    @SerializedName(SetterFields.ALT_SPEED_LIMIT_TIME_BEGIN) private int mAltSpeedTimeBegin;
-    @SerializedName(SetterFields.ALT_SPEED_LIMIT_TIME_END) private int mAltSpeedTimeEnd;
+    private boolean mAltSpeedTimeEnabled;
+    private int mAltSpeedTimeBegin;
+    private int mAltSpeedTimeEnd;
     private int mAltSpeedTimeDay;
 
-    @SerializedName(SetterFields.BLOCKLIST_ENABLED) private boolean mBlocklistEnabled;
-    @SerializedName("blocklist-size") private long mBlocklistSize;
-    @SerializedName(SetterFields.BLOCKLIST_URL) private String mBlocklistURL;
+    private boolean mBlocklistEnabled;
+    private long mBlocklistSize;
+    private String mBlocklistURL;
 
-    @SerializedName(SetterFields.CACHE_SIZE) private long mCacheSize;
+    private long mCacheSize;
     private String mConfigDir;
 
-    @SerializedName(SetterFields.DHT) private boolean mDHTEnabled;
+    private boolean mDHTEnabled;
 
-    @SerializedName(SetterFields.DOWNLOAD_DIR) private String mDownloadDir;
-    @SerializedName("download-dir-free-space") private long mDownloadDirFreeSpace;
+    private String mDownloadDir;
+    private long mDownloadDirFreeSpace;
 
-    @SerializedName(SetterFields.DOWNLOAD_QUEUE_SIZE) private int mDownloadQueueSize;
-    @SerializedName(SetterFields.DOWNLOAD_QUEUE_ENABLED) private boolean mDownloadQueueEnabled;
+    private int mDownloadQueueSize;
+    private boolean mDownloadQueueEnabled;
 
-    @SerializedName(SetterFields.DOWNLOAD_SPEED_LIMIT) private long mSpeedLimitDown;
-    @SerializedName(SetterFields.DOWNLOAD_SPEED_LIMIT_ENABLED) private boolean mSpeedLimitDownEnabled;
+    private long mSpeedLimitDown;
+    private boolean mSpeedLimitDownEnabled;
 
-    @SerializedName(SetterFields.ENCRYPTION) private String mEncryption;
+    private String mEncryption;
 
-    @SerializedName(SetterFields.INCOMPLETE_DIR) private String mIncompleteDir;
-    @SerializedName(SetterFields.INCOMPLETE_DIR_ENABLED) private boolean mIncompleteDirEnabled;
+    private String mIncompleteDir;
+    private boolean mIncompleteDirEnabled;
 
-    @SerializedName(SetterFields.LOCAL_DISCOVERY) private boolean mLPDEnabled;
-    @SerializedName(SetterFields.UTP) private boolean mUTPEnabled;
+    private boolean mLPDEnabled;
+    private boolean mUTPEnabled;
 
-    @SerializedName(SetterFields.GLOBAL_PEER_LIMIT) private int mGlobalPeerLimit;
-    @SerializedName(SetterFields.TORRENT_PEER_LIMIT) private int mTorrentPeerLimit;
+    private int mGlobalPeerLimit;
+    private int mTorrentPeerLimit;
 
-    @SerializedName(SetterFields.PEER_EXCHANGE) private boolean mPEXEnabled;
+    private boolean mPEXEnabled;
 
-    @SerializedName(SetterFields.PEER_PORT) private int mPeerPort;
-    @SerializedName(SetterFields.PORT_FORWARDING) private boolean mPortForwardingEnabled;
-    @SerializedName(SetterFields.RANDOM_PORT) private boolean mPeerPortRandomOnStart;
+    private int mPeerPort;
+    private boolean mPortForwardingEnabled;
+    private boolean mPeerPortRandomOnStart;
 
-    @SerializedName(SetterFields.RENAME_PARTIAL) private boolean mRenamePartial;
+    private boolean mRenamePartial;
 
-    @SerializedName("rpc-version") private int mRPCVersion;
-    @SerializedName("rpc-version-minimum") private int mRPCVersionMin;
+    private int mRPCVersion;
+    private int mRPCVersionMin;
 
-    @SerializedName(SetterFields.DONE_SCRIPT) private String mDoneScript;
-    @SerializedName(SetterFields.DONE_SCRIPT_ENABLED) private boolean mDoneScriptEnabled;
+    private String mDoneScript;
+    private boolean mDoneScriptEnabled;
 
-    @SerializedName(SetterFields.SEED_QUEUE_SIZE) private int mSeedQueueSize;
-    @SerializedName(SetterFields.SEED_QUEUE_ENABLED) private boolean mSeedQueueEnabled;
+    private int mSeedQueueSize;
+    private boolean mSeedQueueEnabled;
 
-    @SerializedName(SetterFields.SEED_RATIO_LIMIT) private float mSeedRatioLimit;
-    @SerializedName(SetterFields.SEED_RATIO_LIMIT_ENABLED) private boolean mSeedRatioLimited;
+    private float mSeedRatioLimit;
+    private boolean mSeedRatioLimited;
 
-    @SerializedName(SetterFields.UPLOAD_SPEED_LIMIT) private long mSpeedLimitUp;
-    @SerializedName(SetterFields.UPLOAD_SPEED_LIMIT_ENABLED) private boolean mSpeedLimitUpEnabled;
+    private long mSpeedLimitUp;
+    private boolean mSpeedLimitUpEnabled;
 
-    @SerializedName(SetterFields.STALLED_QUEUE_SIZE) private int mStalledQueueSize;
-    @SerializedName(SetterFields.STALLED_QUEUE_ENABLED) private boolean mStalledQueueEnabled;
+    private int mStalledQueueSize;
+    private boolean mStalledQueueEnabled;
 
-    @SerializedName(SetterFields.START_ADDED) private boolean mStartAdded;
-    @SerializedName(SetterFields.TRASH_ORIGINAL) private boolean mTrashOriginal;
+    private boolean mStartAdded;
+    private boolean mTrashOriginal;
 
-    @SerializedName("version") private String mVersion;
+    private String mVersion;
 
     // https://trac.transmissionbt.com/browser/trunk/libtransmission/transmission.h - tr_sched_day
-    @Exclude public static class AltSpeedDay {
+    public static class AltSpeedDay {
         public static final int SUN = (1<<0);
         public static final int MON = (1<<1);
         public static final int TUE = (1<<2);
@@ -150,13 +147,13 @@ public class TransmissionSession implements Parcelable {
         public static final int ALL = (WEEKDAY|WEEKEND);
     }
 
-    @Exclude public static class Encryption {
+    public static class Encryption {
         public static final String REQUIRED = "required";
         public static final String PREFERRED = "preferred";
         public static final String TOLERATED = "tolerated";
     }
 
-    @Exclude private Set<String> mDownloadDirectories;
+    private Set<String> mDownloadDirectories;
 
     public TransmissionSession() {
         mDownloadDirectories = new HashSet<String>();
