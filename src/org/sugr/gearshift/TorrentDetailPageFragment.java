@@ -2,10 +2,13 @@ package org.sugr.gearshift;
 
 import android.annotation.TargetApi;
 import android.app.AlertDialog;
+import android.content.BroadcastReceiver;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.database.DataSetObserver;
 import android.os.Build;
 import android.os.Bundle;
@@ -315,6 +318,42 @@ public class TorrentDetailPageFragment extends Fragment {
         }
     };
 
+    private class UpdateReceiver extends BroadcastReceiver {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            int index = intent.getIntExtra(G.ARG_TORRENT_INDEX, -1);
+            if (index != -1) {
+                Torrent[] currentTorrents = ((TransmissionSessionInterface) getActivity()).getCurrentTorrents();
+
+                if (currentTorrents.length > index) {
+                    Torrent torrent = currentTorrents[index];
+                    if (torrent.getId() == mTorrent.getId()) {
+                        G.logD("Updating detail view for '" + torrent.getName() + "'");
+
+                        mTorrent = torrent;
+                        updateFields(getView());
+                    }
+                }
+            }
+        }
+    }
+
+    private UpdateReceiver mUpdateReceiver;
+
+    private class PageUnselectedReceiver extends BroadcastReceiver {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if (mFileActionMode != null) {
+                mFileActionMode.finish();
+            }
+            if (mTrackerActionMode != null) {
+                mTrackerActionMode.finish();
+            }
+        }
+    }
+
+    private PageUnselectedReceiver mPageUnselectedReceiver;
+
     /**
      * Mandatory empty constructor for the fragment manager to instantiate the
      * fragment (e.g. upon screen orientation changes).
@@ -326,6 +365,9 @@ public class TorrentDetailPageFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mExpandedStates[Expanders.OVERVIEW] = true;
+
+        mUpdateReceiver = new UpdateReceiver();
+        mPageUnselectedReceiver = new PageUnselectedReceiver();
 
         if (getArguments().containsKey(G.ARG_PAGE_POSITION)) {
             int position = getArguments().getInt(G.ARG_PAGE_POSITION);
@@ -604,22 +646,20 @@ public class TorrentDetailPageFragment extends Fragment {
         }
     }
 
-    public void notifyTorrentUpdate(Torrent torrent) {
-        if (torrent.getId() != mTorrent.getId()) {
-            return;
-        }
+    @Override
+    public void onResume() {
+        super.onResume();
 
-        mTorrent = torrent;
-        updateFields(getView());
+        getActivity().registerReceiver(mUpdateReceiver, new IntentFilter(G.INTENT_TORRENT_UPDATE));
+        getActivity().registerReceiver(mPageUnselectedReceiver, new IntentFilter(G.INTENT_PAGE_UNSELECTED));
     }
 
-    public void onPageUnselected() {
-        if (mFileActionMode != null) {
-            mFileActionMode.finish();
-        }
-        if (mTrackerActionMode != null) {
-            mTrackerActionMode.finish();
-        }
+    @Override
+    public void onPause() {
+        super.onPause();
+
+        getActivity().unregisterReceiver(mUpdateReceiver);
+        getActivity().unregisterReceiver(mPageUnselectedReceiver);
     }
 
     private void setTorrentProperty(String key, Object value) {

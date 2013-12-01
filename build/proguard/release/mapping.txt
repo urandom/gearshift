@@ -3507,13 +3507,12 @@ org.sugr.gearshift.TorrentDetailFragment -> org.sugr.gearshift.TorrentDetailFrag
     void setCurrentTorrent(int) -> b
     void notifyTorrentListChanged(boolean,boolean,boolean) -> a
     boolean showMoveDialog(int[]) -> a
-    android.support.v4.view.ViewPager access$000(org.sugr.gearshift.TorrentDetailFragment) -> a
-    int access$100(org.sugr.gearshift.TorrentDetailFragment) -> b
-    int access$102(org.sugr.gearshift.TorrentDetailFragment,int) -> a
-    int access$202(org.sugr.gearshift.TorrentDetailFragment,int) -> b
-    org.sugr.gearshift.TorrentDetailFragment$PagerCallbacks access$300(org.sugr.gearshift.TorrentDetailFragment) -> c
-    int[] access$402(org.sugr.gearshift.TorrentDetailFragment,int[]) -> a
-    int access$502(org.sugr.gearshift.TorrentDetailFragment,int) -> c
+    int access$000(org.sugr.gearshift.TorrentDetailFragment) -> a
+    int access$002(org.sugr.gearshift.TorrentDetailFragment,int) -> a
+    int access$102(org.sugr.gearshift.TorrentDetailFragment,int) -> b
+    org.sugr.gearshift.TorrentDetailFragment$PagerCallbacks access$200(org.sugr.gearshift.TorrentDetailFragment) -> b
+    int[] access$302(org.sugr.gearshift.TorrentDetailFragment,int[]) -> a
+    int access$402(org.sugr.gearshift.TorrentDetailFragment,int) -> c
 org.sugr.gearshift.TorrentDetailFragment$1 -> org.sugr.gearshift.v:
     void onPageSelected(int) -> a
 org.sugr.gearshift.TorrentDetailFragment$2 -> org.sugr.gearshift.w:
@@ -3560,11 +3559,13 @@ org.sugr.gearshift.TorrentDetailPageFragment -> org.sugr.gearshift.TorrentDetail
     java.util.Set mSelectedTrackers -> ae
     android.view.ActionMode$Callback mActionModeTrackers -> af
     java.lang.Runnable mLoseFocus -> ag
+    org.sugr.gearshift.TorrentDetailPageFragment$UpdateReceiver mUpdateReceiver -> ah
+    org.sugr.gearshift.TorrentDetailPageFragment$PageUnselectedReceiver mPageUnselectedReceiver -> ai
     void onCreate(android.os.Bundle) -> a
     android.view.View onCreateView(android.view.LayoutInflater,android.view.ViewGroup,android.os.Bundle) -> a
     void onSaveInstanceState(android.os.Bundle) -> e
-    void notifyTorrentUpdate(org.sugr.gearshift.Torrent) -> a
-    void onPageUnselected() -> a
+    void onResume() -> o
+    void onPause() -> p
     void setTorrentProperty(java.lang.String,java.lang.Object) -> a
     void updateFields(android.view.View) -> a
     void invalidateFileActionMenu(android.view.Menu) -> e
@@ -3578,16 +3579,17 @@ org.sugr.gearshift.TorrentDetailPageFragment -> org.sugr.gearshift.TorrentDetail
     android.view.ActionMode access$702(org.sugr.gearshift.TorrentDetailPageFragment,android.view.ActionMode) -> b
     java.util.Set access$800(org.sugr.gearshift.TorrentDetailPageFragment) -> d
     org.sugr.gearshift.TorrentDetailPageFragment$TrackersAdapter access$900(org.sugr.gearshift.TorrentDetailPageFragment) -> e
-    boolean[] access$002(org.sugr.gearshift.TorrentDetailPageFragment,boolean[]) -> a
     org.sugr.gearshift.Torrent access$1000(org.sugr.gearshift.TorrentDetailPageFragment) -> f
-    java.util.List access$1100(org.sugr.gearshift.TorrentDetailPageFragment) -> g
-    java.lang.Runnable access$1200(org.sugr.gearshift.TorrentDetailPageFragment) -> h
+    org.sugr.gearshift.Torrent access$1002(org.sugr.gearshift.TorrentDetailPageFragment,org.sugr.gearshift.Torrent) -> a
+    android.view.ActionMode access$200(org.sugr.gearshift.TorrentDetailPageFragment) -> g
+    android.view.ActionMode access$700(org.sugr.gearshift.TorrentDetailPageFragment) -> h
+    boolean[] access$002(org.sugr.gearshift.TorrentDetailPageFragment,boolean[]) -> a
     java.util.List access$1300(org.sugr.gearshift.TorrentDetailPageFragment) -> i
-    android.view.ActionMode access$200(org.sugr.gearshift.TorrentDetailPageFragment) -> j
-    android.view.ActionMode$Callback access$1600(org.sugr.gearshift.TorrentDetailPageFragment) -> k
-    java.util.List access$1700(org.sugr.gearshift.TorrentDetailPageFragment) -> l
-    android.view.ActionMode access$700(org.sugr.gearshift.TorrentDetailPageFragment) -> m
-    android.view.ActionMode$Callback access$1800(org.sugr.gearshift.TorrentDetailPageFragment) -> n
+    java.lang.Runnable access$1400(org.sugr.gearshift.TorrentDetailPageFragment) -> j
+    java.util.List access$1500(org.sugr.gearshift.TorrentDetailPageFragment) -> k
+    android.view.ActionMode$Callback access$1800(org.sugr.gearshift.TorrentDetailPageFragment) -> l
+    java.util.List access$1900(org.sugr.gearshift.TorrentDetailPageFragment) -> m
+    android.view.ActionMode$Callback access$2000(org.sugr.gearshift.TorrentDetailPageFragment) -> n
 org.sugr.gearshift.TorrentDetailPageFragment$1 -> org.sugr.gearshift.ac:
     org.sugr.gearshift.TorrentDetailPageFragment this$0 -> a
     void onClick(android.view.View) -> onClick
@@ -3682,7 +3684,10 @@ org.sugr.gearshift.TorrentDetailPageFragment$FilesDataSetObserver -> org.sugr.ge
     void onChanged() -> onChanged
     void onInvalidated() -> onInvalidated
     boolean fileChanged(org.sugr.gearshift.TorrentDetailPageFragment$TorrentFile,org.sugr.gearshift.Torrent$File,org.sugr.gearshift.Torrent$FileStats) -> a
-org.sugr.gearshift.TorrentDetailPageFragment$TorrentFile -> org.sugr.gearshift.ay:
+org.sugr.gearshift.TorrentDetailPageFragment$PageUnselectedReceiver -> org.sugr.gearshift.ay:
+    org.sugr.gearshift.TorrentDetailPageFragment this$0 -> a
+    void onReceive(android.content.Context,android.content.Intent) -> onReceive
+org.sugr.gearshift.TorrentDetailPageFragment$TorrentFile -> org.sugr.gearshift.az:
     int index -> a
     org.sugr.gearshift.Torrent$File info -> b
     org.sugr.gearshift.Torrent$FileStats stat -> c
@@ -3692,11 +3697,11 @@ org.sugr.gearshift.TorrentDetailPageFragment$TorrentFile -> org.sugr.gearshift.a
     org.sugr.gearshift.TorrentDetailPageFragment this$0 -> g
     void setInfo(org.sugr.gearshift.Torrent$File) -> a
     void setStat(org.sugr.gearshift.Torrent$FileStats) -> a
-org.sugr.gearshift.TorrentDetailPageFragment$TorrentFileComparator -> org.sugr.gearshift.az:
+org.sugr.gearshift.TorrentDetailPageFragment$TorrentFileComparator -> org.sugr.gearshift.ba:
     org.sugr.gearshift.TorrentDetailPageFragment this$0 -> a
     int compare(org.sugr.gearshift.TorrentDetailPageFragment$TorrentFile,org.sugr.gearshift.TorrentDetailPageFragment$TorrentFile) -> a
     int compare(java.lang.Object,java.lang.Object) -> compare
-org.sugr.gearshift.TorrentDetailPageFragment$Tracker -> org.sugr.gearshift.ba:
+org.sugr.gearshift.TorrentDetailPageFragment$Tracker -> org.sugr.gearshift.bb:
     int index -> a
     java.lang.String host -> b
     int id -> c
@@ -3718,11 +3723,11 @@ org.sugr.gearshift.TorrentDetailPageFragment$Tracker -> org.sugr.gearshift.ba:
     void setInfo(org.sugr.gearshift.Torrent$Tracker) -> a
     void setStat(org.sugr.gearshift.Torrent$TrackerStats) -> a
     void setIndex(int) -> a
-org.sugr.gearshift.TorrentDetailPageFragment$TrackerComparator -> org.sugr.gearshift.bb:
+org.sugr.gearshift.TorrentDetailPageFragment$TrackerComparator -> org.sugr.gearshift.bc:
     org.sugr.gearshift.TorrentDetailPageFragment this$0 -> a
     int compare(org.sugr.gearshift.TorrentDetailPageFragment$Tracker,org.sugr.gearshift.TorrentDetailPageFragment$Tracker) -> a
     int compare(java.lang.Object,java.lang.Object) -> compare
-org.sugr.gearshift.TorrentDetailPageFragment$TrackersAdapter -> org.sugr.gearshift.bc:
+org.sugr.gearshift.TorrentDetailPageFragment$TrackersAdapter -> org.sugr.gearshift.bd:
     java.util.List mViews -> b
     org.sugr.gearshift.TorrentDetailPageFragment this$0 -> a
     java.util.List getViews() -> a
@@ -3731,41 +3736,41 @@ org.sugr.gearshift.TorrentDetailPageFragment$TrackersAdapter -> org.sugr.gearshi
     void hideAllButtons(android.view.View) -> a
     void animateHideButtons(android.view.View) -> b
     void remove(java.lang.Object) -> remove
-    void access$1900(org.sugr.gearshift.TorrentDetailPageFragment$TrackersAdapter,android.view.View) -> a
-    void access$2000(org.sugr.gearshift.TorrentDetailPageFragment$TrackersAdapter,android.view.View) -> b
-org.sugr.gearshift.TorrentDetailPageFragment$TrackersAdapter$1 -> org.sugr.gearshift.bd:
+    void access$2100(org.sugr.gearshift.TorrentDetailPageFragment$TrackersAdapter,android.view.View) -> a
+    void access$2200(org.sugr.gearshift.TorrentDetailPageFragment$TrackersAdapter,android.view.View) -> b
+org.sugr.gearshift.TorrentDetailPageFragment$TrackersAdapter$1 -> org.sugr.gearshift.be:
     org.sugr.gearshift.TorrentDetailPageFragment$TrackersAdapter this$1 -> a
     boolean onLongClick(android.view.View) -> onLongClick
-org.sugr.gearshift.TorrentDetailPageFragment$TrackersAdapter$2 -> org.sugr.gearshift.be:
+org.sugr.gearshift.TorrentDetailPageFragment$TrackersAdapter$2 -> org.sugr.gearshift.bf:
     android.view.View val$buttons -> a
     org.sugr.gearshift.TorrentDetailPageFragment$TrackersAdapter this$1 -> b
     void onClick(android.view.View) -> onClick
-org.sugr.gearshift.TorrentDetailPageFragment$TrackersAdapter$3 -> org.sugr.gearshift.bf:
+org.sugr.gearshift.TorrentDetailPageFragment$TrackersAdapter$3 -> org.sugr.gearshift.bg:
     org.sugr.gearshift.TorrentDetailPageFragment$Tracker val$tracker -> a
     org.sugr.gearshift.TransmissionSessionInterface val$context -> b
     android.support.v4.content.Loader val$loader -> c
     org.sugr.gearshift.TorrentDetailPageFragment$TrackersAdapter this$1 -> d
     void onClick(android.view.View) -> onClick
-org.sugr.gearshift.TorrentDetailPageFragment$TrackersAdapter$4 -> org.sugr.gearshift.bg:
+org.sugr.gearshift.TorrentDetailPageFragment$TrackersAdapter$4 -> org.sugr.gearshift.bh:
     org.sugr.gearshift.TorrentDetailPageFragment$Tracker val$tracker -> a
     org.sugr.gearshift.TransmissionSessionInterface val$context -> b
     android.support.v4.content.Loader val$loader -> c
     org.sugr.gearshift.TorrentDetailPageFragment$TrackersAdapter this$1 -> d
     void onClick(android.view.View) -> onClick
-org.sugr.gearshift.TorrentDetailPageFragment$TrackersAdapter$4$1 -> org.sugr.gearshift.bh:
+org.sugr.gearshift.TorrentDetailPageFragment$TrackersAdapter$4$1 -> org.sugr.gearshift.bi:
     java.util.List val$urls -> a
     java.util.List val$ids -> b
     org.sugr.gearshift.TorrentDetailPageFragment$TrackersAdapter$4 this$2 -> c
     void onClick(android.content.DialogInterface,int) -> onClick
-org.sugr.gearshift.TorrentDetailPageFragment$TrackersAdapter$5 -> org.sugr.gearshift.bi:
+org.sugr.gearshift.TorrentDetailPageFragment$TrackersAdapter$5 -> org.sugr.gearshift.bj:
     org.sugr.gearshift.TorrentDetailPageFragment$Tracker val$tracker -> a
     org.sugr.gearshift.TorrentDetailPageFragment$TrackersAdapter this$1 -> b
     void onClick(android.view.View) -> onClick
-org.sugr.gearshift.TorrentDetailPageFragment$TrackersAdapter$6 -> org.sugr.gearshift.bj:
+org.sugr.gearshift.TorrentDetailPageFragment$TrackersAdapter$6 -> org.sugr.gearshift.bk:
     android.view.View val$v -> a
     org.sugr.gearshift.TorrentDetailPageFragment$TrackersAdapter this$1 -> b
     void run() -> run
-org.sugr.gearshift.TorrentDetailPageFragment$TrackersDataSetObserver -> org.sugr.gearshift.bk:
+org.sugr.gearshift.TorrentDetailPageFragment$TrackersDataSetObserver -> org.sugr.gearshift.bl:
     android.view.View mRoot -> b
     android.widget.LinearLayout mContainer -> c
     org.sugr.gearshift.TorrentDetailPageFragment this$0 -> a
@@ -3773,30 +3778,29 @@ org.sugr.gearshift.TorrentDetailPageFragment$TrackersDataSetObserver -> org.sugr
     void onInvalidated() -> onInvalidated
     boolean trackerChanged(org.sugr.gearshift.TorrentDetailPageFragment$Tracker,org.sugr.gearshift.Torrent$Tracker,org.sugr.gearshift.Torrent$TrackerStats) -> a
     void animateRemoveView(android.view.View) -> a
-    android.widget.LinearLayout access$2100(org.sugr.gearshift.TorrentDetailPageFragment$TrackersDataSetObserver) -> a
-org.sugr.gearshift.TorrentDetailPageFragment$TrackersDataSetObserver$1 -> org.sugr.gearshift.bl:
+    android.widget.LinearLayout access$2300(org.sugr.gearshift.TorrentDetailPageFragment$TrackersDataSetObserver) -> a
+org.sugr.gearshift.TorrentDetailPageFragment$TrackersDataSetObserver$1 -> org.sugr.gearshift.bm:
     android.view.View val$v -> a
     org.sugr.gearshift.TorrentDetailPageFragment$TrackersDataSetObserver this$1 -> b
     void run() -> run
-org.sugr.gearshift.TorrentDetailPagerAdapter -> org.sugr.gearshift.bm:
-    java.util.ArrayList mFragments -> a
-    org.sugr.gearshift.TransmissionSessionInterface mContext -> b
-    android.support.v4.app.FragmentManager mFragmentManager -> c
+org.sugr.gearshift.TorrentDetailPageFragment$UpdateReceiver -> org.sugr.gearshift.bn:
+    org.sugr.gearshift.TorrentDetailPageFragment this$0 -> a
+    void onReceive(android.content.Context,android.content.Intent) -> onReceive
+org.sugr.gearshift.TorrentDetailPagerAdapter -> org.sugr.gearshift.bo:
+    org.sugr.gearshift.TransmissionSessionInterface mContext -> a
     int getCount() -> b
     android.support.v4.app.Fragment getItem(int) -> a
-    void restoreState(android.os.Parcelable,java.lang.ClassLoader) -> a
-    java.util.List getFragments() -> c
 org.sugr.gearshift.TorrentFileReadActivity -> org.sugr.gearshift.TorrentFileReadActivity:
     void onCreate(android.os.Bundle) -> onCreate
-org.sugr.gearshift.TorrentFileReadActivity$1 -> org.sugr.gearshift.bn:
-org.sugr.gearshift.TorrentFileReadActivity$ReadDataAsyncTask -> org.sugr.gearshift.bo:
+org.sugr.gearshift.TorrentFileReadActivity$1 -> org.sugr.gearshift.bp:
+org.sugr.gearshift.TorrentFileReadActivity$ReadDataAsyncTask -> org.sugr.gearshift.bq:
     android.net.Uri mUri -> b
     org.sugr.gearshift.TorrentFileReadActivity this$0 -> a
     org.sugr.gearshift.TorrentFileReadActivity$TaskData doInBackground(android.net.Uri[]) -> a
     void onPostExecute(org.sugr.gearshift.TorrentFileReadActivity$TaskData) -> a
     void onPostExecute(java.lang.Object) -> onPostExecute
     java.lang.Object doInBackground(java.lang.Object[]) -> doInBackground
-org.sugr.gearshift.TorrentFileReadActivity$TaskData -> org.sugr.gearshift.bp:
+org.sugr.gearshift.TorrentFileReadActivity$TaskData -> org.sugr.gearshift.br:
     java.io.File file -> a
     java.lang.String path -> b
     org.sugr.gearshift.TorrentFileReadActivity this$0 -> c
@@ -3839,35 +3843,35 @@ org.sugr.gearshift.TorrentListActivity -> org.sugr.gearshift.TorrentListActivity
     boolean access$102(org.sugr.gearshift.TorrentListActivity,boolean) -> a
     boolean access$202(org.sugr.gearshift.TorrentListActivity,boolean) -> b
     int access$302(org.sugr.gearshift.TorrentListActivity,int) -> a
-org.sugr.gearshift.TorrentListActivity$1 -> org.sugr.gearshift.bq:
+org.sugr.gearshift.TorrentListActivity$1 -> org.sugr.gearshift.bs:
     org.sugr.gearshift.TorrentListActivity this$0 -> a
     void onAnimationStart(android.animation.Animator) -> onAnimationStart
     void onAnimationRepeat(android.animation.Animator) -> onAnimationRepeat
     void onAnimationEnd(android.animation.Animator) -> onAnimationEnd
     void onAnimationCancel(android.animation.Animator) -> onAnimationCancel
-org.sugr.gearshift.TorrentListActivity$1$1 -> org.sugr.gearshift.br:
+org.sugr.gearshift.TorrentListActivity$1$1 -> org.sugr.gearshift.bt:
     org.sugr.gearshift.TorrentListActivity$1 this$1 -> a
     void run() -> run
-org.sugr.gearshift.TorrentListActivity$2 -> org.sugr.gearshift.bs:
+org.sugr.gearshift.TorrentListActivity$2 -> org.sugr.gearshift.bu:
     android.view.View val$detailPanel -> a
     android.widget.LinearLayout val$slidingLayout -> b
     org.sugr.gearshift.TorrentListActivity this$0 -> c
     void onAnimationUpdate(android.animation.ValueAnimator) -> onAnimationUpdate
-org.sugr.gearshift.TorrentListActivity$3 -> org.sugr.gearshift.bt:
+org.sugr.gearshift.TorrentListActivity$3 -> org.sugr.gearshift.bv:
     org.sugr.gearshift.TorrentListActivity this$0 -> a
-org.sugr.gearshift.TorrentListActivity$4 -> org.sugr.gearshift.bu:
+org.sugr.gearshift.TorrentListActivity$4 -> org.sugr.gearshift.bw:
     org.sugr.gearshift.TorrentListActivity this$0 -> a
     void onClick(android.content.DialogInterface,int) -> onClick
-org.sugr.gearshift.TorrentListActivity$5 -> org.sugr.gearshift.bv:
+org.sugr.gearshift.TorrentListActivity$5 -> org.sugr.gearshift.bx:
     org.sugr.gearshift.TorrentListActivity this$0 -> a
     void onItemSelected(android.widget.AdapterView,android.view.View,int,long) -> onItemSelected
     void onNothingSelected(android.widget.AdapterView) -> onNothingSelected
-org.sugr.gearshift.TorrentListActivity$6 -> org.sugr.gearshift.bw:
+org.sugr.gearshift.TorrentListActivity$6 -> org.sugr.gearshift.by:
     android.support.v4.content.Loader val$loader -> a
     android.net.Uri val$data -> b
     org.sugr.gearshift.TorrentListActivity this$0 -> c
     void onClick(android.content.DialogInterface,int) -> onClick
-org.sugr.gearshift.TorrentListActivity$7 -> org.sugr.gearshift.bx:
+org.sugr.gearshift.TorrentListActivity$7 -> org.sugr.gearshift.bz:
     java.lang.String val$fileURI -> a
     java.lang.String val$filePath -> b
     android.widget.CheckBox val$deleteLocal -> c
@@ -3953,38 +3957,38 @@ org.sugr.gearshift.TorrentListFragment -> org.sugr.gearshift.TorrentListFragment
     android.content.SharedPreferences access$1800(org.sugr.gearshift.TorrentListFragment) -> o
     boolean access$2700(org.sugr.gearshift.TorrentListFragment) -> p
     boolean access$2702(org.sugr.gearshift.TorrentListFragment,boolean) -> e
-org.sugr.gearshift.TorrentListFragment$1 -> org.sugr.gearshift.by:
+org.sugr.gearshift.TorrentListFragment$1 -> org.sugr.gearshift.ca:
     void onItemSelected(org.sugr.gearshift.Torrent) -> a
-org.sugr.gearshift.TorrentListFragment$10 -> org.sugr.gearshift.bz:
+org.sugr.gearshift.TorrentListFragment$10 -> org.sugr.gearshift.cb:
     android.widget.ListView val$list -> a
     org.sugr.gearshift.TorrentListFragment this$0 -> b
     boolean onItemLongClick(android.widget.AdapterView,android.view.View,int,long) -> onItemLongClick
-org.sugr.gearshift.TorrentListFragment$11 -> org.sugr.gearshift.ca:
+org.sugr.gearshift.TorrentListFragment$11 -> org.sugr.gearshift.cc:
     org.sugr.gearshift.TorrentListFragment this$0 -> a
     boolean onMenuItemActionExpand(android.view.MenuItem) -> onMenuItemActionExpand
     boolean onMenuItemActionCollapse(android.view.MenuItem) -> onMenuItemActionCollapse
-org.sugr.gearshift.TorrentListFragment$12 -> org.sugr.gearshift.cb:
+org.sugr.gearshift.TorrentListFragment$12 -> org.sugr.gearshift.cd:
     org.sugr.gearshift.TorrentListFragment this$0 -> a
     boolean onQueryTextSubmit(java.lang.String) -> onQueryTextSubmit
     boolean onQueryTextChange(java.lang.String) -> onQueryTextChange
-org.sugr.gearshift.TorrentListFragment$13 -> org.sugr.gearshift.cc:
+org.sugr.gearshift.TorrentListFragment$13 -> org.sugr.gearshift.ce:
     android.support.v4.content.Loader val$loader -> a
     int[] val$ids -> b
     org.sugr.gearshift.TorrentListFragment this$0 -> c
     void onClick(android.content.DialogInterface,int) -> onClick
-org.sugr.gearshift.TorrentListFragment$2 -> org.sugr.gearshift.cd:
+org.sugr.gearshift.TorrentListFragment$2 -> org.sugr.gearshift.cf:
     org.sugr.gearshift.TorrentListFragment this$0 -> a
     android.support.v4.content.Loader onCreateLoader(int,android.os.Bundle) -> a
     void onLoadFinished(android.support.v4.content.Loader,org.sugr.gearshift.TransmissionProfile[]) -> a
     void onLoaderReset(android.support.v4.content.Loader) -> a
     void onLoadFinished(android.support.v4.content.Loader,java.lang.Object) -> a
-org.sugr.gearshift.TorrentListFragment$3 -> org.sugr.gearshift.ce:
+org.sugr.gearshift.TorrentListFragment$3 -> org.sugr.gearshift.cg:
     org.sugr.gearshift.TorrentListFragment this$0 -> a
     android.support.v4.content.Loader onCreateLoader(int,android.os.Bundle) -> a
     void onLoadFinished(android.support.v4.content.Loader,org.sugr.gearshift.TransmissionData) -> a
     void onLoaderReset(android.support.v4.content.Loader) -> a
     void onLoadFinished(android.support.v4.content.Loader,java.lang.Object) -> a
-org.sugr.gearshift.TorrentListFragment$4 -> org.sugr.gearshift.cf:
+org.sugr.gearshift.TorrentListFragment$4 -> org.sugr.gearshift.ch:
     java.util.HashSet mSelectedTorrentIds -> b
     boolean hasQueued -> c
     org.sugr.gearshift.TorrentListFragment this$0 -> a
@@ -3993,35 +3997,35 @@ org.sugr.gearshift.TorrentListFragment$4 -> org.sugr.gearshift.cf:
     void onDestroyActionMode(android.view.ActionMode) -> onDestroyActionMode
     boolean onPrepareActionMode(android.view.ActionMode,android.view.Menu) -> onPrepareActionMode
     void onItemCheckedStateChanged(android.view.ActionMode,int,long,boolean) -> onItemCheckedStateChanged
-org.sugr.gearshift.TorrentListFragment$4$1 -> org.sugr.gearshift.cg:
+org.sugr.gearshift.TorrentListFragment$4$1 -> org.sugr.gearshift.ci:
     android.support.v4.content.Loader val$loader -> a
     int[] val$ids -> b
     android.view.MenuItem val$item -> c
     android.view.ActionMode val$mode -> d
     org.sugr.gearshift.TorrentListFragment$4 this$1 -> e
     void onClick(android.content.DialogInterface,int) -> onClick
-org.sugr.gearshift.TorrentListFragment$5 -> org.sugr.gearshift.ch:
+org.sugr.gearshift.TorrentListFragment$5 -> org.sugr.gearshift.cj:
     org.sugr.gearshift.TorrentListFragment this$0 -> a
     void onSharedPreferenceChanged(android.content.SharedPreferences,java.lang.String) -> onSharedPreferenceChanged
-org.sugr.gearshift.TorrentListFragment$6 -> org.sugr.gearshift.ci:
+org.sugr.gearshift.TorrentListFragment$6 -> org.sugr.gearshift.ck:
     org.sugr.gearshift.TorrentListFragment this$0 -> a
     void onSharedPreferenceChanged(android.content.SharedPreferences,java.lang.String) -> onSharedPreferenceChanged
-org.sugr.gearshift.TorrentListFragment$7 -> org.sugr.gearshift.cj:
+org.sugr.gearshift.TorrentListFragment$7 -> org.sugr.gearshift.cl:
     org.sugr.gearshift.TorrentListFragment this$0 -> a
     void run() -> run
-org.sugr.gearshift.TorrentListFragment$8 -> org.sugr.gearshift.ck:
+org.sugr.gearshift.TorrentListFragment$8 -> org.sugr.gearshift.cm:
     org.sugr.gearshift.TorrentListFragment this$0 -> a
     boolean onNavigationItemSelected(int,long) -> onNavigationItemSelected
-org.sugr.gearshift.TorrentListFragment$9 -> org.sugr.gearshift.cl:
+org.sugr.gearshift.TorrentListFragment$9 -> org.sugr.gearshift.cn:
     android.os.Bundle val$savedInstanceState -> a
     org.sugr.gearshift.TorrentListFragment this$0 -> b
     void run() -> run
-org.sugr.gearshift.TorrentListFragment$Callbacks -> org.sugr.gearshift.cm:
+org.sugr.gearshift.TorrentListFragment$Callbacks -> org.sugr.gearshift.co:
     void onItemSelected(org.sugr.gearshift.Torrent) -> a
-org.sugr.gearshift.TorrentListFragment$Expecting -> org.sugr.gearshift.cn:
+org.sugr.gearshift.TorrentListFragment$Expecting -> org.sugr.gearshift.cp:
     int ALT_SPEED_ON -> a
     int ALT_SPEED_OFF -> b
-org.sugr.gearshift.TorrentListFragment$TorrentListAdapter -> org.sugr.gearshift.co:
+org.sugr.gearshift.TorrentListFragment$TorrentListAdapter -> org.sugr.gearshift.cq:
     java.lang.Object mLock -> b
     java.util.ArrayList mObjects -> c
     java.util.ArrayList mOriginalValues -> d
@@ -4069,11 +4073,11 @@ org.sugr.gearshift.TorrentListFragment$TorrentListAdapter -> org.sugr.gearshift.
     java.lang.String access$2500(org.sugr.gearshift.TorrentListFragment$TorrentListAdapter) -> f
     org.sugr.gearshift.TorrentComparator access$2600(org.sugr.gearshift.TorrentListFragment$TorrentListAdapter) -> g
     java.util.ArrayList access$2202(org.sugr.gearshift.TorrentListFragment$TorrentListAdapter,java.util.ArrayList) -> b
-org.sugr.gearshift.TorrentListFragment$TorrentListAdapter$TorrentFilter -> org.sugr.gearshift.cp:
+org.sugr.gearshift.TorrentListFragment$TorrentListAdapter$TorrentFilter -> org.sugr.gearshift.cr:
     org.sugr.gearshift.TorrentListFragment$TorrentListAdapter this$1 -> a
     android.widget.Filter$FilterResults performFiltering(java.lang.CharSequence) -> performFiltering
     void publishResults(java.lang.CharSequence,android.widget.Filter$FilterResults) -> publishResults
-org.sugr.gearshift.TorrentListFragment$TransmissionProfileListAdapter -> org.sugr.gearshift.cq:
+org.sugr.gearshift.TorrentListFragment$TransmissionProfileListAdapter -> org.sugr.gearshift.cs:
     org.sugr.gearshift.TransmissionProfile EMPTY_PROFILE -> a
     android.view.View getView(int,android.view.View,android.view.ViewGroup) -> getView
     android.view.View getDropDownView(int,android.view.View,android.view.ViewGroup) -> getDropDownView
@@ -4110,20 +4114,20 @@ org.sugr.gearshift.TorrentListMenuFragment -> org.sugr.gearshift.TorrentListMenu
     android.view.View access$200(org.sugr.gearshift.TorrentListMenuFragment) -> b
     void access$300(org.sugr.gearshift.TorrentListMenuFragment,int) -> a
     java.util.HashMap access$400(org.sugr.gearshift.TorrentListMenuFragment) -> c
-org.sugr.gearshift.TorrentListMenuFragment$1 -> org.sugr.gearshift.cr:
+org.sugr.gearshift.TorrentListMenuFragment$1 -> org.sugr.gearshift.ct:
     org.sugr.gearshift.TorrentListMenuFragment this$0 -> a
     void run() -> run
-org.sugr.gearshift.TorrentListMenuFragment$2 -> org.sugr.gearshift.cs:
+org.sugr.gearshift.TorrentListMenuFragment$2 -> org.sugr.gearshift.cu:
     org.sugr.gearshift.TorrentListMenuFragment this$0 -> a
     void onSharedPreferenceChanged(android.content.SharedPreferences,java.lang.String) -> onSharedPreferenceChanged
-org.sugr.gearshift.TorrentListMenuFragment$3 -> org.sugr.gearshift.ct:
+org.sugr.gearshift.TorrentListMenuFragment$3 -> org.sugr.gearshift.cv:
     org.sugr.gearshift.TorrentListMenuFragment this$0 -> a
     void onItemClick(android.widget.AdapterView,android.view.View,int,long) -> onItemClick
-org.sugr.gearshift.TorrentListMenuFragment$4 -> org.sugr.gearshift.cu:
+org.sugr.gearshift.TorrentListMenuFragment$4 -> org.sugr.gearshift.cw:
     int[] $SwitchMap$org$sugr$gearshift$TorrentListMenuFragment$Type -> a
     int[] $SwitchMap$org$sugr$gearshift$G$FilterBy -> b
     int[] $SwitchMap$org$sugr$gearshift$G$SortBy -> c
-org.sugr.gearshift.TorrentListMenuFragment$FilterAdapter -> org.sugr.gearshift.cv:
+org.sugr.gearshift.TorrentListMenuFragment$FilterAdapter -> org.sugr.gearshift.cx:
     android.view.LayoutInflater mInflater -> a
     int getItemViewType(int) -> getItemViewType
     boolean areAllItemsEnabled() -> areAllItemsEnabled
@@ -4131,7 +4135,7 @@ org.sugr.gearshift.TorrentListMenuFragment$FilterAdapter -> org.sugr.gearshift.c
     int getViewTypeCount() -> getViewTypeCount
     boolean hasStableIds() -> hasStableIds
     android.view.View getView(int,android.view.View,android.view.ViewGroup) -> getView
-org.sugr.gearshift.TorrentListMenuFragment$ListItem -> org.sugr.gearshift.cw:
+org.sugr.gearshift.TorrentListMenuFragment$ListItem -> org.sugr.gearshift.cy:
     org.sugr.gearshift.TorrentListMenuFragment$Type mType -> b
     java.lang.Enum mValue -> c
     java.lang.String mValueString -> d
@@ -4143,7 +4147,7 @@ org.sugr.gearshift.TorrentListMenuFragment$ListItem -> org.sugr.gearshift.cw:
     java.lang.String getValueString() -> c
     java.lang.String getLabel() -> d
     java.lang.String getPreferenceKey() -> e
-org.sugr.gearshift.TorrentListMenuFragment$Type -> org.sugr.gearshift.cx:
+org.sugr.gearshift.TorrentListMenuFragment$Type -> org.sugr.gearshift.cz:
     org.sugr.gearshift.TorrentListMenuFragment$Type FIND -> a
     org.sugr.gearshift.TorrentListMenuFragment$Type FILTER -> b
     org.sugr.gearshift.TorrentListMenuFragment$Type DIRECTORY -> c
@@ -4154,7 +4158,7 @@ org.sugr.gearshift.TorrentListMenuFragment$Type -> org.sugr.gearshift.cx:
     org.sugr.gearshift.TorrentListMenuFragment$Type[] $VALUES -> h
     org.sugr.gearshift.TorrentListMenuFragment$Type[] values() -> values
     org.sugr.gearshift.TorrentListMenuFragment$Type valueOf(java.lang.String) -> valueOf
-org.sugr.gearshift.TransmissionData -> org.sugr.gearshift.cy:
+org.sugr.gearshift.TransmissionData -> org.sugr.gearshift.da:
     org.sugr.gearshift.TransmissionSession session -> a
     org.sugr.gearshift.TransmissionSessionStats stats -> b
     java.util.ArrayList torrents -> c
@@ -4163,7 +4167,7 @@ org.sugr.gearshift.TransmissionData -> org.sugr.gearshift.cy:
     boolean hasAdded -> f
     boolean hasStatusChanged -> g
     boolean hasMetadataNeeded -> h
-org.sugr.gearshift.TransmissionDataLoader -> org.sugr.gearshift.cz:
+org.sugr.gearshift.TransmissionDataLoader -> org.sugr.gearshift.db:
     android.util.SparseArray mTorrentMap -> n
     org.sugr.gearshift.TransmissionProfile mProfile -> o
     org.sugr.gearshift.TransmissionSession mSession -> p
@@ -4225,43 +4229,38 @@ org.sugr.gearshift.TransmissionDataLoader -> org.sugr.gearshift.cz:
     org.sugr.gearshift.TransmissionSession access$302(org.sugr.gearshift.TransmissionDataLoader,org.sugr.gearshift.TransmissionSession) -> a
     java.lang.String[] access$402(org.sugr.gearshift.TransmissionDataLoader,java.lang.String[]) -> a
     org.sugr.gearshift.TransmissionSession access$602(org.sugr.gearshift.TransmissionDataLoader,org.sugr.gearshift.TransmissionSession) -> b
-    org.sugr.gearshift.TransmissionSessionStats access$702(org.sugr.gearshift.TransmissionDataLoader,org.sugr.gearshift.TransmissionSessionStats) -> a
-    java.lang.String access$800(org.sugr.gearshift.TransmissionDataLoader) -> g
-    java.lang.String access$900(org.sugr.gearshift.TransmissionDataLoader) -> h
-    java.lang.String access$1000(org.sugr.gearshift.TransmissionDataLoader) -> i
-    boolean access$1100(org.sugr.gearshift.TransmissionDataLoader) -> j
-    int access$1202(org.sugr.gearshift.TransmissionDataLoader,int) -> a
-    android.util.SparseArray access$1300(org.sugr.gearshift.TransmissionDataLoader) -> k
-    java.lang.String access$1400(org.sugr.gearshift.TransmissionDataLoader) -> l
-    java.lang.String access$802(org.sugr.gearshift.TransmissionDataLoader,java.lang.String) -> a
-    java.lang.String access$902(org.sugr.gearshift.TransmissionDataLoader,java.lang.String) -> b
-    java.lang.String access$1402(org.sugr.gearshift.TransmissionDataLoader,java.lang.String) -> c
+    java.lang.String access$700(org.sugr.gearshift.TransmissionDataLoader) -> g
+    java.lang.String access$800(org.sugr.gearshift.TransmissionDataLoader) -> h
+    java.lang.String access$900(org.sugr.gearshift.TransmissionDataLoader) -> i
+    boolean access$1000(org.sugr.gearshift.TransmissionDataLoader) -> j
+    int access$1102(org.sugr.gearshift.TransmissionDataLoader,int) -> a
+    android.util.SparseArray access$1200(org.sugr.gearshift.TransmissionDataLoader) -> k
+    java.lang.String access$1300(org.sugr.gearshift.TransmissionDataLoader) -> l
+    java.lang.String access$702(org.sugr.gearshift.TransmissionDataLoader,java.lang.String) -> a
+    java.lang.String access$802(org.sugr.gearshift.TransmissionDataLoader,java.lang.String) -> b
+    java.lang.String access$1302(org.sugr.gearshift.TransmissionDataLoader,java.lang.String) -> c
     org.sugr.gearshift.TransmissionSession access$600(org.sugr.gearshift.TransmissionDataLoader) -> m
-    org.sugr.gearshift.TransmissionData access$1500(org.sugr.gearshift.TransmissionDataLoader,int[],java.lang.String,java.lang.String,java.lang.String,java.lang.Object,boolean,boolean) -> a
-org.sugr.gearshift.TransmissionDataLoader$1 -> org.sugr.gearshift.da:
+    org.sugr.gearshift.TransmissionData access$1400(org.sugr.gearshift.TransmissionDataLoader,int[],java.lang.String,java.lang.String,java.lang.String,java.lang.Object,boolean,boolean) -> a
+org.sugr.gearshift.TransmissionDataLoader$1 -> org.sugr.gearshift.dc:
     org.sugr.gearshift.TransmissionDataLoader this$0 -> a
     void run() -> run
-org.sugr.gearshift.TransmissionDataLoader$2 -> org.sugr.gearshift.db:
+org.sugr.gearshift.TransmissionDataLoader$2 -> org.sugr.gearshift.dd:
     java.util.ArrayList val$exceptions -> a
     org.sugr.gearshift.TransmissionDataLoader this$0 -> b
     void run() -> run
-org.sugr.gearshift.TransmissionDataLoader$3 -> org.sugr.gearshift.dc:
+org.sugr.gearshift.TransmissionDataLoader$3 -> org.sugr.gearshift.de:
     java.util.ArrayList val$exceptions -> a
     org.sugr.gearshift.TransmissionDataLoader this$0 -> b
     void run() -> run
-org.sugr.gearshift.TransmissionDataLoader$4 -> org.sugr.gearshift.dd:
+org.sugr.gearshift.TransmissionDataLoader$4 -> org.sugr.gearshift.df:
     java.util.ArrayList val$exceptions -> a
     org.sugr.gearshift.TransmissionDataLoader this$0 -> b
     void run() -> run
-org.sugr.gearshift.TransmissionDataLoader$5 -> org.sugr.gearshift.de:
+org.sugr.gearshift.TransmissionDataLoader$5 -> org.sugr.gearshift.dg:
     java.util.ArrayList val$exceptions -> a
     org.sugr.gearshift.TransmissionDataLoader this$0 -> b
     void run() -> run
-org.sugr.gearshift.TransmissionDataLoader$6 -> org.sugr.gearshift.df:
-    java.util.ArrayList val$exceptions -> a
-    org.sugr.gearshift.TransmissionDataLoader this$0 -> b
-    void run() -> run
-org.sugr.gearshift.TransmissionDataLoader$TorrentActionRunnable -> org.sugr.gearshift.dg:
+org.sugr.gearshift.TransmissionDataLoader$TorrentActionRunnable -> org.sugr.gearshift.dh:
     java.lang.String action -> b
     java.lang.String location -> c
     java.lang.String setKey -> d
@@ -4318,7 +4317,7 @@ org.sugr.gearshift.TransmissionProfile -> org.sugr.gearshift.TransmissionProfile
     android.content.SharedPreferences getLegacyPreferences(android.content.Context) -> f
     java.lang.String getPrefName(java.lang.String,boolean,boolean) -> a
     int compareTo(java.lang.Object) -> compareTo
-org.sugr.gearshift.TransmissionProfile$1 -> org.sugr.gearshift.dh:
+org.sugr.gearshift.TransmissionProfile$1 -> org.sugr.gearshift.di:
     org.sugr.gearshift.TransmissionProfile createFromParcel(android.os.Parcel) -> a
     org.sugr.gearshift.TransmissionProfile[] newArray(int) -> a
     java.lang.Object[] newArray(int) -> newArray
@@ -4347,15 +4346,15 @@ org.sugr.gearshift.TransmissionProfileDirectoriesSettingsFragment -> org.sugr.ge
     android.widget.ArrayAdapter access$100(org.sugr.gearshift.TransmissionProfileDirectoriesSettingsFragment) -> a
     java.util.Set access$300(org.sugr.gearshift.TransmissionProfileDirectoriesSettingsFragment) -> b
     void access$400(org.sugr.gearshift.TransmissionProfileDirectoriesSettingsFragment) -> c
-org.sugr.gearshift.TransmissionProfileDirectoriesSettingsFragment$1 -> org.sugr.gearshift.di:
+org.sugr.gearshift.TransmissionProfileDirectoriesSettingsFragment$1 -> org.sugr.gearshift.dj:
     org.sugr.gearshift.TransmissionProfileDirectoriesSettingsFragment this$0 -> a
     int compare(java.lang.String,java.lang.String) -> a
     int compare(java.lang.Object,java.lang.Object) -> compare
-org.sugr.gearshift.TransmissionProfileDirectoriesSettingsFragment$2 -> org.sugr.gearshift.dj:
+org.sugr.gearshift.TransmissionProfileDirectoriesSettingsFragment$2 -> org.sugr.gearshift.dk:
     android.widget.ListView val$list -> a
     org.sugr.gearshift.TransmissionProfileDirectoriesSettingsFragment this$0 -> b
     boolean onItemLongClick(android.widget.AdapterView,android.view.View,int,long) -> onItemLongClick
-org.sugr.gearshift.TransmissionProfileDirectoriesSettingsFragment$3 -> org.sugr.gearshift.dk:
+org.sugr.gearshift.TransmissionProfileDirectoriesSettingsFragment$3 -> org.sugr.gearshift.dl:
     java.util.Set mSelectedDirectories -> b
     org.sugr.gearshift.TransmissionProfileDirectoriesSettingsFragment this$0 -> a
     boolean onCreateActionMode(android.view.ActionMode,android.view.Menu) -> onCreateActionMode
@@ -4364,22 +4363,22 @@ org.sugr.gearshift.TransmissionProfileDirectoriesSettingsFragment$3 -> org.sugr.
     void onDestroyActionMode(android.view.ActionMode) -> onDestroyActionMode
     void onItemCheckedStateChanged(android.view.ActionMode,int,long,boolean) -> onItemCheckedStateChanged
     java.util.Set access$200(org.sugr.gearshift.TransmissionProfileDirectoriesSettingsFragment$3) -> a
-org.sugr.gearshift.TransmissionProfileDirectoriesSettingsFragment$3$1 -> org.sugr.gearshift.dl:
+org.sugr.gearshift.TransmissionProfileDirectoriesSettingsFragment$3$1 -> org.sugr.gearshift.dm:
     android.view.ActionMode val$mode -> a
     org.sugr.gearshift.TransmissionProfileDirectoriesSettingsFragment$3 this$1 -> b
     void onClick(android.content.DialogInterface,int) -> onClick
-org.sugr.gearshift.TransmissionProfileDirectoriesSettingsFragment$4 -> org.sugr.gearshift.dm:
+org.sugr.gearshift.TransmissionProfileDirectoriesSettingsFragment$4 -> org.sugr.gearshift.dn:
     org.sugr.gearshift.TransmissionProfileDirectoriesSettingsFragment this$0 -> a
     void onClick(android.content.DialogInterface,int) -> onClick
-org.sugr.gearshift.TransmissionProfileDirectoriesSettingsFragment$5 -> org.sugr.gearshift.dn:
+org.sugr.gearshift.TransmissionProfileDirectoriesSettingsFragment$5 -> org.sugr.gearshift.do:
     java.lang.String val$directory -> a
     org.sugr.gearshift.TransmissionProfileDirectoriesSettingsFragment this$0 -> b
     void onClick(android.content.DialogInterface,int) -> onClick
-org.sugr.gearshift.TransmissionProfileDirectoryAdapter -> org.sugr.gearshift.do:
+org.sugr.gearshift.TransmissionProfileDirectoryAdapter -> org.sugr.gearshift.dp:
     android.view.View getView(int,android.view.View,android.view.ViewGroup) -> getView
     android.view.View getDropDownView(int,android.view.View,android.view.ViewGroup) -> getDropDownView
     void sort() -> a
-org.sugr.gearshift.TransmissionProfileLoader -> org.sugr.gearshift.dp:
+org.sugr.gearshift.TransmissionProfileLoader -> org.sugr.gearshift.dq:
     org.sugr.gearshift.TransmissionProfile[] mProfiles -> a
     android.content.SharedPreferences$OnSharedPreferenceChangeListener mListener -> b
     android.content.SharedPreferences$OnSharedPreferenceChangeListener mDefaultListener -> c
@@ -4393,10 +4392,10 @@ org.sugr.gearshift.TransmissionProfileLoader -> org.sugr.gearshift.dp:
     java.lang.Object loadInBackground() -> loadInBackground
     void onCanceled(java.lang.Object) -> onCanceled
     void deliverResult(java.lang.Object) -> deliverResult
-org.sugr.gearshift.TransmissionProfileLoader$1 -> org.sugr.gearshift.dq:
+org.sugr.gearshift.TransmissionProfileLoader$1 -> org.sugr.gearshift.dr:
     org.sugr.gearshift.TransmissionProfileLoader this$0 -> a
     void onSharedPreferenceChanged(android.content.SharedPreferences,java.lang.String) -> onSharedPreferenceChanged
-org.sugr.gearshift.TransmissionProfileLoader$2 -> org.sugr.gearshift.dr:
+org.sugr.gearshift.TransmissionProfileLoader$2 -> org.sugr.gearshift.ds:
     org.sugr.gearshift.TransmissionProfileLoader this$0 -> a
     void onSharedPreferenceChanged(android.content.SharedPreferences,java.lang.String) -> onSharedPreferenceChanged
 org.sugr.gearshift.TransmissionProfileSettingsFragment -> org.sugr.gearshift.TransmissionProfileSettingsFragment:
@@ -4409,10 +4408,10 @@ org.sugr.gearshift.TransmissionProfileSettingsFragment -> org.sugr.gearshift.Tra
     boolean onOptionsItemSelected(android.view.MenuItem) -> onOptionsItemSelected
     void onDestroy() -> onDestroy
     boolean access$002(org.sugr.gearshift.TransmissionProfileSettingsFragment,boolean) -> a
-org.sugr.gearshift.TransmissionProfileSettingsFragment$1 -> org.sugr.gearshift.ds:
+org.sugr.gearshift.TransmissionProfileSettingsFragment$1 -> org.sugr.gearshift.dt:
     org.sugr.gearshift.TransmissionProfileSettingsFragment this$0 -> a
     void onClick(android.view.View) -> onClick
-org.sugr.gearshift.TransmissionProfileSupportLoader -> org.sugr.gearshift.dt:
+org.sugr.gearshift.TransmissionProfileSupportLoader -> org.sugr.gearshift.du:
     org.sugr.gearshift.TransmissionProfile[] mProfiles -> n
     android.content.SharedPreferences$OnSharedPreferenceChangeListener mListener -> o
     android.content.SharedPreferences$OnSharedPreferenceChangeListener mDefaultListener -> p
@@ -4426,10 +4425,10 @@ org.sugr.gearshift.TransmissionProfileSupportLoader -> org.sugr.gearshift.dt:
     java.lang.Object loadInBackground() -> d
     void onCanceled(java.lang.Object) -> a
     void deliverResult(java.lang.Object) -> b
-org.sugr.gearshift.TransmissionProfileSupportLoader$1 -> org.sugr.gearshift.du:
+org.sugr.gearshift.TransmissionProfileSupportLoader$1 -> org.sugr.gearshift.dv:
     org.sugr.gearshift.TransmissionProfileSupportLoader this$0 -> a
     void onSharedPreferenceChanged(android.content.SharedPreferences,java.lang.String) -> onSharedPreferenceChanged
-org.sugr.gearshift.TransmissionProfileSupportLoader$2 -> org.sugr.gearshift.dv:
+org.sugr.gearshift.TransmissionProfileSupportLoader$2 -> org.sugr.gearshift.dw:
     org.sugr.gearshift.TransmissionProfileSupportLoader this$0 -> a
     void onSharedPreferenceChanged(android.content.SharedPreferences,java.lang.String) -> onSharedPreferenceChanged
 org.sugr.gearshift.TransmissionSession -> org.sugr.gearshift.TransmissionSession:
@@ -4454,29 +4453,30 @@ org.sugr.gearshift.TransmissionSession -> org.sugr.gearshift.TransmissionSession
     java.lang.String mIncompleteDir -> s
     boolean mIncompleteDirEnabled -> t
     boolean mLPDEnabled -> u
-    int mGlobalPeerLimit -> v
-    int mTorrentPeerLimit -> w
-    boolean mPEXEnabled -> x
-    int mPeerPort -> y
-    boolean mPortForwardingEnabled -> z
-    boolean mPeerPortRandomOnStart -> A
-    boolean mRenamePartial -> B
-    int mRPCVersion -> C
-    int mRPCVersionMin -> D
-    java.lang.String mDoneScript -> E
-    boolean mDoneScriptEnabled -> F
-    int mSeedQueueSize -> G
-    boolean mSeedQueueEnabled -> H
-    float mSeedRatioLimit -> I
-    boolean mSeedRatioLimited -> J
-    long mSpeedLimitUp -> K
-    boolean mSpeedLimitUpEnabled -> L
-    int mStalledQueueSize -> M
-    boolean mStalledQueueEnabled -> N
-    boolean mStartAdded -> O
-    boolean mTrashOriginal -> P
-    java.lang.String mVersion -> Q
-    java.util.Set mDownloadDirectories -> R
+    boolean mUTPEnabled -> v
+    int mGlobalPeerLimit -> w
+    int mTorrentPeerLimit -> x
+    boolean mPEXEnabled -> y
+    int mPeerPort -> z
+    boolean mPortForwardingEnabled -> A
+    boolean mPeerPortRandomOnStart -> B
+    boolean mRenamePartial -> C
+    int mRPCVersion -> D
+    int mRPCVersionMin -> E
+    java.lang.String mDoneScript -> F
+    boolean mDoneScriptEnabled -> G
+    int mSeedQueueSize -> H
+    boolean mSeedQueueEnabled -> I
+    float mSeedRatioLimit -> J
+    boolean mSeedRatioLimited -> K
+    long mSpeedLimitUp -> L
+    boolean mSpeedLimitUpEnabled -> M
+    int mStalledQueueSize -> N
+    boolean mStalledQueueEnabled -> O
+    boolean mStartAdded -> P
+    boolean mTrashOriginal -> Q
+    java.lang.String mVersion -> R
+    java.util.Set mDownloadDirectories -> S
     android.os.Parcelable$Creator CREATOR -> CREATOR
     boolean isAltSpeedLimitEnabled() -> a
     long getAltDownloadSpeedLimit() -> b
@@ -4497,28 +4497,29 @@ org.sugr.gearshift.TransmissionSession -> org.sugr.gearshift.TransmissionSession
     java.lang.String getIncompleteDir() -> q
     boolean isIncompleteDirEnabled() -> r
     boolean isLocalDiscoveryEnabled() -> s
-    int getGlobalPeerLimit() -> t
-    int getTorrentPeerLimit() -> u
-    boolean isPeerExchangeEnabled() -> v
-    int getPeerPort() -> w
-    boolean isPeerPortRandomOnStart() -> x
-    boolean isPortForwardingEnabled() -> y
-    boolean isRenamePartialFilesEnabled() -> z
-    int getRPCVersion() -> A
-    java.lang.String getDoneScript() -> B
-    boolean isDoneScriptEnabled() -> C
-    int getSeedQueueSize() -> D
-    boolean isSeedQueueEnabled() -> E
-    float getSeedRatioLimit() -> F
-    boolean isSeedRatioLimitEnabled() -> G
-    long getDownloadSpeedLimit() -> H
-    boolean isDownloadSpeedLimitEnabled() -> I
-    long getUploadSpeedLimit() -> J
-    boolean isUploadSpeedLimitEnabled() -> K
-    int getStalledQueueSize() -> L
-    boolean isStalledQueueEnabled() -> M
-    boolean isStartAddedTorrentsEnabled() -> N
-    boolean isTrashOriginalTorrentFilesEnabled() -> O
+    boolean isUTPEnabled() -> t
+    int getGlobalPeerLimit() -> u
+    int getTorrentPeerLimit() -> v
+    boolean isPeerExchangeEnabled() -> w
+    int getPeerPort() -> x
+    boolean isPeerPortRandomOnStart() -> y
+    boolean isPortForwardingEnabled() -> z
+    boolean isRenamePartialFilesEnabled() -> A
+    int getRPCVersion() -> B
+    java.lang.String getDoneScript() -> C
+    boolean isDoneScriptEnabled() -> D
+    int getSeedQueueSize() -> E
+    boolean isSeedQueueEnabled() -> F
+    float getSeedRatioLimit() -> G
+    boolean isSeedRatioLimitEnabled() -> H
+    long getDownloadSpeedLimit() -> I
+    boolean isDownloadSpeedLimitEnabled() -> J
+    long getUploadSpeedLimit() -> K
+    boolean isUploadSpeedLimitEnabled() -> L
+    int getStalledQueueSize() -> M
+    boolean isStalledQueueEnabled() -> N
+    boolean isStartAddedTorrentsEnabled() -> O
+    boolean isTrashOriginalTorrentFilesEnabled() -> P
     void setAltSpeedLimitEnabled(boolean) -> a
     void setAltDownloadSpeedLimit(long) -> a
     void setAltUploadSpeedLimit(long) -> b
@@ -4537,33 +4538,34 @@ org.sugr.gearshift.TransmissionSession -> org.sugr.gearshift.TransmissionSession
     void setDownloadQueueEnabled(boolean) -> e
     void setIncompleteDir(java.lang.String) -> d
     void setLocalDiscoveryEnabled(boolean) -> f
-    void setIncompleteDirEnabled(boolean) -> g
+    void setUTPEnabled(boolean) -> g
+    void setIncompleteDirEnabled(boolean) -> h
     void setGlobalPeerLimit(int) -> d
     void setTorrentPeerLimit(int) -> e
-    void setPeerExchangeEnabled(boolean) -> h
+    void setPeerExchangeEnabled(boolean) -> i
     void setPeerPort(int) -> f
-    void setPeerPortRandomOnStart(boolean) -> i
-    void setPortForwardingEnabled(boolean) -> j
-    void setRenamePartialFilesEnabled(boolean) -> k
+    void setPeerPortRandomOnStart(boolean) -> j
+    void setPortForwardingEnabled(boolean) -> k
+    void setRenamePartialFilesEnabled(boolean) -> l
     void setDoneScript(java.lang.String) -> e
-    void setDoneScriptEnabled(boolean) -> l
+    void setDoneScriptEnabled(boolean) -> m
     void setSeedQueueSize(int) -> g
-    void setSeedQueueEnabled(boolean) -> m
+    void setSeedQueueEnabled(boolean) -> n
     void setSeedRatioLimit(float) -> a
-    void setSeedRatioLimitEnabled(boolean) -> n
+    void setSeedRatioLimitEnabled(boolean) -> o
     void setDownloadSpeedLimit(long) -> f
-    void setDownloadSpeedLimitEnabled(boolean) -> o
+    void setDownloadSpeedLimitEnabled(boolean) -> p
     void setUploadSpeedLimit(long) -> g
-    void setUploadSpeedLimitEnabled(boolean) -> p
+    void setUploadSpeedLimitEnabled(boolean) -> q
     void setStalledQueueSize(int) -> h
-    void setStalledQueueEnabled(boolean) -> q
-    void setStartAddedTorrentsEnabled(boolean) -> r
-    void setTrashOriginalTorrentFilesEnabled(boolean) -> s
+    void setStalledQueueEnabled(boolean) -> r
+    void setStartAddedTorrentsEnabled(boolean) -> s
+    void setTrashOriginalTorrentFilesEnabled(boolean) -> t
     void setDownloadDirectories(org.sugr.gearshift.TransmissionProfile,java.util.List) -> a
-    java.util.Set getDownloadDirectories() -> P
+    java.util.Set getDownloadDirectories() -> Q
     int describeContents() -> describeContents
     void writeToParcel(android.os.Parcel,int) -> writeToParcel
-org.sugr.gearshift.TransmissionSession$1 -> org.sugr.gearshift.dw:
+org.sugr.gearshift.TransmissionSession$1 -> org.sugr.gearshift.dx:
     org.sugr.gearshift.TransmissionSession createFromParcel(android.os.Parcel) -> a
     org.sugr.gearshift.TransmissionSession[] newArray(int) -> a
     java.lang.Object[] newArray(int) -> newArray
@@ -4600,158 +4602,161 @@ org.sugr.gearshift.TransmissionSessionActivity -> org.sugr.gearshift.Transmissio
     java.lang.Runnable access$600(org.sugr.gearshift.TransmissionSessionActivity) -> e
     java.util.List access$800(org.sugr.gearshift.TransmissionSessionActivity) -> f
     void access$1000(org.sugr.gearshift.TransmissionSessionActivity,boolean,int,int) -> a
-org.sugr.gearshift.TransmissionSessionActivity$1 -> org.sugr.gearshift.dx:
+org.sugr.gearshift.TransmissionSessionActivity$1 -> org.sugr.gearshift.dy:
     org.sugr.gearshift.TransmissionSessionActivity this$0 -> a
     android.support.v4.content.Loader onCreateLoader(int,android.os.Bundle) -> a
     void onLoadFinished(android.support.v4.content.Loader,org.sugr.gearshift.TransmissionData) -> a
     void onLoaderReset(android.support.v4.content.Loader) -> a
     void onLoadFinished(android.support.v4.content.Loader,java.lang.Object) -> a
-org.sugr.gearshift.TransmissionSessionActivity$10 -> org.sugr.gearshift.dy:
+org.sugr.gearshift.TransmissionSessionActivity$10 -> org.sugr.gearshift.dz:
     org.sugr.gearshift.TransmissionSessionActivity this$0 -> a
     boolean onEditorAction(android.widget.TextView,int,android.view.KeyEvent) -> onEditorAction
-org.sugr.gearshift.TransmissionSessionActivity$11 -> org.sugr.gearshift.dz:
+org.sugr.gearshift.TransmissionSessionActivity$11 -> org.sugr.gearshift.ea:
     org.sugr.gearshift.TransmissionSessionActivity this$0 -> a
     void onCheckedChanged(android.widget.CompoundButton,boolean) -> onCheckedChanged
-org.sugr.gearshift.TransmissionSessionActivity$12 -> org.sugr.gearshift.ea:
+org.sugr.gearshift.TransmissionSessionActivity$12 -> org.sugr.gearshift.eb:
     org.sugr.gearshift.TransmissionSessionActivity this$0 -> a
     void onCheckedChanged(android.widget.CompoundButton,boolean) -> onCheckedChanged
-org.sugr.gearshift.TransmissionSessionActivity$13 -> org.sugr.gearshift.eb:
+org.sugr.gearshift.TransmissionSessionActivity$13 -> org.sugr.gearshift.ec:
     org.sugr.gearshift.TransmissionSessionActivity this$0 -> a
     void onCheckedChanged(android.widget.CompoundButton,boolean) -> onCheckedChanged
-org.sugr.gearshift.TransmissionSessionActivity$14 -> org.sugr.gearshift.ec:
+org.sugr.gearshift.TransmissionSessionActivity$14 -> org.sugr.gearshift.ed:
     org.sugr.gearshift.TransmissionSessionActivity this$0 -> a
     boolean onEditorAction(android.widget.TextView,int,android.view.KeyEvent) -> onEditorAction
-org.sugr.gearshift.TransmissionSessionActivity$15 -> org.sugr.gearshift.ed:
+org.sugr.gearshift.TransmissionSessionActivity$15 -> org.sugr.gearshift.ee:
     org.sugr.gearshift.TransmissionSessionActivity this$0 -> a
     void onClick(android.view.View) -> onClick
-org.sugr.gearshift.TransmissionSessionActivity$16 -> org.sugr.gearshift.ee:
+org.sugr.gearshift.TransmissionSessionActivity$16 -> org.sugr.gearshift.ef:
     org.sugr.gearshift.TransmissionSessionActivity this$0 -> a
     void onItemSelected(android.widget.AdapterView,android.view.View,int,long) -> onItemSelected
     void onNothingSelected(android.widget.AdapterView) -> onNothingSelected
-org.sugr.gearshift.TransmissionSessionActivity$17 -> org.sugr.gearshift.ef:
+org.sugr.gearshift.TransmissionSessionActivity$17 -> org.sugr.gearshift.eg:
     org.sugr.gearshift.TransmissionSessionActivity this$0 -> a
     void onCheckedChanged(android.widget.CompoundButton,boolean) -> onCheckedChanged
-org.sugr.gearshift.TransmissionSessionActivity$18 -> org.sugr.gearshift.eg:
+org.sugr.gearshift.TransmissionSessionActivity$18 -> org.sugr.gearshift.eh:
     org.sugr.gearshift.TransmissionSessionActivity this$0 -> a
     void onCheckedChanged(android.widget.CompoundButton,boolean) -> onCheckedChanged
-org.sugr.gearshift.TransmissionSessionActivity$19 -> org.sugr.gearshift.eh:
+org.sugr.gearshift.TransmissionSessionActivity$19 -> org.sugr.gearshift.ei:
     org.sugr.gearshift.TransmissionSessionActivity this$0 -> a
     void onCheckedChanged(android.widget.CompoundButton,boolean) -> onCheckedChanged
-org.sugr.gearshift.TransmissionSessionActivity$2 -> org.sugr.gearshift.ei:
+org.sugr.gearshift.TransmissionSessionActivity$2 -> org.sugr.gearshift.ej:
     org.sugr.gearshift.TransmissionSessionActivity this$0 -> a
     void onClick(android.view.View) -> onClick
-org.sugr.gearshift.TransmissionSessionActivity$20 -> org.sugr.gearshift.ej:
+org.sugr.gearshift.TransmissionSessionActivity$20 -> org.sugr.gearshift.ek:
     org.sugr.gearshift.TransmissionSessionActivity this$0 -> a
     void onCheckedChanged(android.widget.CompoundButton,boolean) -> onCheckedChanged
-org.sugr.gearshift.TransmissionSessionActivity$21 -> org.sugr.gearshift.ek:
+org.sugr.gearshift.TransmissionSessionActivity$21 -> org.sugr.gearshift.el:
     org.sugr.gearshift.TransmissionSessionActivity this$0 -> a
     void onCheckedChanged(android.widget.CompoundButton,boolean) -> onCheckedChanged
-org.sugr.gearshift.TransmissionSessionActivity$22 -> org.sugr.gearshift.el:
+org.sugr.gearshift.TransmissionSessionActivity$22 -> org.sugr.gearshift.em:
     org.sugr.gearshift.TransmissionSessionActivity this$0 -> a
     void onCheckedChanged(android.widget.CompoundButton,boolean) -> onCheckedChanged
-org.sugr.gearshift.TransmissionSessionActivity$23 -> org.sugr.gearshift.em:
+org.sugr.gearshift.TransmissionSessionActivity$23 -> org.sugr.gearshift.en:
+    org.sugr.gearshift.TransmissionSessionActivity this$0 -> a
+    void onCheckedChanged(android.widget.CompoundButton,boolean) -> onCheckedChanged
+org.sugr.gearshift.TransmissionSessionActivity$24 -> org.sugr.gearshift.eo:
     org.sugr.gearshift.TransmissionSessionActivity this$0 -> a
     boolean onEditorAction(android.widget.TextView,int,android.view.KeyEvent) -> onEditorAction
-org.sugr.gearshift.TransmissionSessionActivity$24 -> org.sugr.gearshift.en:
+org.sugr.gearshift.TransmissionSessionActivity$25 -> org.sugr.gearshift.ep:
     org.sugr.gearshift.TransmissionSessionActivity this$0 -> a
     void onClick(android.view.View) -> onClick
-org.sugr.gearshift.TransmissionSessionActivity$25 -> org.sugr.gearshift.eo:
+org.sugr.gearshift.TransmissionSessionActivity$26 -> org.sugr.gearshift.eq:
     org.sugr.gearshift.TransmissionSessionActivity this$0 -> a
     void onCheckedChanged(android.widget.CompoundButton,boolean) -> onCheckedChanged
-org.sugr.gearshift.TransmissionSessionActivity$26 -> org.sugr.gearshift.ep:
+org.sugr.gearshift.TransmissionSessionActivity$27 -> org.sugr.gearshift.er:
     org.sugr.gearshift.TransmissionSessionActivity this$0 -> a
     boolean onEditorAction(android.widget.TextView,int,android.view.KeyEvent) -> onEditorAction
-org.sugr.gearshift.TransmissionSessionActivity$27 -> org.sugr.gearshift.eq:
+org.sugr.gearshift.TransmissionSessionActivity$28 -> org.sugr.gearshift.es:
     org.sugr.gearshift.TransmissionSessionActivity this$0 -> a
     void onCheckedChanged(android.widget.CompoundButton,boolean) -> onCheckedChanged
-org.sugr.gearshift.TransmissionSessionActivity$28 -> org.sugr.gearshift.er:
+org.sugr.gearshift.TransmissionSessionActivity$29 -> org.sugr.gearshift.et:
     org.sugr.gearshift.TransmissionSessionActivity this$0 -> a
     boolean onEditorAction(android.widget.TextView,int,android.view.KeyEvent) -> onEditorAction
-org.sugr.gearshift.TransmissionSessionActivity$29 -> org.sugr.gearshift.es:
-    org.sugr.gearshift.TransmissionSessionActivity this$0 -> a
-    void onCheckedChanged(android.widget.CompoundButton,boolean) -> onCheckedChanged
-org.sugr.gearshift.TransmissionSessionActivity$3 -> org.sugr.gearshift.et:
+org.sugr.gearshift.TransmissionSessionActivity$3 -> org.sugr.gearshift.eu:
     org.sugr.gearshift.TransmissionSessionActivity this$0 -> a
     void run() -> run
-org.sugr.gearshift.TransmissionSessionActivity$30 -> org.sugr.gearshift.eu:
-    org.sugr.gearshift.TransmissionSessionActivity this$0 -> a
-    boolean onEditorAction(android.widget.TextView,int,android.view.KeyEvent) -> onEditorAction
-org.sugr.gearshift.TransmissionSessionActivity$31 -> org.sugr.gearshift.ev:
-    org.sugr.gearshift.TransmissionSessionActivity this$0 -> a
-    boolean onEditorAction(android.widget.TextView,int,android.view.KeyEvent) -> onEditorAction
-org.sugr.gearshift.TransmissionSessionActivity$32 -> org.sugr.gearshift.ew:
+org.sugr.gearshift.TransmissionSessionActivity$30 -> org.sugr.gearshift.ev:
     org.sugr.gearshift.TransmissionSessionActivity this$0 -> a
     void onCheckedChanged(android.widget.CompoundButton,boolean) -> onCheckedChanged
-org.sugr.gearshift.TransmissionSessionActivity$33 -> org.sugr.gearshift.ex:
+org.sugr.gearshift.TransmissionSessionActivity$31 -> org.sugr.gearshift.ew:
+    org.sugr.gearshift.TransmissionSessionActivity this$0 -> a
+    boolean onEditorAction(android.widget.TextView,int,android.view.KeyEvent) -> onEditorAction
+org.sugr.gearshift.TransmissionSessionActivity$32 -> org.sugr.gearshift.ex:
+    org.sugr.gearshift.TransmissionSessionActivity this$0 -> a
+    boolean onEditorAction(android.widget.TextView,int,android.view.KeyEvent) -> onEditorAction
+org.sugr.gearshift.TransmissionSessionActivity$33 -> org.sugr.gearshift.ey:
+    org.sugr.gearshift.TransmissionSessionActivity this$0 -> a
+    void onCheckedChanged(android.widget.CompoundButton,boolean) -> onCheckedChanged
+org.sugr.gearshift.TransmissionSessionActivity$34 -> org.sugr.gearshift.ez:
     org.sugr.gearshift.TransmissionSessionActivity this$0 -> a
     void onClick(android.view.View) -> onClick
-org.sugr.gearshift.TransmissionSessionActivity$34 -> org.sugr.gearshift.ey:
+org.sugr.gearshift.TransmissionSessionActivity$35 -> org.sugr.gearshift.fa:
     org.sugr.gearshift.TransmissionSessionActivity this$0 -> a
     void onClick(android.view.View) -> onClick
-org.sugr.gearshift.TransmissionSessionActivity$35 -> org.sugr.gearshift.ez:
+org.sugr.gearshift.TransmissionSessionActivity$36 -> org.sugr.gearshift.fb:
     org.sugr.gearshift.TransmissionSessionActivity this$0 -> a
     void onCheckedChanged(android.widget.CompoundButton,boolean) -> onCheckedChanged
-org.sugr.gearshift.TransmissionSessionActivity$36 -> org.sugr.gearshift.fa:
+org.sugr.gearshift.TransmissionSessionActivity$37 -> org.sugr.gearshift.fc:
     org.sugr.gearshift.TransmissionSessionActivity this$0 -> a
     boolean onEditorAction(android.widget.TextView,int,android.view.KeyEvent) -> onEditorAction
-org.sugr.gearshift.TransmissionSessionActivity$37 -> org.sugr.gearshift.fb:
+org.sugr.gearshift.TransmissionSessionActivity$38 -> org.sugr.gearshift.fd:
     org.sugr.gearshift.TransmissionSessionActivity this$0 -> a
     void onCheckedChanged(android.widget.CompoundButton,boolean) -> onCheckedChanged
-org.sugr.gearshift.TransmissionSessionActivity$38 -> org.sugr.gearshift.fc:
+org.sugr.gearshift.TransmissionSessionActivity$39 -> org.sugr.gearshift.fe:
     org.sugr.gearshift.TransmissionSessionActivity this$0 -> a
     boolean onEditorAction(android.widget.TextView,int,android.view.KeyEvent) -> onEditorAction
-org.sugr.gearshift.TransmissionSessionActivity$39 -> org.sugr.gearshift.fd:
-    org.sugr.gearshift.TransmissionSessionActivity this$0 -> a
-    void onCheckedChanged(android.widget.CompoundButton,boolean) -> onCheckedChanged
-org.sugr.gearshift.TransmissionSessionActivity$4 -> org.sugr.gearshift.fe:
+org.sugr.gearshift.TransmissionSessionActivity$4 -> org.sugr.gearshift.ff:
     android.os.Bundle val$savedInstanceState -> a
     org.sugr.gearshift.TransmissionSessionActivity this$0 -> b
     void run() -> run
-org.sugr.gearshift.TransmissionSessionActivity$40 -> org.sugr.gearshift.ff:
-    org.sugr.gearshift.TransmissionSessionActivity this$0 -> a
-    boolean onEditorAction(android.widget.TextView,int,android.view.KeyEvent) -> onEditorAction
-org.sugr.gearshift.TransmissionSessionActivity$41 -> org.sugr.gearshift.fg:
+org.sugr.gearshift.TransmissionSessionActivity$40 -> org.sugr.gearshift.fg:
     org.sugr.gearshift.TransmissionSessionActivity this$0 -> a
     void onCheckedChanged(android.widget.CompoundButton,boolean) -> onCheckedChanged
-org.sugr.gearshift.TransmissionSessionActivity$42 -> org.sugr.gearshift.fh:
+org.sugr.gearshift.TransmissionSessionActivity$41 -> org.sugr.gearshift.fh:
     org.sugr.gearshift.TransmissionSessionActivity this$0 -> a
     boolean onEditorAction(android.widget.TextView,int,android.view.KeyEvent) -> onEditorAction
-org.sugr.gearshift.TransmissionSessionActivity$43 -> org.sugr.gearshift.fi:
-    org.sugr.gearshift.TransmissionSessionActivity this$0 -> a
-    boolean onEditorAction(android.widget.TextView,int,android.view.KeyEvent) -> onEditorAction
-org.sugr.gearshift.TransmissionSessionActivity$44 -> org.sugr.gearshift.fj:
-    org.sugr.gearshift.TransmissionSessionActivity this$0 -> a
-    boolean onEditorAction(android.widget.TextView,int,android.view.KeyEvent) -> onEditorAction
-org.sugr.gearshift.TransmissionSessionActivity$5 -> org.sugr.gearshift.fk:
-    org.sugr.gearshift.TransmissionSessionActivity this$0 -> a
-    boolean onEditorAction(android.widget.TextView,int,android.view.KeyEvent) -> onEditorAction
-org.sugr.gearshift.TransmissionSessionActivity$6 -> org.sugr.gearshift.fl:
+org.sugr.gearshift.TransmissionSessionActivity$42 -> org.sugr.gearshift.fi:
     org.sugr.gearshift.TransmissionSessionActivity this$0 -> a
     void onCheckedChanged(android.widget.CompoundButton,boolean) -> onCheckedChanged
-org.sugr.gearshift.TransmissionSessionActivity$7 -> org.sugr.gearshift.fm:
+org.sugr.gearshift.TransmissionSessionActivity$43 -> org.sugr.gearshift.fj:
     org.sugr.gearshift.TransmissionSessionActivity this$0 -> a
     boolean onEditorAction(android.widget.TextView,int,android.view.KeyEvent) -> onEditorAction
-org.sugr.gearshift.TransmissionSessionActivity$8 -> org.sugr.gearshift.fn:
+org.sugr.gearshift.TransmissionSessionActivity$44 -> org.sugr.gearshift.fk:
+    org.sugr.gearshift.TransmissionSessionActivity this$0 -> a
+    boolean onEditorAction(android.widget.TextView,int,android.view.KeyEvent) -> onEditorAction
+org.sugr.gearshift.TransmissionSessionActivity$45 -> org.sugr.gearshift.fl:
+    org.sugr.gearshift.TransmissionSessionActivity this$0 -> a
+    boolean onEditorAction(android.widget.TextView,int,android.view.KeyEvent) -> onEditorAction
+org.sugr.gearshift.TransmissionSessionActivity$5 -> org.sugr.gearshift.fm:
+    org.sugr.gearshift.TransmissionSessionActivity this$0 -> a
+    boolean onEditorAction(android.widget.TextView,int,android.view.KeyEvent) -> onEditorAction
+org.sugr.gearshift.TransmissionSessionActivity$6 -> org.sugr.gearshift.fn:
     org.sugr.gearshift.TransmissionSessionActivity this$0 -> a
     void onCheckedChanged(android.widget.CompoundButton,boolean) -> onCheckedChanged
-org.sugr.gearshift.TransmissionSessionActivity$9 -> org.sugr.gearshift.fo:
+org.sugr.gearshift.TransmissionSessionActivity$7 -> org.sugr.gearshift.fo:
     org.sugr.gearshift.TransmissionSessionActivity this$0 -> a
     boolean onEditorAction(android.widget.TextView,int,android.view.KeyEvent) -> onEditorAction
-org.sugr.gearshift.TransmissionSessionActivity$BlocklistUpdateAsyncTask -> org.sugr.gearshift.fp:
+org.sugr.gearshift.TransmissionSessionActivity$8 -> org.sugr.gearshift.fp:
+    org.sugr.gearshift.TransmissionSessionActivity this$0 -> a
+    void onCheckedChanged(android.widget.CompoundButton,boolean) -> onCheckedChanged
+org.sugr.gearshift.TransmissionSessionActivity$9 -> org.sugr.gearshift.fq:
+    org.sugr.gearshift.TransmissionSessionActivity this$0 -> a
+    boolean onEditorAction(android.widget.TextView,int,android.view.KeyEvent) -> onEditorAction
+org.sugr.gearshift.TransmissionSessionActivity$BlocklistUpdateAsyncTask -> org.sugr.gearshift.fr:
     org.sugr.gearshift.TransmissionSessionActivity this$0 -> a
     java.lang.Long doInBackground(java.lang.Void[]) -> a
     void onPreExecute() -> onPreExecute
     void onPostExecute(java.lang.Long) -> a
     void onPostExecute(java.lang.Object) -> onPostExecute
     java.lang.Object doInBackground(java.lang.Object[]) -> doInBackground
-org.sugr.gearshift.TransmissionSessionActivity$PortTestAsyncTask -> org.sugr.gearshift.fq:
+org.sugr.gearshift.TransmissionSessionActivity$PortTestAsyncTask -> org.sugr.gearshift.fs:
     org.sugr.gearshift.TransmissionSessionActivity this$0 -> a
     java.lang.Boolean doInBackground(java.lang.Void[]) -> a
     void onPreExecute() -> onPreExecute
     void onPostExecute(java.lang.Boolean) -> a
     void onPostExecute(java.lang.Object) -> onPostExecute
     java.lang.Object doInBackground(java.lang.Object[]) -> doInBackground
-org.sugr.gearshift.TransmissionSessionInterface -> org.sugr.gearshift.fr:
+org.sugr.gearshift.TransmissionSessionInterface -> org.sugr.gearshift.ft:
     void setProfile(org.sugr.gearshift.TransmissionProfile) -> a
     org.sugr.gearshift.TransmissionProfile getProfile() -> i
     void setSession(org.sugr.gearshift.TransmissionSession) -> a
@@ -4760,7 +4765,7 @@ org.sugr.gearshift.TransmissionSessionInterface -> org.sugr.gearshift.fr:
     java.util.ArrayList getTorrents() -> g
     org.sugr.gearshift.Torrent[] getCurrentTorrents() -> h
     void setRefreshing(boolean) -> b
-org.sugr.gearshift.TransmissionSessionLoader -> org.sugr.gearshift.fs:
+org.sugr.gearshift.TransmissionSessionLoader -> org.sugr.gearshift.fu:
     org.sugr.gearshift.TransmissionSessionManager mSessManager -> n
     org.sugr.gearshift.TransmissionProfile mProfile -> o
     org.sugr.gearshift.TransmissionSession mSessionSet -> p
@@ -4777,10 +4782,10 @@ org.sugr.gearshift.TransmissionSessionLoader -> org.sugr.gearshift.fs:
     java.lang.Object loadInBackground() -> d
     void deliverResult(java.lang.Object) -> b
     boolean access$000(org.sugr.gearshift.TransmissionSessionLoader) -> a
-org.sugr.gearshift.TransmissionSessionLoader$1 -> org.sugr.gearshift.ft:
+org.sugr.gearshift.TransmissionSessionLoader$1 -> org.sugr.gearshift.fv:
     org.sugr.gearshift.TransmissionSessionLoader this$0 -> a
     void run() -> run
-org.sugr.gearshift.TransmissionSessionManager -> org.sugr.gearshift.fu:
+org.sugr.gearshift.TransmissionSessionManager -> org.sugr.gearshift.fw:
     org.sugr.gearshift.TransmissionProfile mProfile -> a
     android.net.ConnectivityManager mConnManager -> b
     java.lang.String mSessionId -> c
@@ -4789,7 +4794,6 @@ org.sugr.gearshift.TransmissionSessionManager -> org.sugr.gearshift.fu:
     boolean hasConnectivity() -> a
     void setProfile(org.sugr.gearshift.TransmissionProfile) -> a
     org.sugr.gearshift.TransmissionSession getSession() -> b
-    org.sugr.gearshift.TransmissionSessionStats getSessionStats() -> c
     org.sugr.gearshift.TransmissionSessionManager$ActiveTorrentGetResponse getActiveTorrents(java.lang.String[]) -> a
     org.sugr.gearshift.Torrent[] getAllTorrents(java.lang.String[]) -> b
     org.sugr.gearshift.Torrent[] getTorrents(int[],java.lang.String[]) -> a
@@ -4799,160 +4803,157 @@ org.sugr.gearshift.TransmissionSessionManager -> org.sugr.gearshift.fu:
     void setTorrentsLocation(int[],java.lang.String,boolean) -> a
     void setTorrentsProperty(int[],java.lang.String,java.lang.Object) -> a
     org.sugr.gearshift.Torrent addTorrent(java.lang.String,java.lang.String,java.lang.String,boolean) -> a
-    boolean testPort() -> d
-    long blocklistUpdate() -> e
+    boolean testPort() -> c
+    long blocklistUpdate() -> d
     long getFreeSpace(java.lang.String) -> a
     org.sugr.gearshift.TransmissionSessionManager$Response requestData(java.lang.Object,java.lang.Class,com.google.gson.ExclusionStrategy[]) -> a
     java.lang.String getSessionId(java.net.HttpURLConnection) -> a
     org.sugr.gearshift.TransmissionSessionManager$Response buildResponse(java.io.InputStream,java.lang.Class) -> a
     int[] convertIntegerList(java.util.List) -> a
     java.lang.String[] convertStringList(java.util.List) -> b
-org.sugr.gearshift.TransmissionSessionManager$1 -> org.sugr.gearshift.fv:
+org.sugr.gearshift.TransmissionSessionManager$1 -> org.sugr.gearshift.fx:
     org.sugr.gearshift.TransmissionSessionManager this$0 -> a
     java.security.cert.X509Certificate[] getAcceptedIssuers() -> getAcceptedIssuers
     void checkClientTrusted(java.security.cert.X509Certificate[],java.lang.String) -> checkClientTrusted
     void checkServerTrusted(java.security.cert.X509Certificate[],java.lang.String) -> checkServerTrusted
-org.sugr.gearshift.TransmissionSessionManager$2 -> org.sugr.gearshift.fw:
+org.sugr.gearshift.TransmissionSessionManager$2 -> org.sugr.gearshift.fy:
     org.sugr.gearshift.TransmissionSessionManager this$0 -> a
     boolean verify(java.lang.String,javax.net.ssl.SSLSession) -> verify
-org.sugr.gearshift.TransmissionSessionManager$ActiveTorrentGetRequest -> org.sugr.gearshift.fx:
+org.sugr.gearshift.TransmissionSessionManager$ActiveTorrentGetRequest -> org.sugr.gearshift.fz:
     java.lang.String method -> a
     org.sugr.gearshift.TransmissionSessionManager$ActiveTorrentGetRequest$Arguments arguments -> b
-org.sugr.gearshift.TransmissionSessionManager$ActiveTorrentGetRequest$Arguments -> org.sugr.gearshift.fy:
+org.sugr.gearshift.TransmissionSessionManager$ActiveTorrentGetRequest$Arguments -> org.sugr.gearshift.ga:
     java.lang.String ids -> a
     java.lang.String[] fields -> b
-org.sugr.gearshift.TransmissionSessionManager$ActiveTorrentGetResponse -> org.sugr.gearshift.fz:
+org.sugr.gearshift.TransmissionSessionManager$ActiveTorrentGetResponse -> org.sugr.gearshift.gb:
     org.sugr.gearshift.TransmissionSessionManager$ActiveTorrentGetResponse$ActiveTorrentsArguments mActiveTorrentsArguments -> b
     org.sugr.gearshift.Torrent[] getTorrents() -> a
     void setTorrents(org.sugr.gearshift.Torrent[]) -> a
     int[] getRemoved() -> b
     void setRemoved(int[]) -> a
-org.sugr.gearshift.TransmissionSessionManager$ActiveTorrentGetResponse$ActiveTorrentsArguments -> org.sugr.gearshift.ga:
+org.sugr.gearshift.TransmissionSessionManager$ActiveTorrentGetResponse$ActiveTorrentsArguments -> org.sugr.gearshift.gc:
     org.sugr.gearshift.Torrent[] mTorrents -> a
     int[] mRemoved -> b
     org.sugr.gearshift.Torrent[] getTorrents() -> a
     void setTorrents(org.sugr.gearshift.Torrent[]) -> a
     int[] getRemoved() -> b
     void setRemoved(int[]) -> a
-org.sugr.gearshift.TransmissionSessionManager$AddTorrentResponse -> org.sugr.gearshift.gb:
+org.sugr.gearshift.TransmissionSessionManager$AddTorrentResponse -> org.sugr.gearshift.gd:
     org.sugr.gearshift.TransmissionSessionManager$AddTorrentResponse$AddTorrentArguments mArguments -> b
     org.sugr.gearshift.Torrent getTorrent() -> a
     void setTorrent(org.sugr.gearshift.Torrent) -> a
     boolean isDuplicate() -> b
     void setDuplicate(org.sugr.gearshift.Torrent) -> b
-org.sugr.gearshift.TransmissionSessionManager$AddTorrentResponse$AddTorrentArguments -> org.sugr.gearshift.gc:
+org.sugr.gearshift.TransmissionSessionManager$AddTorrentResponse$AddTorrentArguments -> org.sugr.gearshift.ge:
     org.sugr.gearshift.Torrent torrent -> a
     org.sugr.gearshift.Torrent duplicate -> b
     org.sugr.gearshift.TransmissionSessionManager$AddTorrentResponse this$0 -> c
-org.sugr.gearshift.TransmissionSessionManager$AllTorrentGetRequest -> org.sugr.gearshift.gd:
+org.sugr.gearshift.TransmissionSessionManager$AllTorrentGetRequest -> org.sugr.gearshift.gf:
     java.lang.String method -> a
     org.sugr.gearshift.TransmissionSessionManager$AllTorrentGetRequest$Arguments arguments -> b
-org.sugr.gearshift.TransmissionSessionManager$AllTorrentGetRequest$Arguments -> org.sugr.gearshift.ge:
+org.sugr.gearshift.TransmissionSessionManager$AllTorrentGetRequest$Arguments -> org.sugr.gearshift.gg:
     java.lang.String[] fields -> a
-org.sugr.gearshift.TransmissionSessionManager$BlocklistUpdateRequest -> org.sugr.gearshift.gf:
+org.sugr.gearshift.TransmissionSessionManager$BlocklistUpdateRequest -> org.sugr.gearshift.gh:
     java.lang.String method -> a
-org.sugr.gearshift.TransmissionSessionManager$BlocklistUpdateResponse -> org.sugr.gearshift.gg:
+org.sugr.gearshift.TransmissionSessionManager$BlocklistUpdateResponse -> org.sugr.gearshift.gi:
     org.sugr.gearshift.TransmissionSessionManager$BlocklistUpdateResponse$BlocklistUpdateArguments mArguments -> b
     long getBlocklistSize() -> a
     void setBlocklistSize(long) -> a
-org.sugr.gearshift.TransmissionSessionManager$BlocklistUpdateResponse$BlocklistUpdateArguments -> org.sugr.gearshift.gh:
+org.sugr.gearshift.TransmissionSessionManager$BlocklistUpdateResponse$BlocklistUpdateArguments -> org.sugr.gearshift.gj:
     long size -> a
     org.sugr.gearshift.TransmissionSessionManager$BlocklistUpdateResponse this$0 -> b
-org.sugr.gearshift.TransmissionSessionManager$Exclude -> org.sugr.gearshift.gi:
-org.sugr.gearshift.TransmissionSessionManager$FreeSpaceRequest -> org.sugr.gearshift.gj:
+org.sugr.gearshift.TransmissionSessionManager$Exclude -> org.sugr.gearshift.gk:
+org.sugr.gearshift.TransmissionSessionManager$FreeSpaceRequest -> org.sugr.gearshift.gl:
     java.lang.String method -> a
     org.sugr.gearshift.TransmissionSessionManager$FreeSpaceRequest$Arguments arguments -> b
-org.sugr.gearshift.TransmissionSessionManager$FreeSpaceRequest$Arguments -> org.sugr.gearshift.gk:
+org.sugr.gearshift.TransmissionSessionManager$FreeSpaceRequest$Arguments -> org.sugr.gearshift.gm:
     java.lang.String path -> a
-org.sugr.gearshift.TransmissionSessionManager$FreeSpaceResponse -> org.sugr.gearshift.gl:
+org.sugr.gearshift.TransmissionSessionManager$FreeSpaceResponse -> org.sugr.gearshift.gn:
     org.sugr.gearshift.TransmissionSessionManager$FreeSpaceResponse$FreeSpaceArguments mArguments -> b
     long getFreeSpace() -> a
     void setFreeSpace(long) -> a
     void setPath(java.lang.String) -> a
-org.sugr.gearshift.TransmissionSessionManager$FreeSpaceResponse$FreeSpaceArguments -> org.sugr.gearshift.gm:
+org.sugr.gearshift.TransmissionSessionManager$FreeSpaceResponse$FreeSpaceArguments -> org.sugr.gearshift.go:
     long freeSpace -> a
     java.lang.String path -> b
     org.sugr.gearshift.TransmissionSessionManager$FreeSpaceResponse this$0 -> c
-org.sugr.gearshift.TransmissionSessionManager$KeyExclusionStrategy -> org.sugr.gearshift.gn:
+org.sugr.gearshift.TransmissionSessionManager$KeyExclusionStrategy -> org.sugr.gearshift.gp:
     java.util.HashSet mKeys -> a
     boolean shouldSkipClass(java.lang.Class) -> a
     boolean shouldSkipField(com.google.gson.FieldAttributes) -> a
-org.sugr.gearshift.TransmissionSessionManager$ManagerException -> org.sugr.gearshift.go:
+org.sugr.gearshift.TransmissionSessionManager$ManagerException -> org.sugr.gearshift.gq:
     int mCode -> a
     org.sugr.gearshift.TransmissionSessionManager this$0 -> b
     int getCode() -> a
-org.sugr.gearshift.TransmissionSessionManager$PortTestRequest -> org.sugr.gearshift.gp:
+org.sugr.gearshift.TransmissionSessionManager$PortTestRequest -> org.sugr.gearshift.gr:
     java.lang.String method -> a
-org.sugr.gearshift.TransmissionSessionManager$PortTestResponse -> org.sugr.gearshift.gq:
+org.sugr.gearshift.TransmissionSessionManager$PortTestResponse -> org.sugr.gearshift.gs:
     org.sugr.gearshift.TransmissionSessionManager$PortTestResponse$PortTestArguments mArguments -> b
     boolean isPortOpen() -> a
     void setPortOpen(boolean) -> a
-org.sugr.gearshift.TransmissionSessionManager$PortTestResponse$PortTestArguments -> org.sugr.gearshift.gr:
+org.sugr.gearshift.TransmissionSessionManager$PortTestResponse$PortTestArguments -> org.sugr.gearshift.gt:
     boolean open -> a
     org.sugr.gearshift.TransmissionSessionManager$PortTestResponse this$0 -> b
-org.sugr.gearshift.TransmissionSessionManager$Response -> org.sugr.gearshift.gs:
+org.sugr.gearshift.TransmissionSessionManager$Response -> org.sugr.gearshift.gu:
     java.lang.String mResult -> a
     java.lang.String getResult() -> c
     void setResult(java.lang.String) -> b
-org.sugr.gearshift.TransmissionSessionManager$SessionGetRequest -> org.sugr.gearshift.gt:
+org.sugr.gearshift.TransmissionSessionManager$SessionGetRequest -> org.sugr.gearshift.gv:
     java.lang.String method -> a
-org.sugr.gearshift.TransmissionSessionManager$SessionGetResponse -> org.sugr.gearshift.gu:
+org.sugr.gearshift.TransmissionSessionManager$SessionGetResponse -> org.sugr.gearshift.gw:
     org.sugr.gearshift.TransmissionSession mSession -> b
     org.sugr.gearshift.TransmissionSession getSession() -> a
     void setSession(org.sugr.gearshift.TransmissionSession) -> a
-org.sugr.gearshift.TransmissionSessionManager$SessionSetRequest -> org.sugr.gearshift.gv:
+org.sugr.gearshift.TransmissionSessionManager$SessionSetRequest -> org.sugr.gearshift.gx:
     java.lang.String method -> a
     org.sugr.gearshift.TransmissionSession arguments -> b
-org.sugr.gearshift.TransmissionSessionManager$SessionStatsRequest -> org.sugr.gearshift.gw:
-    java.lang.String method -> a
-org.sugr.gearshift.TransmissionSessionManager$SessionStatsResponse -> org.sugr.gearshift.gx:
+org.sugr.gearshift.TransmissionSessionManager$SessionStatsResponse -> org.sugr.gearshift.gy:
     org.sugr.gearshift.TransmissionSessionStats mStats -> b
-    org.sugr.gearshift.TransmissionSessionStats getStats() -> a
     void setStats(org.sugr.gearshift.TransmissionSessionStats) -> a
-org.sugr.gearshift.TransmissionSessionManager$TorrentAddRequest -> org.sugr.gearshift.gy:
+org.sugr.gearshift.TransmissionSessionManager$TorrentAddRequest -> org.sugr.gearshift.gz:
     java.lang.String method -> a
     org.sugr.gearshift.TransmissionSessionManager$TorrentAddRequest$Arguments arguments -> b
-org.sugr.gearshift.TransmissionSessionManager$TorrentAddRequest$Arguments -> org.sugr.gearshift.gz:
+org.sugr.gearshift.TransmissionSessionManager$TorrentAddRequest$Arguments -> org.sugr.gearshift.ha:
     java.lang.String uri -> a
     java.lang.String meta -> b
     java.lang.String location -> c
     boolean paused -> d
-org.sugr.gearshift.TransmissionSessionManager$TorrentGetRequest -> org.sugr.gearshift.ha:
+org.sugr.gearshift.TransmissionSessionManager$TorrentGetRequest -> org.sugr.gearshift.hb:
     java.lang.String method -> a
     org.sugr.gearshift.TransmissionSessionManager$TorrentGetRequest$Arguments arguments -> b
-org.sugr.gearshift.TransmissionSessionManager$TorrentGetRequest$Arguments -> org.sugr.gearshift.hb:
+org.sugr.gearshift.TransmissionSessionManager$TorrentGetRequest$Arguments -> org.sugr.gearshift.hc:
     int[] ids -> a
     java.lang.String[] fields -> b
-org.sugr.gearshift.TransmissionSessionManager$TorrentGetResponse -> org.sugr.gearshift.hc:
+org.sugr.gearshift.TransmissionSessionManager$TorrentGetResponse -> org.sugr.gearshift.hd:
     org.sugr.gearshift.TransmissionSessionManager$TorrentGetResponse$TorrentsArguments mTorrentsArguments -> b
     org.sugr.gearshift.Torrent[] getTorrents() -> a
     void setTorrents(org.sugr.gearshift.Torrent[]) -> a
-org.sugr.gearshift.TransmissionSessionManager$TorrentGetResponse$TorrentsArguments -> org.sugr.gearshift.hd:
+org.sugr.gearshift.TransmissionSessionManager$TorrentGetResponse$TorrentsArguments -> org.sugr.gearshift.he:
     org.sugr.gearshift.Torrent[] mTorrents -> a
     org.sugr.gearshift.Torrent[] getTorrents() -> a
     void setTorrents(org.sugr.gearshift.Torrent[]) -> a
-org.sugr.gearshift.TransmissionSessionManager$TorrentsActionRequest -> org.sugr.gearshift.he:
+org.sugr.gearshift.TransmissionSessionManager$TorrentsActionRequest -> org.sugr.gearshift.hf:
     java.lang.String method -> a
     org.sugr.gearshift.TransmissionSessionManager$TorrentsActionRequest$Arguments arguments -> b
-org.sugr.gearshift.TransmissionSessionManager$TorrentsActionRequest$Arguments -> org.sugr.gearshift.hf:
+org.sugr.gearshift.TransmissionSessionManager$TorrentsActionRequest$Arguments -> org.sugr.gearshift.hg:
     int[] ids -> a
-org.sugr.gearshift.TransmissionSessionManager$TorrentsRemoveRequest -> org.sugr.gearshift.hg:
+org.sugr.gearshift.TransmissionSessionManager$TorrentsRemoveRequest -> org.sugr.gearshift.hh:
     java.lang.String method -> a
     org.sugr.gearshift.TransmissionSessionManager$TorrentsRemoveRequest$Arguments arguments -> b
-org.sugr.gearshift.TransmissionSessionManager$TorrentsRemoveRequest$Arguments -> org.sugr.gearshift.hh:
+org.sugr.gearshift.TransmissionSessionManager$TorrentsRemoveRequest$Arguments -> org.sugr.gearshift.hi:
     int[] ids -> a
     boolean delete -> b
-org.sugr.gearshift.TransmissionSessionManager$TorrentsSetLocationRequest -> org.sugr.gearshift.hi:
+org.sugr.gearshift.TransmissionSessionManager$TorrentsSetLocationRequest -> org.sugr.gearshift.hj:
     java.lang.String method -> a
     org.sugr.gearshift.TransmissionSessionManager$TorrentsSetLocationRequest$Arguments arguments -> b
-org.sugr.gearshift.TransmissionSessionManager$TorrentsSetLocationRequest$Arguments -> org.sugr.gearshift.hj:
+org.sugr.gearshift.TransmissionSessionManager$TorrentsSetLocationRequest$Arguments -> org.sugr.gearshift.hk:
     int[] ids -> a
     java.lang.String location -> b
     boolean move -> c
-org.sugr.gearshift.TransmissionSessionManager$TorrentsSetRequest -> org.sugr.gearshift.hk:
+org.sugr.gearshift.TransmissionSessionManager$TorrentsSetRequest -> org.sugr.gearshift.hl:
     java.lang.String method -> a
     org.sugr.gearshift.TransmissionSessionManager$TorrentsSetRequest$Arguments arguments -> b
-org.sugr.gearshift.TransmissionSessionManager$TorrentsSetRequest$Arguments -> org.sugr.gearshift.hl:
+org.sugr.gearshift.TransmissionSessionManager$TorrentsSetRequest$Arguments -> org.sugr.gearshift.hm:
     int[] ids -> a
     long downloadLimit -> b
     boolean downloadLimited -> c
@@ -4971,22 +4972,22 @@ org.sugr.gearshift.TransmissionSessionManager$TorrentsSetRequest$Arguments -> or
     int[] filesLow -> p
     java.lang.String[] trackerAdd -> q
     int[] trackerRemove -> r
-org.sugr.gearshift.TransmissionSessionManager$TrackerReplaceRequest -> org.sugr.gearshift.hm:
+org.sugr.gearshift.TransmissionSessionManager$TrackerReplaceRequest -> org.sugr.gearshift.hn:
     java.lang.String method -> a
     org.sugr.gearshift.TransmissionSessionManager$TrackerReplaceRequest$Arguments arguments -> b
     org.sugr.gearshift.Torrent$TrackerReplaceTuple getTuple() -> a
-org.sugr.gearshift.TransmissionSessionManager$TrackerReplaceRequest$Arguments -> org.sugr.gearshift.hn:
+org.sugr.gearshift.TransmissionSessionManager$TrackerReplaceRequest$Arguments -> org.sugr.gearshift.ho:
     int[] ids -> a
     org.sugr.gearshift.Torrent$TrackerReplaceTuple trackerReplace -> b
     org.sugr.gearshift.Torrent$TrackerReplaceTuple getTuple() -> a
-org.sugr.gearshift.TransmissionSessionManager$TrackerReplaceRequestSerializer -> org.sugr.gearshift.ho:
+org.sugr.gearshift.TransmissionSessionManager$TrackerReplaceRequestSerializer -> org.sugr.gearshift.hp:
     com.google.gson.Gson cleanGson -> a
     com.google.gson.JsonElement serialize(org.sugr.gearshift.TransmissionSessionManager$TrackerReplaceRequest,java.lang.reflect.Type,com.google.gson.JsonSerializationContext) -> a
     com.google.gson.JsonElement serialize(java.lang.Object,java.lang.reflect.Type,com.google.gson.JsonSerializationContext) -> a
-org.sugr.gearshift.TransmissionSessionManager$TransmissionExclusionStrategy -> org.sugr.gearshift.hp:
+org.sugr.gearshift.TransmissionSessionManager$TransmissionExclusionStrategy -> org.sugr.gearshift.hq:
     boolean shouldSkipClass(java.lang.Class) -> a
     boolean shouldSkipField(com.google.gson.FieldAttributes) -> a
-org.sugr.gearshift.TransmissionSessionStats -> org.sugr.gearshift.hq:
+org.sugr.gearshift.TransmissionSessionStats -> org.sugr.gearshift.hr:
 org.sugr.gearshift.util.Base64 -> org.sugr.gearshift.a.a:
     byte[] _STANDARD_ALPHABET -> b
     byte[] _STANDARD_DECODABET -> c
