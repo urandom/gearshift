@@ -19,6 +19,8 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
+import org.sugr.gearshift.datasource.DataSource;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -65,6 +67,8 @@ public class TransmissionSessionManager {
     private int mInvalidSessionRetries = 0;
     private SharedPreferences mDefaultPrefs;
 
+    private DataSource mDataSource;
+
     public TransmissionSessionManager(Context context, TransmissionProfile profile) {
 //        mContext = context;
         mProfile = profile;
@@ -73,6 +77,8 @@ public class TransmissionSessionManager {
         mDefaultPrefs = PreferenceManager.getDefaultSharedPreferences(context);
 
         mSessionId = mDefaultPrefs.getString(PREF_LAST_SESSION_ID, null);
+        mDataSource = new DataSource(context);
+        mDataSource.open();
     }
 
     public boolean hasConnectivity() {
@@ -500,7 +506,7 @@ public class TransmissionSessionManager {
         return createRequest(method, false);
     }
 
-    private static Response buildResponse(InputStream stream, Class klass) throws IOException {
+    private Response buildResponse(InputStream stream, Class klass) throws IOException {
         ObjectMapper mapper = new ObjectMapper();
         mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 
@@ -523,7 +529,9 @@ public class TransmissionSessionManager {
                     parser.nextValue();
 
                     response = new SessionGetResponse();
-                    TransmissionSession session = mapper.readValue(parser, TransmissionSession.class);
+                    mDataSource.updateSession(parser);
+                    TransmissionSession session = mDataSource.getSession();
+
                     ((SessionGetResponse) response).setSession(session);
                 } else if (klass == SessionStatsResponse.class) {
                     parser.nextValue();

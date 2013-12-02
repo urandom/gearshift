@@ -9,6 +9,8 @@ import android.util.SparseArray;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 
+import org.sugr.gearshift.G;
+import org.sugr.gearshift.R;
 import org.sugr.gearshift.Torrent;
 import org.sugr.gearshift.TransmissionSession;
 
@@ -47,6 +49,7 @@ public class DataSource {
 
     public void close() {
         dbHelper.close();
+        database = null;
     }
 
     public void setRPCVersion(int version) {
@@ -231,6 +234,8 @@ public class DataSource {
             } else if (name.equals("version")) {
                 session.setVersion(cursor.getString(3));
             }
+
+            cursor.moveToNext();
         }
 
         cursor.close();
@@ -240,10 +245,6 @@ public class DataSource {
 
     protected List<ContentValues> jsonToSessionValues(JsonParser parser) throws IOException {
         List<ContentValues> values = new ArrayList<ContentValues>();
-
-        if (parser.nextToken() != JsonToken.START_OBJECT) {
-            throw new IOException("The server data is expected to be an object");
-        }
 
         while (parser.nextToken() != JsonToken.END_OBJECT) {
             String name = parser.getCurrentName();
@@ -266,7 +267,7 @@ public class DataSource {
             } else if (name.equals(TransmissionSession.SetterFields.ALT_SPEED_LIMIT_TIME_ENABLED)) {
                 item.put(Constants.C_NAME, name);
                 item.put(Constants.C_VALUE_AFFINITY, Constants.TYPE_BOOLEAN);
-                item.put(Constants.C_VALUE_INTEGER, parser.getIntValue());
+                item.put(Constants.C_VALUE_INTEGER, parser.getBooleanValue());
             } else if (name.equals(TransmissionSession.SetterFields.ALT_SPEED_LIMIT_TIME_BEGIN)) {
                 item.put(Constants.C_NAME, name);
                 item.put(Constants.C_VALUE_AFFINITY, Constants.TYPE_INT);
@@ -350,7 +351,7 @@ public class DataSource {
             } else if (name.equals(TransmissionSession.SetterFields.PEER_EXCHANGE)) {
                 item.put(Constants.C_NAME, name);
                 item.put(Constants.C_VALUE_AFFINITY, Constants.TYPE_BOOLEAN);
-                item.put(Constants.C_VALUE_INTEGER, parser.getIntValue());
+                item.put(Constants.C_VALUE_INTEGER, parser.getBooleanValue());
             } else if (name.equals(TransmissionSession.SetterFields.PEER_PORT)) {
                 item.put(Constants.C_NAME, name);
                 item.put(Constants.C_VALUE_AFFINITY, Constants.TYPE_INT);
@@ -439,6 +440,7 @@ public class DataSource {
                 item.put(Constants.C_VALUE_TEXT, parser.getText());
             } else {
                 valid = false;
+                parser.skipChildren();
             }
 
             if (valid) {
@@ -455,9 +457,12 @@ public class DataSource {
 
         values.torrent = torrent;
 
-        if (parser.nextToken() != JsonToken.START_OBJECT) {
-            throw new IOException("The server data is expected to be an object");
-        }
+        int status = 0, peersConnected = 0, peersGettingFromUs = 0, peersSendingToUs = 0;
+        long eta = 0, leftUntilDone = 0, sizeWhenDone = 0, uploadedEver = 0,
+            rateDownload = 0, rateUpload = 0;
+        float metadataPercentComplete = 0, percentDone = 0, uploadRatio = 0,
+            recheckProgress = 0, seedLimit = 0;
+        boolean isStalled = false;
 
         while (parser.nextToken() != JsonToken.END_OBJECT) {
             String name = parser.getCurrentName();
@@ -467,7 +472,7 @@ public class DataSource {
             if (name.equals("id")) {
                 torrent.put(Constants.C_TORRENT_ID, parser.getIntValue());
             } else if (name.equals("status")) {
-                int status = parser.getIntValue();
+                status = parser.getIntValue();
                 if (rpcVersion != -1 && rpcVersion < NEW_STATUS_RPC_VERSION) {
                     switch(status) {
                         case Torrent.OldStatus.CHECK_WAITING:
@@ -495,45 +500,60 @@ public class DataSource {
             } else if (name.equals("errorString")) {
                 torrent.put(Constants.C_ERROR_STRING, parser.getText());
             } else if (name.equals("metadataPercentComplete")) {
-                torrent.put(Constants.C_METADATA_PERCENT_COMPLETE, parser.getFloatValue());
+                metadataPercentComplete = parser.getFloatValue();
+                torrent.put(Constants.C_METADATA_PERCENT_COMPLETE, metadataPercentComplete);
             } else if (name.equals("percentDone")) {
-                torrent.put(Constants.C_PERCENT_DONE, parser.getFloatValue());
+                percentDone = parser.getFloatValue();
+                torrent.put(Constants.C_PERCENT_DONE, percentDone);
             } else if (name.equals("eta")) {
-                torrent.put(Constants.C_ETA, parser.getLongValue());
+                eta = parser.getLongValue();
+                torrent.put(Constants.C_ETA, eta);
             } else if (name.equals("isFinished")) {
                 torrent.put(Constants.C_IS_FINISHED, parser.getBooleanValue());
             } else if (name.equals("isStalled")) {
-                torrent.put(Constants.C_IS_STALLED, parser.getBooleanValue());
+                isStalled = parser.getBooleanValue();
+                torrent.put(Constants.C_IS_STALLED, isStalled);
             } else if (name.equals("peersConnected")) {
-                torrent.put(Constants.C_PEERS_CONNECTED, parser.getIntValue());
+                peersConnected = parser.getIntValue();
+                torrent.put(Constants.C_PEERS_CONNECTED, peersConnected);
             } else if (name.equals("peersGettingFromUs")) {
-                torrent.put(Constants.C_PEERS_GETTING_FROM_US, parser.getIntValue());
+                peersGettingFromUs = parser.getIntValue();
+                torrent.put(Constants.C_PEERS_GETTING_FROM_US, peersGettingFromUs);
             } else if (name.equals("peersSendingToUs")) {
-                torrent.put(Constants.C_PEERS_SENDING_TO_US, parser.getIntValue());
+                peersSendingToUs = parser.getIntValue();
+                torrent.put(Constants.C_PEERS_SENDING_TO_US, peersSendingToUs);
             } else if (name.equals("leftUntilDone")) {
-                torrent.put(Constants.C_LEFT_UNTIL_DONE, parser.getLongValue());
+                leftUntilDone = parser.getLongValue();
+                torrent.put(Constants.C_LEFT_UNTIL_DONE, leftUntilDone);
             } else if (name.equals("desiredAvailable")) {
                 torrent.put(Constants.C_DESIRED_AVAILABLE, parser.getLongValue());
             } else if (name.equals("totalSize")) {
                 torrent.put(Constants.C_TOTAL_SIZE, parser.getLongValue());
             } else if (name.equals("sizeWhenDone")) {
-                torrent.put(Constants.C_SIZE_WHEN_DONE, parser.getLongValue());
+                sizeWhenDone = parser.getLongValue();
+                torrent.put(Constants.C_SIZE_WHEN_DONE, sizeWhenDone);
             } else if (name.equals("rateDownload")) {
-                torrent.put(Constants.C_RATE_DOWNLOAD, parser.getLongValue());
+                rateDownload = parser.getLongValue();
+                torrent.put(Constants.C_RATE_DOWNLOAD, rateDownload);
             } else if (name.equals("rateUpload")) {
-                torrent.put(Constants.C_RATE_UPLOAD, parser.getLongValue());
+                rateUpload = parser.getLongValue();
+                torrent.put(Constants.C_RATE_UPLOAD, rateUpload);
             } else if (name.equals(Torrent.SetterFields.QUEUE_POSITION)) {
                 torrent.put(Constants.C_QUEUE_POSITION, parser.getIntValue());
             } else if (name.equals("recheckProgress")) {
-                torrent.put(Constants.C_RECHECK_PROGRESS, parser.getFloatValue());
+                recheckProgress = parser.getFloatValue();
+                torrent.put(Constants.C_RECHECK_PROGRESS, recheckProgress);
             } else if (name.equals(Torrent.SetterFields.SEED_RATIO_MODE)) {
                 torrent.put(Constants.C_SEED_RATIO_MODE, parser.getIntValue());
             } else if (name.equals(Torrent.SetterFields.SEED_RATIO_LIMIT)) {
-                torrent.put(Constants.C_SEED_RATIO_LIMIT, parser.getFloatValue());
+                seedLimit = parser.getFloatValue();
+                torrent.put(Constants.C_SEED_RATIO_LIMIT, seedLimit);
             } else if (name.equals("uploadedEver")) {
-                torrent.put(Constants.C_UPLOADED_EVER, parser.getLongValue());
+                uploadedEver = parser.getLongValue();
+                torrent.put(Constants.C_UPLOADED_EVER, uploadedEver);
             } else if (name.equals("uploadRatio")) {
-                torrent.put(Constants.C_UPLOAD_RATIO, parser.getFloatValue());
+                uploadRatio = parser.getFloatValue();
+                torrent.put(Constants.C_UPLOAD_RATIO, uploadRatio);
             } else if (name.equals("addedDate")) {
                 torrent.put(Constants.C_ADDED_DATE, parser.getLongValue());
             } else if (name.equals("doneDate")) {
@@ -771,9 +791,173 @@ public class DataSource {
 
                     ++index;
                 }
+            } else {
+                parser.skipChildren();
             }
 
-            /* TODO: trafficText, statusText */
+        }
+        String trafficText = null;
+        switch (status) {
+            case Torrent.Status.DOWNLOAD_WAITING:
+            case Torrent.Status.DOWNLOADING:
+                trafficText = String.format(
+                    context.getString(R.string.traffic_downloading_format),
+                    G.readableFileSize(sizeWhenDone - leftUntilDone),
+                    G.readableFileSize(sizeWhenDone),
+                    String.format(context.getString(R.string.traffic_downloading_percentage_format),
+                           G.readablePercent(percentDone * 100)),
+                    eta < 0
+                        ? context.getString(R.string.traffic_remaining_time_unknown)
+                        : String.format(context.getString(R.string.traffic_remaining_time_format),
+                           G.readableRemainingTime(eta, context))
+                );
+                break;
+            case Torrent.Status.SEED_WAITING:
+            case Torrent.Status.SEEDING:
+                trafficText = String.format(
+                                context.getString(R.string.traffic_seeding_format),
+                    G.readableFileSize(sizeWhenDone),
+                    G.readableFileSize(uploadedEver),
+                    String.format(context.getString(R.string.traffic_seeding_ratio_format),
+                           G.readablePercent(uploadRatio),
+                           seedLimit <= 0 ? "" : String.format(
+                               context.getString(R.string.traffic_seeding_ratio_goal_format),
+                               G.readablePercent(seedLimit))
+                    ),
+                    seedLimit <= 0
+                        ? ""
+                        : eta < 0
+                            ? context.getString(R.string.traffic_remaining_time_unknown)
+                            : String.format(context.getString(R.string.traffic_remaining_time_format),
+                               G.readableRemainingTime(eta, context))
+                );
+                break;
+            case Torrent.Status.CHECK_WAITING:
+                break;
+            case Torrent.Status.CHECKING:
+                break;
+            case Torrent.Status.STOPPED:
+                if (percentDone < 1) {
+                    trafficText = String.format(
+                                    context.getString(R.string.traffic_downloading_format),
+                        G.readableFileSize(sizeWhenDone - leftUntilDone),
+                        G.readableFileSize(sizeWhenDone),
+                        String.format(context.getString(R.string.traffic_downloading_percentage_format),
+                               G.readablePercent(percentDone * 100)),
+                        "<br/>" + String.format(
+                                        context.getString(R.string.traffic_seeding_format),
+                            G.readableFileSize(sizeWhenDone),
+                            G.readableFileSize(uploadedEver),
+                            String.format(context.getString(R.string.traffic_seeding_ratio_format),
+                                   uploadRatio < 0 ? 0 : G.readablePercent(uploadRatio),
+                                   seedLimit <= 0 ? "" : String.format(
+                                       context.getString(R.string.traffic_seeding_ratio_goal_format),
+                                       G.readablePercent(seedLimit))
+                            ),
+                            ""
+                        )
+                    );
+                } else {
+                    trafficText = String.format(
+                                    context.getString(R.string.traffic_seeding_format),
+                        G.readableFileSize(sizeWhenDone),
+                        G.readableFileSize(uploadedEver),
+                        String.format(context.getString(R.string.traffic_seeding_ratio_format),
+                               G.readablePercent(uploadRatio),
+                               seedLimit <= 0 ? "" : String.format(
+                                   context.getString(R.string.traffic_seeding_ratio_goal_format),
+                                   G.readablePercent(seedLimit))
+                        ),
+                        ""
+                    );
+                }
+
+                break;
+            default:
+                break;
+        }
+
+        String statusText = null;
+        String statusFormat = context.getString(R.string.status_format);
+        String statusType, statusMoreFormat, statusSpeedFormat, statusSpeed;
+        switch (status) {
+            case Torrent.Status.DOWNLOAD_WAITING:
+            case Torrent.Status.DOWNLOADING:
+                statusType = context.getString(status == Torrent.Status.DOWNLOADING
+                        ? metadataPercentComplete < 1
+                            ? R.string.status_state_downloading_metadata
+                            : R.string.status_state_downloading
+                        : R.string.status_state_download_waiting);
+                statusMoreFormat = context.getString(R.string.status_more_downloading_format);
+                statusSpeedFormat = context.getString(R.string.status_more_downloading_speed_format);
+
+                if (isStalled) {
+                    statusSpeed = context.getString(R.string.status_more_idle);
+                } else {
+                    statusSpeed = String.format(statusSpeedFormat,
+                        G.readableFileSize(rateDownload),
+                        G.readableFileSize(rateUpload)
+                    );
+                }
+
+                statusText = String.format(statusFormat, statusType,
+                        String.format(statusMoreFormat,
+                            peersSendingToUs, peersConnected, statusSpeed
+                        )
+                    );
+                break;
+            case Torrent.Status.SEED_WAITING:
+            case Torrent.Status.SEEDING:
+                statusType = context.getString(status == Torrent.Status.SEEDING
+                        ? R.string.status_state_seeding : R.string.status_state_seed_waiting);
+                statusMoreFormat = context.getString(R.string.status_more_seeding_format);
+                statusSpeedFormat = context.getString(R.string.status_more_seeding_speed_format);
+
+                if (isStalled) {
+                    statusSpeed = context.getString(R.string.status_more_idle);
+                } else {
+                    statusSpeed = String.format(statusSpeedFormat,
+                        G.readableFileSize(rateUpload)
+                    );
+                }
+
+                statusText = String.format(statusFormat, statusType,
+                        String.format(statusMoreFormat,
+                            peersGettingFromUs, peersConnected, statusSpeed
+                        )
+                    );
+                break;
+            case Torrent.Status.CHECK_WAITING:
+                statusType = context.getString(R.string.status_state_check_waiting);
+
+                statusText = String.format(statusFormat,
+                    statusType,
+                    "-" + context.getString(R.string.status_more_idle)
+                );
+                break;
+            case Torrent.Status.CHECKING:
+                statusText = String.format(
+                    context.getString(R.string.status_state_checking),
+                    G.readablePercent(recheckProgress * 100));
+
+                break;
+            case Torrent.Status.STOPPED:
+                statusText = context.getString(
+                    status == Torrent.Status.STOPPED || uploadRatio < seedLimit
+                        ? R.string.status_state_paused
+                        : R.string.status_state_finished
+                );
+
+                break;
+            default:
+                break;
+        }
+
+        if (trafficText != null) {
+            torrent.put(Constants.C_TRAFFIC_TEXT, trafficText);
+        }
+        if (statusText != null) {
+            torrent.put(Constants.C_STATUS_TEXT, statusText);
         }
 
         return values;

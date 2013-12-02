@@ -106,11 +106,11 @@ public final class Constants {
 
     public static final String T_SESSION_CREATE = "CREATE TABLE "
         + T_SESSION + "("
-        + C_NAME + " TEXT"
-        + C_VALUE_AFFINITY + " TEXT NOT NULL"
-        + C_VALUE_INTEGER + " INTEGER"
-        + C_VALUE_REAL + " REAL"
-        + C_VALUE_TEXT + " TEXT NOT NULL DEFAULT ''"
+        + C_NAME + " TEXT, "
+        + C_VALUE_AFFINITY + " TEXT NOT NULL, "
+        + C_VALUE_INTEGER + " INTEGER, "
+        + C_VALUE_REAL + " REAL, "
+        + C_VALUE_TEXT + " TEXT NOT NULL DEFAULT '', "
 
         + "PRIMARY KEY (" + C_NAME + ")"
         + ");";
