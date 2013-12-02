@@ -1,19 +1,26 @@
 package org.sugr.gearshift.datasource;
 
 public final class Constants {
-    public static final String T_TORRENT= "torrent";
-    public static final String T_TRACKER= "tracker";
+    public static final String T_SESSION = "session";
+    public static final String T_TORRENT = "torrent";
+    public static final String T_TRACKER = "tracker";
     public static final String T_TORRENT_TRACKER = "torrent_tracker";
-    public static final String T_FILE= "file";
-    public static final String T_PEER= "peer";
+    public static final String T_FILE = "file";
+    public static final String T_PEER = "peer";
 
-    public static final String C_TORRENT_ID= "torrent_id";
-    public static final String C_STATUS= "status";
-    public static final String C_NAME= "name";
-    public static final String C_ERROR= "error";
-    public static final String C_ERROR_STRING= "error_string";
-    public static final String C_METADATA_PERCENT_COMPLETE= "metadata_percent_complete";
-    public static final String C_PERCENT_DONE= "percent_done";
+    public static final String C_NAME = "name";
+    public static final String C_VALUE_AFFINITY = "value_affinity";
+    public static final String C_VALUE_INTEGER = "value_integer";
+    public static final String C_VALUE_REAL = "value_real";
+    public static final String C_VALUE_TEXT = "value_text";
+
+    public static final String C_TORRENT_ID = "torrent_id";
+    public static final String C_STATUS = "status";
+
+    public static final String C_ERROR = "error";
+    public static final String C_ERROR_STRING = "error_string";
+    public static final String C_METADATA_PERCENT_COMPLETE = "metadata_percent_complete";
+    public static final String C_PERCENT_DONE = "percent_done";
     public static final String C_ETA = "eta";
     public static final String C_IS_FINISHED = "is_finished";
     public static final String C_IS_STALLED = "is_stalled";
@@ -97,7 +104,18 @@ public final class Constants {
     public static final String C_RATE_TO_CLIENT = "rate_to_client";
     public static final String C_RATE_TO_PEER = "rate_to_peer";
 
-    public static final String T_TORRENT_CREATE= "CREATE TABLE "
+    public static final String T_SESSION_CREATE = "CREATE TABLE "
+        + T_SESSION + "("
+        + C_NAME + " TEXT"
+        + C_VALUE_AFFINITY + " TEXT NOT NULL"
+        + C_VALUE_INTEGER + " INTEGER"
+        + C_VALUE_REAL + " REAL"
+        + C_VALUE_TEXT + " TEXT NOT NULL DEFAULT ''"
+
+        + "PRIMARY KEY (" + C_NAME + ")"
+        + ");";
+
+    public static final String T_TORRENT_CREATE = "CREATE TABLE "
         + T_TORRENT + "("
         + C_TORRENT_ID + " INTEGER NOT NULL, "
         + C_STATUS + " INTEGER NOT NULL, "
@@ -156,7 +174,7 @@ public final class Constants {
         + ");";
 
     /* The tracker is not associated with a torrent */
-    public static final String T_TRACKER_CREATE= "CREATE TABLE "
+    public static final String T_TRACKER_CREATE = "CREATE TABLE "
         + T_TRACKER + "("
         + C_TRACKER_ID + " INTEGER, "
         + C_ANNOUNCE + " TEXT NOT NULL UNIQUE, "
@@ -185,7 +203,7 @@ public final class Constants {
         + "PRIMARY KEY (" + C_TORRENT_ID + ", " + C_TRACKER_ID + ")"
         + ");";
 
-    public static final String T_FILE_CREATE= "CREATE TABLE "
+    public static final String T_FILE_CREATE = "CREATE TABLE "
         + T_FILE + "("
         + C_TORRENT_ID + " INTEGER REFERENCES " + T_TORRENT + "(" + C_TORRENT_ID + ") ON DELETE CASCADE, "
         + C_NAME + " TEXT NOT NULL DEFAULT '', "
@@ -197,7 +215,7 @@ public final class Constants {
         + "PRIMARY KEY (" + C_TORRENT_ID + ")"
         + ");";
 
-    public static final String T_PEER_CREATE= "CREATE TABLE "
+    public static final String T_PEER_CREATE = "CREATE TABLE "
         + T_PEER + "("
         + C_TORRENT_ID + " INTEGER REFERENCES " + T_TORRENT + "(" + C_TORRENT_ID + ") ON DELETE CASCADE, "
         + C_ADDRESS + " TEXT NOT NULL DEFAULT '', "
@@ -217,4 +235,10 @@ public final class Constants {
 
         + "PRIMARY KEY (" + C_TORRENT_ID + ")"
         + ");";
+
+    public static final String TYPE_INT = "int";
+    public static final String TYPE_BOOLEAN = "boolean";
+    public static final String TYPE_LONG = "long";
+    public static final String TYPE_FLOAT = "float";
+    public static final String TYPE_STRING = "string";
 }

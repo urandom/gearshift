@@ -9,6 +9,7 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 
 import org.sugr.gearshift.Torrent;
+import org.sugr.gearshift.TransmissionSession;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -30,7 +31,7 @@ public class TorrentDataSource {
     /* Transmission stuff */
     private static final int NEW_STATUS_RPC_VERSION = 14;
 
-    private int rpcVersion;
+    private int rpcVersion = -1;
 
     public TorrentDataSource(Context context) {
         this.context = context;
@@ -49,6 +50,23 @@ public class TorrentDataSource {
 
     public void setRPCVersion(int version) {
         rpcVersion = version;
+    }
+
+    public void updateSession(JsonParser parser) throws IOException {
+        database.beginTransaction();
+
+        try {
+            List<ContentValues> session = jsonToSessionValues(parser);
+
+            for (ContentValues item : session) {
+                database.insertWithOnConflict(Constants.T_SESSION, null,
+                    item, SQLiteDatabase.CONFLICT_REPLACE);
+            }
+
+            database.setTransactionSuccessful();
+        } finally {
+            database.endTransaction();
+        }
     }
 
     public void updateTorrents(JsonParser parser) throws IOException {
@@ -107,6 +125,217 @@ public class TorrentDataSource {
     }
 
     /* Transmission implementation */
+    protected List<ContentValues> jsonToSessionValues(JsonParser parser) throws IOException {
+        List<ContentValues> values = new ArrayList<ContentValues>();
+
+        if (parser.nextToken() != JsonToken.START_OBJECT) {
+            throw new IOException("The server data is expected to be an object");
+        }
+
+        while (parser.nextToken() != JsonToken.END_OBJECT) {
+            String name = parser.getCurrentName();
+            ContentValues item = new ContentValues();
+            boolean valid = true;
+
+            parser.nextToken();
+            if (name.equals(TransmissionSession.SetterFields.ALT_SPEED_LIMIT_ENABLED)) {
+                item.put(Constants.C_NAME, name);
+                item.put(Constants.C_VALUE_AFFINITY, Constants.TYPE_BOOLEAN);
+                item.put(Constants.C_VALUE_INTEGER, parser.getBooleanValue());
+            } else if (name.equals(TransmissionSession.SetterFields.ALT_DOWNLOAD_SPEED_LIMIT)) {
+                item.put(Constants.C_NAME, name);
+                item.put(Constants.C_VALUE_AFFINITY, Constants.TYPE_LONG);
+                item.put(Constants.C_VALUE_INTEGER, parser.getLongValue());
+            } else if (name.equals(TransmissionSession.SetterFields.ALT_UPLOAD_SPEED_LIMIT)) {
+                item.put(Constants.C_NAME, name);
+                item.put(Constants.C_VALUE_AFFINITY, Constants.TYPE_LONG);
+                item.put(Constants.C_VALUE_INTEGER, parser.getLongValue());
+            } else if (name.equals(TransmissionSession.SetterFields.ALT_SPEED_LIMIT_TIME_ENABLED)) {
+                item.put(Constants.C_NAME, name);
+                item.put(Constants.C_VALUE_AFFINITY, Constants.TYPE_BOOLEAN);
+                item.put(Constants.C_VALUE_INTEGER, parser.getIntValue());
+            } else if (name.equals(TransmissionSession.SetterFields.ALT_SPEED_LIMIT_TIME_BEGIN)) {
+                item.put(Constants.C_NAME, name);
+                item.put(Constants.C_VALUE_AFFINITY, Constants.TYPE_INT);
+                item.put(Constants.C_VALUE_INTEGER, parser.getIntValue());
+            } else if (name.equals(TransmissionSession.SetterFields.ALT_SPEED_LIMIT_TIME_END)) {
+                item.put(Constants.C_NAME, name);
+                item.put(Constants.C_VALUE_AFFINITY, Constants.TYPE_INT);
+                item.put(Constants.C_VALUE_INTEGER, parser.getIntValue());
+            } else if (name.equals(TransmissionSession.SetterFields.ALT_SPEED_LIMIT_TIME_DAY)) {
+                item.put(Constants.C_NAME, name);
+                item.put(Constants.C_VALUE_AFFINITY, Constants.TYPE_INT);
+                item.put(Constants.C_VALUE_INTEGER, parser.getIntValue());
+            } else if (name.equals(TransmissionSession.SetterFields.BLOCKLIST_ENABLED)) {
+                item.put(Constants.C_NAME, name);
+                item.put(Constants.C_VALUE_AFFINITY, Constants.TYPE_BOOLEAN);
+                item.put(Constants.C_VALUE_INTEGER, parser.getBooleanValue());
+            } else if (name.equals("blocklist-size")) {
+                item.put(Constants.C_NAME, name);
+                item.put(Constants.C_VALUE_AFFINITY, Constants.TYPE_LONG);
+                item.put(Constants.C_VALUE_INTEGER, parser.getLongValue());
+            } else if (name.equals(TransmissionSession.SetterFields.BLOCKLIST_URL)) {
+                item.put(Constants.C_NAME, name);
+                item.put(Constants.C_VALUE_AFFINITY, Constants.TYPE_STRING);
+                item.put(Constants.C_VALUE_TEXT, parser.getText());
+            } else if (name.equals(TransmissionSession.SetterFields.DHT)) {
+                item.put(Constants.C_NAME, name);
+                item.put(Constants.C_VALUE_AFFINITY, Constants.TYPE_BOOLEAN);
+                item.put(Constants.C_VALUE_INTEGER, parser.getBooleanValue());
+            } else if (name.equals(TransmissionSession.SetterFields.ENCRYPTION)) {
+                item.put(Constants.C_NAME, name);
+                item.put(Constants.C_VALUE_AFFINITY, Constants.TYPE_STRING);
+                item.put(Constants.C_VALUE_TEXT, parser.getText());
+            } else if (name.equals(TransmissionSession.SetterFields.CACHE_SIZE)) {
+                item.put(Constants.C_NAME, name);
+                item.put(Constants.C_VALUE_AFFINITY, Constants.TYPE_LONG);
+                item.put(Constants.C_VALUE_INTEGER, parser.getLongValue());
+            } else if (name.equals("config-dir")) {
+                item.put(Constants.C_NAME, name);
+                item.put(Constants.C_VALUE_AFFINITY, Constants.TYPE_STRING);
+                item.put(Constants.C_VALUE_TEXT, parser.getText());
+            } else if (name.equals(TransmissionSession.SetterFields.DOWNLOAD_DIR)) {
+                item.put(Constants.C_NAME, name);
+                item.put(Constants.C_VALUE_AFFINITY, Constants.TYPE_STRING);
+                item.put(Constants.C_VALUE_TEXT, parser.getText());
+            } else if (name.equals("download-dir-free-space")) {
+                item.put(Constants.C_NAME, name);
+                item.put(Constants.C_VALUE_AFFINITY, Constants.TYPE_LONG);
+                item.put(Constants.C_VALUE_INTEGER, parser.getLongValue());
+            } else if (name.equals(TransmissionSession.SetterFields.DOWNLOAD_QUEUE_SIZE)) {
+                item.put(Constants.C_NAME, name);
+                item.put(Constants.C_VALUE_AFFINITY, Constants.TYPE_INT);
+                item.put(Constants.C_VALUE_INTEGER, parser.getIntValue());
+            } else if (name.equals(TransmissionSession.SetterFields.DOWNLOAD_QUEUE_ENABLED)) {
+                item.put(Constants.C_NAME, name);
+                item.put(Constants.C_VALUE_AFFINITY, Constants.TYPE_BOOLEAN);
+                item.put(Constants.C_VALUE_INTEGER, parser.getBooleanValue());
+            } else if (name.equals(TransmissionSession.SetterFields.INCOMPLETE_DIR)) {
+                item.put(Constants.C_NAME, name);
+                item.put(Constants.C_VALUE_AFFINITY, Constants.TYPE_STRING);
+                item.put(Constants.C_VALUE_TEXT, parser.getText());
+            } else if (name.equals(TransmissionSession.SetterFields.INCOMPLETE_DIR_ENABLED)) {
+                item.put(Constants.C_NAME, name);
+                item.put(Constants.C_VALUE_AFFINITY, Constants.TYPE_BOOLEAN);
+                item.put(Constants.C_VALUE_INTEGER, parser.getBooleanValue());
+            } else if (name.equals(TransmissionSession.SetterFields.LOCAL_DISCOVERY)) {
+                item.put(Constants.C_NAME, name);
+                item.put(Constants.C_VALUE_AFFINITY, Constants.TYPE_BOOLEAN);
+                item.put(Constants.C_VALUE_INTEGER, parser.getBooleanValue());
+            } else if (name.equals(TransmissionSession.SetterFields.UTP)) {
+                item.put(Constants.C_NAME, name);
+                item.put(Constants.C_VALUE_AFFINITY, Constants.TYPE_BOOLEAN);
+                item.put(Constants.C_VALUE_INTEGER, parser.getBooleanValue());
+            } else if (name.equals(TransmissionSession.SetterFields.GLOBAL_PEER_LIMIT)) {
+                item.put(Constants.C_NAME, name);
+                item.put(Constants.C_VALUE_AFFINITY, Constants.TYPE_INT);
+                item.put(Constants.C_VALUE_INTEGER, parser.getIntValue());
+            } else if (name.equals(TransmissionSession.SetterFields.TORRENT_PEER_LIMIT)) {
+                item.put(Constants.C_NAME, name);
+                item.put(Constants.C_VALUE_AFFINITY, Constants.TYPE_INT);
+                item.put(Constants.C_VALUE_INTEGER, parser.getIntValue());
+            } else if (name.equals(TransmissionSession.SetterFields.PEER_EXCHANGE)) {
+                item.put(Constants.C_NAME, name);
+                item.put(Constants.C_VALUE_AFFINITY, Constants.TYPE_BOOLEAN);
+                item.put(Constants.C_VALUE_INTEGER, parser.getIntValue());
+            } else if (name.equals(TransmissionSession.SetterFields.PEER_PORT)) {
+                item.put(Constants.C_NAME, name);
+                item.put(Constants.C_VALUE_AFFINITY, Constants.TYPE_INT);
+                item.put(Constants.C_VALUE_INTEGER, parser.getIntValue());
+            } else if (name.equals(TransmissionSession.SetterFields.RANDOM_PORT)) {
+                item.put(Constants.C_NAME, name);
+                item.put(Constants.C_VALUE_AFFINITY, Constants.TYPE_BOOLEAN);
+                item.put(Constants.C_VALUE_INTEGER, parser.getBooleanValue());
+            } else if (name.equals(TransmissionSession.SetterFields.PORT_FORWARDING)) {
+                item.put(Constants.C_NAME, name);
+                item.put(Constants.C_VALUE_AFFINITY, Constants.TYPE_BOOLEAN);
+                item.put(Constants.C_VALUE_INTEGER, parser.getBooleanValue());
+            } else if (name.equals(TransmissionSession.SetterFields.RENAME_PARTIAL)) {
+                item.put(Constants.C_NAME, name);
+                item.put(Constants.C_VALUE_AFFINITY, Constants.TYPE_BOOLEAN);
+                item.put(Constants.C_VALUE_INTEGER, parser.getBooleanValue());
+            } else if (name.equals("rpc-version")) {
+                setRPCVersion(parser.getIntValue());
+
+                item.put(Constants.C_NAME, name);
+                item.put(Constants.C_VALUE_AFFINITY, Constants.TYPE_INT);
+                item.put(Constants.C_VALUE_INTEGER, rpcVersion);
+            } else if (name.equals("rpc-version-minimum")) {
+                item.put(Constants.C_NAME, name);
+                item.put(Constants.C_VALUE_AFFINITY, Constants.TYPE_INT);
+                item.put(Constants.C_VALUE_INTEGER, parser.getIntValue());
+            } else if (name.equals(TransmissionSession.SetterFields.DONE_SCRIPT)) {
+                item.put(Constants.C_NAME, name);
+                item.put(Constants.C_VALUE_AFFINITY, Constants.TYPE_STRING);
+                item.put(Constants.C_VALUE_TEXT, parser.getText());
+            } else if (name.equals(TransmissionSession.SetterFields.DONE_SCRIPT_ENABLED)) {
+                item.put(Constants.C_NAME, name);
+                item.put(Constants.C_VALUE_AFFINITY, Constants.TYPE_BOOLEAN);
+                item.put(Constants.C_VALUE_INTEGER, parser.getBooleanValue());
+            } else if (name.equals(TransmissionSession.SetterFields.SEED_QUEUE_SIZE)) {
+                item.put(Constants.C_NAME, name);
+                item.put(Constants.C_VALUE_AFFINITY, Constants.TYPE_INT);
+                item.put(Constants.C_VALUE_INTEGER, parser.getIntValue());
+            } else if (name.equals(TransmissionSession.SetterFields.SEED_QUEUE_ENABLED)) {
+                item.put(Constants.C_NAME, name);
+                item.put(Constants.C_VALUE_AFFINITY, Constants.TYPE_BOOLEAN);
+                item.put(Constants.C_VALUE_INTEGER, parser.getBooleanValue());
+            } else if (name.equals(TransmissionSession.SetterFields.SEED_RATIO_LIMIT)) {
+                item.put(Constants.C_NAME, name);
+                item.put(Constants.C_VALUE_AFFINITY, Constants.TYPE_FLOAT);
+                item.put(Constants.C_VALUE_REAL, parser.getFloatValue());
+            } else if (name.equals(TransmissionSession.SetterFields.SEED_RATIO_LIMIT_ENABLED)) {
+                item.put(Constants.C_NAME, name);
+                item.put(Constants.C_VALUE_AFFINITY, Constants.TYPE_BOOLEAN);
+                item.put(Constants.C_VALUE_INTEGER, parser.getBooleanValue());
+            } else if (name.equals(TransmissionSession.SetterFields.DOWNLOAD_SPEED_LIMIT)) {
+                item.put(Constants.C_NAME, name);
+                item.put(Constants.C_VALUE_AFFINITY, Constants.TYPE_LONG);
+                item.put(Constants.C_VALUE_INTEGER, parser.getLongValue());
+            } else if (name.equals(TransmissionSession.SetterFields.DOWNLOAD_SPEED_LIMIT_ENABLED)) {
+                item.put(Constants.C_NAME, name);
+                item.put(Constants.C_VALUE_AFFINITY, Constants.TYPE_BOOLEAN);
+                item.put(Constants.C_VALUE_INTEGER, parser.getBooleanValue());
+            } else if (name.equals(TransmissionSession.SetterFields.UPLOAD_SPEED_LIMIT)) {
+                item.put(Constants.C_NAME, name);
+                item.put(Constants.C_VALUE_AFFINITY, Constants.TYPE_LONG);
+                item.put(Constants.C_VALUE_INTEGER, parser.getLongValue());
+            } else if (name.equals(TransmissionSession.SetterFields.UPLOAD_SPEED_LIMIT_ENABLED)) {
+                item.put(Constants.C_NAME, name);
+                item.put(Constants.C_VALUE_AFFINITY, Constants.TYPE_BOOLEAN);
+                item.put(Constants.C_VALUE_INTEGER, parser.getBooleanValue());
+            } else if (name.equals(TransmissionSession.SetterFields.STALLED_QUEUE_SIZE)) {
+                item.put(Constants.C_NAME, name);
+                item.put(Constants.C_VALUE_AFFINITY, Constants.TYPE_INT);
+                item.put(Constants.C_VALUE_INTEGER, parser.getIntValue());
+            } else if (name.equals(TransmissionSession.SetterFields.STALLED_QUEUE_ENABLED)) {
+                item.put(Constants.C_NAME, name);
+                item.put(Constants.C_VALUE_AFFINITY, Constants.TYPE_BOOLEAN);
+                item.put(Constants.C_VALUE_INTEGER, parser.getBooleanValue());
+            } else if (name.equals(TransmissionSession.SetterFields.START_ADDED)) {
+                item.put(Constants.C_NAME, name);
+                item.put(Constants.C_VALUE_AFFINITY, Constants.TYPE_BOOLEAN);
+                item.put(Constants.C_VALUE_INTEGER, parser.getBooleanValue());
+            } else if (name.equals(TransmissionSession.SetterFields.TRASH_ORIGINAL)) {
+                item.put(Constants.C_NAME, name);
+                item.put(Constants.C_VALUE_AFFINITY, Constants.TYPE_BOOLEAN);
+                item.put(Constants.C_VALUE_INTEGER, parser.getBooleanValue());
+            } else if (name.equals("version")) {
+                item.put(Constants.C_NAME, name);
+                item.put(Constants.C_VALUE_AFFINITY, Constants.TYPE_STRING);
+                item.put(Constants.C_VALUE_TEXT, parser.getText());
+            } else {
+                valid = false;
+            }
+
+            if (valid) {
+                values.add(item);
+            }
+        }
+
+        return values;
+    }
+
     protected TorrentValues jsonToTorrentValues(JsonParser parser) throws IOException {
         TorrentValues values = new TorrentValues();
         ContentValues torrent = new ContentValues();
@@ -125,7 +354,27 @@ public class TorrentDataSource {
             if (name.equals("id")) {
                 torrent.put(Constants.C_TORRENT_ID, parser.getIntValue());
             } else if (name.equals("status")) {
-                torrent.put(Constants.C_STATUS, parser.getIntValue());
+                int status = parser.getIntValue();
+                if (rpcVersion != -1 && rpcVersion < NEW_STATUS_RPC_VERSION) {
+                    switch(status) {
+                        case Torrent.OldStatus.CHECK_WAITING:
+                            status = Torrent.Status.CHECK_WAITING;
+                            break;
+                        case Torrent.OldStatus.CHECKING:
+                            status = Torrent.Status.CHECKING;
+                            break;
+                        case Torrent.OldStatus.DOWNLOADING:
+                            status = Torrent.Status.DOWNLOADING;
+                            break;
+                        case Torrent.OldStatus.SEEDING:
+                            status = Torrent.Status.SEEDING;
+                            break;
+                        case Torrent.OldStatus.STOPPED:
+                            status = Torrent.Status.STOPPED;
+                            break;
+                    }
+                }
+                torrent.put(Constants.C_STATUS, status);
             } else if (name.equals("name")) {
                 torrent.put(Constants.C_NAME, parser.getText());
             } else if (name.equals("error")) {
