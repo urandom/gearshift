@@ -453,6 +453,15 @@ public class TransmissionDataLoader extends AsyncTaskLoader<TransmissionData> {
             hasMetadataNeeded = true;
         }
 
+
+        for (Thread t : threads) {
+            try {
+                t.join();
+            } catch (InterruptedException e) {
+                return handleError(e);
+            }
+        }
+
         try {
             if (mCurrentTorrents != null) {
                 torrents = mSessManager.getTorrents(ids, fields);
@@ -471,14 +480,6 @@ public class TransmissionDataLoader extends AsyncTaskLoader<TransmissionData> {
             }
         } catch (ManagerException e) {
             return handleError(e);
-        }
-
-        for (Thread t : threads) {
-            try {
-                t.join();
-            } catch (InterruptedException e) {
-                return handleError(e);
-            }
         }
 
         if (exceptions.size() > 0) {
@@ -599,6 +600,8 @@ public class TransmissionDataLoader extends AsyncTaskLoader<TransmissionData> {
 
         G.logD("TLoader: onStartLoading()");
 
+        /* TODO: open the data source here */
+
         mStopUpdates = false;
         if (mLastError > 0) {
             mSession = null;
@@ -623,6 +626,8 @@ public class TransmissionDataLoader extends AsyncTaskLoader<TransmissionData> {
 
         G.logD("TLoader: onStopLoading()");
         cancelLoad();
+
+        /* TODO: Close the data source here */
     }
 
     @Override

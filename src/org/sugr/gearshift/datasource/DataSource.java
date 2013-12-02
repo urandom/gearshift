@@ -52,6 +52,10 @@ public class DataSource {
         database = null;
     }
 
+    public boolean isOpen() {
+        return database != null && database.isOpen();
+    }
+
     public void setRPCVersion(int version) {
         rpcVersion = version;
     }
