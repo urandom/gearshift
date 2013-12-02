@@ -2,6 +2,7 @@ package org.sugr.gearshift.datasource;
 
 import android.content.ContentValues;
 import android.content.Context;
+import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.util.SparseArray;
 
@@ -22,7 +23,7 @@ class TorrentValues {
     public List<ContentValues> peers;
 }
 
-public class TorrentDataSource {
+public class DataSource {
     private SQLiteDatabase database;
 
     private SQLiteHelper dbHelper;
@@ -33,7 +34,7 @@ public class TorrentDataSource {
 
     private int rpcVersion = -1;
 
-    public TorrentDataSource(Context context) {
+    public DataSource(Context context) {
         this.context = context;
         this.dbHelper = new SQLiteHelper(context);
 
@@ -125,6 +126,118 @@ public class TorrentDataSource {
     }
 
     /* Transmission implementation */
+    public TransmissionSession getSession() {
+        TransmissionSession session = new TransmissionSession();
+        
+        Cursor cursor = database.query(Constants.T_SESSION, new String[] {
+            Constants.C_NAME, Constants.C_VALUE_INTEGER,
+            Constants.C_VALUE_REAL, Constants.C_VALUE_TEXT
+        }, null, null, null, null, null);
+
+        cursor.moveToFirst();
+
+        while (!cursor.isAfterLast()) {
+            String name = cursor.getString(0);
+            if (name.equals(TransmissionSession.SetterFields.ALT_SPEED_LIMIT_ENABLED)) {
+                session.setAltSpeedLimitEnabled(cursor.getInt(1) > 0);
+            } else if (name.equals(TransmissionSession.SetterFields.ALT_DOWNLOAD_SPEED_LIMIT)) {
+                session.setAltDownloadSpeedLimit(cursor.getLong(1));
+            } else if (name.equals(TransmissionSession.SetterFields.ALT_UPLOAD_SPEED_LIMIT)) {
+                session.setAltUploadSpeedLimit(cursor.getLong(1));
+            } else if (name.equals(TransmissionSession.SetterFields.ALT_SPEED_LIMIT_TIME_ENABLED)) {
+                session.setAltSpeedLimitTimeEnabled(cursor.getInt(1) > 0);
+            } else if (name.equals(TransmissionSession.SetterFields.ALT_SPEED_LIMIT_TIME_BEGIN)) {
+                session.setAltSpeedTimeBegin(cursor.getInt(1));
+            } else if (name.equals(TransmissionSession.SetterFields.ALT_SPEED_LIMIT_TIME_END)) {
+                session.setAltSpeedTimeEnd(cursor.getInt(1));
+            } else if (name.equals(TransmissionSession.SetterFields.ALT_SPEED_LIMIT_TIME_DAY)) {
+                session.setAltSpeedTimeDay(cursor.getInt(1));
+            } else if (name.equals(TransmissionSession.SetterFields.BLOCKLIST_ENABLED)) {
+                session.setBlocklistEnabled(cursor.getInt(1) > 0);
+            } else if (name.equals("blocklist-size")) {
+                session.setBlocklistSize(cursor.getLong(1));
+            } else if (name.equals(TransmissionSession.SetterFields.BLOCKLIST_URL)) {
+                session.setBlocklistURL(cursor.getString(3));
+            } else if (name.equals(TransmissionSession.SetterFields.DHT)) {
+                session.setDHTEnabled(cursor.getInt(1) > 0);
+            } else if (name.equals(TransmissionSession.SetterFields.ENCRYPTION)) {
+                session.setEncryption(cursor.getString(3));
+            } else if (name.equals(TransmissionSession.SetterFields.CACHE_SIZE)) {
+                session.setCacheSize(cursor.getLong(1));
+            } else if (name.equals("config-dir")) {
+                session.setConfigDir(cursor.getString(3));
+            } else if (name.equals(TransmissionSession.SetterFields.DOWNLOAD_DIR)) {
+                session.setDownloadDir(cursor.getString(3));
+            } else if (name.equals("download-dir-free-space")) {
+                session.setDownloadDirFreeSpace(cursor.getLong(1));
+            } else if (name.equals(TransmissionSession.SetterFields.DOWNLOAD_QUEUE_SIZE)) {
+                session.setDownloadQueueSize(cursor.getInt(1));
+            } else if (name.equals(TransmissionSession.SetterFields.DOWNLOAD_QUEUE_ENABLED)) {
+                session.setDownloadQueueEnabled(cursor.getInt(1) > 0);
+            } else if (name.equals(TransmissionSession.SetterFields.INCOMPLETE_DIR)) {
+                session.setIncompleteDir(cursor.getString(3));
+            } else if (name.equals(TransmissionSession.SetterFields.INCOMPLETE_DIR_ENABLED)) {
+                session.setIncompleteDirEnabled(cursor.getInt(1) > 0);
+            } else if (name.equals(TransmissionSession.SetterFields.LOCAL_DISCOVERY)) {
+                session.setLocalDiscoveryEnabled(cursor.getInt(1) > 0);
+            } else if (name.equals(TransmissionSession.SetterFields.UTP)) {
+                session.setUTPEnabled(cursor.getInt(1) > 0);
+            } else if (name.equals(TransmissionSession.SetterFields.GLOBAL_PEER_LIMIT)) {
+                session.setGlobalPeerLimit(cursor.getInt(1));
+            } else if (name.equals(TransmissionSession.SetterFields.TORRENT_PEER_LIMIT)) {
+                session.setTorrentPeerLimit(cursor.getInt(1));
+            } else if (name.equals(TransmissionSession.SetterFields.PEER_EXCHANGE)) {
+                session.setPeerExchangeEnabled(cursor.getInt(1) > 0);
+            } else if (name.equals(TransmissionSession.SetterFields.PEER_PORT)) {
+                session.setPeerPort(cursor.getInt(1));
+            } else if (name.equals(TransmissionSession.SetterFields.RANDOM_PORT)) {
+                session.setPeerPortRandomOnStart(cursor.getInt(1) > 0);
+            } else if (name.equals(TransmissionSession.SetterFields.PORT_FORWARDING)) {
+                session.setPortForwardingEnabled(cursor.getInt(1) > 0);
+            } else if (name.equals(TransmissionSession.SetterFields.RENAME_PARTIAL)) {
+                session.setRenamePartialFilesEnabled(cursor.getInt(1) > 0);
+            } else if (name.equals("rpc-version")) {
+                session.setRPCVersion(cursor.getInt(1));
+            } else if (name.equals("rpc-version-minimum")) {
+                session.setRPCVersionMin(cursor.getInt(1));
+            } else if (name.equals(TransmissionSession.SetterFields.DONE_SCRIPT)) {
+                session.setDoneScript(cursor.getString(3));
+            } else if (name.equals(TransmissionSession.SetterFields.DONE_SCRIPT_ENABLED)) {
+                session.setDoneScriptEnabled(cursor.getInt(1) > 0);
+            } else if (name.equals(TransmissionSession.SetterFields.SEED_QUEUE_SIZE)) {
+                session.setSeedQueueSize(cursor.getInt(1));
+            } else if (name.equals(TransmissionSession.SetterFields.SEED_QUEUE_ENABLED)) {
+                session.setSeedQueueEnabled(cursor.getInt(1) > 0);
+            } else if (name.equals(TransmissionSession.SetterFields.SEED_RATIO_LIMIT)) {
+                session.setSeedRatioLimit(cursor.getFloat(2));
+            } else if (name.equals(TransmissionSession.SetterFields.SEED_RATIO_LIMIT_ENABLED)) {
+                session.setSeedRatioLimitEnabled(cursor.getInt(1) > 0);
+            } else if (name.equals(TransmissionSession.SetterFields.DOWNLOAD_SPEED_LIMIT)) {
+                session.setDownloadSpeedLimit(cursor.getLong(1));
+            } else if (name.equals(TransmissionSession.SetterFields.DOWNLOAD_SPEED_LIMIT_ENABLED)) {
+                session.setDownloadSpeedLimitEnabled(cursor.getInt(1) > 0);
+            } else if (name.equals(TransmissionSession.SetterFields.UPLOAD_SPEED_LIMIT)) {
+                session.setUploadSpeedLimit(cursor.getLong(1));
+            } else if (name.equals(TransmissionSession.SetterFields.UPLOAD_SPEED_LIMIT_ENABLED)) {
+                session.setUploadSpeedLimitEnabled(cursor.getInt(1) > 0);
+            } else if (name.equals(TransmissionSession.SetterFields.STALLED_QUEUE_SIZE)) {
+                session.setStalledQueueSize(cursor.getInt(1));
+            } else if (name.equals(TransmissionSession.SetterFields.STALLED_QUEUE_ENABLED)) {
+                session.setStalledQueueEnabled(cursor.getInt(1) > 0);
+            } else if (name.equals(TransmissionSession.SetterFields.START_ADDED)) {
+                session.setStartAddedTorrentsEnabled(cursor.getInt(1) > 0);
+            } else if (name.equals(TransmissionSession.SetterFields.TRASH_ORIGINAL)) {
+                session.setTrashOriginalTorrentFilesEnabled(cursor.getInt(1) > 0);
+            } else if (name.equals("version")) {
+                session.setVersion(cursor.getString(3));
+            }
+        }
+
+        cursor.close();
+
+        return session;
+    }
+
     protected List<ContentValues> jsonToSessionValues(JsonParser parser) throws IOException {
         List<ContentValues> values = new ArrayList<ContentValues>();
 
