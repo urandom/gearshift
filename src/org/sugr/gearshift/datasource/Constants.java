@@ -125,8 +125,8 @@ public final class Constants {
         + C_METADATA_PERCENT_COMPLETE + " REAL, "
         + C_PERCENT_DONE + " REAL, "
         + C_ETA + " INTEGER, "
-        + C_IS_FINISHED + " INTEGER, "
-        + C_IS_STALLED + " INTEGER, "
+        + C_IS_FINISHED + " INTEGER NOT NULL DEFAULT 0, "
+        + C_IS_STALLED + " INTEGER NOT NULL DEFAULT 0, "
         + C_PEERS_CONNECTED + " INTEGER, "
         + C_PEERS_GETTING_FROM_US + " INTEGER, "
         + C_PEERS_SENDING_TO_US + " INTEGER, "
@@ -155,7 +155,7 @@ public final class Constants {
         + C_CREATOR + " TEXT NOT NULL DEFAULT '', "
         + C_DATE_CREATED + " INTEGER, "
         + C_HASH_STRING + " TEXT NOT NULL DEFAULT '', "
-        + C_IS_PRIVATE + " INTEGER, "
+        + C_IS_PRIVATE + " INTEGER NOT NULL DEFAULT 0, "
         + C_PIECE_COUNT + " INTEGER, "
         + C_PIECE_SIZE + " INTEGER, "
         + C_TORRENT_PRIORITY + " INTEGER, "
@@ -180,14 +180,14 @@ public final class Constants {
         + C_ANNOUNCE + " TEXT NOT NULL UNIQUE, "
         + C_SCRAPE + " TEXT NOT NULL DEFAULT '', "
         + C_TIER + " INTEGER, "
-        + C_HAS_ANNOUNCED + " INTEGER, "
+        + C_HAS_ANNOUNCED + " INTEGER NOT NULL DEFAULT 0, "
         + C_LAST_ANNOUNCE_TIME + " INTEGER, "
-        + C_LAST_ANNOUNCE_SUCCEEDED + " INTEGER, "
+        + C_LAST_ANNOUNCE_SUCCEEDED + " INTEGER NOT NULL DEFAULT 0, "
         + C_LAST_ANNOUNCE_PEER_COUNT + " INTEGER, "
         + C_LAST_ANNOUNCE_RESULT + " TEXT NOT NULL DEFAULT '', "
-        + C_HAS_SCRAPED + " INTEGER, "
+        + C_HAS_SCRAPED + " INTEGER NOT NULL DEFAULT 0, "
         + C_LAST_SCRAPE_TIME + " INTEGER, "
-        + C_LAST_SCRAPE_SUCCEEDED + " INTEGER, "
+        + C_LAST_SCRAPE_SUCCEEDED + " INTEGER NOT NULL DEFAULT 0, "
         + C_LAST_SCRAPE_RESULT + " TEXT NOT NULL DEFAULT '', "
         + C_SEEDER_COUNT + " TEXT NOT NULL DEFAULT '', "
         + C_LEECHER_COUNT + " TEXT NOT NULL DEFAULT '', "
@@ -222,10 +222,10 @@ public final class Constants {
         + C_CLIENT_NAME + " TEXT NOT NULL DEFAULT '', "
         + C_CLIENT_IS_CHOKED + " INTEGER, "
         + C_CLIENT_IS_INTERESTED + " INTEGER, "
-        + C_IS_DOWNLOADING_FROM + " INTEGER, "
-        + C_IS_UPLOADING_TO + " INTEGER, "
-        + C_IS_ENCRYPTED + " INTEGER, "
-        + C_IS_INCOMING + " INTEGER, "
+        + C_IS_DOWNLOADING_FROM + " INTEGER NOT NULL DEFAULT 0, "
+        + C_IS_UPLOADING_TO + " INTEGER NOT NULL DEFAULT 0, "
+        + C_IS_ENCRYPTED + " INTEGER NOT NULL DEFAULT 0, "
+        + C_IS_INCOMING + " INTEGER NOT NULL DEFAULT 0, "
         + C_PEER_IS_CHOKED + " INTEGER, "
         + C_PEER_IS_INTERESTED + " INTEGER, "
         + C_PORT + " INTEGER, "
@@ -236,9 +236,62 @@ public final class Constants {
         + "PRIMARY KEY (" + C_TORRENT_ID + ")"
         + ");";
 
+    public static final String S_TORRENT_TRACKERS = "SELECT "
+        + C_TRACKER_ID + ", " + C_ANNOUNCE + ", " + C_SCRAPE + ", " + C_TIER
+        + " FROM " + T_TRACKER
+        + " WHERE " + C_TRACKER_ID + " IN ("
+        + ")";
+
     public static final String TYPE_INT = "int";
     public static final String TYPE_BOOLEAN = "boolean";
     public static final String TYPE_LONG = "long";
     public static final String TYPE_FLOAT = "float";
     public static final String TYPE_STRING = "string";
+
+    public static class ColumnGroups {
+        public static final String[] TORRENT_OVERVIEW = {
+            C_TORRENT_ID, C_NAME, C_STATUS, C_ADDED_DATE, C_TOTAL_SIZE,
+            C_ERROR, C_ERROR_STRING, C_ETA, C_IS_FINISHED, C_IS_STALLED,
+            C_LEFT_UNTIL_DONE, C_METADATA_PERCENT_COMPLETE, C_PEERS_CONNECTED,
+            C_PEERS_GETTING_FROM_US, C_PEERS_SENDING_TO_US, C_PERCENT_DONE,
+            C_QUEUE_POSITION, C_RATE_DOWNLOAD, C_RATE_UPLOAD,
+            C_RECHECK_PROGRESS, C_SEED_RATIO_MODE, C_SEED_RATIO_LIMIT,
+            C_SIZE_WHEN_DONE, C_UPLOADED_EVER, C_UPLOAD_RATIO, C_DOWNLOAD_DIR,
+            C_TRAFFIC_TEXT, C_STATUS_TEXT
+        };
+
+        public static final String[] TORRENT_DETAILS = {
+            C_COMMENT, C_CREATOR, C_DATE_CREATED, C_HASH_STRING,
+            C_IS_PRIVATE, C_PIECE_COUNT, C_PIECE_SIZE, C_ACTIVITY_DATE,
+            C_TORRENT_PRIORITY, C_CORRUPT_EVER, C_DESIRED_AVAILABLE,
+            C_DOWNLOADED_EVER, C_DOWNLOAD_LIMIT, C_DOWNLOAD_LIMITED,
+            C_HAVE_UNCHECKED, C_HAVE_VALID, C_HONORS_SESSION_LIMITS,
+            C_PEER_LIMIT, C_START_DATE, C_UPLOAD_LIMIT, C_UPLOAD_LIMITED,
+            C_WEBSEEDS_SENDING_TO_US
+        };
+
+        public static final String[] TRACKER = {
+            C_TRACKER_ID, C_ANNOUNCE, C_SCRAPE, C_TIER, C_HAS_ANNOUNCED,
+            C_LAST_ANNOUNCE_TIME, C_LAST_ANNOUNCE_SUCCEEDED,
+            C_LAST_ANNOUNCE_PEER_COUNT, C_LAST_ANNOUNCE_RESULT,
+            C_HAS_SCRAPED, C_LAST_SCRAPE_TIME, C_LAST_SCRAPE_SUCCEEDED,
+            C_LAST_SCRAPE_RESULT, C_SEEDER_COUNT, C_LEECHER_COUNT
+        };
+
+        public static final String[] TORRENT_TRACKER = {
+            C_TRACKER_ID
+        };
+
+        public static final String[] FILE = {
+            C_NAME, C_LENGTH, C_BYTES_COMPLETED, C_WANTED, C_PRIORITY
+        };
+
+        public static final String[] PEER = {
+            C_ADDRESS, C_CLIENT_NAME, C_CLIENT_IS_CHOKED,
+            C_CLIENT_IS_INTERESTED, C_IS_DOWNLOADING_FROM,
+            C_IS_UPLOADING_TO, C_IS_ENCRYPTED, C_IS_INCOMING,
+            C_PEER_IS_CHOKED, C_PEER_IS_INTERESTED, C_PORT,
+            C_PROGRESS, C_RATE_TO_CLIENT, C_RATE_TO_PEER
+        };
+    }
 }

@@ -415,27 +415,27 @@ public class TransmissionDataLoader extends AsyncTaskLoader<TransmissionData> {
         String[] fields = null;
 
         if (mAllCurrent) {
-            fields = concat(Torrent.Fields.STATS, Torrent.Fields.STATS_EXTRA);
+            fields = G.concat(Torrent.Fields.STATS, Torrent.Fields.STATS_EXTRA);
             for (int i = 0; i < mTorrentMap.size(); i++) {
                 int key = mTorrentMap.keyAt(i);
                 Torrent t = mTorrentMap.get(key);
                 if (t.getFiles() == null || t.getFiles().length == 0) {
-                    fields = concat(fields, Torrent.Fields.INFO_EXTRA);
+                    fields = G.concat(fields, Torrent.Fields.INFO_EXTRA);
                     break;
                 }
             }
         } else if (mCurrentTorrents != null) {
             if (mIteration == 0) {
-                fields = concat(Torrent.Fields.METADATA, Torrent.Fields.STATS,
+                fields = G.concat(Torrent.Fields.METADATA, Torrent.Fields.STATS,
                         Torrent.Fields.STATS_EXTRA, Torrent.Fields.INFO_EXTRA);
             } else {
-                fields = concat(Torrent.Fields.STATS, Torrent.Fields.STATS_EXTRA);
+                fields = G.concat(Torrent.Fields.STATS, Torrent.Fields.STATS_EXTRA);
                 boolean extraAdded = false;
                 ids = new int[mCurrentTorrents.length];
                 int index = 0;
                 for (Torrent t : mCurrentTorrents) {
                     if (!extraAdded && (t.getFiles() == null || t.getFiles().length == 0)) {
-                        fields = concat(fields, Torrent.Fields.INFO_EXTRA);
+                        fields = G.concat(fields, Torrent.Fields.INFO_EXTRA);
                         extraAdded = true;
                     }
 
@@ -443,13 +443,13 @@ public class TransmissionDataLoader extends AsyncTaskLoader<TransmissionData> {
                 }
             }
         } else if (mIteration == 0) {
-            fields = concat(Torrent.Fields.METADATA, Torrent.Fields.STATS);
+            fields = G.concat(Torrent.Fields.METADATA, Torrent.Fields.STATS);
         } else {
             fields = Torrent.Fields.STATS;
         }
 
         if (mNeedsMoreInfo && mIteration != 0) {
-            fields = concat(Torrent.Fields.METADATA, fields);
+            fields = G.concat(Torrent.Fields.METADATA, fields);
             hasMetadataNeeded = true;
         }
 
@@ -763,22 +763,5 @@ public class TransmissionDataLoader extends AsyncTaskLoader<TransmissionData> {
                 ids, action, location, setKey, setValue,
                 deleteData, moveData);
         }
-    }
-
-    public static String[] concat(String[]... arrays) {
-        int len = 0;
-        for (final String[] array : arrays) {
-            len += array.length;
-        }
-
-        final String[] result = new String[len];
-
-        int currentPos = 0;
-        for (final String[] array : arrays) {
-            System.arraycopy(array, 0, result, currentPos, array.length);
-            currentPos += array.length;
-        }
-
-        return result;
     }
 }

@@ -134,12 +134,116 @@ public class DataSource {
 
     /* Transmission implementation */
     public TransmissionSession getSession() {
-        TransmissionSession session = new TransmissionSession();
-        
         Cursor cursor = database.query(Constants.T_SESSION, new String[] {
             Constants.C_NAME, Constants.C_VALUE_INTEGER,
             Constants.C_VALUE_REAL, Constants.C_VALUE_TEXT
         }, null, null, null, null, null);
+
+        return cursorToSession(cursor);
+    }
+
+    public Cursor getTorrentCursor(boolean details,
+            String selection, String[] selectionArgs,
+            String orderBy) {
+
+        String[] columns = Constants.ColumnGroups.TORRENT_OVERVIEW;
+        if (details) {
+            columns = G.concat(columns, Constants.ColumnGroups.TORRENT_DETAILS);
+        }
+
+        return database.query(Constants.T_TORRENT, columns,
+            selection, selectionArgs, null, null, orderBy);
+    }
+
+    public List<Torrent> getTorrents(Cursor cursor, boolean details) {
+        List<Torrent> torrents = new ArrayList<Torrent>();
+        StringBuilder ids = new StringBuilder();
+        SparseArray<Torrent> torrentMap = new SparseArray<Torrent>();
+
+        cursor.moveToFirst();
+
+        while (!cursor.isAfterLast()) {
+            Torrent torrent = cursorToTorrent(cursor);
+            if (ids.length() == 0){
+                ids.append(Integer.toString(torrent.getId()));
+            } else {
+                ids.append(", " + Integer.toString(torrent.getId()));
+            }
+            torrents.add(torrent);
+            torrentMap.put(torrent.getId(), torrent);
+
+            cursor.moveToNext();
+        }
+
+        cursor.close();
+
+        String columns;
+        if (details) {
+            columns = Constants.C_TORRENT_ID + ", " + Constants.T_TRACKER + "." + Constants.C_TRACKER_ID + ", "
+                + Constants.C_ANNOUNCE + ", " + Constants.C_SCRAPE + ", " + Constants.C_TIER + ", "
+                + Constants.C_HAS_ANNOUNCED + ", " + Constants.C_LAST_ANNOUNCE_TIME + ", "
+                + Constants.C_LAST_ANNOUNCE_SUCCEEDED + ", " + Constants.C_LAST_ANNOUNCE_PEER_COUNT+ ", "
+                + Constants.C_LAST_ANNOUNCE_RESULT + ", " + Constants.C_HAS_SCRAPED + ", "
+                + Constants.C_LAST_SCRAPE_TIME + ", " + Constants.C_LAST_SCRAPE_SUCCEEDED + ", "
+                + Constants.C_LAST_SCRAPE_RESULT + ", " + Constants.C_SEEDER_COUNT + ", "
+                + Constants.C_LEECHER_COUNT;
+        } else {
+            columns = Constants.C_TORRENT_ID + ", " + Constants.T_TRACKER + "." + Constants.C_TRACKER_ID + ", "
+                + Constants.C_ANNOUNCE + ", " + Constants.C_SCRAPE + ", " + Constants.C_TIER;
+        }
+        String query = "SELECT "
+            + columns
+            + " FROM " + Constants.T_TORRENT_TRACKER + " LEFT OUTER JOIN " + Constants.T_TRACKER
+            + " ON " + Constants.T_TRACKER + "." + Constants.C_TRACKER_ID
+                + " = " + Constants.T_TORRENT_TRACKER + "." + Constants.C_TRACKER_ID
+            + "WHERE " + Constants.C_TORRENT_ID + " IN ("
+                + ids
+            + ")"
+            + "ORDER BY " + Constants.C_TORRENT_ID;
+
+        cursor = database.rawQuery(query, null);
+        cursor.moveToFirst();
+
+        List<Torrent.Tracker> trackers = new ArrayList<Torrent.Tracker>();
+        SparseArray<Torrent.Tracker> trackerMap = new SparseArray<Torrent.Tracker>();
+        int lastId = -1;
+        while (!cursor.isAfterLast()) {
+            int torrentId = cursor.getInt(cursor.getColumnIndex(Constants.C_TORRENT_ID));
+            if (lastId == -1 || lastId != torrentId) {
+                if (lastId != -1) {
+                    Torrent torrent = torrentMap.get(lastId);
+                    if (torrent != null) {
+                        torrent.setTrackers(trackers.toArray(new Torrent.Tracker[trackers.size()]));
+                    }
+                    trackers.clear();
+                }
+                lastId = torrentId;
+            }
+
+            Torrent.Tracker tracker;
+            int id = cursor.getInt(cursor.getColumnIndex(Constants.C_TRACKER_ID));
+            if (trackerMap.get(id) == null) {
+                tracker = cursorToTracker(cursor);
+                trackerMap.put(id, tracker);
+            } else {
+                tracker = trackerMap.get(id);
+            }
+
+            trackers.add(tracker);
+            cursor.moveToNext();
+        }
+        Torrent torrent = torrentMap.get(lastId);
+        if (torrent != null) {
+            torrent.setTrackers(trackers.toArray(new Torrent.Tracker[trackers.size()]));
+        }
+
+        cursor.close();
+
+        return torrents;
+    }
+
+    protected TransmissionSession cursorToSession(Cursor cursor) {
+        TransmissionSession session = new TransmissionSession();
 
         cursor.moveToFirst();
 
@@ -245,6 +349,160 @@ public class DataSource {
         cursor.close();
 
         return session;
+    }
+
+    protected Torrent cursorToTorrent(Cursor cursor) {
+        Torrent torrent = new Torrent();
+
+        int index = 0;
+        for (String column : cursor.getColumnNames()) {
+            if (column.equals(Constants.C_TORRENT_ID)) {
+                torrent.setId(cursor.getInt(index));
+            } else if (column.equals(Constants.C_NAME)) {
+                torrent.setName(cursor.getString(index));
+            } else if (column.equals(Constants.C_STATUS)) {
+                torrent.setStatus(cursor.getInt(index));
+            } else if (column.equals(Constants.C_ADDED_DATE)) {
+                torrent.setAddedDate(cursor.getLong(index));
+            } else if (column.equals(Constants.C_TOTAL_SIZE)) {
+                torrent.setTotalSize(cursor.getLong(index));
+            } else if (column.equals(Constants.C_ERROR)) {
+                torrent.setError(cursor.getInt(index));
+            } else if (column.equals(Constants.C_ERROR_STRING)) {
+                torrent.setErrorString(cursor.getString(index));
+            } else if (column.equals(Constants.C_ETA)) {
+                torrent.setEta(cursor.getLong(index));
+            } else if (column.equals(Constants.C_IS_FINISHED)) {
+                torrent.setFinished(cursor.getInt(index) > 0);
+            } else if (column.equals(Constants.C_IS_STALLED)) {
+                torrent.setStalled(cursor.getInt(index) > 0);
+            } else if (column.equals(Constants.C_LEFT_UNTIL_DONE)) {
+                torrent.setLeftUntilDone(cursor.getLong(index));
+            } else if (column.equals(Constants.C_METADATA_PERCENT_COMPLETE)) {
+                torrent.setMetadataPercentComplete(cursor.getFloat(index));
+            } else if (column.equals(Constants.C_PEERS_CONNECTED)) {
+                torrent.setPeersConnected(cursor.getInt(index));
+            } else if (column.equals(Constants.C_PEERS_GETTING_FROM_US)) {
+                torrent.setPeersGettingFromUs(cursor.getInt(index));
+            } else if (column.equals(Constants.C_PEERS_SENDING_TO_US)) {
+                torrent.setPeersSendingToUs(cursor.getInt(index));
+            } else if (column.equals(Constants.C_PERCENT_DONE)) {
+                torrent.setPercentDone(cursor.getFloat(index));
+            } else if (column.equals(Constants.C_QUEUE_POSITION)) {
+                torrent.setQueuePosition(cursor.getInt(index));
+            } else if (column.equals(Constants.C_RATE_DOWNLOAD)) {
+                torrent.setRateDownload(cursor.getLong(index));
+            } else if (column.equals(Constants.C_RATE_UPLOAD)) {
+                torrent.setRateUpload(cursor.getLong(index));
+            } else if (column.equals(Constants.C_RECHECK_PROGRESS)) {
+                torrent.setRecheckProgress(cursor.getFloat(index));
+            } else if (column.equals(Constants.C_SEED_RATIO_MODE)) {
+                torrent.setSeedRatioMode(cursor.getInt(index));
+            } else if (column.equals(Constants.C_SEED_RATIO_LIMIT)) {
+                torrent.setSeedRatioLimit(cursor.getFloat(index));
+            } else if (column.equals(Constants.C_SIZE_WHEN_DONE)) {
+                torrent.setSizeWhenDone(cursor.getLong(index));
+            } else if (column.equals(Constants.C_UPLOADED_EVER)) {
+                torrent.setUploadedEver(cursor.getLong(index));
+            } else if (column.equals(Constants.C_UPLOAD_RATIO)) {
+                torrent.setUploadRatio(cursor.getFloat(index));
+            } else if (column.equals(Constants.C_DOWNLOAD_DIR)) {
+                torrent.setDownloadDir(cursor.getString(index));
+            } else if (column.equals(Constants.C_TRAFFIC_TEXT)) {
+                torrent.setTrafficText(cursor.getString(index));
+            } else if (column.equals(Constants.C_STATUS_TEXT)) {
+                torrent.setStatusText(cursor.getString(index));
+            } else if (column.equals(Constants.C_COMMENT)) {
+                torrent.setComment(cursor.getString(index));
+            } else if (column.equals(Constants.C_CREATOR)) {
+                torrent.setCreator(cursor.getString(index));
+            } else if (column.equals(Constants.C_DATE_CREATED)) {
+                torrent.setDateCreated(cursor.getLong(index));
+            } else if (column.equals(Constants.C_HASH_STRING)) {
+                torrent.setHashString(cursor.getString(index));
+            } else if (column.equals(Constants.C_IS_PRIVATE)) {
+                torrent.setPrivate(cursor.getInt(index) > 0);
+            } else if (column.equals(Constants.C_PIECE_COUNT)) {
+                torrent.setPieceCount(cursor.getInt(index));
+            } else if (column.equals(Constants.C_PIECE_SIZE)) {
+                torrent.setPieceSize(cursor.getLong(index));
+            } else if (column.equals(Constants.C_ACTIVITY_DATE)) {
+                torrent.setActivityDate(cursor.getLong(index));
+            } else if (column.equals(Constants.C_TORRENT_PRIORITY)) {
+                torrent.setTorrentPriority(cursor.getInt(index));
+            } else if (column.equals(Constants.C_CORRUPT_EVER)) {
+                torrent.setCorruptEver(cursor.getLong(index));
+            } else if (column.equals(Constants.C_DESIRED_AVAILABLE)) {
+                torrent.setDesiredAvailable(cursor.getLong(index));
+            } else if (column.equals(Constants.C_DOWNLOADED_EVER)) {
+                torrent.setDownloadedEver(cursor.getLong(index));
+            } else if (column.equals(Constants.C_DOWNLOAD_LIMIT)) {
+                torrent.setDownloadLimit(cursor.getLong(index));
+            } else if (column.equals(Constants.C_DOWNLOAD_LIMITED)) {
+                torrent.setDownloadLimited(cursor.getInt(index) > 0);
+            } else if (column.equals(Constants.C_HAVE_UNCHECKED)) {
+                torrent.setHaveUnchecked(cursor.getLong(index));
+            } else if (column.equals(Constants.C_HAVE_VALID)) {
+                torrent.setHaveValid(cursor.getLong(index));
+            } else if (column.equals(Constants.C_HONORS_SESSION_LIMITS)) {
+                torrent.setHonorsSessionLimits(cursor.getInt(index) > 0);
+            } else if (column.equals(Constants.C_PEER_LIMIT)) {
+                torrent.setPeerLimit(cursor.getInt(index));
+            } else if (column.equals(Constants.C_START_DATE)) {
+                torrent.setStartDate(cursor.getLong(index));
+            } else if (column.equals(Constants.C_UPLOAD_LIMIT)) {
+                torrent.setUploadLimit(cursor.getLong(index));
+            } else if (column.equals(Constants.C_UPLOAD_LIMITED)) {
+                torrent.setUploadLimited(cursor.getInt(index) > 0);
+            } else if (column.equals(Constants.C_WEBSEEDS_SENDING_TO_US)) {
+                torrent.setWebseedsSendingToUs(cursor.getInt(index));
+            }
+
+            ++index;
+        }
+
+        return torrent;
+    }
+
+    protected Torrent.Tracker cursorToTracker(Cursor cursor) {
+        Torrent.Tracker tracker = new Torrent.Tracker();
+
+        int index = 0;
+        for (String column : cursor.getColumnNames()) {
+           if (column.equals(Constants.C_TRACKER_ID)) {
+                tracker.setId(cursor.getInt(index));
+            } else if (column.equals(Constants.C_ANNOUNCE)) {
+                tracker.setAnnounce(cursor.getString(index));
+            } else if (column.equals(Constants.C_SCRAPE)) {
+                tracker.setScrape(cursor.getString(index));
+            } else if (column.equals(Constants.C_TIER)) {
+                tracker.setTier(cursor.getInt(index));
+            } else if (column.equals(Constants.C_HAS_ANNOUNCED)) {
+                tracker.setAnnounced(cursor.getInt(index) > 0);
+            } else if (column.equals(Constants.C_LAST_ANNOUNCE_TIME)) {
+                tracker.setLastAnnounceTime(cursor.getLong(index));
+            } else if (column.equals(Constants.C_LAST_ANNOUNCE_SUCCEEDED)) {
+                tracker.setLastAnnounceSucceeded(cursor.getInt(index) > 0);
+            } else if (column.equals(Constants.C_LAST_ANNOUNCE_PEER_COUNT)) {
+                tracker.setLastAnnouncePeerCount(cursor.getInt(index));
+            } else if (column.equals(Constants.C_LAST_ANNOUNCE_RESULT)) {
+                tracker.setLastAnnounceResult(cursor.getString(index));
+            } else if (column.equals(Constants.C_HAS_SCRAPED)) {
+                tracker.setScraped(cursor.getInt(index) > 0);
+            } else if (column.equals(Constants.C_LAST_SCRAPE_TIME)) {
+                tracker.setLastScrapeTime(cursor.getLong(index));
+            } else if (column.equals(Constants.C_LAST_SCRAPE_SUCCEEDED)) {
+                tracker.setLastScrapeSucceeded(cursor.getInt(index) > 0);
+            } else if (column.equals(Constants.C_LAST_SCRAPE_RESULT)) {
+                tracker.setLastScrapeResult(cursor.getString(index));
+            } else if (column.equals(Constants.C_SEEDER_COUNT)) {
+                tracker.setSeederCount(cursor.getInt(index));
+            } else if (column.equals((Constants.C_LEECHER_COUNT))) {
+                tracker.setLeecherCount(cursor.getInt(index));
+            }
+            ++index;
+        }
+        return tracker;
     }
 
     protected List<ContentValues> jsonToSessionValues(JsonParser parser) throws IOException {

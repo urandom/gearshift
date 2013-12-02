@@ -1,6 +1,5 @@
 package org.sugr.gearshift;
 
-import android.content.Context;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.text.Html;
@@ -216,6 +215,20 @@ public class Torrent implements Parcelable {
         private String mScrape;
         private int mTier;
 
+        private boolean mAnnounced;
+        private long mLastAnnounceTime;
+        private boolean mLastAnnounceSucceeded;
+        private int mLastAnnouncePeerCount;
+        private String mLastAnnounceResult;
+
+        private boolean mScraped;
+        private long mLastScrapeTime;
+        private boolean mLastScrapeSucceeded;
+        private String mLastScrapeResult;
+
+        private int mSeederCount;
+        private int mLeecherCount;
+
         @JsonProperty("id") public int getId() {
             return mId;
         }
@@ -232,6 +245,49 @@ public class Torrent implements Parcelable {
             return mTier;
         }
 
+        @JsonProperty("hasAnnounced") public boolean hasAnnounced() {
+            return mAnnounced;
+        }
+        @JsonProperty("lastAnnounceTime") public long getLastAnnounceTime() {
+            return mLastAnnounceTime;
+        }
+
+        @JsonProperty("lastAnnounceSucceeded") public boolean hasLastAnnounceSucceeded() {
+            return mLastAnnounceSucceeded;
+        }
+
+        @JsonProperty("lastAnnouncePeerCount") public int getLastAnnouncePeerCount() {
+            return mLastAnnouncePeerCount;
+        }
+
+        @JsonProperty("lastAnnounceResult") public String getLastAnnounceResult() {
+            return mLastAnnounceResult;
+        }
+
+        @JsonProperty("hasScraped") public boolean hasScraped() {
+            return mScraped;
+        }
+
+        @JsonProperty("lastScrapeTime") public long getLastScrapeTime() {
+            return mLastScrapeTime;
+        }
+
+        @JsonProperty("lastScrapeSucceeded") public boolean hasLastScrapeSucceeded() {
+            return mLastScrapeSucceeded;
+        }
+
+        @JsonProperty("lastScrapeResult") public String getLastScrapeResult() {
+            return mLastScrapeResult;
+        }
+
+        @JsonProperty("seederCount") public int getSeederCount() {
+            return mSeederCount;
+        }
+
+        @JsonProperty("leecherCount") public int getLeecherCount() {
+            return mLeecherCount;
+        }
+
         public void setId(int id) {
             mId = id;
         }
@@ -246,6 +302,50 @@ public class Torrent implements Parcelable {
 
         public void setTier(int tier) {
             mTier = tier;
+        }
+
+        public void setAnnounced(boolean announced) {
+            mAnnounced = announced;
+        }
+
+        public void setLastAnnounceTime(long time) {
+            mLastAnnounceTime = time;
+        }
+
+        public void setLastAnnounceSucceeded(boolean succeeded) {
+            mLastAnnounceSucceeded = succeeded;
+        }
+
+        public void setLastAnnouncePeerCount(int count) {
+            mLastAnnouncePeerCount = count;
+        }
+
+        public void setLastAnnounceResult(String result) {
+            mLastAnnounceResult = result;
+        }
+
+        public void setScraped(boolean scraped) {
+            mScraped = scraped;
+        }
+
+        public void setLastScrapeTime(long time) {
+            mLastScrapeTime = time;
+        }
+
+        public void setLastScrapeSucceeded(boolean succeeded) {
+            mLastScrapeSucceeded = succeeded;
+        }
+
+        public void setLastScrapeResult(String result) {
+            mLastScrapeResult = result;
+        }
+
+        public void setSeederCount(int count) {
+            mSeederCount = count;
+        }
+
+        public void setLeecherCount(int count) {
+            mLeecherCount = count;
         }
     }
 
@@ -1069,87 +1169,8 @@ public class Torrent implements Parcelable {
         }
     }
 
-    public void setTrafficText(Context context) {
-        float seedLimit = getActiveSeedRatioLimit();
-        switch(getStatus()) {
-            case Torrent.Status.DOWNLOAD_WAITING:
-            case Torrent.Status.DOWNLOADING:
-                mTrafficText = Html.fromHtml(String.format(
-                                context.getString(R.string.traffic_downloading_format),
-                    G.readableFileSize(mSizeWhenDone - mLeftUntilDone),
-                    G.readableFileSize(mSizeWhenDone),
-                    String.format(context.getString(R.string.traffic_downloading_percentage_format),
-                           G.readablePercent(mPercentDone * 100)),
-                    mEta < 0
-                        ? context.getString(R.string.traffic_remaining_time_unknown)
-                        : String.format(context.getString(R.string.traffic_remaining_time_format),
-                           G.readableRemainingTime(mEta, context))
-                ));
-                break;
-            case Torrent.Status.SEED_WAITING:
-            case Torrent.Status.SEEDING:
-                mTrafficText = Html.fromHtml(String.format(
-                                context.getString(R.string.traffic_seeding_format), new Object[] {
-                    G.readableFileSize(mSizeWhenDone),
-                    G.readableFileSize(mUploadedEver),
-                    String.format(context.getString(R.string.traffic_seeding_ratio_format),
-                           G.readablePercent(mUploadRatio),
-                           seedLimit <= 0 ? "" : String.format(
-                               context.getString(R.string.traffic_seeding_ratio_goal_format),
-                               G.readablePercent(seedLimit))
-                    ),
-                    seedLimit <= 0
-                        ? ""
-                        : mEta < 0
-                            ? context.getString(R.string.traffic_remaining_time_unknown)
-                            : String.format(context.getString(R.string.traffic_remaining_time_format),
-                               G.readableRemainingTime(mEta, context)),
-                }));
-                break;
-            case Torrent.Status.CHECK_WAITING:
-                break;
-            case Torrent.Status.CHECKING:
-                break;
-            case Torrent.Status.STOPPED:
-                if (mPercentDone < 1) {
-                    mTrafficText = Html.fromHtml(String.format(
-                                    context.getString(R.string.traffic_downloading_format),
-                        G.readableFileSize(mSizeWhenDone - mLeftUntilDone),
-                        G.readableFileSize(mSizeWhenDone),
-                        String.format(context.getString(R.string.traffic_downloading_percentage_format),
-                               G.readablePercent(mPercentDone * 100)),
-                        "<br/>" + String.format(
-                                        context.getString(R.string.traffic_seeding_format),
-                            G.readableFileSize(mSizeWhenDone),
-                            G.readableFileSize(mUploadedEver),
-                            String.format(context.getString(R.string.traffic_seeding_ratio_format),
-                                   mUploadRatio < 0 ? 0 : G.readablePercent(mUploadRatio),
-                                   seedLimit <= 0 ? "" : String.format(
-                                       context.getString(R.string.traffic_seeding_ratio_goal_format),
-                                       G.readablePercent(seedLimit))
-                            ),
-                            ""
-                        )
-                    ));
-                } else {
-                    mTrafficText = Html.fromHtml(String.format(
-                                    context.getString(R.string.traffic_seeding_format),
-                        G.readableFileSize(mSizeWhenDone),
-                        G.readableFileSize(mUploadedEver),
-                        String.format(context.getString(R.string.traffic_seeding_ratio_format),
-                               G.readablePercent(mUploadRatio),
-                               seedLimit <= 0 ? "" : String.format(
-                                   context.getString(R.string.traffic_seeding_ratio_goal_format),
-                                   G.readablePercent(seedLimit))
-                        ),
-                        ""
-                    ));
-                }
-
-                break;
-            default:
-                break;
-        }
+    public void setTrafficText(String text) {
+        mTrafficText = Html.fromHtml(text);
     }
 
     @JsonIgnore
@@ -1166,90 +1187,8 @@ public class Torrent implements Parcelable {
         return mTrafficText;
     }
 
-    public void setStatusText(Context context) {
-        String statusFormat = context.getString(R.string.status_format);
-        String formattedStatus, statusType,
-               statusMoreFormat, statusSpeedFormat, statusSpeed;
-        int peers;
-
-        switch(getStatus()) {
-            case Torrent.Status.DOWNLOAD_WAITING:
-            case Torrent.Status.DOWNLOADING:
-                statusType = context.getString(getStatus() == Torrent.Status.DOWNLOADING
-                        ? mMetadataPercentComplete < 1
-                            ? R.string.status_state_downloading_metadata
-                            : R.string.status_state_downloading
-                        : R.string.status_state_download_waiting);
-                statusMoreFormat = context.getString(R.string.status_more_downloading_format);
-                statusSpeedFormat = context.getString(R.string.status_more_downloading_speed_format);
-
-                if (mStalled) {
-                    statusSpeed = context.getString(R.string.status_more_idle);
-                } else {
-                    statusSpeed = String.format(statusSpeedFormat,
-                        G.readableFileSize(mRateDownload),
-                        G.readableFileSize(mRateUpload)
-                    );
-                }
-
-                peers = mPeersSendingToUs;
-
-                formattedStatus = String.format(statusFormat, statusType,
-                        String.format(statusMoreFormat,
-                            peers, mPeersConnected, statusSpeed
-                        )
-                    );
-                break;
-            case Torrent.Status.SEED_WAITING:
-            case Torrent.Status.SEEDING:
-                statusType = context.getString(getStatus() == Torrent.Status.SEEDING
-                        ? R.string.status_state_seeding : R.string.status_state_seed_waiting);
-                statusMoreFormat = context.getString(R.string.status_more_seeding_format);
-                statusSpeedFormat = context.getString(R.string.status_more_seeding_speed_format);
-
-                if (mStalled) {
-                    statusSpeed = context.getString(R.string.status_more_idle);
-                } else {
-                    statusSpeed = String.format(statusSpeedFormat,
-                        G.readableFileSize(mRateUpload)
-                    );
-                }
-                peers = mPeersGettingFromUs;
-
-                formattedStatus = String.format(statusFormat, statusType,
-                        String.format(statusMoreFormat,
-                            peers, mPeersConnected, statusSpeed
-                        )
-                    );
-                break;
-            case Torrent.Status.CHECK_WAITING:
-                statusType = context.getString(R.string.status_state_check_waiting);
-
-                formattedStatus = String.format(statusFormat,
-                    statusType,
-                    "-" + context.getString(R.string.status_more_idle)
-                );
-                break;
-            case Torrent.Status.CHECKING:
-                formattedStatus = String.format(
-                    context.getString(R.string.status_state_checking),
-                    G.readablePercent(mRecheckProgress * 100));
-
-                break;
-            case Torrent.Status.STOPPED:
-                formattedStatus = context.getString(
-                    isPaused()
-                        ? R.string.status_state_paused
-                        : R.string.status_state_finished
-                );
-
-                break;
-            default:
-                formattedStatus = "Error";
-
-                break;
-        }
-        mStatusText = Html.fromHtml(formattedStatus);
+    public void setStatusText(String text) {
+        mStatusText = Html.fromHtml(text);
     }
 
     @JsonIgnore

@@ -217,4 +217,21 @@ public final class G {
         BackupManager bm = new BackupManager(context);
         bm.dataChanged();
     }
+
+    public static String[] concat(String[]... arrays) {
+        int len = 0;
+        for (final String[] array : arrays) {
+            len += array.length;
+        }
+
+        final String[] result = new String[len];
+
+        int currentPos = 0;
+        for (final String[] array : arrays) {
+            System.arraycopy(array, 0, result, currentPos, array.length);
+            currentPos += array.length;
+        }
+
+        return result;
+    }
 }
