@@ -103,7 +103,6 @@ public class Torrent implements Parcelable {
     private long mHaveValid;
 
     private Tracker[] mTrackers;
-    private TrackerStats[] mTrackerStats;
 
     private String mComment;
     private String mCreator;
@@ -117,7 +116,6 @@ public class Torrent implements Parcelable {
     private int mTorrentPriority;
     private long mDownloadLimit;
     private boolean mDownloadLimited;
-    private FileStats[] mFileStats;
     private boolean mHonorsSessionLimits;
     private long mUploadLimit;
     private boolean mUploadLimited;
@@ -128,7 +126,6 @@ public class Torrent implements Parcelable {
     private Spanned mFilteredName;
     private Spanned mTrafficText;
     private Spanned mStatusText;
-    private TransmissionSession mSession;
 
     // https://github.com/killemov/Shift/blob/master/shift.js#L864
     public static class Status {
@@ -349,124 +346,12 @@ public class Torrent implements Parcelable {
         }
     }
 
-    public static class TrackerStats {
-        private int mId;
-
-        private boolean mAnnounced;
-        private long mLastAnnounceTime;
-        private boolean mLastAnnounceSucceeded;
-        private int mLastAnnouncePeerCount;
-        private String mLastAnnounceResult;
-
-        private boolean mScraped;
-        private long mLastScrapeTime;
-        private boolean mLastScrapeSucceeded;
-        private String mLastScrapeResult;
-
-        private int mSeederCount;
-        private int mLeecherCount;
-
-        @JsonProperty("id") public int getId() {
-            return mId;
-        }
-
-        @JsonProperty("hasAnnounced") public boolean hasAnnounced() {
-            return mAnnounced;
-        }
-
-        @JsonProperty("lastAnnounceTime") public long getLastAnnounceTime() {
-            return mLastAnnounceTime;
-        }
-
-        @JsonProperty("lastAnnounceSucceeded") public boolean hasLastAnnounceSucceeded() {
-            return mLastAnnounceSucceeded;
-        }
-
-        @JsonProperty("lastAnnouncePeerCount") public int getLastAnnouncePeerCount() {
-            return mLastAnnouncePeerCount;
-        }
-
-        @JsonProperty("lastAnnounceResult") public String getLastAnnounceResult() {
-            return mLastAnnounceResult;
-        }
-
-        @JsonProperty("hasScraped") public boolean hasScraped() {
-            return mScraped;
-        }
-
-        @JsonProperty("lastScrapeTime") public long getLastScrapeTime() {
-            return mLastScrapeTime;
-        }
-
-        @JsonProperty("lastScrapeSucceeded") public boolean hasLastScrapeSucceeded() {
-            return mLastScrapeSucceeded;
-        }
-
-        @JsonProperty("lastScrapeResult") public String getLastScrapeResult() {
-            return mLastScrapeResult;
-        }
-
-        @JsonProperty("seederCount") public int getSeederCount() {
-            return mSeederCount;
-        }
-
-        @JsonProperty("leecherCount") public int getLeecherCount() {
-            return mLeecherCount;
-        }
-
-        public void setId(int id) {
-            mId = id;
-        }
-
-        public void setAnnounced(boolean announced) {
-            mAnnounced = announced;
-        }
-
-        public void setLastAnnounceTime(long time) {
-            mLastAnnounceTime = time;
-        }
-
-        public void setLastAnnounceSucceeded(boolean succeeded) {
-            mLastAnnounceSucceeded = succeeded;
-        }
-
-        public void setLastAnnouncePeerCount(int count) {
-            mLastAnnouncePeerCount = count;
-        }
-
-        public void setLastAnnounceResult(String result) {
-            mLastAnnounceResult = result;
-        }
-
-        public void setScraped(boolean scraped) {
-            mScraped = scraped;
-        }
-
-        public void setLastScrapeTime(long time) {
-            mLastScrapeTime = time;
-        }
-
-        public void setLastScrapeSucceeded(boolean succeeded) {
-            mLastScrapeSucceeded = succeeded;
-        }
-
-        public void setLastScrapeResult(String result) {
-            mLastScrapeResult = result;
-        }
-
-        public void setSeederCount(int count) {
-            mSeederCount = count;
-        }
-
-        public void setLeecherCount(int count) {
-            mLeecherCount = count;
-        }
-    }
-
     public static class File {
         private long mBytesCompleted;
         private long mLength;
         private String mName;
+        private boolean mWanted;
+        private int mPriority = Priority.NORMAL;
 
         @JsonProperty("bytesCompleted") public long getBytesCompleted() {
             return mBytesCompleted;
@@ -480,28 +365,6 @@ public class Torrent implements Parcelable {
             return mName;
         }
 
-        public void setBytesCompleted(long bytes) {
-            mBytesCompleted = bytes;
-        }
-
-        public void setLength(long length) {
-            mLength = length;
-        }
-
-        public void setName(String name) {
-            mName = name;
-        }
-    }
-
-    public static class FileStats {
-        private long mBytesCompleted;
-        private boolean mWanted;
-        private int mPriority = Priority.NORMAL;
-
-        @JsonProperty("bytesCompleted") public long getBytesCompleted() {
-            return mBytesCompleted;
-        }
-
         @JsonProperty("priority") public int getPriority() {
             return mPriority;
         }
@@ -512,6 +375,14 @@ public class Torrent implements Parcelable {
 
         public void setBytesCompleted(long bytes) {
             mBytesCompleted = bytes;
+        }
+
+        public void setLength(long length) {
+            mLength = length;
+        }
+
+        public void setName(String name) {
+            mName = name;
         }
 
         public void setPriority(int priority) {
@@ -639,22 +510,6 @@ public class Torrent implements Parcelable {
 
     @JsonProperty("status")
     public int getStatus() {
-        if (mSession != null && mSession.getRPCVersion() < NEW_STATUS_RPC_VERSION) {
-            switch(mStatus) {
-                case Torrent.OldStatus.CHECK_WAITING:
-                    return Torrent.Status.CHECK_WAITING;
-                case Torrent.OldStatus.CHECKING:
-                    return Torrent.Status.CHECKING;
-                case Torrent.OldStatus.DOWNLOADING:
-                    return Torrent.Status.DOWNLOADING;
-                case Torrent.OldStatus.SEEDING:
-                    return Torrent.Status.SEEDING;
-                case Torrent.OldStatus.STOPPED:
-                    return Torrent.Status.STOPPED;
-                default:
-                    return mStatus;
-            }
-        }
         return mStatus;
     }
 
@@ -831,11 +686,6 @@ public class Torrent implements Parcelable {
         return mTrackers;
     }
 
-    @JsonProperty("trackerStats")
-    public TrackerStats[] getTrackerStats() {
-        return mTrackerStats;
-    }
-
     @JsonProperty(SetterFields.TORRENT_PRIORITY)
     public int getTorrentPriority() {
         return mTorrentPriority;
@@ -904,11 +754,6 @@ public class Torrent implements Parcelable {
     @JsonProperty(SetterFields.UPLOAD_LIMITED)
     public boolean isUploadLimited() {
         return mUploadLimited;
-    }
-
-    @JsonProperty("fileStats")
-    public FileStats[] getFileStats() {
-        return mFileStats;
     }
 
     @JsonProperty("webseedsSendingToUs")
@@ -1066,10 +911,6 @@ public class Torrent implements Parcelable {
         mTrackers = trackers;
     }
 
-    public void setTrackerStats(TrackerStats[] stats) {
-        mTrackerStats = stats;
-    }
-
     public void setTorrentPriority(int priority) {
         mTorrentPriority = priority;
     }
@@ -1124,10 +965,6 @@ public class Torrent implements Parcelable {
 
     public void setUploadLimited(boolean limited) {
         mUploadLimited = limited;
-    }
-
-    public void setFileStats(FileStats[] fileStats) {
-        mFileStats = fileStats;
     }
 
     public void setWebseedsSendingToUs(int webseedsSendingToUs) {
@@ -1196,21 +1033,10 @@ public class Torrent implements Parcelable {
         return mStatusText;
     }
 
-    public void setTransmissionSession(TransmissionSession session) {
-        mSession = session;
-    }
-
     @JsonIgnore
     public float getActiveSeedRatioLimit() {
         switch(mSeedRatioMode) {
             case Torrent.SeedRatioMode.GLOBAL_LIMIT:
-                if (mSession == null)
-                    return mSeedRatioLimit;
-
-                if (!mSession.isSeedRatioLimitEnabled())
-                    return -1;
-
-                return mSession.getSeedRatioLimit();
             case Torrent.SeedRatioMode.TORRENT_LIMIT:
                 return mSeedRatioLimit;
             default:
@@ -1330,8 +1156,6 @@ public class Torrent implements Parcelable {
                 setDownloadDir(source.getDownloadDir());
             } else if (field.equals("downloadedEver")) {
                 setDownloadedEver(source.getDownloadedEver());
-            } else if (field.equals("fileStats")) {
-                setFileStats(source.getFileStats());
             } else if (field.equals("haveUnchecked")) {
                 setHaveUnchecked(source.getHaveUnchecked());
             } else if (field.equals("haveValid")) {
@@ -1344,8 +1168,6 @@ public class Torrent implements Parcelable {
                 setStartDate(source.getStartDate());
             } else if (field.equals("webseedsSendingToUs")) {
                 setWebseedsSendingToUs(source.getWebseedsSendingToUs());
-            } else if (field.equals("trackerStats")) {
-                setTrackerStats(source.getTrackerStats());
             }
         }
     }

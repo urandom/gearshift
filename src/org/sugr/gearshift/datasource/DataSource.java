@@ -155,7 +155,7 @@ public class DataSource {
             selection, selectionArgs, null, null, orderBy);
     }
 
-    public List<Torrent> getTorrents(Cursor cursor, boolean details) {
+    public List<Torrent> getTorrents(Cursor cursor, boolean all, boolean details) {
         List<Torrent> torrents = new ArrayList<Torrent>();
         StringBuilder ids = new StringBuilder();
         SparseArray<Torrent> torrentMap = new SparseArray<Torrent>();
@@ -191,15 +191,15 @@ public class DataSource {
             columns = Constants.C_TORRENT_ID + ", " + Constants.T_TRACKER + "." + Constants.C_TRACKER_ID + ", "
                 + Constants.C_ANNOUNCE + ", " + Constants.C_SCRAPE + ", " + Constants.C_TIER;
         }
-        String query = "SELECT "
-            + columns
+        String query = "SELECT " + columns
             + " FROM " + Constants.T_TORRENT_TRACKER + " LEFT OUTER JOIN " + Constants.T_TRACKER
             + " ON " + Constants.T_TRACKER + "." + Constants.C_TRACKER_ID
-                + " = " + Constants.T_TORRENT_TRACKER + "." + Constants.C_TRACKER_ID
-            + "WHERE " + Constants.C_TORRENT_ID + " IN ("
-                + ids
-            + ")"
-            + "ORDER BY " + Constants.C_TORRENT_ID;
+            + " = " + Constants.T_TORRENT_TRACKER + "." + Constants.C_TRACKER_ID;
+        if (!all) {
+            query += " WHERE " + Constants.C_TORRENT_ID + " IN (" + ids + ")";
+        }
+
+        query += " ORDER BY " + Constants.C_TORRENT_ID;
 
         cursor = database.rawQuery(query, null);
         cursor.moveToFirst();
@@ -238,6 +238,47 @@ public class DataSource {
         }
 
         cursor.close();
+
+        if (details) {
+            String selection = null;
+            if (!all) {
+                selection = Constants.C_TORRENT_ID + " IN (" + ids + ")";
+            }
+            cursor = database.query(Constants.T_FILE, new String[] {
+                Constants.C_TORRENT_ID, Constants.C_NAME, Constants.C_LENGTH,
+                Constants.C_BYTES_COMPLETED, Constants.C_PRIORITY, Constants.C_WANTED
+            }, selection, null, null, null, Constants.C_TORRENT_ID + ", " + Constants.C_NAME);
+
+            cursor.moveToFirst();
+            List<Torrent.File> files = new ArrayList<Torrent.File>();
+            lastId = -1;
+            while (!cursor.isAfterLast()) {
+                int torrentId = cursor.getInt(cursor.getColumnIndex(Constants.C_TORRENT_ID));
+                if (lastId == -1 || lastId != torrentId) {
+                    if (lastId != -1) {
+                        torrent = torrentMap.get(lastId);
+                        if (torrent != null) {
+                            torrent.setFiles(files.toArray(new Torrent.File[files.size()]));
+                        }
+                        files.clear();
+                    }
+                    lastId = torrentId;
+                }
+
+                Torrent.File file = cursorToFile(cursor);
+
+                files.add(file);
+                cursor.moveToNext();
+            }
+
+            torrent = torrentMap.get(lastId);
+            if (torrent != null) {
+                torrent.setFiles(files.toArray(new Torrent.File[files.size()]));
+            }
+
+            cursor.close();
+
+        }
 
         return torrents;
     }
@@ -503,6 +544,27 @@ public class DataSource {
             ++index;
         }
         return tracker;
+    }
+
+    protected Torrent.File cursorToFile(Cursor cursor) {
+        Torrent.File file = new Torrent.File();
+
+        int index = 0;
+        for (String column : cursor.getColumnNames()) {
+            if (column.equals(Constants.C_BYTES_COMPLETED)) {
+                file.setBytesCompleted(cursor.getLong(index));
+            } else if (column.equals(Constants.C_NAME)) {
+                file.setName(cursor.getString(index));
+            } else if (column.equals(Constants.C_LENGTH)) {
+                file.setLength(cursor.getLong(index));
+            } else if (column.equals(Constants.C_PRIORITY)) {
+                file.setPriority(cursor.getInt(index));
+            } else if (column.equals(Constants.C_WANTED)) {
+                file.setWanted(cursor.getInt(index) > 0);
+            }
+            ++index;
+        }
+        return file;
     }
 
     protected List<ContentValues> jsonToSessionValues(JsonParser parser) throws IOException {

@@ -557,9 +557,6 @@ public class TransmissionDataLoader extends AsyncTaskLoader<TransmissionData> {
                 torrent = t;
                 hasAdded = true;
             }
-            torrent.setTransmissionSession(mSession);
-            torrent.setTrafficText(getContext());
-            torrent.setStatusText(getContext());
             if (!mNeedsMoreInfo
                     && (
                            torrent.getTotalSize() == 0
