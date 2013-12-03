@@ -142,18 +142,24 @@ public class DataSource {
         return cursorToSession(cursor);
     }
 
-    public List<Torrent> getTorrents(String selection, String[] selectionArgs,
-                                     String orderBy, boolean details) {
-        List<Torrent> torrents = new ArrayList<Torrent>();
-        SparseArray<Torrent> torrentMap = new SparseArray<Torrent>();
-
+    public Cursor getTorrentCursor(String selection, String[] selectionArgs,
+                                   String orderBy, boolean details) {
         String[] columns = Constants.ColumnGroups.TORRENT_OVERVIEW;
         if (details) {
             columns = G.concat(columns, Constants.ColumnGroups.TORRENT_DETAILS);
         }
 
-        Cursor cursor = database.query(Constants.T_TORRENT, columns,
+        return database.query(Constants.T_TORRENT, columns,
             selection, selectionArgs, null, null, orderBy);
+
+    }
+
+    public List<Torrent> getTorrents(String selection, String[] selectionArgs,
+                                     String orderBy, boolean details) {
+        List<Torrent> torrents = new ArrayList<Torrent>();
+        SparseArray<Torrent> torrentMap = new SparseArray<Torrent>();
+
+        Cursor cursor = getTorrentCursor(selection, selectionArgs, orderBy, details);
 
         cursor.moveToFirst();
 
@@ -168,9 +174,8 @@ public class DataSource {
 
         cursor.close();
 
-        String select;
         if (details) {
-            select = Constants.T_TORRENT_TRACKER + "." + Constants.C_TORRENT_ID + ", "
+            String select = Constants.T_TORRENT_TRACKER + "." + Constants.C_TORRENT_ID + ", "
                 + Constants.T_TRACKER + "." + Constants.C_TRACKER_ID + ", "
                 + Constants.C_ANNOUNCE + ", " + Constants.C_SCRAPE + ", " + Constants.C_TIER + ", "
                 + Constants.C_HAS_ANNOUNCED + ", " + Constants.C_LAST_ANNOUNCE_TIME + ", "
@@ -179,71 +184,66 @@ public class DataSource {
                 + Constants.C_LAST_SCRAPE_TIME + ", " + Constants.C_LAST_SCRAPE_SUCCEEDED + ", "
                 + Constants.C_LAST_SCRAPE_RESULT + ", " + Constants.C_SEEDER_COUNT + ", "
                 + Constants.C_LEECHER_COUNT;
-        } else {
-            select = Constants.T_TORRENT_TRACKER + "." + Constants.C_TORRENT_ID + ", "
-                + Constants.T_TRACKER + "." + Constants.C_TRACKER_ID + ", "
-                + Constants.C_ANNOUNCE + ", " + Constants.C_SCRAPE + ", " + Constants.C_TIER;
-        }
-        String from;
-        if (selection == null) {
-           from = Constants.T_TORRENT_TRACKER + " JOIN " + Constants.T_TRACKER
-               + " ON " + Constants.T_TRACKER + "." + Constants.C_TRACKER_ID
-               + " = " + Constants.T_TORRENT_TRACKER + "." + Constants.C_TRACKER_ID;
-        } else {
-            from = Constants.T_TORRENT + " JOIN " + Constants.T_TORRENT_TRACKER
-                + " ON " + Constants.T_TORRENT + "." + Constants.C_TORRENT_ID
-                + " = " + Constants.T_TORRENT_TRACKER + "." + Constants.C_TORRENT_ID
-                + " JOIN " + Constants.T_TRACKER
-                + " ON " + Constants.T_TORRENT_TRACKER + "." + Constants.C_TRACKER_ID
-                + " = " + Constants.T_TRACKER + "." + Constants.C_TRACKER_ID;
-        }
-        String query = "SELECT " + select + " FROM " + from;
-        if (selection != null) {
-            query += " WHERE " + selection;
-        }
+            String from;
 
-        query += " ORDER BY " + Constants.T_TORRENT_TRACKER + "." + Constants.C_TORRENT_ID
-            + ", " + Constants.C_TIER;
-
-        cursor = database.rawQuery(query, selectionArgs);
-        cursor.moveToFirst();
-
-        List<Torrent.Tracker> trackers = new ArrayList<Torrent.Tracker>();
-        SparseArray<Torrent.Tracker> trackerMap = new SparseArray<Torrent.Tracker>();
-        int lastId = -1;
-        while (!cursor.isAfterLast()) {
-            int torrentId = cursor.getInt(cursor.getColumnIndex(Constants.C_TORRENT_ID));
-            if (lastId == -1 || lastId != torrentId) {
-                if (lastId != -1) {
-                    Torrent torrent = torrentMap.get(lastId);
-                    if (torrent != null) {
-                        torrent.setTrackers(trackers.toArray(new Torrent.Tracker[trackers.size()]));
-                    }
-                    trackers.clear();
-                }
-                lastId = torrentId;
-            }
-
-            Torrent.Tracker tracker;
-            int id = cursor.getInt(cursor.getColumnIndex(Constants.C_TRACKER_ID));
-            if (trackerMap.get(id) == null) {
-                tracker = cursorToTracker(cursor);
-                trackerMap.put(id, tracker);
+            if (selection == null) {
+                from = Constants.T_TORRENT_TRACKER + " JOIN " + Constants.T_TRACKER
+                    + " ON " + Constants.T_TRACKER + "." + Constants.C_TRACKER_ID
+                    + " = " + Constants.T_TORRENT_TRACKER + "." + Constants.C_TRACKER_ID;
             } else {
-                tracker = trackerMap.get(id);
+                from = Constants.T_TORRENT + " JOIN " + Constants.T_TORRENT_TRACKER
+                    + " ON " + Constants.T_TORRENT + "." + Constants.C_TORRENT_ID
+                    + " = " + Constants.T_TORRENT_TRACKER + "." + Constants.C_TORRENT_ID
+                    + " JOIN " + Constants.T_TRACKER
+                    + " ON " + Constants.T_TORRENT_TRACKER + "." + Constants.C_TRACKER_ID
+                    + " = " + Constants.T_TRACKER + "." + Constants.C_TRACKER_ID;
+            }
+            String query = "SELECT " + select + " FROM " + from;
+            if (selection != null) {
+                query += " WHERE " + selection;
             }
 
-            trackers.add(tracker);
-            cursor.moveToNext();
-        }
-        Torrent torrent = torrentMap.get(lastId);
-        if (torrent != null) {
-            torrent.setTrackers(trackers.toArray(new Torrent.Tracker[trackers.size()]));
-        }
+            query += " ORDER BY " + Constants.T_TORRENT_TRACKER + "." + Constants.C_TORRENT_ID
+                + ", " + Constants.C_TIER;
 
-        cursor.close();
+            cursor = database.rawQuery(query, selectionArgs);
+            cursor.moveToFirst();
 
-        if (details) {
+            List<Torrent.Tracker> trackers = new ArrayList<Torrent.Tracker>();
+            SparseArray<Torrent.Tracker> trackerMap = new SparseArray<Torrent.Tracker>();
+            int lastId = -1;
+            while (!cursor.isAfterLast()) {
+                int torrentId = cursor.getInt(cursor.getColumnIndex(Constants.C_TORRENT_ID));
+                if (lastId == -1 || lastId != torrentId) {
+                    if (lastId != -1) {
+                        Torrent torrent = torrentMap.get(lastId);
+                        if (torrent != null) {
+                            torrent.setTrackers(trackers.toArray(new Torrent.Tracker[trackers.size()]));
+                        }
+                        trackers.clear();
+                    }
+                    lastId = torrentId;
+                }
+
+                Torrent.Tracker tracker;
+                int id = cursor.getInt(cursor.getColumnIndex(Constants.C_TRACKER_ID));
+                if (trackerMap.get(id) == null) {
+                    tracker = cursorToTracker(cursor);
+                    trackerMap.put(id, tracker);
+                } else {
+                    tracker = trackerMap.get(id);
+                }
+
+                trackers.add(tracker);
+                cursor.moveToNext();
+            }
+            Torrent torrent = torrentMap.get(lastId);
+            if (torrent != null) {
+                torrent.setTrackers(trackers.toArray(new Torrent.Tracker[trackers.size()]));
+            }
+
+            cursor.close();
+
             query = "SELECT " + Constants.T_FILE + "." + Constants.C_TORRENT_ID + ", "
                 + Constants.C_NAME + ", " + Constants.C_LENGTH + ", " + Constants.C_BYTES_COMPLETED + ", "
                 + Constants.C_PRIORITY + ", " + Constants.C_WANTED + " FROM ";
