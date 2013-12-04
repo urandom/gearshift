@@ -67,8 +67,6 @@ public class TransmissionSessionManager {
     private int mInvalidSessionRetries = 0;
     private SharedPreferences mDefaultPrefs;
 
-    private DataSource mDataSource;
-
     public TransmissionSessionManager(Context context, TransmissionProfile profile) {
 //        mContext = context;
         mProfile = profile;
@@ -77,8 +75,6 @@ public class TransmissionSessionManager {
         mDefaultPrefs = PreferenceManager.getDefaultSharedPreferences(context);
 
         mSessionId = mDefaultPrefs.getString(PREF_LAST_SESSION_ID, null);
-        mDataSource = new DataSource(context);
-        mDataSource.open();
     }
 
     public boolean hasConnectivity() {
@@ -529,8 +525,8 @@ public class TransmissionSessionManager {
                     parser.nextValue();
 
                     response = new SessionGetResponse();
-                    mDataSource.updateSession(parser);
-                    TransmissionSession session = mDataSource.getSession();
+                    DataSource.instance.updateSession(parser);
+                    TransmissionSession session = DataSource.instance.getSession();
 
                     ((SessionGetResponse) response).setSession(session);
                 } else if (klass == SessionStatsResponse.class) {

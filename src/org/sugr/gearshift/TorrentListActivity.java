@@ -9,6 +9,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
@@ -30,6 +31,8 @@ import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.Toast;
+
+import org.sugr.gearshift.datasource.DataSource;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -80,7 +83,11 @@ public class TorrentListActivity extends FragmentActivity
         super.onCreate(savedInstanceState);
 
         mSharedPrefs = PreferenceManager.getDefaultSharedPreferences(this);
+
         G.DEBUG = mSharedPrefs.getBoolean(G.PREF_DEBUG, false);
+
+        DataSource.getInstance(this);
+        new OpenDBAsyncTask().execute();
 
         setContentView(R.layout.activity_torrent_list);
 
@@ -173,6 +180,18 @@ public class TorrentListActivity extends FragmentActivity
         if (mTwoPane) {
             toggleRightPane(false);
         }
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        new OpenDBAsyncTask().execute();
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        DataSource.instance.close();
     }
 
     @Override
@@ -596,6 +615,15 @@ public class TorrentListActivity extends FragmentActivity
             }
         } else {
             mIntentConsumed = true;
+        }
+    }
+
+    private class OpenDBAsyncTask extends AsyncTask<Void, Void, Void> {
+        @Override
+        protected Void doInBackground(Void... voids) {
+            DataSource.instance.open();
+
+            return null;
         }
     }
 }

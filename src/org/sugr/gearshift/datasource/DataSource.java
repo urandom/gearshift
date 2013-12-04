@@ -26,6 +26,8 @@ class TorrentValues {
 }
 
 public class DataSource {
+    public static DataSource instance = null;
+
     private SQLiteDatabase database;
 
     private SQLiteHelper dbHelper;
@@ -36,11 +38,17 @@ public class DataSource {
 
     private int rpcVersion = -1;
 
-    public DataSource(Context context) {
-        this.context = context;
-        this.dbHelper = new SQLiteHelper(context);
+    /* Prevent instantiation */
+    protected DataSource() { }
 
-        rpcVersion = -1;
+    public static synchronized DataSource getInstance(Context context) {
+        if (instance == null) {
+            instance = new DataSource();
+            instance.dbHelper = new SQLiteHelper(context.getApplicationContext());
+        }
+        instance.setContext(context);
+
+        return instance;
     }
 
     public void open() {
@@ -60,7 +68,18 @@ public class DataSource {
         rpcVersion = version;
     }
 
+    public Context getContext() {
+        return context;
+    }
+
+    public void setContext(Context context) {
+        this.context = context;
+    }
+
     public void updateSession(JsonParser parser) throws IOException {
+        if (!isOpen())
+            return;
+
         database.beginTransaction();
 
         try {
@@ -78,6 +97,9 @@ public class DataSource {
     }
 
     public void updateTorrents(JsonParser parser) throws IOException {
+        if (!isOpen())
+            return;
+
         database.beginTransaction();
 
         try {
@@ -134,6 +156,9 @@ public class DataSource {
 
     /* Transmission implementation */
     public TransmissionSession getSession() {
+        if (!isOpen())
+            return null;
+
         Cursor cursor = database.query(Constants.T_SESSION, new String[] {
             Constants.C_NAME, Constants.C_VALUE_INTEGER,
             Constants.C_VALUE_REAL, Constants.C_VALUE_TEXT
@@ -142,8 +167,31 @@ public class DataSource {
         return cursorToSession(cursor);
     }
 
+    public List<String> getTrackerAnnounceURLs() {
+        if (!isOpen())
+            return null;
+
+        List<String> urls = new ArrayList<String>();
+
+        Cursor cursor = database.query(Constants.T_TRACKER, new String[] { Constants.C_ANNOUNCE },
+            null, null, null, null, Constants.C_ANNOUNCE);
+
+        cursor.moveToFirst();
+        while (!cursor.isAfterLast()) {
+            urls.add(cursor.getString(0));
+            cursor.moveToNext();
+        }
+
+        cursor.close();
+
+        return urls;
+    }
+
     public Cursor getTorrentCursor(String selection, String[] selectionArgs,
                                    String orderBy, boolean details) {
+        if (!isOpen())
+            return null;
+
         String[] columns = Constants.ColumnGroups.TORRENT_OVERVIEW;
         if (details) {
             columns = G.concat(columns, Constants.ColumnGroups.TORRENT_DETAILS);
@@ -156,6 +204,9 @@ public class DataSource {
 
     public List<Torrent> getTorrents(String selection, String[] selectionArgs,
                                      String orderBy, boolean details) {
+        if (!isOpen())
+            return null;
+
         List<Torrent> torrents = new ArrayList<Torrent>();
         SparseArray<Torrent> torrentMap = new SparseArray<Torrent>();
 
@@ -803,7 +854,7 @@ public class DataSource {
 
         while (parser.nextToken() != JsonToken.END_OBJECT) {
             String name = parser.getCurrentName();
-            
+
             parser.nextToken();
 
             if (name.equals("id")) {

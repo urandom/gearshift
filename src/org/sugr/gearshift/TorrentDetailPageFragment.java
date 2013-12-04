@@ -211,20 +211,20 @@ public class TorrentDetailPageFragment extends Fragment {
             for (View v : mSelectedFiles) {
                 TorrentFile file = mFilesAdapter.getItem(allViews.indexOf(v));
                 if (priority == null) {
-                    if ((file.stat.isWanted()
+                    if ((file.info.isWanted()
                             && key.equals(
                                 Torrent.SetterFields.FILES_UNWANTED))
-                    || (!file.stat.isWanted()
+                    || (!file.info.isWanted()
                             && key.equals(
                                 Torrent.SetterFields.FILES_WANTED))
                     ) {
                         indexes.add(file.index);
                     }
                 } else {
-                    if (file.stat.getPriority() != priority) {
+                    if (file.info.getPriority() != priority) {
                         indexes.add(file.index);
                         file.changed = true;
-                        file.stat.setPriority(priority);
+                        file.info.setPriority(priority);
                     }
                 }
             }
@@ -803,17 +803,16 @@ public class TorrentDetailPageFragment extends Fragment {
 
         /* Files start */
         if (root.findViewById(R.id.torrent_detail_files_content).getVisibility() != View.GONE
-                && mTorrent.getFiles() != null && mTorrent.getFileStats() != null) {
+                && mTorrent.getFiles() != null) {
 
             mFilesAdapter.setNotifyOnChange(false);
             if (mFilesAdapter.getCount() == 0) {
                 Torrent.File[] files = mTorrent.getFiles();
-                Torrent.FileStats[] stats = mTorrent.getFileStats();
 
                 mFilesAdapter.clear();
                 ArrayList<TorrentFile> torrentFiles = new ArrayList<TorrentFile>();
                 for (int i = 0; i < files.length; i++) {
-                    TorrentFile file = new TorrentFile(i, files[i], stats[i]);
+                    TorrentFile file = new TorrentFile(i, files[i]);
                     torrentFiles.add(file);
                 }
                 Collections.sort(torrentFiles, new TorrentFileComparator());
@@ -914,16 +913,15 @@ public class TorrentDetailPageFragment extends Fragment {
 
         /* Trackers start */
         if (root.findViewById(R.id.torrent_detail_trackers_content).getVisibility() != View.GONE
-                && mTorrent.getTrackers() != null && mTorrent.getTrackerStats() != null) {
+                && mTorrent.getTrackers() != null) {
             mTrackersAdapter.setNotifyOnChange(false);
             if (mTrackersAdapter.getCount() != mTorrent.getTrackers().length) {
                 Torrent.Tracker[] tTrackers = mTorrent.getTrackers();
-                Torrent.TrackerStats[] stats = mTorrent.getTrackerStats();
 
                 mTrackersAdapter.clear();
                 ArrayList<Tracker> trackers = new ArrayList<Tracker>();
-                for (int i = 0; i < tTrackers.length && i < stats.length; i++) {
-                    Tracker tracker = new Tracker(i, tTrackers[i], stats[i]);
+                for (int i = 0; i < tTrackers.length; i++) {
+                    Tracker tracker = new Tracker(i, tTrackers[i]);
                     trackers.add(tracker);
                 }
                 Collections.sort(trackers, new TrackerComparator());
@@ -941,7 +939,7 @@ public class TorrentDetailPageFragment extends Fragment {
 
         for (View v : mSelectedFiles) {
             TorrentFile file = mFilesAdapter.getItem(allViews.indexOf(v));
-            if (file.stat.isWanted()) {
+            if (file.info.isWanted()) {
                 hasChecked = true;
                 checked.setVisible(true);
             } else {
@@ -964,16 +962,14 @@ public class TorrentDetailPageFragment extends Fragment {
     private class TorrentFile {
         int index = -1;
         Torrent.File info;
-        Torrent.FileStats stat;
 
         String directory;
         String name;
 
         boolean changed = false;
 
-        public TorrentFile(int index, Torrent.File info, Torrent.FileStats stat) {
+        public TorrentFile(int index, Torrent.File info) {
             this.index = index;
-            this.stat = stat;
 
             setInfo(info);
         }
@@ -988,10 +984,6 @@ public class TorrentDetailPageFragment extends Fragment {
             File f = new File(path);
             this.directory = f.getParent();
             this.name = f.getName();
-        }
-
-        public void setStat(Torrent.FileStats stat) {
-            this.stat = stat;
         }
 
         public void setIndex(int index) {
@@ -1070,7 +1062,7 @@ public class TorrentDetailPageFragment extends Fragment {
                                 }
                                 return;
                             }
-                            if (file.stat.isWanted() != isChecked) {
+                            if (file.info.isWanted() != isChecked) {
                                 if (isChecked) {
                                     setTorrentProperty(Torrent.SetterFields.FILES_WANTED, Integer.valueOf(file.index));
                                 } else {
@@ -1094,7 +1086,7 @@ public class TorrentDetailPageFragment extends Fragment {
                     });
                 }
                 String priority;
-                switch(file.stat.getPriority()) {
+                switch(file.info.getPriority()) {
                     case Torrent.Priority.LOW:
                         priority = mPriorityNames.get(0);
                         break;
@@ -1109,12 +1101,12 @@ public class TorrentDetailPageFragment extends Fragment {
                 row.setText(Html.fromHtml(String.format(
                     getString(R.string.torrent_detail_file_format),
                     file.name,
-                    G.readableFileSize(file.stat.getBytesCompleted()),
+                    G.readableFileSize(file.info.getBytesCompleted()),
                     G.readableFileSize(file.info.getLength()),
                     priority
                 )));
 
-                row.setChecked(file.stat.isWanted());
+                row.setChecked(file.info.isWanted());
 
                 if (initial) {
                     while (mViews.size() <= position)
@@ -1138,7 +1130,6 @@ public class TorrentDetailPageFragment extends Fragment {
 
         @Override public void onChanged() {
             Torrent.File[] files = mTorrent.getFiles();
-            Torrent.FileStats[] stats = mTorrent.getFileStats();
 
             for (int i = 0; i < mFilesAdapter.getCount(); i++) {
                 TorrentFile file = mFilesAdapter.getItem(i);
@@ -1148,7 +1139,7 @@ public class TorrentDetailPageFragment extends Fragment {
                     v = mContainer.getChildAt(i);
                     hasChild = true;
                 }
-                if (!hasChild || (file.index != -1 && fileChanged(file, files[file.index], stats[file.index]))) {
+                if (!hasChild || (file.index != -1 && fileChanged(file, files[file.index]))) {
                     v = mFilesAdapter.getView(i, v, null);
                     if (!hasChild) {
                         mContainer.addView(v, i);
@@ -1161,14 +1152,14 @@ public class TorrentDetailPageFragment extends Fragment {
             mContainer.removeAllViews();
         }
 
-        private boolean fileChanged(TorrentFile file, Torrent.File tFile, Torrent.FileStats stat) {
+        private boolean fileChanged(TorrentFile file, Torrent.File info) {
             boolean changed = false;
 
             if (file.changed
-                    || file.stat.isWanted() != stat.isWanted()
-                    || file.stat.getBytesCompleted() != stat.getBytesCompleted()
-                    || file.stat.getPriority() != stat.getPriority()) {
-                file.setStat(stat);
+                    || file.info.isWanted() != info.isWanted()
+                    || file.info.getBytesCompleted() != info.getBytesCompleted()
+                    || file.info.getPriority() != info.getPriority()) {
+                file.setInfo(info);
                 file.changed = false;
                 changed = true;
             }
@@ -1198,11 +1189,10 @@ public class TorrentDetailPageFragment extends Fragment {
         public boolean hasLastScrapeSucceeded;
         public String lastScrapeResult;
 
-        public Tracker(int index, Torrent.Tracker info, Torrent.TrackerStats stat) {
+        public Tracker(int index, Torrent.Tracker info) {
             this.index = index;
 
             setInfo(info);
-            setStat(stat);
         }
 
         public void setInfo(Torrent.Tracker info) {
@@ -1217,20 +1207,17 @@ public class TorrentDetailPageFragment extends Fragment {
             this.announce = new String(info.getAnnounce());
             this.scrape = new String(info.getScrape());
             this.tier = info.getTier();
-        }
-
-        public void setStat(Torrent.TrackerStats stat) {
-            this.seederCount = stat.getSeederCount();
-            this.leecherCount = stat.getLeecherCount();
-            this.hasAnnounced = stat.hasAnnounced();
-            this.lastAnnounceTime = stat.getLastAnnounceTime();
-            this.hasLastAnnounceSucceeded = stat.hasLastAnnounceSucceeded();
-            this.lastAnnouncePeerCount = stat.getLastAnnouncePeerCount();
-            this.lastAnnounceResult = new String(stat.getLastAnnounceResult());
-            this.hasScraped = stat.hasScraped();
-            this.lastScrapeTime = stat.getLastScrapeTime();
-            this.hasLastScrapeSucceeded = stat.hasLastScrapeSucceeded();
-            this.lastScrapeResult = new String(stat.getLastScrapeResult());
+            this.seederCount = info.getSeederCount();
+            this.leecherCount = info.getLeecherCount();
+            this.hasAnnounced = info.hasAnnounced();
+            this.lastAnnounceTime = info.getLastAnnounceTime();
+            this.hasLastAnnounceSucceeded = info.hasLastAnnounceSucceeded();
+            this.lastAnnouncePeerCount = info.getLastAnnouncePeerCount();
+            this.lastAnnounceResult = new String(info.getLastAnnounceResult());
+            this.hasScraped = info.hasScraped();
+            this.lastScrapeTime = info.getLastScrapeTime();
+            this.hasLastScrapeSucceeded = info.hasLastScrapeSucceeded();
+            this.lastScrapeResult = new String(info.getLastScrapeResult());
         }
 
         public void setIndex(int index) {
@@ -1514,7 +1501,6 @@ public class TorrentDetailPageFragment extends Fragment {
 
         @Override public void onChanged() {
             Torrent.Tracker[] trackers = mTorrent.getTrackers();
-            Torrent.TrackerStats[] stats = mTorrent.getTrackerStats();
 
             for (int i = 0; i < mTrackersAdapter.getCount(); i++) {
                 Tracker tracker = mTrackersAdapter.getItem(i);
@@ -1524,7 +1510,7 @@ public class TorrentDetailPageFragment extends Fragment {
                     v = mContainer.getChildAt(i);
                     hasChild = true;
                 }
-                if (!hasChild || (tracker.index != -1 && trackerChanged(tracker, trackers[tracker.index], stats[tracker.index]))) {
+                if (!hasChild || (tracker.index != -1 && trackerChanged(tracker, trackers[tracker.index]))) {
                     v = mTrackersAdapter.getView(i, v, null);
                     if (!hasChild) {
                         mContainer.addView(v, i);
@@ -1550,16 +1536,15 @@ public class TorrentDetailPageFragment extends Fragment {
             mContainer.removeAllViews();
         }
 
-        private boolean trackerChanged(Tracker tracker, Torrent.Tracker tTracker, Torrent.TrackerStats stat) {
+        private boolean trackerChanged(Tracker tracker, Torrent.Tracker info) {
             boolean changed = false;
 
-            if (!tracker.announce.equals(tTracker.getAnnounce())
-                    || tracker.lastAnnounceTime != stat.getLastAnnounceTime()
-                    || tracker.lastScrapeTime != stat.getLastScrapeTime()
-                    || tracker.leecherCount != stat.getLeecherCount()
-                    || tracker.seederCount != stat.getSeederCount()) {
-                tracker.setInfo(tTracker);
-                tracker.setStat(stat);
+            if (!tracker.announce.equals(info.getAnnounce())
+                    || tracker.lastAnnounceTime != info.getLastAnnounceTime()
+                    || tracker.lastScrapeTime != info.getLastScrapeTime()
+                    || tracker.leecherCount != info.getLeecherCount()
+                    || tracker.seederCount != info.getSeederCount()) {
+                tracker.setInfo(info);
                 changed = true;
             }
 
