@@ -122,26 +122,14 @@ public class TransmissionSessionManager {
         return response;
     }
 
-    public Torrent[] getAllTorrents(String[] fields) throws ManagerException {
+    public Torrent[] getTorrents(String[] fields, int[] ids) throws ManagerException {
         ObjectMapper mapper = new ObjectMapper();
         ObjectNode request = createRequest("torrent-get", true);
         ObjectNode arguments = (ObjectNode) request.path("arguments");
         arguments.put("fields", mapper.valueToTree(fields));
-
-        TorrentGetResponse response = (TorrentGetResponse) requestData(request, TorrentGetResponse.class);
-        if (!response.getResult().equals("success")) {
-            throw new ManagerException(response.getResult(), -2);
+        if (ids != null && ids.length > 0) {
+            arguments.put("ids", mapper.valueToTree(ids));
         }
-
-        return response.getTorrents();
-    }
-
-    public Torrent[] getTorrents(int[] ids, String[] fields) throws ManagerException {
-        ObjectMapper mapper = new ObjectMapper();
-        ObjectNode request = createRequest("torrent-get", true);
-        ObjectNode arguments = (ObjectNode) request.path("arguments");
-        arguments.put("ids", mapper.valueToTree(ids));
-        arguments.put("fields", mapper.valueToTree(fields));
 
         TorrentGetResponse response = (TorrentGetResponse) requestData(request, TorrentGetResponse.class);
         if (!response.getResult().equals("success")) {
