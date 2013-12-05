@@ -204,6 +204,7 @@ public class TransmissionSessionManager {
         }
     }
 
+    @SuppressWarnings("unchecked")
     public void setTorrentsProperty(int[] ids, String key, Object value) throws ManagerException {
         ObjectMapper mapper = new ObjectMapper();
         ObjectNode request = createRequest("torrent-set", true);
