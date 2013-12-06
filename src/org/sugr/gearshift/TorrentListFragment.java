@@ -377,7 +377,7 @@ public class TorrentListFragment extends ListFragment {
                     } else if (key.equals(G.PREF_CURRENT_PROFILE)) {
                         if (prefs.getString(key, null) == null) {
                             setEmptyText(R.string.no_profiles_empty_list);
-                        } else {
+                        } else if (getActivity() != null) {
                             getActivity().getSupportLoaderManager().initLoader(
                                 G.TORRENTS_LOADER_ID,
                                 null, mTorrentLoaderCallbacks);
