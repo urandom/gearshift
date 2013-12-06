@@ -514,8 +514,10 @@ public class TorrentListFragment extends ListFragment {
                     if (key.equals(G.PREF_BASE_SORT_ORDER) || key.equals(G.PREF_BASE_SORT_ORDER)) {
                         mTorrentListAdapter.resetBaseSort();
                     } else if (key.equals(G.PREF_PROFILES)) {
-                        mRefreshing = true;
-                        getActivity().invalidateOptionsMenu();
+                        if (getActivity() != null) {
+                            mRefreshing = true;
+                            getActivity().invalidateOptionsMenu();
+                        }
                     } else if (key.equals(G.PREF_SHOW_STATUS) && getView() != null) {
                         View status = getView().findViewById(R.id.status_bar_text);
                         status.setVisibility(prefs.getBoolean(key, false) ? View.VISIBLE : View.GONE);
