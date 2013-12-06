@@ -55,7 +55,11 @@ public class TransmissionProfile implements Parcelable, Comparable<TransmissionP
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
         Editor e = prefs.edit();
 
-        e.putString(G.PREF_CURRENT_PROFILE, profile.getId());
+        if (profile == null) {
+            e.putString(G.PREF_CURRENT_PROFILE, null);
+        } else {
+            e.putString(G.PREF_CURRENT_PROFILE, profile.getId());
+        }
         e.commit();
     }
 

@@ -46,10 +46,8 @@ public class TorrentDetailActivity extends FragmentActivity implements Transmiss
             G.logD("Starting the torrents loader with profile " + mProfile);
             if (mProfile == null) return null;
 
-            TransmissionDataLoader loader = new TransmissionDataLoader(
-                    TorrentDetailActivity.this, mProfile, mSession, mTorrents, getCurrentTorrents());
-
-            return loader;
+            return new TransmissionDataLoader(
+                TorrentDetailActivity.this, mProfile, mSession, mTorrents, getCurrentTorrents());
         }
 
         @Override
@@ -313,4 +311,7 @@ public class TorrentDetailActivity extends FragmentActivity implements Transmiss
         mRefreshing = refreshing;
         invalidateOptionsMenu();
     }
+
+    @Override
+    public void setIterationStatus(int flat) {}
 }
