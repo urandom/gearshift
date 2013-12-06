@@ -55,7 +55,6 @@ public class TransmissionSessionManager {
 
     public final static String PREF_LAST_SESSION_ID = "last_session_id";
 
-//    private Context mContext;
     private TransmissionProfile mProfile;
 
     private ConnectivityManager mConnManager;
@@ -66,7 +65,6 @@ public class TransmissionSessionManager {
     private SharedPreferences mDefaultPrefs;
 
     public TransmissionSessionManager(Context context, TransmissionProfile profile) {
-//        mContext = context;
         mProfile = profile;
 
         mConnManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
