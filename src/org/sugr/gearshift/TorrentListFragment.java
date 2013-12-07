@@ -478,13 +478,12 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
     }
 
     @Override
-    public void notifyTorrentListChanged(int error, boolean added, boolean removed,
+    public void notifyTorrentListChanged(List<Torrent> torrents, int error, boolean added, boolean removed,
                                          boolean statusChanged, boolean metadataNeeded) {
         if (error == -1) {
             mTorrentListAdapter.clear();
             return;
         }
-        List<Torrent> torrents = ((TransmissionSessionInterface) getActivity()).getTorrents();
 
         boolean filtered = false;
 
@@ -527,7 +526,7 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
                     TorrentDetailFragment detail = (TorrentDetailFragment) manager.findFragmentByTag(
                         G.DETAIL_FRAGMENT_TAG);
                     if (detail != null) {
-                        detail.notifyTorrentListChanged(error, added, removed,
+                        detail.notifyTorrentListChanged(torrents, error, added, removed,
                             statusChanged, metadataNeeded);
                     }
                 }
@@ -1225,7 +1224,8 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
                     TorrentDetailFragment detail = (TorrentDetailFragment) manager.findFragmentByTag(
                             G.DETAIL_FRAGMENT_TAG);
                     if (detail != null) {
-                        detail.notifyTorrentListChanged(0, true, true, false, false);
+                        detail.notifyTorrentListChanged(getUnfilteredItems(), 0, true,
+                            true, false, false);
                     }
                     notifyDataSetChanged();
                 } else {

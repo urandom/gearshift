@@ -19,6 +19,7 @@ import android.widget.CheckBox;
 import android.widget.Spinner;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class TorrentDetailFragment extends Fragment implements TorrentListNotification {
     public static final String ARG_SHOW_PAGER = "show_pager";
@@ -258,9 +259,9 @@ public class TorrentDetailFragment extends Fragment implements TorrentListNotifi
         mPager.setCurrentItem(position);
     }
 
-    public void notifyTorrentListChanged(int error, boolean added, boolean removed,
+    public void notifyTorrentListChanged(List<Torrent> all, int error, boolean added, boolean removed,
                                          boolean status, boolean metadata) {
-        ArrayList<Torrent> torrents = ((TransmissionSessionInterface) getActivity()).getTorrents();
+        List<Torrent> torrents = ((TransmissionSessionInterface) getActivity()).getTorrents();
         Torrent torrent = null;
         if (removed || added) {
             int index = 0;

@@ -56,8 +56,6 @@ public class TorrentDetailActivity extends FragmentActivity implements Transmiss
                 TransmissionData data) {
 
             setSession(data.session);
-           /* if (data.stats != null)
-                mSessionStats = data.stats;*/
 
             boolean invalidateMenu = false;
 
@@ -123,7 +121,7 @@ public class TorrentDetailActivity extends FragmentActivity implements Transmiss
             TorrentDetailFragment detail = (TorrentDetailFragment) manager.findFragmentByTag(
                     G.DETAIL_FRAGMENT_TAG);
             if (detail != null) {
-                detail.notifyTorrentListChanged(data.error, false, data.hasRemoved,
+                detail.notifyTorrentListChanged(data.torrents, data.error, false, data.hasRemoved,
                     data.hasStatusChanged, data.hasMetadataNeeded);
             }
 
