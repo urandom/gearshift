@@ -29,6 +29,7 @@ import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -146,7 +147,7 @@ public class TorrentListMenuFragment extends Fragment {
         setStatus(null, null);
     }
 
-    public void notifyTorrentListUpdate(ArrayList<Torrent> torrents, TransmissionSession session, boolean showStatus) {
+    public void notifyTorrentListUpdate(List<Torrent> torrents, TransmissionSession session, boolean showStatus) {
         long down = 0, up = 0;
         boolean directoriesEnabled = mSharedPrefs.getBoolean(G.PREF_FILTER_DIRECTORIES, true);
         boolean trackersEnabled = mSharedPrefs.getBoolean(G.PREF_FILTER_TRACKERS, false);

@@ -22,6 +22,7 @@ import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
+import android.text.Html;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -134,20 +135,29 @@ public class TorrentListActivity extends FragmentActivity
                 index++;
             }
 
-            if (mProfile == null && profiles.length > 0) {
-                setProfile(profiles[0]);
-            } else {
-                setProfile(null);
-            }
-
-            if (mProfile == null || oldProfile != null && !oldProfile.getId().equals(mProfile.getId())) {
+            if (mProfile == null) {
+                if (profiles.length > 0) {
+                    setProfile(profiles[0]);
+                } else {
+                    setProfile(null);
+                }
                 getSupportLoaderManager().destroyLoader(G.TORRENTS_LOADER_ID);
-            }
-            if (mProfile != null) {
+            } else {
                 /* The torrents might be loaded before the navigation
                  * callback fires, which will cause the refresh indicator to
                  * appear until the next server request */
                 mPreventRefreshIndicator = true;
+
+                if (oldProfile != null && !oldProfile.getId().equals(mProfile.getId())) {
+                    getSupportLoaderManager().initLoader(
+                        G.TORRENTS_LOADER_ID,
+                        null, mTorrentLoaderCallbacks);
+                } else {
+                    getSupportLoaderManager().restartLoader(
+                        G.TORRENTS_LOADER_ID,
+                        null, mTorrentLoaderCallbacks);
+                }
+
             }
 
             TransmissionProfile.setCurrentProfile(mProfile, TorrentListActivity.this);
@@ -161,6 +171,112 @@ public class TorrentListActivity extends FragmentActivity
 
     };
 
+    private LoaderManager.LoaderCallbacks<TransmissionData> mTorrentLoaderCallbacks = new LoaderManager.LoaderCallbacks<TransmissionData>() {
+
+        @Override
+        public android.support.v4.content.Loader<TransmissionData> onCreateLoader(
+            int id, Bundle args) {
+            G.logD("Starting the torrents loader with profile " + mProfile);
+            if (mProfile == null) return null;
+
+            return new TransmissionDataLoader(TorrentListActivity.this, mProfile);
+        }
+
+        @Override
+        public void onLoadFinished(
+            android.support.v4.content.Loader<TransmissionData> loader,
+            TransmissionData data) {
+
+            G.logD("Data loaded: " + data.torrents.size() + " torrents, error: " + data.error + " , removed: " + data.hasRemoved + ", added: " + data.hasAdded + ", changed: " + data.hasStatusChanged + ", metadata: " + data.hasMetadataNeeded);
+            setSession(data.session);
+
+            View error = findViewById(R.id.fatal_error_layer);
+            if (data.error == 0 && error.getVisibility() != View.GONE) {
+                error.setVisibility(View.GONE);
+            }
+            if (data.torrents.size() > 0 || data.error > 0) {
+                if (data.error == 0) {
+                    if (data.hasRemoved || data.hasAdded) {
+                        setTorrents(data.torrents);
+                    }
+                } else {
+                    if (data.error == TransmissionData.Errors.DUPLICATE_TORRENT) {
+                        Toast.makeText(TorrentListActivity.this, R.string.duplicate_torrent, Toast.LENGTH_SHORT).show();
+                    } else if (data.error == TransmissionData.Errors.INVALID_TORRENT) {
+                        Toast.makeText(TorrentListActivity.this, R.string.invalid_torrent, Toast.LENGTH_SHORT).show();
+                    } else {
+                        error.setVisibility(View.VISIBLE);
+                        TextView text = (TextView) findViewById(R.id.transmission_error);
+                        setProfile(null);
+
+                        if (data.error == TransmissionData.Errors.NO_CONNECTIVITY) {
+                            text.setText(Html.fromHtml(getString(R.string.no_connectivity_empty_list)));
+                        } else if (data.error == TransmissionData.Errors.ACCESS_DENIED) {
+                            text.setText(Html.fromHtml(getString(R.string.access_denied_empty_list)));
+                        } else if (data.error == TransmissionData.Errors.NO_JSON) {
+                            text.setText(Html.fromHtml(getString(R.string.no_json_empty_list)));
+                        } else if (data.error == TransmissionData.Errors.NO_CONNECTION) {
+                            text.setText(Html.fromHtml(getString(R.string.no_connection_empty_list)));
+                        } else if (data.error == TransmissionData.Errors.GENERIC_HTTP) {
+                            text.setText(Html.fromHtml(getString(R.string.generic_http_empty_list)));
+                        } else if (data.error == TransmissionData.Errors.THREAD_ERROR) {
+                            text.setText(Html.fromHtml(getString(R.string.thread_error_empty_list)));
+                        } else if (data.error == TransmissionData.Errors.RESPONSE_ERROR) {
+                            text.setText(Html.fromHtml(getString(R.string.response_error_empty_list)));
+                        } else if (data.error == TransmissionData.Errors.TIMEOUT) {
+                            text.setText(Html.fromHtml(getString(R.string.timeout_empty_list)));
+                        } else if (data.error == TransmissionData.Errors.OUT_OF_MEMORY) {
+                            text.setText(Html.fromHtml(getString(R.string.out_of_memory_empty_list)));
+                        }
+                    }
+                }
+            }
+            if (data.error == 0) {
+                if (mAltSpeed == mSession.isAltSpeedLimitEnabled()) {
+                    mExpecting &= ~(Expecting.ALT_SPEED_ON | Expecting.ALT_SPEED_OFF);
+                } else {
+                    if (mExpecting == 0
+                        || (mExpecting & Expecting.ALT_SPEED_ON) > 0 && mSession.isAltSpeedLimitEnabled()
+                        || (mExpecting & Expecting.ALT_SPEED_OFF) > 0 && !mSession.isAltSpeedLimitEnabled()) {
+                        mAltSpeed = mSession.isAltSpeedLimitEnabled();
+                        mExpecting &= ~(Expecting.ALT_SPEED_ON | Expecting.ALT_SPEED_OFF);
+                    }
+                }
+            } else {
+                switch(data.error) {
+                    case TransmissionData.Errors.DUPLICATE_TORRENT:
+                    case TransmissionData.Errors.INVALID_TORRENT:
+                        break;
+                    default:
+                        mExpecting = 0;
+                        break;
+                }
+            }
+
+            if (mRefreshing) {
+                mRefreshing = false;
+                invalidateOptionsMenu();
+            }
+
+            FragmentManager manager = getSupportFragmentManager();
+            TorrentListFragment fragment = (TorrentListFragment) manager.findFragmentById(R.id.torrent_list);
+            if (fragment != null) {
+                fragment.notifyTorrentListChanged(data.error, data.hasAdded, data.hasRemoved,
+                    data.hasStatusChanged, data.hasMetadataNeeded);
+            }
+        }
+
+        @Override
+        public void onLoaderReset(
+            android.support.v4.content.Loader<TransmissionData> loader) {
+            FragmentManager manager = getSupportFragmentManager();
+            TorrentListFragment fragment = (TorrentListFragment) manager.findFragmentById(R.id.torrent_list);
+            if (fragment != null) {
+                fragment.notifyTorrentListChanged(-1, false, false, false, false);
+            }
+        }
+
+    };
 
     /* The callback will get garbage collected if its a mere anon class */
     private SharedPreferences.OnSharedPreferenceChangeListener mProfileChangeListener =
@@ -221,12 +337,12 @@ public class TorrentListActivity extends FragmentActivity
                 @Override public void onAnimationEnd(Animator animation) {
                     final FragmentManager manager = getSupportFragmentManager();
                     TorrentDetailFragment fragment = (TorrentDetailFragment) manager.findFragmentByTag(
-                            TorrentDetailFragment.TAG);
+                            G.DETAIL_FRAGMENT_TAG);
                     if (fragment == null) {
                         Fragment frag = new TorrentDetailFragment();
                         frag.setArguments(mDetailArguments);
                         manager.beginTransaction()
-                                .replace(R.id.torrent_detail_container, frag, TorrentDetailFragment.TAG)
+                                .replace(R.id.torrent_detail_container, frag, G.DETAIL_FRAGMENT_TAG)
                                 .commit();
                     }
                     Handler handler = new Handler();
@@ -304,7 +420,9 @@ public class TorrentListActivity extends FragmentActivity
 
                         TransmissionProfile.setCurrentProfile(profile, TorrentListActivity.this);
                         setProfile(profile);
-                        ((TransmissionDataLoader) loader).setProfile(profile);
+                        if (loader != null) {
+                            ((TransmissionDataLoader) loader).setProfile(profile);
+                        }
 
                         SharedPreferences prefs = TransmissionProfile.getPreferences(TorrentListActivity.this);
                         if (prefs != null)
@@ -357,7 +475,7 @@ public class TorrentListActivity extends FragmentActivity
 
             FragmentManager manager = getSupportFragmentManager();
             TorrentDetailFragment fragment = (TorrentDetailFragment) manager.findFragmentByTag(
-                    TorrentDetailFragment.TAG);
+                    G.DETAIL_FRAGMENT_TAG);
             if (fragment == null) {
                 mDetailArguments = new Bundle();
                 mDetailArguments.putInt(G.ARG_PAGE_POSITION, current);
@@ -661,36 +779,6 @@ public class TorrentListActivity extends FragmentActivity
         }
     }
 
-    @Override
-    public void setIterationStatus(int status) {
-        if (status == 0) {
-            if (mAltSpeed == mSession.isAltSpeedLimitEnabled()) {
-                mExpecting &= ~(Expecting.ALT_SPEED_ON | Expecting.ALT_SPEED_OFF);
-            } else {
-                if (mExpecting == 0
-                    || (mExpecting & Expecting.ALT_SPEED_ON) > 0 && mSession.isAltSpeedLimitEnabled()
-                    || (mExpecting & Expecting.ALT_SPEED_OFF) > 0 && !mSession.isAltSpeedLimitEnabled()) {
-                    mAltSpeed = mSession.isAltSpeedLimitEnabled();
-                    mExpecting &= ~(Expecting.ALT_SPEED_ON | Expecting.ALT_SPEED_OFF);
-                }
-            }
-        } else {
-            switch(status) {
-                case TransmissionData.Errors.DUPLICATE_TORRENT:
-                case TransmissionData.Errors.INVALID_TORRENT:
-                    break;
-                default:
-                    mExpecting = 0;
-                    break;
-            }
-        }
-
-        if (mRefreshing) {
-            mRefreshing = false;
-            invalidateOptionsMenu();
-        }
-    }
-
     private void consumeIntent() {
         Intent intent = getIntent();
         String action = intent.getAction();
@@ -794,11 +882,12 @@ public class TorrentListActivity extends FragmentActivity
                             String line;
 
                             while ((line = reader.readLine()) != null) {
-                                filedata.append(line + "\n");
+                                filedata.append(line).append("\n");
                             }
 
                             if (!file.delete()) {
-                                /* TODO: Toast the error */
+                                Toast.makeText(TorrentListActivity.this,
+                                    R.string.error_deleting_torrent_file, Toast.LENGTH_SHORT).show();
                             }
 
                             String path = filePath;

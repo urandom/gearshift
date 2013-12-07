@@ -121,9 +121,10 @@ public class TorrentDetailActivity extends FragmentActivity implements Transmiss
 
             FragmentManager manager = getSupportFragmentManager();
             TorrentDetailFragment detail = (TorrentDetailFragment) manager.findFragmentByTag(
-                    TorrentDetailFragment.TAG);
+                    G.DETAIL_FRAGMENT_TAG);
             if (detail != null) {
-                detail.notifyTorrentListChanged(data.hasRemoved, false, data.hasStatusChanged);
+                detail.notifyTorrentListChanged(data.error, false, data.hasRemoved,
+                    data.hasStatusChanged, data.hasMetadataNeeded);
             }
 
             if (mRefreshing) {
@@ -169,7 +170,7 @@ public class TorrentDetailActivity extends FragmentActivity implements Transmiss
             TorrentDetailFragment fragment = new TorrentDetailFragment();
             fragment.setArguments(arguments);
             getSupportFragmentManager().beginTransaction()
-                    .replace(R.id.torrent_detail_container, fragment, TorrentDetailFragment.TAG)
+                    .replace(R.id.torrent_detail_container, fragment, G.DETAIL_FRAGMENT_TAG)
                     .commit();
         }
 
@@ -311,7 +312,4 @@ public class TorrentDetailActivity extends FragmentActivity implements Transmiss
         mRefreshing = refreshing;
         invalidateOptionsMenu();
     }
-
-    @Override
-    public void setIterationStatus(int flat) {}
 }

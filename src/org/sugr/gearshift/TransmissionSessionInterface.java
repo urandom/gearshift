@@ -15,6 +15,4 @@ public interface TransmissionSessionInterface {
     public Torrent[] getCurrentTorrents();
 
     public void setRefreshing(boolean refreshing);
-
-    public void setIterationStatus(int status);
 }

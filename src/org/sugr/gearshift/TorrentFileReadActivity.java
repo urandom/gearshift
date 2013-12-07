@@ -99,7 +99,7 @@ public class TorrentFileReadActivity extends FragmentActivity {
                     if (stream != null)
                         stream.close();
                 } catch (IOException e) {
-                    return null;
+                    e.printStackTrace();
                 }
             }
         }

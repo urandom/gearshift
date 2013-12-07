@@ -20,8 +20,7 @@ import android.widget.Spinner;
 
 import java.util.ArrayList;
 
-public class TorrentDetailFragment extends Fragment {
-    public static final String TAG = "detail_fragment";
+public class TorrentDetailFragment extends Fragment implements TorrentListNotification {
     public static final String ARG_SHOW_PAGER = "show_pager";
     public interface PagerCallbacks {
         public void onPageSelected(int position);
@@ -259,7 +258,8 @@ public class TorrentDetailFragment extends Fragment {
         mPager.setCurrentItem(position);
     }
 
-    public void notifyTorrentListChanged(boolean removed, boolean added, boolean status) {
+    public void notifyTorrentListChanged(int error, boolean added, boolean removed,
+                                         boolean status, boolean metadata) {
         ArrayList<Torrent> torrents = ((TransmissionSessionInterface) getActivity()).getTorrents();
         Torrent torrent = null;
         if (removed || added) {
