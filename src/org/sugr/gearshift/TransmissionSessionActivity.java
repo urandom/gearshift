@@ -32,6 +32,7 @@ import android.widget.TextView;
 import android.widget.TimePicker;
 
 import org.sugr.gearshift.TransmissionSessionManager.ManagerException;
+import org.sugr.gearshift.datasource.DataSource;
 
 import java.util.Arrays;
 import java.util.Calendar;
@@ -173,6 +174,8 @@ public class TransmissionSessionActivity extends FragmentActivity {
     protected void onCreate(final Bundle savedInstanceState) {
         Intent in = getIntent();
 
+        new OpenDBAsyncTask().execute();
+
         mProfile = in.getParcelableExtra(G.ARG_PROFILE);
         mSession = in.getParcelableExtra(G.ARG_SESSION);
 
@@ -223,6 +226,13 @@ public class TransmissionSessionActivity extends FragmentActivity {
             .getLoader(G.SESSION_LOADER_ID);
 
         loader.onContentChanged();
+        new OpenDBAsyncTask().execute();
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        DataSource.instance.close();
     }
 
     @Override
@@ -1280,6 +1290,15 @@ public class TransmissionSessionActivity extends FragmentActivity {
             }
         }
     }
+
+    private class OpenDBAsyncTask extends AsyncTask<Void, Void, Void> {
+        @Override
+        protected Void doInBackground(Void... voids) {
+            DataSource.instance.open();
+
+            return null;
+        }
+    }
 }
 
 class TransmissionSessionLoader extends AsyncTaskLoader<TransmissionData> {
@@ -1352,7 +1371,8 @@ class TransmissionSessionLoader extends AsyncTaskLoader<TransmissionData> {
 
         TransmissionSession session;
         try {
-            session = mSessManager.getSession();
+            mSessManager.updateSession();
+            session = DataSource.instance.getSession();
         } catch (ManagerException e) {
             return handleError(e);
         }
@@ -1399,6 +1419,9 @@ class TransmissionSessionLoader extends AsyncTaskLoader<TransmissionData> {
             case -2:
                 mLastError = TransmissionData.Errors.RESPONSE_ERROR;
                 G.logE("Transmission Daemon Error!", e);
+                break;
+            case -3:
+                mLastError = TransmissionData.Errors.OUT_OF_MEMORY;
                 break;
             default:
                 mLastError = TransmissionData.Errors.GENERIC_HTTP;

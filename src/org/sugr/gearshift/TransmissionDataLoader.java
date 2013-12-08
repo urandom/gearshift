@@ -9,6 +9,7 @@ import android.util.SparseArray;
 
 import org.sugr.gearshift.TransmissionSessionManager.ActiveTorrentGetResponse;
 import org.sugr.gearshift.TransmissionSessionManager.ManagerException;
+import org.sugr.gearshift.datasource.DataSource;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -305,7 +306,8 @@ public class TransmissionDataLoader extends AsyncTaskLoader<TransmissionData> {
                         }
                     }
                     try {
-                        mSession = mSessManager.getSession();
+                        mSessManager.updateSession();
+                        mSession = DataSource.instance.getSession();
                     } catch (ManagerException e) {
                         synchronized(mLock) {
                             exceptions.add(e);
@@ -316,29 +318,6 @@ public class TransmissionDataLoader extends AsyncTaskLoader<TransmissionData> {
             threads.add(thread);
             thread.start();
         }
-        /*
-        if (mCurrentTorrents == null && mSessionStats == null) {
-            Thread thread = new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    synchronized(mLock) {
-                        if (exceptions.size() > 0) {
-                            return;
-                        }
-                    }
-                    try {
-                        mSessionStats = mSessManager.getSessionStats();
-                    } catch (ManagerException e) {
-                        synchronized(mLock) {
-                            exceptions.add(e);
-                        };
-                    }
-                }
-            });
-            threads.add(thread);
-            thread.start();
-        }
-        */
 
         mNewTorrentAdded = 0;
         if (mTorrentAddUri != null || mTorrentAddData != null) {
@@ -425,7 +404,7 @@ public class TransmissionDataLoader extends AsyncTaskLoader<TransmissionData> {
         } else if (mCurrentTorrents != null) {
             if (mIteration == 0) {
                 fields = G.concat(Torrent.Fields.METADATA, Torrent.Fields.STATS,
-                        Torrent.Fields.STATS_EXTRA, Torrent.Fields.INFO_EXTRA);
+                    Torrent.Fields.STATS_EXTRA, Torrent.Fields.INFO_EXTRA);
             } else {
                 fields = G.concat(Torrent.Fields.STATS, Torrent.Fields.STATS_EXTRA);
                 boolean extraAdded = false;

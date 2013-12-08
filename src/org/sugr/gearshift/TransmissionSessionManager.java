@@ -85,26 +85,13 @@ public class TransmissionSessionManager {
         mSessionId = null;
     }
 
-    public TransmissionSession getSession() throws ManagerException {
+    public void updateSession() throws ManagerException {
         ObjectNode request = createRequest("session-get");
 
         SessionGetResponse response = (SessionGetResponse) requestData(request, SessionGetResponse.class);
         if (!response.getResult().equals("success")) {
             throw new ManagerException(response.getResult(), -2);
         }
-
-        return response.getSession();
-    }
-
-    public TransmissionSessionStats getSessionStats() throws ManagerException {
-        ObjectNode request = createRequest("session-stats");
-
-        SessionStatsResponse response = (SessionStatsResponse) requestData(request, SessionStatsResponse.class);
-        if (!response.getResult().equals("success")) {
-            throw new ManagerException(response.getResult(), -2);
-        }
-
-        return response.getStats();
     }
 
     public ActiveTorrentGetResponse getActiveTorrents(String[] fields) throws ManagerException {
@@ -513,15 +500,6 @@ public class TransmissionSessionManager {
 
                     response = new SessionGetResponse();
                     DataSource.instance.updateSession(parser);
-                    TransmissionSession session = DataSource.instance.getSession();
-
-                    ((SessionGetResponse) response).setSession(session);
-                } else if (klass == SessionStatsResponse.class) {
-                    parser.nextValue();
-
-                    response = new SessionStatsResponse();
-                    TransmissionSessionStats stats = mapper.readValue(parser, TransmissionSessionStats.class);
-                    ((SessionStatsResponse) response).setStats(stats);
                 } else if (klass == TorrentGetResponse.class || klass == ActiveTorrentGetResponse.class) {
                     if (klass == TorrentGetResponse.class) {
                         response = new TorrentGetResponse();
@@ -638,27 +616,7 @@ public class TransmissionSessionManager {
         }
     }
 
-    public static class SessionGetResponse extends Response {
-        private TransmissionSession mSession = null;
-
-        public TransmissionSession getSession() {
-            return mSession;
-        }
-        public void setSession(TransmissionSession session) {
-            mSession = session;
-        }
-    }
-
-    public static class SessionStatsResponse extends Response {
-        private TransmissionSessionStats mStats = null;
-
-        public TransmissionSessionStats getStats() {
-            return mStats;
-        }
-        public void setStats(TransmissionSessionStats stats) {
-            mStats = stats;
-        }
-    }
+    public static class SessionGetResponse extends Response {}
 
     public static class TorrentGetResponse extends Response {
         private TorrentsArguments mTorrentsArguments = null;

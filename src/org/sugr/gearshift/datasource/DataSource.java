@@ -173,8 +173,8 @@ public class DataSource {
 
         List<String> urls = new ArrayList<String>();
 
-        Cursor cursor = database.query(Constants.T_TRACKER, new String[] { Constants.C_ANNOUNCE },
-            null, null, null, null, Constants.C_ANNOUNCE);
+        Cursor cursor = database.query(true, Constants.T_TRACKER, new String[] { Constants.C_ANNOUNCE },
+            null, null, null, null, Constants.C_ANNOUNCE, null);
 
         cursor.moveToFirst();
         while (!cursor.isAfterLast()) {
