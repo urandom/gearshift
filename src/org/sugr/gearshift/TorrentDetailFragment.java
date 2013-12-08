@@ -369,6 +369,9 @@ public class TorrentDetailFragment extends Fragment implements TorrentListNotifi
             @Override public void onNothingSelected(AdapterView<?> adapterView) {}
         });
 
+        ((CheckBox) dialog.findViewById(R.id.move)).setChecked(
+            profile != null && profile.getMoveData());
+
         return true;
     }
 }

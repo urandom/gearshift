@@ -834,10 +834,10 @@ public class TorrentListActivity extends FragmentActivity
                 @Override public void onNothingSelected(AdapterView<?> adapterView) {}
             });
 
-            ((CheckBox) view.findViewById(R.id.start_paused)).setChecked(mSharedPrefs.getBoolean(G.PREF_START_PAUSED, false));
+            ((CheckBox) view.findViewById(R.id.start_paused)).setChecked(mProfile != null && mProfile.getStartPaused());
 
             final CheckBox deleteLocal = ((CheckBox) view.findViewById(R.id.delete_local));
-            deleteLocal.setChecked(mSharedPrefs.getBoolean(G.PREF_DELETE_LOCAL, false));
+            deleteLocal.setChecked(mProfile != null && mProfile.getDeleteLocal());
 
             if (data.getScheme().equals("magnet")) {
                 builder.setTitle(R.string.add_magnet).setPositiveButton(android.R.string.ok,

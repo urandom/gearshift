@@ -116,9 +116,9 @@ public class TorrentFileReadActivity extends FragmentActivity {
                 listIntent.putExtra(TorrentListActivity.ARG_FILE_PATH, data.path);
 
                 startActivity(listIntent);
-
-                finish();
             }
+
+            finish();
         }
     }
 }

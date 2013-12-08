@@ -671,6 +671,9 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
             }
         }
 
+        ((CheckBox) dialog.findViewById(R.id.move)).setChecked(
+            profile != null && profile.getMoveData());
+
         return true;
     }
 

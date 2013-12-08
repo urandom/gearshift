@@ -85,10 +85,7 @@
     <string name="update_interval">Update interval</string>
     <string name="update_interval_summary_format">%1$s</string>
     <string name="session_update_interval">Session update interval</string>
-    <string name="torrents">Torrents</string>
-    <string name="start_paused">Start paused</string>
-    <string name="delete_local">Delete local torrent file when adding</string>
-    
+
     <string name="profile">Profile</string>
     <string name="profile_summary_format">%1$s</string>
     <string name="profile_name">Name</string>

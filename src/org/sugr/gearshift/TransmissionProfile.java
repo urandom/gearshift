@@ -22,12 +22,16 @@ public class TransmissionProfile implements Parcelable, Comparable<TransmissionP
     private String mPath = "/transmission/rpc";
     private String mUsername = "";
     private String mPassword = "";
-    private String mLastDirectory;
 
     private boolean mUseSSL = false;
 
     private int mTimeout = 40;
     private int mRetries = 3;
+
+    private String mLastDirectory;
+    private boolean mMoveData = true;
+    private boolean mDeleteLocal= false;
+    private boolean mStartPaused = false;
 
     private Set<String> mDirectories = new HashSet<String>();
 
@@ -209,6 +213,9 @@ public class TransmissionProfile implements Parcelable, Comparable<TransmissionP
         mDirectories = pref.getStringSet(getPrefName(G.PREF_DIRECTORIES, legacy, fromPreferences), new HashSet<String>());
 
         mLastDirectory = pref.getString(getPrefName(G.PREF_LAST_DIRECTORY, legacy, fromPreferences), "");
+        mMoveData = pref.getBoolean(getPrefName(G.PREF_MOVE_DATA, legacy, fromPreferences), true);
+        mDeleteLocal = pref.getBoolean(getPrefName(G.PREF_DELETE_LOCAL, legacy, fromPreferences), false);
+        mStartPaused = pref.getBoolean(getPrefName(G.PREF_START_PAUSED, legacy, fromPreferences), false);
 
         if (legacy) {
             Editor e = pref.edit();
@@ -332,6 +339,48 @@ public class TransmissionProfile implements Parcelable, Comparable<TransmissionP
         mLastDirectory = directory;
 
         e.putString(G.PREF_LAST_DIRECTORY + mId, directory);
+        e.apply();
+    }
+
+    public boolean getMoveData() {
+        return mMoveData;
+    }
+
+    public void setMoveData(boolean move) {
+        SharedPreferences pref = getPreferences(mContext);
+        Editor e = pref.edit();
+
+        mMoveData = move;
+
+        e.putBoolean(G.PREF_MOVE_DATA + mId, move);
+        e.apply();
+    }
+
+    public boolean getDeleteLocal() {
+        return mDeleteLocal;
+    }
+
+    public void setDeleteLocal(boolean delete) {
+        SharedPreferences pref = getPreferences(mContext);
+        Editor e = pref.edit();
+
+        mDeleteLocal = delete;
+
+        e.putBoolean(G.PREF_DELETE_LOCAL + mId, delete);
+        e.apply();
+    }
+
+    public boolean getStartPaused() {
+        return mStartPaused;
+    }
+
+    public void setStartPaused(boolean paused) {
+        SharedPreferences pref = getPreferences(mContext);
+        Editor e = pref.edit();
+
+        mStartPaused = paused;
+
+        e.putBoolean(G.PREF_START_PAUSED + mId, paused);
         e.commit();
     }
 
@@ -371,6 +420,9 @@ public class TransmissionProfile implements Parcelable, Comparable<TransmissionP
         in.writeInt(mRetries);
         in.writeStringList(new ArrayList<String>(mDirectories));
         in.writeString(mLastDirectory);
+        in.writeInt(mMoveData ? 1 : 0);
+        in.writeInt(mDeleteLocal ? 1 : 0);
+        in.writeInt(mStartPaused ? 1 : 0);
     }
 
     public static final Parcelable.Creator<TransmissionProfile> CREATOR
@@ -393,7 +445,7 @@ public class TransmissionProfile implements Parcelable, Comparable<TransmissionP
         mPort = in.readInt();
         mUsername = in.readString();
         mPassword = in.readString();
-        mUseSSL = (in.readInt() == 1 ? true : false);
+        mUseSSL = in.readInt() == 1;
         mTimeout = in.readInt();
         mRetries = in.readInt();
 
@@ -401,6 +453,10 @@ public class TransmissionProfile implements Parcelable, Comparable<TransmissionP
         in.readStringList(directories);
         mDirectories = new HashSet<String>(directories);
         mLastDirectory = in.readString();
+
+        mMoveData = in.readInt() == 1;
+        mDeleteLocal= in.readInt() == 1;
+        mStartPaused = in.readInt() == 1;
     }
 
     private SharedPreferences getLegacyPreferences(Context context) {
