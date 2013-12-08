@@ -519,10 +519,15 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
 
             if (error == 0) {
                 updateStatus(torrents, ((TransmissionSessionInterface) getActivity()).getSession());
+                FragmentManager manager = getActivity().getSupportFragmentManager();
+                TorrentListMenuFragment menu = (TorrentListMenuFragment) manager.findFragmentById(R.id.torrent_list_menu);
+
+                if (menu != null) {
+                    menu.notifyTorrentListChanged(torrents, error, added, removed,
+                        statusChanged, metadataNeeded);
+                }
 
                 if (!filtered) {
-                    FragmentManager manager = getActivity().getSupportFragmentManager();
-
                     TorrentDetailFragment detail = (TorrentDetailFragment) manager.findFragmentByTag(
                         G.DETAIL_FRAGMENT_TAG);
                     if (detail != null) {
@@ -670,12 +675,7 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
     }
 
     private void updateStatus(List<Torrent> torrents, TransmissionSession session) {
-        FragmentManager manager = getActivity().getSupportFragmentManager();
-        TorrentListMenuFragment menu = (TorrentListMenuFragment) manager.findFragmentById(R.id.torrent_list_menu);
         boolean showStatus = mSharedPrefs.getBoolean(G.PREF_SHOW_STATUS, false);
-        if (menu != null) {
-            menu.notifyTorrentListUpdate(torrents, session, !showStatus);
-        }
 
         TextView status = (TextView) getView().findViewById(R.id.status_bar_text);
         if (showStatus) {
