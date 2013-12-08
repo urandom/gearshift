@@ -290,7 +290,7 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
 
         mSharedPrefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
         getActivity().setProgressBarIndeterminateVisibility(true);
-        hasOptionsMenu();
+        setHasOptionsMenu(true);
 
         if (savedInstanceState == null) {
             mSharedPrefs.registerOnSharedPreferenceChangeListener(mSettingsChangeListener);
