@@ -1,14 +1,5 @@
 package org.sugr.gearshift;
 
-import java.util.Arrays;
-import java.util.Calendar;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
-import org.sugr.gearshift.TransmissionSessionManager.ManagerException;
-import org.sugr.gearshift.TransmissionSessionManager.TransmissionExclusionStrategy;
-
 import android.app.Dialog;
 import android.app.TimePickerDialog;
 import android.content.Context;
@@ -39,6 +30,15 @@ import android.widget.ScrollView;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.TimePicker;
+
+import org.sugr.gearshift.TransmissionSessionManager.ManagerException;
+
+import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 public class TransmissionSessionActivity extends FragmentActivity {
     private TransmissionProfile mProfile;
@@ -353,7 +353,7 @@ public class TransmissionSessionActivity extends FragmentActivity {
                 .setText(R.string.session_settings_port_test);
         }
 
-        if (initial || mSession.getEncryption() != session.getEncryption()) {
+        if (initial || mSession.getEncryption().equals(session.getEncryption())) {
             if (!initial)
                 mSession.setEncryption(session.getEncryption());
             ((Spinner) findViewById(R.id.transmission_session_encryption))
@@ -411,7 +411,7 @@ public class TransmissionSessionActivity extends FragmentActivity {
             findViewById(R.id.transmission_session_blocklist_update).setEnabled(mSession.isBlocklistEnabled());
         }
 
-        if (initial || mSession.getBlocklistURL() != session.getBlocklistURL()) {
+        if (initial || mSession.getBlocklistURL().equals(session.getBlocklistURL())) {
             if (!initial)
                 mSession.setBlocklistURL(session.getBlocklistURL());
             ((EditText) findViewById(R.id.transmission_session_blocklist_url))
@@ -606,8 +606,8 @@ public class TransmissionSessionActivity extends FragmentActivity {
         findViewById(R.id.transmission_session_bandwidth_expander).setOnClickListener(mExpanderListener);
         findViewById(R.id.transmission_session_limits_expander).setOnClickListener(mExpanderListener);
 
-        CheckBox check = null;
-        EditText edit = null;
+        CheckBox check;
+        EditText edit;
 
         edit = (EditText) findViewById(R.id.transmission_session_download_directory);
         edit.setOnEditorActionListener(new TextView.OnEditorActionListener() {
@@ -738,7 +738,7 @@ public class TransmissionSessionActivity extends FragmentActivity {
                     }
                     if (value > 65535) {
                         value = 65535;
-                        v.setText(Integer.valueOf(value));
+                        v.setText(value);
                     }
                     if (mSession.getPeerPort() != value) {
                         mSession.setPeerPort(value);
@@ -1180,9 +1180,7 @@ public class TransmissionSessionActivity extends FragmentActivity {
         Loader<TransmissionData> l = getSupportLoaderManager()
             .getLoader(G.SESSION_LOADER_ID);
 
-        TransmissionSessionLoader loader = (TransmissionSessionLoader) l;
-
-        loader.setSession(mSession, keys);
+        ((TransmissionSessionLoader) l).setSession(mSession, keys);
     }
 
     private void showTimePickerDialog(boolean begin, int hour, int minute) {
@@ -1228,9 +1226,9 @@ public class TransmissionSessionActivity extends FragmentActivity {
             test.setEnabled(true);
             if (result == null) {
                 test.setText(Html.fromHtml(getString(R.string.port_test_error)));
-            } else if (result == true) {
+            } else if (result) {
                 test.setText(Html.fromHtml(getString(R.string.port_test_open)));
-            } else if (result == false) {
+            } else if (!result) {
                 test.setText(Html.fromHtml(getString(R.string.port_test_closed)));
             }
 
@@ -1288,7 +1286,6 @@ class TransmissionSessionLoader extends AsyncTaskLoader<TransmissionData> {
 
     private TransmissionSessionManager mSessManager;
 
-    private TransmissionProfile mProfile;
     private TransmissionSession mSessionSet;
     private Set<String> mSessionSetKeys = new HashSet<String>();
     private final Object mLock = new Object();
@@ -1309,16 +1306,13 @@ class TransmissionSessionLoader extends AsyncTaskLoader<TransmissionData> {
     public TransmissionSessionLoader(Context context, TransmissionProfile profile) {
         super(context);
 
-        mProfile = profile;
-        mSessManager = new TransmissionSessionManager(getContext(), mProfile);
+        mSessManager = new TransmissionSessionManager(getContext(), profile);
     }
 
     public void setSession(TransmissionSession session, String... keys) {
         mSessionSet = session;
         synchronized(mLock) {
-            for (String key : keys) {
-                mSessionSetKeys.add(key);
-            }
+            Collections.addAll(mSessionSetKeys, keys);
         }
         onContentChanged();
     }
@@ -1334,7 +1328,7 @@ class TransmissionSessionLoader extends AsyncTaskLoader<TransmissionData> {
         }
         if (!mSessManager.hasConnectivity()) {
             mLastError = TransmissionData.Errors.NO_CONNECTIVITY;
-            return new TransmissionData(null, null, mLastError);
+            return new TransmissionData(null, mLastError);
         }
 
         G.logD("Fetching data");
@@ -1363,7 +1357,7 @@ class TransmissionSessionLoader extends AsyncTaskLoader<TransmissionData> {
             return handleError(e);
         }
 
-        return new TransmissionData(session, null, mLastError);
+        return new TransmissionData(session, mLastError);
     }
 
     @Override
@@ -1411,7 +1405,7 @@ class TransmissionSessionLoader extends AsyncTaskLoader<TransmissionData> {
                 break;
         }
 
-        return new TransmissionData(null, null, mLastError);
+        return new TransmissionData(null, mLastError);
     }
 }
 

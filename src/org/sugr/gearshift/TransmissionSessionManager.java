@@ -8,31 +8,25 @@ import android.net.NetworkInfo;
 import android.preference.PreferenceManager;
 import android.util.Base64;
 
-import com.google.gson.ExclusionStrategy;
-import com.google.gson.FieldAttributes;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonPrimitive;
-import com.google.gson.JsonSerializationContext;
-import com.google.gson.JsonSerializer;
-import com.google.gson.annotations.SerializedName;
-import com.google.gson.stream.JsonReader;
+import com.fasterxml.jackson.core.JsonFactory;
+import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.JsonToken;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.OutputStream;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.reflect.Type;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.zip.GZIPInputStream;
@@ -46,54 +40,6 @@ import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
 
 public class TransmissionSessionManager {
-    @Retention(RetentionPolicy.RUNTIME)
-    public @interface Exclude {}
-
-    public static class TransmissionExclusionStrategy implements ExclusionStrategy {
-        @Override
-        public boolean shouldSkipClass(Class<?> cls) {
-            return cls.getAnnotation(Exclude.class) != null;
-        }
-
-        @Override
-        public boolean shouldSkipField(FieldAttributes field) {
-            return field.getAnnotation(Exclude.class) != null;
-        }
-    }
-
-    public static class KeyExclusionStrategy implements ExclusionStrategy {
-        HashSet<String> mKeys = new HashSet<String>();
-        public KeyExclusionStrategy(String... keys) {
-            super();
-
-            if (keys != null) {
-                for (String key : keys)
-                    mKeys.add(key);
-            }
-            mKeys.add("method");
-            mKeys.add("arguments");
-        }
-
-        @Override
-        public boolean shouldSkipClass(Class<?> cls) {
-            SerializedName serializedName = cls.getAnnotation(SerializedName.class);
-            if (serializedName == null)
-                return false;
-
-            return !mKeys.contains(serializedName.value());
-        }
-
-        @Override
-        public boolean shouldSkipField(FieldAttributes field) {
-            SerializedName serializedName = field.getAnnotation(SerializedName.class);
-            if (serializedName == null)
-                return false;
-
-            return !mKeys.contains(serializedName.value());
-        }
-    }
-
-
     public class ManagerException extends Exception {
         private static final long serialVersionUID = 6477491498169428449L;
         int mCode;
@@ -109,7 +55,6 @@ public class TransmissionSessionManager {
 
     public final static String PREF_LAST_SESSION_ID = "last_session_id";
 
-//    private Context mContext;
     private TransmissionProfile mProfile;
 
     private ConnectivityManager mConnManager;
@@ -120,7 +65,6 @@ public class TransmissionSessionManager {
     private SharedPreferences mDefaultPrefs;
 
     public TransmissionSessionManager(Context context, TransmissionProfile profile) {
-//        mContext = context;
         mProfile = profile;
 
         mConnManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
@@ -140,7 +84,7 @@ public class TransmissionSessionManager {
     }
 
     public TransmissionSession getSession() throws ManagerException {
-        SessionGetRequest request = new SessionGetRequest();
+        ObjectNode request = createRequest("session-get");
 
         SessionGetResponse response = (SessionGetResponse) requestData(request, SessionGetResponse.class);
         if (!response.getResult().equals("success")) {
@@ -151,7 +95,7 @@ public class TransmissionSessionManager {
     }
 
     public TransmissionSessionStats getSessionStats() throws ManagerException {
-        SessionStatsRequest request = new SessionStatsRequest();
+        ObjectNode request = createRequest("session-stats");
 
         SessionStatsResponse response = (SessionStatsResponse) requestData(request, SessionStatsResponse.class);
         if (!response.getResult().equals("success")) {
@@ -162,7 +106,11 @@ public class TransmissionSessionManager {
     }
 
     public ActiveTorrentGetResponse getActiveTorrents(String[] fields) throws ManagerException {
-        ActiveTorrentGetRequest request = new ActiveTorrentGetRequest(fields);
+        ObjectMapper mapper = new ObjectMapper();
+        ObjectNode request = createRequest("torrent-get", true);
+        ObjectNode arguments = (ObjectNode) request.path("arguments");
+        arguments.put("ids", "recently-active");
+        arguments.put("fields", mapper.valueToTree(fields));
 
         ActiveTorrentGetResponse response = (ActiveTorrentGetResponse) requestData(request, ActiveTorrentGetResponse.class);
         if (!response.getResult().equals("success")) {
@@ -172,19 +120,14 @@ public class TransmissionSessionManager {
         return response;
     }
 
-    public Torrent[] getAllTorrents(String[] fields) throws ManagerException {
-        AllTorrentGetRequest request = new AllTorrentGetRequest(fields);
-
-        TorrentGetResponse response = (TorrentGetResponse) requestData(request, TorrentGetResponse.class);
-        if (!response.getResult().equals("success")) {
-            throw new ManagerException(response.getResult(), -2);
+    public Torrent[] getTorrents(String[] fields, int[] ids) throws ManagerException {
+        ObjectMapper mapper = new ObjectMapper();
+        ObjectNode request = createRequest("torrent-get", true);
+        ObjectNode arguments = (ObjectNode) request.path("arguments");
+        arguments.put("fields", mapper.valueToTree(fields));
+        if (ids != null && ids.length > 0) {
+            arguments.put("ids", mapper.valueToTree(ids));
         }
-
-        return response.getTorrents();
-    }
-
-    public Torrent[] getTorrents(int[] ids, String[] fields) throws ManagerException {
-        TorrentGetRequest request = new TorrentGetRequest(ids, fields);
 
         TorrentGetResponse response = (TorrentGetResponse) requestData(request, TorrentGetResponse.class);
         if (!response.getResult().equals("success")) {
@@ -195,16 +138,25 @@ public class TransmissionSessionManager {
     }
 
     public void setSession(TransmissionSession session, String... keys) throws ManagerException {
-        SessionSetRequest request = new SessionSetRequest(session);
+        ObjectMapper mapper = new ObjectMapper();
+        ObjectNode request = createRequest("session-set");
+        ObjectNode arguments = mapper.valueToTree(session);
 
-        Response response = requestData(request, Response.class, new KeyExclusionStrategy(keys));
+        arguments.retain(keys);
+        request.put("arguments", arguments);
+
+        Response response = requestData(request, Response.class);
         if (!response.getResult().equals("success")) {
             throw new ManagerException(response.getResult(), -2);
         }
     }
 
     public void setTorrentsRemove(int[] ids, boolean delete) throws ManagerException {
-        TorrentsRemoveRequest request = new TorrentsRemoveRequest(ids, delete);
+        ObjectMapper mapper = new ObjectMapper();
+        ObjectNode request = createRequest("torrent-remove", true);
+        ObjectNode arguments = (ObjectNode) request.path("arguments");
+        arguments.put("ids", mapper.valueToTree(ids));
+        arguments.put("delete-local-data", delete);
 
         Response response = requestData(request, Response.class);
         if (!response.getResult().equals("success")) {
@@ -213,7 +165,10 @@ public class TransmissionSessionManager {
     }
 
     public void setTorrentsAction(String action, int[] ids) throws ManagerException {
-        TorrentsActionRequest request = new TorrentsActionRequest(action, ids);
+        ObjectMapper mapper = new ObjectMapper();
+        ObjectNode request = createRequest(action, true);
+        ObjectNode arguments = (ObjectNode) request.path("arguments");
+        arguments.put("ids", mapper.valueToTree(ids));
 
         Response response = requestData(request, Response.class);
         if (!response.getResult().equals("success")) {
@@ -222,7 +177,12 @@ public class TransmissionSessionManager {
     }
 
     public void setTorrentsLocation(int[] ids, String location, boolean move) throws ManagerException {
-        TorrentsSetLocationRequest request = new TorrentsSetLocationRequest(ids, location, move);
+        ObjectMapper mapper = new ObjectMapper();
+        ObjectNode request = createRequest("torrent-set-location", true);
+        ObjectNode arguments = (ObjectNode) request.path("arguments");
+        arguments.put("ids", mapper.valueToTree(ids));
+        arguments.put("location", location);
+        arguments.put("move", move);
 
         Response response = requestData(request, Response.class);
         if (!response.getResult().equals("success")) {
@@ -230,15 +190,55 @@ public class TransmissionSessionManager {
         }
     }
 
+    @SuppressWarnings("unchecked")
     public void setTorrentsProperty(int[] ids, String key, Object value) throws ManagerException {
-        Object request;
+        ObjectMapper mapper = new ObjectMapper();
+        ObjectNode request = createRequest("torrent-set", true);
+        ObjectNode arguments = (ObjectNode) request.path("arguments");
+        arguments.put("ids", mapper.valueToTree(ids));
+
         if (key.equals(Torrent.SetterFields.TRACKER_REPLACE)) {
-            request = new TrackerReplaceRequest(ids, value);
+            List<Object> tuple = (List<Object>) value;
+            ArrayNode list = JsonNodeFactory.instance.arrayNode();
+
+            for (int i = 0; i < tuple.size(); i += 2) {
+                list.add((Integer) tuple.get(i)).add((String) tuple.get(i + 1));
+            }
+
+            arguments.put(key, list);
         } else {
-            request = new TorrentsSetRequest(ids, key, value);
+            if (   key.equals(Torrent.SetterFields.DOWNLOAD_LIMITED)
+                || key.equals(Torrent.SetterFields.SESSION_LIMITS)
+                || key.equals(Torrent.SetterFields.UPLOAD_LIMITED)) {
+                arguments.put(key, (Boolean) value);
+            } else if (   key.equals(Torrent.SetterFields.TORRENT_PRIORITY)
+                       || key.equals(Torrent.SetterFields.QUEUE_POSITION)
+                       || key.equals(Torrent.SetterFields.PEER_LIMIT)
+                       || key.equals(Torrent.SetterFields.SEED_RATIO_MODE)) {
+                arguments.put(key, (Integer) value);
+            } else if (   key.equals(Torrent.SetterFields.FILES_WANTED)
+                       || key.equals(Torrent.SetterFields.FILES_UNWANTED)) {
+                if (value instanceof Integer) {
+                    arguments.put(key, mapper.valueToTree(new int[] { (Integer) value }));
+                } else {
+                    arguments.put(key, mapper.valueToTree(value));
+                }
+            } else if (   key.equals(Torrent.SetterFields.DOWNLOAD_LIMIT)
+                       || key.equals(Torrent.SetterFields.UPLOAD_LIMIT)) {
+                arguments.put(key, (Long) value);
+            } else if (key.equals(Torrent.SetterFields.SEED_RATIO_LIMIT)) {
+                arguments.put(key, (Float) value);
+            } else if (   key.equals(Torrent.SetterFields.FILES_HIGH)
+                       || key.equals(Torrent.SetterFields.FILES_NORMAL)
+                       || key.equals(Torrent.SetterFields.FILES_LOW)
+                       || key.equals(Torrent.SetterFields.TRACKER_REMOVE)) {
+                arguments.put(key, mapper.valueToTree(value));
+            } else if (key.equals(Torrent.SetterFields.TRACKER_ADD)) {
+                arguments.put(key, mapper.valueToTree(value));
+            }
         }
 
-        Response response = requestData(request, Response.class, new KeyExclusionStrategy("ids", key));
+        Response response = requestData(request, Response.class);
         if (!response.getResult().equals("success")) {
             throw new ManagerException(response.getResult(), -2);
         }
@@ -246,14 +246,18 @@ public class TransmissionSessionManager {
 
     public Torrent addTorrent(String uri, String meta, String location, boolean paused)
             throws ManagerException {
-        TorrentAddRequest request = new TorrentAddRequest(uri, meta, location, paused);
+        ObjectNode request = createRequest("torrent-add", true);
+        ObjectNode arguments = (ObjectNode) request.path("arguments");
 
-        String[] keys = {
-            uri == null ? Torrent.AddFields.META : Torrent.AddFields.URI,
-            Torrent.AddFields.LOCATION, Torrent.AddFields.PAUSED
-        };
+        if (uri == null) {
+            arguments.put(Torrent.AddFields.META, meta);
+        } else {
+            arguments.put(Torrent.AddFields.URI, uri);
+        }
+        arguments.put(Torrent.AddFields.LOCATION, location);
+        arguments.put(Torrent.AddFields.PAUSED, paused);
 
-        AddTorrentResponse response = (AddTorrentResponse) requestData(request, AddTorrentResponse.class, new KeyExclusionStrategy(keys));
+        AddTorrentResponse response = (AddTorrentResponse) requestData(request, AddTorrentResponse.class);
         if (response.getResult().equals("success")) {
             return response.getTorrent();
         } else if (response.isDuplicate()) {
@@ -264,7 +268,7 @@ public class TransmissionSessionManager {
     }
 
     public boolean testPort() throws ManagerException {
-        PortTestRequest request = new PortTestRequest();
+        ObjectNode request = createRequest("port-test");
 
         PortTestResponse response = (PortTestResponse) requestData(request, PortTestResponse.class);
         if (!response.getResult().equals("success")) {
@@ -275,7 +279,7 @@ public class TransmissionSessionManager {
     }
 
     public long blocklistUpdate() throws ManagerException {
-        BlocklistUpdateRequest request = new BlocklistUpdateRequest();
+        ObjectNode request = createRequest("blocklist-update");
 
         BlocklistUpdateResponse response = (BlocklistUpdateResponse) requestData(request, BlocklistUpdateResponse.class);
         if (!response.getResult().equals("success")) {
@@ -286,8 +290,14 @@ public class TransmissionSessionManager {
     }
 
     public long getFreeSpace(String defaultPath) throws ManagerException {
-        FreeSpaceRequest request = new FreeSpaceRequest(
-                mDefaultPrefs.getString(G.PREF_LIST_DIRECTORY, null), defaultPath);
+        ObjectNode request = createRequest("free-space", true);
+        ObjectNode arguments = (ObjectNode) request.path("arguments");
+
+        String path = mDefaultPrefs.getString(G.PREF_LIST_DIRECTORY, null);
+        if (path == null) {
+            path = defaultPath;
+        }
+        arguments.put("path", path);
 
         FreeSpaceResponse response = (FreeSpaceResponse) requestData(request, FreeSpaceResponse.class);
         if (response.getResult().equals("success")) {
@@ -301,7 +311,7 @@ public class TransmissionSessionManager {
         }
     }
 
-    private Response requestData(Object data, Class klass, ExclusionStrategy... strategies) throws ManagerException {
+    private Response requestData(ObjectNode data, Class klass) throws ManagerException {
         OutputStream os = null;
         InputStream is = null;
         HttpURLConnection conn = null;
@@ -367,14 +377,9 @@ public class TransmissionSessionManager {
                                 (user + ":" + mProfile.getPassword()).getBytes(), Base64.DEFAULT));
             }
 
+            String json = data.toString();
+
             os = conn.getOutputStream();
-            Gson gson = new GsonBuilder().setExclusionStrategies(strategies)
-                .addSerializationExclusionStrategy(
-                    new TransmissionExclusionStrategy()
-                ).registerTypeAdapter(
-                    TrackerReplaceRequest.class, new TrackerReplaceRequestSerializer()
-                ).create();
-            String json = gson.toJson(data);
             os.write(json.getBytes());
             os.flush();
             os.close();
@@ -391,7 +396,7 @@ public class TransmissionSessionManager {
                 mSessionId = getSessionId(conn);
                 if (mInvalidSessionRetries < 3 && mSessionId != null) {
                     ++mInvalidSessionRetries;
-                    return requestData(data, klass, strategies);
+                    return requestData(data, klass);
                 } else {
                     mInvalidSessionRetries = 0;
                 }
@@ -399,7 +404,7 @@ public class TransmissionSessionManager {
                 mInvalidSessionRetries = 0;
             }
 
-            Response response = null;
+            Response response;
             switch(code) {
                 case 200:
                 case 201:
@@ -417,6 +422,7 @@ public class TransmissionSessionManager {
                         is = new InflaterInputStream(is);
                     }
                     response = buildResponse(is, klass);
+                    G.logD("Torrent response is '" + response.getResult() + "'");
                     break;
                 default:
                     throw new ManagerException(conn.getResponseMessage(), code);
@@ -425,8 +431,14 @@ public class TransmissionSessionManager {
             return response;
         } catch (java.net.SocketTimeoutException e) {
             throw new ManagerException("timeout", -1);
+        } catch (JsonParseException e) {
+            G.logE("Error parsing JSON", e);
+            throw new ManagerException(e.getMessage(), -4);
+        } catch (JsonMappingException e) {
+            G.logE("Error parsing JSON", e);
+            throw new ManagerException(e.getMessage(), -4);
         } catch (IOException e) {
-            e.printStackTrace();
+            G.logE("Error reading stream", e);
             throw new ManagerException(e.getMessage(), -1);
         } catch (OutOfMemoryError e) {
             e.printStackTrace();
@@ -437,7 +449,9 @@ public class TransmissionSessionManager {
                     os.close();
                 if (is != null)
                     is.close();
-            } catch(IOException e) {}
+            } catch(IOException e) {
+                e.printStackTrace();
+            }
 
             if (conn != null)
                 conn.disconnect();
@@ -455,425 +469,162 @@ public class TransmissionSessionManager {
         return id;
     }
 
+    private ObjectNode createRequest(String method, boolean hasArguments) {
+        JsonNodeFactory factory = JsonNodeFactory.instance;
+        ObjectNode root = factory.objectNode();
+
+        root.put("method", method);
+
+        if (hasArguments) {
+            ObjectNode arguments = factory.objectNode();
+            root.put("arguments", arguments);
+        }
+
+        return root;
+    }
+
+    private ObjectNode createRequest(String method) {
+        return createRequest(method, false);
+    }
+
     private static Response buildResponse(InputStream stream, Class klass) throws IOException {
-        JsonReader reader = new JsonReader(new InputStreamReader(stream, "UTF-8"));
-        Gson gson = new GsonBuilder().setExclusionStrategies(new TransmissionExclusionStrategy()).create();
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 
-        try {
-            reader.beginObject();
-            String result = null;
-            Response response = null;
+        JsonFactory factory = mapper.getFactory();
+        JsonParser parser = factory.createParser(stream);
 
-            while (reader.hasNext()) {
-                String name = reader.nextName();
-                if (name.equals("result")) {
-                    result = reader.nextString();
-                } else if (name.equals("arguments")) {
-                    if (klass == SessionGetResponse.class) {
-                        response = new SessionGetResponse();
-                        TransmissionSession session = gson.fromJson(reader, TransmissionSession.class);
-                        ((SessionGetResponse) response).setSession(session);
-                    } else if (klass == SessionStatsResponse.class) {
-                        response = new SessionStatsResponse();
-                        TransmissionSessionStats stats = gson.fromJson(reader, TransmissionSessionStats.class);
-                        ((SessionStatsResponse) response).setStats(stats);
-                    } else if (klass == TorrentGetResponse.class || klass == ActiveTorrentGetResponse.class) {
-                        if (klass == TorrentGetResponse.class) {
-                            response = new TorrentGetResponse();
-                        } else {
-                            response = new ActiveTorrentGetResponse();
-                        }
+        String result = null;
+        Response response = null;
 
-                        reader.beginObject();
-                        while (reader.hasNext()) {
-                            String argname = reader.nextName();
-                            if (argname.equals("torrents")) {
-                                Torrent[] torrents = gson.fromJson(reader, Torrent[].class);
-                                if (klass == TorrentGetResponse.class) {
-                                    ((TorrentGetResponse) response).setTorrents(torrents);
-                                } else {
-                                    ((ActiveTorrentGetResponse) response).setTorrents(torrents);
-                                }
-                            } else if (argname.equals("removed")) {
-                                int[] removed = gson.fromJson(reader, int[].class);
-                                ((ActiveTorrentGetResponse) response).setRemoved(removed);
-                            } else {
-                                reader.skipValue();
-                            }
-                        }
-                        reader.endObject();
-                    } else if (klass == AddTorrentResponse.class) {
-                        response = new AddTorrentResponse();
+        if (parser.nextToken() != JsonToken.START_OBJECT) {
+            throw new IOException("The server data is expected to be an object");
+        }
+        while (parser.nextToken() != JsonToken.END_OBJECT) {
+            String name = parser.getCurrentName();
 
-                        reader.beginObject();
-                        while (reader.hasNext()) {
-                            String argname = reader.nextName();
-                            if (argname.equals("torrent-added")) {
-                                Torrent torrent = gson.fromJson(reader, Torrent.class);
-                                ((AddTorrentResponse) response).setTorrent(torrent);
-                            } else if (argname.equals("torrent-duplicate")) {
-                                Torrent torrent = gson.fromJson(reader, Torrent.class);
-                                ((AddTorrentResponse) response).setDuplicate(torrent);
-                            } else {
-                                reader.skipValue();
-                            }
-                        }
-                        reader.endObject();
-                    } else if (klass == PortTestResponse.class) {
-                        response = new PortTestResponse();
+            if (name.equals("result")) {
+                result = parser.nextTextValue();
+            } else if (name.equals("arguments")) {
+                if (klass == SessionGetResponse.class) {
+                    parser.nextValue();
 
-                        reader.beginObject();
-                        while (reader.hasNext()) {
-                            String argname = reader.nextName();
-                            if (argname.equals("port-is-open")) {
-                                boolean isOpen = reader.nextBoolean();
-                                ((PortTestResponse) response).setPortOpen(isOpen);
-                            } else {
-                                reader.skipValue();
-                            }
-                        }
-                        reader.endObject();
-                    } else if (klass == BlocklistUpdateResponse.class) {
-                        response = new BlocklistUpdateResponse();
+                    response = new SessionGetResponse();
+                    TransmissionSession session = mapper.readValue(parser, TransmissionSession.class);
+                    ((SessionGetResponse) response).setSession(session);
+                } else if (klass == SessionStatsResponse.class) {
+                    parser.nextValue();
 
-                        reader.beginObject();
-                        while (reader.hasNext()) {
-                            String argname = reader.nextName();
-                            if (argname.equals("blocklist-size")) {
-                                long size = reader.nextLong();
-                                ((BlocklistUpdateResponse) response).setBlocklistSize(size);
-                            } else {
-                                reader.skipValue();
-                            }
-                        }
-                        reader.endObject();
-                    } else if (klass == FreeSpaceResponse.class) {
-                        response = new FreeSpaceResponse();
-
-                        reader.beginObject();
-                        while (reader.hasNext()) {
-                            String argname = reader.nextName();
-                            if (argname.equals("size-bytes")) {
-                                long size = reader.nextLong();
-                                ((FreeSpaceResponse) response).setFreeSpace(size);
-                            } else if (argname.equals("path")) {
-                                String path = reader.nextString();
-                                ((FreeSpaceResponse) response).setPath(path);
-                            } else {
-                                reader.skipValue();
-                            }
-                        }
-                        reader.endObject();
+                    response = new SessionStatsResponse();
+                    TransmissionSessionStats stats = mapper.readValue(parser, TransmissionSessionStats.class);
+                    ((SessionStatsResponse) response).setStats(stats);
+                } else if (klass == TorrentGetResponse.class || klass == ActiveTorrentGetResponse.class) {
+                    if (klass == TorrentGetResponse.class) {
+                        response = new TorrentGetResponse();
                     } else {
-                        response = new Response();
+                        response = new ActiveTorrentGetResponse();
+                    }
 
-                        reader.skipValue();
+                    parser.nextToken();
+                    while (parser.nextToken() != JsonToken.END_OBJECT) {
+                        String argname = parser.getCurrentName();
+
+                        parser.nextToken();
+                        if (argname.equals("torrents")) {
+                            List<Torrent> torrents = new ArrayList<Torrent>();
+
+                            while (parser.nextToken() != JsonToken.END_ARRAY) {
+                                torrents.add(mapper.readValue(parser, Torrent.class));
+                            }
+
+
+                            if (klass == TorrentGetResponse.class) {
+                                ((TorrentGetResponse) response).setTorrents(torrents.toArray(new Torrent[torrents.size()]));
+                            } else {
+                                ((ActiveTorrentGetResponse) response).setTorrents(torrents.toArray(new Torrent[torrents.size()]));
+                            }
+                        } else if (argname.equals("removed")) {
+                            int[] removed = mapper.readValue(parser, int[].class);
+                            ((ActiveTorrentGetResponse) response).setRemoved(removed);
+                        }
+                    }
+                } else if (klass == AddTorrentResponse.class) {
+                    response = new AddTorrentResponse();
+
+                    parser.nextToken();
+                    while (parser.nextToken() != JsonToken.END_OBJECT) {
+                        String argname = parser.getCurrentName();
+
+                        parser.nextValue();
+                        if (argname.equals("torrent-added")) {
+                            Torrent torrent = mapper.readValue(parser, Torrent.class);
+                            ((AddTorrentResponse) response).setTorrent(torrent);
+                        } else if (argname.equals("torrent-duplicate")) {
+                            Torrent torrent = mapper.readValue(parser, Torrent.class);
+                            ((AddTorrentResponse) response).setDuplicate(torrent);
+                        }
+                    }
+                } else if (klass == PortTestResponse.class) {
+                    response = new PortTestResponse();
+
+                    parser.nextToken();
+                    while (parser.nextToken() != JsonToken.END_OBJECT) {
+                        String argname = parser.getCurrentName();
+                        if (argname.equals("port-is-open")) {
+                            boolean isOpen = parser.nextBooleanValue();
+                            ((PortTestResponse) response).setPortOpen(isOpen);
+                        } else {
+                            parser.nextToken();
+                        }
+                    }
+                } else if (klass == BlocklistUpdateResponse.class) {
+                    response = new BlocklistUpdateResponse();
+
+                    parser.nextToken();
+                    while (parser.nextToken() != JsonToken.END_OBJECT) {
+                        String argname = parser.getCurrentName();
+                        if (argname.equals("blocklist-size")) {
+                            long size = parser.nextLongValue(0);
+                            ((BlocklistUpdateResponse) response).setBlocklistSize(size);
+                        } else {
+                            parser.nextToken();
+                        }
+                    }
+                } else if (klass == FreeSpaceResponse.class) {
+                    response = new FreeSpaceResponse();
+
+                    parser.nextToken();
+                    while (parser.nextToken() != JsonToken.END_OBJECT) {
+                        String argname = parser.getCurrentName();
+                        if (argname.equals("size-bytes")) {
+                            long size = parser.nextLongValue(0);
+                            ((FreeSpaceResponse) response).setFreeSpace(size);
+                        } else if (argname.equals("path")) {
+                            String path = parser.nextTextValue();
+                            ((FreeSpaceResponse) response).setPath(path);
+                        } else {
+                            parser.nextToken();
+                        }
                     }
                 } else {
-                    reader.skipValue();
+                    response = new Response();
+
+                    parser.skipChildren();
                 }
-            }
-
-            reader.endObject();
-
-            if (response != null) {
-                response.setResult(result);
-            }
-
-            return response;
-        } finally {
-            reader.close();
-        }
-    }
-
-    private static class SessionGetRequest {
-       @SerializedName("method") private final String method = "session-get";
-    }
-
-    private static class SessionSetRequest {
-       @SerializedName("method") private final String method = "session-set";
-       @SerializedName("arguments") private TransmissionSession arguments;
-
-       public SessionSetRequest(TransmissionSession session) {
-           this.arguments = session;
-       }
-    }
-
-    private static class SessionStatsRequest {
-       @SerializedName("method") private final String method = "session-stats";
-    }
-
-    private static class AllTorrentGetRequest {
-        @SerializedName("method") private final String method = "torrent-get";
-        @SerializedName("arguments") private Arguments arguments;
-
-        public AllTorrentGetRequest(String[] fields) {
-            this.arguments = new Arguments(fields);
-        }
-
-        private static class Arguments {
-            @SerializedName("fields") private String[] fields;
-
-            public Arguments(String[] fields) {
-                this.fields = fields;
+            } else {
+                parser.nextToken();
             }
         }
-     }
 
-    private static class TorrentGetRequest {
-       @SerializedName("method") private final String method = "torrent-get";
-       @SerializedName("arguments") private Arguments arguments;
-
-       public TorrentGetRequest(int[] ids, String[] fields) {
-           this.arguments = new Arguments(ids, fields);
-       }
-
-       private static class Arguments {
-           @SerializedName("ids") private int[] ids;
-           @SerializedName("fields") private String[] fields;
-
-           public Arguments(int[] ids, String[] fields) {
-               this.ids = ids;
-               this.fields = fields;
-           }
-       }
-    }
-
-    private static class ActiveTorrentGetRequest {
-       @SerializedName("method") private final String method = "torrent-get";
-       @SerializedName("arguments") private Arguments arguments;
-
-       public ActiveTorrentGetRequest(String[] fields) {
-           this.arguments = new Arguments(fields);
-       }
-
-       private static class Arguments {
-           @SerializedName("ids") private final String ids = "recently-active";
-           @SerializedName("fields") private String[] fields;
-
-           public Arguments(String[] fields) {
-               this.fields = fields;
-           }
-       }
-    }
-
-    private static class TorrentsRemoveRequest {
-       @SerializedName("method") private final String method = "torrent-remove";
-       @SerializedName("arguments") private Arguments arguments;
-
-       public TorrentsRemoveRequest(int[] ids, boolean delete) {
-           this.arguments = new Arguments(ids, delete);
-       }
-
-       private static class Arguments {
-           @SerializedName("ids") private int[] ids;
-           @SerializedName("delete-local-data") private boolean delete;
-
-           public Arguments(int[] ids, boolean delete) {
-               this.ids = ids;
-               this.delete = delete;
-           }
-       }
-    }
-
-    private static class TorrentsActionRequest {
-       @SerializedName("method") private String method;
-       @SerializedName("arguments") private Arguments arguments;
-
-       public TorrentsActionRequest(String action, int[] ids) {
-           this.method = action;
-           this.arguments = new Arguments(ids);
-       }
-
-       private static class Arguments {
-           @SerializedName("ids") private int[] ids;
-
-           public Arguments(int[] ids) {
-               this.ids = ids;
-           }
-       }
-    }
-
-    private static class TorrentsSetLocationRequest {
-        @SerializedName("method") private final String method = "torrent-set-location";
-        @SerializedName("arguments") private Arguments arguments;
-
-        public TorrentsSetLocationRequest(int[] ids, String location, boolean move) {
-            this.arguments = new Arguments(ids, location, move);
+        if (response != null) {
+            response.setResult(result);
         }
 
-        private static class Arguments {
-            @SerializedName("ids") private int[] ids;
-            @SerializedName("location") private String location;
-            @SerializedName("move") private boolean move;
-
-            public Arguments(int[] ids, String location, boolean move) {
-                this.ids = ids;
-                this.location = location;
-                this.move = move;
-            }
-        }
-    }
-
-    private static class TorrentsSetRequest {
-        @SerializedName("method") private final String method = "torrent-set";
-        @SerializedName("arguments") private Arguments arguments;
-
-        public TorrentsSetRequest(int[] ids, String key, Object value) {
-            this.arguments = new Arguments(ids, key, value);
-        }
-
-        private static class Arguments {
-            @SerializedName("ids") private int[] ids;
-            @SerializedName(Torrent.SetterFields.DOWNLOAD_LIMIT) private long downloadLimit;
-            @SerializedName(Torrent.SetterFields.DOWNLOAD_LIMITED) private boolean downloadLimited;
-            @SerializedName(Torrent.SetterFields.PEER_LIMIT) private int peerLimit;
-            @SerializedName(Torrent.SetterFields.QUEUE_POSITION) private int queuePosition;
-            @SerializedName(Torrent.SetterFields.SEED_RATIO_LIMIT) private float seedRatioLimit;
-            @SerializedName(Torrent.SetterFields.SEED_RATIO_MODE) private int seedRatioMode;
-            @SerializedName(Torrent.SetterFields.SESSION_LIMITS) private boolean honorsSessionLimits;
-            @SerializedName(Torrent.SetterFields.TORRENT_PRIORITY) private int torrentPriority;
-            @SerializedName(Torrent.SetterFields.UPLOAD_LIMIT) private long uploadLimit;
-            @SerializedName(Torrent.SetterFields.UPLOAD_LIMITED) private boolean uploadLimited;
-
-            @SerializedName(Torrent.SetterFields.FILES_WANTED) private int[] filesWanted;
-            @SerializedName(Torrent.SetterFields.FILES_UNWANTED) private int[] filesUnwanted;
-            @SerializedName(Torrent.SetterFields.FILES_HIGH) private int[] filesHigh;
-            @SerializedName(Torrent.SetterFields.FILES_NORMAL) private int[] filesNormal;
-            @SerializedName(Torrent.SetterFields.FILES_LOW) private int[] filesLow;
-            @SerializedName(Torrent.SetterFields.TRACKER_ADD) private String[] trackerAdd;
-            @SerializedName(Torrent.SetterFields.TRACKER_REMOVE) private int[] trackerRemove;
-
-            @SuppressWarnings("unchecked")
-            public Arguments(int[] ids, String key, Object value) {
-                this.ids = ids;
-                if (key.equals(Torrent.SetterFields.DOWNLOAD_LIMITED)) {
-                    this.downloadLimited = ((Boolean) value).booleanValue();
-                } else if (key.equals(Torrent.SetterFields.SESSION_LIMITS)) {
-                    this.honorsSessionLimits = ((Boolean) value).booleanValue();
-                } else if (key.equals(Torrent.SetterFields.UPLOAD_LIMITED)) {
-                    this.uploadLimited = ((Boolean) value).booleanValue();
-                } else if (key.equals(Torrent.SetterFields.TORRENT_PRIORITY)) {
-                    this.torrentPriority = ((Integer) value).intValue();
-                } else if (key.equals(Torrent.SetterFields.QUEUE_POSITION)) {
-                    this.queuePosition = ((Integer) value).intValue();
-                } else if (key.equals(Torrent.SetterFields.PEER_LIMIT)) {
-                    this.peerLimit = ((Integer) value).intValue();
-                } else if (key.equals(Torrent.SetterFields.SEED_RATIO_MODE)) {
-                    this.seedRatioMode = ((Integer) value).intValue();
-                } else if (key.equals(Torrent.SetterFields.FILES_WANTED)) {
-                    if (value instanceof Integer) {
-                        this.filesWanted = new int[] { ((Integer) value).intValue() };
-                    } else {
-                        this.filesWanted = convertIntegerList((ArrayList<Integer>) value);
-                    }
-                } else if (key.equals(Torrent.SetterFields.FILES_UNWANTED)) {
-                    if (value instanceof Integer) {
-                        this.filesUnwanted = new int[] { ((Integer) value).intValue() };
-                    } else {
-                        this.filesUnwanted = convertIntegerList((ArrayList<Integer>) value);
-                    }
-                } else if (key.equals(Torrent.SetterFields.DOWNLOAD_LIMIT)) {
-                    this.downloadLimit = ((Long) value).longValue();
-                } else if (key.equals(Torrent.SetterFields.UPLOAD_LIMIT)) {
-                    this.uploadLimit = ((Long) value).longValue();
-                } else if (key.equals(Torrent.SetterFields.SEED_RATIO_LIMIT)) {
-                    this.seedRatioLimit = ((Float) value).floatValue();
-                } else if (key.equals(Torrent.SetterFields.FILES_HIGH)) {
-                    this.filesHigh = convertIntegerList((ArrayList<Integer>) value);
-                } else if (key.equals(Torrent.SetterFields.FILES_NORMAL)) {
-                    this.filesNormal = convertIntegerList((ArrayList<Integer>) value);
-                } else if (key.equals(Torrent.SetterFields.FILES_LOW)) {
-                    this.filesLow = convertIntegerList((ArrayList<Integer>) value);
-                } else if (key.equals(Torrent.SetterFields.TRACKER_ADD)) {
-                    this.trackerAdd = convertStringList((ArrayList<String>) value);
-                } else if (key.equals(Torrent.SetterFields.TRACKER_REMOVE)) {
-                    this.trackerRemove = convertIntegerList((ArrayList<Integer>) value);
-                }
-            }
-        }
-    }
-
-    private static class TrackerReplaceRequest {
-        @SerializedName("method") private final String method = "torrent-set";
-        @SerializedName("arguments") private Arguments arguments;
-
-        public TrackerReplaceRequest(int[] ids, Object value) {
-            this.arguments = new Arguments(ids, (Torrent.TrackerReplaceTuple) value);
-        }
-
-        public Torrent.TrackerReplaceTuple getTuple() {
-            return this.arguments.getTuple();
-        }
-
-        private static class Arguments {
-            @SerializedName("ids") private int[] ids;
-            transient private Torrent.TrackerReplaceTuple trackerReplace;
-
-            public Arguments(int[] ids, Torrent.TrackerReplaceTuple value) {
-                this.ids = ids;
-                this.trackerReplace = value;
-            }
-
-            public Torrent.TrackerReplaceTuple getTuple() {
-                return this.trackerReplace;
-            }
-        }
-    }
-
-    private static class TorrentAddRequest {
-        @SerializedName("method") private final String method = "torrent-add";
-        @SerializedName("arguments") private Arguments arguments;
-
-        public TorrentAddRequest(String uri, String meta, String location, boolean paused) {
-            this.arguments = new Arguments(uri, meta, location, paused);
-        }
-
-        private static class Arguments {
-            @SerializedName(Torrent.AddFields.URI) private String uri;
-            @SerializedName(Torrent.AddFields.META) private String meta;
-            @SerializedName(Torrent.AddFields.LOCATION) private String location;
-            @SerializedName(Torrent.AddFields.PAUSED) private boolean paused;
-
-            public Arguments(String uri, String meta, String location, boolean paused) {
-                this.uri = uri;
-                this.meta = meta;
-                this.location = location;
-                this.paused = paused;
-            }
-        }
-    }
-
-    private static class PortTestRequest {
-        @SerializedName("method") private final String method = "port-test";
-    }
-
-    private static class BlocklistUpdateRequest {
-        @SerializedName("method") private final String method = "blocklist-update";
-    }
-
-    private static class FreeSpaceRequest {
-        @SerializedName("method") private final String method = "free-space";
-        @SerializedName("arguments") private Arguments arguments;
-
-        public FreeSpaceRequest(String path, String defaultPath) {
-            if (path == null) {
-                path = defaultPath;
-            }
-            this.arguments = new Arguments(path);
-        }
-
-        private static class Arguments {
-            @SerializedName("path") private String path;
-
-            public Arguments(String path) {
-                this.path = path;
-            }
-        }
+        return response;
     }
 
     public static class Response {
-        @SerializedName("result") protected String mResult = null;
+        protected String mResult = null;
 
         public String getResult() {
             return mResult;
@@ -884,7 +635,7 @@ public class TransmissionSessionManager {
     }
 
     public static class SessionGetResponse extends Response {
-        @SerializedName("arguments") private TransmissionSession mSession = null;
+        private TransmissionSession mSession = null;
 
         public TransmissionSession getSession() {
             return mSession;
@@ -895,7 +646,7 @@ public class TransmissionSessionManager {
     }
 
     public static class SessionStatsResponse extends Response {
-        @SerializedName("arguments") private TransmissionSessionStats mStats = null;
+        private TransmissionSessionStats mStats = null;
 
         public TransmissionSessionStats getStats() {
             return mStats;
@@ -906,7 +657,7 @@ public class TransmissionSessionManager {
     }
 
     public static class TorrentGetResponse extends Response {
-        @SerializedName("arguments") private TorrentsArguments mTorrentsArguments = null;
+        private TorrentsArguments mTorrentsArguments = null;
 
         public TorrentGetResponse() {
             mTorrentsArguments = new TorrentsArguments();
@@ -921,7 +672,7 @@ public class TransmissionSessionManager {
         }
 
         private static class TorrentsArguments {
-            @SerializedName("torrents") private Torrent[] mTorrents = null;
+            private Torrent[] mTorrents = null;
 
             public Torrent[] getTorrents() {
                 return mTorrents;
@@ -933,7 +684,7 @@ public class TransmissionSessionManager {
     }
 
     public static class ActiveTorrentGetResponse extends Response {
-        @SerializedName("arguments") private ActiveTorrentsArguments mActiveTorrentsArguments = null;
+        private ActiveTorrentsArguments mActiveTorrentsArguments = null;
 
         public ActiveTorrentGetResponse() {
             mActiveTorrentsArguments = new ActiveTorrentsArguments();
@@ -955,8 +706,8 @@ public class TransmissionSessionManager {
         }
 
         private static class ActiveTorrentsArguments {
-            @SerializedName("torrents") private Torrent[] mTorrents = null;
-            @SerializedName("removed") private int[] mRemoved = null;
+            private Torrent[] mTorrents = null;
+            private int[] mRemoved = null;
 
             public Torrent[] getTorrents() {
                 return mTorrents;
@@ -975,7 +726,7 @@ public class TransmissionSessionManager {
     }
 
     public static class AddTorrentResponse extends Response {
-        @SerializedName("arguments") private AddTorrentArguments mArguments = null;
+        private AddTorrentArguments mArguments = null;
 
         public AddTorrentResponse() {
             mArguments = new AddTorrentArguments();
@@ -996,13 +747,13 @@ public class TransmissionSessionManager {
         }
 
         private class AddTorrentArguments {
-            @SerializedName("torrent-added") public Torrent torrent;
-            @SerializedName("torrent-duplicate") public Torrent duplicate;
+            public Torrent torrent;
+            public Torrent duplicate;
         }
     }
 
     public static class PortTestResponse extends Response {
-        @SerializedName("arguments") private PortTestArguments mArguments = null;
+        private PortTestArguments mArguments = null;
 
         public PortTestResponse() {
             mArguments = new PortTestArguments();
@@ -1016,12 +767,12 @@ public class TransmissionSessionManager {
         }
 
         private class PortTestArguments {
-            @SerializedName("port-is-open") public boolean open;
+            public boolean open;
         }
     }
 
     public static class BlocklistUpdateResponse extends Response {
-        @SerializedName("arguments") private BlocklistUpdateArguments mArguments = null;
+        private BlocklistUpdateArguments mArguments = null;
 
         public BlocklistUpdateResponse() {
             mArguments = new BlocklistUpdateArguments();
@@ -1035,12 +786,12 @@ public class TransmissionSessionManager {
         }
 
         private class BlocklistUpdateArguments {
-            @SerializedName("blocklist-size") public long size;
+            public long size;
         }
     }
 
     public static class FreeSpaceResponse extends Response {
-        @SerializedName("arguments") private FreeSpaceArguments mArguments = null;
+        private FreeSpaceArguments mArguments = null;
 
         public FreeSpaceResponse() {
             mArguments = new FreeSpaceArguments();
@@ -1058,32 +809,8 @@ public class TransmissionSessionManager {
         }
 
         private class FreeSpaceArguments {
-            @SerializedName("size-bytes") public long freeSpace;
-            @SerializedName("path") public String path;
-        }
-    }
-
-
-    public static class TrackerReplaceRequestSerializer implements JsonSerializer<TrackerReplaceRequest> {
-        private static final Gson cleanGson = new Gson();
-
-        @Override
-        public JsonElement serialize(final TrackerReplaceRequest request, final Type typeOfSrc, final JsonSerializationContext context) {
-            JsonElement json = cleanGson.toJsonTree(request);
-            Torrent.TrackerReplaceTuple tuple = request.getTuple();
-
-            JsonArray array = new JsonArray();
-            List<Integer> ids = tuple.getIds();
-            List<String> urls = tuple.getUrls();
-
-            for (int i = 0; i < ids.size(); ++i) {
-                array.add(new JsonPrimitive(ids.get(i)));
-                array.add(new JsonPrimitive(urls.get(i)));
-            }
-
-            json.getAsJsonObject().getAsJsonObject("arguments").add(Torrent.SetterFields.TRACKER_REPLACE, array);
-
-            return json;
+            public long freeSpace;
+            public String path;
         }
     }
 
@@ -1091,7 +818,7 @@ public class TransmissionSessionManager {
         int[] ret = new int[list.size()];
         Iterator<Integer> iterator = list.iterator();
         for (int i = 0; i < ret.length; i++) {
-            ret[i] = iterator.next().intValue();
+            ret[i] = iterator.next();
         }
 
         return ret;

@@ -1223,10 +1223,10 @@ public class TorrentDetailPageFragment extends Fragment {
             this.seederCount = stat.getSeederCount();
             this.leecherCount = stat.getLeecherCount();
             this.hasAnnounced = stat.hasAnnounced();
-            this.lastAnnounceTime = stat.getLastAnnouceTime();
-            this.hasLastAnnounceSucceeded = stat.hasLastAnnouceSucceeded();
-            this.lastAnnouncePeerCount = stat.getLastAnnoucePeerCount();
-            this.lastAnnounceResult = new String(stat.getLastAnnouceResult());
+            this.lastAnnounceTime = stat.getLastAnnounceTime();
+            this.hasLastAnnounceSucceeded = stat.hasLastAnnounceSucceeded();
+            this.lastAnnouncePeerCount = stat.getLastAnnouncePeerCount();
+            this.lastAnnounceResult = new String(stat.getLastAnnounceResult());
             this.hasScraped = stat.hasScraped();
             this.lastScrapeTime = stat.getLastScrapeTime();
             this.hasLastScrapeSucceeded = stat.hasLastScrapeSucceeded();
@@ -1430,10 +1430,9 @@ public class TorrentDetailPageFragment extends Fragment {
 
                 buttons.findViewById(R.id.torrent_detail_tracker_replace).setOnClickListener(new View.OnClickListener() {
                     @Override public void onClick(View v) {
-                        final List<Integer> ids = new ArrayList<Integer>();
-                        ids.add(tracker.id);
+                        final List<Object> tuple = new ArrayList<Object>();
+                        tuple.add(tracker.id);
 
-                        final List<String> urls = new ArrayList<String>();
                         LayoutInflater inflater = getActivity().getLayoutInflater();
 
                         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity())
@@ -1446,9 +1445,9 @@ public class TorrentDetailPageFragment extends Fragment {
                                         public void onClick(DialogInterface dialog, int id) {
                                             EditText url = (EditText) ((AlertDialog) dialog).findViewById(R.id.tracker_announce_url);
 
-                                            urls.add(url.getText().toString());
+                                            tuple.add(url.getText().toString());
 
-                                            setTorrentProperty(Torrent.SetterFields.TRACKER_REPLACE, new Torrent.TrackerReplaceTuple(ids, urls));
+                                            setTorrentProperty(Torrent.SetterFields.TRACKER_REPLACE, tuple);
 
                                             context.setRefreshing(true);
                                             loader.onContentChanged();
@@ -1555,7 +1554,7 @@ public class TorrentDetailPageFragment extends Fragment {
             boolean changed = false;
 
             if (!tracker.announce.equals(tTracker.getAnnounce())
-                    || tracker.lastAnnounceTime != stat.getLastAnnouceTime()
+                    || tracker.lastAnnounceTime != stat.getLastAnnounceTime()
                     || tracker.lastScrapeTime != stat.getLastScrapeTime()
                     || tracker.leecherCount != stat.getLeecherCount()
                     || tracker.seederCount != stat.getSeederCount()) {
