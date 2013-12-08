@@ -15,8 +15,6 @@ public final class G {
     public static final String PREF_UPDATE_ACTIVE = "update_active_torrents";
     public static final String PREF_FULL_UPDATE = "full_update";
     public static final String PREF_UPDATE_INTERVAL = "update_interval";
-    public static final String PREF_START_PAUSED = "start_paused";
-    public static final String PREF_DELETE_LOCAL = "delete_local";
     public static final String PREF_SHOW_STATUS = "show_status";
 
     public static final String PREF_PROFILES = "profiles";
@@ -33,6 +31,9 @@ public final class G {
     public static final String PREF_RETRIES = "profile_retries";
     public static final String PREF_DIRECTORIES = "profile_directories";
     public static final String PREF_LAST_DIRECTORY = "profile_last_directory";
+    public static final String PREF_MOVE_DATA = "profile_move_data";
+    public static final String PREF_DELETE_LOCAL = "profile_delete_local";
+    public static final String PREF_START_PAUSED = "profile_start_paused";
     public static final String PREF_PREFIX = "profile_";
 
     public static final String PREF_LIST_SORT_BY = "torrents_sort_by";

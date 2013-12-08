@@ -99,7 +99,7 @@ public class TorrentFileReadActivity extends FragmentActivity {
                     if (stream != null)
                         stream.close();
                 } catch (IOException e) {
-                    return null;
+                    e.printStackTrace();
                 }
             }
         }
@@ -116,9 +116,9 @@ public class TorrentFileReadActivity extends FragmentActivity {
                 listIntent.putExtra(TorrentListActivity.ARG_FILE_PATH, data.path);
 
                 startActivity(listIntent);
-
-                finish();
             }
+
+            finish();
         }
     }
 }

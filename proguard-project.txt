@@ -29,3 +29,6 @@
 
 -keep public class * extends android.support.v4.app.Fragment
 -keep public class * extends android.app.Fragment
+-dontwarn org.w3c.dom.bootstrap.DOMImplementationRegistry
+-keep public class com.google.vending.licensing.ILicensingService
+-keep public class com.android.vending.licensing.ILicensingService

@@ -57,7 +57,6 @@ public class TransmissionSessionManager {
 
     public final static String PREF_LAST_SESSION_ID = "last_session_id";
 
-//    private Context mContext;
     private TransmissionProfile mProfile;
 
     private ConnectivityManager mConnManager;
@@ -68,7 +67,6 @@ public class TransmissionSessionManager {
     private SharedPreferences mDefaultPrefs;
 
     public TransmissionSessionManager(Context context, TransmissionProfile profile) {
-//        mContext = context;
         mProfile = profile;
 
         mConnManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
@@ -124,26 +122,14 @@ public class TransmissionSessionManager {
         return response;
     }
 
-    public Torrent[] getAllTorrents(String[] fields) throws ManagerException {
+    public Torrent[] getTorrents(String[] fields, int[] ids) throws ManagerException {
         ObjectMapper mapper = new ObjectMapper();
         ObjectNode request = createRequest("torrent-get", true);
         ObjectNode arguments = (ObjectNode) request.path("arguments");
         arguments.put("fields", mapper.valueToTree(fields));
-
-        TorrentGetResponse response = (TorrentGetResponse) requestData(request, TorrentGetResponse.class);
-        if (!response.getResult().equals("success")) {
-            throw new ManagerException(response.getResult(), -2);
+        if (ids != null && ids.length > 0) {
+            arguments.put("ids", mapper.valueToTree(ids));
         }
-
-        return response.getTorrents();
-    }
-
-    public Torrent[] getTorrents(int[] ids, String[] fields) throws ManagerException {
-        ObjectMapper mapper = new ObjectMapper();
-        ObjectNode request = createRequest("torrent-get", true);
-        ObjectNode arguments = (ObjectNode) request.path("arguments");
-        arguments.put("ids", mapper.valueToTree(ids));
-        arguments.put("fields", mapper.valueToTree(fields));
 
         TorrentGetResponse response = (TorrentGetResponse) requestData(request, TorrentGetResponse.class);
         if (!response.getResult().equals("success")) {
@@ -206,6 +192,7 @@ public class TransmissionSessionManager {
         }
     }
 
+    @SuppressWarnings("unchecked")
     public void setTorrentsProperty(int[] ids, String key, Object value) throws ManagerException {
         ObjectMapper mapper = new ObjectMapper();
         ObjectNode request = createRequest("torrent-set", true);
@@ -236,7 +223,7 @@ public class TransmissionSessionManager {
                 if (value instanceof Integer) {
                     arguments.put(key, mapper.valueToTree(new int[] { (Integer) value }));
                 } else {
-                    arguments.put(key, mapper.valueToTree((ArrayList<Integer>) value));
+                    arguments.put(key, mapper.valueToTree(value));
                 }
             } else if (   key.equals(Torrent.SetterFields.DOWNLOAD_LIMIT)
                        || key.equals(Torrent.SetterFields.UPLOAD_LIMIT)) {
@@ -247,9 +234,9 @@ public class TransmissionSessionManager {
                        || key.equals(Torrent.SetterFields.FILES_NORMAL)
                        || key.equals(Torrent.SetterFields.FILES_LOW)
                        || key.equals(Torrent.SetterFields.TRACKER_REMOVE)) {
-                arguments.put(key, mapper.valueToTree((ArrayList<Integer>) value));
+                arguments.put(key, mapper.valueToTree(value));
             } else if (key.equals(Torrent.SetterFields.TRACKER_ADD)) {
-                arguments.put(key, mapper.valueToTree((ArrayList<String>) value));
+                arguments.put(key, mapper.valueToTree(value));
             }
         }
 
@@ -261,7 +248,6 @@ public class TransmissionSessionManager {
 
     public Torrent addTorrent(String uri, String meta, String location, boolean paused)
             throws ManagerException {
-        ObjectMapper mapper = new ObjectMapper();
         ObjectNode request = createRequest("torrent-add", true);
         ObjectNode arguments = (ObjectNode) request.path("arguments");
 
@@ -306,7 +292,6 @@ public class TransmissionSessionManager {
     }
 
     public long getFreeSpace(String defaultPath) throws ManagerException {
-        ObjectMapper mapper = new ObjectMapper();
         ObjectNode request = createRequest("free-space", true);
         ObjectNode arguments = (ObjectNode) request.path("arguments");
 
@@ -314,7 +299,7 @@ public class TransmissionSessionManager {
         if (path == null) {
             path = defaultPath;
         }
-        arguments.put("path", defaultPath);
+        arguments.put("path", path);
 
         FreeSpaceResponse response = (FreeSpaceResponse) requestData(request, FreeSpaceResponse.class);
         if (response.getResult().equals("success")) {
@@ -421,7 +406,7 @@ public class TransmissionSessionManager {
                 mInvalidSessionRetries = 0;
             }
 
-            Response response = null;
+            Response response;
             switch(code) {
                 case 200:
                 case 201:
@@ -466,7 +451,9 @@ public class TransmissionSessionManager {
                     os.close();
                 if (is != null)
                     is.close();
-            } catch(IOException e) {}
+            } catch(IOException e) {
+                e.printStackTrace();
+            }
 
             if (conn != null)
                 conn.disconnect();
@@ -835,7 +822,7 @@ public class TransmissionSessionManager {
         int[] ret = new int[list.size()];
         Iterator<Integer> iterator = list.iterator();
         for (int i = 0; i < ret.length; i++) {
-            ret[i] = iterator.next().intValue();
+            ret[i] = iterator.next();
         }
 
         return ret;

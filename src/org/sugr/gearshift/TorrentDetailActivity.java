@@ -46,10 +46,8 @@ public class TorrentDetailActivity extends FragmentActivity implements Transmiss
             G.logD("Starting the torrents loader with profile " + mProfile);
             if (mProfile == null) return null;
 
-            TransmissionDataLoader loader = new TransmissionDataLoader(
-                    TorrentDetailActivity.this, mProfile, mSession, mTorrents, getCurrentTorrents());
-
-            return loader;
+            return new TransmissionDataLoader(
+                TorrentDetailActivity.this, mProfile, mSession, mTorrents, getCurrentTorrents());
         }
 
         @Override
@@ -58,8 +56,6 @@ public class TorrentDetailActivity extends FragmentActivity implements Transmiss
                 TransmissionData data) {
 
             setSession(data.session);
-           /* if (data.stats != null)
-                mSessionStats = data.stats;*/
 
             boolean invalidateMenu = false;
 
@@ -123,9 +119,10 @@ public class TorrentDetailActivity extends FragmentActivity implements Transmiss
 
             FragmentManager manager = getSupportFragmentManager();
             TorrentDetailFragment detail = (TorrentDetailFragment) manager.findFragmentByTag(
-                    TorrentDetailFragment.TAG);
+                    G.DETAIL_FRAGMENT_TAG);
             if (detail != null) {
-                detail.notifyTorrentListChanged(data.hasRemoved, false, data.hasStatusChanged);
+                detail.notifyTorrentListChanged(data.torrents, data.error, false, data.hasRemoved,
+                    data.hasStatusChanged, data.hasMetadataNeeded);
             }
 
             if (mRefreshing) {
@@ -171,7 +168,7 @@ public class TorrentDetailActivity extends FragmentActivity implements Transmiss
             TorrentDetailFragment fragment = new TorrentDetailFragment();
             fragment.setArguments(arguments);
             getSupportFragmentManager().beginTransaction()
-                    .replace(R.id.torrent_detail_container, fragment, TorrentDetailFragment.TAG)
+                    .replace(R.id.torrent_detail_container, fragment, G.DETAIL_FRAGMENT_TAG)
                     .commit();
         }
 
