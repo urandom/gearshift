@@ -85,8 +85,6 @@ public class TorrentListActivity extends FragmentActivity
 
     private int mLocationPosition = AdapterView.INVALID_POSITION;
 
-    private SharedPreferences mSharedPrefs;
-
     private TransmissionProfileListAdapter mProfileAdapter;
 
     private boolean mAltSpeed = false;
@@ -305,7 +303,7 @@ public class TorrentListActivity extends FragmentActivity
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        mSharedPrefs = PreferenceManager.getDefaultSharedPreferences(this);
+        SharedPreferences mSharedPrefs = PreferenceManager.getDefaultSharedPreferences(this);
 
         G.DEBUG = mSharedPrefs.getBoolean(G.PREF_DEBUG, false);
 
