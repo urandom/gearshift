@@ -435,4 +435,75 @@
     <string name="user_interface_header">User interface</string>
     <string name="show_status_bar">Status bar below the torrent list</string>
     <string name="error_deleting_torrent_file">Unable to delete torrent file</string>
+
+    <string-array name="torrent_priority">
+        <item>Low</item>
+        <item>Normal</item>
+        <item>High</item>
+    </string-array>
+
+    <string-array name="torrent_seed_ratio_mode">
+        <item>Use global settings</item>
+        <item>Stop seeding at ratio</item>
+        <item>Seed regardless of ratio</item>
+    </string-array>
+
+    <string-array name="pref_full_update_entries">
+        <item>2 updates</item>
+        <item>3 updates</item>
+        <item>5 updates</item>
+        <item>10 updates</item>
+        <item>30 updates</item>
+        <item>60 updates</item>
+        <item>100 updates</item>
+    </string-array>
+
+    <string-array name="pref_update_interval_entries">
+        <item>Every second</item>
+        <item>2 seconds</item>
+        <item>5 seconds</item>
+        <item>10 seconds</item>
+        <item>30 seconds</item>
+        <item>Every minute</item>
+        <item>2 minutes</item>
+        <item>Never</item>
+    </string-array>
+
+    <string-array name="pref_con_retries_entries">
+        <item>Once</item>
+        <item>Twice</item>
+        <item>3 times</item>
+        <item>5 times</item>
+        <item>10 times</item>
+        <item>15 times</item>
+    </string-array>
+
+    <string-array name="pref_base_sort_method_entries">
+        <item>Name</item>
+        <item>Size</item>
+        <item>Status</item>
+        <item>Download speed</item>
+        <item>Upload speed</item>
+        <item>Age</item>
+        <item>Progress</item>
+        <item>Ratio</item>
+        <item>Activity</item>
+        <item>Location</item>
+        <item>Peers</item>
+        <item>Queue position</item>
+    </string-array>
+
+    <string-array name="pref_base_sort_order_entries">
+        <item>Ascending</item>
+        <item>Descending</item>
+        <item>Primary order</item>
+        <item>Reverse primary order</item>
+    </string-array>
+
+    <string-array name="session_settings_encryption">
+        <item>Required</item>
+        <item>Preferred</item>
+        <item>Tolerated</item>
+    </string-array>
+
 </resources>
