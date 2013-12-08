@@ -29,10 +29,11 @@ import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 
-public class TorrentListMenuFragment extends Fragment {
+public class TorrentListMenuFragment extends Fragment implements TorrentListNotification {
     private ListView mFilterList;
     private View mFooter;
     private FilterAdapter mFilterAdapter;
@@ -146,7 +147,11 @@ public class TorrentListMenuFragment extends Fragment {
         setStatus(null, null);
     }
 
-    public void notifyTorrentListUpdate(ArrayList<Torrent> torrents, TransmissionSession session, boolean showStatus) {
+    public void notifyTorrentListChanged(List<Torrent> torrents, int error, boolean added, boolean removed,
+                                        boolean statusChanged, boolean metadataNeeded) {
+
+        TransmissionSession session = ((TransmissionSessionInterface) getActivity()).getSession();
+        boolean showStatus = mSharedPrefs.getBoolean(G.PREF_SHOW_STATUS, false);
         long down = 0, up = 0;
         boolean directoriesEnabled = mSharedPrefs.getBoolean(G.PREF_FILTER_DIRECTORIES, true);
         boolean trackersEnabled = mSharedPrefs.getBoolean(G.PREF_FILTER_TRACKERS, false);
@@ -161,7 +166,7 @@ public class TorrentListMenuFragment extends Fragment {
             String dir = mSharedPrefs.getString(G.PREF_LIST_DIRECTORY, "");
             String track = mSharedPrefs.getString(G.PREF_LIST_TRACKER, "");
             for (Torrent t : torrents) {
-                if (showStatus) {
+                if (!showStatus) {
                     down += t.getRateDownload();
                     up += t.getRateUpload();
                 }
@@ -326,7 +331,7 @@ public class TorrentListMenuFragment extends Fragment {
             mCloseHandler.post(mCloseRunnable);
         }
 
-        if (!showStatus) {
+        if (showStatus) {
             return;
         }
 

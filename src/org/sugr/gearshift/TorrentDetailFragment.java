@@ -19,9 +19,9 @@ import android.widget.CheckBox;
 import android.widget.Spinner;
 
 import java.util.ArrayList;
+import java.util.List;
 
-public class TorrentDetailFragment extends Fragment {
-    public static final String TAG = "detail_fragment";
+public class TorrentDetailFragment extends Fragment implements TorrentListNotification {
     public static final String ARG_SHOW_PAGER = "show_pager";
     public interface PagerCallbacks {
         public void onPageSelected(int position);
@@ -259,8 +259,9 @@ public class TorrentDetailFragment extends Fragment {
         mPager.setCurrentItem(position);
     }
 
-    public void notifyTorrentListChanged(boolean removed, boolean added, boolean status) {
-        ArrayList<Torrent> torrents = ((TransmissionSessionInterface) getActivity()).getTorrents();
+    public void notifyTorrentListChanged(List<Torrent> all, int error, boolean added, boolean removed,
+                                         boolean status, boolean metadata) {
+        List<Torrent> torrents = ((TransmissionSessionInterface) getActivity()).getTorrents();
         Torrent torrent = null;
         if (removed || added) {
             int index = 0;
@@ -367,6 +368,9 @@ public class TorrentDetailFragment extends Fragment {
             }
             @Override public void onNothingSelected(AdapterView<?> adapterView) {}
         });
+
+        ((CheckBox) dialog.findViewById(R.id.move)).setChecked(
+            profile != null && profile.getMoveData());
 
         return true;
     }
