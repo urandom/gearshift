@@ -436,7 +436,8 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
         SearchView findView = new SearchView(
             getActivity().getActionBar().getThemedContext());
         findView.setQueryHint(getActivity().getString(R.string.filter));
-        findView.setIconifiedByDefault(false);
+        findView.setIconifiedByDefault(true);
+        findView.setIconified(true);
         findView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override public boolean onQueryTextSubmit(String query) {
                 return false;
