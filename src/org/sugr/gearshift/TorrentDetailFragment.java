@@ -258,6 +258,7 @@ public class TorrentDetailFragment extends Fragment implements TorrentListNotifi
 
         List<Torrent> torrents = ((TransmissionSessionInterface) getActivity()).getTorrents();
         Torrent torrent = null;
+        boolean updateMenu = status;
         if (removed || added) {
             int index = 0;
             for (Torrent t : torrents) {
@@ -271,11 +272,12 @@ public class TorrentDetailFragment extends Fragment implements TorrentListNotifi
             if (torrent != null) {
                 mPager.setCurrentItem(index);
             } else {
+                updateMenu = true;
                 mCallbacks.onPageSelected(mPager.getCurrentItem());
             }
         }
 
-        if (status) {
+        if (updateMenu) {
             setMenuTorrentState();
         }
 
