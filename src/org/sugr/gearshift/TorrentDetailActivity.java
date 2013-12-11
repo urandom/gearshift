@@ -38,6 +38,8 @@ public class TorrentDetailActivity extends FragmentActivity implements Transmiss
     private TransmissionProfile mProfile;
     private TransmissionSession mSession;
 
+    private Menu menu;
+
     private LoaderCallbacks<TransmissionData> mTorrentLoaderCallbacks = new LoaderCallbacks<TransmissionData>() {
 
         @Override
@@ -56,8 +58,6 @@ public class TorrentDetailActivity extends FragmentActivity implements Transmiss
                 TransmissionData data) {
 
             setSession(data.session);
-
-            boolean invalidateMenu = false;
 
             View error = findViewById(R.id.fatal_error_layer);
             error.setVisibility(View.GONE);
@@ -90,7 +90,6 @@ public class TorrentDetailActivity extends FragmentActivity implements Transmiss
                     } else if (data.error == TransmissionData.Errors.OUT_OF_MEMORY) {
                         text.setText(Html.fromHtml(getString(R.string.out_of_memory_empty_list)));
                     }
-                    invalidateOptionsMenu();
                 }
             } else {
                 if (data.torrents.size() > 0) {
@@ -104,10 +103,6 @@ public class TorrentDetailActivity extends FragmentActivity implements Transmiss
 
                         for (Torrent t : removal) {
                             mTorrents.remove(t);
-                        }
-
-                        if (data.hasStatusChanged) {
-                            invalidateMenu = true;
                         }
                     }
                 } else {
@@ -126,11 +121,8 @@ public class TorrentDetailActivity extends FragmentActivity implements Transmiss
             }
 
             if (mRefreshing) {
-                mRefreshing = false;
-                invalidateMenu = true;
+                setRefreshing(false);
             }
-            if (invalidateMenu)
-                invalidateOptionsMenu();
         }
 
         @Override
@@ -190,13 +182,9 @@ public class TorrentDetailActivity extends FragmentActivity implements Transmiss
     public boolean onCreateOptionsMenu(Menu menu) {
         super.onCreateOptionsMenu(menu);
 
-        getMenuInflater().inflate(R.menu.torrent_detail_activity, menu);
+        this.menu = menu;
 
-        MenuItem item = menu.findItem(R.id.menu_refresh);
-        if (mRefreshing)
-            item.setActionView(R.layout.action_progress_bar);
-        else
-            item.setActionView(null);
+        getMenuInflater().inflate(R.menu.torrent_detail_activity, menu);
 
         return true;
     }
@@ -214,8 +202,7 @@ public class TorrentDetailActivity extends FragmentActivity implements Transmiss
                     .getLoader(G.TORRENTS_LOADER_ID);
                 if (loader != null) {
                     loader.onContentChanged();
-                    mRefreshing = !mRefreshing;
-                    invalidateOptionsMenu();
+                    setRefreshing(!mRefreshing);
                 }
                 return true;
         }
@@ -308,6 +295,11 @@ public class TorrentDetailActivity extends FragmentActivity implements Transmiss
     @Override
     public void setRefreshing(boolean refreshing) {
         mRefreshing = refreshing;
-        invalidateOptionsMenu();
+
+        MenuItem item = menu.findItem(R.id.menu_refresh);
+        if (mRefreshing)
+            item.setActionView(R.layout.action_progress_bar);
+        else
+            item.setActionView(null);
     }
 }

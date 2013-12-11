@@ -89,10 +89,12 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
 
     private boolean mScrollToTop = false;
 
-    private boolean mFindShown = false;
-    private String mFindQuery;
+    private boolean findVisible = false;
+    private String findQuery;
 
     private SharedPreferences mSharedPrefs;
+
+    private Menu menu;
 
     /**
      * A callback interface that all activities containing this fragment must
@@ -272,8 +274,8 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
     private Handler mFindHandler = new Handler();
     private Runnable mFindRunnable = new Runnable() {
         @Override public void run() {
-            G.logD("Search query " + mFindQuery);
-            setListFilter(mFindQuery);
+            G.logD("Search query " + findQuery);
+            setListFilter(findQuery);
         }
     };
 
@@ -304,15 +306,15 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
         // Restore the previously serialized activated item position.
         if (savedInstanceState != null) {
             if (savedInstanceState.containsKey(STATE_FIND_SHOWN)) {
-                mFindShown = savedInstanceState.getBoolean(STATE_FIND_SHOWN);
+                findVisible = savedInstanceState.getBoolean(STATE_FIND_SHOWN);
                 if (savedInstanceState.containsKey(STATE_FIND_QUERY)) {
-                    mFindQuery = savedInstanceState.getString(STATE_FIND_QUERY);
+                    findQuery = savedInstanceState.getString(STATE_FIND_QUERY);
                 }
             }
 
             ((TransmissionSessionInterface) getActivity()).setRefreshing(false);
         }
-        if (!mFindShown) {
+        if (!findVisible) {
             Editor e = mSharedPrefs.edit();
             e.putString(G.PREF_LIST_SEARCH, "");
             e.apply();
@@ -410,8 +412,8 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
             // Serialize and persist the activated item position.
             outState.putInt(STATE_ACTIVATED_POSITION, mActivatedPosition);
         }
-        outState.putBoolean(STATE_FIND_SHOWN, mFindShown);
-        outState.putString(STATE_FIND_QUERY, mFindQuery);
+        outState.putBoolean(STATE_FIND_SHOWN, findVisible);
+        outState.putString(STATE_FIND_QUERY, findQuery);
         outState.putParcelableArrayList(STATE_TORRENTS, mTorrentListAdapter.getUnfilteredItems());
     }
 
@@ -424,57 +426,48 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
 
     @Override
     public void onCreateOptionsMenu(final Menu menu, MenuInflater inflater) {
-        if (mFindShown) {
-            boolean detailVisible = ((TorrentListActivity) getActivity()).isDetailPanelShown();
-            MenuItem item = menu.add(R.string.find);
-            item.setShowAsAction(MenuItem.SHOW_AS_ACTION_COLLAPSE_ACTION_VIEW);
+        super.onCreateOptionsMenu(menu, inflater);
 
-            mFindQuery = mSharedPrefs.getString(G.PREF_LIST_SEARCH, "");
+        this.menu = menu;
 
-            if (detailVisible) {
-                item.setActionView(R.layout.action_search_query);
-                TextView query = ((TextView) item.getActionView().findViewById(R.id.action_search_query));
-                query.setText(mFindQuery);
-            } else {
-                SearchView findView = new SearchView(
-                        getActivity().getActionBar().getThemedContext());
-                findView.setQueryHint(getActivity().getString(R.string.filter));
-                findView.setIconified(false);
+        inflater.inflate(R.menu.torrent_list_fragment, menu);
+        MenuItem item = menu.findItem(R.id.find);
 
-                item.setActionView(findView);
+        SearchView findView = new SearchView(
+            getActivity().getActionBar().getThemedContext());
+        findView.setQueryHint(getActivity().getString(R.string.filter));
+        findView.setIconifiedByDefault(false);
+        findView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override public boolean onQueryTextSubmit(String query) {
+                return false;
             }
-            item.setOnActionExpandListener(new MenuItem.OnActionExpandListener() {
-                @Override public boolean onMenuItemActionExpand(MenuItem item) {
-                    return true;
-                }
 
-                @Override public boolean onMenuItemActionCollapse(MenuItem item) {
-                    mFindQuery = null;
-                    mFindShown = false;
-                    setListFilter((String) null);
-                    return true;
-                }
-            });
-            item.expandActionView();
-
-            if (!detailVisible) {
-                SearchView findView = (SearchView) item.getActionView();
-
-                findView.setQuery(mSharedPrefs.getString(G.PREF_LIST_SEARCH, ""), false);
-                findView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
-                    @Override public boolean onQueryTextSubmit(String query) {
-                        return false;
-                    }
-
-                    @Override public boolean onQueryTextChange(String newText) {
-                        mFindQuery = newText;
-                        mFindHandler.removeCallbacks(mFindRunnable);
-                        mFindHandler.postDelayed(mFindRunnable, 500);
-                        return true;
-                    }
-                });
+            @Override public boolean onQueryTextChange(String newText) {
+                findQuery = newText;
+                mFindHandler.removeCallbacks(mFindRunnable);
+                mFindHandler.postDelayed(mFindRunnable, 500);
+                return true;
             }
-        }
+        });
+
+        item.setActionView(findView);
+
+        item.setOnActionExpandListener(new MenuItem.OnActionExpandListener() {
+            @Override public boolean onMenuItemActionExpand(MenuItem item) {
+                return true;
+            }
+
+            @Override public boolean onMenuItemActionCollapse(MenuItem item) {
+                item.setVisible(false);
+                findQuery = null;
+                findVisible = false;
+                setListFilter((String) null);
+
+                return true;
+            }
+        });
+
+        setFindVisibility(findVisible);
     }
 
     @Override
@@ -594,16 +587,11 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
     }
 
     public void showFind() {
-        mFindShown = true;
-        mFindQuery = null;
-        if (mActionMode != null) {
-            mActionMode.finish();
-        }
-        getActivity().invalidateOptionsMenu();
+        setFindVisibility(true);
     }
 
     public boolean isFindShown() {
-        return mFindShown;
+        return findVisible;
     }
 
     private void setActivatedPosition(int position) {
@@ -723,6 +711,28 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
         }
     }
 
+    private void setFindVisibility(boolean visible) {
+        MenuItem item = menu.findItem(R.id.find);
+        if (visible) {
+            if (mActionMode != null) {
+                mActionMode.finish();
+            }
+
+            findVisible = true;
+            findQuery = mSharedPrefs.getString(G.PREF_LIST_SEARCH, "");
+            item.setVisible(true);
+            item.expandActionView();
+
+            SearchView findView = (SearchView) item.getActionView();
+
+            if (!findQuery.equals("")) {
+                findView.setQuery(findQuery, false);
+            }
+        } else {
+            item.collapseActionView();
+        }
+    }
+
     private class TorrentListAdapter extends ArrayAdapter<Torrent> {
         private final Object mLock = new Object();
         private ArrayList<Torrent> mObjects = new ArrayList<Torrent>();
@@ -805,7 +815,7 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
             TextView status = (TextView) rowView.findViewById(R.id.status);
             TextView errorText = (TextView) rowView.findViewById(R.id.error_text);
 
-            if (mFindQuery != null && !mFindQuery.equals("")) {
+            if (findQuery != null && !findQuery.equals("")) {
                 if (torrent.getFilteredName() == null) {
                     name.setText(torrent.getName());
                 } else {

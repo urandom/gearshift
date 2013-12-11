@@ -241,7 +241,6 @@ android.support.v4.app.Fragment -> android.support.v4.app.Fragment:
     boolean isAdded() -> k
     boolean isDetached() -> l
     boolean isHidden() -> m
-    boolean hasOptionsMenu() -> n
     void onHiddenChanged(boolean) -> b
     void setHasOptionsMenu(boolean) -> c
     void setMenuVisibility(boolean) -> d
@@ -254,47 +253,47 @@ android.support.v4.app.Fragment -> android.support.v4.app.Fragment:
     void onCreate(android.os.Bundle) -> a
     android.view.View onCreateView(android.view.LayoutInflater,android.view.ViewGroup,android.os.Bundle) -> a
     void onViewCreated(android.view.View,android.os.Bundle) -> a
-    android.view.View getView() -> o
+    android.view.View getView() -> n
     void onActivityCreated(android.os.Bundle) -> d
     void onViewStateRestored(android.os.Bundle) -> h
     void onStart() -> c
-    void onResume() -> p
+    void onResume() -> o
     void onSaveInstanceState(android.os.Bundle) -> e
     void onConfigurationChanged(android.content.res.Configuration) -> onConfigurationChanged
-    void onPause() -> q
+    void onPause() -> p
     void onStop() -> d
     void onLowMemory() -> onLowMemory
     void onDestroyView() -> e
-    void onDestroy() -> r
-    void initState() -> s
+    void onDestroy() -> q
+    void initState() -> r
     void onDetach() -> b
     void onCreateOptionsMenu(android.view.Menu,android.view.MenuInflater) -> a
     void onPrepareOptionsMenu(android.view.Menu) -> a
-    void onDestroyOptionsMenu() -> t
+    void onDestroyOptionsMenu() -> s
     boolean onOptionsItemSelected(android.view.MenuItem) -> a
     void onOptionsMenuClosed(android.view.Menu) -> b
     void onCreateContextMenu(android.view.ContextMenu,android.view.View,android.view.ContextMenu$ContextMenuInfo) -> onCreateContextMenu
     boolean onContextItemSelected(android.view.MenuItem) -> b
     void dump(java.lang.String,java.io.FileDescriptor,java.io.PrintWriter,java.lang.String[]) -> a
-    void instantiateChildFragmentManager() -> u
+    void instantiateChildFragmentManager() -> t
     void performCreate(android.os.Bundle) -> i
     android.view.View performCreateView(android.view.LayoutInflater,android.view.ViewGroup,android.os.Bundle) -> b
     void performActivityCreated(android.os.Bundle) -> j
-    void performStart() -> v
-    void performResume() -> w
+    void performStart() -> u
+    void performResume() -> v
     void performConfigurationChanged(android.content.res.Configuration) -> a
-    void performLowMemory() -> x
+    void performLowMemory() -> w
     boolean performCreateOptionsMenu(android.view.Menu,android.view.MenuInflater) -> b
     boolean performPrepareOptionsMenu(android.view.Menu) -> c
     boolean performOptionsItemSelected(android.view.MenuItem) -> c
     boolean performContextItemSelected(android.view.MenuItem) -> d
     void performOptionsMenuClosed(android.view.Menu) -> d
     void performSaveInstanceState(android.os.Bundle) -> k
-    void performPause() -> y
-    void performStop() -> z
-    void performReallyStop() -> A
-    void performDestroyView() -> B
-    void performDestroy() -> C
+    void performPause() -> x
+    void performStop() -> y
+    void performReallyStop() -> z
+    void performDestroyView() -> A
+    void performDestroy() -> B
 android.support.v4.app.Fragment$1 -> android.support.v4.app.Fragment$1:
     android.support.v4.app.Fragment this$0 -> a
     android.view.View findViewById(int) -> a
@@ -605,7 +604,7 @@ android.support.v4.app.ListFragment -> android.support.v4.app.ListFragment:
     void setListAdapter(android.widget.ListAdapter) -> a
     android.widget.ListView getListView() -> a
     void setListShown(boolean,boolean) -> a
-    void ensureList() -> D
+    void ensureList() -> C
 android.support.v4.app.ListFragment$1 -> android.support.v4.app.ListFragment$1:
     android.support.v4.app.ListFragment this$0 -> a
     void run() -> run
@@ -8293,8 +8292,8 @@ org.sugr.gearshift.TorrentDetailPageFragment -> org.sugr.gearshift.TorrentDetail
     void onCreate(android.os.Bundle) -> a
     android.view.View onCreateView(android.view.LayoutInflater,android.view.ViewGroup,android.os.Bundle) -> a
     void onSaveInstanceState(android.os.Bundle) -> e
-    void onResume() -> p
-    void onPause() -> q
+    void onResume() -> o
+    void onPause() -> p
     void setTorrentProperty(java.lang.String,java.lang.Object) -> a
     void updateFields(android.view.View) -> a
     void invalidateFileActionMenu(android.view.Menu) -> e
@@ -8687,8 +8686,8 @@ org.sugr.gearshift.TorrentListFragment -> org.sugr.gearshift.TorrentListFragment
     void setListFilter(org.sugr.gearshift.G$SortOrder) -> a
     void setListDirectoryFilter(java.lang.String) -> b
     void setListTrackerFilter(java.lang.String) -> c
-    void showFind() -> D
-    boolean isFindShown() -> E
+    void showFind() -> C
+    boolean isFindShown() -> D
     void setActivatedPosition(int) -> c
     boolean showMoveDialog(int[]) -> a
     void updateStatus(java.util.List,org.sugr.gearshift.TransmissionSession) -> a
@@ -8822,16 +8821,16 @@ org.sugr.gearshift.TorrentListMenuFragment -> org.sugr.gearshift.TorrentListMenu
     boolean mFiltersChanged -> ad
     android.content.SharedPreferences$OnSharedPreferenceChangeListener mSharedPrefListener -> ae
     android.view.View onCreateView(android.view.LayoutInflater,android.view.ViewGroup,android.os.Bundle) -> a
-    void onResume() -> p
+    void onResume() -> o
     void notifyTorrentListChanged(java.util.List,int,boolean,boolean,boolean,boolean) -> a
     void setStatus(java.lang.Object[],java.lang.String) -> a
     void setActivatedPosition(int) -> b
     void fillMenuItems() -> a
-    void checkSelectedItems() -> D
+    void checkSelectedItems() -> C
     org.sugr.gearshift.TorrentListMenuFragment$ListItem getDirectoryItem(java.lang.String) -> a
-    int removeDirectoriesFilters() -> E
+    int removeDirectoriesFilters() -> D
     org.sugr.gearshift.TorrentListMenuFragment$ListItem getTrackerItem(java.lang.String) -> b
-    int removeTrackersFilters() -> F
+    int removeTrackersFilters() -> E
     boolean access$002(org.sugr.gearshift.TorrentListMenuFragment,boolean) -> a
     android.widget.ListView access$100(org.sugr.gearshift.TorrentListMenuFragment) -> a
     android.view.View access$200(org.sugr.gearshift.TorrentListMenuFragment) -> b

@@ -96,16 +96,16 @@ class G {
     public static enum FilterBy {
         ALL, DOWNLOADING, SEEDING, PAUSED, COMPLETE, INCOMPLETE,
         ACTIVE, CHECKING
-    };
+    }
 
     public static enum SortBy {
         NAME, SIZE, STATUS, RATE_DOWNLOAD, RATE_UPLOAD, AGE,
         PROGRESS, RATIO, ACTIVITY, LOCATION, PEERS, QUEUE
-    };
+    }
 
     public static enum SortOrder {
         ASCENDING, DESCENDING
-    };
+    }
 
     public static Comparator<String> SIMPLE_STRING_COMPARATOR = new Comparator<String>() {
         @Override
