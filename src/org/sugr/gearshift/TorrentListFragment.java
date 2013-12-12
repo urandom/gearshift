@@ -337,6 +337,8 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
                     }
                     if (savedInstanceState.containsKey(STATE_ACTIVATED_POSITION)) {
                         setActivatedPosition(savedInstanceState.getInt(STATE_ACTIVATED_POSITION));
+                    } else {
+                        setActivatedPosition(ListView.INVALID_POSITION);
                     }
                 }
             });
@@ -596,11 +598,7 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
     }
 
     private void setActivatedPosition(int position) {
-        if (position == ListView.INVALID_POSITION) {
-            getListView().setItemChecked(mActivatedPosition, false);
-        } else {
-            getListView().setItemChecked(position, true);
-        }
+        getListView().setItemChecked(position, position != ListView.INVALID_POSITION);
 
         mActivatedPosition = position;
     }

@@ -84,7 +84,7 @@ public class TorrentListActivity extends FragmentActivity
     private TransmissionProfileListAdapter mProfileAdapter;
 
     private boolean mAltSpeed = false;
-    private boolean mRefreshing = true;
+    private boolean mRefreshing = false;
 
     private boolean mPreventRefreshIndicator;
 
@@ -343,6 +343,8 @@ public class TorrentListActivity extends FragmentActivity
                             .replace(R.id.torrent_detail_container, fragment, G.DETAIL_FRAGMENT_TAG)
                             .commit();
                         manager.executePendingTransactions();
+                    } else {
+                        fragment.resetPagerAdapter();
                     }
 
                     fragment.onCreateOptionsMenu(menu, getMenuInflater());
@@ -378,7 +380,9 @@ public class TorrentListActivity extends FragmentActivity
             });
         }
 
-        if (savedInstanceState != null) {
+        if (savedInstanceState == null) {
+            mRefreshing = true;
+        } else {
             if (savedInstanceState.containsKey(STATE_INTENT_CONSUMED)) {
                 mIntentConsumed = savedInstanceState.getBoolean(STATE_INTENT_CONSUMED);
             }

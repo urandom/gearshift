@@ -87,7 +87,7 @@ public class TorrentDetailFragment extends Fragment implements TorrentListNotifi
         final View root = inflater.inflate(R.layout.fragment_torrent_detail, container, false);
 
         mPager = (ViewPager) root.findViewById(R.id.torrent_detail_pager);
-        mPager.setAdapter(new TorrentDetailPagerAdapter(getActivity()));
+        resetPagerAdapter();
         mPager.setOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
             @Override
             public void onPageSelected(int position) {
@@ -260,6 +260,10 @@ public class TorrentDetailFragment extends Fragment implements TorrentListNotifi
         }
     }
 
+    public void resetPagerAdapter() {
+        mPager.setAdapter(new TorrentDetailPagerAdapter(getActivity()));
+    }
+
     public void notifyTorrentListChanged(List<Torrent> all, int error, boolean added, boolean removed,
                                          boolean status, boolean metadata) {
         if (((TransmissionSessionInterface) getActivity()).getSession() == null) {
@@ -279,7 +283,7 @@ public class TorrentDetailFragment extends Fragment implements TorrentListNotifi
                 }
                 index++;
             }
-            mPager.setAdapter(new TorrentDetailPagerAdapter(getActivity()));
+            resetPagerAdapter();
             if (torrent != null) {
                 mPager.setCurrentItem(index);
             } else {
