@@ -474,7 +474,14 @@ public class TorrentListActivity extends FragmentActivity
     public void onItemSelected(Torrent torrent) {
         if (mTwoPane) {
             currentTorrentIndex = mTorrents.indexOf(torrent);
-            toggleRightPane(true);
+            if (!toggleRightPane(true)) {
+                TorrentDetailFragment fragment =
+                    (TorrentDetailFragment) getSupportFragmentManager().findFragmentByTag(
+                        G.DETAIL_FRAGMENT_TAG);
+                if (fragment != null) {
+                    fragment.setCurrentTorrent(currentTorrentIndex);
+                }
+            }
         } else {
             // In single-pane mode, simply start the detail activity
             // for the selected item ID.
@@ -641,9 +648,6 @@ public class TorrentListActivity extends FragmentActivity
             if (!mDetailPanelShown) {
                 mDetailPanelShown = true;
                 mDetailSlideAnimator.start();
-                mDrawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED,
-                        findViewById(R.id.sliding_menu_frame));
-                mDrawerToggle.setDrawerIndicatorEnabled(false);
 
                 Loader<TransmissionData> loader =
                         getSupportLoaderManager().getLoader(G.TORRENTS_LOADER_ID);
@@ -663,9 +667,6 @@ public class TorrentListActivity extends FragmentActivity
                     pager.setAlpha(0);
                     pager.setVisibility(View.GONE);
                 }
-                mDrawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED,
-                        findViewById(R.id.sliding_menu_frame));
-                mDrawerToggle.setDrawerIndicatorEnabled(true);
                 Loader<TransmissionData> loader = getSupportLoaderManager().getLoader(G.TORRENTS_LOADER_ID);
                 if (loader != null) {
                     ((TransmissionDataLoader) loader).setAllCurrentTorrents(false);

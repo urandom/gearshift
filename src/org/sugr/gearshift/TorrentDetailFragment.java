@@ -246,7 +246,18 @@ public class TorrentDetailFragment extends Fragment implements TorrentListNotifi
     }
 
     public void setCurrentTorrent(int position) {
-        mPager.setCurrentItem(position);
+        if (position == mPager.getCurrentItem()) {
+            if (position != mCurrentPosition) {
+                ArrayList<Torrent> torrents = ((TransmissionSessionInterface) getActivity()).getTorrents();
+
+                mCurrentPosition = position;
+                mCurrentTorrentId = torrents.size() > mCurrentPosition
+                    ? torrents.get(mCurrentPosition).getId()
+                    : -1;
+            }
+        } else {
+            mPager.setCurrentItem(position);
+        }
     }
 
     public void notifyTorrentListChanged(List<Torrent> all, int error, boolean added, boolean removed,

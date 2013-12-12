@@ -521,7 +521,7 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
                         statusChanged, metadataNeeded);
                 }
 
-                if (!filtered || statusChanged) {
+                if (((TorrentListActivity) getActivity()).isDetailPanelShown() && (!filtered || statusChanged)) {
                     TorrentDetailFragment detail = (TorrentDetailFragment) manager.findFragmentByTag(
                         G.DETAIL_FRAGMENT_TAG);
                     if (detail != null) {
@@ -1234,12 +1234,14 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
                 }
                 if (results.count > 0) {
                     context.setTorrents((ArrayList<Torrent>) results.values);
-                    FragmentManager manager = getActivity().getSupportFragmentManager();
-                    TorrentDetailFragment detail = (TorrentDetailFragment) manager.findFragmentByTag(
-                            G.DETAIL_FRAGMENT_TAG);
-                    if (detail != null) {
-                        detail.notifyTorrentListChanged(getUnfilteredItems(), 0, true,
-                            true, false, false);
+                    if (((TorrentListActivity) getActivity()).isDetailPanelShown()) {
+                        FragmentManager manager = getActivity().getSupportFragmentManager();
+                        TorrentDetailFragment detail = (TorrentDetailFragment) manager.findFragmentByTag(
+                                G.DETAIL_FRAGMENT_TAG);
+                        if (detail != null) {
+                            detail.notifyTorrentListChanged(getUnfilteredItems(), 0, true,
+                                true, false, false);
+                        }
                     }
                     notifyDataSetChanged();
                 } else {
