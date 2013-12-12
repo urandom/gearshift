@@ -207,8 +207,8 @@
     <string name="about_name">Gear Shift</string>
     <string name="app_icon">App icon</string>
     <string name="about_description">Gear Shift is a Transmission remote client, created to provide a great experience when dealing with all aspects of torrent management.</string>
-    <string name="about_contact">If you find any bugs, please write a post in the <![CDATA[<a href="https://plus.google.com/communities/115768021623513120266">Gear Shift G+ community</a>]]>, filed under bugs. Doing so will also show other people whether the bug has been reported already. Be sure to turn on the \'Debug\' options under \'General Settings\', and include the logcat related to the app.</string>
-    <string name="about_donation">This app is provided for free, without any annoying ads. If you find it useful, consider <![CDATA[<a href="https://www.paypal.com/bg/cgi-bin/webscr?cmd=_donations&business=support@sugr.org&lc=US&item_name=Gear Shift&no_note=1&no_shipping=1&currency_code=EUR">sending a beer or two this way</a>]]>.</string>
+    <string name="about_contact">If you find any bugs, please write a post in the <![CDATA[<a href="%1$s">Gear Shift G+ community</a>]]>, filed under bugs. Doing so will also show other people whether the bug has been reported already. Be sure to turn on the \'Debug\' options under \'General Settings\', and include the logcat related to the app.</string>
+    <string name="about_donation">This app is provided for free, without any annoying ads. If you find it useful, consider <![CDATA[<a href="%1$s">sending a beer or two this way</a>]]>.</string>
     
     <string name="ic_menu_select_all">Select All</string>
     
