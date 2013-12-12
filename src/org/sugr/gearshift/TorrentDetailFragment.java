@@ -62,12 +62,12 @@ public class TorrentDetailFragment extends Fragment implements TorrentListNotifi
             if (mCurrentPosition < 0) {
                 mCurrentPosition = 0;
             }
-            ArrayList<Torrent> torrents = ((TransmissionSessionInterface) getActivity()).getTorrents();
-            mCurrentTorrentId = torrents.size() > mCurrentPosition
-                ? torrents.get(mCurrentPosition).getId()
-                : -1;
             setHasOptionsMenu(true);
         }
+        ArrayList<Torrent> torrents = ((TransmissionSessionInterface) getActivity()).getTorrents();
+        mCurrentTorrentId = torrents.size() > mCurrentPosition
+            ? torrents.get(mCurrentPosition).getId()
+            : -1;
         if (savedInstanceState != null) {
             if (savedInstanceState.containsKey(STATE_LOCATION_POSITION)) {
                 mLocationPosition = savedInstanceState.getInt(STATE_LOCATION_POSITION);

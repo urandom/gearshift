@@ -521,7 +521,7 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
                         statusChanged, metadataNeeded);
                 }
 
-                if (!filtered) {
+                if (!filtered || statusChanged) {
                     TorrentDetailFragment detail = (TorrentDetailFragment) manager.findFragmentByTag(
                         G.DETAIL_FRAGMENT_TAG);
                     if (detail != null) {
