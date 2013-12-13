@@ -96,6 +96,8 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
 
     private Menu menu;
 
+    private int currentTorrentId;
+
     /**
      * A callback interface that all activities containing this fragment must
      * implement. This mechanism allows activities to be notified of item
@@ -482,6 +484,15 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
         }
 
         boolean filtered = false;
+
+        currentTorrentId = -1;
+        if (mChoiceMode == ListView.CHOICE_MODE_SINGLE && error == 0 && statusChanged
+                && getListView().getCheckedItemPosition() != ListView.INVALID_POSITION) {
+            Torrent torrent = mTorrentListAdapter.getItem(getListView().getCheckedItemPosition());
+            if (torrent != null) {
+                currentTorrentId = torrent.getId();
+            }
+        }
 
         if (torrents.size() > 0 || error > 0 || mTorrentListAdapter.getUnfilteredCount() > 0) {
              /* The notifyDataSetChanged method sets this to true */
@@ -1246,6 +1257,17 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
                         }
                     }
                     notifyDataSetChanged();
+                    if (currentTorrentId > -1) {
+                        int position = 0;
+                        for (Torrent torrent : mObjects) {
+                            if (torrent.getId() == currentTorrentId) {
+                                getListView().setItemChecked(position, true);
+                                break;
+                            }
+                            ++position;
+                        }
+                        currentTorrentId = -1;
+                    }
                 } else {
                     if (mTorrentListAdapter.getUnfilteredCount() == 0) {
                         setEmptyText(R.string.no_torrents_empty_list);
