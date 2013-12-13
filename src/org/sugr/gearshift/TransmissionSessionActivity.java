@@ -1302,6 +1302,7 @@ class TransmissionSessionLoader extends AsyncTaskLoader<TransmissionData> {
 
 
     private int mLastError;
+    private int lastErrorCode;
 
     public TransmissionSessionLoader(Context context, TransmissionProfile profile) {
         super(context);
@@ -1325,10 +1326,11 @@ class TransmissionSessionLoader extends AsyncTaskLoader<TransmissionData> {
 
         if (mLastError > 0) {
             mLastError = 0;
+            lastErrorCode = 0;
         }
         if (!mSessManager.hasConnectivity()) {
             mLastError = TransmissionData.Errors.NO_CONNECTIVITY;
-            return new TransmissionData(null, mLastError);
+            return new TransmissionData(null, mLastError, 0);
         }
 
         G.logD("Fetching data");
@@ -1357,7 +1359,7 @@ class TransmissionSessionLoader extends AsyncTaskLoader<TransmissionData> {
             return handleError(e);
         }
 
-        return new TransmissionData(session, mLastError);
+        return new TransmissionData(session, mLastError, lastErrorCode);
     }
 
     @Override
@@ -1379,6 +1381,7 @@ class TransmissionSessionLoader extends AsyncTaskLoader<TransmissionData> {
 
         G.logD("Got an error while fetching data: " + e.getMessage() + " and this code: " + e.getCode());
 
+        lastErrorCode = e.getCode();
         switch(e.getCode()) {
             case 401:
             case 403:
@@ -1405,7 +1408,7 @@ class TransmissionSessionLoader extends AsyncTaskLoader<TransmissionData> {
                 break;
         }
 
-        return new TransmissionData(null, mLastError);
+        return new TransmissionData(null, mLastError, lastErrorCode);
     }
 }
 
