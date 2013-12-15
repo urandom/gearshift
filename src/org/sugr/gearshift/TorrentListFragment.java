@@ -261,7 +261,9 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
                     if (key.equals(G.PREF_BASE_SORT_ORDER) || key.equals(G.PREF_BASE_SORT_ORDER)) {
                         mTorrentListAdapter.resetBaseSort();
                     } else if (key.equals(G.PREF_PROFILES)) {
-                        ((TransmissionSessionInterface) getActivity()).setRefreshing(true);
+                        if (getActivity() != null) {
+                            ((TransmissionSessionInterface) getActivity()).setRefreshing(true);
+                        }
                     } else if (key.equals(G.PREF_CURRENT_PROFILE)) {
                         if (prefs.getString(key, null) == null) {
                             setEmptyText(R.string.no_profiles_empty_list);
