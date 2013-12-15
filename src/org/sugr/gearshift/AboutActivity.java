@@ -20,12 +20,15 @@ public class AboutActivity extends FragmentActivity {
         } catch (NameNotFoundException e) {
             G.logE("Error getting the app version", e);
         }
+
         TextView contact = (TextView) findViewById(R.id.about_contact);
-        contact.setText(Html.fromHtml(getString(R.string.about_contact)));
+        contact.setText(Html.fromHtml(String.format(getString(R.string.about_contact),
+            "https://plus.google.com/communities/115768021623513120266")));
         contact.setMovementMethod(LinkMovementMethod.getInstance());
 
         TextView donation = (TextView) findViewById(R.id.about_donation);
-        donation.setText(Html.fromHtml(getString(R.string.about_donation)));
+        donation.setText(Html.fromHtml(String.format(getString(R.string.about_donation),
+            "https://www.paypal.com/bg/cgi-bin/webscr?cmd=_donations&business=support@sugr.org&lc=US&item_name=Gear Shift&no_note=1&no_shipping=1&currency_code=EUR")));
         donation.setMovementMethod(LinkMovementMethod.getInstance());
     }
 }

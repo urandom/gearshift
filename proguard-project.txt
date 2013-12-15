@@ -19,6 +19,10 @@
 #   public *;
 #}
 
+# Keep line numbers
+-renamesourcefileattribute SourceFile    
+-keepattributes SourceFile,LineNumberTable
+
 -optimizationpasses 5
 -dontusemixedcaseclassnames
 -dontskipnonpubliclibraryclasses

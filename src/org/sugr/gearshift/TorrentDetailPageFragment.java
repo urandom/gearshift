@@ -322,7 +322,7 @@ public class TorrentDetailPageFragment extends Fragment {
         @Override
         public void onReceive(Context context, Intent intent) {
             int index = intent.getIntExtra(G.ARG_TORRENT_INDEX, -1);
-            if (index != -1) {
+            if (index != -1 && mTorrent != null) {
                 Torrent[] currentTorrents = ((TransmissionSessionInterface) getActivity()).getCurrentTorrents();
 
                 if (currentTorrents.length > index) {

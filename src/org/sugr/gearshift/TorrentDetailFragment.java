@@ -23,6 +23,7 @@ import java.util.List;
 
 public class TorrentDetailFragment extends Fragment implements TorrentListNotification {
     public static final String ARG_SHOW_PAGER = "show_pager";
+
     public interface PagerCallbacks {
         public void onPageSelected(int position);
     }
@@ -38,6 +39,8 @@ public class TorrentDetailFragment extends Fragment implements TorrentListNotifi
     private int mLocationPosition = AdapterView.INVALID_POSITION;
 
     private int[] mActionMoveIds;
+
+    private Menu menu;
 
     private static PagerCallbacks sDummyCallbacks = new PagerCallbacks() {
         @Override
@@ -59,11 +62,12 @@ public class TorrentDetailFragment extends Fragment implements TorrentListNotifi
             if (mCurrentPosition < 0) {
                 mCurrentPosition = 0;
             }
-            ArrayList<Torrent> torrents = ((TransmissionSessionInterface) getActivity()).getTorrents();
-            mCurrentTorrentId = torrents.size() > mCurrentPosition
-                ? torrents.get(mCurrentPosition).getId()
-                : -1;
+            setHasOptionsMenu(true);
         }
+        ArrayList<Torrent> torrents = ((TransmissionSessionInterface) getActivity()).getTorrents();
+        mCurrentTorrentId = torrents.size() > mCurrentPosition
+            ? torrents.get(mCurrentPosition).getId()
+            : -1;
         if (savedInstanceState != null) {
             if (savedInstanceState.containsKey(STATE_LOCATION_POSITION)) {
                 mLocationPosition = savedInstanceState.getInt(STATE_LOCATION_POSITION);
@@ -75,8 +79,6 @@ public class TorrentDetailFragment extends Fragment implements TorrentListNotifi
                 }
             }
         }
-
-        setHasOptionsMenu(true);
     }
 
     @Override
@@ -85,7 +87,7 @@ public class TorrentDetailFragment extends Fragment implements TorrentListNotifi
         final View root = inflater.inflate(R.layout.fragment_torrent_detail, container, false);
 
         mPager = (ViewPager) root.findViewById(R.id.torrent_detail_pager);
-        mPager.setAdapter(new TorrentDetailPagerAdapter(getActivity()));
+        resetPagerAdapter();
         mPager.setOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
             @Override
             public void onPageSelected(int position) {
@@ -103,7 +105,7 @@ public class TorrentDetailFragment extends Fragment implements TorrentListNotifi
                     : -1;
 
                 mCallbacks.onPageSelected(position);
-                getActivity().invalidateOptionsMenu();
+                setMenuTorrentState();
             }
         });
 
@@ -144,37 +146,11 @@ public class TorrentDetailFragment extends Fragment implements TorrentListNotifi
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         super.onCreateOptionsMenu(menu, inflater);
 
-        if (((TransmissionSessionInterface) getActivity()).getSession() == null) {
-            return;
-        }
+        this.menu = menu;
 
-        if (!(getActivity() instanceof TorrentListActivity)
-                || ((TorrentListActivity) getActivity()).isDetailPanelShown()) {
-            inflater.inflate(R.menu.torrent_detail_fragment, menu);
+        inflater.inflate(R.menu.torrent_detail_fragment, menu);
 
-            ArrayList<Torrent> torrents = ((TransmissionSessionInterface) getActivity()).getTorrents();
-            Torrent torrent = mCurrentPosition < torrents.size()
-                ? torrents.get(mCurrentPosition)
-                : null;
-
-            boolean resumeState = false;
-            boolean pauseState = false;
-            if (torrent != null) {
-                if (torrent.isActive()) {
-                    resumeState = false;
-                    pauseState = true;
-                } else {
-                    resumeState = true;
-                    pauseState = false;
-                }
-            }
-
-            MenuItem item = menu.findItem(R.id.resume);
-            item.setVisible(resumeState).setEnabled(resumeState);
-
-            item = menu.findItem(R.id.pause);
-            item.setVisible(pauseState).setEnabled(pauseState);
-        }
+        setMenuTorrentState();
     }
 
     @Override
@@ -240,7 +216,7 @@ public class TorrentDetailFragment extends Fragment implements TorrentListNotifi
                 ((TransmissionDataLoader) loader).setTorrentsAction("torrent-reannounce", ids);
                 break;
             default:
-                return true;
+                return false;
         }
 
         context.setRefreshing(true);
@@ -255,14 +231,49 @@ public class TorrentDetailFragment extends Fragment implements TorrentListNotifi
         outState.putIntArray(STATE_ACTION_MOVE_IDS, mActionMoveIds);
     }
 
+    public void removeMenuEntries() {
+        if (menu == null) {
+            return;
+        }
+
+        menu.removeItem(R.id.resume);
+        menu.removeItem(R.id.pause);
+        menu.removeItem(R.id.remove);
+        menu.removeItem(R.id.delete);
+        menu.removeItem(R.id.move);
+        menu.removeItem(R.id.verify);
+        menu.removeItem(R.id.reannounce);
+    }
+
     public void setCurrentTorrent(int position) {
-        mPager.setCurrentItem(position);
+        if (position == mPager.getCurrentItem()) {
+            if (position != mCurrentPosition) {
+                ArrayList<Torrent> torrents = ((TransmissionSessionInterface) getActivity()).getTorrents();
+
+                mCurrentPosition = position;
+                mCurrentTorrentId = torrents.size() > mCurrentPosition
+                    ? torrents.get(mCurrentPosition).getId()
+                    : -1;
+            }
+        } else {
+            mPager.setCurrentItem(position);
+        }
+    }
+
+    public void resetPagerAdapter() {
+        mPager.setAdapter(new TorrentDetailPagerAdapter(getActivity()));
     }
 
     public void notifyTorrentListChanged(List<Torrent> all, int error, boolean added, boolean removed,
                                          boolean status, boolean metadata) {
+        if (((TransmissionSessionInterface) getActivity()).getSession() == null) {
+            setMenuTorrentState();
+            return;
+        }
+
         List<Torrent> torrents = ((TransmissionSessionInterface) getActivity()).getTorrents();
         Torrent torrent = null;
+        boolean updateMenu = status;
         if (removed || added) {
             int index = 0;
             for (Torrent t : torrents) {
@@ -272,16 +283,17 @@ public class TorrentDetailFragment extends Fragment implements TorrentListNotifi
                 }
                 index++;
             }
-            mPager.setAdapter(new TorrentDetailPagerAdapter(getActivity()));
+            resetPagerAdapter();
             if (torrent != null) {
                 mPager.setCurrentItem(index);
             } else {
+                updateMenu = true;
                 mCallbacks.onPageSelected(mPager.getCurrentItem());
             }
         }
 
-        if (status) {
-            getActivity().invalidateOptionsMenu();
+        if (updateMenu) {
+            setMenuTorrentState();
         }
 
         if (mCurrentPosition != -1) {
@@ -298,6 +310,41 @@ public class TorrentDetailFragment extends Fragment implements TorrentListNotifi
             }
 
         }
+    }
+
+    private void setMenuTorrentState() {
+        if (menu == null || getActivity() == null || menu.findItem(R.id.remove) == null) {
+            return;
+        }
+        boolean visible = ((TransmissionSessionInterface) getActivity()).getSession() != null;
+        menu.findItem(R.id.remove).setVisible(visible);
+        menu.findItem(R.id.delete).setVisible(visible);
+        menu.findItem(R.id.move).setVisible(visible);
+        menu.findItem(R.id.verify).setVisible(visible);
+        menu.findItem(R.id.reannounce).setVisible(visible);
+
+        ArrayList<Torrent> torrents = ((TransmissionSessionInterface) getActivity()).getTorrents();
+        Torrent torrent = mCurrentPosition < torrents.size()
+            ? torrents.get(mCurrentPosition)
+            : null;
+
+        boolean resumeState = false;
+        boolean pauseState = false;
+        if (torrent != null) {
+            if (torrent.isActive()) {
+                resumeState = false;
+                pauseState = true;
+            } else {
+                resumeState = true;
+                pauseState = false;
+            }
+        }
+
+        MenuItem item = menu.findItem(R.id.resume);
+        item.setVisible(resumeState).setEnabled(resumeState);
+
+        item = menu.findItem(R.id.pause);
+        item.setVisible(pauseState).setEnabled(pauseState);
     }
 
     private boolean showMoveDialog(final int[] ids) {

@@ -1,49 +1,41 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android" >
     <item android:id="@+id/resume"
-	    android:title="@string/resume"
-	    android:icon="@drawable/ic_action_play"
-	    android:menuCategory="system"
-	    android:orderInCategory="10"
-	    android:showAsAction="ifRoom" />
-    
+        android:title="@string/resume"
+        android:icon="@drawable/ic_action_play"
+        android:showAsAction="ifRoom" />
+
     <item android:id="@+id/pause"
-	    android:title="@string/pause"
-	    android:icon="@drawable/ic_action_pause"
-	    android:menuCategory="system"
-	    android:orderInCategory="10"
-	    android:showAsAction="ifRoom" />
-    
+        android:title="@string/pause"
+        android:icon="@drawable/ic_action_pause"
+        android:showAsAction="ifRoom" />
+
     <item android:id="@+id/remove"
-	    android:title="@string/remove"
-	    android:icon="@drawable/ic_action_cancel"
-	    android:menuCategory="system"
-	    android:orderInCategory="10"
-	    android:showAsAction="ifRoom" />
-    
-	<item android:id="@+id/delete"
-	    android:title="@string/remove_data"
-	    android:icon="@drawable/ic_action_discard"
-	    android:menuCategory="system"
-	    android:orderInCategory="10"
-	    android:showAsAction="ifRoom" />
-	
-	<item android:id="@+id/move"
-	    android:title="@string/move"
-	    android:icon="@drawable/ic_action_forward"
-	    android:menuCategory="system"
-	    android:orderInCategory="10"
-	    android:showAsAction="ifRoom" />
+        android:title="@string/remove"
+        android:icon="@drawable/ic_action_cancel"
+        android:showAsAction="ifRoom" />
 
-	<item android:id="@+id/verify"
-	    android:title="@string/verify"
-	    android:menuCategory="system"
-	    android:orderInCategory="10"
-	    android:showAsAction="never" />
+    <item android:id="@+id/delete"
+        android:title="@string/remove_data"
+        android:icon="@drawable/ic_action_discard"
+        android:showAsAction="ifRoom" />
 
-	<item android:id="@+id/reannounce"
-	    android:title="@string/reannounce"
-	    android:menuCategory="system"
-	    android:orderInCategory="10"
-	    android:showAsAction="never" />
+    <item android:id="@+id/move"
+        android:title="@string/move"
+        android:icon="@drawable/ic_action_forward"
+        android:menuCategory="system"
+        android:orderInCategory="10"
+        android:showAsAction="ifRoom" />
+
+    <item android:id="@+id/verify"
+        android:title="@string/verify"
+        android:menuCategory="system"
+        android:orderInCategory="10"
+        android:showAsAction="never" />
+
+    <item android:id="@+id/reannounce"
+        android:title="@string/reannounce"
+        android:menuCategory="system"
+        android:orderInCategory="10"
+        android:showAsAction="never" />
 </menu>

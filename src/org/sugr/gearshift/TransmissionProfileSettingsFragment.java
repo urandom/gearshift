@@ -108,7 +108,7 @@ public class TransmissionProfileSettingsFragment extends BasePreferenceFragment 
             });
             actionBar.setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM,
                     ActionBar.DISPLAY_SHOW_CUSTOM | ActionBar.DISPLAY_SHOW_HOME |
-                    ActionBar.DISPLAY_SHOW_TITLE);
+                    ActionBar.DISPLAY_SHOW_TITLE | ActionBar.DISPLAY_HOME_AS_UP);
             actionBar.setCustomView(customActionBarView);
         }
     }

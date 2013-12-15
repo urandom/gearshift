@@ -19,6 +19,7 @@ class TransmissionData {
     public TransmissionSession session = null;
     public ArrayList<Torrent> torrents = new ArrayList<Torrent>();
     public int error = 0;
+    public int errorCode = 0;
     public String errorMessage;
     public boolean hasRemoved = false;
     public boolean hasAdded = false;
@@ -37,11 +38,13 @@ class TransmissionData {
         public static final int INVALID_TORRENT = 1 << 8;
         public static final int TIMEOUT = 1 << 9;
         public static final int OUT_OF_MEMORY = 1 << 10;
+        public static final int JSON_PARSE_ERROR = 1 << 11;
     }
 
-    public TransmissionData(TransmissionSession session, int error) {
+    public TransmissionData(TransmissionSession session, int error, int errorCode) {
         this.session = session;
         this.error = error;
+        this.errorCode = errorCode;
     }
 
     public TransmissionData(TransmissionSession session,
@@ -68,6 +71,7 @@ public class TransmissionDataLoader extends AsyncTaskLoader<TransmissionData> {
 
     private TransmissionSession mSession;
     private int mLastError;
+    private int lastErrorCode;
 
     private TransmissionSessionManager mSessManager;
     private Torrent[] mCurrentTorrents;
@@ -229,6 +233,7 @@ public class TransmissionDataLoader extends AsyncTaskLoader<TransmissionData> {
 
         if (mLastError > 0) {
             mLastError = 0;
+            lastErrorCode = 0;
             hasAdded = true;
         }
 
@@ -244,7 +249,7 @@ public class TransmissionDataLoader extends AsyncTaskLoader<TransmissionData> {
             mLastError = TransmissionData.Errors.NO_CONNECTIVITY;
             mSession = null;
             mStopUpdates = true;
-            return new TransmissionData(mSession, mLastError);
+            return new TransmissionData(mSession, mLastError, 0);
         }
 
         G.logD("Fetching data");
@@ -578,7 +583,7 @@ public class TransmissionDataLoader extends AsyncTaskLoader<TransmissionData> {
         mStopUpdates = false;
         if (mLastError > 0) {
             mSession = null;
-            deliverResult(new TransmissionData(mSession, mLastError));
+            deliverResult(new TransmissionData(mSession, mLastError, lastErrorCode));
         } else if (mTorrentMap.size() > 0) {
             deliverResult(new TransmissionData(mSession, convertSparseArray(mTorrentMap),
                 false, false, false, false));
@@ -642,6 +647,7 @@ public class TransmissionDataLoader extends AsyncTaskLoader<TransmissionData> {
 
         G.logD("Got an error while fetching data: " + e.getMessage() + " and this code: " + e.getCode());
 
+        lastErrorCode = e.getCode();
         switch(e.getCode()) {
             case 401:
             case 403:
@@ -678,13 +684,18 @@ public class TransmissionDataLoader extends AsyncTaskLoader<TransmissionData> {
                 mLastError = TransmissionData.Errors.OUT_OF_MEMORY;
                 mSession = null;
                 break;
+            case -4:
+                mLastError = TransmissionData.Errors.JSON_PARSE_ERROR;
+                mSession = null;
+                G.logE("JSON parse error!", e);
+                break;
             default:
                 mLastError = TransmissionData.Errors.GENERIC_HTTP;
                 mSession = null;
                 break;
         }
 
-        return new TransmissionData(mSession, mLastError);
+        return new TransmissionData(mSession, mLastError, lastErrorCode);
     }
 
     private TransmissionData handleError(InterruptedException e) {
@@ -694,7 +705,7 @@ public class TransmissionDataLoader extends AsyncTaskLoader<TransmissionData> {
         G.logE("Got an error when processing the threads", e);
 
         mSession = null;
-        return new TransmissionData(mSession, mLastError);
+        return new TransmissionData(mSession, mLastError, 0);
     }
 
     private ArrayList<Torrent> convertSparseArray(SparseArray<Torrent> array) {
