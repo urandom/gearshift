@@ -37,6 +37,7 @@ class TransmissionData {
         public static final int INVALID_TORRENT = 1 << 8;
         public static final int TIMEOUT = 1 << 9;
         public static final int OUT_OF_MEMORY = 1 << 10;
+        public static final int JSON_PARSE_ERROR = 1 << 11;
     }
 
     public TransmissionData(TransmissionSession session, int error, int errorCode) {
@@ -701,6 +702,11 @@ public class TransmissionDataLoader extends AsyncTaskLoader<TransmissionData> {
             case -3:
                 mLastError = TransmissionData.Errors.OUT_OF_MEMORY;
                 mSession = null;
+                break;
+            case -4:
+                mLastError = TransmissionData.Errors.JSON_PARSE_ERROR;
+                mSession = null;
+                G.logE("JSON parse error!", e);
                 break;
             default:
                 mLastError = TransmissionData.Errors.GENERIC_HTTP;

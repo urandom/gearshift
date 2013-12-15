@@ -124,6 +124,7 @@
     <string name="response_error_empty_list">&lt;h2&gt;&lt;font color="#cc0000"&gt;Transmission daemon error!&lt;/font&gt;&lt;/h2&gt;A request to the daemon was not successful. See the logcat for more details.</string>
     <string name="timeout_empty_list"><![CDATA[<h2><font color="#cc0000>Connection timeout!</font></h2>]]></string>
     <string name="out_of_memory_empty_list"><![CDATA[<h2><font color="#cc0000>Out of memory!</font></h2>]]></string>
+    <string name="json_parse_empty_list"><![CDATA[<h2><font color="#cc0000>Unexpected server response!</font></h2>]]>This isn't the response we are looking for.</string>
     
     <string name="traffic_downloading_format">%1$s of %2$s (%3$s)%4$s</string>
     <string name="traffic_downloading_percentage_format">%1$s%%</string>

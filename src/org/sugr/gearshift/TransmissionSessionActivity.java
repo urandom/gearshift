@@ -78,6 +78,10 @@ public class TransmissionSessionActivity extends FragmentActivity {
                         text.setText(Html.fromHtml(getString(R.string.response_error_empty_list)));
                     } else if (data.error == TransmissionData.Errors.TIMEOUT) {
                         text.setText(Html.fromHtml(getString(R.string.timeout_empty_list)));
+                    } else if (data.error == TransmissionData.Errors.OUT_OF_MEMORY) {
+                        text.setText(Html.fromHtml(getString(R.string.out_of_memory_empty_list)));
+                    } else if (data.error == TransmissionData.Errors.JSON_PARSE_ERROR) {
+                        text.setText(Html.fromHtml(getString(R.string.json_parse_empty_list)));
                     }
                 }
             } else {
@@ -1402,6 +1406,13 @@ class TransmissionSessionLoader extends AsyncTaskLoader<TransmissionData> {
             case -2:
                 mLastError = TransmissionData.Errors.RESPONSE_ERROR;
                 G.logE("Transmission Daemon Error!", e);
+                break;
+            case -3:
+                mLastError = TransmissionData.Errors.OUT_OF_MEMORY;
+                break;
+            case -4:
+                mLastError = TransmissionData.Errors.JSON_PARSE_ERROR;
+                G.logE("JSON parse error!", e);
                 break;
             default:
                 mLastError = TransmissionData.Errors.GENERIC_HTTP;

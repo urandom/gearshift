@@ -90,6 +90,8 @@ public class TorrentDetailActivity extends FragmentActivity implements Transmiss
                         text.setText(Html.fromHtml(getString(R.string.timeout_empty_list)));
                     } else if (data.error == TransmissionData.Errors.OUT_OF_MEMORY) {
                         text.setText(Html.fromHtml(getString(R.string.out_of_memory_empty_list)));
+                    } else if (data.error == TransmissionData.Errors.JSON_PARSE_ERROR) {
+                        text.setText(Html.fromHtml(getString(R.string.json_parse_empty_list)));
                     }
                 }
             } else {
