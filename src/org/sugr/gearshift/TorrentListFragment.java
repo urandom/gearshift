@@ -330,6 +330,9 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
             new Handler().post(new Runnable() {
                 @Override
                 public void run() {
+                    if (getActivity() == null) {
+                        return;
+                    }
                     if (savedInstanceState.containsKey(STATE_TORRENTS)) {
                         mTorrentListAdapter.setNotifyOnChange(false);
                         ArrayList<Torrent> torrents = savedInstanceState.getParcelableArrayList(STATE_TORRENTS);
@@ -1103,6 +1106,8 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
                 if (prefix == null) {
                     prefix = "";
                 }
+
+                G.logD("Filter: prefix (" + prefix + "), filter: (" + mFilterBy.name() + "), directory (" + mDirectory + "), sort (" + mSortBy.name() + ") " + mSortOrder.name());
 
                 if (prefix.length() == 0 && mFilterBy == FilterBy.ALL
                         && mDirectory == null && mTracker == null) {
