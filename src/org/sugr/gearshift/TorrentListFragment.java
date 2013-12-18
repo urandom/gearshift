@@ -278,6 +278,9 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
     private Handler mFindHandler = new Handler();
     private Runnable mFindRunnable = new Runnable() {
         @Override public void run() {
+            if (getActivity() == null) {
+                return;
+            }
             G.logD("Search query " + findQuery);
             setListFilter(findQuery);
         }
