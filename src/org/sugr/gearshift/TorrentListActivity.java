@@ -210,7 +210,7 @@ public class TorrentListActivity extends FragmentActivity
                     } else {
                         error.setVisibility(View.VISIBLE);
                         TextView text = (TextView) findViewById(R.id.transmission_error);
-                        setProfile(null);
+                        toggleRightPane(false);
 
                         if (data.error == TransmissionData.Errors.NO_CONNECTIVITY) {
                             text.setText(Html.fromHtml(getString(R.string.no_connectivity_empty_list)));
@@ -733,7 +733,6 @@ public class TorrentListActivity extends FragmentActivity
         return mTorrents.toArray(new Torrent[mTorrents.size()]);
     }
 
-    @Override
     public void setProfile(TransmissionProfile profile) {
         mProfile = profile;
         toggleRightPane(false);

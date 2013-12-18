@@ -293,11 +293,6 @@ public class TorrentDetailActivity extends FragmentActivity implements Transmiss
     }
 
     @Override
-    public void setProfile(TransmissionProfile profile) {
-        mProfile = profile;
-    }
-
-    @Override
     public TransmissionProfile getProfile() {
         return mProfile;
     }
