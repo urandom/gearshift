@@ -96,14 +96,17 @@ public class DataSource {
         }
     }
 
-    public void updateTorrents(JsonParser parser) throws IOException {
+    public TorrentStatus updateTorrents(JsonParser parser) throws IOException {
         if (!isOpen())
-            return;
+            return null;
 
         database.beginTransaction();
 
         try {
             SparseArray<Boolean> trackers = new SparseArray<Boolean>();
+
+            int[] idChanges = queryTorrentIdChanges();
+            int[] status = queryStatusCount();
 
             while (parser.nextToken() != JsonToken.END_ARRAY) {
                 TorrentValues values = jsonToTorrentValues(parser);
@@ -149,6 +152,34 @@ public class DataSource {
             }
 
             database.setTransactionSuccessful();
+
+            int[] updatedIdChanges = queryTorrentIdChanges();
+            int[] updatedStatus = queryStatusCount();
+
+            boolean added = false, removed = false, statusChanged = false;
+            boolean incompleteMetadata = queryIncompleteMetadata();
+
+            if (idChanges != null && updatedIdChanges != null) {
+                added = idChanges[0] < updatedIdChanges[0];
+                removed = idChanges[0] > updatedIdChanges[0] || idChanges[1] < updatedIdChanges[1];
+
+                if (added || removed) {
+                    statusChanged = true;
+                }
+            }
+
+            if (status != null && updatedStatus != null && status.length == updatedStatus.length) {
+                for (int i = 0; i < status.length && !statusChanged; ++i) {
+                    statusChanged = status[i] != updatedStatus[i];
+                }
+            }
+
+            return new TorrentStatus(
+                added,
+                removed,
+                statusChanged,
+                incompleteMetadata
+            );
         } finally {
             database.endTransaction();
         }
@@ -1349,5 +1380,90 @@ public class DataSource {
         }
 
         return values;
+    }
+
+    protected int[] queryTorrentIdChanges() {
+        Cursor cursor = null;
+        try {
+            cursor = database.rawQuery(
+                "SELECT max("
+                + Constants.C_TORRENT_ID
+                + "), count("
+                + Constants.C_TORRENT_ID
+                + ") FROM " + Constants.T_TORRENT, null
+            );
+
+            cursor.moveToFirst();
+
+            return new int [] { cursor.getInt(0), cursor.getInt(1) };
+        } finally {
+            if (cursor != null)
+                cursor.close();
+        }
+    }
+
+    protected int[] queryStatusCount() {
+        Cursor cursor = null;
+        try {
+            cursor = database.rawQuery(
+                "SELECT count(CASE WHEN "
+                    + Constants.C_STATUS + " = "
+                    + Torrent.Status.CHECK_WAITING
+                    + " THEN 1 ELSE NULL END), count(CASE WHEN "
+                    + Constants.C_STATUS + " = "
+                    + Torrent.Status.CHECKING
+                    + " THEN 1 ELSE NULL END), count(CASE WHEN "
+                    + Constants.C_STATUS + " = "
+                    + Torrent.Status.DOWNLOAD_WAITING
+                    + " THEN 1 ELSE NULL END), count(CASE WHEN "
+                    + Constants.C_STATUS + " = "
+                    + Torrent.Status.DOWNLOADING
+                    + " THEN 1 ELSE NULL END), count(CASE WHEN "
+                    + Constants.C_STATUS + " = "
+                    + Torrent.Status.SEED_WAITING
+                    + " THEN 1 ELSE NULL END), count(CASE WHEN "
+                    + Constants.C_STATUS + " = "
+                    + Torrent.Status.SEEDING
+                    + " THEN 1 ELSE NULL END), count(CASE WHEN "
+                    + Constants.C_STATUS + " = "
+                    + Torrent.Status.STOPPED
+                    + " THEN 1 ELSE NULL END) FROM " + Constants.T_TORRENT, null
+            );
+
+            cursor.moveToFirst();
+
+            return new int[] { cursor.getInt(0), cursor.getInt(1), cursor.getInt(2),
+                cursor.getInt(3), cursor.getInt(4), cursor.getInt(5), cursor.getInt(6) };
+        } finally {
+            if (cursor != null)
+                cursor.close();
+        }
+    }
+
+    protected boolean queryIncompleteMetadata() {
+        Cursor cursor = null;
+        try {
+            cursor = database.rawQuery(
+                "SELECT count(CASE WHEN "
+                    + Constants.C_TOTAL_SIZE
+                    + " = 0 AND ("
+                    + Constants.C_STATUS + " = "
+                    + Torrent.Status.CHECKING
+                    + " OR "
+                    + Constants.C_STATUS + " = "
+                    + Torrent.Status.DOWNLOADING
+                    + " OR "
+                    + Constants.C_STATUS + " = "
+                    + Torrent.Status.SEEDING
+                    + ") THEN 1 ELSE null END) FROM " + Constants.T_TORRENT, null
+            );
+
+            cursor.moveToFirst();
+
+            return cursor.getInt(0) > 0;
+        } finally {
+            if (cursor != null)
+                cursor.close();
+        }
     }
 }
