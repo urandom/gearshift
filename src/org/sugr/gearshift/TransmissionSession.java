@@ -10,7 +10,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 @JsonAutoDetect(
@@ -527,14 +526,11 @@ public class TransmissionSession implements Parcelable {
         mVersion = version;
     }
 
-    public void setDownloadDirectories(TransmissionProfile profile, List<Torrent> torrents) {
+    public void setDownloadDirectories(TransmissionProfile profile, Set<String> directories) {
         mDownloadDirectories.clear();
         mDownloadDirectories.add(mDownloadDir);
         mDownloadDirectories.addAll(profile.getDirectories());
-
-        for (Torrent t : torrents) {
-            mDownloadDirectories.add(t.getDownloadDir());
-        }
+        mDownloadDirectories.addAll(directories);
 
         mDownloadDirectories.remove(null);
     }

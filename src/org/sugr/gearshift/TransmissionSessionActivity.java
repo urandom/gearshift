@@ -47,13 +47,15 @@ public class TransmissionSessionActivity extends FragmentActivity {
 
     private boolean mRefreshing = false;
 
+    private DataSource dataSource;
+
     private LoaderCallbacks<TransmissionData> mSessionLoaderCallbacks = new LoaderCallbacks<TransmissionData>() {
 
         @Override public Loader<TransmissionData> onCreateLoader(int arg0, Bundle arg1) {
             if (mProfile == null) return null;
 
             return new TransmissionSessionLoader(
-                    TransmissionSessionActivity.this, mProfile);
+                    TransmissionSessionActivity.this, mProfile, dataSource);
         }
 
         @Override public void onLoadFinished(Loader<TransmissionData> loader,
@@ -178,8 +180,7 @@ public class TransmissionSessionActivity extends FragmentActivity {
     protected void onCreate(final Bundle savedInstanceState) {
         Intent in = getIntent();
 
-        new OpenDBAsyncTask().execute();
-
+        dataSource = new DataSource(this);
         mProfile = in.getParcelableExtra(G.ARG_PROFILE);
         mSession = in.getParcelableExtra(G.ARG_SESSION);
 
@@ -230,13 +231,15 @@ public class TransmissionSessionActivity extends FragmentActivity {
             .getLoader(G.SESSION_LOADER_ID);
 
         loader.onContentChanged();
-        new OpenDBAsyncTask().execute();
     }
 
     @Override
-    public void onPause() {
+    protected void onPause() {
         super.onPause();
-        DataSource.instance.close();
+
+        if (dataSource.isOpen()) {
+            dataSource.close();
+        }
     }
 
     @Override
@@ -1210,8 +1213,9 @@ public class TransmissionSessionActivity extends FragmentActivity {
     private class PortTestAsyncTask extends AsyncTask<Void, Void, Boolean> {
         @Override
         protected Boolean doInBackground(Void... params) {
+            dataSource.open();
             TransmissionSessionManager manager = new TransmissionSessionManager(
-                    TransmissionSessionActivity.this, mProfile);
+                    TransmissionSessionActivity.this, mProfile, dataSource);
 
             if (!manager.hasConnectivity()) {
                 return null;
@@ -1221,6 +1225,8 @@ public class TransmissionSessionActivity extends FragmentActivity {
                 return manager.testPort();
             } catch (ManagerException e) {
                 return null;
+            } finally {
+                dataSource.close();
             }
         }
 
@@ -1252,8 +1258,9 @@ public class TransmissionSessionActivity extends FragmentActivity {
     private class BlocklistUpdateAsyncTask extends AsyncTask<Void, Void, Long> {
         @Override
         protected Long doInBackground(Void... params) {
+            dataSource.open();
             TransmissionSessionManager manager = new TransmissionSessionManager(
-                    TransmissionSessionActivity.this, mProfile);
+                    TransmissionSessionActivity.this, mProfile, dataSource);
 
             if (!manager.hasConnectivity()) {
                 return null;
@@ -1263,6 +1270,8 @@ public class TransmissionSessionActivity extends FragmentActivity {
                 return manager.blocklistUpdate();
             } catch (ManagerException e) {
                 return null;
+            } finally {
+                dataSource.close();
             }
         }
 
@@ -1294,15 +1303,6 @@ public class TransmissionSessionActivity extends FragmentActivity {
             }
         }
     }
-
-    private class OpenDBAsyncTask extends AsyncTask<Void, Void, Void> {
-        @Override
-        protected Void doInBackground(Void... voids) {
-            DataSource.instance.open();
-
-            return null;
-        }
-    }
 }
 
 class TransmissionSessionLoader extends AsyncTaskLoader<TransmissionData> {
@@ -1327,10 +1327,13 @@ class TransmissionSessionLoader extends AsyncTaskLoader<TransmissionData> {
     private int mLastError;
     private int lastErrorCode;
 
-    public TransmissionSessionLoader(Context context, TransmissionProfile profile) {
+    private DataSource dataSource;
+
+    public TransmissionSessionLoader(Context context, TransmissionProfile profile, DataSource dataSource) {
         super(context);
 
-        mSessManager = new TransmissionSessionManager(getContext(), profile);
+        this.dataSource = dataSource;
+        mSessManager = new TransmissionSessionManager(getContext(), profile, dataSource);
     }
 
     public void setSession(TransmissionSession session, String... keys) {
@@ -1378,7 +1381,10 @@ class TransmissionSessionLoader extends AsyncTaskLoader<TransmissionData> {
         TransmissionSession session;
         try {
             mSessManager.updateSession();
-            session = DataSource.instance.getSession();
+
+            dataSource.open();
+            session = dataSource.getSession();
+            dataSource.close();
         } catch (ManagerException e) {
             return handleError(e);
         }

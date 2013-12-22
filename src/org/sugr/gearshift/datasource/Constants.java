@@ -132,7 +132,7 @@ public final class Constants {
         + C_PEERS_SENDING_TO_US + " INTEGER, "
         + C_LEFT_UNTIL_DONE + " INTEGER, "
         + C_DESIRED_AVAILABLE + " INTEGER, "
-        + C_TOTAL_SIZE + " INTEGER, "
+        + C_TOTAL_SIZE + " INTEGER NOT NULL, "
         + C_SIZE_WHEN_DONE + " INTEGER, "
         + C_RATE_DOWNLOAD + " INTEGER, "
         + C_RATE_UPLOAD + " INTEGER, "

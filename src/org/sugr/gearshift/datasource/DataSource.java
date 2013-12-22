@@ -5,6 +5,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.util.SparseArray;
+import android.util.SparseBooleanArray;
 
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
@@ -16,7 +17,9 @@ import org.sugr.gearshift.TransmissionSession;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 class TorrentValues {
     public ContentValues torrent;
@@ -26,8 +29,6 @@ class TorrentValues {
 }
 
 public class DataSource {
-    public static DataSource instance = null;
-
     private SQLiteDatabase database;
 
     private SQLiteHelper dbHelper;
@@ -38,17 +39,8 @@ public class DataSource {
 
     private int rpcVersion = -1;
 
-    /* Prevent instantiation */
-    protected DataSource() { }
-
-    public static synchronized DataSource getInstance(Context context) {
-        if (instance == null) {
-            instance = new DataSource();
-            instance.dbHelper = new SQLiteHelper(context.getApplicationContext());
-        }
-        instance.setContext(context);
-
-        return instance;
+    public DataSource(Context context) {
+        setContext(context);
     }
 
     public void open() {
@@ -74,11 +66,12 @@ public class DataSource {
 
     public void setContext(Context context) {
         this.context = context;
+        this.dbHelper = new SQLiteHelper(context);
     }
 
-    public void updateSession(JsonParser parser) throws IOException {
+    public boolean updateSession(JsonParser parser) throws IOException {
         if (!isOpen())
-            return;
+            return false;
 
         database.beginTransaction();
 
@@ -91,6 +84,8 @@ public class DataSource {
             }
 
             database.setTransactionSuccessful();
+
+            return true;
         } finally {
             database.endTransaction();
         }
@@ -100,13 +95,13 @@ public class DataSource {
         if (!isOpen())
             return null;
 
+        int[] idChanges = queryTorrentIdChanges();
+        int[] status = queryStatusCount();
+
         database.beginTransaction();
 
         try {
-            SparseArray<Boolean> trackers = new SparseArray<Boolean>();
-
-            int[] idChanges = queryTorrentIdChanges();
-            int[] status = queryStatusCount();
+            SparseBooleanArray trackers = new SparseBooleanArray();
 
             while (parser.nextToken() != JsonToken.END_ARRAY) {
                 TorrentValues values = jsonToTorrentValues(parser);
@@ -157,7 +152,7 @@ public class DataSource {
             int[] updatedStatus = queryStatusCount();
 
             boolean added = false, removed = false, statusChanged = false;
-            boolean incompleteMetadata = queryIncompleteMetadata();
+            boolean incompleteMetadata = !hasCompleteMetadata();
 
             if (idChanges != null && updatedIdChanges != null) {
                 added = idChanges[0] < updatedIdChanges[0];
@@ -185,6 +180,25 @@ public class DataSource {
         }
     }
 
+    public boolean removeTorrents(int... ids) {
+        if (!isOpen())
+            return false;
+
+        database.beginTransaction();
+
+        try {
+            for (int id : ids) {
+                removeTorrent(id);
+            }
+
+            database.setTransactionSuccessful();
+
+            return true;
+        } finally {
+            database.endTransaction();
+        }
+    }
+
     /* Transmission implementation */
     public TransmissionSession getSession() {
         if (!isOpen())
@@ -196,6 +210,60 @@ public class DataSource {
         }, null, null, null, null, null);
 
         return cursorToSession(cursor);
+    }
+
+    public boolean hasExtraInfo() {
+        if (!isOpen())
+            return false;
+
+        Cursor cursor = null;
+        try {
+            cursor = database.rawQuery(
+                "SELECT count(CASE WHEN "
+                    + Constants.C_PIECE_COUNT
+                    + " = 0 OR "
+                    + Constants.C_PIECE_COUNT
+                    + " = null"
+                    + " THEN 1 ELSE null END) FROM " + Constants.T_TORRENT, null
+            );
+
+            cursor.moveToFirst();
+
+            return cursor.getInt(0) == 0;
+        } finally {
+            if (cursor != null)
+                cursor.close();
+        }
+    }
+
+    public boolean hasCompleteMetadata() {
+        if (!isOpen())
+            return false;
+
+        Cursor cursor = null;
+        try {
+            cursor = database.rawQuery(
+                "SELECT count(CASE WHEN "
+                    + Constants.C_TOTAL_SIZE
+                    + " = 0 AND ("
+                    + Constants.C_STATUS + " = "
+                    + Torrent.Status.CHECKING
+                    + " OR "
+                    + Constants.C_STATUS + " = "
+                    + Torrent.Status.DOWNLOADING
+                    + " OR "
+                    + Constants.C_STATUS + " = "
+                    + Torrent.Status.SEEDING
+                    + ") THEN 1 ELSE null END) FROM " + Constants.T_TORRENT, null
+            );
+
+            cursor.moveToFirst();
+
+            return cursor.getInt(0) == 0;
+        } finally {
+            if (cursor != null)
+                cursor.close();
+        }
     }
 
     public List<String> getTrackerAnnounceURLs() {
@@ -216,6 +284,27 @@ public class DataSource {
         cursor.close();
 
         return urls;
+    }
+
+    public Set<String> getDownloadDirectories() {
+        if (!isOpen())
+            return null;
+
+        Set<String> directories = new HashSet<String>();
+
+        Cursor cursor = database.query(true, Constants.T_TORRENT,
+            new String[] { Constants.C_DOWNLOAD_DIR }, null, null, null, null,
+            Constants.C_DOWNLOAD_DIR, null);
+
+        cursor.moveToFirst();
+        while (!cursor.isAfterLast()) {
+            directories.add(cursor.getString(0));
+            cursor.moveToNext();
+        }
+
+        cursor.close();
+
+        return directories;
     }
 
     public Cursor getTorrentCursor(String selection, String[] selectionArgs,
@@ -1382,6 +1471,11 @@ public class DataSource {
         return values;
     }
 
+    protected void removeTorrent(int id) {
+        database.delete(Constants.T_TORRENT, Constants.C_TORRENT_ID + " = ?",
+            new String[] { Integer.toString(id) } );
+    }
+
     protected int[] queryTorrentIdChanges() {
         Cursor cursor = null;
         try {
@@ -1434,33 +1528,6 @@ public class DataSource {
 
             return new int[] { cursor.getInt(0), cursor.getInt(1), cursor.getInt(2),
                 cursor.getInt(3), cursor.getInt(4), cursor.getInt(5), cursor.getInt(6) };
-        } finally {
-            if (cursor != null)
-                cursor.close();
-        }
-    }
-
-    protected boolean queryIncompleteMetadata() {
-        Cursor cursor = null;
-        try {
-            cursor = database.rawQuery(
-                "SELECT count(CASE WHEN "
-                    + Constants.C_TOTAL_SIZE
-                    + " = 0 AND ("
-                    + Constants.C_STATUS + " = "
-                    + Torrent.Status.CHECKING
-                    + " OR "
-                    + Constants.C_STATUS + " = "
-                    + Torrent.Status.DOWNLOADING
-                    + " OR "
-                    + Constants.C_STATUS + " = "
-                    + Torrent.Status.SEEDING
-                    + ") THEN 1 ELSE null END) FROM " + Constants.T_TORRENT, null
-            );
-
-            cursor.moveToFirst();
-
-            return cursor.getInt(0) > 0;
         } finally {
             if (cursor != null)
                 cursor.close();

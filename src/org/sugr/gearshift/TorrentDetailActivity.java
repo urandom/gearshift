@@ -1,7 +1,6 @@
 package org.sugr.gearshift;
 
 import android.content.Intent;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
@@ -14,8 +13,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
-
-import org.sugr.gearshift.datasource.DataSource;
 
 import java.util.ArrayList;
 
@@ -142,8 +139,6 @@ public class TorrentDetailActivity extends FragmentActivity implements Transmiss
     protected void onCreate(Bundle savedInstanceState) {
         Intent in = getIntent();
 
-        new OpenDBAsyncTask().execute();
-
         mTorrents = in.getParcelableArrayListExtra(ARG_TORRENTS);
         mProfile = in.getParcelableExtra(G.ARG_PROFILE);
         mProfile.setContext(this);
@@ -174,18 +169,6 @@ public class TorrentDetailActivity extends FragmentActivity implements Transmiss
 
         getSupportLoaderManager().restartLoader(
                 G.TORRENTS_LOADER_ID, null, mTorrentLoaderCallbacks);
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
-        new OpenDBAsyncTask().execute();
-    }
-
-    @Override
-    public void onPause() {
-        super.onPause();
-        DataSource.instance.close();
     }
 
     @Override
@@ -316,14 +299,5 @@ public class TorrentDetailActivity extends FragmentActivity implements Transmiss
             item.setActionView(R.layout.action_progress_bar);
         else
             item.setActionView(null);
-    }
-
-    private class OpenDBAsyncTask extends AsyncTask<Void, Void, Void> {
-        @Override
-        protected Void doInBackground(Void... voids) {
-            DataSource.instance.open();
-
-            return null;
-        }
     }
 }
