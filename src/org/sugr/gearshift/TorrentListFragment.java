@@ -1024,9 +1024,7 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
         }
 
         public void repeatFilter() {
-            if (((TransmissionSessionInterface) getActivity()).getProfile() != null) {
-                getFilter().filter(mCurrentConstraint, null);
-            }
+            getFilter().filter(mCurrentConstraint, null);
         }
 
         public void resetBaseSort() {
