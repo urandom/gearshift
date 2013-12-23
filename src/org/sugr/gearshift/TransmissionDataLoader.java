@@ -2,11 +2,9 @@ package org.sugr.gearshift;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.database.Cursor;
 import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.support.v4.content.AsyncTaskLoader;
-import android.util.SparseArray;
 
 import org.sugr.gearshift.TransmissionSessionManager.ManagerException;
 import org.sugr.gearshift.datasource.DataSource;
@@ -18,7 +16,6 @@ import java.util.ArrayList;
 
 class TransmissionData {
     public TransmissionSession session = null;
-    public ArrayList<Torrent> torrents = new ArrayList<Torrent>();
     public int error = 0;
     public int errorCode = 0;
     public String errorMessage;
@@ -49,15 +46,11 @@ class TransmissionData {
     }
 
     public TransmissionData(TransmissionSession session,
-            ArrayList<Torrent> torrents,
             boolean hasRemoved,
             boolean hasAdded,
             boolean hasStatusChanged,
             boolean hasMetadataNeeded) {
         this.session = session;
-
-        if (torrents != null)
-            this.torrents = torrents;
 
         this.hasRemoved = hasRemoved;
         this.hasAdded = hasAdded;
@@ -223,23 +216,20 @@ public class TransmissionDataLoader extends AsyncTaskLoader<TransmissionData> {
         mIntervalHandler.removeCallbacks(mIntervalRunner);
         mStopUpdates = false;
 
-        boolean hasRemoved = false,
-                hasAdded = false,
-                hasStatusChanged = false,
-                hasMetadataNeeded = false;
+        boolean hasRemoved,
+                hasAdded,
+                hasStatusChanged,
+                hasMetadataNeeded;
 
         if (mLastError > 0) {
             mLastError = 0;
             lastErrorCode = 0;
-            hasAdded = true;
         }
 
         if (mProfileChanged) {
             mSessManager.setProfile(mProfile);
             mProfileChanged = false;
             mIteration = 0;
-            hasAdded = true;
-            hasRemoved = true;
         }
         if (!mSessManager.hasConnectivity()) {
             mLastError = TransmissionData.Errors.NO_CONNECTIVITY;
@@ -463,8 +453,8 @@ public class TransmissionDataLoader extends AsyncTaskLoader<TransmissionData> {
 
         mIteration++;
 
-        return new TransmissionData(mSession, torrentList, hasRemoved,
-            hasAdded, hasStatusChanged, hasMetadataNeeded);
+        return new TransmissionData(mSession, hasRemoved, hasAdded,
+            hasStatusChanged, hasMetadataNeeded);
     }
 
     @Override
@@ -491,12 +481,11 @@ public class TransmissionDataLoader extends AsyncTaskLoader<TransmissionData> {
         if (mLastError > 0) {
             mSession = null;
             deliverResult(new TransmissionData(mSession, mLastError, lastErrorCode));
-        } else if (mTorrentMap.size() > 0) {
-            deliverResult(new TransmissionData(mSession, convertSparseArray(mTorrentMap),
-                false, false, false, false));
+        } else if (mIteration > 0) {
+            deliverResult(new TransmissionData(mSession, false, false, false, false));
         }
 
-        if (takeContentChanged() || mTorrentMap.size() == 0) {
+        if (takeContentChanged() || mIteration == 0) {
             G.logD("TLoader: forceLoad()");
             forceLoad();
         }
@@ -518,7 +507,6 @@ public class TransmissionDataLoader extends AsyncTaskLoader<TransmissionData> {
 
         onStopLoading();
 
-        mTorrentMap.clear();
         dataSource.close();
     }
 
@@ -612,17 +600,6 @@ public class TransmissionDataLoader extends AsyncTaskLoader<TransmissionData> {
 
         mSession = null;
         return new TransmissionData(mSession, mLastError, 0);
-    }
-
-    private ArrayList<Torrent> convertSparseArray(SparseArray<Torrent> array) {
-        ArrayList<Torrent> list = new ArrayList<Torrent>();
-
-        for (int i = 0; i < array.size(); i++) {
-            int key = array.keyAt(i);
-            list.add(array.get(key));
-        }
-
-        return list;
     }
 
     private class TorrentActionRunnable implements Runnable {

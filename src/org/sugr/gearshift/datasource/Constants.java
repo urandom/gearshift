@@ -236,12 +236,6 @@ public final class Constants {
         + "PRIMARY KEY (" + C_TORRENT_ID + ")"
         + ");";
 
-    public static final String S_TORRENT_TRACKERS = "SELECT "
-        + C_TRACKER_ID + ", " + C_ANNOUNCE + ", " + C_SCRAPE + ", " + C_TIER
-        + " FROM " + T_TRACKER
-        + " WHERE " + C_TRACKER_ID + " IN ("
-        + ")";
-
     public static final String TYPE_INT = "int";
     public static final String TYPE_BOOLEAN = "boolean";
     public static final String TYPE_LONG = "long";
@@ -250,7 +244,8 @@ public final class Constants {
 
     public static class ColumnGroups {
         public static final String[] TORRENT_OVERVIEW = {
-            C_TORRENT_ID, C_NAME, C_STATUS, C_ADDED_DATE, C_TOTAL_SIZE,
+            /* The torrent id is not here, as it is aliased to '_id' */
+            C_NAME, C_STATUS, C_ADDED_DATE, C_TOTAL_SIZE,
             C_ERROR, C_ERROR_STRING, C_ETA, C_IS_FINISHED, C_IS_STALLED,
             C_LEFT_UNTIL_DONE, C_METADATA_PERCENT_COMPLETE, C_PEERS_CONNECTED,
             C_PEERS_GETTING_FROM_US, C_PEERS_SENDING_TO_US, C_PERCENT_DONE,

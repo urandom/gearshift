@@ -45,7 +45,7 @@ public class TorrentListMenuFragment extends Fragment implements TorrentListNoti
 
     private enum Type {
         FIND, FILTER, DIRECTORY, TRACKER, SORT_BY, SORT_ORDER, HEADER
-    };
+    }
 
     private static final String FILTERS_HEADER_KEY = "filters_header";
     private static final String DIRECTORIES_HEADER_KEY = "directories_header";
@@ -147,7 +147,7 @@ public class TorrentListMenuFragment extends Fragment implements TorrentListNoti
         setStatus(null, null);
     }
 
-    public void notifyTorrentListChanged(List<Torrent> torrents, int error, boolean added, boolean removed,
+    public void notifyTorrentListChanged(int error, boolean added, boolean removed,
                                         boolean statusChanged, boolean metadataNeeded) {
 
         TransmissionSession session = ((TransmissionSessionInterface) getActivity()).getSession();
@@ -212,11 +212,11 @@ public class TorrentListMenuFragment extends Fragment implements TorrentListNoti
                 mDirectories.addAll(directories);
 
                 mFilterAdapter.setNotifyOnChange(false);
-                int position = removeDirectoriesFilters();
+                removeDirectoriesFilters();
 
                 if (mDirectories.size() > 1) {
                     ListItem pivot = mListItemMap.get(SORT_BY_HEADER_KEY);
-                    position = mFilterAdapter.getPosition(pivot);
+                    int position = mFilterAdapter.getPosition(pivot);
 
                     if (position == -1) {
                         pivot = mListItemMap.get(SORT_ORDER_HEADER_KEY);
@@ -270,11 +270,11 @@ public class TorrentListMenuFragment extends Fragment implements TorrentListNoti
                 mTrackers.addAll(trackers);
 
                 mFilterAdapter.setNotifyOnChange(false);
-                int position = removeTrackersFilters();
+                removeTrackersFilters();
 
                 if (mTrackers.size() > 1) {
                     ListItem pivot = mListItemMap.get(SORT_BY_HEADER_KEY);
-                    position = mFilterAdapter.getPosition(pivot);
+                    int position = mFilterAdapter.getPosition(pivot);
 
                     if (position == -1) {
                         pivot = mListItemMap.get(SORT_ORDER_HEADER_KEY);
@@ -320,11 +320,11 @@ public class TorrentListMenuFragment extends Fragment implements TorrentListNoti
                     ((TorrentListFragment) getFragmentManager().findFragmentById(R.id.torrent_list));
             if (updateDirectoryFilter) {
                 mDirectoryPosition = ListView.INVALID_POSITION;
-                fragment.setListDirectoryFilter((String) null);
+                fragment.setListDirectoryFilter(null);
             }
             if (updateTrackerFilter) {
                 mTrackerPosition = ListView.INVALID_POSITION;
-                fragment.setListTrackerFilter((String) null);
+                fragment.setListTrackerFilter(null);
             }
 
             mCloseHandler.removeCallbacks(mCloseRunnable);
@@ -437,7 +437,7 @@ public class TorrentListMenuFragment extends Fragment implements TorrentListNoti
                     mFilterList.setItemChecked(mDirectoryPosition, false);
                     if (mDirectoryPosition == position) {
                         mDirectoryPosition = ListView.INVALID_POSITION;
-                        fragment.setListDirectoryFilter((String) null);
+                        fragment.setListDirectoryFilter(null);
                     } else {
                         mFilterList.setItemChecked(position, true);
                         mDirectoryPosition = position;
@@ -448,7 +448,7 @@ public class TorrentListMenuFragment extends Fragment implements TorrentListNoti
                     mFilterList.setItemChecked(mTrackerPosition, false);
                     if (mTrackerPosition == position) {
                         mTrackerPosition = ListView.INVALID_POSITION;
-                        fragment.setListTrackerFilter((String) null);
+                        fragment.setListTrackerFilter(null);
                     } else {
                         mFilterList.setItemChecked(position, true);
                         mTrackerPosition = position;
@@ -550,11 +550,11 @@ public class TorrentListMenuFragment extends Fragment implements TorrentListNoti
         list.clear();
 
         if (!mListItemMap.containsKey(DIRECTORIES_HEADER_KEY)) {
-            header = new ListItem(Type.HEADER, DIRECTORIES_HEADER_KEY, R.string.menu_directories_header);
+            new ListItem(Type.HEADER, DIRECTORIES_HEADER_KEY, R.string.menu_directories_header);
         }
 
         if (!mListItemMap.containsKey(TRACKERS_HEADER_KEY)) {
-            header = new ListItem(Type.HEADER, TRACKERS_HEADER_KEY, R.string.menu_trackers_header);
+            new ListItem(Type.HEADER, TRACKERS_HEADER_KEY, R.string.menu_trackers_header);
         }
 
         for (SortBy sort : SortBy.values()) {
@@ -664,7 +664,7 @@ public class TorrentListMenuFragment extends Fragment implements TorrentListNoti
                 selectedFilter = FilterBy.valueOf(
                     mSharedPrefs.getString(G.PREF_LIST_FILTER, "")
                 );
-            } catch (Exception e) { }
+            } catch (Exception ignored) { }
         }
         mFilterPosition = mFilterAdapter.getPosition(
                 mListItemMap.get(selectedFilter.name()));
@@ -692,7 +692,7 @@ public class TorrentListMenuFragment extends Fragment implements TorrentListNoti
                 selectedSort = SortBy.valueOf(
                     mSharedPrefs.getString(G.PREF_LIST_SORT_BY, "")
                 );
-            } catch (Exception e) { }
+            } catch (Exception ignored) { }
         }
         mSortPosition = mFilterAdapter.getPosition(
                 mListItemMap.get(selectedSort.name()));
@@ -704,7 +704,7 @@ public class TorrentListMenuFragment extends Fragment implements TorrentListNoti
                 selectedOrder = SortOrder.valueOf(
                     mSharedPrefs.getString(G.PREF_LIST_SORT_ORDER, "")
                 );
-            } catch (Exception e) { }
+            } catch (Exception ignored) { }
         }
         if (selectedOrder == SortOrder.DESCENDING) {
             mOrderPosition = mFilterAdapter.getPosition(
@@ -861,7 +861,7 @@ public class TorrentListMenuFragment extends Fragment implements TorrentListNoti
         public View getView(int position, View convertView, ViewGroup parent) {
             ListItem item = getItem(position);
 
-            TextView text = null;
+            TextView text;
 
             if (convertView == null) {
                 switch (item.getType()) {

@@ -137,16 +137,15 @@ public class Torrent implements Parcelable {
         public final static int DOWNLOADING = 4;
         public final static int SEED_WAITING = 5;
         public final static int SEEDING = 6;
-    };
+    }
 
-    private static final int NEW_STATUS_RPC_VERSION = 14;
     public static class OldStatus {
         public final static int CHECK_WAITING = 1;
         public final static int CHECKING = 2;
         public final static int DOWNLOADING = 4;
         public final static int SEEDING = 8;
         public final static int STOPPED = 16;
-    };
+    }
 
     // http://packages.python.org/transmissionrpc/reference/transmissionrpc.html
     public static class SeedRatioMode {
@@ -202,7 +201,7 @@ public class Torrent implements Parcelable {
             "startDate", "trackerStats", SetterFields.UPLOAD_LIMIT,
             SetterFields.UPLOAD_LIMITED, "webseedsSendingToUs"
         };
-    };
+    }
 
     private static final int SEED = 0x21;
 
@@ -981,11 +980,7 @@ public class Torrent implements Parcelable {
 
     @JsonIgnore
     public boolean isPaused() {
-        if (getStatus() != Status.STOPPED) {
-            return false;
-        }
-
-        return mUploadRatio < getActiveSeedRatioLimit();
+        return getStatus() == Status.STOPPED && mUploadRatio < getActiveSeedRatioLimit();
     }
 
     @JsonIgnore
@@ -1046,11 +1041,7 @@ public class Torrent implements Parcelable {
 
     @Override
     public boolean equals (Object o) {
-        if (this == o) return true;
-
-        if (!(o instanceof Torrent)) return false;
-
-        return hashCode() == ((Torrent) o).hashCode();
+        return this == o || o instanceof Torrent && hashCode() == o.hashCode();
     }
 
     @Override
@@ -1062,114 +1053,6 @@ public class Torrent implements Parcelable {
                 ? 0 : mHashString.hashCode());
 
         return result;
-    }
-
-    public void updateFrom(Torrent source, String[] fields) {
-        if (fields == null) return;
-
-        for (String field : fields) {
-            if (field.equals("addedDate")) {
-                setAddedDate(source.getAddedDate());
-            } else if (field.equals("name")) {
-                setName(source.getName());
-            } else if (field.equals("totalSize")) {
-                setTotalSize(source.getTotalSize());
-            } else if (field.equals("error")) {
-                setError(source.getError());
-            } else if (field.equals("errorString")) {
-                setErrorString(source.getErrorString());
-            } else if (field.equals("eta")) {
-                setEta(source.getEta());
-            } else if (field.equals("isFinished")) {
-                setFinished(source.isFinished());
-            } else if (field.equals("isStalled")) {
-                setStalled(source.isStalled());
-            } else if (field.equals("leftUntilDone")) {
-                setLeftUntilDone(source.getLeftUntilDone());
-            } else if (field.equals("metadataPercentComplete")) {
-                setMetadataPercentComplete(source.getMetadataPercentComplete());
-            } else if (field.equals("peersConnected")) {
-                setPeersConnected(source.getPeersConnected());
-            } else if (field.equals("peersGettingFromUs")) {
-                setPeersGettingFromUs(source.getPeersGettingFromUs());
-            } else if (field.equals("peersSendingToUs")) {
-                setPeersSendingToUs(source.getPeersSendingToUs());
-            } else if (field.equals("percentDone")) {
-                setPercentDone(source.getPercentDone());
-            } else if (field.equals(SetterFields.QUEUE_POSITION)) {
-                setQueuePosition(source.getQueuePosition());
-            } else if (field.equals("rateDownload")) {
-                setRateDownload(source.getRateDownload());
-            } else if (field.equals("rateUpload")) {
-                setRateUpload(source.getRateUpload());
-            } else if (field.equals("recheckProgress")) {
-                setRecheckProgress(source.getRecheckProgress());
-            } else if (field.equals(SetterFields.SEED_RATIO_MODE)) {
-                setSeedRatioMode(source.getSeedRatioMode());
-            } else if (field.equals(SetterFields.SEED_RATIO_LIMIT)) {
-                setSeedRatioLimit(source.getSeedRatioLimit());
-            } else if (field.equals("sizeWhenDone")) {
-                setSizeWhenDone(source.getSizeWhenDone());
-            } else if (field.equals("status")) {
-                setStatus(source.getStatus(true));
-            } else if (field.equals("trackers")) {
-                setTrackers(source.getTrackers());
-            } else if (field.equals("uploadedEver")) {
-                setUploadedEver(source.getUploadedEver());
-            } else if (field.equals("uploadRatio")) {
-                setUploadRatio(source.getUploadRatio());
-            } else if (field.equals(SetterFields.TORRENT_PRIORITY)) {
-                setTorrentPriority(source.getTorrentPriority());
-            } else if (field.equals("comment")) {
-                setComment(source.getComment());
-            } else if (field.equals("creator")) {
-                setCreator(source.getCreator());
-            } else if (field.equals("dateCreated")) {
-                setDateCreated(source.getDateCreated());
-            } else if (field.equals(SetterFields.DOWNLOAD_LIMIT)) {
-                setDownloadLimit(source.getDownloadLimit());
-            } else if (field.equals(SetterFields.DOWNLOAD_LIMITED)) {
-                setDownloadLimited(source.isDownloadLimited());
-            } else if (field.equals("files")) {
-                setFiles(source.getFiles());
-            } else if (field.equals("hashString")) {
-                setHashString(source.getHashString());
-            } else if (field.equals(SetterFields.SESSION_LIMITS)) {
-                setHonorsSessionLimits(source.areSessionLimitsHonored());
-            } else if (field.equals("isPrivate")) {
-                setPrivate(source.isPrivate());
-            } else if (field.equals("pieceCount")) {
-                setPieceCount(source.getPieceCount());
-            } else if (field.equals("pieceSize")) {
-                setPieceSize(source.getPieceSize());
-            } else if (field.equals(SetterFields.UPLOAD_LIMIT)) {
-                setUploadLimit(source.getUploadLimit());
-            } else if (field.equals(SetterFields.UPLOAD_LIMITED)) {
-                setUploadLimited(source.isUploadLimited());
-            } else if (field.equals("activityDate")) {
-                setActivityDate(source.getActivityDate());
-            } else if (field.equals("corruptEver")) {
-                setCorruptEver(source.getCorruptEver());
-            } else if (field.equals("desiredAvailable")) {
-                setDesiredAvailable(source.getDesiredAvailable());
-            } else if (field.equals("downloadDir")) {
-                setDownloadDir(source.getDownloadDir());
-            } else if (field.equals("downloadedEver")) {
-                setDownloadedEver(source.getDownloadedEver());
-            } else if (field.equals("haveUnchecked")) {
-                setHaveUnchecked(source.getHaveUnchecked());
-            } else if (field.equals("haveValid")) {
-                setHaveValid(source.getHaveValid());
-            } else if (field.equals("peers")) {
-                setPeers(source.getPeers());
-            } else if (field.equals(SetterFields.PEER_LIMIT)) {
-                setPeerLimit(source.getPeerLimit());
-            } else if (field.equals("startDate")) {
-                setStartDate(source.getStartDate());
-            } else if (field.equals("webseedsSendingToUs")) {
-                setWebseedsSendingToUs(source.getWebseedsSendingToUs());
-            }
-        }
     }
 
     @Override
@@ -1267,8 +1150,10 @@ public class Torrent implements Parcelable {
         if (source == null)
             return "";
 
-        int i = source.length();
-        while (--i >= 0 && Character.isWhitespace(source.charAt(i))) {}
+        int i = source.length() - 1;
+        while (i >= 0 && Character.isWhitespace(source.charAt(i))) {
+            --i;
+        }
 
         return source.subSequence(0, i + 1);
     }

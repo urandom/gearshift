@@ -2,8 +2,11 @@ package org.sugr.gearshift.datasource;
 
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.preference.PreferenceManager;
+import android.text.TextUtils;
 import android.util.SparseArray;
 import android.util.SparseBooleanArray;
 
@@ -19,6 +22,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Set;
 
 class TorrentValues {
@@ -26,6 +30,12 @@ class TorrentValues {
     public List<ContentValues> files;
     public List<ContentValues> trackers;
     public List<ContentValues> peers;
+}
+
+class TorrentCursorArgs {
+    public String selection;
+    public String[] selectionArgs;
+    public String orderBy;
 }
 
 public class DataSource {
@@ -294,7 +304,7 @@ public class DataSource {
 
         Cursor cursor = database.query(true, Constants.T_TORRENT,
             new String[] { Constants.C_DOWNLOAD_DIR }, null, null, null, null,
-            Constants.C_DOWNLOAD_DIR, null);
+            null, null);
 
         cursor.moveToFirst();
         while (!cursor.isAfterLast()) {
@@ -307,30 +317,50 @@ public class DataSource {
         return directories;
     }
 
+    public Cursor getTorrentCursor(boolean details) {
+        if (!isOpen())
+            return null;
+
+        TorrentCursorArgs args = getTorrentCursorArgs();
+
+        return getTorrentCursor(args.selection, args.selectionArgs, args.orderBy, details);
+    }
+
     public Cursor getTorrentCursor(String selection, String[] selectionArgs,
                                    String orderBy, boolean details) {
         if (!isOpen())
             return null;
 
-        String[] columns = Constants.ColumnGroups.TORRENT_OVERVIEW;
+        String[] columnList = Constants.ColumnGroups.TORRENT_OVERVIEW;
         if (details) {
-            columns = G.concat(columns, Constants.ColumnGroups.TORRENT_DETAILS);
+            columnList = G.concat(columnList, Constants.ColumnGroups.TORRENT_DETAILS);
         }
 
-        return database.query(Constants.T_TORRENT, columns,
-            selection, selectionArgs, null, null, orderBy);
+        String columns = Constants.C_TORRENT_ID + " AS _id, " + TextUtils.join(", ", columnList);
 
+        String query = "SELECT " + columns
+            + " FROM " + Constants.T_TORRENT;
+
+        if (selection != null && selection.length() > 0) {
+            query = query + " WHERE " + selection;
+        }
+        if (orderBy != null && orderBy.length() > 0) {
+            query = query + " ORDER BY " + orderBy;
+        }
+
+        return database.rawQuery(query, selectionArgs);
     }
 
-    public List<Torrent> getTorrents(String selection, String[] selectionArgs,
-                                     String orderBy, boolean details) {
+    public List<Torrent> getTorrents(boolean details) {
         if (!isOpen())
             return null;
 
         List<Torrent> torrents = new ArrayList<Torrent>();
         SparseArray<Torrent> torrentMap = new SparseArray<Torrent>();
 
-        Cursor cursor = getTorrentCursor(selection, selectionArgs, orderBy, details);
+        TorrentCursorArgs args = getTorrentCursorArgs();
+
+        Cursor cursor = getTorrentCursor(args.selection, args.selectionArgs, args.orderBy, details);
 
         cursor.moveToFirst();
 
@@ -357,7 +387,7 @@ public class DataSource {
                 + Constants.C_LEECHER_COUNT;
             String from;
 
-            if (selection == null) {
+            if (args.selection == null) {
                 from = Constants.T_TORRENT_TRACKER + " JOIN " + Constants.T_TRACKER
                     + " ON " + Constants.T_TRACKER + "." + Constants.C_TRACKER_ID
                     + " = " + Constants.T_TORRENT_TRACKER + "." + Constants.C_TRACKER_ID;
@@ -370,14 +400,14 @@ public class DataSource {
                     + " = " + Constants.T_TRACKER + "." + Constants.C_TRACKER_ID;
             }
             String query = "SELECT " + select + " FROM " + from;
-            if (selection != null) {
-                query += " WHERE " + selection;
+            if (args.selection != null) {
+                query += " WHERE " + args.selection;
             }
 
             query += " ORDER BY " + Constants.T_TORRENT_TRACKER + "." + Constants.C_TORRENT_ID
                 + ", " + Constants.C_TIER;
 
-            cursor = database.rawQuery(query, selectionArgs);
+            cursor = database.rawQuery(query, args.selectionArgs);
             cursor.moveToFirst();
 
             List<Torrent.Tracker> trackers = new ArrayList<Torrent.Tracker>();
@@ -419,19 +449,19 @@ public class DataSource {
                 + Constants.C_NAME + ", " + Constants.C_LENGTH + ", " + Constants.C_BYTES_COMPLETED + ", "
                 + Constants.C_PRIORITY + ", " + Constants.C_WANTED + " FROM ";
 
-            if (selection == null) {
+            if (args.selection == null) {
                 query += Constants.T_FILE;
             } else {
                 query += Constants.T_TORRENT + " JOIN " + Constants.T_FILE
                     + " ON " + Constants.T_TORRENT + "." + Constants.C_TORRENT_ID
                     + " = " + Constants.T_FILE + "." + Constants.C_TORRENT_ID
-                    + " WHERE " + selection;
+                    + " WHERE " + args.selection;
             }
 
             query += " ORDER BY " + Constants.T_FILE + "." + Constants.C_TORRENT_ID
                 + ", " + Constants.T_FILE + "." + Constants.C_NAME;
 
-            cursor = database.rawQuery(query, selectionArgs);
+            cursor = database.rawQuery(query, args.selectionArgs);
 
             cursor.moveToFirst();
             List<Torrent.File> files = new ArrayList<Torrent.File>();
@@ -1532,5 +1562,213 @@ public class DataSource {
             if (cursor != null)
                 cursor.close();
         }
+    }
+
+    protected TorrentCursorArgs getTorrentCursorArgs() {
+        TorrentCursorArgs args = new TorrentCursorArgs();
+
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+        String query = prefs.getString(G.PREF_LIST_SEARCH, null);
+        String directory = prefs.getString(G.PREF_LIST_DIRECTORY, null);
+        String tracker = prefs.getString(G.PREF_LIST_TRACKER, null);
+
+        G.FilterBy filter = G.FilterBy.ALL;
+        if (prefs.contains(G.PREF_LIST_FILTER)) {
+            try {
+                filter = G.FilterBy.valueOf(
+                    prefs.getString(G.PREF_LIST_FILTER, "")
+                );
+            } catch (Exception ignored) { }
+        }
+        G.SortBy sortBy = G.SortBy.STATUS;
+        if (prefs.contains(G.PREF_LIST_SORT_BY)) {
+            try {
+                sortBy = G.SortBy.valueOf(
+                    prefs.getString(G.PREF_LIST_SORT_BY, "")
+                );
+            } catch (Exception ignored) { }
+        }
+        G.SortOrder sortOrder = G.SortOrder.ASCENDING;
+        if (prefs.contains(G.PREF_LIST_SORT_ORDER)) {
+            try {
+                sortOrder = G.SortOrder.valueOf(
+                    prefs.getString(G.PREF_LIST_SORT_ORDER, "")
+                );
+            } catch (Exception ignored) { }
+        }
+
+        G.SortBy baseSortBy = G.SortBy.AGE;
+        if (prefs.contains(G.PREF_BASE_SORT)) {
+            try {
+                baseSortBy = G.SortBy.valueOf(
+                    prefs.getString(G.PREF_BASE_SORT, "")
+                );
+            } catch (Exception ignored) { }
+        }
+
+        G.SortOrder baseSortOrder = G.SortOrder.DESCENDING;
+        if (prefs.contains(G.PREF_BASE_SORT_ORDER)) {
+            String pref = prefs.getString(G.PREF_BASE_SORT_ORDER, null);
+
+            if (pref != null) {
+                if (pref.equals("ASCENDING")) {
+                    baseSortOrder = G.SortOrder.ASCENDING;
+                } else if (pref.equals("DESCENDING")) {
+                    baseSortOrder = G.SortOrder.DESCENDING;
+                } else if (pref.equals("PRIMARY")) {
+                    baseSortOrder = sortOrder;
+                } else if (pref.equals("REVERSE")) {
+                    baseSortOrder = sortOrder == G.SortOrder.ASCENDING
+                        ? G.SortOrder.DESCENDING
+                        : G.SortOrder.ASCENDING;
+                }
+            }
+        }
+
+        List<String> selection = new ArrayList<String>();
+        List<String> selectionArgs = new ArrayList<String>();
+        if (query != null && query.length() > 0) {
+            /* FIXME: This should be in the filter part of the cursor adapter */
+            StringBuilder queryPattern = new StringBuilder();
+            String[] split = query.toLowerCase(Locale.getDefault()).split("");
+
+            for (int i = 0; i < split.length; ++i) {
+                if (split[i].equals("") || split[i].equals(";")) {
+                    continue;
+                }
+                queryPattern.append(split[i].equals("'") ? "''" : split[i]);
+                if (i < split.length - 1) {
+                    queryPattern.append("%");
+                }
+            }
+            selection.add("LOWER(" + Constants.C_NAME + ") LIKE '%" + queryPattern.toString() +"%'");
+        }
+
+        if (directory != null && directory.length() > 0) {
+            selection.add(Constants.C_NAME + " = ?");
+            selectionArgs.add(directory);
+        }
+
+        if (tracker != null && tracker.length() > 0) {
+            selection.add(Constants.C_TORRENT_ID + " IN ("
+                + "SELECT " + Constants.C_TORRENT_ID
+                + " FROM " + Constants.T_TORRENT_TRACKER
+                + " JOIN " + Constants.T_TRACKER
+                + " ON " + Constants.T_TORRENT_TRACKER + "." + Constants.C_TRACKER_ID
+                + " = " + Constants.T_TRACKER + "." + Constants.C_TRACKER_ID
+                + " AND " + Constants.C_ANNOUNCE + " = ?"
+                + ")");
+            selectionArgs.add(tracker);
+        }
+
+        if (filter != G.FilterBy.ALL) {
+            if (filter == G.FilterBy.DOWNLOADING) {
+                selection.add(Constants.C_STATUS + " = ?");
+                selectionArgs.add(Integer.toString(Torrent.Status.DOWNLOADING));
+            } else if (filter == G.FilterBy.SEEDING) {
+                selection.add(Constants.C_STATUS + " = ?");
+                selectionArgs.add(Integer.toString(Torrent.Status.SEEDING));
+            } else if (filter == G.FilterBy.PAUSED) {
+                selection.add(Constants.C_STATUS + " = ?");
+                selectionArgs.add(Integer.toString(Torrent.Status.STOPPED));
+            } else if (filter == G.FilterBy.COMPLETE) {
+                selection.add(Constants.C_PERCENT_DONE + " = 1");
+            } else if (filter == G.FilterBy.INCOMPLETE) {
+                selection.add(Constants.C_PERCENT_DONE + " < 1");
+            } else if (filter == G.FilterBy.ACTIVE) {
+                selection.add(
+                    Constants.C_IS_STALLED + " != 1"
+                    + " AND " + Constants.C_IS_FINISHED + " != 1"
+                    + " AND ("
+                        + Constants.C_STATUS + " = ?"
+                        + " OR " + Constants.C_STATUS + " = ?"
+                    + ")"
+                );
+                selectionArgs.add(Integer.toString(Torrent.Status.DOWNLOADING));
+                selectionArgs.add(Integer.toString(Torrent.Status.SEEDING));
+            } else if (filter == G.FilterBy.CHECKING) {
+                selection.add(Constants.C_STATUS + " = ?");
+                selectionArgs.add(Integer.toString(Torrent.Status.CHECKING));
+            }
+        }
+
+        args.selection = TextUtils.join(" AND ", selection);
+        args.selectionArgs = selectionArgs.toArray(new String[selectionArgs.size()]);
+
+        String mainOrder = sortToOrder(sortBy, sortOrder);
+        String baseOrder = sortToOrder(baseSortBy, baseSortOrder);
+
+        if (mainOrder != null && baseOrder != null) {
+            args.orderBy = mainOrder + ", " + baseOrder;
+        }
+
+        return args;
+    }
+
+    protected String sortToOrder(G.SortBy sortBy, G.SortOrder sortOrder) {
+        String sort;
+
+        switch(sortBy) {
+            case NAME:
+                sort = "LOWER(" + Constants.C_NAME + ")";
+                break;
+            case SIZE:
+                sort = Constants.C_TOTAL_SIZE;
+                break;
+            case STATUS:
+                sort = "(CASE " + Constants.C_STATUS
+                    + " WHEN " + Torrent.Status.STOPPED
+                    + " THEN " + (Torrent.Status.STOPPED + 40)
+                    + " WHEN " + Torrent.Status.CHECK_WAITING
+                    + " THEN " + (Torrent.Status.CHECK_WAITING + 100)
+                    + " WHEN " + Torrent.Status.DOWNLOAD_WAITING
+                    + " THEN " + (Torrent.Status.DOWNLOAD_WAITING + 10)
+                    + " WHEN " + Torrent.Status.CHECK_WAITING
+                    + " THEN " + (Torrent.Status.SEED_WAITING + 20)
+                    + " ELSE " + Constants.C_STATUS
+                    + " END)";
+                break;
+            case ACTIVITY:
+                sort = "(" + Constants.C_RATE_DOWNLOAD + " + " + Constants.C_RATE_UPLOAD + ")";
+                sortOrder = sortOrder == G.SortOrder.ASCENDING
+                    ? G.SortOrder.DESCENDING : G.SortOrder.ASCENDING;
+                break;
+            case AGE:
+                sort = Constants.C_ADDED_DATE;
+                sortOrder = sortOrder == G.SortOrder.ASCENDING
+                    ? G.SortOrder.DESCENDING : G.SortOrder.ASCENDING;
+                break;
+            case LOCATION:
+                sort = "LOWER(" + Constants.C_DOWNLOAD_DIR + ")";
+                break;
+            case PEERS:
+                sort = Constants.C_PEERS_CONNECTED;
+                break;
+            case PROGRESS:
+                sort = Constants.C_PERCENT_DONE;
+                break;
+            case QUEUE:
+                sort = Constants.C_QUEUE_POSITION;
+                break;
+            case RATE_DOWNLOAD:
+                sort = Constants.C_RATE_DOWNLOAD;
+                sortOrder = sortOrder == G.SortOrder.ASCENDING
+                    ? G.SortOrder.DESCENDING : G.SortOrder.ASCENDING;
+                break;
+            case RATE_UPLOAD:
+                sort = Constants.C_RATE_UPLOAD;
+                sortOrder = sortOrder == G.SortOrder.ASCENDING
+                    ? G.SortOrder.DESCENDING : G.SortOrder.ASCENDING;
+                break;
+            case RATIO:
+                sort = Constants.C_UPLOAD_RATIO;
+                sortOrder = sortOrder == G.SortOrder.ASCENDING
+                    ? G.SortOrder.DESCENDING : G.SortOrder.ASCENDING;
+                break;
+            default:
+                return null;
+        }
+
+        return sort + " " + (sortOrder == G.SortOrder.ASCENDING ? "ASC" : "DESC");
     }
 }

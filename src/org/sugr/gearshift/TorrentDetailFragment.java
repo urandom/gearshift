@@ -264,7 +264,7 @@ public class TorrentDetailFragment extends Fragment implements TorrentListNotifi
         mPager.setAdapter(new TorrentDetailPagerAdapter(getActivity()));
     }
 
-    public void notifyTorrentListChanged(List<Torrent> all, int error, boolean added, boolean removed,
+    public void notifyTorrentListChanged(int error, boolean added, boolean removed,
                                          boolean status, boolean metadata) {
         if (((TransmissionSessionInterface) getActivity()).getSession() == null) {
             setMenuTorrentState();

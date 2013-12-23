@@ -485,7 +485,7 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
     }
 
     @Override
-    public void notifyTorrentListChanged(List<Torrent> torrents, int error, boolean added, boolean removed,
+    public void notifyTorrentListChanged(int error, boolean added, boolean removed,
                                          boolean statusChanged, boolean metadataNeeded) {
         if (error == -1) {
             mTorrentListAdapter.clear();

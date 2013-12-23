@@ -274,7 +274,7 @@ public class TorrentListActivity extends FragmentActivity
             FragmentManager manager = getSupportFragmentManager();
             TorrentListFragment fragment = (TorrentListFragment) manager.findFragmentById(R.id.torrent_list);
             if (fragment != null) {
-                fragment.notifyTorrentListChanged(null, -1, false, false, false, false);
+                fragment.notifyTorrentListChanged(-1, false, false, false, false);
             }
         }
 
