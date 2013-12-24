@@ -32,7 +32,6 @@ public class TorrentDetailActivity extends FragmentActivity implements Transmiss
 
     private boolean mRefreshing = false;
 
-    private ArrayList<Torrent> mTorrents = new ArrayList<Torrent>();
     private int mCurrentTorrent = 0;
 
     private TransmissionProfile mProfile;
@@ -49,7 +48,7 @@ public class TorrentDetailActivity extends FragmentActivity implements Transmiss
             if (mProfile == null) return null;
 
             return new TransmissionDataLoader(
-                TorrentDetailActivity.this, mProfile, mSession, mTorrents, getCurrentTorrents());
+                TorrentDetailActivity.this, mProfile, mSession, getCurrentTorrents());
         }
 
         @Override
@@ -226,19 +225,6 @@ public class TorrentDetailActivity extends FragmentActivity implements Transmiss
             finish();
             Toast.makeText(this, "Low memory", Toast.LENGTH_SHORT).show();
         }
-    }
-
-    @Override
-    public void setTorrents(ArrayList<Torrent> torrents) {
-        mTorrents.clear();
-        if (torrents != null) {
-            mTorrents.addAll(torrents);
-        }
-    }
-
-    @Override
-    public ArrayList<Torrent> getTorrents() {
-        return mTorrents;
     }
 
     @Override

@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.database.Cursor;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.Loader;
@@ -264,7 +265,7 @@ public class TorrentDetailFragment extends Fragment implements TorrentListNotifi
         mPager.setAdapter(new TorrentDetailPagerAdapter(getActivity()));
     }
 
-    public void notifyTorrentListChanged(int error, boolean added, boolean removed,
+    public void notifyTorrentListChanged(Cursor cursor, int error, boolean added, boolean removed,
                                          boolean status, boolean metadata) {
         if (((TransmissionSessionInterface) getActivity()).getSession() == null) {
             setMenuTorrentState();

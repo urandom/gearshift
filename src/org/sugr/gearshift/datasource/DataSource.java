@@ -276,11 +276,11 @@ public class DataSource {
         }
     }
 
-    public List<String> getTrackerAnnounceURLs() {
+    public Set<String> getTrackerAnnounceURLs() {
         if (!isOpen())
             return null;
 
-        List<String> urls = new ArrayList<String>();
+        Set<String> urls = new HashSet<String>();
 
         Cursor cursor = database.query(true, Constants.T_TRACKER, new String[] { Constants.C_ANNOUNCE },
             null, null, null, null, Constants.C_ANNOUNCE, null);
@@ -315,6 +315,27 @@ public class DataSource {
         cursor.close();
 
         return directories;
+    }
+
+    public long[] getTrafficSpeed() {
+        if (!isOpen())
+            return null;
+
+        long[] speed = new long[2];
+
+        Cursor cursor = database.rawQuery("SELECT SUM("
+            + Constants.C_RATE_DOWNLOAD + "), SUM("
+            + Constants.C_RATE_UPLOAD + ") FROM "
+            + Constants.T_TORRENT, null);
+
+        cursor.moveToFirst();
+
+        speed[0] = cursor.getLong(0);
+        speed[1] = cursor.getLong(1);
+
+        cursor.close();
+
+        return speed;
     }
 
     public Cursor getTorrentCursor(boolean details) {

@@ -3,10 +3,14 @@ package org.sugr.gearshift;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
+import android.database.Cursor;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.LoaderManager;
+import android.support.v4.content.AsyncTaskLoader;
+import android.support.v4.content.Loader;
 import android.support.v4.widget.DrawerLayout;
 import android.text.Html;
 import android.util.SparseBooleanArray;
@@ -23,13 +27,10 @@ import android.widget.TextView;
 import org.sugr.gearshift.G.FilterBy;
 import org.sugr.gearshift.G.SortBy;
 import org.sugr.gearshift.G.SortOrder;
+import org.sugr.gearshift.datasource.DataSource;
 
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -89,6 +90,210 @@ public class TorrentListMenuFragment extends Fragment implements TorrentListNoti
         }
     };
 
+    private LoaderManager.LoaderCallbacks<FilterLoaderOutputData> menuFilterLoaderCallbacks
+        = new LoaderManager.LoaderCallbacks<FilterLoaderOutputData>() {
+
+        @Override public Loader<FilterLoaderOutputData> onCreateLoader(int id, Bundle bundle) {
+            if (id == G.FILTER_MENU_LOADER_ID) {
+                boolean showStatus = mSharedPrefs.getBoolean(G.PREF_SHOW_STATUS, false);
+                boolean directoriesEnabled = mSharedPrefs.getBoolean(G.PREF_FILTER_DIRECTORIES, true);
+                boolean trackersEnabled = mSharedPrefs.getBoolean(G.PREF_FILTER_TRACKERS, false);
+
+                if (!showStatus || directoriesEnabled || trackersEnabled) {
+                    return new FilterMenuLoader(getActivity(), !showStatus, directoriesEnabled, trackersEnabled);
+                }
+            }
+            return null;
+        }
+
+        @Override public void onLoadFinished(Loader<FilterLoaderOutputData> loader, FilterLoaderOutputData data) {
+            boolean updateDirectoryFilter = false;
+            boolean updateTrackerFilter = false;
+            boolean checkSelected = false;
+            boolean dataChanged = false;
+
+            mFilterAdapter.setNotifyOnChange(false);
+
+            if (data.directories != null) {
+                String dir = mSharedPrefs.getString(G.PREF_LIST_DIRECTORY, "");
+                boolean equalDirectories = true;
+                boolean currentDirectoryTorrents = data.directories.contains(dir);
+
+                if (data.directories.size() != mDirectories.size()) {
+                    equalDirectories = false;
+                } else {
+                    for (String d : data.directories) {
+                        if (mDirectories.contains(d)) {
+                            equalDirectories = false;
+                            break;
+                        }
+                    }
+                }
+                if (!equalDirectories) {
+                    mDirectories.clear();
+                    mDirectories.addAll(data.directories);
+
+                    removeDirectoriesFilters();
+
+                    if (mDirectories.size() > 1) {
+                        ListItem pivot = mListItemMap.get(SORT_BY_HEADER_KEY);
+                        int position = mFilterAdapter.getPosition(pivot);
+
+                        if (position == -1) {
+                            pivot = mListItemMap.get(SORT_ORDER_HEADER_KEY);
+                            position = mFilterAdapter.getPosition(pivot);
+                        }
+
+                        ListItem header = mListItemMap.get(DIRECTORIES_HEADER_KEY);
+                        if (position == -1) {
+                            mFilterAdapter.add(header);
+                            for (String d : mDirectories) {
+                                mFilterAdapter.add(getDirectoryItem(d));
+                            }
+                        } else {
+                            mFilterAdapter.insert(header, position++);
+                            for (String d : mDirectories) {
+                                mFilterAdapter.insert(getDirectoryItem(d), position++);
+                            }
+                        }
+                        updateDirectoryFilter = !currentDirectoryTorrents;
+                    } else {
+                        updateDirectoryFilter = true;
+                    }
+
+                    dataChanged = true;
+                    checkSelected = true;
+                }
+            } else {
+                removeDirectoriesFilters();
+                dataChanged = true;
+
+                if (!mSharedPrefs.getString(G.PREF_LIST_DIRECTORY, "").equals("")) {
+                    updateDirectoryFilter = true;
+                }
+            }
+
+            if (data.trackers != null) {
+                String track = mSharedPrefs.getString(G.PREF_LIST_TRACKER, "");
+                boolean equalTrackers = true;
+                boolean currentTrackerTorrents = data.trackers.contains(track);
+
+                if (data.trackers.size() != mTrackers.size()) {
+                    equalTrackers = false;
+                } else {
+                    for (String t : data.trackers) {
+                        if (!mTrackers.contains(t)) {
+                            equalTrackers = false;
+                            break;
+                        }
+                    }
+                }
+                if (!equalTrackers) {
+                    mTrackers.clear();
+                    mTrackers.addAll(data.trackers);
+
+                    removeTrackersFilters();
+
+                    if (mTrackers.size() > 1) {
+                        ListItem pivot = mListItemMap.get(SORT_BY_HEADER_KEY);
+                        int position = mFilterAdapter.getPosition(pivot);
+
+                        if (position == -1) {
+                            pivot = mListItemMap.get(SORT_ORDER_HEADER_KEY);
+                            position = mFilterAdapter.getPosition(pivot);
+                        }
+
+                        ListItem header = mListItemMap.get(TRACKERS_HEADER_KEY);
+                        if (position == -1) {
+                            mFilterAdapter.add(header);
+                            for (String t : mTrackers) {
+                                mFilterAdapter.add(getTrackerItem(t));
+                            }
+                        } else {
+                            mFilterAdapter.insert(header, position++);
+                            for (String t : mTrackers) {
+                                mFilterAdapter.insert(getTrackerItem(t), position++);
+                            }
+                        }
+                        updateTrackerFilter = !currentTrackerTorrents;
+                    } else {
+                        updateTrackerFilter = false;
+                    }
+
+                    dataChanged = true;
+                    checkSelected = true;
+                }
+            } else {
+                removeTrackersFilters();
+                dataChanged = true;
+
+                if (!mSharedPrefs.getString(G.PREF_LIST_TRACKER, "").equals("")) {
+                    updateTrackerFilter = true;
+                }
+            }
+
+            if (checkSelected) {
+                checkSelectedItems();
+            }
+
+            if (updateDirectoryFilter || updateTrackerFilter) {
+                TorrentListFragment fragment =
+                    ((TorrentListFragment) getFragmentManager().findFragmentById(R.id.torrent_list));
+                if (updateDirectoryFilter) {
+                    mDirectoryPosition = ListView.INVALID_POSITION;
+                    fragment.setListDirectoryFilter(null);
+                }
+                if (updateTrackerFilter) {
+                    mTrackerPosition = ListView.INVALID_POSITION;
+                    fragment.setListTrackerFilter(null);
+                }
+
+                mCloseHandler.removeCallbacks(mCloseRunnable);
+                mCloseHandler.post(mCloseRunnable);
+            }
+
+            if (data.downloadSpeed != -1 && data.uploadSpeed != -1) {
+                TransmissionSession session = ((TransmissionSessionInterface) getActivity()).getSession();
+                Object[] speed = {
+                    G.readableFileSize(data.downloadSpeed), "",
+                    G.readableFileSize(data.uploadSpeed), ""
+                };
+
+                if (session == null) {
+                    setStatus(speed, null);
+                } else {
+                    if (session.isDownloadSpeedLimitEnabled() || session.isAltSpeedLimitEnabled()) {
+                        speed[1] = " (" + G.readableFileSize((
+                            session.isAltSpeedLimitEnabled()
+                                ? session.getAltDownloadSpeedLimit()
+                                : session.getDownloadSpeedLimit()) * 1024) + "/s)";
+                    }
+                    if (session.isUploadSpeedLimitEnabled() || session.isAltSpeedLimitEnabled()) {
+                        speed[3] = " (" + G.readableFileSize((
+                            session.isAltSpeedLimitEnabled()
+                                ? session.getAltUploadSpeedLimit()
+                                : session.getUploadSpeedLimit()) * 1024) + "/s)";
+                    }
+
+                    setStatus(speed,
+                        session.getDownloadDirFreeSpace() > 0
+                            ? G.readableFileSize(session.getDownloadDirFreeSpace())
+                            : null
+                    );
+                }
+            }
+
+            if (dataChanged) {
+                mFilterAdapter.notifyDataSetChanged();
+            } else {
+                mFilterAdapter.setNotifyOnChange(true);
+            }
+        }
+
+        @Override
+        public void onLoaderReset(Loader<FilterLoaderOutputData> loader) {
+        }
+    };
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -147,223 +352,10 @@ public class TorrentListMenuFragment extends Fragment implements TorrentListNoti
         setStatus(null, null);
     }
 
-    public void notifyTorrentListChanged(int error, boolean added, boolean removed,
+    public void notifyTorrentListChanged(Cursor cursor, int error, boolean added, boolean removed,
                                         boolean statusChanged, boolean metadataNeeded) {
 
-        TransmissionSession session = ((TransmissionSessionInterface) getActivity()).getSession();
-        boolean showStatus = mSharedPrefs.getBoolean(G.PREF_SHOW_STATUS, false);
-        long down = 0, up = 0;
-        boolean directoriesEnabled = mSharedPrefs.getBoolean(G.PREF_FILTER_DIRECTORIES, true);
-        boolean trackersEnabled = mSharedPrefs.getBoolean(G.PREF_FILTER_TRACKERS, false);
-        Set<String> directories = new HashSet<String>();
-        Set<String> trackers = new HashSet<String>();
-        boolean equalDirectories = true;
-        boolean equalTrackers = true;
-        boolean currentDirectoryTorrents = false;
-        boolean currentTrackerTorrents = false;
-
-        if (torrents != null) {
-            String dir = mSharedPrefs.getString(G.PREF_LIST_DIRECTORY, "");
-            String track = mSharedPrefs.getString(G.PREF_LIST_TRACKER, "");
-            for (Torrent t : torrents) {
-                if (!showStatus) {
-                    down += t.getRateDownload();
-                    up += t.getRateUpload();
-                }
-                if (directoriesEnabled && t.getDownloadDir() != null) {
-                    directories.add(t.getDownloadDir());
-                    if (!currentDirectoryTorrents && t.getDownloadDir().equals(dir)) {
-                        currentDirectoryTorrents = true;
-                    }
-                }
-                if (trackersEnabled && t.getTrackers() != null) {
-                    for (Torrent.Tracker tracker : t.getTrackers()) {
-                        String host;
-                        try {
-                            URI uri = new URI(tracker.getAnnounce());
-                            host = uri.getHost();
-                        } catch (URISyntaxException e) {
-                            host = getString(R.string.tracker_unknown_host);
-                        }
-                        trackers.add(host);
-                        if (!currentTrackerTorrents && host.equals(track)) {
-                            currentTrackerTorrents = true;
-                        }
-                    }
-                }
-            }
-        }
-
-        boolean updateDirectoryFilter = false;
-        boolean checkSelected = false;
-        if (directoriesEnabled) {
-            if (directories.size() != mDirectories.size()) {
-                equalDirectories = false;
-            } else {
-                for (String d : directories) {
-                    if (!mDirectories.contains(d)) {
-                        equalDirectories = false;
-                        break;
-                    }
-                }
-            }
-            if (!equalDirectories) {
-                mDirectories.clear();
-                mDirectories.addAll(directories);
-
-                mFilterAdapter.setNotifyOnChange(false);
-                removeDirectoriesFilters();
-
-                if (mDirectories.size() > 1) {
-                    ListItem pivot = mListItemMap.get(SORT_BY_HEADER_KEY);
-                    int position = mFilterAdapter.getPosition(pivot);
-
-                    if (position == -1) {
-                        pivot = mListItemMap.get(SORT_ORDER_HEADER_KEY);
-                        position = mFilterAdapter.getPosition(pivot);
-                    }
-
-                    ListItem header = mListItemMap.get(DIRECTORIES_HEADER_KEY);
-                    if (position == -1) {
-                        mFilterAdapter.add(header);
-                        for (String d : mDirectories) {
-                            mFilterAdapter.add(getDirectoryItem(d));
-                        }
-                    } else {
-                        mFilterAdapter.insert(header, position++);
-                        for (String d : mDirectories) {
-                            mFilterAdapter.insert(getDirectoryItem(d), position++);
-                        }
-                    }
-                    updateDirectoryFilter = !currentDirectoryTorrents;
-                } else {
-                    updateDirectoryFilter = true;
-                }
-
-                mFilterAdapter.notifyDataSetChanged();
-                checkSelected = true;
-            }
-        } else {
-            mFilterAdapter.setNotifyOnChange(false);
-            removeDirectoriesFilters();
-            mFilterAdapter.notifyDataSetChanged();
-
-            if (!mSharedPrefs.getString(G.PREF_LIST_DIRECTORY, "").equals("")) {
-                updateDirectoryFilter = true;
-            }
-        }
-
-        boolean updateTrackerFilter = false;
-        if (trackersEnabled) {
-            if (trackers.size() != mTrackers.size()) {
-                equalTrackers = false;
-            } else {
-                for (String t : trackers) {
-                    if (!mTrackers.contains(t)) {
-                        equalTrackers = false;
-                        break;
-                    }
-                }
-            }
-            if (!equalTrackers) {
-                mTrackers.clear();
-                mTrackers.addAll(trackers);
-
-                mFilterAdapter.setNotifyOnChange(false);
-                removeTrackersFilters();
-
-                if (mTrackers.size() > 1) {
-                    ListItem pivot = mListItemMap.get(SORT_BY_HEADER_KEY);
-                    int position = mFilterAdapter.getPosition(pivot);
-
-                    if (position == -1) {
-                        pivot = mListItemMap.get(SORT_ORDER_HEADER_KEY);
-                        position = mFilterAdapter.getPosition(pivot);
-                    }
-
-                    ListItem header = mListItemMap.get(TRACKERS_HEADER_KEY);
-                    if (position == -1) {
-                        mFilterAdapter.add(header);
-                        for (String t : mTrackers) {
-                            mFilterAdapter.add(getTrackerItem(t));
-                        }
-                    } else {
-                        mFilterAdapter.insert(header, position++);
-                        for (String t : mTrackers) {
-                            mFilterAdapter.insert(getTrackerItem(t), position++);
-                        }
-                    }
-                    updateTrackerFilter = !currentTrackerTorrents;
-                } else {
-                    updateTrackerFilter = false;
-                }
-
-                mFilterAdapter.notifyDataSetChanged();
-                checkSelected = true;
-            }
-        } else {
-            mFilterAdapter.setNotifyOnChange(false);
-            removeTrackersFilters();
-            mFilterAdapter.notifyDataSetChanged();
-
-            if (!mSharedPrefs.getString(G.PREF_LIST_TRACKER, "").equals("")) {
-                updateTrackerFilter = true;
-            }
-        }
-
-        if (checkSelected) {
-            checkSelectedItems();
-        }
-
-        if (updateDirectoryFilter || updateTrackerFilter) {
-            TorrentListFragment fragment =
-                    ((TorrentListFragment) getFragmentManager().findFragmentById(R.id.torrent_list));
-            if (updateDirectoryFilter) {
-                mDirectoryPosition = ListView.INVALID_POSITION;
-                fragment.setListDirectoryFilter(null);
-            }
-            if (updateTrackerFilter) {
-                mTrackerPosition = ListView.INVALID_POSITION;
-                fragment.setListTrackerFilter(null);
-            }
-
-            mCloseHandler.removeCallbacks(mCloseRunnable);
-            mCloseHandler.post(mCloseRunnable);
-        }
-
-        if (showStatus) {
-            return;
-        }
-
-        Object[] speed = {
-            G.readableFileSize(down), "",
-            G.readableFileSize(up), ""
-        };
-
-        if (session == null) {
-            setStatus(speed, null);
-            return;
-        }
-
-
-        if (session.isDownloadSpeedLimitEnabled() || session.isAltSpeedLimitEnabled()) {
-            speed[1] = " (" + G.readableFileSize((
-                session.isAltSpeedLimitEnabled()
-                    ? session.getAltDownloadSpeedLimit()
-                    : session.getDownloadSpeedLimit()) * 1024) + "/s)";
-        }
-        if (session.isUploadSpeedLimitEnabled() || session.isAltSpeedLimitEnabled()) {
-            speed[3] = " (" + G.readableFileSize((
-                session.isAltSpeedLimitEnabled()
-                    ? session.getAltUploadSpeedLimit()
-                    : session.getUploadSpeedLimit()) * 1024) + "/s)";
-        }
-
-        setStatus(speed,
-            session.getDownloadDirFreeSpace() > 0
-                ? G.readableFileSize(session.getDownloadDirFreeSpace())
-                : null
-        );
+        getActivity().getSupportLoaderManager().restartLoader(G.FILTER_MENU_LOADER_ID, null, menuFilterLoaderCallbacks);
     }
 
     private void setStatus(Object[] speeds, String freeSpace) {
@@ -808,6 +800,75 @@ public class TorrentListMenuFragment extends Fragment implements TorrentListNoti
         }
 
         return position;
+    }
+
+    private class FilterLoaderOutputData {
+        public long downloadSpeed = -1;
+        public long uploadSpeed = -1;
+        public Set<String> directories = null;
+        public Set<String> trackers = null;
+    }
+
+    private class FilterMenuLoader extends AsyncTaskLoader<FilterLoaderOutputData> {
+        private FilterLoaderOutputData result;
+        private boolean queryTraffic;
+        private boolean queryDirectories;
+        private boolean queryTrackers;
+
+        public FilterMenuLoader(Context context, boolean queryTraffic,
+                                boolean queryDirectories, boolean queryTrackers) {
+            super(context);
+
+            this.queryTraffic = queryTraffic;
+            this.queryDirectories = queryDirectories;
+            this.queryTrackers = queryTrackers;
+        }
+
+        @Override public FilterLoaderOutputData loadInBackground() {
+            DataSource dataSource = new DataSource(getContext());
+            FilterLoaderOutputData output = new FilterLoaderOutputData();
+
+            try {
+                dataSource.open();
+
+                if (queryTraffic) {
+                    long[] speed = dataSource.getTrafficSpeed();
+                    output.downloadSpeed = speed[0];
+                    output.uploadSpeed = speed[1];
+                }
+
+                if (queryTrackers) {
+                    output.trackers = dataSource.getTrackerAnnounceURLs();
+                }
+                if (queryDirectories) {
+                    output.directories = dataSource.getDownloadDirectories();
+                }
+            } catch (Exception ignored) {
+                output = null;
+            } finally {
+                dataSource.close();
+            }
+
+            return output;
+        }
+
+        @Override protected void onStartLoading() {
+            if (result != null) {
+                deliverResult(result);
+            }
+
+            if (takeContentChanged() || result == null) {
+                forceLoad();
+            }
+        }
+
+        @Override protected void onReset() {
+            result = null;
+        }
+
+        @Override public void deliverResult(FilterLoaderOutputData result) {
+            this.result = result;
+        }
     }
 
     private static class FilterAdapter extends ArrayAdapter<ListItem> {

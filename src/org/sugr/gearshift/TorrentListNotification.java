@@ -1,7 +1,9 @@
 package org.sugr.gearshift;
 
+import android.database.Cursor;
+
 public interface TorrentListNotification {
     public void notifyTorrentListChanged(
-        int error, boolean added, boolean removed,
+        Cursor cursor, int error, boolean added, boolean removed,
         boolean statusChanged, boolean metadataNeeded);
 }

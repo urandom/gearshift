@@ -2,6 +2,7 @@ package org.sugr.gearshift;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.database.Cursor;
 import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.support.v4.content.AsyncTaskLoader;
@@ -16,6 +17,7 @@ import java.util.ArrayList;
 
 class TransmissionData {
     public TransmissionSession session = null;
+    public Cursor cursor;
     public int error = 0;
     public int errorCode = 0;
     public String errorMessage;
@@ -45,12 +47,10 @@ class TransmissionData {
         this.errorCode = errorCode;
     }
 
-    public TransmissionData(TransmissionSession session,
-            boolean hasRemoved,
-            boolean hasAdded,
-            boolean hasStatusChanged,
-            boolean hasMetadataNeeded) {
+    public TransmissionData(TransmissionSession session, Cursor cursor, boolean hasRemoved,
+                            boolean hasAdded, boolean hasStatusChanged, boolean hasMetadataNeeded) {
         this.session = session;
+        this.cursor = cursor;
 
         this.hasRemoved = hasRemoved;
         this.hasAdded = hasAdded;
@@ -62,13 +62,16 @@ class TransmissionData {
 public class TransmissionDataLoader extends AsyncTaskLoader<TransmissionData> {
     private TransmissionProfile mProfile;
 
-    private TransmissionSession mSession;
-    private int mLastError;
+    private TransmissionSession session;
+
+    private Cursor cursor;
+    private boolean details;
+    private int[] updateIds;
+
+    private int lastError;
     private int lastErrorCode;
 
     private TransmissionSessionManager mSessManager;
-    private Torrent[] mCurrentTorrents;
-    private boolean mAllCurrent = false;
 
     private int mIteration = 0;
     private boolean mStopUpdates = false;
@@ -117,11 +120,12 @@ public class TransmissionDataLoader extends AsyncTaskLoader<TransmissionData> {
     }
 
     public TransmissionDataLoader(Context context, TransmissionProfile profile,
-            TransmissionSession session, Torrent[] current) {
+                                  TransmissionSession session, boolean details, int[] ids) {
         this(context, profile);
 
-        mSession = session;
-        setCurrentTorrents(current);
+        this.session = session;
+        this.details = details;
+        this.updateIds = ids;
     }
 
     public void setProfile(TransmissionProfile profile) {
@@ -135,21 +139,19 @@ public class TransmissionDataLoader extends AsyncTaskLoader<TransmissionData> {
         }
     }
 
-    public void setCurrentTorrents(Torrent[] torrents) {
-        mCurrentTorrents = torrents;
-        mAllCurrent = false;
-        onContentChanged();
-    }
-
-    public void setAllCurrentTorrents(boolean set) {
-        mCurrentTorrents = null;
-        mAllCurrent = set;
-        onContentChanged();
-    }
-
     public void setSession(TransmissionSession session, String... keys) {
         mSessionSet = session;
         mSessionSetKeys = keys;
+        onContentChanged();
+    }
+
+    public void setDetails(boolean details) {
+        this.details = details;
+        onContentChanged();
+    }
+
+    public void setUpdateIds(int[] ids) {
+        updateIds = ids;
         onContentChanged();
     }
 
@@ -221,8 +223,8 @@ public class TransmissionDataLoader extends AsyncTaskLoader<TransmissionData> {
                 hasStatusChanged,
                 hasMetadataNeeded;
 
-        if (mLastError > 0) {
-            mLastError = 0;
+        if (lastError > 0) {
+            lastError = 0;
             lastErrorCode = 0;
         }
 
@@ -232,10 +234,10 @@ public class TransmissionDataLoader extends AsyncTaskLoader<TransmissionData> {
             mIteration = 0;
         }
         if (!mSessManager.hasConnectivity()) {
-            mLastError = TransmissionData.Errors.NO_CONNECTIVITY;
-            mSession = null;
+            lastError = TransmissionData.Errors.NO_CONNECTIVITY;
+            session = null;
             mStopUpdates = true;
-            return new TransmissionData(mSession, mLastError, 0);
+            return new TransmissionData(session, lastError, 0);
         }
 
         /* TODO: catch SQLiteException */
@@ -290,7 +292,7 @@ public class TransmissionDataLoader extends AsyncTaskLoader<TransmissionData> {
 
         }
 
-        if (mSession == null || mCurrentTorrents == null && mIteration % 3 == 0) {
+        if (session == null || mIteration % 3 == 0) {
             Thread thread = new Thread(new Runnable() {
                 @Override
                 public void run() {
@@ -302,7 +304,7 @@ public class TransmissionDataLoader extends AsyncTaskLoader<TransmissionData> {
                     try {
                         mSessManager.updateSession();
 
-                        mSession = dataSource.getSession();
+                        session = dataSource.getSession();
                     } catch (ManagerException e) {
                         synchronized(mLock) {
                             exceptions.add(e);
@@ -348,7 +350,7 @@ public class TransmissionDataLoader extends AsyncTaskLoader<TransmissionData> {
             thread.start();
         }
 
-        if (mSession != null && mSession.getRPCVersion() > 14) {
+        if (session != null && session.getRPCVersion() > 14) {
             Thread thread = new Thread(new Runnable() {
                 @Override
                 public void run() {
@@ -358,10 +360,10 @@ public class TransmissionDataLoader extends AsyncTaskLoader<TransmissionData> {
                         }
                     }
                     try {
-                        if (mSession != null) {
-                            long freeSpace = mSessManager.getFreeSpace(mSession.getDownloadDir());
+                        if (session != null) {
+                            long freeSpace = mSessManager.getFreeSpace(session.getDownloadDir());
                             if (freeSpace > -1) {
-                                mSession.setDownloadDirFreeSpace(freeSpace);
+                                session.setDownloadDirFreeSpace(freeSpace);
                             }
                         }
                     } catch (ManagerException e) {
@@ -377,31 +379,12 @@ public class TransmissionDataLoader extends AsyncTaskLoader<TransmissionData> {
 
         boolean active = mDefaultPrefs.getBoolean(G.PREF_UPDATE_ACTIVE, false);
         TorrentStatus status;
-        int[] ids = null;
         String[] fields;
 
-        if (mAllCurrent) {
+        if (details) {
             fields = G.concat(Torrent.Fields.STATS, Torrent.Fields.STATS_EXTRA);
             if (!dataSource.hasExtraInfo()) {
                 fields = G.concat(fields, Torrent.Fields.INFO_EXTRA);
-            }
-        } else if (mCurrentTorrents != null) {
-            if (mIteration == 0) {
-                fields = G.concat(Torrent.Fields.METADATA, Torrent.Fields.STATS,
-                    Torrent.Fields.STATS_EXTRA, Torrent.Fields.INFO_EXTRA);
-            } else {
-                fields = G.concat(Torrent.Fields.STATS, Torrent.Fields.STATS_EXTRA);
-                boolean extraAdded = false;
-                ids = new int[mCurrentTorrents.length];
-                int index = 0;
-                for (Torrent t : mCurrentTorrents) {
-                    if (!extraAdded && (t.getFiles() == null || t.getFiles().length == 0)) {
-                        fields = G.concat(fields, Torrent.Fields.INFO_EXTRA);
-                        extraAdded = true;
-                    }
-
-                    ids[index++] = t.getId();
-                }
             }
         } else if (mIteration == 0) {
             fields = G.concat(Torrent.Fields.METADATA, Torrent.Fields.STATS);
@@ -423,9 +406,9 @@ public class TransmissionDataLoader extends AsyncTaskLoader<TransmissionData> {
         }
 
         try {
-            if (mCurrentTorrents != null) {
-                status = mSessManager.getTorrents(fields, ids);
-            } else if (active && !mAllCurrent) {
+            if (updateIds != null) {
+                status = mSessManager.getTorrents(fields, updateIds);
+            } else if (active && !details) {
                 int full = Integer.parseInt(mDefaultPrefs.getString(G.PREF_FULL_UPDATE, "2"));
 
                 if (mIteration % full == 0) {
@@ -449,11 +432,12 @@ public class TransmissionDataLoader extends AsyncTaskLoader<TransmissionData> {
             return handleError(exceptions.get(0));
         }
 
-        mSession.setDownloadDirectories(mProfile, dataSource.getDownloadDirectories());
+        cursor = dataSource.getTorrentCursor(details);
+        session.setDownloadDirectories(mProfile, dataSource.getDownloadDirectories());
 
         mIteration++;
 
-        return new TransmissionData(mSession, hasRemoved, hasAdded,
+        return new TransmissionData(session, cursor, hasRemoved, hasAdded,
             hasStatusChanged, hasMetadataNeeded);
     }
 
@@ -478,11 +462,11 @@ public class TransmissionDataLoader extends AsyncTaskLoader<TransmissionData> {
         G.logD("TLoader: onStartLoading()");
 
         mStopUpdates = false;
-        if (mLastError > 0) {
-            mSession = null;
-            deliverResult(new TransmissionData(mSession, mLastError, lastErrorCode));
-        } else if (mIteration > 0) {
-            deliverResult(new TransmissionData(mSession, false, false, false, false));
+        if (lastError > 0) {
+            session = null;
+            deliverResult(new TransmissionData(session, lastError, lastErrorCode));
+        } else if (cursor != null && cursor.getCount() > 0) {
+            deliverResult(new TransmissionData(session, cursor, false, false, false, false));
         }
 
         if (takeContentChanged() || mIteration == 0) {
@@ -545,61 +529,61 @@ public class TransmissionDataLoader extends AsyncTaskLoader<TransmissionData> {
         switch(e.getCode()) {
             case 401:
             case 403:
-                mLastError = TransmissionData.Errors.ACCESS_DENIED;
-                mSession = null;
+                lastError = TransmissionData.Errors.ACCESS_DENIED;
+                session = null;
                 break;
             case 200:
                 if (e.getMessage().equals("no-json")) {
-                    mLastError = TransmissionData.Errors.NO_JSON;
-                    mSession = null;
+                    lastError = TransmissionData.Errors.NO_JSON;
+                    session = null;
                 }
                 break;
             case -1:
                 if (e.getMessage().equals("timeout")) {
-                    mLastError = TransmissionData.Errors.TIMEOUT;
-                    mSession = null;
+                    lastError = TransmissionData.Errors.TIMEOUT;
+                    session = null;
                 } else {
-                    mLastError = TransmissionData.Errors.NO_CONNECTION;
-                    mSession = null;
+                    lastError = TransmissionData.Errors.NO_CONNECTION;
+                    session = null;
                 }
                 break;
             case -2:
                 if (e.getMessage().equals("duplicate torrent")) {
-                    mLastError = TransmissionData.Errors.DUPLICATE_TORRENT;
+                    lastError = TransmissionData.Errors.DUPLICATE_TORRENT;
                 } else if (e.getMessage().equals("invalid or corrupt torrent file")) {
-                    mLastError = TransmissionData.Errors.INVALID_TORRENT;
+                    lastError = TransmissionData.Errors.INVALID_TORRENT;
                 } else {
-                    mLastError = TransmissionData.Errors.RESPONSE_ERROR;
-                    mSession = null;
+                    lastError = TransmissionData.Errors.RESPONSE_ERROR;
+                    session = null;
                     G.logE("Transmission Daemon Error!", e);
                 }
                 break;
             case -3:
-                mLastError = TransmissionData.Errors.OUT_OF_MEMORY;
-                mSession = null;
+                lastError = TransmissionData.Errors.OUT_OF_MEMORY;
+                session = null;
                 break;
             case -4:
-                mLastError = TransmissionData.Errors.JSON_PARSE_ERROR;
-                mSession = null;
+                lastError = TransmissionData.Errors.JSON_PARSE_ERROR;
+                session = null;
                 G.logE("JSON parse error!", e);
                 break;
             default:
-                mLastError = TransmissionData.Errors.GENERIC_HTTP;
-                mSession = null;
+                lastError = TransmissionData.Errors.GENERIC_HTTP;
+                session = null;
                 break;
         }
 
-        return new TransmissionData(mSession, mLastError, lastErrorCode);
+        return new TransmissionData(session, lastError, lastErrorCode);
     }
 
     private TransmissionData handleError(InterruptedException e) {
         mStopUpdates = true;
 
-        mLastError = TransmissionData.Errors.THREAD_ERROR;
+        lastError = TransmissionData.Errors.THREAD_ERROR;
         G.logE("Got an error when processing the threads", e);
 
-        mSession = null;
-        return new TransmissionData(mSession, mLastError, 0);
+        session = null;
+        return new TransmissionData(session, lastError, 0);
     }
 
     private class TorrentActionRunnable implements Runnable {

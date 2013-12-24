@@ -49,13 +49,15 @@ public class TransmissionSessionActivity extends FragmentActivity {
 
     private DataSource dataSource;
 
+    private final Object lock = new Object();
+
     private LoaderCallbacks<TransmissionData> mSessionLoaderCallbacks = new LoaderCallbacks<TransmissionData>() {
 
         @Override public Loader<TransmissionData> onCreateLoader(int arg0, Bundle arg1) {
             if (mProfile == null) return null;
 
             return new TransmissionSessionLoader(
-                    TransmissionSessionActivity.this, mProfile, dataSource);
+                    TransmissionSessionActivity.this, mProfile);
         }
 
         @Override public void onLoadFinished(Loader<TransmissionData> loader,
@@ -218,26 +220,20 @@ public class TransmissionSessionActivity extends FragmentActivity {
         updateFields(null, true);
 
         initListeners();
-
-        getSupportLoaderManager().restartLoader(
-                G.SESSION_LOADER_ID, null, mSessionLoaderCallbacks);
     }
 
     @Override
     protected void onResume() {
         super.onResume();
 
-        Loader<TransmissionData> loader = getSupportLoaderManager()
-            .getLoader(G.SESSION_LOADER_ID);
-
-        loader.onContentChanged();
+        new DBOpenTask().execute();
     }
 
     @Override
     protected void onPause() {
         super.onPause();
 
-        if (dataSource.isOpen()) {
+        synchronized (lock) {
             dataSource.close();
         }
     }
@@ -1197,7 +1193,9 @@ public class TransmissionSessionActivity extends FragmentActivity {
         Loader<TransmissionData> l = getSupportLoaderManager()
             .getLoader(G.SESSION_LOADER_ID);
 
-        ((TransmissionSessionLoader) l).setSession(mSession, keys);
+        if (l != null) {
+            ((TransmissionSessionLoader) l).setSession(mSession, keys);
+        }
     }
 
     private void showTimePickerDialog(boolean begin, int hour, int minute) {
@@ -1213,7 +1211,6 @@ public class TransmissionSessionActivity extends FragmentActivity {
     private class PortTestAsyncTask extends AsyncTask<Void, Void, Boolean> {
         @Override
         protected Boolean doInBackground(Void... params) {
-            dataSource.open();
             TransmissionSessionManager manager = new TransmissionSessionManager(
                     TransmissionSessionActivity.this, mProfile, dataSource);
 
@@ -1222,11 +1219,13 @@ public class TransmissionSessionActivity extends FragmentActivity {
             }
 
             try {
-                return manager.testPort();
+                synchronized (lock) {
+                    if (dataSource.isOpen())
+                        return manager.testPort();
+                    else return null;
+                }
             } catch (ManagerException e) {
                 return null;
-            } finally {
-                dataSource.close();
             }
         }
 
@@ -1258,7 +1257,6 @@ public class TransmissionSessionActivity extends FragmentActivity {
     private class BlocklistUpdateAsyncTask extends AsyncTask<Void, Void, Long> {
         @Override
         protected Long doInBackground(Void... params) {
-            dataSource.open();
             TransmissionSessionManager manager = new TransmissionSessionManager(
                     TransmissionSessionActivity.this, mProfile, dataSource);
 
@@ -1267,11 +1265,13 @@ public class TransmissionSessionActivity extends FragmentActivity {
             }
 
             try {
-                return manager.blocklistUpdate();
+                synchronized (lock) {
+                    if (dataSource.isOpen())
+                        return manager.blocklistUpdate();
+                    else return null;
+                }
             } catch (ManagerException e) {
                 return null;
-            } finally {
-                dataSource.close();
             }
         }
 
@@ -1303,150 +1303,161 @@ public class TransmissionSessionActivity extends FragmentActivity {
             }
         }
     }
-}
 
-class TransmissionSessionLoader extends AsyncTaskLoader<TransmissionData> {
+    private class DBOpenTask extends AsyncTask<Void, Void, Void> {
+        @Override protected Void doInBackground(Void... voids) {
+            dataSource.open();
 
-    private TransmissionSessionManager mSessManager;
+            getSupportLoaderManager().restartLoader(
+                G.SESSION_LOADER_ID, null, mSessionLoaderCallbacks);
 
-    private TransmissionSession mSessionSet;
-    private Set<String> mSessionSetKeys = new HashSet<String>();
-    private final Object mLock = new Object();
-    private boolean mStopUpdates = false;
+            return null;
+        }
+    }
 
-    private Handler mIntervalHandler = new Handler();
-    private Runnable mIntervalRunner = new Runnable() {
+    private class TransmissionSessionLoader extends AsyncTaskLoader<TransmissionData> {
+
+        private TransmissionSessionManager mSessManager;
+
+        private TransmissionSession mSessionSet;
+        private Set<String> mSessionSetKeys = new HashSet<String>();
+        private final Object mLock = new Object();
+        private boolean mStopUpdates = false;
+
+        private Handler mIntervalHandler = new Handler();
+        private Runnable mIntervalRunner = new Runnable() {
+            @Override
+            public void run() {
+                if (!mStopUpdates)
+                    onContentChanged();
+            }
+        };
+
+
+        private int mLastError;
+        private int lastErrorCode;
+
+        public TransmissionSessionLoader(Context context, TransmissionProfile profile) {
+            super(context);
+
+            mSessManager = new TransmissionSessionManager(getContext(), profile, dataSource);
+        }
+
+        public void setSession(TransmissionSession session, String... keys) {
+            mSessionSet = session;
+            synchronized(mLock) {
+                Collections.addAll(mSessionSetKeys, keys);
+            }
+            onContentChanged();
+        }
+
+
         @Override
-        public void run() {
-            if (!mStopUpdates)
-                onContentChanged();
-        }
-    };
+        public TransmissionData loadInBackground() {
+            mIntervalHandler.removeCallbacks(mIntervalRunner);
+            mStopUpdates = false;
 
+            if (mLastError > 0) {
+                mLastError = 0;
+                lastErrorCode = 0;
+            }
+            if (!mSessManager.hasConnectivity()) {
+                mLastError = TransmissionData.Errors.NO_CONNECTIVITY;
+                return new TransmissionData(null, mLastError, 0);
+            }
 
-    private int mLastError;
-    private int lastErrorCode;
+            G.logD("Fetching data");
 
-    private DataSource dataSource;
+            if (mSessionSet != null) {
+                try {
+                    synchronized(mLock) {
+                        mSessManager.setSession(mSessionSet,
+                            mSessionSetKeys.toArray(new String[mSessionSetKeys.size()]));
+                        mSessionSetKeys.clear();
+                    }
+                } catch (ManagerException e) {
+                    synchronized(mLock) {
+                        mSessionSetKeys.clear();
+                    }
+                    return handleError(e);
+                } finally {
+                    mSessionSet = null;
+                }
+            }
 
-    public TransmissionSessionLoader(Context context, TransmissionProfile profile, DataSource dataSource) {
-        super(context);
-
-        this.dataSource = dataSource;
-        mSessManager = new TransmissionSessionManager(getContext(), profile, dataSource);
-    }
-
-    public void setSession(TransmissionSession session, String... keys) {
-        mSessionSet = session;
-        synchronized(mLock) {
-            Collections.addAll(mSessionSetKeys, keys);
-        }
-        onContentChanged();
-    }
-
-
-    @Override
-    public TransmissionData loadInBackground() {
-        mIntervalHandler.removeCallbacks(mIntervalRunner);
-        mStopUpdates = false;
-
-        if (mLastError > 0) {
-            mLastError = 0;
-            lastErrorCode = 0;
-        }
-        if (!mSessManager.hasConnectivity()) {
-            mLastError = TransmissionData.Errors.NO_CONNECTIVITY;
-            return new TransmissionData(null, mLastError, 0);
-        }
-
-        G.logD("Fetching data");
-
-        if (mSessionSet != null) {
+            TransmissionSession session;
             try {
-                synchronized(mLock) {
-                    mSessManager.setSession(mSessionSet,
-                        mSessionSetKeys.toArray(new String[mSessionSetKeys.size()]));
-                    mSessionSetKeys.clear();
+                mSessManager.updateSession();
+
+                synchronized (lock) {
+                    if (dataSource.isOpen())
+                        session = dataSource.getSession();
+                    else return new TransmissionData(null, 0, 0);
                 }
             } catch (ManagerException e) {
-                synchronized(mLock) {
-                    mSessionSetKeys.clear();
-                }
                 return handleError(e);
-            } finally {
-                mSessionSet = null;
+            }
+
+            return new TransmissionData(session, mLastError, lastErrorCode);
+        }
+
+        @Override
+        public void deliverResult(TransmissionData data) {
+            super.deliverResult(data);
+
+            SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getContext());
+            int update = Integer.parseInt(prefs.getString(G.PREF_UPDATE_INTERVAL, "-1"));
+            if (update >= 0 && !isReset()) {
+                if (update < 10) {
+                    update = 10;
+                }
+                mIntervalHandler.postDelayed(mIntervalRunner, update * 1000);
             }
         }
 
-        TransmissionSession session;
-        try {
-            mSessManager.updateSession();
+        private TransmissionData handleError(ManagerException e) {
+            mStopUpdates = true;
 
-            dataSource.open();
-            session = dataSource.getSession();
-            dataSource.close();
-        } catch (ManagerException e) {
-            return handleError(e);
-        }
+            G.logD("Got an error while fetching data: " + e.getMessage() + " and this code: " + e.getCode());
 
-        return new TransmissionData(session, mLastError, lastErrorCode);
-    }
-
-    @Override
-    public void deliverResult(TransmissionData data) {
-        super.deliverResult(data);
-
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getContext());
-        int update = Integer.parseInt(prefs.getString(G.PREF_UPDATE_INTERVAL, "-1"));
-        if (update >= 0 && !isReset()) {
-            if (update < 10) {
-                update = 10;
+            lastErrorCode = e.getCode();
+            switch(e.getCode()) {
+                case 401:
+                case 403:
+                    mLastError = TransmissionData.Errors.ACCESS_DENIED;
+                    break;
+                case 200:
+                    if (e.getMessage().equals("no-json")) {
+                        mLastError = TransmissionData.Errors.NO_JSON;
+                    }
+                    break;
+                case -1:
+                    if (e.getMessage().equals("timeout")) {
+                        mLastError = TransmissionData.Errors.TIMEOUT;
+                    } else {
+                        mLastError = TransmissionData.Errors.NO_CONNECTION;
+                    }
+                    break;
+                case -2:
+                    mLastError = TransmissionData.Errors.RESPONSE_ERROR;
+                    G.logE("Transmission Daemon Error!", e);
+                    break;
+                case -3:
+                    mLastError = TransmissionData.Errors.OUT_OF_MEMORY;
+                    break;
+                case -4:
+                    mLastError = TransmissionData.Errors.JSON_PARSE_ERROR;
+                    G.logE("JSON parse error!", e);
+                    break;
+                default:
+                    mLastError = TransmissionData.Errors.GENERIC_HTTP;
+                    break;
             }
-            mIntervalHandler.postDelayed(mIntervalRunner, update * 1000);
+
+            return new TransmissionData(null, mLastError, lastErrorCode);
         }
     }
 
-    private TransmissionData handleError(ManagerException e) {
-        mStopUpdates = true;
-
-        G.logD("Got an error while fetching data: " + e.getMessage() + " and this code: " + e.getCode());
-
-        lastErrorCode = e.getCode();
-        switch(e.getCode()) {
-            case 401:
-            case 403:
-                mLastError = TransmissionData.Errors.ACCESS_DENIED;
-                break;
-            case 200:
-                if (e.getMessage().equals("no-json")) {
-                    mLastError = TransmissionData.Errors.NO_JSON;
-                }
-                break;
-            case -1:
-                if (e.getMessage().equals("timeout")) {
-                    mLastError = TransmissionData.Errors.TIMEOUT;
-                } else {
-                    mLastError = TransmissionData.Errors.NO_CONNECTION;
-                }
-                break;
-            case -2:
-                mLastError = TransmissionData.Errors.RESPONSE_ERROR;
-                G.logE("Transmission Daemon Error!", e);
-                break;
-            case -3:
-                mLastError = TransmissionData.Errors.OUT_OF_MEMORY;
-                break;
-            case -4:
-                mLastError = TransmissionData.Errors.JSON_PARSE_ERROR;
-                G.logE("JSON parse error!", e);
-                break;
-            default:
-                mLastError = TransmissionData.Errors.GENERIC_HTTP;
-                break;
-        }
-
-        return new TransmissionData(null, mLastError, lastErrorCode);
-    }
 }
 
 class TimePickerFragment extends DialogFragment

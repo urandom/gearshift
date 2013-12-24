@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
+import android.database.Cursor;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
@@ -15,6 +16,7 @@ import android.support.v4.content.Loader;
 import android.text.Html;
 import android.text.SpannableString;
 import android.text.Spanned;
+import android.text.TextUtils;
 import android.text.style.ForegroundColorSpan;
 import android.util.SparseBooleanArray;
 import android.view.ActionMode;
@@ -29,6 +31,7 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.CheckBox;
+import android.widget.CursorAdapter;
 import android.widget.Filter;
 import android.widget.ListView;
 import android.widget.ProgressBar;
@@ -39,6 +42,7 @@ import android.widget.TextView;
 import org.sugr.gearshift.G.FilterBy;
 import org.sugr.gearshift.G.SortBy;
 import org.sugr.gearshift.G.SortOrder;
+import org.sugr.gearshift.datasource.Constants;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -107,7 +111,7 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
         /**
          * Callback for when an item has been selected.
          */
-        public void onItemSelected(Torrent torrent);
+        public void onItemSelected(int position);
     }
 
     /**
@@ -116,7 +120,7 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
      */
     private static Callbacks sDummyCallbacks = new Callbacks() {
         @Override
-        public void onItemSelected(Torrent torrent) {
+        public void onItemSelected(int position) {
         }
     };
 
@@ -415,7 +419,7 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
 
         // Notify the active callbacks interface (the activity, if the
         // fragment is attached to one) that an item has been selected.
-        mCallbacks.onItemSelected(mTorrentListAdapter.getItem(position));
+        mCallbacks.onItemSelected(position);
     }
 
     @Override
@@ -485,7 +489,7 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
     }
 
     @Override
-    public void notifyTorrentListChanged(int error, boolean added, boolean removed,
+    public void notifyTorrentListChanged(Cursor cursor, int error, boolean added, boolean removed,
                                          boolean statusChanged, boolean metadataNeeded) {
         if (error == -1) {
             mTorrentListAdapter.clear();
@@ -493,6 +497,7 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
         }
 
         boolean filtered = false;
+        int count = cursor != null ? cursor.getCount() : 0;
 
         currentTorrentId = -1;
         if (mChoiceMode == ListView.CHOICE_MODE_SINGLE && error == 0 && statusChanged
@@ -503,7 +508,7 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
             }
         }
 
-        if (torrents.size() > 0 || error > 0 || mTorrentListAdapter.getUnfilteredCount() > 0) {
+        if (count > 0 || error > 0 || mTorrentListAdapter.getUnfilteredCount() > 0) {
              /* The notifyDataSetChanged method sets this to true */
             mTorrentListAdapter.setNotifyOnChange(false);
             boolean notifyChange = true;
@@ -525,7 +530,7 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
                     mActionMode = null;
                 }
             }
-            if (torrents.size() > 0) {
+            if (count > 0) {
                 if (notifyChange) {
                     mTorrentListAdapter.notifyDataSetChanged();
                 }
@@ -539,7 +544,7 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
                 TorrentListMenuFragment menu = (TorrentListMenuFragment) manager.findFragmentById(R.id.torrent_list_menu);
 
                 if (menu != null) {
-                    menu.notifyTorrentListChanged(torrents, error, added, removed,
+                    menu.notifyTorrentListChanged(cursor, error, added, removed,
                         statusChanged, metadataNeeded);
                 }
 
@@ -547,7 +552,7 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
                     TorrentDetailFragment detail = (TorrentDetailFragment) manager.findFragmentByTag(
                         G.DETAIL_FRAGMENT_TAG);
                     if (detail != null) {
-                        detail.notifyTorrentListChanged(torrents, error, added, removed,
+                        detail.notifyTorrentListChanged(cursor, error, added, removed,
                             statusChanged, metadataNeeded);
                     }
                 }
@@ -753,6 +758,92 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
             }
         } else {
             item.collapseActionView();
+        }
+    }
+
+    private class TorrentCursorAdapter extends CursorAdapter {
+        private SparseBooleanArray mTorrentAdded = new SparseBooleanArray();
+
+        public TorrentCursorAdapter(Context context, Cursor cursor) {
+            super(context, cursor, 0);
+        }
+
+        @Override public View newView(Context context, Cursor cursor, ViewGroup viewGroup) {
+            LayoutInflater vi = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+            return vi.inflate(R.layout.torrent_list_item, viewGroup, false);        }
+
+        @Override public void bindView(View view, Context context, Cursor cursor) {
+            TextView name = (TextView) view.findViewById(R.id.name);
+
+            TextView traffic = (TextView) view.findViewById(R.id.traffic);
+            ProgressBar progress = (ProgressBar) view.findViewById(R.id.progress);
+            TextView status = (TextView) view.findViewById(R.id.status);
+            TextView errorText = (TextView) view.findViewById(R.id.error_text);
+
+            if (findQuery != null && !findQuery.equals("")) {
+                String filteredName = cursor.getString(cursor.getColumnIndex(Constants.C_FILTERED_NAME));
+                if (filteredName.equals("")) {
+                    name.setText(cursor.getString(cursor.getColumnIndex(Constants.C_NAME)));
+                } else {
+                    name.setText(Html.fromHtml(filteredName));
+                }
+            } else {
+                name.setText(cursor.getString(cursor.getColumnIndex(Constants.C_NAME)));
+            }
+
+            float metadata = cursor.getFloat(cursor.getColumnIndex(Constants.C_METADATA_PERCENT_COMPLETE));
+            float percent = cursor.getFloat(cursor.getColumnIndex(Constants.C_PERCENT_DONE));
+            if (metadata < 1) {
+                progress.setSecondaryProgress((int) (metadata * 100));
+                progress.setProgress(0);
+            } else if (percent < 1) {
+                progress.setSecondaryProgress((int) (percent * 100));
+                progress.setProgress(0);
+            } else {
+                progress.setSecondaryProgress(100);
+
+                float limit = cursor.getFloat(cursor.getColumnIndex(Constants.C_SEED_RATIO_LIMIT));
+                float current = cursor.getFloat(cursor.getColumnIndex(Constants.C_UPLOAD_RATIO));
+
+                if (limit == -1) {
+                    progress.setProgress(100);
+                } else {
+                    if (current >= limit) {
+                        progress.setProgress(100);
+                    } else {
+                        progress.setProgress((int) (current / limit * 100));
+                    }
+                }
+            }
+
+            traffic.setText(Html.fromHtml(cursor.getString(cursor.getColumnIndex(Constants.C_TRAFFIC_TEXT))));
+            status.setText(Html.fromHtml(cursor.getString(cursor.getColumnIndex(Constants.C_STATUS_TEXT))));
+
+            int torrentStatus = cursor.getInt(cursor.getColumnIndex(Constants.C_STATUS));
+            boolean enabled = torrentStatus == Torrent.Status.CHECKING
+                || torrentStatus == Torrent.Status.DOWNLOADING
+                || torrentStatus == Torrent.Status.SEEDING;
+
+            name.setEnabled(enabled);
+            traffic.setEnabled(enabled);
+            status.setEnabled(enabled);
+            errorText.setEnabled(enabled);
+
+            if (cursor.getInt(cursor.getColumnIndex(Constants.C_ERROR)) == Torrent.Error.OK) {
+                errorText.setVisibility(View.GONE);
+            } else {
+                errorText.setVisibility(View.VISIBLE);
+                errorText.setText(cursor.getString(cursor.getColumnIndex(Constants.C_ERROR_STRING)));
+            }
+
+            int id = cursor.getInt(cursor.getColumnIndex("_id"));
+            if (!mTorrentAdded.get(id, false)) {
+                view.setTranslationY(100);
+                view.setAlpha((float) 0.3);
+                view.setRotationX(10);
+                view.animate().setDuration(300).translationY(0).alpha(1).rotationX(0).start();
+                mTorrentAdded.append(id, true);
+            }
         }
     }
 
@@ -1261,8 +1352,7 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
                         TorrentDetailFragment detail = (TorrentDetailFragment) manager.findFragmentByTag(
                                 G.DETAIL_FRAGMENT_TAG);
                         if (detail != null) {
-                            detail.notifyTorrentListChanged(getUnfilteredItems(), 0, true,
-                                true, false, false);
+                            detail.notifyTorrentListChanged(0, true, true, false, false);
                         }
                     }
                     notifyDataSetChanged();
