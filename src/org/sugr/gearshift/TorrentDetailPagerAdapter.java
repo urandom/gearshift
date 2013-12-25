@@ -6,21 +6,17 @@ import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentStatePagerAdapter;
 
 public class TorrentDetailPagerAdapter extends FragmentStatePagerAdapter {
-    private TransmissionSessionInterface mContext;
+    private int count;
 
-	public TorrentDetailPagerAdapter(FragmentActivity activity) {
+	public TorrentDetailPagerAdapter(FragmentActivity activity, int count) {
 	    super(activity.getSupportFragmentManager());
 
-	    mContext = (TransmissionSessionInterface) activity;
+	    this.count = count;
 	}
 
 	@Override
 	public int getCount() {
-		if (mContext == null) {
-		    return 0;
-		} else {
-		    return mContext.getTorrents().size();
-		}
+        return count;
 	}
 
 	@Override

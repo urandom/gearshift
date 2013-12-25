@@ -543,7 +543,9 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
         }
 
 
-        /* TODO: is that still needed for a cursoradapter-based listview? */
+        /* TODO: is that still needed for a cursoradapter-based listview?
+         * Maybe call listview's onSaveInstanceState and then onRestoreInstanceState
+         * */
         torrentIdToPreserve = -1;
         if (mChoiceMode == ListView.CHOICE_MODE_SINGLE && error == 0
             && getListView().getCheckedItemPosition() != ListView.INVALID_POSITION) {
@@ -551,15 +553,16 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
         }
 
         String query = mSharedPrefs.getString(G.PREF_LIST_SEARCH, null);
+        boolean filtered = false;
         if (cursor != null && query != null && !query.equals("")) {
             torrentAdapter.setTemporaryFilterCursor(cursor);
             torrentAdapter.getFilter().filter(query);
+            filtered = true;
         } else {
             torrentAdapter.changeCursor(cursor);
         }
 
 
-        boolean filtered = false;
         int count = cursor != null ? cursor.getCount() : 0;
 
         if (count > 0 || error > 0) {
