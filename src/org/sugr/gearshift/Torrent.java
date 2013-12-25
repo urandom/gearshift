@@ -1001,6 +1001,17 @@ public class Torrent implements Parcelable {
         }
     }
 
+    public static boolean isActive(int status) {
+        switch(status) {
+            case Status.CHECKING:
+            case Status.DOWNLOADING:
+            case Status.SEEDING:
+                return true;
+            default:
+                return false;
+        }
+    }
+
     public void setTrafficText(String text) {
         mTrafficText = Html.fromHtml(text);
     }

@@ -357,7 +357,7 @@ public class DataSource {
             columnList = G.concat(columnList, Constants.ColumnGroups.TORRENT_DETAILS);
         }
 
-        String columns = Constants.C_TORRENT_ID + " AS _id, " + TextUtils.join(", ", columnList);
+        String columns = Constants.C_TORRENT_ID + " AS " + Constants.C_ID + ", " + TextUtils.join(", ", columnList);
 
         String query = "SELECT " + columns
             + " FROM " + Constants.T_TORRENT;
@@ -1597,7 +1597,7 @@ public class DataSource {
         if (prefs.contains(G.PREF_LIST_FILTER)) {
             try {
                 filter = G.FilterBy.valueOf(
-                    prefs.getString(G.PREF_LIST_FILTER, "")
+                    prefs.getString(G.PREF_LIST_FILTER, G.FilterBy.ALL.name())
                 );
             } catch (Exception ignored) { }
         }
@@ -1605,7 +1605,7 @@ public class DataSource {
         if (prefs.contains(G.PREF_LIST_SORT_BY)) {
             try {
                 sortBy = G.SortBy.valueOf(
-                    prefs.getString(G.PREF_LIST_SORT_BY, "")
+                    prefs.getString(G.PREF_LIST_SORT_BY, G.SortBy.STATUS.name())
                 );
             } catch (Exception ignored) { }
         }
@@ -1613,7 +1613,7 @@ public class DataSource {
         if (prefs.contains(G.PREF_LIST_SORT_ORDER)) {
             try {
                 sortOrder = G.SortOrder.valueOf(
-                    prefs.getString(G.PREF_LIST_SORT_ORDER, "")
+                    prefs.getString(G.PREF_LIST_SORT_ORDER, G.SortOrder.ASCENDING.name())
                 );
             } catch (Exception ignored) { }
         }
@@ -1622,14 +1622,14 @@ public class DataSource {
         if (prefs.contains(G.PREF_BASE_SORT)) {
             try {
                 baseSortBy = G.SortBy.valueOf(
-                    prefs.getString(G.PREF_BASE_SORT, "")
+                    prefs.getString(G.PREF_BASE_SORT, G.SortBy.AGE.name())
                 );
             } catch (Exception ignored) { }
         }
 
         G.SortOrder baseSortOrder = G.SortOrder.DESCENDING;
         if (prefs.contains(G.PREF_BASE_SORT_ORDER)) {
-            String pref = prefs.getString(G.PREF_BASE_SORT_ORDER, null);
+            String pref = prefs.getString(G.PREF_BASE_SORT_ORDER, "PRIMARY");
 
             if (pref != null) {
                 if (pref.equals("ASCENDING")) {
@@ -1649,7 +1649,6 @@ public class DataSource {
         List<String> selection = new ArrayList<String>();
         List<String> selectionArgs = new ArrayList<String>();
         if (query != null && query.length() > 0) {
-            /* FIXME: This should be in the filter part of the cursor adapter */
             StringBuilder queryPattern = new StringBuilder();
             String[] split = query.toLowerCase(Locale.getDefault()).split("");
 

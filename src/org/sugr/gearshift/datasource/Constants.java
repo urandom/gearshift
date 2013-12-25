@@ -8,6 +8,8 @@ public final class Constants {
     public static final String T_FILE = "file";
     public static final String T_PEER = "peer";
 
+    public static final String C_ID = "_id";
+
     public static final String C_NAME = "name";
     public static final String C_VALUE_AFFINITY = "value_affinity";
     public static final String C_VALUE_INTEGER = "value_integer";
@@ -66,7 +68,6 @@ public final class Constants {
 
     public static final String C_TRAFFIC_TEXT = "traffic_text";
     public static final String C_STATUS_TEXT = "status_text";
-    public static final String C_FILTERED_NAME = "filtered_name";
 
     public static final String C_TRACKER_ID = "tracker_id";
     public static final String C_ANNOUNCE = "announce";
@@ -168,7 +169,6 @@ public final class Constants {
         + C_PEER_LIMIT + " INTEGER, "
         + C_TRAFFIC_TEXT + " TEXT NOT NULL DEFAULT '', "
         + C_STATUS_TEXT + " TEXT NOT NULL DEFAULT '', "
-        + C_FILTERED_NAME + " TEXT NOT NULL DEFAULT '', "
 
         + "PRIMARY KEY (" + C_TORRENT_ID + ")"
         + ");";
@@ -245,14 +245,9 @@ public final class Constants {
     public static class ColumnGroups {
         public static final String[] TORRENT_OVERVIEW = {
             /* The torrent id is not here, as it is aliased to '_id' */
-            C_NAME, C_STATUS, C_ADDED_DATE, C_TOTAL_SIZE,
-            C_ERROR, C_ERROR_STRING, C_ETA, C_IS_FINISHED, C_IS_STALLED,
-            C_LEFT_UNTIL_DONE, C_METADATA_PERCENT_COMPLETE, C_PEERS_CONNECTED,
-            C_PEERS_GETTING_FROM_US, C_PEERS_SENDING_TO_US, C_PERCENT_DONE,
-            C_QUEUE_POSITION, C_RATE_DOWNLOAD, C_RATE_UPLOAD,
-            C_RECHECK_PROGRESS, C_SEED_RATIO_MODE, C_SEED_RATIO_LIMIT,
-            C_SIZE_WHEN_DONE, C_UPLOADED_EVER, C_UPLOAD_RATIO, C_DOWNLOAD_DIR,
-            C_TRAFFIC_TEXT, C_STATUS_TEXT
+            C_NAME, C_STATUS, C_METADATA_PERCENT_COMPLETE, C_PERCENT_DONE,
+            C_UPLOAD_RATIO, C_SEED_RATIO_LIMIT, C_TRAFFIC_TEXT, C_STATUS_TEXT,
+            C_ERROR, C_ERROR_STRING
         };
 
         public static final String[] TORRENT_DETAILS = {
@@ -262,7 +257,15 @@ public final class Constants {
             C_DOWNLOADED_EVER, C_DOWNLOAD_LIMIT, C_DOWNLOAD_LIMITED,
             C_HAVE_UNCHECKED, C_HAVE_VALID, C_HONORS_SESSION_LIMITS,
             C_PEER_LIMIT, C_START_DATE, C_UPLOAD_LIMIT, C_UPLOAD_LIMITED,
-            C_WEBSEEDS_SENDING_TO_US
+            C_WEBSEEDS_SENDING_TO_US,
+
+            C_ADDED_DATE, C_TOTAL_SIZE,
+            C_ETA, C_IS_FINISHED, C_IS_STALLED,
+            C_LEFT_UNTIL_DONE, C_PEERS_CONNECTED,
+            C_PEERS_GETTING_FROM_US, C_PEERS_SENDING_TO_US,
+            C_QUEUE_POSITION, C_RATE_DOWNLOAD, C_RATE_UPLOAD,
+            C_RECHECK_PROGRESS, C_SEED_RATIO_MODE,
+            C_SIZE_WHEN_DONE, C_UPLOADED_EVER, C_DOWNLOAD_DIR
         };
 
         public static final String[] TRACKER = {

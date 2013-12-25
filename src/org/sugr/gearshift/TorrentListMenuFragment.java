@@ -9,7 +9,6 @@ import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
-import android.support.v4.content.AsyncTaskLoader;
 import android.support.v4.content.Loader;
 import android.support.v4.widget.DrawerLayout;
 import android.text.Html;
@@ -27,11 +26,9 @@ import android.widget.TextView;
 import org.sugr.gearshift.G.FilterBy;
 import org.sugr.gearshift.G.SortBy;
 import org.sugr.gearshift.G.SortOrder;
-import org.sugr.gearshift.datasource.DataSource;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Set;
 import java.util.TreeSet;
 
 public class TorrentListMenuFragment extends Fragment implements TorrentListNotification {
@@ -90,23 +87,23 @@ public class TorrentListMenuFragment extends Fragment implements TorrentListNoti
         }
     };
 
-    private LoaderManager.LoaderCallbacks<FilterLoaderOutputData> menuFilterLoaderCallbacks
-        = new LoaderManager.LoaderCallbacks<FilterLoaderOutputData>() {
+    private LoaderManager.LoaderCallbacks<TorrentTrafficLoader.TorrentTrafficOutputData> torrentTrafficLoaderCallbacks
+        = new LoaderManager.LoaderCallbacks<TorrentTrafficLoader.TorrentTrafficOutputData>() {
 
-        @Override public Loader<FilterLoaderOutputData> onCreateLoader(int id, Bundle bundle) {
-            if (id == G.FILTER_MENU_LOADER_ID) {
+        @Override public Loader<TorrentTrafficLoader.TorrentTrafficOutputData> onCreateLoader(int id, Bundle bundle) {
+            if (id == G.TORRENT_TRAFFIC_LOADER_ID) {
                 boolean showStatus = mSharedPrefs.getBoolean(G.PREF_SHOW_STATUS, false);
                 boolean directoriesEnabled = mSharedPrefs.getBoolean(G.PREF_FILTER_DIRECTORIES, true);
                 boolean trackersEnabled = mSharedPrefs.getBoolean(G.PREF_FILTER_TRACKERS, false);
 
                 if (!showStatus || directoriesEnabled || trackersEnabled) {
-                    return new FilterMenuLoader(getActivity(), !showStatus, directoriesEnabled, trackersEnabled);
+                    return new TorrentTrafficLoader(getActivity(), !showStatus, directoriesEnabled, trackersEnabled);
                 }
             }
             return null;
         }
 
-        @Override public void onLoadFinished(Loader<FilterLoaderOutputData> loader, FilterLoaderOutputData data) {
+        @Override public void onLoadFinished(Loader<TorrentTrafficLoader.TorrentTrafficOutputData> loader, TorrentTrafficLoader.TorrentTrafficOutputData data) {
             boolean updateDirectoryFilter = false;
             boolean updateTrackerFilter = false;
             boolean checkSelected = false;
@@ -291,7 +288,7 @@ public class TorrentListMenuFragment extends Fragment implements TorrentListNoti
         }
 
         @Override
-        public void onLoaderReset(Loader<FilterLoaderOutputData> loader) {
+        public void onLoaderReset(Loader<TorrentTrafficLoader.TorrentTrafficOutputData> loader) {
         }
     };
 
@@ -355,7 +352,8 @@ public class TorrentListMenuFragment extends Fragment implements TorrentListNoti
     public void notifyTorrentListChanged(Cursor cursor, int error, boolean added, boolean removed,
                                         boolean statusChanged, boolean metadataNeeded) {
 
-        getActivity().getSupportLoaderManager().restartLoader(G.FILTER_MENU_LOADER_ID, null, menuFilterLoaderCallbacks);
+        getActivity().getSupportLoaderManager().restartLoader(G.TORRENT_TRAFFIC_LOADER_ID,
+            null, torrentTrafficLoaderCallbacks);
     }
 
     private void setStatus(Object[] speeds, String freeSpace) {
@@ -800,75 +798,6 @@ public class TorrentListMenuFragment extends Fragment implements TorrentListNoti
         }
 
         return position;
-    }
-
-    private class FilterLoaderOutputData {
-        public long downloadSpeed = -1;
-        public long uploadSpeed = -1;
-        public Set<String> directories = null;
-        public Set<String> trackers = null;
-    }
-
-    private class FilterMenuLoader extends AsyncTaskLoader<FilterLoaderOutputData> {
-        private FilterLoaderOutputData result;
-        private boolean queryTraffic;
-        private boolean queryDirectories;
-        private boolean queryTrackers;
-
-        public FilterMenuLoader(Context context, boolean queryTraffic,
-                                boolean queryDirectories, boolean queryTrackers) {
-            super(context);
-
-            this.queryTraffic = queryTraffic;
-            this.queryDirectories = queryDirectories;
-            this.queryTrackers = queryTrackers;
-        }
-
-        @Override public FilterLoaderOutputData loadInBackground() {
-            DataSource dataSource = new DataSource(getContext());
-            FilterLoaderOutputData output = new FilterLoaderOutputData();
-
-            try {
-                dataSource.open();
-
-                if (queryTraffic) {
-                    long[] speed = dataSource.getTrafficSpeed();
-                    output.downloadSpeed = speed[0];
-                    output.uploadSpeed = speed[1];
-                }
-
-                if (queryTrackers) {
-                    output.trackers = dataSource.getTrackerAnnounceURLs();
-                }
-                if (queryDirectories) {
-                    output.directories = dataSource.getDownloadDirectories();
-                }
-            } catch (Exception ignored) {
-                output = null;
-            } finally {
-                dataSource.close();
-            }
-
-            return output;
-        }
-
-        @Override protected void onStartLoading() {
-            if (result != null) {
-                deliverResult(result);
-            }
-
-            if (takeContentChanged() || result == null) {
-                forceLoad();
-            }
-        }
-
-        @Override protected void onReset() {
-            result = null;
-        }
-
-        @Override public void deliverResult(FilterLoaderOutputData result) {
-            this.result = result;
-        }
     }
 
     private static class FilterAdapter extends ArrayAdapter<ListItem> {
