@@ -226,7 +226,12 @@ public class TransmissionSessionActivity extends FragmentActivity {
         Loader<TransmissionData> loader = getSupportLoaderManager()
             .getLoader(G.SESSION_LOADER_ID);
 
-        loader.onContentChanged();
+        if (loader == null) {
+            getSupportLoaderManager().restartLoader(
+                G.SESSION_LOADER_ID, null, mSessionLoaderCallbacks);
+        } else {
+            loader.onContentChanged();
+        }
     }
 
     @Override
