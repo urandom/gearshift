@@ -136,10 +136,8 @@ public class TorrentDetailPageFragment extends Fragment {
     };
 
     private FilesAdapter mFilesAdapter;
-    private FilesDataSetObserver mFilesObserver;
 
     private TrackersAdapter mTrackersAdapter;
-    private TrackersDataSetObserver mTrackersObserver;
 
     private ActionMode mFileActionMode;
     private Set<View> mSelectedFiles = new HashSet<View>();
@@ -293,9 +291,10 @@ public class TorrentDetailPageFragment extends Fragment {
                     return false;
             }
             List<Integer> ids = new ArrayList<Integer>();
-            List<String> urls = new ArrayList<String>();
             for (View v : mSelectedTrackers) {
-                Tracker tracker = mTrackersAdapter.getItem(mTrackersAdapter.getViews().indexOf(v.getParent()));
+                View parent = (View) v.getParent();
+                Tracker tracker = mTrackersAdapter.getItem(
+                    mTrackersAdapter.getViews().indexOf(parent));
                 ids.add(tracker.id);
                 mTrackersAdapter.remove(tracker);
             }
@@ -416,12 +415,12 @@ public class TorrentDetailPageFragment extends Fragment {
         }
 
         mFilesAdapter = new FilesAdapter();
-        mFilesObserver = new FilesDataSetObserver(root);
-        mFilesAdapter.registerDataSetObserver(mFilesObserver);
+        FilesDataSetObserver filesObserver = new FilesDataSetObserver(root);
+        mFilesAdapter.registerDataSetObserver(filesObserver);
 
         mTrackersAdapter = new TrackersAdapter();
-        mTrackersObserver = new TrackersDataSetObserver(root);
-        mTrackersAdapter.registerDataSetObserver(mTrackersObserver);
+        TrackersDataSetObserver trackersObserver = new TrackersDataSetObserver(root);
+        mTrackersAdapter.registerDataSetObserver(trackersObserver);
 
         updateFields(root);
 
@@ -429,7 +428,7 @@ public class TorrentDetailPageFragment extends Fragment {
         check.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 if (mTorrent.areSessionLimitsHonored() != isChecked) {
-                    setTorrentProperty(Torrent.SetterFields.SESSION_LIMITS, Boolean.valueOf(isChecked));
+                    setTorrentProperty(Torrent.SetterFields.SESSION_LIMITS, isChecked);
                 }
             }
         });
@@ -446,7 +445,7 @@ public class TorrentDetailPageFragment extends Fragment {
                             priority = Torrent.Priority.HIGH;
                         }
                         if (mTorrent.getTorrentPriority() != priority) {
-                            setTorrentProperty(Torrent.SetterFields.TORRENT_PRIORITY, Integer.valueOf(priority));
+                            setTorrentProperty(Torrent.SetterFields.TORRENT_PRIORITY, priority);
                         }
                     }
 
@@ -464,7 +463,7 @@ public class TorrentDetailPageFragment extends Fragment {
                         return false;
                     }
                     if (mTorrent.getQueuePosition() != position) {
-                        setTorrentProperty(Torrent.SetterFields.QUEUE_POSITION, Integer.valueOf(position));
+                        setTorrentProperty(Torrent.SetterFields.QUEUE_POSITION, position);
                     }
                 }
                 new Handler().post(mLoseFocus);
@@ -477,7 +476,7 @@ public class TorrentDetailPageFragment extends Fragment {
             @Override public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 root.findViewById(R.id.torrent_limit_download).setEnabled(isChecked);
                 if (mTorrent.isDownloadLimited() != isChecked) {
-                    setTorrentProperty(Torrent.SetterFields.DOWNLOAD_LIMITED, Boolean.valueOf(isChecked));
+                    setTorrentProperty(Torrent.SetterFields.DOWNLOAD_LIMITED, isChecked);
                 }
             }
         });
@@ -492,7 +491,7 @@ public class TorrentDetailPageFragment extends Fragment {
                     return false;
                 }
                 if (mTorrent.getDownloadLimit() != limit) {
-                    setTorrentProperty(Torrent.SetterFields.DOWNLOAD_LIMIT, Long.valueOf(limit));
+                    setTorrentProperty(Torrent.SetterFields.DOWNLOAD_LIMIT, limit);
                 }
                 new Handler().post(mLoseFocus);
                 return false;
@@ -505,7 +504,7 @@ public class TorrentDetailPageFragment extends Fragment {
             @Override public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 root.findViewById(R.id.torrent_limit_upload).setEnabled(isChecked);
                 if (mTorrent.isUploadLimited() != isChecked) {
-                    setTorrentProperty(Torrent.SetterFields.UPLOAD_LIMITED, Boolean.valueOf(isChecked));
+                    setTorrentProperty(Torrent.SetterFields.UPLOAD_LIMITED, isChecked);
                 }
             }
         });
@@ -520,7 +519,7 @@ public class TorrentDetailPageFragment extends Fragment {
                     return false;
                 }
                 if (mTorrent.getUploadLimit() != limit) {
-                    setTorrentProperty(Torrent.SetterFields.UPLOAD_LIMIT, Long.valueOf(limit));
+                    setTorrentProperty(Torrent.SetterFields.UPLOAD_LIMIT, limit);
                 }
                 new Handler().post(mLoseFocus);
                 return false;
@@ -540,7 +539,7 @@ public class TorrentDetailPageFragment extends Fragment {
                         }
                         root.findViewById(R.id.torrent_seed_ratio_limit).setEnabled(val.equals("user"));
                         if (mTorrent.getSeedRatioMode() != mode) {
-                            setTorrentProperty(Torrent.SetterFields.SEED_RATIO_MODE, Integer.valueOf(mode));
+                            setTorrentProperty(Torrent.SetterFields.SEED_RATIO_MODE, mode);
                         }
                     }
 
@@ -557,7 +556,7 @@ public class TorrentDetailPageFragment extends Fragment {
                     return false;
                 }
                 if (mTorrent.getSeedRatioLimit() != limit) {
-                    setTorrentProperty(Torrent.SetterFields.SEED_RATIO_LIMIT, Float.valueOf(limit));
+                    setTorrentProperty(Torrent.SetterFields.SEED_RATIO_LIMIT, limit);
                 }
                 new Handler().post(mLoseFocus);
                 return false;
@@ -575,7 +574,7 @@ public class TorrentDetailPageFragment extends Fragment {
                     return false;
                 }
                 if (mTorrent.getPeerLimit() != limit) {
-                    setTorrentProperty(Torrent.SetterFields.PEER_LIMIT, Integer.valueOf(limit));
+                    setTorrentProperty(Torrent.SetterFields.PEER_LIMIT, limit);
                 }
                 new Handler().post(mLoseFocus);
                 return false;
@@ -1064,9 +1063,9 @@ public class TorrentDetailPageFragment extends Fragment {
                             }
                             if (file.info.isWanted() != isChecked) {
                                 if (isChecked) {
-                                    setTorrentProperty(Torrent.SetterFields.FILES_WANTED, Integer.valueOf(file.index));
+                                    setTorrentProperty(Torrent.SetterFields.FILES_WANTED, file.index);
                                 } else {
-                                    setTorrentProperty(Torrent.SetterFields.FILES_UNWANTED, Integer.valueOf(file.index));
+                                    setTorrentProperty(Torrent.SetterFields.FILES_UNWANTED, file.index);
                                 }
                             }
                         }
@@ -1204,8 +1203,8 @@ public class TorrentDetailPageFragment extends Fragment {
             }
 
             this.id = info.getId();
-            this.announce = new String(info.getAnnounce());
-            this.scrape = new String(info.getScrape());
+            this.announce = info.getAnnounce();
+            this.scrape = info.getScrape();
             this.tier = info.getTier();
             this.seederCount = info.getSeederCount();
             this.leecherCount = info.getLeecherCount();
@@ -1213,11 +1212,11 @@ public class TorrentDetailPageFragment extends Fragment {
             this.lastAnnounceTime = info.getLastAnnounceTime();
             this.hasLastAnnounceSucceeded = info.hasLastAnnounceSucceeded();
             this.lastAnnouncePeerCount = info.getLastAnnouncePeerCount();
-            this.lastAnnounceResult = new String(info.getLastAnnounceResult());
+            this.lastAnnounceResult = info.getLastAnnounceResult();
             this.hasScraped = info.hasScraped();
             this.lastScrapeTime = info.getLastScrapeTime();
             this.hasLastScrapeSucceeded = info.hasLastScrapeSucceeded();
-            this.lastScrapeResult = new String(info.getLastScrapeResult());
+            this.lastScrapeResult = info.getLastScrapeResult();
         }
 
         public void setIndex(int index) {

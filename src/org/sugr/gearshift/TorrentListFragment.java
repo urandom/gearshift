@@ -232,7 +232,7 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
             hasQueued = false;
             for (int i = 0; i < selectedTorrentIds.size(); ++i) {
                 Cursor cursor = (Cursor) torrentAdapter.getItem(selectedTorrentIds.keyAt(i));
-                int status = cursor.getInt(cursor.getColumnIndex(Constants.C_STATUS));
+                int status = Torrent.getStatus(cursor);
                 if (status == Torrent.Status.STOPPED) {
                     hasPaused = true;
                 } else if (Torrent.isActive(status)) {
@@ -542,7 +542,6 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
             return;
         }
 
-
         /* TODO: is that still needed for a cursoradapter-based listview?
          * Maybe call listview's onSaveInstanceState and then onRestoreInstanceState
          * */
@@ -811,7 +810,7 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
                         originalCursor.moveToFirst();
 
                         while (!originalCursor.isAfterLast()) {
-                            String name = originalCursor.getString(originalCursor.getColumnIndex(Constants.C_NAME));
+                            String name = Torrent.getName(originalCursor);
 
                             Matcher m = prefixPattern.matcher(name.toLowerCase(Locale.getDefault()));
                             if (m.find()) {
@@ -924,7 +923,7 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
         }
 
         @Override public void bindView(View view, Context context, Cursor cursor) {
-            int id = cursor.getInt(cursor.getColumnIndex(Constants.C_ID));
+            int id = Torrent.getId(cursor);
 
             TextView name = (TextView) view.findViewById(R.id.name);
 
@@ -934,13 +933,13 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
             TextView errorText = (TextView) view.findViewById(R.id.error_text);
 
             if (findQuery != null && !findQuery.equals("")) {
-                name.setText(Html.fromHtml(cursor.getString(cursor.getColumnIndex(Constants.C_NAME))));
+                name.setText(Html.fromHtml(Torrent.getName(cursor)));
             } else {
-                name.setText(cursor.getString(cursor.getColumnIndex(Constants.C_NAME)));
+                name.setText(Torrent.getName(cursor));
             }
 
-            float metadata = cursor.getFloat(cursor.getColumnIndex(Constants.C_METADATA_PERCENT_COMPLETE));
-            float percent = cursor.getFloat(cursor.getColumnIndex(Constants.C_PERCENT_DONE));
+            float metadata = Torrent.getMetadataPercentDone(cursor);
+            float percent = Torrent.getPercentDone(cursor);
             if (metadata < 1) {
                 progress.setSecondaryProgress((int) (metadata * 100));
                 progress.setProgress(0);
@@ -950,8 +949,8 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
             } else {
                 progress.setSecondaryProgress(100);
 
-                float limit = cursor.getFloat(cursor.getColumnIndex(Constants.C_SEED_RATIO_LIMIT));
-                float current = cursor.getFloat(cursor.getColumnIndex(Constants.C_UPLOAD_RATIO));
+                float limit = Torrent.getSeedRatioLimit(cursor);
+                float current = Torrent.getUploadRatio(cursor);
 
                 if (limit == -1) {
                     progress.setProgress(100);
@@ -964,10 +963,10 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
                 }
             }
 
-            traffic.setText(Html.fromHtml(cursor.getString(cursor.getColumnIndex(Constants.C_TRAFFIC_TEXT))));
-            status.setText(Html.fromHtml(cursor.getString(cursor.getColumnIndex(Constants.C_STATUS_TEXT))));
+            traffic.setText(Html.fromHtml(Torrent.getTrafficText(cursor)));
+            status.setText(Html.fromHtml(Torrent.getStatusText(cursor)));
 
-            int torrentStatus = cursor.getInt(cursor.getColumnIndex(Constants.C_STATUS));
+            int torrentStatus = Torrent.getStatus(cursor);
             boolean enabled = Torrent.isActive(torrentStatus);
 
             name.setEnabled(enabled);
@@ -975,11 +974,11 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
             status.setEnabled(enabled);
             errorText.setEnabled(enabled);
 
-            if (cursor.getInt(cursor.getColumnIndex(Constants.C_ERROR)) == Torrent.Error.OK) {
+            if (Torrent.getError(cursor) == Torrent.Error.OK) {
                 errorText.setVisibility(View.GONE);
             } else {
                 errorText.setVisibility(View.VISIBLE);
-                errorText.setText(cursor.getString(cursor.getColumnIndex(Constants.C_ERROR_STRING)));
+                errorText.setText(Torrent.getErrorString(cursor));
             }
 
             if (!torrentAdded.get(id, false)) {

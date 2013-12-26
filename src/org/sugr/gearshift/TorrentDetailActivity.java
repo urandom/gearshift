@@ -1,20 +1,26 @@
 package org.sugr.gearshift;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.database.Cursor;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.app.NavUtils;
+import android.support.v4.content.AsyncTaskLoader;
 import android.support.v4.content.Loader;
 import android.text.Html;
+import android.text.Spanned;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import java.util.ArrayList;
+import org.sugr.gearshift.datasource.DataSource;
 
 
 /**
@@ -28,11 +34,9 @@ import java.util.ArrayList;
  */
 public class TorrentDetailActivity extends FragmentActivity implements TransmissionSessionInterface,
        TorrentDetailFragment.PagerCallbacks {
-    public static final String ARG_TORRENTS = "torrents";
-
     private boolean mRefreshing = false;
 
-    private int mCurrentTorrent = 0;
+    private int currentTorrentPosition = 0;
 
     private TransmissionProfile mProfile;
     private TransmissionSession mSession;
@@ -48,7 +52,7 @@ public class TorrentDetailActivity extends FragmentActivity implements Transmiss
             if (mProfile == null) return null;
 
             return new TransmissionDataLoader(
-                TorrentDetailActivity.this, mProfile, mSession, getCurrentTorrents());
+                TorrentDetailActivity.this, mProfile, mSession, true, getCurrentTorrentIds());
         }
 
         @Override
@@ -94,23 +98,19 @@ public class TorrentDetailActivity extends FragmentActivity implements Transmiss
                     }
                 }
             } else {
-                if (data.torrents.size() > 0) {
-                    if (data.hasRemoved) {
-                        ArrayList<Torrent> removal = new ArrayList<Torrent>();
-                        for (Torrent t : mTorrents) {
-                            if (!data.torrents.contains(t)) {
-                                removal.add(t);
-                            }
-                        }
+                if (data.cursor.getCount() == 0) {
+                    SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(TorrentDetailActivity.this);
 
-                        for (Torrent t : removal) {
-                            mTorrents.remove(t);
-                        }
+                    Spanned text;
+                    if (prefs.getString(G.PREF_LIST_SEARCH, "").equals("")
+                        && prefs.getString(G.PREF_LIST_DIRECTORY, "").equals("")
+                        && prefs.getString(G.PREF_LIST_TRACKER, "").equals("")
+                        && prefs.getString(G.PREF_LIST_FILTER, G.FilterBy.ALL.name()).equals(G.FilterBy.ALL.name())) {
+                        text = Html.fromHtml(getString(R.string.no_torrents_empty_list));
+                    } else {
+                        text = Html.fromHtml(getString(R.string.no_filtered_torrents_empty_list));
                     }
-                } else {
-                    Toast.makeText(TorrentDetailActivity.this,
-                            Html.fromHtml(getString(R.string.no_torrents_empty_list)),
-                            Toast.LENGTH_SHORT).show();
+                    Toast.makeText(TorrentDetailActivity.this, text, Toast.LENGTH_SHORT).show();
                 }
             }
 
@@ -118,7 +118,7 @@ public class TorrentDetailActivity extends FragmentActivity implements Transmiss
             TorrentDetailFragment detail = (TorrentDetailFragment) manager.findFragmentByTag(
                     G.DETAIL_FRAGMENT_TAG);
             if (detail != null) {
-                detail.notifyTorrentListChanged(data.torrents, data.error, false, data.hasRemoved,
+                detail.notifyTorrentListChanged(data.cursor, data.error, false, data.hasRemoved,
                     data.hasStatusChanged, data.hasMetadataNeeded);
             }
 
@@ -138,7 +138,6 @@ public class TorrentDetailActivity extends FragmentActivity implements Transmiss
     protected void onCreate(Bundle savedInstanceState) {
         Intent in = getIntent();
 
-        mTorrents = in.getParcelableArrayListExtra(ARG_TORRENTS);
         mProfile = in.getParcelableExtra(G.ARG_PROFILE);
         mProfile.setContext(this);
         mSession = in.getParcelableExtra(G.ARG_SESSION);
@@ -150,13 +149,13 @@ public class TorrentDetailActivity extends FragmentActivity implements Transmiss
         // Show the Up button in the action bar.
         getActionBar().setDisplayHomeAsUpEnabled(true);
 
-        mCurrentTorrent = in.getIntExtra(G.ARG_PAGE_POSITION, 0);
-        if (mCurrentTorrent < 0) {
-            mCurrentTorrent = 0;
+        currentTorrentPosition = in.getIntExtra(G.ARG_PAGE_POSITION, 0);
+        if (currentTorrentPosition < 0) {
+            currentTorrentPosition = 0;
         }
         if (savedInstanceState == null) {
             Bundle arguments = new Bundle();
-            arguments.putInt(G.ARG_PAGE_POSITION, mCurrentTorrent);
+            arguments.putInt(G.ARG_PAGE_POSITION, currentTorrentPosition);
             arguments.putBoolean(TorrentDetailFragment.ARG_SHOW_PAGER,
                     true);
             TorrentDetailFragment fragment = new TorrentDetailFragment();
@@ -165,6 +164,27 @@ public class TorrentDetailActivity extends FragmentActivity implements Transmiss
                     .replace(R.id.torrent_detail_container, fragment, G.DETAIL_FRAGMENT_TAG)
                     .commit();
         }
+
+        getSupportLoaderManager().initLoader(G.DETAIL_CURSOR_LOADER_ID, null, new LoaderCallbacks<Cursor>() {
+            @Override public Loader<Cursor> onCreateLoader(int id, Bundle bundle) {
+                if (id == G.DETAIL_CURSOR_LOADER_ID) {
+                    return new DetailCursorLoader(TorrentDetailActivity.this);
+                }
+                return null;
+            }
+
+            @Override public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
+                getSupportFragmentManager().executePendingTransactions();
+                TorrentDetailFragment fragment =
+                    (TorrentDetailFragment) getSupportFragmentManager().findFragmentByTag(G.DETAIL_FRAGMENT_TAG);
+
+                if (fragment != null)
+                    fragment.changeCursor(cursor);
+            }
+
+            @Override public void onLoaderReset(Loader<Cursor> loader) {
+            }
+        });
 
         getSupportLoaderManager().restartLoader(
                 G.TORRENTS_LOADER_ID, null, mTorrentLoaderCallbacks);
@@ -175,7 +195,7 @@ public class TorrentDetailActivity extends FragmentActivity implements Transmiss
         Loader<TransmissionData> loader = getSupportLoaderManager()
             .getLoader(G.TORRENTS_LOADER_ID);
 
-        ((TransmissionDataLoader) loader).setAllCurrentTorrents(false);
+        ((TransmissionDataLoader) loader).setDetails(false);
 
         super.onDestroy();
     }
@@ -227,38 +247,53 @@ public class TorrentDetailActivity extends FragmentActivity implements Transmiss
         }
     }
 
-    @Override
-    public Torrent[] getCurrentTorrents() {
-        int current = mCurrentTorrent;
+    public int[] getCurrentTorrentIds() {
+        TorrentDetailFragment fragment =
+            (TorrentDetailFragment) getSupportFragmentManager().findFragmentByTag(G.DETAIL_FRAGMENT_TAG);
+
+        if (fragment == null) {
+            return null;
+        }
+
+        Cursor cursor = fragment.getCursor();
+        if (cursor == null) {
+            return null;
+        }
+
+        int current = currentTorrentPosition;
         int offscreen = 1;
         int count = offscreen * 2 + 1;
-        if (current == mTorrents.size() - 1 || current == 0) {
+        if (current == cursor.getCount() - 1 || current == 0) {
             count--;
         }
 
-        if (count > mTorrents.size())
-            count = mTorrents.size();
+        if (count > cursor.getCount())
+            count = cursor.getCount();
 
-        Torrent torrents[] = new Torrent[count];
+        int ids[] = new int[count];
 
         for (int i = 0; i < count; i++) {
             int position = current + i - (current == 0 ? 0 : offscreen);
-            Torrent t = mTorrents.get(position);
+            int cursorPosition = cursor.getPosition();
 
-            torrents[i] = t;
+            cursor.moveToPosition(position);
+            if (!cursor.isAfterLast()) {
+                ids[i] = Torrent.getId(cursor);
+            }
+            cursor.moveToPosition(cursorPosition);
         }
 
-        return torrents;
+        return ids;
     }
 
     @Override
     public void onPageSelected(int position) {
-        mCurrentTorrent = position;
+        currentTorrentPosition = position;
 
         Loader<TransmissionData> loader = getSupportLoaderManager()
             .getLoader(G.TORRENTS_LOADER_ID);
 
-        ((TransmissionDataLoader) loader).setCurrentTorrents(getCurrentTorrents());
+        ((TransmissionDataLoader) loader).setUpdateIds(getCurrentTorrentIds());
     }
 
     @Override
@@ -285,5 +320,22 @@ public class TorrentDetailActivity extends FragmentActivity implements Transmiss
             item.setActionView(R.layout.action_progress_bar);
         else
             item.setActionView(null);
+    }
+
+    private class DetailCursorLoader extends AsyncTaskLoader<Cursor> {
+        public DetailCursorLoader(Context context) {
+            super(context);
+        }
+        @Override public Cursor loadInBackground() {
+            DataSource readSource = new DataSource(getContext());
+
+            readSource.open();
+
+            Cursor cursor = readSource.getTorrentCursor(true);
+
+            readSource.close();
+
+            return cursor;
+        }
     }
 }

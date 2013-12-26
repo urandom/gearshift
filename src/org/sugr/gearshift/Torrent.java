@@ -1,5 +1,6 @@
 package org.sugr.gearshift;
 
+import android.database.Cursor;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.text.Html;
@@ -8,6 +9,8 @@ import android.text.Spanned;
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+
+import org.sugr.gearshift.datasource.Constants;
 
 @JsonAutoDetect(
     fieldVisibility = JsonAutoDetect.Visibility.NONE,
@@ -1001,17 +1004,6 @@ public class Torrent implements Parcelable {
         }
     }
 
-    public static boolean isActive(int status) {
-        switch(status) {
-            case Status.CHECKING:
-            case Status.DOWNLOADING:
-            case Status.SEEDING:
-                return true;
-            default:
-                return false;
-        }
-    }
-
     public void setTrafficText(String text) {
         mTrafficText = Html.fromHtml(text);
     }
@@ -1167,5 +1159,60 @@ public class Torrent implements Parcelable {
         }
 
         return source.subSequence(0, i + 1);
+    }
+
+    public static int getId(Cursor cursor) {
+        return cursor.getInt(cursor.getColumnIndex(Constants.C_ID));
+    }
+
+    public static String getName(Cursor cursor) {
+        return cursor.getString(cursor.getColumnIndex(Constants.C_NAME));
+    }
+
+    public static int getError(Cursor cursor) {
+        return cursor.getInt(cursor.getColumnIndex(Constants.C_ERROR));
+    }
+
+    public static String getErrorString(Cursor cursor) {
+        return cursor.getString(cursor.getColumnIndex(Constants.C_ERROR_STRING));
+    }
+
+    public static int getStatus(Cursor cursor) {
+        return cursor.getInt(cursor.getColumnIndex(Constants.C_STATUS));
+    }
+
+    public static float getMetadataPercentDone(Cursor cursor) {
+        return cursor.getFloat(cursor.getColumnIndex(Constants.C_METADATA_PERCENT_COMPLETE));
+    }
+
+    public static float getPercentDone(Cursor cursor) {
+        return cursor.getFloat(cursor.getColumnIndex(Constants.C_PERCENT_DONE));
+    }
+
+    public static float getSeedRatioLimit(Cursor cursor) {
+        return cursor.getFloat(cursor.getColumnIndex(Constants.C_SEED_RATIO_LIMIT));
+    }
+
+    public static float getUploadRatio(Cursor cursor) {
+        return cursor.getFloat(cursor.getColumnIndex(Constants.C_UPLOAD_RATIO));
+    }
+
+    public static String getTrafficText(Cursor cursor) {
+        return cursor.getString(cursor.getColumnIndex(Constants.C_TRAFFIC_TEXT));
+    }
+
+    public static String getStatusText(Cursor cursor) {
+        return cursor.getString(cursor.getColumnIndex(Constants.C_STATUS_TEXT));
+    }
+
+    public static boolean isActive(int status) {
+        switch(status) {
+            case Status.CHECKING:
+            case Status.DOWNLOADING:
+            case Status.SEEDING:
+                return true;
+            default:
+                return false;
+        }
     }
 }
