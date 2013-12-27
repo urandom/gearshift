@@ -1281,6 +1281,38 @@ public class Torrent implements Parcelable {
         return cursor.getString(cursor.getColumnIndex(Constants.C_DOWNLOAD_DIR));
     }
 
+    public static boolean areSessionLimitsHonored(Cursor cursor) {
+        return cursor.getInt(cursor.getColumnIndex(Constants.C_HONORS_SESSION_LIMITS)) > 0;
+    }
+
+    public static int getTorrentPriority(Cursor cursor) {
+        return cursor.getInt(cursor.getColumnIndex(Constants.C_TORRENT_PRIORITY));
+    }
+
+    public static boolean isDownloadLimited(Cursor cursor) {
+        return cursor.getInt(cursor.getColumnIndex(Constants.C_DOWNLOAD_LIMITED)) > 0;
+    }
+
+    public static boolean isUploadLimited(Cursor cursor) {
+        return cursor.getInt(cursor.getColumnIndex(Constants.C_UPLOAD_LIMITED)) > 0;
+    }
+
+    public static long getDownloadLimit(Cursor cursor) {
+        return cursor.getLong(cursor.getColumnIndex(Constants.C_DOWNLOAD_LIMIT));
+    }
+
+    public static long getUploadLimit(Cursor cursor) {
+        return cursor.getLong(cursor.getColumnIndex(Constants.C_UPLOAD_LIMIT));
+    }
+
+    public static int getSeedRatioMode(Cursor cursor) {
+        return cursor.getInt(cursor.getColumnIndex(Constants.C_SEED_RATIO_MODE));
+    }
+
+    public static int getPeerLimit(Cursor cursor) {
+        return cursor.getInt(cursor.getColumnIndex(Constants.C_PEER_LIMIT));
+    }
+
     public static boolean isActive(int status) {
         switch(status) {
             case Status.CHECKING:

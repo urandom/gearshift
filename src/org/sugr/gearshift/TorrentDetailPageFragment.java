@@ -73,9 +73,6 @@ public class TorrentDetailPageFragment extends Fragment {
     private static List<String> priorityValues;
     private static List<String> seedRatioModeValues;
 
-    private Object[] mTextValues = {
-        "", "", "", "", ""
-    };
     private static final int QUEUE_POSITION = 0;
     private static final int DOWNLOAD_LIMIT = 1;
     private static final int UPLOAD_LIMIT = 2;
@@ -117,6 +114,17 @@ public class TorrentDetailPageFragment extends Fragment {
         public static TextView queue;
         public static TextView error;
         public static TextView location;
+
+        public static CheckBox globalLimits;
+        public static Spinner torrentPriority;
+        public static EditText queuePosition;
+        public static CheckBox downloadLimited;
+        public static EditText downloadLimit;
+        public static CheckBox uploadLimited;
+        public static EditText uploadLimit;
+        public static Spinner seedRatioMode;
+        public static EditText seedRatioLimit;
+        public static EditText peerLimit;
     }
 
     private boolean[] mExpandedStates = new boolean[Expanders.TOTAL_EXPANDERS];
@@ -461,23 +469,34 @@ public class TorrentDetailPageFragment extends Fragment {
         Views.limitsContent = root.findViewById(R.id.torrent_detail_limits_content);
         Views.trackersContent = root.findViewById(R.id.torrent_detail_trackers_content);
 
-        Views.name = ((TextView) root.findViewById(R.id.torrent_detail_title));
-        Views.have = ((TextView) root.findViewById(R.id.torrent_have));
-        Views.downloaded = ((TextView) root.findViewById(R.id.torrent_downloaded));
-        Views.uploaded = ((TextView) root.findViewById(R.id.torrent_uploaded));
-        Views.runningTime = ((TextView) root.findViewById(R.id.torrent_running_time));
-        Views.remainingTime = ((TextView) root.findViewById(R.id.torrent_remaining_time));
-        Views.lastActivity = ((TextView) root.findViewById(R.id.torrent_last_activity));
-        Views.size = ((TextView) root.findViewById(R.id.torrent_size));
-        Views.hash = ((TextView) root.findViewById(R.id.torrent_hash));
-        Views.privacy = ((TextView) root.findViewById(R.id.torrent_privacy));
-        Views.origin = ((TextView) root.findViewById(R.id.torrent_origin));
-        Views.comment = ((TextView) root.findViewById(R.id.torrent_comment));
-        Views.state = ((TextView) root.findViewById(R.id.torrent_state));
-        Views.added = ((TextView) root.findViewById(R.id.torrent_added));
-        Views.queue = ((TextView) root.findViewById(R.id.torrent_queue));
-        Views.error = ((TextView) root.findViewById(R.id.torrent_error));
-        Views.location = ((TextView) root.findViewById(R.id.torrent_location));
+        Views.name = (TextView) root.findViewById(R.id.torrent_detail_title);
+        Views.have = (TextView) root.findViewById(R.id.torrent_have);
+        Views.downloaded = (TextView) root.findViewById(R.id.torrent_downloaded);
+        Views.uploaded = (TextView) root.findViewById(R.id.torrent_uploaded);
+        Views.runningTime = (TextView) root.findViewById(R.id.torrent_running_time);
+        Views.remainingTime = (TextView) root.findViewById(R.id.torrent_remaining_time);
+        Views.lastActivity = (TextView) root.findViewById(R.id.torrent_last_activity);
+        Views.size = (TextView) root.findViewById(R.id.torrent_size);
+        Views.hash = (TextView) root.findViewById(R.id.torrent_hash);
+        Views.privacy = (TextView) root.findViewById(R.id.torrent_privacy);
+        Views.origin = (TextView) root.findViewById(R.id.torrent_origin);
+        Views.comment = (TextView) root.findViewById(R.id.torrent_comment);
+        Views.state = (TextView) root.findViewById(R.id.torrent_state);
+        Views.added = (TextView) root.findViewById(R.id.torrent_added);
+        Views.queue = (TextView) root.findViewById(R.id.torrent_queue);
+        Views.error = (TextView) root.findViewById(R.id.torrent_error);
+        Views.location = (TextView) root.findViewById(R.id.torrent_location);
+
+        Views.globalLimits = (CheckBox) root.findViewById(R.id.torrent_global_limits);
+        Views.torrentPriority = (Spinner) root.findViewById(R.id.torrent_priority);
+        Views.queuePosition = (EditText) root.findViewById(R.id.torrent_queue_position);
+        Views.downloadLimited = (CheckBox) root.findViewById(R.id.torrent_limit_download_check);
+        Views.downloadLimit = (EditText) root.findViewById(R.id.torrent_limit_download);
+        Views.uploadLimited = (CheckBox) root.findViewById(R.id.torrent_limit_upload_check);
+        Views.uploadLimit = (EditText) root.findViewById(R.id.torrent_limit_upload);
+        Views.seedRatioMode = (Spinner) root.findViewById(R.id.torrent_seed_ratio_mode);
+        Views.seedRatioLimit = (EditText) root.findViewById(R.id.torrent_seed_ratio_limit);
+        Views.peerLimit = (EditText) root.findViewById(R.id.torrent_peer_limit);
 
         if (savedInstanceState != null) {
             new Handler().post(new Runnable() {
@@ -510,37 +529,40 @@ public class TorrentDetailPageFragment extends Fragment {
 
         updateFields(root);
 
-        CheckBox check = (CheckBox) root.findViewById(R.id.torrent_global_limits);
-        check.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+        Views.globalLimits.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 setTorrentProperty(Torrent.SetterFields.SESSION_LIMITS, isChecked);
             }
         });
 
-        ((Spinner) root.findViewById(R.id.torrent_priority)).setOnItemSelectedListener(
-                new AdapterView.OnItemSelectedListener() {
-                    @Override public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
-                        String val = priorityValues.get(pos);
-                        int priority = Torrent.Priority.NORMAL;
+        Views.torrentPriority.setOnItemSelectedListener(
+            new AdapterView.OnItemSelectedListener() {
+                @Override
+                public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
+                    String val=priorityValues.get(pos);
+                    int priority=Torrent.Priority.NORMAL;
 
-                        if (val.equals("low")) {
-                            priority = Torrent.Priority.LOW;
-                        } else if (val.equals("high")) {
-                            priority = Torrent.Priority.HIGH;
-                        }
-                        setTorrentProperty(Torrent.SetterFields.TORRENT_PRIORITY, priority);
+                    if (val.equals("low")) {
+                        priority=Torrent.Priority.LOW;
+                    } else if (val.equals("high")) {
+                        priority=Torrent.Priority.HIGH;
                     }
+                    setTorrentProperty(Torrent.SetterFields.TORRENT_PRIORITY, priority);
+                }
 
-                    @Override public void onNothingSelected(AdapterView<?> parent) { }
-                });
+                @Override
+                public void onNothingSelected(AdapterView<?> parent) {
+                }
+            });
 
-        final EditText queue = (EditText) root.findViewById(R.id.torrent_queue_position);
-        queue.setOnEditorActionListener(new TextView.OnEditorActionListener() {
-            @Override public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+        Views.queuePosition.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
                 if (actionId == EditorInfo.IME_ACTION_DONE) {
                     int position;
                     try {
-                        position = Integer.parseInt(v.getText().toString().trim());
+                        position=Integer.parseInt(v.getText().toString().trim());
                     } catch (NumberFormatException e) {
                         return false;
                     }
@@ -551,20 +573,20 @@ public class TorrentDetailPageFragment extends Fragment {
             }
         });
 
-        check = (CheckBox) root.findViewById(R.id.torrent_limit_download_check);
-        check.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                root.findViewById(R.id.torrent_limit_download).setEnabled(isChecked);
+        Views.downloadLimited.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                Views.downloadLimit.setEnabled(isChecked);
                 setTorrentProperty(Torrent.SetterFields.DOWNLOAD_LIMITED, isChecked);
             }
         });
 
-        final EditText download = (EditText) root.findViewById(R.id.torrent_limit_download);
-        download.setOnEditorActionListener(new TextView.OnEditorActionListener() {
-            @Override public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+        Views.downloadLimit.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
                 long limit;
                 try {
-                    limit = Long.parseLong(v.getText().toString().trim());
+                    limit=Long.parseLong(v.getText().toString().trim());
                 } catch (NumberFormatException e) {
                     return false;
                 }
@@ -576,20 +598,20 @@ public class TorrentDetailPageFragment extends Fragment {
 
         });
 
-        check = (CheckBox) root.findViewById(R.id.torrent_limit_upload_check);
-        check.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                root.findViewById(R.id.torrent_limit_upload).setEnabled(isChecked);
+        Views.uploadLimited.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                Views.uploadLimit.setEnabled(isChecked);
                 setTorrentProperty(Torrent.SetterFields.UPLOAD_LIMITED, isChecked);
             }
         });
 
-        final EditText upload = (EditText) root.findViewById(R.id.torrent_limit_upload);
-        upload.setOnEditorActionListener(new TextView.OnEditorActionListener() {
-            @Override public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+        Views.uploadLimit.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
                 long limit;
                 try {
-                    limit = Long.parseLong(v.getText().toString().trim());
+                    limit=Long.parseLong(v.getText().toString().trim());
                 } catch (NumberFormatException e) {
                     return false;
                 }
@@ -601,7 +623,7 @@ public class TorrentDetailPageFragment extends Fragment {
 
         });
 
-        ((Spinner) root.findViewById(R.id.torrent_seed_ratio_mode)).setOnItemSelectedListener(
+        Views.seedRatioMode.setOnItemSelectedListener(
                 new AdapterView.OnItemSelectedListener() {
                     @Override public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
                         String val = seedRatioModeValues.get(pos);
@@ -611,15 +633,14 @@ public class TorrentDetailPageFragment extends Fragment {
                         } else if (val.equals("infinite")) {
                             mode = Torrent.SeedRatioMode.NO_LIMIT;
                         }
-                        root.findViewById(R.id.torrent_seed_ratio_limit).setEnabled(val.equals("user"));
+                        Views.seedRatioLimit.setEnabled(val.equals("user"));
                         setTorrentProperty(Torrent.SetterFields.SEED_RATIO_MODE, mode);
                     }
 
                     @Override public void onNothingSelected(AdapterView<?> parent) { }
                 });
 
-        final EditText ratio = (EditText) root.findViewById(R.id.torrent_seed_ratio_limit);
-        ratio.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+        Views.seedRatioLimit.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
                 float limit;
                 try {
@@ -635,8 +656,7 @@ public class TorrentDetailPageFragment extends Fragment {
 
         });
 
-        final EditText peer = (EditText) root.findViewById(R.id.torrent_peer_limit);
-        peer.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+        Views.peerLimit.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
                 int limit;
                 try {
@@ -687,16 +707,16 @@ public class TorrentDetailPageFragment extends Fragment {
         root.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
-                if (queue.hasFocus()) {
-                    queue.clearFocus();
-                } else if (download.hasFocus()) {
-                    download.clearFocus();
-                } else if (upload.hasFocus()) {
-                    upload.clearFocus();
-                } else if (ratio.hasFocus()) {
-                    ratio.clearFocus();
-                } else if (peer.hasFocus()) {
-                    peer.clearFocus();
+                if (Views.queuePosition.hasFocus()) {
+                    Views.queuePosition.clearFocus();
+                } else if (Views.downloadLimit.hasFocus()) {
+                    Views.downloadLimit.clearFocus();
+                } else if (Views.uploadLimit.hasFocus()) {
+                    Views.uploadLimit.clearFocus();
+                } else if (Views.seedRatioLimit.hasFocus()) {
+                    Views.seedRatioLimit.clearFocus();
+                } else if (Views.peerLimit.hasFocus()) {
+                    Views.peerLimit.clearFocus();
                 }
                 return false;
             }
@@ -748,6 +768,7 @@ public class TorrentDetailPageFragment extends Fragment {
         int status = Torrent.getStatus(details.torrentCursor);
         float uploadRatio = Torrent.getUploadRatio(details.torrentCursor);
         float seedRatioLimit = Torrent.getUploadRatio(details.torrentCursor);
+        int queuePosition = Torrent.getQueuePosition(details.torrentCursor);
 
         if (!name.equals(Views.name.getText()))
             Views.name.setText(name);
@@ -776,7 +797,6 @@ public class TorrentDetailPageFragment extends Fragment {
             long dateCreated = Torrent.getDateCreated(cursor);
             String creator = Torrent.getCreator(cursor);
             String comment = Torrent.getComment(cursor);
-            int queuePosition = Torrent.getQueuePosition(cursor);
             int error = Torrent.getError(cursor);
             String errorString = Torrent.getErrorString(cursor);
             String downloadDir = Torrent.getDownloadDir(cursor);
@@ -975,11 +995,21 @@ public class TorrentDetailPageFragment extends Fragment {
 
         /* Limits start */
         if (Views.limitsContent.getVisibility() != View.GONE) {
-            CheckBox check = (CheckBox) root.findViewById(R.id.torrent_global_limits);
-            check.setChecked(mTorrent.areSessionLimitsHonored());
+            boolean sessionLimitsHonored = Torrent.areSessionLimitsHonored(cursor);
+            int torrentPriority = Torrent.getTorrentPriority(cursor);
+            boolean downloadLimited = Torrent.isDownloadLimited(cursor);
+            long downloadLimit = Torrent.getDownloadLimit(cursor);
+            boolean uploadLimited = Torrent.isUploadLimited(cursor);
+            long uploadLimit = Torrent.getUploadLimit(cursor);
+            int seedRatioMode = Torrent.getSeedRatioMode(cursor);
+            int peerLimit = Torrent.getPeerLimit(cursor);
+
+            if (sessionLimitsHonored != Views.globalLimits.isChecked()) {
+                Views.globalLimits.setChecked(sessionLimitsHonored);
+            }
 
             String priority = "normal";
-            switch (mTorrent.getTorrentPriority()) {
+            switch (torrentPriority) {
                 case Torrent.Priority.LOW:
                     priority = "low";
                     break;
@@ -987,40 +1017,41 @@ public class TorrentDetailPageFragment extends Fragment {
                     priority = "high";
                     break;
             }
-            ((Spinner) root.findViewById(R.id.torrent_priority)).setSelection(priorityValues.indexOf(priority));
-
-            String queue = Integer.toString(mTorrent.getQueuePosition());
-            if (!mTextValues[QUEUE_POSITION].equals(queue)) {
-                ((EditText) root.findViewById(R.id.torrent_queue_position))
-                    .setText(queue);
-                mTextValues[QUEUE_POSITION] = queue;
+            if (Views.torrentPriority.getSelectedItemPosition() != priorityValues.indexOf(priority)) {
+                Views.torrentPriority.setSelection(priorityValues.indexOf(priority));
             }
 
-            check = (CheckBox) root.findViewById(R.id.torrent_limit_download_check);
-            check.setChecked(mTorrent.isDownloadLimited());
-
-            EditText limit;
-            String download = Long.toString(mTorrent.getDownloadLimit());
-            if (!mTextValues[DOWNLOAD_LIMIT].equals(download)) {
-                limit = (EditText) root.findViewById(R.id.torrent_limit_download);
-                limit.setText(download);
-                limit.setEnabled(check.isChecked());
-                mTextValues[DOWNLOAD_LIMIT] = download;
+            String queue = Integer.toString(queuePosition);
+            if (!queue.equals(Views.queuePosition.getText().toString())) {
+                Views.queuePosition.setText(queue);
             }
 
-            check = (CheckBox) root.findViewById(R.id.torrent_limit_upload_check);
-            check.setChecked(mTorrent.isUploadLimited());
+            if (downloadLimited != Views.downloadLimited.isChecked()) {
+                Views.downloadLimited.setChecked(downloadLimited);
+            }
 
-            String upload = Long.toString(mTorrent.getUploadLimit());
-            if (!mTextValues[UPLOAD_LIMIT].equals(upload)) {
-                limit = (EditText) root.findViewById(R.id.torrent_limit_upload);
-                limit.setText(upload);
-                limit.setEnabled(check.isChecked());
-                mTextValues[UPLOAD_LIMIT] = upload;
+            String download = Long.toString(downloadLimit);
+            if (!download.equals(Views.downloadLimit.getText().toString())) {
+                Views.downloadLimit.setText(download);
+            }
+            if (Views.downloadLimit.isEnabled() != Views.downloadLimited.isChecked()) {
+                Views.downloadLimit.setEnabled(Views.downloadLimited.isChecked());
+            }
+
+            if (Views.uploadLimited.isChecked() != uploadLimited) {
+                Views.uploadLimited.setChecked(uploadLimited);
+            }
+
+            String upload = Long.toString(uploadLimit);
+            if (!upload.equals(Views.uploadLimit.getText().toString())) {
+                Views.uploadLimit.setText(upload);
+            }
+            if (Views.uploadLimit.isEnabled() != Views.uploadLimited.isChecked()) {
+                Views.uploadLimit.setEnabled(Views.uploadLimited.isChecked());
             }
 
             String mode = "global";
-            switch (mTorrent.getSeedRatioMode()) {
+            switch (seedRatioMode) {
                 case Torrent.SeedRatioMode.TORRENT_LIMIT:
                     mode = "user";
                     break;
@@ -1028,21 +1059,18 @@ public class TorrentDetailPageFragment extends Fragment {
                     mode = "infinite";
                     break;
             }
-            ((Spinner) root.findViewById(R.id.torrent_seed_ratio_mode)).setSelection(
-                seedRatioModeValues.indexOf(mode));
-
-            String ratio = G.readablePercent(mTorrent.getSeedRatioLimit());
-            if (!mTextValues[SEED_RATIO_LIMIT].equals(ratio)) {
-                limit = (EditText) root.findViewById(R.id.torrent_seed_ratio_limit);
-                limit.setText(ratio);
-                mTextValues[SEED_RATIO_LIMIT] = ratio;
+            if (Views.seedRatioMode.getSelectedItemPosition() != seedRatioModeValues.indexOf(mode)) {
+                Views.seedRatioMode.setSelection(seedRatioModeValues.indexOf(mode));
             }
 
-            String peers = Integer.toString(mTorrent.getPeerLimit());
-            if (!mTextValues[PEER_LIMIT].equals(peers)) {
-                limit = (EditText) root.findViewById(R.id.torrent_peer_limit);
-                limit.setText(peers);
-                mTextValues[PEER_LIMIT] = peers;
+            String ratio = G.readablePercent(seedRatioLimit);
+            if (!ratio.equals(Views.seedRatioLimit.getText().toString())) {
+                Views.seedRatioLimit.setText(ratio);
+            }
+
+            String peers = Integer.toString(peerLimit);
+            if (!peers.equals(Views.peerLimit.getText().toString())) {
+                Views.peerLimit.setText(peers);
             }
         }
 
