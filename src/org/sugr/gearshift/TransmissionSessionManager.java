@@ -251,7 +251,7 @@ public class TransmissionSessionManager {
 
         AddTorrentResponse response = (AddTorrentResponse) requestData(request, AddTorrentResponse.class);
         if (response.getResult().equals("success")) {
-            return response.getTorrent().getId();
+            return response.getAddedId();
         } else if (response.isDuplicate()) {
             throw new ManagerException("duplicate torrent", -2);
         } else {
@@ -533,11 +533,23 @@ public class TransmissionSessionManager {
 
                         parser.nextValue();
                         if (argname.equals("torrent-added")) {
-                            Torrent torrent = mapper.readValue(parser, Torrent.class);
-                            ((AddTorrentResponse) response).setTorrent(torrent);
+                            while (parser.nextToken() != JsonToken.END_OBJECT) {
+                                String key = parser.getCurrentName();
+
+                                parser.nextValue();
+                                if (key.equals("id")) {
+                                    ((AddTorrentResponse) response).setAddedId(parser.getIntValue());
+                                }
+                            }
                         } else if (argname.equals("torrent-duplicate")) {
-                            Torrent torrent = mapper.readValue(parser, Torrent.class);
-                            ((AddTorrentResponse) response).setDuplicate(torrent);
+                            while (parser.nextToken() != JsonToken.END_OBJECT) {
+                                String key = parser.getCurrentName();
+
+                                parser.nextValue();
+                                if (key.equals("id")) {
+                                    ((AddTorrentResponse) response).setDuplicateId(parser.getIntValue());
+                                }
+                            }
                         }
                     }
                 } else if (klass == PortTestResponse.class) {
@@ -625,21 +637,22 @@ public class TransmissionSessionManager {
     }
 
     public static class AddTorrentResponse extends Response {
-        private Torrent torrent;
-        private Torrent duplicate;
+        private int addedId = -1;
 
-        public Torrent getTorrent() {
-            return torrent;
+        private int duplicateId = -1;
+
+        public int getAddedId() {
+            return addedId;
         }
-        public void setTorrent(Torrent torrent) {
-            this.torrent = torrent;
+        public void setAddedId(int id) {
+            addedId = id;
         }
 
         public boolean isDuplicate() {
-            return duplicate != null;
+            return duplicateId != -1;
         }
-        public void setDuplicate(Torrent torrent) {
-            this.duplicate = torrent;
+        public void setDuplicateId(int id) {
+            duplicateId = id;
         }
     }
 

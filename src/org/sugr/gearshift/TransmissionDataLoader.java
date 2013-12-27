@@ -64,6 +64,8 @@ public class TransmissionDataLoader extends AsyncTaskLoader<TransmissionData> {
 
     private TransmissionSession session;
 
+    boolean details;
+
     private Cursor cursor;
     private int[] updateIds;
 
@@ -119,11 +121,12 @@ public class TransmissionDataLoader extends AsyncTaskLoader<TransmissionData> {
     }
 
     public TransmissionDataLoader(Context context, TransmissionProfile profile,
-                                  TransmissionSession session, int[] ids) {
+                                  TransmissionSession session, boolean details, int[] ids) {
         this(context, profile);
 
         this.session = session;
         this.updateIds = ids;
+        this.details = details;
     }
 
     public void setProfile(TransmissionProfile profile) {
@@ -141,6 +144,14 @@ public class TransmissionDataLoader extends AsyncTaskLoader<TransmissionData> {
         mSessionSet = session;
         mSessionSetKeys = keys;
         onContentChanged();
+    }
+
+    public void setDetails(boolean details) {
+        this.details = details;
+
+        if (details) {
+            onContentChanged();
+        }
     }
 
     public void setUpdateIds(int[] ids) {
@@ -384,6 +395,12 @@ public class TransmissionDataLoader extends AsyncTaskLoader<TransmissionData> {
             fields = G.concat(Torrent.Fields.METADATA, fields);
         }
 
+        if (details) {
+            fields = G.concat(fields, Torrent.Fields.STATS_EXTRA);
+            if (!dataSource.hasExtraInfo()) {
+                fields = G.concat(fields, Torrent.Fields.INFO_EXTRA);
+            }
+        }
 
         for (Thread t : threads) {
             try {
@@ -396,7 +413,7 @@ public class TransmissionDataLoader extends AsyncTaskLoader<TransmissionData> {
         try {
             if (updateIds != null) {
                 status = mSessManager.getTorrents(fields, updateIds);
-            } else if (active) {
+            } else if (active && !details) {
                 int full = Integer.parseInt(mDefaultPrefs.getString(G.PREF_FULL_UPDATE, "2"));
 
                 if (mIteration % full == 0) {

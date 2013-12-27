@@ -43,7 +43,7 @@ public class TorrentDetailActivity extends FragmentActivity implements Transmiss
 
     private Menu menu;
 
-    private LoaderCallbacks<TransmissionData> mTorrentLoaderCallbacks = new LoaderCallbacks<TransmissionData>() {
+    private LoaderCallbacks<TransmissionData> torrentLoaderCallbacks = new LoaderCallbacks<TransmissionData>() {
 
         @Override
         public android.support.v4.content.Loader<TransmissionData> onCreateLoader(
@@ -52,7 +52,7 @@ public class TorrentDetailActivity extends FragmentActivity implements Transmiss
             if (mProfile == null) return null;
 
             return new TransmissionDataLoader(
-                TorrentDetailActivity.this, mProfile, mSession, getCurrentTorrentIds());
+                TorrentDetailActivity.this, mProfile, mSession, true, getCurrentTorrentIds());
         }
 
         @Override
@@ -134,6 +134,27 @@ public class TorrentDetailActivity extends FragmentActivity implements Transmiss
 
     };
 
+    private LoaderCallbacks<Cursor> initialTorrentsCursorLoaderCallbacks = new LoaderCallbacks<Cursor>() {
+        @Override public Loader<Cursor> onCreateLoader(int id, Bundle bundle) {
+            if (id == G.TORRENTS_CURSOR_LOADER_ID) {
+                return new TorrentsCursorLoader(TorrentDetailActivity.this);
+            }
+            return null;
+        }
+
+        @Override public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
+            getSupportFragmentManager().executePendingTransactions();
+            TorrentDetailFragment fragment =
+                (TorrentDetailFragment) getSupportFragmentManager().findFragmentByTag(G.DETAIL_FRAGMENT_TAG);
+
+            if (fragment != null)
+                fragment.changeCursor(cursor);
+        }
+
+        @Override public void onLoaderReset(Loader<Cursor> loader) {
+        }
+    };
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         Intent in = getIntent();
@@ -165,29 +186,11 @@ public class TorrentDetailActivity extends FragmentActivity implements Transmiss
                     .commit();
         }
 
-        getSupportLoaderManager().initLoader(G.TORRENTS_CURSOR_LOADER_ID, null, new LoaderCallbacks<Cursor>() {
-            @Override public Loader<Cursor> onCreateLoader(int id, Bundle bundle) {
-                if (id == G.TORRENTS_CURSOR_LOADER_ID) {
-                    return new TorrentsCursorLoader(TorrentDetailActivity.this);
-                }
-                return null;
-            }
-
-            @Override public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
-                getSupportFragmentManager().executePendingTransactions();
-                TorrentDetailFragment fragment =
-                    (TorrentDetailFragment) getSupportFragmentManager().findFragmentByTag(G.DETAIL_FRAGMENT_TAG);
-
-                if (fragment != null)
-                    fragment.changeCursor(cursor);
-            }
-
-            @Override public void onLoaderReset(Loader<Cursor> loader) {
-            }
-        });
+        getSupportLoaderManager().initLoader(G.TORRENTS_CURSOR_LOADER_ID,
+            null, initialTorrentsCursorLoaderCallbacks);
 
         getSupportLoaderManager().restartLoader(
-                G.TORRENTS_LOADER_ID, null, mTorrentLoaderCallbacks);
+                G.TORRENTS_LOADER_ID, null, torrentLoaderCallbacks);
     }
 
     @Override
@@ -219,6 +222,18 @@ public class TorrentDetailActivity extends FragmentActivity implements Transmiss
                 return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onDestroy() {
+        Loader<TransmissionData> loader = getSupportLoaderManager()
+            .getLoader(G.TORRENTS_LOADER_ID);
+
+        if (loader != null) {
+            ((TransmissionDataLoader) loader).setDetails(false);
+        }
+
+        super.onDestroy();
     }
 
     @Override
@@ -311,21 +326,21 @@ public class TorrentDetailActivity extends FragmentActivity implements Transmiss
         else
             item.setActionView(null);
     }
+}
 
-    private class TorrentsCursorLoader extends AsyncTaskLoader<Cursor> {
-        public TorrentsCursorLoader(Context context) {
-            super(context);
-        }
-        @Override public Cursor loadInBackground() {
-            DataSource readSource = new DataSource(getContext());
+class TorrentsCursorLoader extends AsyncTaskLoader<Cursor> {
+    public TorrentsCursorLoader(Context context) {
+        super(context);
+    }
+    @Override public Cursor loadInBackground() {
+        DataSource readSource = new DataSource(getContext());
 
-            readSource.open();
+        readSource.open();
 
-            Cursor cursor = readSource.getTorrentCursor();
+        Cursor cursor = readSource.getTorrentCursor();
 
-            readSource.close();
+        readSource.close();
 
-            return cursor;
-        }
+        return cursor;
     }
 }

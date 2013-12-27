@@ -44,7 +44,6 @@ android {
 
     signingConfigs {
         release
-        beta
     }
 
     buildTypes {
@@ -56,13 +55,6 @@ android {
             runProguard false
             proguardFile getDefaultProguardFile('proguard-android.txt')
             proguardFile 'proguard-project.txt'
-        }
-        beta {
-            debuggable false
-            jniDebugBuild false
-            signingConfig signingConfigs.beta
-
-            runProguard false
         }
     }
 }
@@ -77,14 +69,4 @@ if ('assemble' in runTasks || 'assembleRelease' in runTasks || 'aR' in runTasks)
     android.signingConfigs.release.keyAlias = "gearshift"
     android.signingConfigs.release.keyPassword = keyPass
     android.buildTypes.release.signingConfig = android.signingConfigs.release
-}
-if ('assembleBeta' in runTasks || 'aB' in runTasks) {
-    def storePass = System.env.STORE_PASS ?: new String(System.console().readPassword('\nKeyStore Password: '))
-    def keyPass = System.env.KEY_PASS ?: new String(System.console().readPassword('Alias Password: '))
-
-    android.signingConfigs.beta.storeFile = file('/home/urandom/.android/sugr.keystore')
-    android.signingConfigs.beta.storePassword = storePass
-    android.signingConfigs.beta.keyAlias = "gearshift"
-    android.signingConfigs.beta.keyPassword = keyPass
-    android.buildTypes.beta.signingConfig = android.signingConfigs.beta
 }

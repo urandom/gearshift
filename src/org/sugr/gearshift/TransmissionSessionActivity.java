@@ -42,6 +42,8 @@ import java.util.List;
 import java.util.Set;
 
 public class TransmissionSessionActivity extends FragmentActivity {
+    static final Object lock = new Object();
+
     private TransmissionProfile mProfile;
     private TransmissionSession mSession;
 
@@ -49,15 +51,13 @@ public class TransmissionSessionActivity extends FragmentActivity {
 
     private DataSource dataSource;
 
-    private final Object lock = new Object();
-
     private LoaderCallbacks<TransmissionData> mSessionLoaderCallbacks = new LoaderCallbacks<TransmissionData>() {
 
         @Override public Loader<TransmissionData> onCreateLoader(int arg0, Bundle arg1) {
             if (mProfile == null) return null;
 
             return new TransmissionSessionLoader(
-                    TransmissionSessionActivity.this, mProfile);
+                    TransmissionSessionActivity.this, mProfile, dataSource);
         }
 
         @Override public void onLoadFinished(Loader<TransmissionData> loader,
@@ -1314,150 +1314,153 @@ public class TransmissionSessionActivity extends FragmentActivity {
             return null;
         }
     }
-
-    private class TransmissionSessionLoader extends AsyncTaskLoader<TransmissionData> {
-
-        private TransmissionSessionManager mSessManager;
-
-        private TransmissionSession mSessionSet;
-        private Set<String> mSessionSetKeys = new HashSet<String>();
-        private final Object mLock = new Object();
-        private boolean mStopUpdates = false;
-
-        private Handler mIntervalHandler = new Handler();
-        private Runnable mIntervalRunner = new Runnable() {
-            @Override
-            public void run() {
-                if (!mStopUpdates)
-                    onContentChanged();
-            }
-        };
+}
 
 
-        private int mLastError;
-        private int lastErrorCode;
+class TransmissionSessionLoader extends AsyncTaskLoader<TransmissionData> {
 
-        public TransmissionSessionLoader(Context context, TransmissionProfile profile) {
-            super(context);
+    private TransmissionSessionManager mSessManager;
 
-            mSessManager = new TransmissionSessionManager(getContext(), profile, dataSource);
-        }
+    private TransmissionSession mSessionSet;
+    private Set<String> mSessionSetKeys = new HashSet<String>();
+    private final Object mLock = new Object();
+    private boolean mStopUpdates = false;
 
-        public void setSession(TransmissionSession session, String... keys) {
-            mSessionSet = session;
-            synchronized(mLock) {
-                Collections.addAll(mSessionSetKeys, keys);
-            }
-            onContentChanged();
-        }
-
-
+    private Handler mIntervalHandler = new Handler();
+    private Runnable mIntervalRunner = new Runnable() {
         @Override
-        public TransmissionData loadInBackground() {
-            mIntervalHandler.removeCallbacks(mIntervalRunner);
-            mStopUpdates = false;
+        public void run() {
+            if (!mStopUpdates)
+                onContentChanged();
+        }
+    };
 
-            if (mLastError > 0) {
-                mLastError = 0;
-                lastErrorCode = 0;
-            }
-            if (!mSessManager.hasConnectivity()) {
-                mLastError = TransmissionData.Errors.NO_CONNECTIVITY;
-                return new TransmissionData(null, mLastError, 0);
-            }
 
-            G.logD("Fetching data");
+    private int mLastError;
+    private int lastErrorCode;
 
-            if (mSessionSet != null) {
-                try {
-                    synchronized(mLock) {
-                        mSessManager.setSession(mSessionSet,
-                            mSessionSetKeys.toArray(new String[mSessionSetKeys.size()]));
-                        mSessionSetKeys.clear();
-                    }
-                } catch (ManagerException e) {
-                    synchronized(mLock) {
-                        mSessionSetKeys.clear();
-                    }
-                    return handleError(e);
-                } finally {
-                    mSessionSet = null;
-                }
-            }
+    private DataSource dataSource;
 
-            TransmissionSession session;
+    public TransmissionSessionLoader(Context context, TransmissionProfile profile, DataSource dataSource) {
+        super(context);
+
+        mSessManager = new TransmissionSessionManager(getContext(), profile, dataSource);
+        this.dataSource = dataSource;
+    }
+
+    public void setSession(TransmissionSession session, String... keys) {
+        mSessionSet = session;
+        synchronized(mLock) {
+            Collections.addAll(mSessionSetKeys, keys);
+        }
+        onContentChanged();
+    }
+
+
+    @Override
+    public TransmissionData loadInBackground() {
+        mIntervalHandler.removeCallbacks(mIntervalRunner);
+        mStopUpdates = false;
+
+        if (mLastError > 0) {
+            mLastError = 0;
+            lastErrorCode = 0;
+        }
+        if (!mSessManager.hasConnectivity()) {
+            mLastError = TransmissionData.Errors.NO_CONNECTIVITY;
+            return new TransmissionData(null, mLastError, 0);
+        }
+
+        G.logD("Fetching data");
+
+        if (mSessionSet != null) {
             try {
-                mSessManager.updateSession();
-
-                synchronized (lock) {
-                    if (dataSource.isOpen())
-                        session = dataSource.getSession();
-                    else return new TransmissionData(null, 0, 0);
+                synchronized(mLock) {
+                    mSessManager.setSession(mSessionSet,
+                        mSessionSetKeys.toArray(new String[mSessionSetKeys.size()]));
+                    mSessionSetKeys.clear();
                 }
             } catch (ManagerException e) {
-                return handleError(e);
-            }
-
-            return new TransmissionData(session, mLastError, lastErrorCode);
-        }
-
-        @Override
-        public void deliverResult(TransmissionData data) {
-            super.deliverResult(data);
-
-            SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getContext());
-            int update = Integer.parseInt(prefs.getString(G.PREF_UPDATE_INTERVAL, "-1"));
-            if (update >= 0 && !isReset()) {
-                if (update < 10) {
-                    update = 10;
+                synchronized(mLock) {
+                    mSessionSetKeys.clear();
                 }
-                mIntervalHandler.postDelayed(mIntervalRunner, update * 1000);
+                return handleError(e);
+            } finally {
+                mSessionSet = null;
             }
         }
 
-        private TransmissionData handleError(ManagerException e) {
-            mStopUpdates = true;
+        TransmissionSession session;
+        try {
+            mSessManager.updateSession();
 
-            G.logD("Got an error while fetching data: " + e.getMessage() + " and this code: " + e.getCode());
-
-            lastErrorCode = e.getCode();
-            switch(e.getCode()) {
-                case 401:
-                case 403:
-                    mLastError = TransmissionData.Errors.ACCESS_DENIED;
-                    break;
-                case 200:
-                    if (e.getMessage().equals("no-json")) {
-                        mLastError = TransmissionData.Errors.NO_JSON;
-                    }
-                    break;
-                case -1:
-                    if (e.getMessage().equals("timeout")) {
-                        mLastError = TransmissionData.Errors.TIMEOUT;
-                    } else {
-                        mLastError = TransmissionData.Errors.NO_CONNECTION;
-                    }
-                    break;
-                case -2:
-                    mLastError = TransmissionData.Errors.RESPONSE_ERROR;
-                    G.logE("Transmission Daemon Error!", e);
-                    break;
-                case -3:
-                    mLastError = TransmissionData.Errors.OUT_OF_MEMORY;
-                    break;
-                case -4:
-                    mLastError = TransmissionData.Errors.JSON_PARSE_ERROR;
-                    G.logE("JSON parse error!", e);
-                    break;
-                default:
-                    mLastError = TransmissionData.Errors.GENERIC_HTTP;
-                    break;
+            synchronized (TransmissionSessionActivity.lock) {
+                if (dataSource.isOpen())
+                    session = dataSource.getSession();
+                else return new TransmissionData(null, 0, 0);
             }
+        } catch (ManagerException e) {
+            return handleError(e);
+        }
 
-            return new TransmissionData(null, mLastError, lastErrorCode);
+        return new TransmissionData(session, mLastError, lastErrorCode);
+    }
+
+    @Override
+    public void deliverResult(TransmissionData data) {
+        super.deliverResult(data);
+
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getContext());
+        int update = Integer.parseInt(prefs.getString(G.PREF_UPDATE_INTERVAL, "-1"));
+        if (update >= 0 && !isReset()) {
+            if (update < 10) {
+                update = 10;
+            }
+            mIntervalHandler.postDelayed(mIntervalRunner, update * 1000);
         }
     }
 
+    private TransmissionData handleError(ManagerException e) {
+        mStopUpdates = true;
+
+        G.logD("Got an error while fetching data: " + e.getMessage() + " and this code: " + e.getCode());
+
+        lastErrorCode = e.getCode();
+        switch(e.getCode()) {
+            case 401:
+            case 403:
+                mLastError = TransmissionData.Errors.ACCESS_DENIED;
+                break;
+            case 200:
+                if (e.getMessage().equals("no-json")) {
+                    mLastError = TransmissionData.Errors.NO_JSON;
+                }
+                break;
+            case -1:
+                if (e.getMessage().equals("timeout")) {
+                    mLastError = TransmissionData.Errors.TIMEOUT;
+                } else {
+                    mLastError = TransmissionData.Errors.NO_CONNECTION;
+                }
+                break;
+            case -2:
+                mLastError = TransmissionData.Errors.RESPONSE_ERROR;
+                G.logE("Transmission Daemon Error!", e);
+                break;
+            case -3:
+                mLastError = TransmissionData.Errors.OUT_OF_MEMORY;
+                break;
+            case -4:
+                mLastError = TransmissionData.Errors.JSON_PARSE_ERROR;
+                G.logE("JSON parse error!", e);
+                break;
+            default:
+                mLastError = TransmissionData.Errors.GENERIC_HTTP;
+                break;
+        }
+
+        return new TransmissionData(null, mLastError, lastErrorCode);
+    }
 }
 
 class TimePickerFragment extends DialogFragment
