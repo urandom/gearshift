@@ -91,7 +91,8 @@ public final class G {
     public static final int TORRENTS_LOADER_ID = 2;
     public static final int SESSION_LOADER_ID = 3;
     public static final int TORRENT_TRAFFIC_LOADER_ID = 4;
-    public static final int DETAIL_CURSOR_LOADER_ID = 5;
+    public static final int TORRENTS_CURSOR_LOADER_ID = 5;
+    public static final int TORRENT_DETAILS_LOADER_ID = 6;
 
     private static final String LogTag = "GearShift";
 

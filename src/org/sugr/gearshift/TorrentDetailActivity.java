@@ -52,7 +52,7 @@ public class TorrentDetailActivity extends FragmentActivity implements Transmiss
             if (mProfile == null) return null;
 
             return new TransmissionDataLoader(
-                TorrentDetailActivity.this, mProfile, mSession, true, getCurrentTorrentIds());
+                TorrentDetailActivity.this, mProfile, mSession, getCurrentTorrentIds());
         }
 
         @Override
@@ -165,10 +165,10 @@ public class TorrentDetailActivity extends FragmentActivity implements Transmiss
                     .commit();
         }
 
-        getSupportLoaderManager().initLoader(G.DETAIL_CURSOR_LOADER_ID, null, new LoaderCallbacks<Cursor>() {
+        getSupportLoaderManager().initLoader(G.TORRENTS_CURSOR_LOADER_ID, null, new LoaderCallbacks<Cursor>() {
             @Override public Loader<Cursor> onCreateLoader(int id, Bundle bundle) {
-                if (id == G.DETAIL_CURSOR_LOADER_ID) {
-                    return new DetailCursorLoader(TorrentDetailActivity.this);
+                if (id == G.TORRENTS_CURSOR_LOADER_ID) {
+                    return new TorrentsCursorLoader(TorrentDetailActivity.this);
                 }
                 return null;
             }
@@ -188,16 +188,6 @@ public class TorrentDetailActivity extends FragmentActivity implements Transmiss
 
         getSupportLoaderManager().restartLoader(
                 G.TORRENTS_LOADER_ID, null, mTorrentLoaderCallbacks);
-    }
-
-    @Override
-    public void onDestroy() {
-        Loader<TransmissionData> loader = getSupportLoaderManager()
-            .getLoader(G.TORRENTS_LOADER_ID);
-
-        ((TransmissionDataLoader) loader).setDetails(false);
-
-        super.onDestroy();
     }
 
     @Override
@@ -322,8 +312,8 @@ public class TorrentDetailActivity extends FragmentActivity implements Transmiss
             item.setActionView(null);
     }
 
-    private class DetailCursorLoader extends AsyncTaskLoader<Cursor> {
-        public DetailCursorLoader(Context context) {
+    private class TorrentsCursorLoader extends AsyncTaskLoader<Cursor> {
+        public TorrentsCursorLoader(Context context) {
             super(context);
         }
         @Override public Cursor loadInBackground() {
@@ -331,7 +321,7 @@ public class TorrentDetailActivity extends FragmentActivity implements Transmiss
 
             readSource.open();
 
-            Cursor cursor = readSource.getTorrentCursor(true);
+            Cursor cursor = readSource.getTorrentCursor();
 
             readSource.close();
 

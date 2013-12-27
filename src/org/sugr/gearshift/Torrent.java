@@ -1205,6 +1205,82 @@ public class Torrent implements Parcelable {
         return cursor.getString(cursor.getColumnIndex(Constants.C_STATUS_TEXT));
     }
 
+    public static long getHaveValid(Cursor cursor) {
+        return cursor.getLong(cursor.getColumnIndex(Constants.C_HAVE_VALID));
+    }
+
+    public static long getSizeWhenDone(Cursor cursor) {
+        return cursor.getLong(cursor.getColumnIndex(Constants.C_SIZE_WHEN_DONE));
+    }
+
+    public static long getLeftUntilDone(Cursor cursor) {
+        return cursor.getLong(cursor.getColumnIndex(Constants.C_LEFT_UNTIL_DONE));
+    }
+
+    public static long getDownloadedEver(Cursor cursor) {
+        return cursor.getLong(cursor.getColumnIndex(Constants.C_DOWNLOADED_EVER));
+    }
+
+    public static long getUploadedEver(Cursor cursor) {
+        return cursor.getLong(cursor.getColumnIndex(Constants.C_UPLOADED_EVER));
+    }
+
+    public static long getStartDate(Cursor cursor) {
+        return cursor.getLong(cursor.getColumnIndex(Constants.C_START_DATE));
+    }
+
+    public static long getActivityDate(Cursor cursor) {
+        return cursor.getLong(cursor.getColumnIndex(Constants.C_ACTIVITY_DATE));
+    }
+
+    public static long getAddedDate(Cursor cursor) {
+        return cursor.getLong(cursor.getColumnIndex(Constants.C_ADDED_DATE));
+    }
+
+    public static long getEta(Cursor cursor) {
+        return cursor.getLong(cursor.getColumnIndex(Constants.C_ETA));
+    }
+
+    public static long getTotalSize(Cursor cursor) {
+        return cursor.getLong(cursor.getColumnIndex(Constants.C_TOTAL_SIZE));
+    }
+
+    public static long getPieceSize(Cursor cursor) {
+        return cursor.getLong(cursor.getColumnIndex(Constants.C_PIECE_SIZE));
+    }
+
+    public static int getPieceCount(Cursor cursor) {
+        return cursor.getInt(cursor.getColumnIndex(Constants.C_PIECE_COUNT));
+    }
+
+    public static String getHashString(Cursor cursor) {
+        return cursor.getString(cursor.getColumnIndex(Constants.C_HASH_STRING));
+    }
+
+    public static boolean isPrivate(Cursor cursor) {
+        return cursor.getInt(cursor.getColumnIndex(Constants.C_IS_PRIVATE)) > 0;
+    }
+
+    public static long getDateCreated(Cursor cursor) {
+        return cursor.getLong(cursor.getColumnIndex(Constants.C_DATE_CREATED));
+    }
+
+    public static String getCreator(Cursor cursor) {
+        return cursor.getString(cursor.getColumnIndex(Constants.C_CREATOR));
+    }
+
+    public static String getComment(Cursor cursor) {
+        return cursor.getString(cursor.getColumnIndex(Constants.C_COMMENT));
+    }
+
+    public static int getQueuePosition(Cursor cursor) {
+        return cursor.getInt(cursor.getColumnIndex(Constants.C_QUEUE_POSITION));
+    }
+
+    public static String getDownloadDir(Cursor cursor) {
+        return cursor.getString(cursor.getColumnIndex(Constants.C_DOWNLOAD_DIR));
+    }
+
     public static boolean isActive(int status) {
         switch(status) {
             case Status.CHECKING:

@@ -276,10 +276,6 @@ public final class Constants {
             C_LAST_SCRAPE_RESULT, C_SEEDER_COUNT, C_LEECHER_COUNT
         };
 
-        public static final String[] TORRENT_TRACKER = {
-            C_TRACKER_ID
-        };
-
         public static final String[] FILE = {
             C_NAME, C_LENGTH, C_BYTES_COMPLETED, C_WANTED, C_PRIORITY
         };

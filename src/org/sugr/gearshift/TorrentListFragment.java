@@ -778,7 +778,7 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
                             originalCursor = temporaryFilterCursor;
                             temporaryFilterCursor = null;
                         } else {
-                            originalCursor = readDataSource.getTorrentCursor(false);
+                            originalCursor = readDataSource.getTorrentCursor();
                         }
                     }
 

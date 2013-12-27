@@ -9,6 +9,7 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.Loader;
 import android.support.v4.view.ViewPager;
+import android.util.SparseIntArray;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -41,6 +42,8 @@ public class TorrentDetailFragment extends Fragment implements TorrentListNotifi
     private Menu menu;
 
     private Cursor detailCursor;
+
+    private SparseIntArray torrentPositionMap = new SparseIntArray();
 
     private static PagerCallbacks sDummyCallbacks = new PagerCallbacks() {
         @Override
@@ -246,6 +249,7 @@ public class TorrentDetailFragment extends Fragment implements TorrentListNotifi
             detailCursor.close();
         }
         detailCursor = newCursor;
+        updateTorrentPositionMap();
         if (mPager.getAdapter() == null) {
             setCurrentTorrentId(currentTorrentPosition);
 
@@ -255,6 +259,23 @@ public class TorrentDetailFragment extends Fragment implements TorrentListNotifi
 
     public Cursor getCursor() {
         return detailCursor;
+    }
+
+    public int getTorrentPositionInCursor(int id) {
+        return torrentPositionMap.get(id, -1);
+    }
+
+    public int getTorrentId(int position) {
+        int torrentId = -1;
+        if (detailCursor != null) {
+            int cursorPosition = detailCursor.getPosition();
+            if (detailCursor.moveToPosition(position)) {
+                torrentId = Torrent.getId(detailCursor);
+                detailCursor.moveToPosition(cursorPosition);
+            }
+        }
+
+        return torrentId;
     }
 
     public void removeMenuEntries() {
@@ -282,6 +303,23 @@ public class TorrentDetailFragment extends Fragment implements TorrentListNotifi
         }
     }
 
+    private void updateTorrentPositionMap() {
+        int cursorPosition = detailCursor.getPosition();
+        int position = 0;
+
+        torrentPositionMap.clear();
+        detailCursor.moveToFirst();
+
+        while (!detailCursor.isAfterLast()) {
+            torrentPositionMap.append(Torrent.getId(detailCursor), position);
+
+            detailCursor.moveToNext();
+            ++position;
+        }
+
+        detailCursor.moveToPosition(cursorPosition);
+    }
+
     public void resetPagerAdapter() {
         if (detailCursor == null) {
             mPager.setAdapter(null);
@@ -301,24 +339,11 @@ public class TorrentDetailFragment extends Fragment implements TorrentListNotifi
 
         boolean updateMenu = status;
         if (removed || added) {
-            int index = 0;
-            int cursorPosition = cursor.getPosition();
-            boolean found = false;
-
-            cursor.moveToFirst();
-            while (!cursor.isAfterLast()) {
-                if (currentTorrentId == Torrent.getId(cursor)) {
-                    found = true;
-                    break;
-                }
-                cursor.moveToNext();
-                index++;
-            }
-            cursor.moveToPosition(cursorPosition);
+            int position = getTorrentPositionInCursor(currentTorrentId);
 
             resetPagerAdapter();
-            if (found) {
-                mPager.setCurrentItem(index);
+            if (position != -1) {
+                mPager.setCurrentItem(position);
             } else {
                 updateMenu = true;
                 mCallbacks.onPageSelected(mPager.getCurrentItem());
@@ -346,15 +371,7 @@ public class TorrentDetailFragment extends Fragment implements TorrentListNotifi
     }
 
     private void setCurrentTorrentId(int position) {
-        if (detailCursor != null) {
-            int cursorPosition = detailCursor.getPosition();
-            if (detailCursor.moveToPosition(position)) {
-                currentTorrentId = Torrent.getId(detailCursor);
-                detailCursor.moveToPosition(cursorPosition);
-            } else {
-                currentTorrentId = -1;
-            }
-        }
+        currentTorrentId = getTorrentId(position);
     }
 
     private void setMenuTorrentState() {

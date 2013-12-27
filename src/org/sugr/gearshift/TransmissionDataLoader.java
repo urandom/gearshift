@@ -65,7 +65,6 @@ public class TransmissionDataLoader extends AsyncTaskLoader<TransmissionData> {
     private TransmissionSession session;
 
     private Cursor cursor;
-    private boolean details;
     private int[] updateIds;
 
     private int lastError;
@@ -120,11 +119,10 @@ public class TransmissionDataLoader extends AsyncTaskLoader<TransmissionData> {
     }
 
     public TransmissionDataLoader(Context context, TransmissionProfile profile,
-                                  TransmissionSession session, boolean details, int[] ids) {
+                                  TransmissionSession session, int[] ids) {
         this(context, profile);
 
         this.session = session;
-        this.details = details;
         this.updateIds = ids;
     }
 
@@ -142,11 +140,6 @@ public class TransmissionDataLoader extends AsyncTaskLoader<TransmissionData> {
     public void setSession(TransmissionSession session, String... keys) {
         mSessionSet = session;
         mSessionSetKeys = keys;
-        onContentChanged();
-    }
-
-    public void setDetails(boolean details) {
-        this.details = details;
         onContentChanged();
     }
 
@@ -381,18 +374,13 @@ public class TransmissionDataLoader extends AsyncTaskLoader<TransmissionData> {
         TorrentStatus status;
         String[] fields;
 
-        if (details) {
-            fields = G.concat(Torrent.Fields.STATS, Torrent.Fields.STATS_EXTRA);
-            if (!dataSource.hasExtraInfo()) {
-                fields = G.concat(fields, Torrent.Fields.INFO_EXTRA);
-            }
-        } else if (mIteration == 0) {
+        if (mIteration == 0) {
             fields = G.concat(Torrent.Fields.METADATA, Torrent.Fields.STATS);
         } else {
             fields = Torrent.Fields.STATS;
         }
 
-        if (!dataSource.hasCompleteMetadata()) {
+        if (mIteration != 0 && !dataSource.hasCompleteMetadata()) {
             fields = G.concat(Torrent.Fields.METADATA, fields);
         }
 
@@ -408,7 +396,7 @@ public class TransmissionDataLoader extends AsyncTaskLoader<TransmissionData> {
         try {
             if (updateIds != null) {
                 status = mSessManager.getTorrents(fields, updateIds);
-            } else if (active && !details) {
+            } else if (active) {
                 int full = Integer.parseInt(mDefaultPrefs.getString(G.PREF_FULL_UPDATE, "2"));
 
                 if (mIteration % full == 0) {
@@ -432,7 +420,7 @@ public class TransmissionDataLoader extends AsyncTaskLoader<TransmissionData> {
             return handleError(exceptions.get(0));
         }
 
-        cursor = dataSource.getTorrentCursor(details);
+        cursor = dataSource.getTorrentCursor();
         session.setDownloadDirectories(mProfile, dataSource.getDownloadDirectories());
 
         mIteration++;

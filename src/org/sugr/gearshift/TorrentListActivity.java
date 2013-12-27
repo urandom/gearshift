@@ -648,12 +648,6 @@ public class TorrentListActivity extends FragmentActivity
                 mDetailPanelShown = true;
                 mDetailSlideAnimator.start();
 
-                Loader<TransmissionData> loader =
-                        getSupportLoaderManager().getLoader(G.TORRENTS_LOADER_ID);
-                if (loader != null) {
-                    ((TransmissionDataLoader) loader).setDetails(true);
-                }
-
                 return true;
             }
         } else {
@@ -665,10 +659,6 @@ public class TorrentListActivity extends FragmentActivity
                 if (pager != null) {
                     pager.setAlpha(0);
                     pager.setVisibility(View.GONE);
-                }
-                Loader<TransmissionData> loader = getSupportLoaderManager().getLoader(G.TORRENTS_LOADER_ID);
-                if (loader != null) {
-                    ((TransmissionDataLoader) loader).setDetails(false);
                 }
 
                 FragmentManager manager = getSupportFragmentManager();
