@@ -48,6 +48,8 @@ public class DataSource {
 
     private int rpcVersion = -1;
 
+    private static final Object lock = new Object();
+
     public DataSource(Context context) {
         setContext(context);
     }
@@ -82,21 +84,23 @@ public class DataSource {
         if (!isOpen())
             return false;
 
-        database.beginTransaction();
+        List<ContentValues> session = jsonToSessionValues(parser);
 
-        try {
-            List<ContentValues> session = jsonToSessionValues(parser);
+        synchronized (lock) {
+            try {
+                database.beginTransaction();
 
-            for (ContentValues item : session) {
-                database.insertWithOnConflict(Constants.T_SESSION, null,
-                    item, SQLiteDatabase.CONFLICT_REPLACE);
+                for (ContentValues item : session) {
+                    database.insertWithOnConflict(Constants.T_SESSION, null,
+                        item, SQLiteDatabase.CONFLICT_REPLACE);
+                }
+
+                database.setTransactionSuccessful();
+
+                return true;
+            } finally {
+                database.endTransaction();
             }
-
-            database.setTransactionSuccessful();
-
-            return true;
-        } finally {
-            database.endTransaction();
         }
     }
 
@@ -107,85 +111,87 @@ public class DataSource {
         int[] idChanges = queryTorrentIdChanges();
         int[] status = queryStatusCount();
 
-        database.beginTransaction();
+        synchronized (lock) {
+            try {
+                database.beginTransaction();
 
-        try {
-            SparseBooleanArray trackers = new SparseBooleanArray();
+                SparseBooleanArray trackers = new SparseBooleanArray();
 
-            while (parser.nextToken() != JsonToken.END_ARRAY) {
-                TorrentValues values = jsonToTorrentValues(parser);
+                while (parser.nextToken() != JsonToken.END_ARRAY) {
+                    TorrentValues values = jsonToTorrentValues(parser);
 
-                int torrentId = (Integer) values.torrent.get(Constants.C_TORRENT_ID);
+                    int torrentId = (Integer) values.torrent.get(Constants.C_TORRENT_ID);
 
-                database.insertWithOnConflict(Constants.T_TORRENT, null,
-                    values.torrent, SQLiteDatabase.CONFLICT_REPLACE);
+                    database.insertWithOnConflict(Constants.T_TORRENT, null,
+                        values.torrent, SQLiteDatabase.CONFLICT_REPLACE);
 
-                if (values.trackers != null) {
-                    for (ContentValues tracker : values.trackers) {
-                        int trackerId = (Integer) tracker.get(Constants.C_TRACKER_ID);
-                        if (!trackers.get(trackerId, false)) {
-                            trackers.put(trackerId, true);
+                    if (values.trackers != null) {
+                        for (ContentValues tracker : values.trackers) {
+                            int trackerId = (Integer) tracker.get(Constants.C_TRACKER_ID);
+                            if (!trackers.get(trackerId, false)) {
+                                trackers.put(trackerId, true);
 
-                            database.insertWithOnConflict(Constants.T_TRACKER, null,
-                                tracker, SQLiteDatabase.CONFLICT_REPLACE);
+                                database.insertWithOnConflict(Constants.T_TRACKER, null,
+                                    tracker, SQLiteDatabase.CONFLICT_REPLACE);
+                            }
+
+                            ContentValues m2m = new ContentValues();
+                            m2m.put(Constants.C_TORRENT_ID, torrentId);
+                            m2m.put(Constants.C_TRACKER_ID, trackerId);
+                            database.insertWithOnConflict(Constants.T_TORRENT_TRACKER, null,
+                                m2m, SQLiteDatabase.CONFLICT_REPLACE);
                         }
+                    }
 
-                        ContentValues m2m = new ContentValues();
-                        m2m.put(Constants.C_TORRENT_ID, torrentId);
-                        m2m.put(Constants.C_TRACKER_ID, trackerId);
-                        database.insertWithOnConflict(Constants.T_TORRENT_TRACKER, null,
-                            m2m, SQLiteDatabase.CONFLICT_REPLACE);
+                    if (values.files != null) {
+                        for (ContentValues file : values.files) {
+                            file.put(Constants.C_TORRENT_ID, torrentId);
+                            database.insertWithOnConflict(Constants.T_FILE, null,
+                                file, SQLiteDatabase.CONFLICT_REPLACE);
+                        }
+                    }
+
+                    if (values.peers != null) {
+                        for (ContentValues peer : values.peers) {
+                            peer.put(Constants.C_TORRENT_ID, torrentId);
+                            database.insertWithOnConflict(Constants.T_PEER, null,
+                                peer, SQLiteDatabase.CONFLICT_REPLACE);
+                        }
                     }
                 }
 
-                if (values.files != null) {
-                    for (ContentValues file : values.files) {
-                        file.put(Constants.C_TORRENT_ID, torrentId);
-                        database.insertWithOnConflict(Constants.T_FILE, null,
-                            file, SQLiteDatabase.CONFLICT_REPLACE);
+                database.setTransactionSuccessful();
+
+                int[] updatedIdChanges = queryTorrentIdChanges();
+                int[] updatedStatus = queryStatusCount();
+
+                boolean added = false, removed = false, statusChanged = false;
+                boolean incompleteMetadata = !hasCompleteMetadata();
+
+                if (idChanges != null && updatedIdChanges != null) {
+                    added = idChanges[0] < updatedIdChanges[0];
+                    removed = idChanges[0] > updatedIdChanges[0] || idChanges[1] < updatedIdChanges[1];
+
+                    if (added || removed) {
+                        statusChanged = true;
                     }
                 }
 
-                if (values.peers != null) {
-                    for (ContentValues peer : values.peers) {
-                        peer.put(Constants.C_TORRENT_ID, torrentId);
-                        database.insertWithOnConflict(Constants.T_PEER, null,
-                            peer, SQLiteDatabase.CONFLICT_REPLACE);
+                if (status != null && updatedStatus != null && status.length == updatedStatus.length) {
+                    for (int i = 0; i < status.length && !statusChanged; ++i) {
+                        statusChanged = status[i] != updatedStatus[i];
                     }
                 }
+
+                return new TorrentStatus(
+                    added,
+                    removed,
+                    statusChanged,
+                    incompleteMetadata
+                );
+            } finally {
+                database.endTransaction();
             }
-
-            database.setTransactionSuccessful();
-
-            int[] updatedIdChanges = queryTorrentIdChanges();
-            int[] updatedStatus = queryStatusCount();
-
-            boolean added = false, removed = false, statusChanged = false;
-            boolean incompleteMetadata = !hasCompleteMetadata();
-
-            if (idChanges != null && updatedIdChanges != null) {
-                added = idChanges[0] < updatedIdChanges[0];
-                removed = idChanges[0] > updatedIdChanges[0] || idChanges[1] < updatedIdChanges[1];
-
-                if (added || removed) {
-                    statusChanged = true;
-                }
-            }
-
-            if (status != null && updatedStatus != null && status.length == updatedStatus.length) {
-                for (int i = 0; i < status.length && !statusChanged; ++i) {
-                    statusChanged = status[i] != updatedStatus[i];
-                }
-            }
-
-            return new TorrentStatus(
-                added,
-                removed,
-                statusChanged,
-                incompleteMetadata
-            );
-        } finally {
-            database.endTransaction();
         }
     }
 
@@ -193,18 +199,20 @@ public class DataSource {
         if (!isOpen())
             return false;
 
-        database.beginTransaction();
+        synchronized (lock) {
+            try {
+                database.beginTransaction();
 
-        try {
-            for (int id : ids) {
-                removeTorrent(id);
+                for (int id : ids) {
+                    removeTorrent(id);
+                }
+
+                database.setTransactionSuccessful();
+
+                return true;
+            } finally {
+                database.endTransaction();
             }
-
-            database.setTransactionSuccessful();
-
-            return true;
-        } finally {
-            database.endTransaction();
         }
     }
 

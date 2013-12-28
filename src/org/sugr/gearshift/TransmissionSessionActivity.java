@@ -1316,7 +1316,7 @@ public class TransmissionSessionActivity extends FragmentActivity {
     }
 }
 
-
+/* TODO make the loader handle all requests, not just for updating, and make it keep track of the dataSource */
 class TransmissionSessionLoader extends AsyncTaskLoader<TransmissionData> {
 
     private TransmissionSessionManager mSessManager;
