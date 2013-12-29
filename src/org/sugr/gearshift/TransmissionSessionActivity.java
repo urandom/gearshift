@@ -42,22 +42,18 @@ import java.util.List;
 import java.util.Set;
 
 public class TransmissionSessionActivity extends FragmentActivity {
-    static final Object lock = new Object();
-
     private TransmissionProfile mProfile;
     private TransmissionSession mSession;
 
     private boolean mRefreshing = false;
 
-    private DataSource dataSource;
-
-    private LoaderCallbacks<TransmissionData> mSessionLoaderCallbacks = new LoaderCallbacks<TransmissionData>() {
+    private LoaderCallbacks<TransmissionData> sessionLoaderCallbacks = new LoaderCallbacks<TransmissionData>() {
 
         @Override public Loader<TransmissionData> onCreateLoader(int arg0, Bundle arg1) {
             if (mProfile == null) return null;
 
             return new TransmissionSessionLoader(
-                    TransmissionSessionActivity.this, mProfile, dataSource);
+                    TransmissionSessionActivity.this, mProfile);
         }
 
         @Override public void onLoadFinished(Loader<TransmissionData> loader,
@@ -182,7 +178,6 @@ public class TransmissionSessionActivity extends FragmentActivity {
     protected void onCreate(final Bundle savedInstanceState) {
         Intent in = getIntent();
 
-        dataSource = new DataSource(this);
         mProfile = in.getParcelableExtra(G.ARG_PROFILE);
         mSession = in.getParcelableExtra(G.ARG_SESSION);
 
@@ -220,22 +215,8 @@ public class TransmissionSessionActivity extends FragmentActivity {
         updateFields(null, true);
 
         initListeners();
-    }
 
-    @Override
-    protected void onResume() {
-        super.onResume();
-
-        new DBOpenTask().execute();
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-
-        synchronized (lock) {
-            dataSource.close();
-        }
+        getSupportLoaderManager().restartLoader(G.SESSION_LOADER_ID, null, sessionLoaderCallbacks);
     }
 
     @Override
@@ -1212,18 +1193,14 @@ public class TransmissionSessionActivity extends FragmentActivity {
         @Override
         protected Boolean doInBackground(Void... params) {
             TransmissionSessionManager manager = new TransmissionSessionManager(
-                    TransmissionSessionActivity.this, mProfile, dataSource);
+                    TransmissionSessionActivity.this, mProfile, null);
 
             if (!manager.hasConnectivity()) {
                 return null;
             }
 
             try {
-                synchronized (lock) {
-                    if (dataSource.isOpen())
-                        return manager.testPort();
-                    else return null;
-                }
+                return manager.testPort();
             } catch (ManagerException e) {
                 return null;
             }
@@ -1258,18 +1235,14 @@ public class TransmissionSessionActivity extends FragmentActivity {
         @Override
         protected Long doInBackground(Void... params) {
             TransmissionSessionManager manager = new TransmissionSessionManager(
-                    TransmissionSessionActivity.this, mProfile, dataSource);
+                    TransmissionSessionActivity.this, mProfile, null);
 
             if (!manager.hasConnectivity()) {
                 return null;
             }
 
             try {
-                synchronized (lock) {
-                    if (dataSource.isOpen())
-                        return manager.blocklistUpdate();
-                    else return null;
-                }
+                return manager.blocklistUpdate();
             } catch (ManagerException e) {
                 return null;
             }
@@ -1303,27 +1276,15 @@ public class TransmissionSessionActivity extends FragmentActivity {
             }
         }
     }
-
-    private class DBOpenTask extends AsyncTask<Void, Void, Void> {
-        @Override protected Void doInBackground(Void... voids) {
-            dataSource.open();
-
-            getSupportLoaderManager().restartLoader(
-                G.SESSION_LOADER_ID, null, mSessionLoaderCallbacks);
-
-            return null;
-        }
-    }
 }
 
-/* TODO make the loader handle all requests, not just for updating, and make it keep track of the dataSource */
 class TransmissionSessionLoader extends AsyncTaskLoader<TransmissionData> {
 
     private TransmissionSessionManager mSessManager;
 
     private TransmissionSession mSessionSet;
     private Set<String> mSessionSetKeys = new HashSet<String>();
-    private final Object mLock = new Object();
+    private final Object lock = new Object();
     private boolean mStopUpdates = false;
 
     private Handler mIntervalHandler = new Handler();
@@ -1341,16 +1302,16 @@ class TransmissionSessionLoader extends AsyncTaskLoader<TransmissionData> {
 
     private DataSource dataSource;
 
-    public TransmissionSessionLoader(Context context, TransmissionProfile profile, DataSource dataSource) {
+    public TransmissionSessionLoader(Context context, TransmissionProfile profile) {
         super(context);
 
+        dataSource = new DataSource(context);
         mSessManager = new TransmissionSessionManager(getContext(), profile, dataSource);
-        this.dataSource = dataSource;
     }
 
     public void setSession(TransmissionSession session, String... keys) {
         mSessionSet = session;
-        synchronized(mLock) {
+        synchronized(lock) {
             Collections.addAll(mSessionSetKeys, keys);
         }
         onContentChanged();
@@ -1371,39 +1332,43 @@ class TransmissionSessionLoader extends AsyncTaskLoader<TransmissionData> {
             return new TransmissionData(null, mLastError, 0);
         }
 
-        G.logD("Fetching data");
-
-        if (mSessionSet != null) {
-            try {
-                synchronized(mLock) {
-                    mSessManager.setSession(mSessionSet,
-                        mSessionSetKeys.toArray(new String[mSessionSetKeys.size()]));
-                    mSessionSetKeys.clear();
-                }
-            } catch (ManagerException e) {
-                synchronized(mLock) {
-                    mSessionSetKeys.clear();
-                }
-                return handleError(e);
-            } finally {
-                mSessionSet = null;
-            }
-        }
-
-        TransmissionSession session;
         try {
-            mSessManager.updateSession();
+            dataSource.open();
 
-            synchronized (TransmissionSessionActivity.lock) {
-                if (dataSource.isOpen())
-                    session = dataSource.getSession();
-                else return new TransmissionData(null, 0, 0);
+            G.logD("Fetching data");
+
+            if (mSessionSet != null) {
+                try {
+                    synchronized(lock) {
+                        mSessManager.setSession(mSessionSet,
+                            mSessionSetKeys.toArray(new String[mSessionSetKeys.size()]));
+                        mSessionSetKeys.clear();
+                    }
+                } catch (ManagerException e) {
+                    synchronized(lock) {
+                        mSessionSetKeys.clear();
+                    }
+                    return handleError(e);
+                } finally {
+                    mSessionSet = null;
+                }
             }
-        } catch (ManagerException e) {
-            return handleError(e);
-        }
 
-        return new TransmissionData(session, mLastError, lastErrorCode);
+            TransmissionSession session;
+            try {
+                mSessManager.updateSession();
+
+                session = dataSource.getSession();
+            } catch (ManagerException e) {
+                return handleError(e);
+            }
+
+            return new TransmissionData(session, mLastError, lastErrorCode);
+        } finally {
+            if (dataSource.isOpen()) {
+                dataSource.close();
+            }
+        }
     }
 
     @Override
@@ -1418,6 +1383,23 @@ class TransmissionSessionLoader extends AsyncTaskLoader<TransmissionData> {
             }
             mIntervalHandler.postDelayed(mIntervalRunner, update * 1000);
         }
+    }
+
+    @Override
+    protected void onStopLoading() {
+        super.onStopLoading();
+
+        G.logD("SessionLoader: onStopLoading()");
+        cancelLoad();
+    }
+
+    @Override
+    protected void onReset() {
+        super.onReset();
+
+        G.logD("SessionLoader: onReset()");
+
+        onStopLoading();
     }
 
     private TransmissionData handleError(ManagerException e) {

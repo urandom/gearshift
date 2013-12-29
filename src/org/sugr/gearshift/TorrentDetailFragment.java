@@ -245,6 +245,9 @@ public class TorrentDetailFragment extends Fragment implements TorrentListNotifi
     }
 
     public void changeCursor(Cursor newCursor) {
+        if (detailCursor == newCursor) {
+            return;
+        }
         if (detailCursor != null) {
             detailCursor.close();
         }
@@ -311,10 +314,9 @@ public class TorrentDetailFragment extends Fragment implements TorrentListNotifi
         detailCursor.moveToFirst();
 
         while (!detailCursor.isAfterLast()) {
-            torrentPositionMap.append(Torrent.getId(detailCursor), position);
+            torrentPositionMap.append(Torrent.getId(detailCursor), position++);
 
             detailCursor.moveToNext();
-            ++position;
         }
 
         detailCursor.moveToPosition(cursorPosition);
@@ -330,6 +332,9 @@ public class TorrentDetailFragment extends Fragment implements TorrentListNotifi
 
     public void notifyTorrentListChanged(Cursor cursor, int error, boolean added, boolean removed,
                                          boolean status, boolean metadata) {
+        if (detailCursor == cursor) {
+            return;
+        }
         if (((TransmissionSessionInterface) getActivity()).getSession() == null) {
             setMenuTorrentState();
             return;

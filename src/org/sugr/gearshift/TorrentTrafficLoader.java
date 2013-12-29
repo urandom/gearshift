@@ -35,9 +35,8 @@ public class TorrentTrafficLoader
         DataSource dataSource = new DataSource(getContext());
         TorrentTrafficOutputData output = new TorrentTrafficOutputData();
 
+        dataSource.open();
         try {
-            dataSource.open();
-
             if (queryTraffic) {
                 long[] speed = dataSource.getTrafficSpeed();
                 output.downloadSpeed = speed[0];
@@ -75,5 +74,9 @@ public class TorrentTrafficLoader
 
     @Override public void deliverResult(TorrentTrafficOutputData result) {
         this.result = result;
+
+        if (isStarted()) {
+            super.deliverResult(result);
+        }
     }
 }

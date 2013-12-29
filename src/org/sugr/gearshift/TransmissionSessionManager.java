@@ -533,14 +533,23 @@ public class TransmissionSessionManager {
 
                         parser.nextValue();
                         if (argname.equals("torrent-added")) {
+                            int id = -1;
+                            String addedName = null;
+                            String addedHash = null;
                             while (parser.nextToken() != JsonToken.END_OBJECT) {
                                 String key = parser.getCurrentName();
 
                                 parser.nextValue();
                                 if (key.equals("id")) {
-                                    ((AddTorrentResponse) response).setAddedId(parser.getIntValue());
+                                    id = parser.getIntValue();
+                                    ((AddTorrentResponse) response).setAddedId(id);
+                                } else if (key.equals("name")) {
+                                    addedName = parser.getText();
+                                } else if (key.equals("hashString")) {
+                                    addedHash = parser.getText();
                                 }
                             }
+                            dataSource.addTorrent(id, addedName, addedHash);
                         } else if (argname.equals("torrent-duplicate")) {
                             while (parser.nextToken() != JsonToken.END_OBJECT) {
                                 String key = parser.getCurrentName();

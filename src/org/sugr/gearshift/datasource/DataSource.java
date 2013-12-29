@@ -55,12 +55,16 @@ public class DataSource {
     }
 
     public void open() {
-        database = dbHelper.getWritableDatabase();
+        synchronized (lock) {
+            database = dbHelper.getWritableDatabase();
+        }
     }
 
     public void close() {
-        dbHelper.close();
-        database = null;
+        synchronized (lock) {
+            dbHelper.close();
+            database = null;
+        }
     }
 
     public boolean isOpen() {
@@ -77,7 +81,7 @@ public class DataSource {
 
     public void setContext(Context context) {
         this.context = context;
-        this.dbHelper = new SQLiteHelper(context);
+        this.dbHelper = new SQLiteHelper(context.getApplicationContext());
     }
 
     public boolean updateSession(JsonParser parser) throws IOException {
@@ -121,9 +125,14 @@ public class DataSource {
                     TorrentValues values = jsonToTorrentValues(parser);
 
                     int torrentId = (Integer) values.torrent.get(Constants.C_TORRENT_ID);
+                    int updated = database.update(
+                        Constants.T_TORRENT, values.torrent, Constants.C_TORRENT_ID + " = ?",
+                        new String[] { Integer.toString(torrentId )});
 
-                    database.insertWithOnConflict(Constants.T_TORRENT, null,
-                        values.torrent, SQLiteDatabase.CONFLICT_REPLACE);
+                    if (updated < 1) {
+                        database.insertWithOnConflict(Constants.T_TORRENT, null,
+                            values.torrent, SQLiteDatabase.CONFLICT_REPLACE);
+                    }
 
                     if (values.trackers != null) {
                         for (ContentValues tracker : values.trackers) {
@@ -280,6 +289,58 @@ public class DataSource {
         } finally {
             if (cursor != null)
                 cursor.close();
+        }
+    }
+
+    public int[] getUnnamedTorrentIds() {
+        if (!isOpen())
+            return null;
+
+        Cursor cursor = null;
+        try {
+            cursor = database.query(Constants.T_TORRENT, new String[] { Constants.C_TORRENT_ID },
+                Constants.C_NAME + " = ''", null, null, null, null);
+
+            int[] ids = new int[cursor.getCount()];
+            int index = 0;
+            cursor.moveToFirst();
+
+            while (!cursor.isAfterLast()) {
+                ids[index++] = cursor.getInt(0);
+                cursor.moveToNext();
+            }
+
+            return ids;
+        } finally {
+            if (cursor != null) {
+                cursor.close();
+            }
+        }
+    }
+
+    public boolean addTorrent(int id, String name, String hash) {
+        if (!isOpen())
+            return false;
+
+        synchronized (lock) {
+            try {
+                database.beginTransaction();
+
+                ContentValues values = new ContentValues();
+
+                values.put(Constants.C_TORRENT_ID, id);
+                values.put(Constants.C_NAME, name);
+                values.put(Constants.C_HASH_STRING, hash);
+                values.put(Constants.C_STATUS, Torrent.Status.STOPPED);
+
+                long result = database.insert(Constants.T_TORRENT, null, values);
+
+                database.setTransactionSuccessful();
+
+                return result > -1;
+            } finally {
+                database.endTransaction();
+            }
         }
     }
 
@@ -1382,7 +1443,7 @@ public class DataSource {
         }
 
         if (directory != null && directory.length() > 0) {
-            selection.add(Constants.C_NAME + " = ?");
+            selection.add(Constants.C_DOWNLOAD_DIR + " = ?");
             selectionArgs.add(directory);
         }
 

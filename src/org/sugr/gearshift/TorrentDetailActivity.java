@@ -329,15 +329,20 @@ public class TorrentDetailActivity extends FragmentActivity implements Transmiss
 }
 
 class TorrentsCursorLoader extends AsyncTaskLoader<Cursor> {
+    private DataSource readSource;
+
     public TorrentsCursorLoader(Context context) {
         super(context);
+
+        readSource = new DataSource(context);
     }
     @Override public Cursor loadInBackground() {
-        DataSource readSource = new DataSource(getContext());
-
         readSource.open();
 
         Cursor cursor = readSource.getTorrentCursor();
+
+        /* Fill the window */
+        cursor.getCount();
 
         readSource.close();
 

@@ -10,6 +10,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
+import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
@@ -146,16 +147,10 @@ public class TorrentListActivity extends FragmentActivity
                  * appear until the next server request */
                 mPreventRefreshIndicator = true;
 
-                if (oldProfile != null && !oldProfile.getId().equals(mProfile.getId())) {
-                    getSupportLoaderManager().initLoader(
-                        G.TORRENTS_LOADER_ID,
-                        null, mTorrentLoaderCallbacks);
-                } else {
-                    getSupportLoaderManager().restartLoader(
-                        G.TORRENTS_LOADER_ID,
-                        null, mTorrentLoaderCallbacks);
-                }
-
+                /* The old cursor will probably already be closed, so start fresh */
+                getSupportLoaderManager().restartLoader(
+                    G.TORRENTS_LOADER_ID,
+                    null, mTorrentLoaderCallbacks);
             }
 
             TransmissionProfile.setCurrentProfile(mProfile, TorrentListActivity.this);
@@ -288,7 +283,9 @@ public class TorrentListActivity extends FragmentActivity
 
                 TransmissionProfile.setCurrentProfile(mProfile, TorrentListActivity.this);
                 setProfile(mProfile);
-                ((TransmissionDataLoader) loader).setProfile(mProfile);
+                if (loader != null) {
+                    ((TransmissionDataLoader) loader).setProfile(mProfile);
+                }
             }
         };
 
@@ -345,6 +342,9 @@ public class TorrentListActivity extends FragmentActivity
 
                     fragment.onCreateOptionsMenu(menu, getMenuInflater());
                     fragment.setCurrentTorrent(currentTorrentIndex);
+
+                    Cursor cursor = ((TorrentListFragment) manager.findFragmentById(R.id.torrent_list)).getCursor();
+                    fragment.changeCursor(cursor);
 
                     Handler handler = new Handler();
                     handler.post(new Runnable() {

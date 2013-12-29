@@ -290,10 +290,9 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
         = new LoaderManager.LoaderCallbacks<TorrentTrafficLoader.TorrentTrafficOutputData>() {
 
         @Override public Loader<TorrentTrafficLoader.TorrentTrafficOutputData> onCreateLoader(int id, Bundle bundle) {
-            if (id == G.TORRENT_TRAFFIC_LOADER_ID) {
-                if (mSharedPrefs.getBoolean(G.PREF_SHOW_STATUS, false)) {
-                    return new TorrentTrafficLoader(getActivity(), true, false, false);
-                }
+            if (id == G.TORRENT_LIST_TRAFFIC_LOADER_ID) {
+                return new TorrentTrafficLoader(getActivity(),
+                    mSharedPrefs.getBoolean(G.PREF_SHOW_STATUS, false), false, false);
             }
             return null;
         }
@@ -455,7 +454,12 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
         // Reset the active callbacks interface to the dummy implementation.
         mCallbacks = sDummyCallbacks;
 
+    }
+
+    @Override public void onDestroyView() {
         torrentAdapter.clearResources();
+
+        super.onDestroyView();
     }
 
     @Override
@@ -515,8 +519,6 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
             }
         });
 
-        item.setActionView(findView);
-
         item.setOnActionExpandListener(new MenuItem.OnActionExpandListener() {
             @Override public boolean onMenuItemActionExpand(MenuItem item) {
                 return true;
@@ -532,7 +534,11 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
             }
         });
 
-        setFindVisibility(findVisible);
+        item.setActionView(findView);
+
+        if (findVisible) {
+            setFindVisibility(findVisible);
+        }
     }
 
     @Override
@@ -554,13 +560,8 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
         String query = mSharedPrefs.getString(G.PREF_LIST_SEARCH, null);
         boolean filtered = false;
         if (cursor != null && query != null && !query.equals("")) {
-            torrentAdapter.setTemporaryFilterCursor(cursor);
-            torrentAdapter.getFilter().filter(query);
             filtered = true;
-        } else {
-            torrentAdapter.changeCursor(cursor);
         }
-
 
         int count = cursor != null ? cursor.getCount() : 0;
 
@@ -576,7 +577,7 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
             }
 
             if (error == 0) {
-                getActivity().getSupportLoaderManager().restartLoader(G.TORRENT_TRAFFIC_LOADER_ID,
+                getActivity().getSupportLoaderManager().restartLoader(G.TORRENT_LIST_TRAFFIC_LOADER_ID,
                     null, torrentTrafficLoaderCallbacks);
 
                 FragmentManager manager = getActivity().getSupportFragmentManager();
@@ -594,6 +595,12 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
                         detail.notifyTorrentListChanged(cursor, error, added, removed,
                             statusChanged, metadataNeeded);
                     }
+                }
+                if (filtered) {
+                    torrentAdapter.setTemporaryFilterCursor(cursor);
+                    torrentAdapter.getFilter().filter(query);
+                } else {
+                    torrentAdapter.changeCursor(cursor);
                 }
             }
         }
@@ -659,6 +666,10 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
 
     public boolean isFindShown() {
         return findVisible;
+    }
+
+    public Cursor getCursor() {
+        return torrentAdapter.getCursor();
     }
 
     private void setActivatedPosition(int position) {
@@ -760,11 +771,14 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
         private DataSource readDataSource;
         private Cursor temporaryFilterCursor;
 
+        private boolean resourcesCleared = false;
+
         private final Object lock = new Object();
 
         public TorrentCursorAdapter(Context context, Cursor cursor) {
             super(context, cursor, 0);
 
+            resourcesCleared = false;
             readDataSource = new DataSource(context);
 
             setFilterQueryProvider(new FilterQueryProvider() {
@@ -772,6 +786,9 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
                     Cursor originalCursor, filteredCursor;
 
                     synchronized (lock) {
+                        if (resourcesCleared) {
+                            return null;
+                        }
                         readDataSource.open();
 
                         if (temporaryFilterCursor != null) {
@@ -887,6 +904,7 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
 
         public void clearResources() {
             synchronized (lock) {
+                resourcesCleared = true;
                 readDataSource.close();
                 if (temporaryFilterCursor != null) {
                     temporaryFilterCursor.close();

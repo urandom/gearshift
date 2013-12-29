@@ -107,7 +107,7 @@ public class TransmissionDataLoader extends AsyncTaskLoader<TransmissionData> {
 
     private DataSource dataSource;
 
-    private final static Object mLock = new Object();
+    private static final Object exceptionLock = new Object();
 
     public TransmissionDataLoader(Context context, TransmissionProfile profile) {
         super(context);
@@ -247,203 +247,219 @@ public class TransmissionDataLoader extends AsyncTaskLoader<TransmissionData> {
         /* TODO: catch SQLiteException */
         dataSource.open();
 
-        G.logD("Fetching data");
+        try {
+            G.logD("Fetching data");
 
-        if (mTorrentActionIds != null) {
-            TransmissionData actionData = executeTorrentsAction(
-                mTorrentActionIds, mTorrentAction, mTorrentLocation,
-                mTorrentSetKey, mTorrentSetValue, mDeleteData, mMoveData);
+            if (mTorrentActionIds != null) {
+                TransmissionData actionData = executeTorrentsAction(
+                    mTorrentActionIds, mTorrentAction, mTorrentLocation,
+                    mTorrentSetKey, mTorrentSetValue, mDeleteData, mMoveData);
 
-            mTorrentActionIds = null;
-            mTorrentAction = null;
-            mTorrentSetKey = null;
-            mTorrentSetValue = null;
-            mDeleteData = false;
+                mTorrentActionIds = null;
+                mTorrentAction = null;
+                mTorrentSetKey = null;
+                mTorrentSetValue = null;
+                mDeleteData = false;
 
-            if (actionData != null) {
-                return actionData;
+                if (actionData != null) {
+                    return actionData;
+                }
             }
-        }
 
-        ArrayList<Thread> threads = new ArrayList<Thread>();
+            ArrayList<Thread> threads = new ArrayList<Thread>();
 
-        final ArrayList<ManagerException> exceptions = new ArrayList<ManagerException>();
-        /* Setters */
-        if (mSessionSet != null) {
-            Thread thread = new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    synchronized(mLock) {
-                        /* TODO: create a common runnable class that contains an exception property */
-                        if (exceptions.size() > 0) {
-                            return;
-                        }
-                    }
-                    try {
-                        mSessManager.setSession(mSessionSet, mSessionSetKeys);
-                    } catch (ManagerException e) {
-                        synchronized(mLock) {
-                            exceptions.add(e);
-                        }
-                    } finally {
-                        mSessionSet = null;
-                        mSessionSetKeys = null;
-                    }
-                }
-            });
-            threads.add(thread);
-            thread.start();
-
-        }
-
-        if (session == null || mIteration % 3 == 0) {
-            Thread thread = new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    synchronized(mLock) {
-                        if (exceptions.size() > 0) {
-                            return;
-                        }
-                    }
-                    try {
-                        mSessManager.updateSession();
-
-                        session = dataSource.getSession();
-                    } catch (ManagerException e) {
-                        synchronized(mLock) {
-                            exceptions.add(e);
-                        }
-                    }
-                }
-            });
-            threads.add(thread);
-            thread.start();
-        }
-
-        if (mTorrentAddUri != null || mTorrentAddData != null) {
-            Thread thread = new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    synchronized(mLock) {
-                        if (exceptions.size() > 0) {
-                            return;
-                        }
-                    }
-                    try {
-                        mSessManager.addTorrent(mTorrentAddUri, mTorrentAddData,
-                            mTorrentLocation, mTorrentAddPaused);
-
-                        if (mTorrentAddDeleteLocal != null) {
-                            File file = new File(mTorrentAddDeleteLocal);
-                            if (!file.delete()) {
-                                G.logD("Couldn't remove torrent " + file.getName());
+            final ArrayList<ManagerException> exceptions = new ArrayList<ManagerException>();
+            /* Setters */
+            if (mSessionSet != null) {
+                Thread thread = new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        synchronized(exceptionLock) {
+                            /* TODO: create a common runnable class that contains an exception property */
+                            if (exceptions.size() > 0) {
+                                return;
                             }
                         }
-                    } catch (ManagerException e) {
-                        synchronized(mLock) {
-                            exceptions.add(e);
+                        try {
+                            mSessManager.setSession(mSessionSet, mSessionSetKeys);
+                        } catch (ManagerException e) {
+                            synchronized(exceptionLock) {
+                                exceptions.add(e);
+                            }
+                        } finally {
+                            mSessionSet = null;
+                            mSessionSetKeys = null;
                         }
-                    } finally {
-                        mTorrentAddUri = null;
-                        mTorrentAddData = null;
-                        mTorrentAddDeleteLocal = null;
                     }
-                }
-            });
-            threads.add(thread);
-            thread.start();
-        }
+                });
+                threads.add(thread);
+                thread.start();
 
-        if (session != null && session.getRPCVersion() > 14) {
-            Thread thread = new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    synchronized(mLock) {
-                        if (exceptions.size() > 0) {
-                            return;
-                        }
-                    }
-                    try {
-                        if (session != null) {
-                            long freeSpace = mSessManager.getFreeSpace(session.getDownloadDir());
-                            if (freeSpace > -1) {
-                                session.setDownloadDirFreeSpace(freeSpace);
+            }
+
+            if (session == null || mIteration % 3 == 0) {
+                Thread thread = new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        synchronized(exceptionLock) {
+                            if (exceptions.size() > 0) {
+                                return;
                             }
                         }
-                    } catch (ManagerException e) {
-                        synchronized(mLock) {
-                            exceptions.add(e);
+                        try {
+                            mSessManager.updateSession();
+
+                            session = dataSource.getSession();
+                        } catch (ManagerException e) {
+                            synchronized(exceptionLock) {
+                                exceptions.add(e);
+                            }
                         }
                     }
-                }
-            });
-            threads.add(thread);
-            thread.start();
-        }
-
-        boolean active = mDefaultPrefs.getBoolean(G.PREF_UPDATE_ACTIVE, false);
-        TorrentStatus status;
-        String[] fields;
-
-        if (mIteration == 0) {
-            fields = G.concat(Torrent.Fields.METADATA, Torrent.Fields.STATS);
-        } else {
-            fields = Torrent.Fields.STATS;
-        }
-
-        if (mIteration != 0 && !dataSource.hasCompleteMetadata()) {
-            fields = G.concat(Torrent.Fields.METADATA, fields);
-        }
-
-        if (details) {
-            fields = G.concat(fields, Torrent.Fields.STATS_EXTRA);
-            if (!dataSource.hasExtraInfo()) {
-                fields = G.concat(fields, Torrent.Fields.INFO_EXTRA);
+                });
+                threads.add(thread);
+                thread.start();
             }
-        }
 
-        for (Thread t : threads) {
+            if (mTorrentAddUri != null || mTorrentAddData != null) {
+                Thread thread = new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        synchronized(exceptionLock) {
+                            if (exceptions.size() > 0) {
+                                return;
+                            }
+                        }
+                        try {
+                            mSessManager.addTorrent(mTorrentAddUri, mTorrentAddData,
+                                mTorrentLocation, mTorrentAddPaused);
+
+                            if (mTorrentAddDeleteLocal != null) {
+                                File file = new File(mTorrentAddDeleteLocal);
+                                if (!file.delete()) {
+                                    G.logD("Couldn't remove torrent " + file.getName());
+                                }
+                            }
+                        } catch (ManagerException e) {
+                            synchronized(exceptionLock) {
+                                exceptions.add(e);
+                            }
+                        } finally {
+                            mTorrentAddUri = null;
+                            mTorrentAddData = null;
+                            mTorrentAddDeleteLocal = null;
+                        }
+                    }
+                });
+                threads.add(thread);
+                thread.start();
+            }
+
+            if (session != null && session.getRPCVersion() > 14) {
+                Thread thread = new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        synchronized(exceptionLock) {
+                            if (exceptions.size() > 0) {
+                                return;
+                            }
+                        }
+                        try {
+                            if (session != null) {
+                                long freeSpace = mSessManager.getFreeSpace(session.getDownloadDir());
+                                if (freeSpace > -1) {
+                                    session.setDownloadDirFreeSpace(freeSpace);
+                                }
+                            }
+                        } catch (ManagerException e) {
+                            synchronized(exceptionLock) {
+                                exceptions.add(e);
+                            }
+                        }
+                    }
+                });
+                threads.add(thread);
+                thread.start();
+            }
+
+            boolean active = mDefaultPrefs.getBoolean(G.PREF_UPDATE_ACTIVE, false);
+            TorrentStatus status;
+            String[] fields;
+
+            if (mIteration == 0) {
+                fields = G.concat(Torrent.Fields.METADATA, Torrent.Fields.STATS);
+            } else {
+                fields = Torrent.Fields.STATS;
+            }
+
+            if (mIteration != 0 && !dataSource.hasCompleteMetadata()) {
+                fields = G.concat(Torrent.Fields.METADATA, fields);
+            }
+
+            if (details) {
+                fields = G.concat(fields, Torrent.Fields.STATS_EXTRA);
+                if (!dataSource.hasExtraInfo()) {
+                    fields = G.concat(fields, Torrent.Fields.INFO_EXTRA);
+                }
+            }
+
+            for (Thread t : threads) {
+                try {
+                    t.join();
+                } catch (InterruptedException e) {
+                    return handleError(e);
+                }
+            }
+
             try {
-                t.join();
-            } catch (InterruptedException e) {
+                if (updateIds != null) {
+                    status = mSessManager.getTorrents(fields, updateIds);
+                } else if (active && !details) {
+                    int full = Integer.parseInt(mDefaultPrefs.getString(G.PREF_FULL_UPDATE, "2"));
+
+                    if (mIteration % full == 0) {
+                        status = mSessManager.getTorrents(fields, null);
+                    } else {
+                        status = mSessManager.getActiveTorrents(fields);
+                    }
+                } else {
+                    status = mSessManager.getTorrents(fields, null);
+                }
+            } catch (ManagerException e) {
                 return handleError(e);
             }
-        }
 
-        try {
-            if (updateIds != null) {
-                status = mSessManager.getTorrents(fields, updateIds);
-            } else if (active && !details) {
-                int full = Integer.parseInt(mDefaultPrefs.getString(G.PREF_FULL_UPDATE, "2"));
+            hasAdded = status.hasAdded;
+            hasRemoved = status.hasRemoved;
+            hasStatusChanged = status.hasStatusChanged;
+            hasMetadataNeeded = status.hasIncompleteMetadata;
 
-                if (mIteration % full == 0) {
-                    status = mSessManager.getTorrents(fields, null);
-                } else {
-                    status = mSessManager.getActiveTorrents(fields);
-                }
-            } else {
-                status = mSessManager.getTorrents(fields, null);
+            if (exceptions.size() > 0) {
+                return handleError(exceptions.get(0));
             }
-        } catch (ManagerException e) {
-            return handleError(e);
+
+            int[] unnamed = dataSource.getUnnamedTorrentIds();
+            if (unnamed != null && unnamed.length > 0) {
+                try {
+                    mSessManager.getTorrents(Torrent.Fields.METADATA, unnamed);
+                } catch (ManagerException e) {
+                    return handleError(e);
+                }
+            }
+
+            cursor = dataSource.getTorrentCursor();
+            session.setDownloadDirectories(mProfile, dataSource.getDownloadDirectories());
+
+            mIteration++;
+
+            /* Fill the cursor window */
+            cursor.getCount();
+
+            return new TransmissionData(session, cursor, hasRemoved, hasAdded,
+                hasStatusChanged, hasMetadataNeeded);
+        } finally {
+            dataSource.close();
         }
-
-        hasAdded = status.hasAdded;
-        hasRemoved = status.hasRemoved;
-        hasStatusChanged = status.hasStatusChanged;
-        hasMetadataNeeded = status.hasIncompleteMetadata;
-
-        if (exceptions.size() > 0) {
-            return handleError(exceptions.get(0));
-        }
-
-        cursor = dataSource.getTorrentCursor();
-        session.setDownloadDirectories(mProfile, dataSource.getDownloadDirectories());
-
-        mIteration++;
-
-        return new TransmissionData(session, cursor, hasRemoved, hasAdded,
-            hasStatusChanged, hasMetadataNeeded);
     }
 
     @Override
@@ -470,7 +486,7 @@ public class TransmissionDataLoader extends AsyncTaskLoader<TransmissionData> {
         if (lastError > 0) {
             session = null;
             deliverResult(new TransmissionData(session, lastError, lastErrorCode));
-        } else if (cursor != null && cursor.getCount() > 0) {
+        } else if (cursor != null && !cursor.isClosed()) {
             deliverResult(new TransmissionData(session, cursor, false, false, false, false));
         }
 
@@ -495,8 +511,6 @@ public class TransmissionDataLoader extends AsyncTaskLoader<TransmissionData> {
         G.logD("TLoader: onReset()");
 
         onStopLoading();
-
-        dataSource.close();
     }
 
     private void repeatLoading() {

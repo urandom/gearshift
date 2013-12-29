@@ -91,14 +91,12 @@ public class TorrentListMenuFragment extends Fragment implements TorrentListNoti
         = new LoaderManager.LoaderCallbacks<TorrentTrafficLoader.TorrentTrafficOutputData>() {
 
         @Override public Loader<TorrentTrafficLoader.TorrentTrafficOutputData> onCreateLoader(int id, Bundle bundle) {
-            if (id == G.TORRENT_TRAFFIC_LOADER_ID) {
+            if (id == G.TORRENT_MENU_TRAFFIC_LOADER_ID) {
                 boolean showStatus = mSharedPrefs.getBoolean(G.PREF_SHOW_STATUS, false);
                 boolean directoriesEnabled = mSharedPrefs.getBoolean(G.PREF_FILTER_DIRECTORIES, true);
                 boolean trackersEnabled = mSharedPrefs.getBoolean(G.PREF_FILTER_TRACKERS, false);
 
-                if (!showStatus || directoriesEnabled || trackersEnabled) {
-                    return new TorrentTrafficLoader(getActivity(), !showStatus, directoriesEnabled, trackersEnabled);
-                }
+                return new TorrentTrafficLoader(getActivity(), !showStatus, directoriesEnabled, trackersEnabled);
             }
             return null;
         }
@@ -352,7 +350,7 @@ public class TorrentListMenuFragment extends Fragment implements TorrentListNoti
     public void notifyTorrentListChanged(Cursor cursor, int error, boolean added, boolean removed,
                                         boolean statusChanged, boolean metadataNeeded) {
 
-        getActivity().getSupportLoaderManager().restartLoader(G.TORRENT_TRAFFIC_LOADER_ID,
+        getActivity().getSupportLoaderManager().restartLoader(G.TORRENT_MENU_TRAFFIC_LOADER_ID,
             null, torrentTrafficLoaderCallbacks);
     }
 
