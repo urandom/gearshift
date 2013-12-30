@@ -511,6 +511,11 @@ public class TransmissionDataLoader extends AsyncTaskLoader<TransmissionData> {
         G.logD("TLoader: onReset()");
 
         onStopLoading();
+
+        if (cursor != null) {
+            cursor.close();
+            cursor = null;
+        }
     }
 
     private void repeatLoading() {

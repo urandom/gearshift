@@ -336,15 +336,18 @@ public class TorrentListActivity extends FragmentActivity
                             .replace(R.id.torrent_detail_container, fragment, G.DETAIL_FRAGMENT_TAG)
                             .commit();
                         manager.executePendingTransactions();
+
+                        fragment.setCurrentTorrent(currentTorrentIndex);
+
+                        Cursor cursor = ((TorrentListFragment) manager.findFragmentById(R.id.torrent_list)).getCursor();
+                        fragment.changeCursor(cursor);
                     } else {
                         fragment.resetPagerAdapter();
+                        fragment.setCurrentTorrent(currentTorrentIndex);
+
                     }
 
                     fragment.onCreateOptionsMenu(menu, getMenuInflater());
-                    fragment.setCurrentTorrent(currentTorrentIndex);
-
-                    Cursor cursor = ((TorrentListFragment) manager.findFragmentById(R.id.torrent_list)).getCursor();
-                    fragment.changeCursor(cursor);
 
                     Handler handler = new Handler();
                     handler.post(new Runnable() {

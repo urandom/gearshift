@@ -245,17 +245,26 @@ public class DataSource {
         Cursor cursor = null;
         try {
             cursor = database.rawQuery(
-                "SELECT count(CASE WHEN "
-                    + Constants.C_PIECE_COUNT
-                    + " = 0 OR "
-                    + Constants.C_PIECE_COUNT
-                    + " = null"
-                    + " THEN 1 ELSE null END) FROM " + Constants.T_TORRENT, null
+                "SELECT count(" + Constants.C_TORRENT_ID + ") FROM "
+                + Constants.T_TORRENT + " WHERE " + Constants.C_PIECE_COUNT + " = 0", null
             );
 
             cursor.moveToFirst();
 
-            return cursor.getInt(0) == 0;
+            if (cursor.getInt(0) == 0) {
+                cursor.close();
+
+                cursor = database.rawQuery(
+                    "SELECT count(" + Constants.C_TORRENT_ID + ") FROM "
+                        + Constants.T_FILE + " WHERE " + Constants.C_NAME + " = ''", null
+                );
+
+                cursor.moveToFirst();
+
+                return cursor.getInt(0) == 0;
+            } else {
+                return false;
+            }
         } finally {
             if (cursor != null)
                 cursor.close();
@@ -445,7 +454,7 @@ public class DataSource {
 
          String[] selectionArgs = new String[] { Integer.toString(id) };
 
-         Cursor torrent = getTorrentCursor(Constants.C_ID + " = ?", selectionArgs, null, false);
+         Cursor torrent = getTorrentCursor(Constants.C_ID + " = ?", selectionArgs, null, true);
 
          String select = Constants.T_TRACKER + "." + Constants.C_TRACKER_ID + ", "
              + Constants.C_ANNOUNCE + ", " + Constants.C_SCRAPE + ", " + Constants.C_TIER + ", "

@@ -85,43 +85,44 @@ public class TorrentDetailPageFragment extends Fragment {
         public static final int TRACKERS = 3;
     }
 
-    private static final class Views {
-        public static LinearLayout overviewContent;
-        public static LinearLayout filesContent;
-        public static LinearLayout limitsContent;
-        public static LinearLayout trackersContent;
+    private class Views {
+        public LinearLayout overviewContent;
+        public LinearLayout filesContent;
+        public LinearLayout limitsContent;
+        public LinearLayout trackersContent;
 
-        public static LinearLayout trackersContainer;
+        public LinearLayout trackersContainer;
 
-        public static TextView name;
-        public static TextView have;
-        public static TextView downloaded;
-        public static TextView uploaded;
-        public static TextView runningTime;
-        public static TextView remainingTime;
-        public static TextView lastActivity;
-        public static TextView size;
-        public static TextView hash;
-        public static TextView privacy;
-        public static TextView origin;
-        public static TextView comment;
-        public static TextView state;
-        public static TextView added;
-        public static TextView queue;
-        public static TextView error;
-        public static TextView location;
+        public TextView name;
+        public TextView have;
+        public TextView downloaded;
+        public TextView uploaded;
+        public TextView runningTime;
+        public TextView remainingTime;
+        public TextView lastActivity;
+        public TextView size;
+        public TextView hash;
+        public TextView privacy;
+        public TextView origin;
+        public TextView comment;
+        public TextView state;
+        public TextView added;
+        public TextView queue;
+        public TextView error;
+        public TextView location;
 
-        public static CheckBox globalLimits;
-        public static Spinner torrentPriority;
-        public static EditText queuePosition;
-        public static CheckBox downloadLimited;
-        public static EditText downloadLimit;
-        public static CheckBox uploadLimited;
-        public static EditText uploadLimit;
-        public static Spinner seedRatioMode;
-        public static EditText seedRatioLimit;
-        public static EditText peerLimit;
+        public CheckBox globalLimits;
+        public Spinner torrentPriority;
+        public EditText queuePosition;
+        public CheckBox downloadLimited;
+        public EditText downloadLimit;
+        public CheckBox uploadLimited;
+        public EditText uploadLimit;
+        public Spinner seedRatioMode;
+        public EditText seedRatioLimit;
+        public EditText peerLimit;
     }
+    private Views views;
 
     private boolean[] mExpandedStates = new boolean[Expanders.TOTAL_EXPANDERS];
 
@@ -134,22 +135,22 @@ public class TorrentDetailPageFragment extends Fragment {
             switch(v.getId()) {
                 case R.id.torrent_detail_overview_expander:
                     image = v.findViewById(R.id.torrent_detail_overview_expander_image);
-                    content = Views.overviewContent;
+                    content = views.overviewContent;
                     index = Expanders.OVERVIEW;
                     break;
                 case R.id.torrent_detail_files_expander:
                     image = v.findViewById(R.id.torrent_detail_files_expander_image);
-                    content = Views.filesContent;
+                    content = views.filesContent;
                     index = Expanders.FILES;
                     break;
                 case R.id.torrent_detail_limits_expander:
                     image = v.findViewById(R.id.torrent_detail_limits_expander_image);
-                    content = Views.limitsContent;
+                    content = views.limitsContent;
                     index = Expanders.LIMITS;
                     break;
                 case R.id.torrent_detail_trackers_expander:
                     image = v.findViewById(R.id.torrent_detail_trackers_expander_image);
-                    content = Views.trackersContent;
+                    content = views.trackersContent;
                     index = Expanders.TRACKERS;
                     break;
                 default:
@@ -358,8 +359,8 @@ public class TorrentDetailPageFragment extends Fragment {
         = new LoaderManager.LoaderCallbacks<TorrentDetails>() {
 
         @Override public Loader<TorrentDetails> onCreateLoader(int id, Bundle bundle) {
-            if (id == G.TORRENTS_CURSOR_LOADER_ID && torrentId != -1) {
-                return new TorrentDetailsLoader(getActivity());
+            if (id == G.TORRENT_DETAILS_LOADER_ID + torrentId && torrentId != -1) {
+                return new TorrentDetailsLoader(getActivity(), torrentId);
             }
             return null;
         }
@@ -369,6 +370,8 @@ public class TorrentDetailPageFragment extends Fragment {
                 TorrentDetailPageFragment.this.details.torrentCursor.close();
                 TorrentDetailPageFragment.this.details.filesCursor.close();
                 TorrentDetailPageFragment.this.details.trackersCursor.close();
+
+                TorrentDetailPageFragment.this.details = null;
             }
             TorrentDetailPageFragment.this.details = details;
             updateFields(getView());
@@ -379,6 +382,8 @@ public class TorrentDetailPageFragment extends Fragment {
                 TorrentDetailPageFragment.this.details.torrentCursor.close();
                 TorrentDetailPageFragment.this.details.filesCursor.close();
                 TorrentDetailPageFragment.this.details.trackersCursor.close();
+
+                TorrentDetailPageFragment.this.details = null;
             }
             TorrentDetailPageFragment.this.details = null;
         }
@@ -398,7 +403,8 @@ public class TorrentDetailPageFragment extends Fragment {
                         if (details != null)
                             G.logD("Updating detail view for '" + Torrent.getName(details.torrentCursor) + "'");
 
-                        Loader<TorrentDetails> loader = getActivity().getSupportLoaderManager().getLoader(G.TORRENT_DETAILS_LOADER_ID);
+                        Loader<TorrentDetails> loader = getActivity().getSupportLoaderManager()
+                            .getLoader(G.TORRENT_DETAILS_LOADER_ID + torrentId);
                         if (loader != null) {
                             loader.onContentChanged();
                         }
@@ -435,11 +441,11 @@ public class TorrentDetailPageFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        if (priorityNames != null)
+        if (priorityNames == null)
             priorityNames = Arrays.asList(getResources().getStringArray(R.array.torrent_priority));
-        if (priorityValues != null)
+        if (priorityValues == null)
             priorityValues = Arrays.asList(getResources().getStringArray(R.array.torrent_priority_values));
-        if (seedRatioModeValues != null)
+        if (seedRatioModeValues == null)
             seedRatioModeValues = Arrays.asList(getResources().getStringArray(R.array.torrent_seed_ratio_mode_values));
 
         mExpandedStates[Expanders.OVERVIEW] = true;
@@ -454,10 +460,11 @@ public class TorrentDetailPageFragment extends Fragment {
 
             if (fragment != null) {
                 torrentId = fragment.getTorrentId(position);
+
+                getActivity().getSupportLoaderManager().initLoader(
+                    G.TORRENT_DETAILS_LOADER_ID + torrentId, null, torrentDetailsLoaderCallbacks);
             }
         }
-        getActivity().getSupportLoaderManager().initLoader(G.TORRENT_DETAILS_LOADER_ID,
-            null, torrentDetailsLoaderCallbacks);
     }
 
     @Override
@@ -470,41 +477,43 @@ public class TorrentDetailPageFragment extends Fragment {
         root.findViewById(R.id.torrent_detail_limits_expander).setOnClickListener(mExpanderListener);
         root.findViewById(R.id.torrent_detail_trackers_expander).setOnClickListener(mExpanderListener);
 
-        Views.overviewContent = (LinearLayout) root.findViewById(R.id.torrent_detail_overview_content);
-        Views.filesContent = (LinearLayout) root.findViewById(R.id.torrent_detail_files_content);
-        Views.limitsContent = (LinearLayout) root.findViewById(R.id.torrent_detail_limits_content);
-        Views.trackersContent = (LinearLayout) root.findViewById(R.id.torrent_detail_trackers_content);
+        views = new Views();
 
-        Views.trackersContainer = (LinearLayout) root.findViewById(R.id.torrent_detail_trackers_list);
+        views.overviewContent = (LinearLayout) root.findViewById(R.id.torrent_detail_overview_content);
+        views.filesContent = (LinearLayout) root.findViewById(R.id.torrent_detail_files_content);
+        views.limitsContent = (LinearLayout) root.findViewById(R.id.torrent_detail_limits_content);
+        views.trackersContent = (LinearLayout) root.findViewById(R.id.torrent_detail_trackers_content);
 
-        Views.name = (TextView) root.findViewById(R.id.torrent_detail_title);
-        Views.have = (TextView) root.findViewById(R.id.torrent_have);
-        Views.downloaded = (TextView) root.findViewById(R.id.torrent_downloaded);
-        Views.uploaded = (TextView) root.findViewById(R.id.torrent_uploaded);
-        Views.runningTime = (TextView) root.findViewById(R.id.torrent_running_time);
-        Views.remainingTime = (TextView) root.findViewById(R.id.torrent_remaining_time);
-        Views.lastActivity = (TextView) root.findViewById(R.id.torrent_last_activity);
-        Views.size = (TextView) root.findViewById(R.id.torrent_size);
-        Views.hash = (TextView) root.findViewById(R.id.torrent_hash);
-        Views.privacy = (TextView) root.findViewById(R.id.torrent_privacy);
-        Views.origin = (TextView) root.findViewById(R.id.torrent_origin);
-        Views.comment = (TextView) root.findViewById(R.id.torrent_comment);
-        Views.state = (TextView) root.findViewById(R.id.torrent_state);
-        Views.added = (TextView) root.findViewById(R.id.torrent_added);
-        Views.queue = (TextView) root.findViewById(R.id.torrent_queue);
-        Views.error = (TextView) root.findViewById(R.id.torrent_error);
-        Views.location = (TextView) root.findViewById(R.id.torrent_location);
+        views.trackersContainer = (LinearLayout) root.findViewById(R.id.torrent_detail_trackers_list);
 
-        Views.globalLimits = (CheckBox) root.findViewById(R.id.torrent_global_limits);
-        Views.torrentPriority = (Spinner) root.findViewById(R.id.torrent_priority);
-        Views.queuePosition = (EditText) root.findViewById(R.id.torrent_queue_position);
-        Views.downloadLimited = (CheckBox) root.findViewById(R.id.torrent_limit_download_check);
-        Views.downloadLimit = (EditText) root.findViewById(R.id.torrent_limit_download);
-        Views.uploadLimited = (CheckBox) root.findViewById(R.id.torrent_limit_upload_check);
-        Views.uploadLimit = (EditText) root.findViewById(R.id.torrent_limit_upload);
-        Views.seedRatioMode = (Spinner) root.findViewById(R.id.torrent_seed_ratio_mode);
-        Views.seedRatioLimit = (EditText) root.findViewById(R.id.torrent_seed_ratio_limit);
-        Views.peerLimit = (EditText) root.findViewById(R.id.torrent_peer_limit);
+        views.name = (TextView) root.findViewById(R.id.torrent_detail_title);
+        views.have = (TextView) root.findViewById(R.id.torrent_have);
+        views.downloaded = (TextView) root.findViewById(R.id.torrent_downloaded);
+        views.uploaded = (TextView) root.findViewById(R.id.torrent_uploaded);
+        views.runningTime = (TextView) root.findViewById(R.id.torrent_running_time);
+        views.remainingTime = (TextView) root.findViewById(R.id.torrent_remaining_time);
+        views.lastActivity = (TextView) root.findViewById(R.id.torrent_last_activity);
+        views.size = (TextView) root.findViewById(R.id.torrent_size);
+        views.hash = (TextView) root.findViewById(R.id.torrent_hash);
+        views.privacy = (TextView) root.findViewById(R.id.torrent_privacy);
+        views.origin = (TextView) root.findViewById(R.id.torrent_origin);
+        views.comment = (TextView) root.findViewById(R.id.torrent_comment);
+        views.state = (TextView) root.findViewById(R.id.torrent_state);
+        views.added = (TextView) root.findViewById(R.id.torrent_added);
+        views.queue = (TextView) root.findViewById(R.id.torrent_queue);
+        views.error = (TextView) root.findViewById(R.id.torrent_error);
+        views.location = (TextView) root.findViewById(R.id.torrent_location);
+
+        views.globalLimits = (CheckBox) root.findViewById(R.id.torrent_global_limits);
+        views.torrentPriority = (Spinner) root.findViewById(R.id.torrent_priority);
+        views.queuePosition = (EditText) root.findViewById(R.id.torrent_queue_position);
+        views.downloadLimited = (CheckBox) root.findViewById(R.id.torrent_limit_download_check);
+        views.downloadLimit = (EditText) root.findViewById(R.id.torrent_limit_download);
+        views.uploadLimited = (CheckBox) root.findViewById(R.id.torrent_limit_upload_check);
+        views.uploadLimit = (EditText) root.findViewById(R.id.torrent_limit_upload);
+        views.seedRatioMode = (Spinner) root.findViewById(R.id.torrent_seed_ratio_mode);
+        views.seedRatioLimit = (EditText) root.findViewById(R.id.torrent_seed_ratio_limit);
+        views.peerLimit = (EditText) root.findViewById(R.id.torrent_peer_limit);
 
         if (savedInstanceState != null) {
             new Handler().post(new Runnable() {
@@ -512,10 +521,10 @@ public class TorrentDetailPageFragment extends Fragment {
                 public void run() {
                     if (savedInstanceState.containsKey(STATE_EXPANDED)) {
                         mExpandedStates = savedInstanceState.getBooleanArray(STATE_EXPANDED);
-                        Views.overviewContent.setVisibility(mExpandedStates[Expanders.OVERVIEW] ? View.VISIBLE : View.GONE);
-                        Views.filesContent.setVisibility(mExpandedStates[Expanders.FILES] ? View.VISIBLE : View.GONE);
-                        Views.limitsContent.setVisibility(mExpandedStates[Expanders.LIMITS] ? View.VISIBLE : View.GONE);
-                        Views.trackersContent.setVisibility(mExpandedStates[Expanders.TRACKERS] ? View.VISIBLE : View.GONE);
+                        views.overviewContent.setVisibility(mExpandedStates[Expanders.OVERVIEW] ? View.VISIBLE : View.GONE);
+                        views.filesContent.setVisibility(mExpandedStates[Expanders.FILES] ? View.VISIBLE : View.GONE);
+                        views.limitsContent.setVisibility(mExpandedStates[Expanders.LIMITS] ? View.VISIBLE : View.GONE);
+                        views.trackersContent.setVisibility(mExpandedStates[Expanders.TRACKERS] ? View.VISIBLE : View.GONE);
                         updateFields(root);
                     }
                     if (savedInstanceState.containsKey(STATE_SCROLL_POSITION)) {
@@ -537,14 +546,14 @@ public class TorrentDetailPageFragment extends Fragment {
 
         updateFields(root);
 
-        Views.globalLimits.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+        views.globalLimits.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 setTorrentProperty(Torrent.SetterFields.SESSION_LIMITS, isChecked);
             }
         });
 
-        Views.torrentPriority.setOnItemSelectedListener(
+        views.torrentPriority.setOnItemSelectedListener(
             new AdapterView.OnItemSelectedListener() {
                 @Override
                 public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
@@ -564,7 +573,7 @@ public class TorrentDetailPageFragment extends Fragment {
                 }
             });
 
-        Views.queuePosition.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+        views.queuePosition.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
                 if (actionId == EditorInfo.IME_ACTION_DONE) {
@@ -581,15 +590,15 @@ public class TorrentDetailPageFragment extends Fragment {
             }
         });
 
-        Views.downloadLimited.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+        views.downloadLimited.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                Views.downloadLimit.setEnabled(isChecked);
+                views.downloadLimit.setEnabled(isChecked);
                 setTorrentProperty(Torrent.SetterFields.DOWNLOAD_LIMITED, isChecked);
             }
         });
 
-        Views.downloadLimit.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+        views.downloadLimit.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
                 long limit;
@@ -606,15 +615,15 @@ public class TorrentDetailPageFragment extends Fragment {
 
         });
 
-        Views.uploadLimited.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+        views.uploadLimited.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                Views.uploadLimit.setEnabled(isChecked);
+                views.uploadLimit.setEnabled(isChecked);
                 setTorrentProperty(Torrent.SetterFields.UPLOAD_LIMITED, isChecked);
             }
         });
 
-        Views.uploadLimit.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+        views.uploadLimit.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
                 long limit;
@@ -631,7 +640,7 @@ public class TorrentDetailPageFragment extends Fragment {
 
         });
 
-        Views.seedRatioMode.setOnItemSelectedListener(
+        views.seedRatioMode.setOnItemSelectedListener(
             new AdapterView.OnItemSelectedListener() {
                 @Override
                 public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
@@ -642,7 +651,7 @@ public class TorrentDetailPageFragment extends Fragment {
                     } else if (val.equals("infinite")) {
                         mode=Torrent.SeedRatioMode.NO_LIMIT;
                     }
-                    Views.seedRatioLimit.setEnabled(val.equals("user"));
+                    views.seedRatioLimit.setEnabled(val.equals("user"));
                     setTorrentProperty(Torrent.SetterFields.SEED_RATIO_MODE, mode);
                 }
 
@@ -651,7 +660,7 @@ public class TorrentDetailPageFragment extends Fragment {
                 }
             });
 
-        Views.seedRatioLimit.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+        views.seedRatioLimit.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
                 float limit;
@@ -668,7 +677,7 @@ public class TorrentDetailPageFragment extends Fragment {
 
         });
 
-        Views.peerLimit.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+        views.peerLimit.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
                 int limit;
@@ -720,16 +729,16 @@ public class TorrentDetailPageFragment extends Fragment {
         root.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
-                if (Views.queuePosition.hasFocus()) {
-                    Views.queuePosition.clearFocus();
-                } else if (Views.downloadLimit.hasFocus()) {
-                    Views.downloadLimit.clearFocus();
-                } else if (Views.uploadLimit.hasFocus()) {
-                    Views.uploadLimit.clearFocus();
-                } else if (Views.seedRatioLimit.hasFocus()) {
-                    Views.seedRatioLimit.clearFocus();
-                } else if (Views.peerLimit.hasFocus()) {
-                    Views.peerLimit.clearFocus();
+                if (views.queuePosition.hasFocus()) {
+                    views.queuePosition.clearFocus();
+                } else if (views.downloadLimit.hasFocus()) {
+                    views.downloadLimit.clearFocus();
+                } else if (views.uploadLimit.hasFocus()) {
+                    views.uploadLimit.clearFocus();
+                } else if (views.seedRatioLimit.hasFocus()) {
+                    views.seedRatioLimit.clearFocus();
+                } else if (views.peerLimit.hasFocus()) {
+                    views.peerLimit.clearFocus();
                 }
                 return false;
             }
@@ -773,7 +782,7 @@ public class TorrentDetailPageFragment extends Fragment {
     }
 
     private void updateFields(View root) {
-        if (root == null || details == null) return;
+         if (root == null || details == null) return;
 
         /* TODO: check whether a view's value is different from the cursor's before updating */
 
@@ -783,12 +792,12 @@ public class TorrentDetailPageFragment extends Fragment {
         float seedRatioLimit = Torrent.getUploadRatio(details.torrentCursor);
         int queuePosition = Torrent.getQueuePosition(details.torrentCursor);
 
-        if (!name.equals(Views.name.getText()))
-            Views.name.setText(name);
+        if (!name.equals(views.name.getText()))
+            views.name.setText(name);
 
         /* Overview start */
         Cursor cursor = details.torrentCursor;
-        if (Views.overviewContent.getVisibility() != View.GONE) {
+        if (views.overviewContent.getVisibility() != View.GONE) {
             long now = new Timestamp(new Date().getTime()).getTime() / 1000;
 
             float metadataPercent = Torrent.getMetadataPercentDone(cursor);
@@ -826,20 +835,20 @@ public class TorrentDetailPageFragment extends Fragment {
                             : 1
                     ))
                 );
-                if (!have.equals(Views.have.getText())) {
-                    Views.have.setText(have);
+                if (!have.equals(views.have.getText())) {
+                    views.have.setText(have);
                 }
 
                 String downloaded = downloadedEver == 0
                     ? getString(R.string.unknown)
                     : G.readableFileSize(downloadedEver);
-                if (!downloaded.equals(Views.downloaded.getText())) {
-                    Views.downloaded.setText(downloaded);
+                if (!downloaded.equals(views.downloaded.getText())) {
+                    views.downloaded.setText(downloaded);
                 }
 
                 String uploaded = G.readableFileSize(uploadedEver);
-                if (!uploaded.equals(Views.uploaded.getText())) {
-                    Views.uploaded.setText(uploaded);
+                if (!uploaded.equals(views.uploaded.getText())) {
+                    views.uploaded.setText(uploaded);
                 }
 
                 String runningTime = status == Torrent.Status.STOPPED
@@ -847,13 +856,13 @@ public class TorrentDetailPageFragment extends Fragment {
                     : startDate > 0
                     ? G.readableRemainingTime(now - startDate, getActivity())
                     : getString(R.string.unknown);
-                Views.runningTime.setText(runningTime);
+                views.runningTime.setText(runningTime);
 
                 String remainingTime = eta < 0
                     ? getString(R.string.unknown)
                     : G.readableRemainingTime(eta, getActivity());
-                if (!remainingTime.equals(Views.remainingTime.getText())) {
-                    Views.remainingTime.setText(remainingTime);
+                if (!remainingTime.equals(views.remainingTime.getText())) {
+                    views.remainingTime.setText(remainingTime);
                 }
 
                 String lastActivity = lastActive < 0 || activityDate <= 0
@@ -863,7 +872,7 @@ public class TorrentDetailPageFragment extends Fragment {
                     : String.format(
                     getString(R.string.torrent_added_format),
                     G.readableRemainingTime(lastActive, getActivity()));
-                Views.lastActivity.setText(lastActivity);
+                views.lastActivity.setText(lastActivity);
 
                 String size = String.format(
                     getString(R.string.torrent_size_format),
@@ -871,15 +880,15 @@ public class TorrentDetailPageFragment extends Fragment {
                     pieceCount,
                     G.readableFileSize(pieceSize)
                 );
-                if (!size.equals(Views.size.getText())) {
-                    Views.size.setText(size);
+                if (!size.equals(views.size.getText())) {
+                    views.size.setText(size);
                 }
 
-                if (!hash.equals(Views.hash.getText())) {
-                    Views.hash.setText(hash);
+                if (!hash.equals(views.hash.getText())) {
+                    views.hash.setText(hash);
                 }
 
-                Views.privacy.setText(isPrivate ? R.string.torrent_private : R.string.torrent_public);
+                views.privacy.setText(isPrivate ? R.string.torrent_private : R.string.torrent_public);
 
                 Date creationDate = new Date(dateCreated * 1000);
                 String origin = TextUtils.isEmpty(creator)
@@ -892,17 +901,17 @@ public class TorrentDetailPageFragment extends Fragment {
                         creator,
                         creationDate.toString()
                     );
-                if (!origin.equals(Views.origin.getText())) {
-                    Views.origin.setText(origin);
+                if (!origin.equals(views.origin.getText())) {
+                    views.origin.setText(origin);
                 }
 
-                if (!comment.equals(Views.comment.getText())) {
-                    Views.comment.setText(comment);
+                if (!comment.equals(views.comment.getText())) {
+                    views.comment.setText(comment);
                 }
             } else {
                 String have = getString(R.string.none);
-                if (!have.equals(Views.have.getText())) {
-                    Views.have.setText(have);
+                if (!have.equals(views.have.getText())) {
+                    views.have.setText(have);
                 }
             }
             int state = R.string.none;
@@ -934,43 +943,43 @@ public class TorrentDetailPageFragment extends Fragment {
                     break;
             }
             String stateString = getString(state);
-            if (!stateString.equals(Views.state.getText())) {
-                Views.state.setText(stateString);
+            if (!stateString.equals(views.state.getText())) {
+                views.state.setText(stateString);
             }
 
             if (addedDate > 0) {
-                Views.added.setText(
+                views.added.setText(
                         String.format(
                                 getString(R.string.torrent_added_format),
                                 G.readableRemainingTime(now - addedDate, getActivity())
                         )
                 );
             } else {
-                Views.added.setText(R.string.unknown);
+                views.added.setText(R.string.unknown);
             }
             String queue = Integer.toString(queuePosition);
-            if (!queue.equals(Views.queue.getText())) {
-                Views.queue.setText(queue);
+            if (!queue.equals(views.queue.getText())) {
+                views.queue.setText(queue);
             }
 
             if (error == Torrent.Error.OK) {
-                if (Views.error.isEnabled()) {
-                    Views.error.setText(R.string.no_tracker_errors);
-                    Views.error.setEnabled(false);
+                if (views.error.isEnabled()) {
+                    views.error.setText(R.string.no_tracker_errors);
+                    views.error.setEnabled(false);
                 }
             } else {
-                if (!Views.error.isEnabled()) {
-                    Views.error.setText(errorString);
-                    Views.error.setEnabled(true);
+                if (!views.error.isEnabled()) {
+                    views.error.setText(errorString);
+                    views.error.setEnabled(true);
                 }
             }
-            if (!downloadDir.equals(Views.location.getText())) {
-                Views.location.setText(downloadDir);
+            if (!downloadDir.equals(views.location.getText())) {
+                views.location.setText(downloadDir);
             }
         }
 
         /* Files start */
-        if (Views.filesContent.getVisibility() != View.GONE
+        if (views.filesContent.getVisibility() != View.GONE
                 && details.filesCursor.getCount() > 0) {
 
             mFilesAdapter.setNotifyOnChange(false);
@@ -1013,7 +1022,7 @@ public class TorrentDetailPageFragment extends Fragment {
         }
 
         /* Limits start */
-        if (Views.limitsContent.getVisibility() != View.GONE) {
+        if (views.limitsContent.getVisibility() != View.GONE) {
             boolean sessionLimitsHonored = Torrent.areSessionLimitsHonored(cursor);
             int torrentPriority = Torrent.getTorrentPriority(cursor);
             boolean downloadLimited = Torrent.isDownloadLimited(cursor);
@@ -1023,8 +1032,8 @@ public class TorrentDetailPageFragment extends Fragment {
             int seedRatioMode = Torrent.getSeedRatioMode(cursor);
             int peerLimit = Torrent.getPeerLimit(cursor);
 
-            if (sessionLimitsHonored != Views.globalLimits.isChecked()) {
-                Views.globalLimits.setChecked(sessionLimitsHonored);
+            if (sessionLimitsHonored != views.globalLimits.isChecked()) {
+                views.globalLimits.setChecked(sessionLimitsHonored);
             }
 
             String priority = "normal";
@@ -1036,37 +1045,37 @@ public class TorrentDetailPageFragment extends Fragment {
                     priority = "high";
                     break;
             }
-            if (Views.torrentPriority.getSelectedItemPosition() != priorityValues.indexOf(priority)) {
-                Views.torrentPriority.setSelection(priorityValues.indexOf(priority));
+            if (views.torrentPriority.getSelectedItemPosition() != priorityValues.indexOf(priority)) {
+                views.torrentPriority.setSelection(priorityValues.indexOf(priority));
             }
 
             String queue = Integer.toString(queuePosition);
-            if (!queue.equals(Views.queuePosition.getText().toString())) {
-                Views.queuePosition.setText(queue);
+            if (!queue.equals(views.queuePosition.getText().toString())) {
+                views.queuePosition.setText(queue);
             }
 
-            if (downloadLimited != Views.downloadLimited.isChecked()) {
-                Views.downloadLimited.setChecked(downloadLimited);
+            if (downloadLimited != views.downloadLimited.isChecked()) {
+                views.downloadLimited.setChecked(downloadLimited);
             }
 
             String download = Long.toString(downloadLimit);
-            if (!download.equals(Views.downloadLimit.getText().toString())) {
-                Views.downloadLimit.setText(download);
+            if (!download.equals(views.downloadLimit.getText().toString())) {
+                views.downloadLimit.setText(download);
             }
-            if (Views.downloadLimit.isEnabled() != Views.downloadLimited.isChecked()) {
-                Views.downloadLimit.setEnabled(Views.downloadLimited.isChecked());
+            if (views.downloadLimit.isEnabled() != views.downloadLimited.isChecked()) {
+                views.downloadLimit.setEnabled(views.downloadLimited.isChecked());
             }
 
-            if (Views.uploadLimited.isChecked() != uploadLimited) {
-                Views.uploadLimited.setChecked(uploadLimited);
+            if (views.uploadLimited.isChecked() != uploadLimited) {
+                views.uploadLimited.setChecked(uploadLimited);
             }
 
             String upload = Long.toString(uploadLimit);
-            if (!upload.equals(Views.uploadLimit.getText().toString())) {
-                Views.uploadLimit.setText(upload);
+            if (!upload.equals(views.uploadLimit.getText().toString())) {
+                views.uploadLimit.setText(upload);
             }
-            if (Views.uploadLimit.isEnabled() != Views.uploadLimited.isChecked()) {
-                Views.uploadLimit.setEnabled(Views.uploadLimited.isChecked());
+            if (views.uploadLimit.isEnabled() != views.uploadLimited.isChecked()) {
+                views.uploadLimit.setEnabled(views.uploadLimited.isChecked());
             }
 
             String mode = "global";
@@ -1078,23 +1087,23 @@ public class TorrentDetailPageFragment extends Fragment {
                     mode = "infinite";
                     break;
             }
-            if (Views.seedRatioMode.getSelectedItemPosition() != seedRatioModeValues.indexOf(mode)) {
-                Views.seedRatioMode.setSelection(seedRatioModeValues.indexOf(mode));
+            if (views.seedRatioMode.getSelectedItemPosition() != seedRatioModeValues.indexOf(mode)) {
+                views.seedRatioMode.setSelection(seedRatioModeValues.indexOf(mode));
             }
 
             String ratio = G.readablePercent(seedRatioLimit);
-            if (!ratio.equals(Views.seedRatioLimit.getText().toString())) {
-                Views.seedRatioLimit.setText(ratio);
+            if (!ratio.equals(views.seedRatioLimit.getText().toString())) {
+                views.seedRatioLimit.setText(ratio);
             }
 
             String peers = Integer.toString(peerLimit);
-            if (!peers.equals(Views.peerLimit.getText().toString())) {
-                Views.peerLimit.setText(peers);
+            if (!peers.equals(views.peerLimit.getText().toString())) {
+                views.peerLimit.setText(peers);
             }
         }
 
         /* Trackers start */
-        if (Views.trackersContent.getVisibility() != View.GONE
+        if (views.trackersContent.getVisibility() != View.GONE
                 && details.trackersCursor.getCount() > 0) {
             mTrackersAdapter.setNotifyOnChange(false);
             if (mTrackersAdapter.getCount() != details.trackersCursor.getCount()) {
@@ -1330,14 +1339,14 @@ public class TorrentDetailPageFragment extends Fragment {
                     continue;
                 }
 
-                if (i < Views.filesContent.getChildCount()) {
-                    v = Views.filesContent.getChildAt(i);
+                if (i < views.filesContent.getChildCount()) {
+                    v = views.filesContent.getChildAt(i);
                     hasChild = true;
                 }
                 if (!hasChild || (file.index != -1 && fileChanged(file, details.filesCursor))) {
                     v = mFilesAdapter.getView(i, v, null);
                     if (!hasChild) {
-                        Views.filesContent.addView(v, i);
+                        views.filesContent.addView(v, i);
                     }
                 }
             }
@@ -1346,7 +1355,7 @@ public class TorrentDetailPageFragment extends Fragment {
         }
 
         @Override public void onInvalidated() {
-            Views.filesContent.removeAllViews();
+            views.filesContent.removeAllViews();
         }
 
         private boolean fileChanged(TorrentFile file, Cursor cursor) {
@@ -1702,36 +1711,36 @@ public class TorrentDetailPageFragment extends Fragment {
                     continue;
                 }
 
-                if (i < Views.trackersContainer.getChildCount()) {
-                    v = Views.trackersContainer.getChildAt(i);
+                if (i < views.trackersContainer.getChildCount()) {
+                    v = views.trackersContainer.getChildAt(i);
                     hasChild = true;
                 }
                 if (!hasChild || (tracker.index != -1 && trackerChanged(tracker, details.trackersCursor))) {
                     v = mTrackersAdapter.getView(i, v, null);
                     if (!hasChild) {
-                        Views.trackersContainer.addView(v, i);
+                        views.trackersContainer.addView(v, i);
                     }
                 }
             }
 
             int starting = mTrackersAdapter.getCount();
-            List<View> views = mTrackersAdapter.getViews();
-            while (views.size() > starting) {
-                View v = views.get(starting);
+            List<View> trackerViews = mTrackersAdapter.getViews();
+            while (trackerViews.size() > starting) {
+                View v = trackerViews.get(starting);
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN)  {
                     animateRemoveView(v);
                 } else {
-                    Views.trackersContainer.removeView(v);
+                    views.trackersContainer.removeView(v);
                 }
 
-                views.remove(starting);
+                trackerViews.remove(starting);
             }
 
             details.trackersCursor.moveToPosition(position);
         }
 
         @Override public void onInvalidated() {
-            Views.trackersContainer.removeAllViews();
+            views.trackersContainer.removeAllViews();
         }
 
         private boolean trackerChanged(Tracker tracker, Cursor cursor) {
@@ -1753,15 +1762,18 @@ public class TorrentDetailPageFragment extends Fragment {
         private void animateRemoveView(final View v) {
             v.animate().setDuration(250).alpha(0).translationY(-50).withEndAction(new Runnable() {
                 @Override public void run() {
-                    Views.trackersContainer.removeView(v);
+                    views.trackersContainer.removeView(v);
                 }
             });
         }
     }
 
-    private class TorrentDetailsLoader extends AsyncTaskLoader<TorrentDetails> {
-        public TorrentDetailsLoader(Context context) {
+    private static class TorrentDetailsLoader extends AsyncTaskLoader<TorrentDetails> {
+        private int torrentId;
+
+        public TorrentDetailsLoader(Context context, int id) {
             super(context);
+            torrentId = id;
         }
         @Override public TorrentDetails loadInBackground() {
             DataSource readSource = new DataSource(getContext());
@@ -1769,10 +1781,26 @@ public class TorrentDetailPageFragment extends Fragment {
             readSource.open();
 
             TorrentDetails details = readSource.getTorrentDetails(torrentId);
+            /* fill the windows */
+            details.torrentCursor.getCount();
+            details.filesCursor.getCount();
+            details.trackersCursor.getCount();
+
+            details.torrentCursor.moveToFirst();
 
             readSource.close();
 
             return details;
+        }
+
+        @Override protected void onStartLoading() {
+            forceLoad();
+        }
+
+        @Override public void deliverResult(TorrentDetails data) {
+            if (isStarted()) {
+                super.deliverResult(data);
+            }
         }
     }
 }

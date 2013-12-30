@@ -22,6 +22,9 @@ import android.widget.Toast;
 
 import org.sugr.gearshift.datasource.DataSource;
 
+import java.util.ArrayList;
+import java.util.List;
+
 
 /**
  * An activity representing a single Torrent detail screen. This
@@ -260,32 +263,27 @@ public class TorrentDetailActivity extends FragmentActivity implements Transmiss
             return null;
         }
 
-        Cursor cursor = fragment.getCursor();
-        if (cursor == null) {
-            return null;
-        }
-
         int current = currentTorrentPosition;
         int offscreen = 1;
         int count = offscreen * 2 + 1;
-        if (current == cursor.getCount() - 1 || current == 0) {
+        if (current == 0) {
             count--;
         }
 
-        if (count > cursor.getCount())
-            count = cursor.getCount();
-
-        int ids[] = new int[count];
+        List<Integer> idList = new ArrayList<Integer>();
 
         for (int i = 0; i < count; i++) {
             int position = current + i - (current == 0 ? 0 : offscreen);
-            int cursorPosition = cursor.getPosition();
-
-            cursor.moveToPosition(position);
-            if (!cursor.isAfterLast()) {
-                ids[i] = Torrent.getId(cursor);
+            int id = fragment.getTorrentId(position);
+            if (id != -1) {
+                idList.add(id);
             }
-            cursor.moveToPosition(cursorPosition);
+        }
+
+        int[] ids = new int[idList.size()];
+        int index = 0;
+        for (int id : idList) {
+            ids[index++] = id;
         }
 
         return ids;

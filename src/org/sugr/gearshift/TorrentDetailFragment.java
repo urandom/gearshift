@@ -31,6 +31,8 @@ public class TorrentDetailFragment extends Fragment implements TorrentListNotifi
     private ViewPager mPager;
     private int currentTorrentId = -1;
     private int currentTorrentPosition = 0;
+    private int currentTorrentStatus;
+    private String currentTorrentName;
 
     private static final String STATE_LOCATION_POSITION = "location_position";
     private static final String STATE_ACTION_MOVE_IDS = "action_move_ids";
@@ -41,8 +43,7 @@ public class TorrentDetailFragment extends Fragment implements TorrentListNotifi
 
     private Menu menu;
 
-    private Cursor detailCursor;
-
+    private int[] torrentIds;
     private SparseIntArray torrentPositionMap = new SparseIntArray();
 
     private static PagerCallbacks sDummyCallbacks = new PagerCallbacks() {
@@ -138,17 +139,6 @@ public class TorrentDetailFragment extends Fragment implements TorrentListNotifi
     }
 
     @Override
-    public void onDestroy() {
-        super.onDestroy();
-
-        if (detailCursor != null) {
-            detailCursor.close();
-            detailCursor = null;
-        }
-    }
-
-
-    @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         super.onCreateOptionsMenu(menu, inflater);
 
@@ -166,18 +156,9 @@ public class TorrentDetailFragment extends Fragment implements TorrentListNotifi
 
         final TransmissionSessionInterface context = ((TransmissionSessionInterface) getActivity());
 
-        if (loader == null || detailCursor == null || detailCursor.getCount() > currentTorrentPosition) {
+        if (loader == null || torrentIds == null || torrentIds.length > currentTorrentPosition) {
             return super.onOptionsItemSelected(item);
         }
-
-        int cursorPosition = detailCursor.getPosition();
-
-        detailCursor.moveToPosition(currentTorrentPosition);
-
-        String name = Torrent.getName(detailCursor);
-        int status = Torrent.getStatus(detailCursor);
-
-        detailCursor.moveToPosition(cursorPosition);
 
         final int[] ids = new int[] {currentTorrentId};
 
@@ -200,12 +181,12 @@ public class TorrentDetailFragment extends Fragment implements TorrentListNotifi
                                     item.getItemId() == R.id.delete
                             ? R.string.delete_current_confirmation
                             : R.string.remove_current_confirmation),
-                                name))
+                                currentTorrentName))
                 .show();
                 return true;
             case R.id.resume:
                 String action;
-                switch(status) {
+                switch(currentTorrentStatus) {
                     case Torrent.Status.DOWNLOAD_WAITING:
                     case Torrent.Status.SEED_WAITING:
                         action = "torrent-start-now";
@@ -245,40 +226,19 @@ public class TorrentDetailFragment extends Fragment implements TorrentListNotifi
     }
 
     public void changeCursor(Cursor newCursor) {
-        if (detailCursor == newCursor) {
-            return;
-        }
-        if (detailCursor != null) {
-            detailCursor.close();
-        }
-        detailCursor = newCursor;
-        updateTorrentPositionMap();
+        updateTorrentData(newCursor);
         if (mPager.getAdapter() == null) {
             setCurrentTorrentId(currentTorrentPosition);
 
             resetPagerAdapter();
         }
     }
-
-    public Cursor getCursor() {
-        return detailCursor;
-    }
-
     public int getTorrentPositionInCursor(int id) {
         return torrentPositionMap.get(id, -1);
     }
 
     public int getTorrentId(int position) {
-        int torrentId = -1;
-        if (detailCursor != null) {
-            int cursorPosition = detailCursor.getPosition();
-            if (detailCursor.moveToPosition(position)) {
-                torrentId = Torrent.getId(detailCursor);
-                detailCursor.moveToPosition(cursorPosition);
-            }
-        }
-
-        return torrentId;
+        return torrentIds.length > position ? torrentIds[position] : -1;
     }
 
     public void removeMenuEntries() {
@@ -305,36 +265,38 @@ public class TorrentDetailFragment extends Fragment implements TorrentListNotifi
             mPager.setCurrentItem(position);
         }
     }
+    private void updateTorrentData(Cursor cursor) {
+        int cursorPosition = cursor.getPosition();
+        int position = -1;
 
-    private void updateTorrentPositionMap() {
-        int cursorPosition = detailCursor.getPosition();
-        int position = 0;
-
+        torrentIds = new int[cursor.getCount()];
         torrentPositionMap.clear();
-        detailCursor.moveToFirst();
+        cursor.moveToFirst();
 
-        while (!detailCursor.isAfterLast()) {
-            torrentPositionMap.append(Torrent.getId(detailCursor), position++);
+        while (!cursor.isAfterLast()) {
+            torrentIds[++position] = Torrent.getId(cursor);
+            torrentPositionMap.append(torrentIds[position], position);
+            if (torrentIds[position] == currentTorrentId) {
+                currentTorrentStatus = Torrent.getStatus(cursor);
+                currentTorrentName = Torrent.getName(cursor);
+            }
 
-            detailCursor.moveToNext();
+            cursor.moveToNext();
         }
 
-        detailCursor.moveToPosition(cursorPosition);
+        cursor.moveToPosition(cursorPosition);
     }
 
     public void resetPagerAdapter() {
-        if (detailCursor == null) {
+        if (torrentIds == null) {
             mPager.setAdapter(null);
         } else {
-            mPager.setAdapter(new TorrentDetailPagerAdapter(getActivity(), detailCursor.getCount()));
+            mPager.setAdapter(new TorrentDetailPagerAdapter(getActivity(), torrentIds.length));
         }
     }
 
     public void notifyTorrentListChanged(Cursor cursor, int error, boolean added, boolean removed,
                                          boolean status, boolean metadata) {
-        if (detailCursor == cursor) {
-            return;
-        }
         if (((TransmissionSessionInterface) getActivity()).getSession() == null) {
             setMenuTorrentState();
             return;
@@ -391,17 +353,7 @@ public class TorrentDetailFragment extends Fragment implements TorrentListNotifi
         menu.findItem(R.id.reannounce).setVisible(visible);
 
         boolean found = false;
-        boolean isActive = false;
-        if (detailCursor != null) {
-            int cursorPosition = detailCursor.getPosition();
-
-            if (detailCursor.moveToPosition(currentTorrentPosition)) {
-                found = true;
-                isActive = Torrent.isActive(Torrent.getStatus(detailCursor));
-            }
-
-            detailCursor.moveToPosition(cursorPosition);
-        }
+        boolean isActive = Torrent.isActive(currentTorrentStatus);
 
         boolean resumeState = false;
         boolean pauseState = false;

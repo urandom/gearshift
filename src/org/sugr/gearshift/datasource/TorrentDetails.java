@@ -7,7 +7,7 @@ public class TorrentDetails {
     public Cursor filesCursor;
     public Cursor trackersCursor;
 
-    public TorrentDetails(Cursor torrent, Cursor files, Cursor trackers) {
+    public TorrentDetails(Cursor torrent, Cursor trackers, Cursor files) {
         torrentCursor = torrent;
         filesCursor = files;
         trackersCursor = trackers;
