@@ -236,7 +236,7 @@ public class TorrentDetailFragment extends Fragment implements TorrentListNotifi
     }
 
     public int getTorrentId(int position) {
-        return torrentIds.length > position ? torrentIds[position] : -1;
+        return torrentIds != null && torrentIds.length > position ? torrentIds[position] : -1;
     }
 
     public void removeMenuEntries() {

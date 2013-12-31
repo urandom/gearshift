@@ -461,8 +461,10 @@ public class TorrentDetailPageFragment extends Fragment {
             if (fragment != null) {
                 torrentId = fragment.getTorrentId(position);
 
-                getActivity().getSupportLoaderManager().initLoader(
-                    G.TORRENT_DETAILS_LOADER_ID + torrentId, null, torrentDetailsLoaderCallbacks);
+                if (torrentId != -1) {
+                    getActivity().getSupportLoaderManager().initLoader(
+                        G.TORRENT_DETAILS_LOADER_ID + torrentId, null, torrentDetailsLoaderCallbacks);
+                }
             }
         }
     }

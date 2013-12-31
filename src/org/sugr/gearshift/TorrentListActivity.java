@@ -54,6 +54,8 @@ public class TorrentListActivity extends FragmentActivity
     public static final String ARG_FILE_PATH = "torrent_file_path";
     public final static String ACTION_OPEN = "torrent_file_open_action";
 
+    private static final String ARG_QUERY_ONLY = "query_only";
+
     /**
      * Whether or not the activity is in two-pane mode, i.e. running on a tablet
      * device.
@@ -109,6 +111,7 @@ public class TorrentListActivity extends FragmentActivity
             android.support.v4.content.Loader<TransmissionProfile[]> loader,
             TransmissionProfile[] profiles) {
 
+            TransmissionProfile oldProfile = mProfile;
             mProfile = null;
             mProfileAdapter.clear();
             if (profiles.length > 0) {
@@ -145,10 +148,15 @@ public class TorrentListActivity extends FragmentActivity
                  * appear until the next server request */
                 mPreventRefreshIndicator = true;
 
+                Bundle args = null;
+                if (oldProfile != null && mProfile.getId().equals(oldProfile.getId())) {
+                    args = new Bundle();
+                    args.putBoolean(ARG_QUERY_ONLY, true);
+                }
+
                 /* The old cursor will probably already be closed, so start fresh */
-                getSupportLoaderManager().restartLoader(
-                    G.TORRENTS_LOADER_ID,
-                    null, mTorrentLoaderCallbacks);
+                getSupportLoaderManager().restartLoader(G.TORRENTS_LOADER_ID,
+                    args, mTorrentLoaderCallbacks);
             }
 
             TransmissionProfile.setCurrentProfile(mProfile, TorrentListActivity.this);
@@ -170,7 +178,11 @@ public class TorrentListActivity extends FragmentActivity
             G.logD("Starting the torrents loader with profile " + mProfile);
             if (mProfile == null) return null;
 
-            return new TransmissionDataLoader(TorrentListActivity.this, mProfile);
+            TransmissionDataLoader loader = new TransmissionDataLoader(TorrentListActivity.this, mProfile);
+            if (args != null && args.getBoolean(ARG_QUERY_ONLY, false)) {
+                loader.setQueryOnly(true);
+            }
+            return loader;
         }
 
         @Override

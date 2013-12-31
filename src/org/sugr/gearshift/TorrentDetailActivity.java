@@ -346,4 +346,8 @@ class TorrentsCursorLoader extends AsyncTaskLoader<Cursor> {
 
         return cursor;
     }
+
+    @Override protected void onStartLoading() {
+        forceLoad();
+    }
 }

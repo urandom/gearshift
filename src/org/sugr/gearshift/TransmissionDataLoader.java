@@ -107,7 +107,10 @@ public class TransmissionDataLoader extends AsyncTaskLoader<TransmissionData> {
 
     private DataSource dataSource;
 
+    private boolean queryOnly;
+
     private static final Object exceptionLock = new Object();
+
 
     public TransmissionDataLoader(Context context, TransmissionProfile profile) {
         super(context);
@@ -127,6 +130,11 @@ public class TransmissionDataLoader extends AsyncTaskLoader<TransmissionData> {
         this.session = session;
         this.updateIds = ids;
         this.details = details;
+    }
+
+    public void setQueryOnly(boolean queryOnly) {
+        this.queryOnly = queryOnly;
+        onContentChanged();
     }
 
     public void setProfile(TransmissionProfile profile) {
@@ -227,27 +235,44 @@ public class TransmissionDataLoader extends AsyncTaskLoader<TransmissionData> {
                 hasStatusChanged,
                 hasMetadataNeeded;
 
-        if (lastError > 0) {
-            lastError = 0;
-            lastErrorCode = 0;
-        }
-
-        if (mProfileChanged) {
-            mSessManager.setProfile(mProfile);
-            mProfileChanged = false;
-            mIteration = 0;
-        }
-        if (!mSessManager.hasConnectivity()) {
-            lastError = TransmissionData.Errors.NO_CONNECTIVITY;
-            session = null;
-            mStopUpdates = true;
-            return new TransmissionData(session, lastError, 0);
-        }
 
         /* TODO: catch SQLiteException */
         dataSource.open();
 
         try {
+            if (queryOnly) {
+                queryOnly = false;
+                if (lastError == 0) {
+                    cursor = dataSource.getTorrentCursor();
+
+                    /* Fill the cursor window */
+                    cursor.getCount();
+
+                    if (session == null) {
+                        session = dataSource.getSession();
+                        session.setDownloadDirectories(mProfile, dataSource.getDownloadDirectories());
+                    }
+
+                    return new TransmissionData(session, cursor, false, false, false, false);
+                }
+            }
+
+            if (lastError > 0) {
+                lastError = 0;
+                lastErrorCode = 0;
+            }
+
+            if (mProfileChanged) {
+                mSessManager.setProfile(mProfile);
+                mProfileChanged = false;
+                mIteration = 0;
+            }
+            if (!mSessManager.hasConnectivity()) {
+                lastError = TransmissionData.Errors.NO_CONNECTIVITY;
+                session = null;
+                mStopUpdates = true;
+                return new TransmissionData(session, lastError, 0);
+            }
             G.logD("Fetching data");
 
             if (mTorrentActionIds != null) {
