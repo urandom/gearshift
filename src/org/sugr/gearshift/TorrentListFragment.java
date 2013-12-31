@@ -95,8 +95,6 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
 
     private Menu menu;
 
-    private int torrentIdToPreserve;
-
     /**
      * A callback interface that all activities containing this fragment must
      * implement. This mechanism allows activities to be notified of item
@@ -546,15 +544,6 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
                                          boolean statusChanged, boolean metadataNeeded) {
         if (error == -1) {
             return;
-        }
-
-        /* TODO: is that still needed for a cursoradapter-based listview?
-         * Maybe call listview's onSaveInstanceState and then onRestoreInstanceState
-         * */
-        torrentIdToPreserve = -1;
-        if (mChoiceMode == ListView.CHOICE_MODE_SINGLE && error == 0
-            && getListView().getCheckedItemPosition() != ListView.INVALID_POSITION) {
-            torrentIdToPreserve = (int) torrentAdapter.getItemId(getListView().getCheckedItemPosition());
         }
 
         String query = mSharedPrefs.getString(G.PREF_LIST_SEARCH, null);
@@ -1027,25 +1016,6 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
                     setEmptyText(R.string.no_torrents_empty_list);
                 } else {
                     setEmptyText(R.string.no_filtered_torrents_empty_list);
-                }
-            } else {
-                if (torrentIdToPreserve > -1) {
-                    int column = newCursor.getColumnIndex(Constants.C_ID);
-                    int position = 0;
-
-                    newCursor.moveToFirst();
-
-                    while (!newCursor.isAfterLast()) {
-                        if (newCursor.getInt(column) == torrentIdToPreserve) {
-                            getListView().setItemChecked(position, true);
-                            break;
-                        }
-                        newCursor.moveToNext();
-                    }
-
-                    newCursor.moveToFirst();
-
-                    torrentIdToPreserve = -1;
                 }
             }
 

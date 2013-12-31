@@ -109,8 +109,6 @@ public class TorrentListActivity extends FragmentActivity
             android.support.v4.content.Loader<TransmissionProfile[]> loader,
             TransmissionProfile[] profiles) {
 
-            TransmissionProfile oldProfile = mProfile;
-
             mProfile = null;
             mProfileAdapter.clear();
             if (profiles.length > 0) {

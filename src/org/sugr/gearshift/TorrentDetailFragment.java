@@ -254,6 +254,10 @@ public class TorrentDetailFragment extends Fragment implements TorrentListNotifi
     }
 
     public void setCurrentTorrent(int position) {
+        if (mPager.getAdapter() == null) {
+            currentTorrentPosition = position;
+            return;
+        }
         if (position == mPager.getCurrentItem()) {
             if (position != currentTorrentPosition) {
                 currentTorrentPosition = position;
