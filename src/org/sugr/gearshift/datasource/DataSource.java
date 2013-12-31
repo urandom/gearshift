@@ -140,8 +140,14 @@ public class DataSource {
                             if (!trackers.get(trackerId, false)) {
                                 trackers.put(trackerId, true);
 
-                                database.insertWithOnConflict(Constants.T_TRACKER, null,
-                                    tracker, SQLiteDatabase.CONFLICT_REPLACE);
+                                updated = database.update(Constants.T_TRACKER, tracker,
+                                    Constants.C_TRACKER_ID + " = ?",
+                                    new String[] { Integer.toString(trackerId) });
+
+                                if (updated < 1) {
+                                    database.insertWithOnConflict(Constants.T_TRACKER, null,
+                                        tracker, SQLiteDatabase.CONFLICT_REPLACE);
+                                }
                             }
 
                             ContentValues m2m = new ContentValues();
@@ -154,9 +160,17 @@ public class DataSource {
 
                     if (values.files != null) {
                         for (ContentValues file : values.files) {
+                            Integer index = (Integer) file.get(Constants.C_FILE_INDEX);
                             file.put(Constants.C_TORRENT_ID, torrentId);
-                            database.insertWithOnConflict(Constants.T_FILE, null,
-                                file, SQLiteDatabase.CONFLICT_REPLACE);
+
+                            updated = database.update(Constants.T_FILE, file,
+                                Constants.C_TORRENT_ID + " = ? AND " + Constants.C_FILE_INDEX + " = ?",
+                                new String[] { Integer.toString(torrentId), index.toString() });
+
+                            if (updated < 1) {
+                                database.insertWithOnConflict(Constants.T_FILE, null,
+                                    file, SQLiteDatabase.CONFLICT_REPLACE);
+                            }
                         }
                     }
 
@@ -251,20 +265,7 @@ public class DataSource {
 
             cursor.moveToFirst();
 
-            if (cursor.getInt(0) == 0) {
-                cursor.close();
-
-                cursor = database.rawQuery(
-                    "SELECT count(" + Constants.C_TORRENT_ID + ") FROM "
-                        + Constants.T_FILE + " WHERE " + Constants.C_NAME + " = ''", null
-                );
-
-                cursor.moveToFirst();
-
-                return cursor.getInt(0) == 0;
-            } else {
-                return false;
-            }
+            return cursor.getInt(0) == 0;
         } finally {
             if (cursor != null)
                 cursor.close();
@@ -278,9 +279,9 @@ public class DataSource {
         Cursor cursor = null;
         try {
             cursor = database.rawQuery(
-                "SELECT count(CASE WHEN "
-                    + Constants.C_TOTAL_SIZE
-                    + " = 0 AND ("
+                "SELECT count(" + Constants.C_TORRENT_ID + ") FROM "
+                    + Constants.T_TORRENT + " WHERE "
+                    + Constants.C_TOTAL_SIZE + " = 0 AND ("
                     + Constants.C_STATUS + " = "
                     + Torrent.Status.CHECKING
                     + " OR "
@@ -289,7 +290,7 @@ public class DataSource {
                     + " OR "
                     + Constants.C_STATUS + " = "
                     + Torrent.Status.SEEDING
-                    + ") THEN 1 ELSE null END) FROM " + Constants.T_TORRENT, null
+                    + ")", null
             );
 
             cursor.moveToFirst();
@@ -1038,6 +1039,7 @@ public class DataSource {
                     ContentValues file;
                     if (index >= values.files.size()) {
                         file = new ContentValues();
+                        file.put(Constants.C_FILE_INDEX, index);
                         values.files.add(index, file);
                     } else {
                         file = values.files.get(index);
@@ -1066,6 +1068,7 @@ public class DataSource {
                     ContentValues file;
                     if (index >= values.files.size()) {
                         file = new ContentValues();
+                        file.put(Constants.C_FILE_INDEX, index);
                         values.files.add(index, file);
                     } else {
                         file = values.files.get(index);

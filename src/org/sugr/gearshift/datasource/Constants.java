@@ -85,6 +85,7 @@ public final class Constants {
     public static final String C_SEEDER_COUNT = "seeder_count";
     public static final String C_LEECHER_COUNT = "leecher_count";
 
+    public static final String C_FILE_INDEX = "file_index";
     public static final String C_LENGTH = "length";
     public static final String C_BYTES_COMPLETED = "bytes_completed";
     public static final String C_WANTED = "wanted";
@@ -206,13 +207,14 @@ public final class Constants {
     public static final String T_FILE_CREATE = "CREATE TABLE "
         + T_FILE + "("
         + C_TORRENT_ID + " INTEGER REFERENCES " + T_TORRENT + "(" + C_TORRENT_ID + ") ON DELETE CASCADE, "
+        + C_FILE_INDEX + " INTEGER NOT NULL, "
         + C_NAME + " TEXT NOT NULL DEFAULT '', "
         + C_LENGTH + " INTEGER, "
         + C_BYTES_COMPLETED + " INTEGER, "
         + C_WANTED + " INTEGER, "
         + C_PRIORITY + " INTEGER, "
 
-        + "PRIMARY KEY (" + C_TORRENT_ID + ")"
+        + "PRIMARY KEY (" + C_TORRENT_ID + ", " + C_FILE_INDEX + ")"
         + ");";
 
     public static final String T_PEER_CREATE = "CREATE TABLE "

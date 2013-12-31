@@ -1335,7 +1335,7 @@ public class TorrentDetailPageFragment extends Fragment {
                 View v = null;
                 boolean hasChild = false;
 
-                if (!details.filesCursor.moveToPosition(file.index)) {
+                if (file.index != -1 && !details.filesCursor.moveToPosition(file.index)) {
                     continue;
                 }
 

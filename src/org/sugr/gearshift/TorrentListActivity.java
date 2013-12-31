@@ -180,7 +180,8 @@ public class TorrentListActivity extends FragmentActivity
             android.support.v4.content.Loader<TransmissionData> loader,
             TransmissionData data) {
 
-            G.logD("Data loaded: " + data.cursor.getCount() + " torrents, error: " + data.error + " , removed: " + data.hasRemoved + ", added: " + data.hasAdded + ", changed: " + data.hasStatusChanged + ", metadata: " + data.hasMetadataNeeded);
+
+            G.logD("Data loaded: " + (data.cursor == null ? 0 : data.cursor.getCount()) + " torrents, error: " + data.error + " , removed: " + data.hasRemoved + ", added: " + data.hasAdded + ", changed: " + data.hasStatusChanged + ", metadata: " + data.hasMetadataNeeded);
             setSession(data.session);
 
             View error = findViewById(R.id.fatal_error_layer);

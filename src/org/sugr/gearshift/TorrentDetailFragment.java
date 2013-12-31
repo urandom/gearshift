@@ -106,8 +106,6 @@ public class TorrentDetailFragment extends Fragment implements TorrentListNotifi
             }
         });
 
-        mPager.setCurrentItem(currentTorrentPosition);
-
         if (getArguments().containsKey(ARG_SHOW_PAGER)) {
             if (getArguments().getBoolean(ARG_SHOW_PAGER)) {
                 mPager.setVisibility(View.VISIBLE);
@@ -292,6 +290,7 @@ public class TorrentDetailFragment extends Fragment implements TorrentListNotifi
             mPager.setAdapter(null);
         } else {
             mPager.setAdapter(new TorrentDetailPagerAdapter(getActivity(), torrentIds.length));
+            mPager.setCurrentItem(currentTorrentPosition);
         }
     }
 

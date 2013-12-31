@@ -195,6 +195,10 @@ public class Torrent {
         public static boolean isWanted(Cursor cursor) {
             return cursor.getInt(cursor.getColumnIndex(Constants.C_WANTED)) > 0;
         }
+
+        public static int getIndex(Cursor cursor) {
+            return cursor.getInt(cursor.getColumnIndex(Constants.C_FILE_INDEX));
+        }
     }
 
     /* CURRENTLY UNUSED
