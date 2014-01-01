@@ -298,6 +298,7 @@ public class TorrentDetailFragment extends Fragment implements TorrentListNotifi
             pager.setCurrentItem(currentTorrentPosition);
 
             if (showPager) {
+                showPager = false;
                 pager.setVisibility(View.VISIBLE);
                 pager.animate().alpha((float) 1.0);
             }
