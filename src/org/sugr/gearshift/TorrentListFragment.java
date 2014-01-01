@@ -866,19 +866,7 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
                         filteredCursor = originalCursor;
                     }
 
-                    final Cursor cursor = filteredCursor;
-                    getActivity().runOnUiThread(new Runnable() {
-                        @Override public void run() {
-                            if (((TorrentListActivity) getActivity()).isDetailPanelShown()) {
-                                FragmentManager manager = getActivity().getSupportFragmentManager();
-                                TorrentDetailFragment detail = (TorrentDetailFragment) manager.findFragmentByTag(
-                                    G.DETAIL_FRAGMENT_TAG);
-                                if (detail != null) {
-                                    detail.notifyTorrentListChanged(cursor, 0, true, true, false, false);
-                                }
-                            }
-                        }
-                    });
+                    filterActive = true;
 
                     return filteredCursor;
                 }
@@ -1008,6 +996,18 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
             if (scrollToTop) {
                 scrollToTop = false;
                 getListView().setSelectionAfterHeaderView();
+            }
+
+            if (filterActive) {
+                filterActive = false;
+                if (((TorrentListActivity) getActivity()).isDetailPanelShown()) {
+                    FragmentManager manager = getActivity().getSupportFragmentManager();
+                    TorrentDetailFragment detail = (TorrentDetailFragment) manager.findFragmentByTag(
+                        G.DETAIL_FRAGMENT_TAG);
+                    if (detail != null) {
+                        detail.notifyTorrentListChanged(newCursor, 0, true, true, false, false);
+                    }
+                }
             }
 
             return oldCursor;
