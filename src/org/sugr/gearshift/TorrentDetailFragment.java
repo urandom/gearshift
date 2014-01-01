@@ -154,7 +154,7 @@ public class TorrentDetailFragment extends Fragment implements TorrentListNotifi
 
         final TransmissionSessionInterface context = ((TransmissionSessionInterface) getActivity());
 
-        if (loader == null || torrentIds == null || torrentIds.length > currentTorrentPosition) {
+        if (loader == null || torrentIds == null || torrentIds.length <= currentTorrentPosition) {
             return super.onOptionsItemSelected(item);
         }
 
