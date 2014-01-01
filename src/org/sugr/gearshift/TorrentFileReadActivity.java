@@ -39,16 +39,16 @@ public class TorrentFileReadActivity extends FragmentActivity {
     }
 
     private class ReadDataAsyncTask extends AsyncTask<Uri, Void, TaskData> {
-        private Uri mUri;
+        private Uri uri;
 
         @Override protected TaskData doInBackground(Uri... params) {
-            mUri = params[0];
+            uri = params[0];
             ContentResolver cr = getContentResolver();
             InputStream stream = null;
             Base64.InputStream base64 = null;
 
             try {
-                stream = cr.openInputStream(mUri);
+                stream = cr.openInputStream(uri);
 
                 base64 = new Base64.InputStream(stream, Base64.ENCODE | Base64.DO_BREAK_LINES);
                 StringBuilder fileContent = new StringBuilder("");
@@ -69,8 +69,8 @@ public class TorrentFileReadActivity extends FragmentActivity {
                 bw.close();
 
                 String path = null;
-                if ("content".equals(mUri.getScheme())) {
-                    Cursor cursor = cr.query(mUri,
+                if ("content".equals(uri.getScheme())) {
+                    Cursor cursor = cr.query(uri,
                         new String[] {
                             android.provider.MediaStore.Files.FileColumns.DATA 
                         }, null, null, null);
@@ -78,8 +78,8 @@ public class TorrentFileReadActivity extends FragmentActivity {
                         path = cursor.getString(0);
                     }
                     cursor.close();
-                } else if ("file".equals(mUri.getScheme())) {
-                    path = mUri.getPath();
+                } else if ("file".equals(uri.getScheme())) {
+                    path = uri.getPath();
                 }
 
                 G.logD("Torrent file path: " + path);
@@ -111,7 +111,7 @@ public class TorrentFileReadActivity extends FragmentActivity {
             } else {
                 Intent listIntent = new Intent(TorrentFileReadActivity.this, TorrentListActivity.class);
                 listIntent.setAction(TorrentListActivity.ACTION_OPEN);
-                listIntent.setData(mUri);
+                listIntent.setData(uri);
                 listIntent.putExtra(TorrentListActivity.ARG_FILE_URI, data.file.toURI().toString());
                 listIntent.putExtra(TorrentListActivity.ARG_FILE_PATH, data.path);
 

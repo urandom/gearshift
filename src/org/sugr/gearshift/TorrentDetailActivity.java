@@ -36,8 +36,8 @@ public class TorrentDetailActivity extends FragmentActivity implements Transmiss
 
     private int currentTorrentPosition = 0;
 
-    private TransmissionProfile mProfile;
-    private TransmissionSession mSession;
+    private TransmissionProfile profile;
+    private TransmissionSession session;
 
     private Menu menu;
 
@@ -46,11 +46,11 @@ public class TorrentDetailActivity extends FragmentActivity implements Transmiss
         @Override
         public android.support.v4.content.Loader<TransmissionData> onCreateLoader(
                 int id, Bundle args) {
-            G.logD("Starting the torrents loader with profile " + mProfile);
-            if (mProfile == null) return null;
+            G.logD("Starting the torrents loader with profile " + profile);
+            if (profile == null) return null;
 
             TransmissionDataLoader loader = new TransmissionDataLoader(
-                TorrentDetailActivity.this, mProfile, mSession, true, getCurrentTorrentIds());
+                TorrentDetailActivity.this, profile, session, true, getCurrentTorrentIds());
             loader.setQueryOnly(true);
 
             return loader;
@@ -139,10 +139,10 @@ public class TorrentDetailActivity extends FragmentActivity implements Transmiss
     protected void onCreate(Bundle savedInstanceState) {
         Intent in = getIntent();
 
-        mProfile = in.getParcelableExtra(G.ARG_PROFILE);
-        mProfile.setContext(this);
-        mSession = in.getParcelableExtra(G.ARG_SESSION);
-        setSession(mSession);
+        profile = in.getParcelableExtra(G.ARG_PROFILE);
+        profile.setContext(this);
+        session = in.getParcelableExtra(G.ARG_SESSION);
+        setSession(session);
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_torrent_detail);
@@ -275,17 +275,17 @@ public class TorrentDetailActivity extends FragmentActivity implements Transmiss
 
     @Override
     public TransmissionProfile getProfile() {
-        return mProfile;
+        return profile;
     }
 
     @Override
     public void setSession(TransmissionSession session) {
-        mSession = session;
+        this.session = session;
     }
 
     @Override
     public TransmissionSession getSession() {
-        return mSession;
+        return session;
     }
 
     @Override
