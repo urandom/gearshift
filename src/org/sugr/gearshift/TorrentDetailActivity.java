@@ -1,16 +1,13 @@
 package org.sugr.gearshift;
 
-import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.database.Cursor;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.app.NavUtils;
-import android.support.v4.content.AsyncTaskLoader;
 import android.support.v4.content.Loader;
 import android.text.Html;
 import android.text.Spanned;
@@ -19,8 +16,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
-
-import org.sugr.gearshift.datasource.DataSource;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -37,7 +32,7 @@ import java.util.List;
  */
 public class TorrentDetailActivity extends FragmentActivity implements TransmissionSessionInterface,
        TorrentDetailFragment.PagerCallbacks {
-    private boolean mRefreshing = false;
+    private boolean refreshing = false;
 
     private int currentTorrentPosition = 0;
 
@@ -54,8 +49,11 @@ public class TorrentDetailActivity extends FragmentActivity implements Transmiss
             G.logD("Starting the torrents loader with profile " + mProfile);
             if (mProfile == null) return null;
 
-            return new TransmissionDataLoader(
+            TransmissionDataLoader loader = new TransmissionDataLoader(
                 TorrentDetailActivity.this, mProfile, mSession, true, getCurrentTorrentIds());
+            loader.setQueryOnly(true);
+
+            return loader;
         }
 
         @Override
@@ -125,7 +123,7 @@ public class TorrentDetailActivity extends FragmentActivity implements Transmiss
                     data.hasStatusChanged, data.hasMetadataNeeded);
             }
 
-            if (mRefreshing) {
+            if (refreshing) {
                 setRefreshing(false);
             }
         }
@@ -135,27 +133,6 @@ public class TorrentDetailActivity extends FragmentActivity implements Transmiss
                 android.support.v4.content.Loader<TransmissionData> loader) {
         }
 
-    };
-
-    private LoaderCallbacks<Cursor> initialTorrentsCursorLoaderCallbacks = new LoaderCallbacks<Cursor>() {
-        @Override public Loader<Cursor> onCreateLoader(int id, Bundle bundle) {
-            if (id == G.TORRENTS_CURSOR_LOADER_ID) {
-                return new TorrentsCursorLoader(TorrentDetailActivity.this);
-            }
-            return null;
-        }
-
-        @Override public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
-            getSupportFragmentManager().executePendingTransactions();
-            TorrentDetailFragment fragment =
-                (TorrentDetailFragment) getSupportFragmentManager().findFragmentByTag(G.DETAIL_FRAGMENT_TAG);
-
-            if (fragment != null)
-                fragment.changeCursor(cursor);
-        }
-
-        @Override public void onLoaderReset(Loader<Cursor> loader) {
-        }
     };
 
     @Override
@@ -189,9 +166,6 @@ public class TorrentDetailActivity extends FragmentActivity implements Transmiss
                     .commit();
         }
 
-        getSupportLoaderManager().initLoader(G.TORRENTS_CURSOR_LOADER_ID,
-            null, initialTorrentsCursorLoaderCallbacks);
-
         getSupportLoaderManager().restartLoader(
                 G.TORRENTS_LOADER_ID, null, torrentLoaderCallbacks);
     }
@@ -220,7 +194,7 @@ public class TorrentDetailActivity extends FragmentActivity implements Transmiss
                     .getLoader(G.TORRENTS_LOADER_ID);
                 if (loader != null) {
                     loader.onContentChanged();
-                    setRefreshing(!mRefreshing);
+                    setRefreshing(!refreshing);
                 }
                 return true;
         }
@@ -316,38 +290,12 @@ public class TorrentDetailActivity extends FragmentActivity implements Transmiss
 
     @Override
     public void setRefreshing(boolean refreshing) {
-        mRefreshing = refreshing;
+        this.refreshing = refreshing;
 
         MenuItem item = menu.findItem(R.id.menu_refresh);
-        if (mRefreshing)
+        if (this.refreshing)
             item.setActionView(R.layout.action_progress_bar);
         else
             item.setActionView(null);
-    }
-}
-
-class TorrentsCursorLoader extends AsyncTaskLoader<Cursor> {
-    private DataSource readSource;
-
-    public TorrentsCursorLoader(Context context) {
-        super(context);
-
-        readSource = new DataSource(context);
-    }
-    @Override public Cursor loadInBackground() {
-        readSource.open();
-
-        Cursor cursor = readSource.getTorrentCursor();
-
-        /* Fill the window */
-        cursor.getCount();
-
-        readSource.close();
-
-        return cursor;
-    }
-
-    @Override protected void onStartLoading() {
-        forceLoad();
     }
 }

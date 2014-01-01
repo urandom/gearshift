@@ -510,9 +510,11 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
             }
 
             @Override public boolean onQueryTextChange(String newText) {
-                findQuery = newText;
-                mFindHandler.removeCallbacks(mFindRunnable);
-                mFindHandler.postDelayed(mFindRunnable, 500);
+                if (!newText.equals(findQuery)) {
+                    findQuery = newText;
+                    mFindHandler.removeCallbacks(mFindRunnable);
+                    mFindHandler.postDelayed(mFindRunnable, 500);
+                }
                 return true;
             }
         });

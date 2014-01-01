@@ -75,6 +75,7 @@ public class TorrentDetailPageFragment extends Fragment {
 
     private static final String STATE_EXPANDED = "expanded_states";
     private static final String STATE_SCROLL_POSITION = "scroll_position_state";
+    private static final String STATE_TORRENT_ID = "torrent_id";
 
     private static class Expanders {
         public static final int TOTAL_EXPANDERS = 4;
@@ -124,9 +125,9 @@ public class TorrentDetailPageFragment extends Fragment {
     }
     private Views views;
 
-    private boolean[] mExpandedStates = new boolean[Expanders.TOTAL_EXPANDERS];
+    private boolean[] expandedStates = new boolean[Expanders.TOTAL_EXPANDERS];
 
-    private View.OnClickListener mExpanderListener = new View.OnClickListener() {
+    private View.OnClickListener expanderListener = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
             View image;
@@ -162,12 +163,12 @@ public class TorrentDetailPageFragment extends Fragment {
                 content.setAlpha(0);
                 content.animate().alpha(1);
                 image.setBackgroundResource(R.drawable.ic_section_collapse);
-                mExpandedStates[index] = true;
+                expandedStates[index] = true;
                 updateFields(getView());
             } else {
                 content.setVisibility(View.GONE);
                 image.setBackgroundResource(R.drawable.ic_section_expand);
-                mExpandedStates[index] = false;
+                expandedStates[index] = false;
             }
 
         }
@@ -448,24 +449,26 @@ public class TorrentDetailPageFragment extends Fragment {
         if (seedRatioModeValues == null)
             seedRatioModeValues = Arrays.asList(getResources().getStringArray(R.array.torrent_seed_ratio_mode_values));
 
-        mExpandedStates[Expanders.OVERVIEW] = true;
+        expandedStates[Expanders.OVERVIEW] = true;
 
         mUpdateReceiver = new UpdateReceiver();
         mPageUnselectedReceiver = new PageUnselectedReceiver();
 
-        if (getArguments().containsKey(G.ARG_PAGE_POSITION)) {
+        if (savedInstanceState != null && savedInstanceState.containsKey(STATE_TORRENT_ID)) {
+            torrentId = savedInstanceState.getInt(STATE_TORRENT_ID);
+        } else if (getArguments().containsKey(G.ARG_PAGE_POSITION)) {
             int position = getArguments().getInt(G.ARG_PAGE_POSITION);
             TorrentDetailFragment fragment
                 = (TorrentDetailFragment) getActivity().getSupportFragmentManager().findFragmentByTag(G.DETAIL_FRAGMENT_TAG);
 
             if (fragment != null) {
                 torrentId = fragment.getTorrentId(position);
-
-                if (torrentId != -1) {
-                    getActivity().getSupportLoaderManager().initLoader(
-                        G.TORRENT_DETAILS_LOADER_ID + torrentId, null, torrentDetailsLoaderCallbacks);
-                }
             }
+        }
+
+        if (torrentId != -1) {
+            getActivity().getSupportLoaderManager().initLoader(
+                G.TORRENT_DETAILS_LOADER_ID + torrentId, null, torrentDetailsLoaderCallbacks);
         }
     }
 
@@ -474,10 +477,10 @@ public class TorrentDetailPageFragment extends Fragment {
             final Bundle savedInstanceState) {
         final View root = inflater.inflate(R.layout.fragment_torrent_detail_page, container, false);
 
-        root.findViewById(R.id.torrent_detail_overview_expander).setOnClickListener(mExpanderListener);
-        root.findViewById(R.id.torrent_detail_files_expander).setOnClickListener(mExpanderListener);
-        root.findViewById(R.id.torrent_detail_limits_expander).setOnClickListener(mExpanderListener);
-        root.findViewById(R.id.torrent_detail_trackers_expander).setOnClickListener(mExpanderListener);
+        root.findViewById(R.id.torrent_detail_overview_expander).setOnClickListener(expanderListener);
+        root.findViewById(R.id.torrent_detail_files_expander).setOnClickListener(expanderListener);
+        root.findViewById(R.id.torrent_detail_limits_expander).setOnClickListener(expanderListener);
+        root.findViewById(R.id.torrent_detail_trackers_expander).setOnClickListener(expanderListener);
 
         views = new Views();
 
@@ -522,11 +525,11 @@ public class TorrentDetailPageFragment extends Fragment {
                 @Override
                 public void run() {
                     if (savedInstanceState.containsKey(STATE_EXPANDED)) {
-                        mExpandedStates = savedInstanceState.getBooleanArray(STATE_EXPANDED);
-                        views.overviewContent.setVisibility(mExpandedStates[Expanders.OVERVIEW] ? View.VISIBLE : View.GONE);
-                        views.filesContent.setVisibility(mExpandedStates[Expanders.FILES] ? View.VISIBLE : View.GONE);
-                        views.limitsContent.setVisibility(mExpandedStates[Expanders.LIMITS] ? View.VISIBLE : View.GONE);
-                        views.trackersContent.setVisibility(mExpandedStates[Expanders.TRACKERS] ? View.VISIBLE : View.GONE);
+                        expandedStates = savedInstanceState.getBooleanArray(STATE_EXPANDED);
+                        views.overviewContent.setVisibility(expandedStates[Expanders.OVERVIEW] ? View.VISIBLE : View.GONE);
+                        views.filesContent.setVisibility(expandedStates[Expanders.FILES] ? View.VISIBLE : View.GONE);
+                        views.limitsContent.setVisibility(expandedStates[Expanders.LIMITS] ? View.VISIBLE : View.GONE);
+                        views.trackersContent.setVisibility(expandedStates[Expanders.TRACKERS] ? View.VISIBLE : View.GONE);
                         updateFields(root);
                     }
                     if (savedInstanceState.containsKey(STATE_SCROLL_POSITION)) {
@@ -752,11 +755,13 @@ public class TorrentDetailPageFragment extends Fragment {
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        outState.putBooleanArray(STATE_EXPANDED, mExpandedStates);
+        outState.putBooleanArray(STATE_EXPANDED, expandedStates);
         ScrollView scroll = (ScrollView) getView().findViewById(R.id.detail_scroll);
         if (scroll != null) {
             outState.putInt(STATE_SCROLL_POSITION, scroll.getScrollY());
         }
+
+        outState.putInt(STATE_TORRENT_ID, torrentId);
     }
 
     @Override
