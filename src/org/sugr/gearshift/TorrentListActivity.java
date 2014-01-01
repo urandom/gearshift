@@ -279,7 +279,7 @@ public class TorrentListActivity extends FragmentActivity
     };
 
     /* The callback will get garbage collected if its a mere anon class */
-    private SharedPreferences.OnSharedPreferenceChangeListener profileChangeListener=
+    private SharedPreferences.OnSharedPreferenceChangeListener profileChangeListener =
         new SharedPreferences.OnSharedPreferenceChangeListener() {
             @Override
             public void onSharedPreferenceChanged(SharedPreferences prefs, String key) {

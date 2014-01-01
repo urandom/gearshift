@@ -64,7 +64,6 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
      * The serialization (saved instance state) Bundle key representing the
      * activated item position. Only used on tablets.
      */
-    private static final String STATE_ACTIVATED_POSITION = "activated_position";
     private static final String STATE_FIND_SHOWN = "find_shown";
     private static final String STATE_FIND_QUERY = "find_query";
 
@@ -381,24 +380,6 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
 
         torrentAdapter = new TorrentCursorAdapter(getActivity(), null);
         setListAdapter(torrentAdapter);
-        if (savedInstanceState != null && savedInstanceState.containsKey(STATE_ACTIVATED_POSITION)) {
-            new Handler().post(new Runnable() {
-                @Override
-                public void run() {
-                    if (getActivity() == null) {
-                        return;
-                    }
-
-                    /* FIXME: this has to happen after we have a cursor */
-                    if (savedInstanceState.containsKey(STATE_ACTIVATED_POSITION)) {
-                        setActivatedPosition(savedInstanceState.getInt(STATE_ACTIVATED_POSITION));
-                    } else {
-                        getListView().setItemChecked(getListView().getCheckedItemPosition(), false);
-                    }
-                }
-            });
-
-        }
 
         TextView status = (TextView) view.findViewById(R.id.status_bar_text);
         /* Enable the marquee animation */
@@ -474,10 +455,7 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        if (activatedPosition != ListView.INVALID_POSITION) {
-            // Serialize and persist the activated item position.
-            outState.putInt(STATE_ACTIVATED_POSITION, activatedPosition);
-        }
+
         outState.putBoolean(STATE_FIND_SHOWN, findVisible);
         outState.putString(STATE_FIND_QUERY, findQuery);
     }
@@ -762,6 +740,7 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
         private Cursor temporaryFilterCursor;
 
         private boolean resourcesCleared = false;
+        private boolean filterActive = false;
 
         private final Object lock = new Object();
 
@@ -887,6 +866,20 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
                         filteredCursor = originalCursor;
                     }
 
+                    final Cursor cursor = filteredCursor;
+                    getActivity().runOnUiThread(new Runnable() {
+                        @Override public void run() {
+                            if (((TorrentListActivity) getActivity()).isDetailPanelShown()) {
+                                FragmentManager manager = getActivity().getSupportFragmentManager();
+                                TorrentDetailFragment detail = (TorrentDetailFragment) manager.findFragmentByTag(
+                                    G.DETAIL_FRAGMENT_TAG);
+                                if (detail != null) {
+                                    detail.notifyTorrentListChanged(cursor, 0, true, true, false, false);
+                                }
+                            }
+                        }
+                    });
+
                     return filteredCursor;
                 }
             });
@@ -941,7 +934,7 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
             TextView errorText = (TextView) view.findViewById(R.id.error_text);
 
             if (findQuery != null && !findQuery.equals("")) {
-                name.setText(Html.fromHtml(Torrent.getName(cursor)));
+                name.setText(G.trimTrailingWhitespace(Html.fromHtml(Torrent.getName(cursor))));
             } else {
                 name.setText(Torrent.getName(cursor));
             }
@@ -1001,14 +994,6 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
         @Override public Cursor swapCursor(Cursor newCursor) {
             Cursor oldCursor = super.swapCursor(newCursor);
 
-            if (((TorrentListActivity) getActivity()).isDetailPanelShown()) {
-                FragmentManager manager = getActivity().getSupportFragmentManager();
-                TorrentDetailFragment detail = (TorrentDetailFragment) manager.findFragmentByTag(
-                    G.DETAIL_FRAGMENT_TAG);
-                if (detail != null) {
-                    detail.notifyTorrentListChanged(newCursor, 0, true, true, false, false);
-                }
-            }
             if (newCursor.getCount() == 0) {
                 if (sharedPrefs.getString(G.PREF_LIST_SEARCH, "").equals("")
                     && sharedPrefs.getString(G.PREF_LIST_DIRECTORY, "").equals("")

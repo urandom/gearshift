@@ -399,7 +399,7 @@ public class TorrentDetailPageFragment extends Fragment {
                 if (fragment != null) {
                     int position = fragment.getTorrentPositionInCursor(torrentId);
                     if (position != -1) {
-                        if (details != null)
+                        if (details != null && !details.torrentCursor.isClosed())
                             G.logD("Updating detail view for '" + Torrent.getName(details.torrentCursor) + "'");
 
                         Loader<TorrentDetails> loader = getActivity().getSupportLoaderManager()
