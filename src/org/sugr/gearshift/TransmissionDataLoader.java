@@ -132,9 +132,12 @@ public class TransmissionDataLoader extends AsyncTaskLoader<TransmissionData> {
         this.details = details;
     }
 
+    public void setDetails(boolean details) {
+        this.details = details;
+    }
+
     public void setQueryOnly(boolean queryOnly) {
         this.queryOnly = queryOnly;
-        onContentChanged();
     }
 
     public void setProfile(TransmissionProfile profile) {
@@ -152,14 +155,6 @@ public class TransmissionDataLoader extends AsyncTaskLoader<TransmissionData> {
         sessionSet = session;
         sessionSetKeys = keys;
         onContentChanged();
-    }
-
-    public void setDetails(boolean details) {
-        this.details = details;
-
-        if (details) {
-            onContentChanged();
-        }
     }
 
     public void setUpdateIds(int[] ids) {
@@ -253,7 +248,7 @@ public class TransmissionDataLoader extends AsyncTaskLoader<TransmissionData> {
                         session.setDownloadDirectories(profile, dataSource.getDownloadDirectories());
                     }
 
-                    return new TransmissionData(session, cursor, false, false, false, false);
+                    return new TransmissionData(session, cursor, true, true, false, false);
                 }
             }
 

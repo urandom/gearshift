@@ -10,7 +10,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
-import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
@@ -352,20 +351,22 @@ public class TorrentListActivity extends FragmentActivity
                             .replace(R.id.torrent_detail_container, fragment, G.DETAIL_FRAGMENT_TAG)
                             .commit();
                         manager.executePendingTransactions();
+                    }
 
-                        fragment.setCurrentTorrent(currentTorrentIndex);
+                    fragment.setCurrentTorrent(currentTorrentIndex);
 
-                        Cursor cursor=((TorrentListFragment) manager.findFragmentById(R.id.torrent_list)).getCursor();
-                        fragment.changeCursor(cursor);
-                    } else {
-                        fragment.resetPagerAdapter();
-                        fragment.setCurrentTorrent(currentTorrentIndex);
-
+                    G.logD("Opening the detail panel");
+                    Loader<TransmissionData> loader =
+                        getSupportLoaderManager().getLoader(G.TORRENTS_LOADER_ID);
+                    if (loader != null) {
+                        ((TransmissionDataLoader) loader).setQueryOnly(true);
+                        ((TransmissionDataLoader) loader).setDetails(true);
+                        loader.onContentChanged();
                     }
 
                     fragment.onCreateOptionsMenu(menu, getMenuInflater());
 
-                    Handler handler=new Handler();
+                    Handler handler = new Handler();
                     handler.post(new Runnable() {
                         @Override
                         public void run() {
@@ -669,12 +670,6 @@ public class TorrentListActivity extends FragmentActivity
             if (!detailPanelVisible) {
                 detailPanelVisible = true;
                 detailSlideAnimator.start();
-
-                Loader<TransmissionData> loader =
-                        getSupportLoaderManager().getLoader(G.TORRENTS_LOADER_ID);
-                if (loader != null) {
-                    ((TransmissionDataLoader) loader).setDetails(true);
-                }
 
                 return true;
             }
