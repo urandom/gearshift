@@ -221,8 +221,6 @@ public class TransmissionDataLoader extends AsyncTaskLoader<TransmissionData> {
 
     @Override
     public TransmissionData loadInBackground() {
-        /* Remove any previous waiting runners */
-        intervalHandler.removeCallbacks(intervalRunner);
         stopUpdates = false;
 
         boolean hasRemoved,
@@ -250,6 +248,9 @@ public class TransmissionDataLoader extends AsyncTaskLoader<TransmissionData> {
 
                     return new TransmissionData(session, cursor, true, true, false, false);
                 }
+            } else {
+                /* Remove any previous waiting runners */
+                intervalHandler.removeCallbacks(intervalRunner);
             }
 
             if (lastError > 0) {
