@@ -260,7 +260,7 @@ public class DataSource {
         try {
             cursor = database.rawQuery(
                 "SELECT count(" + Constants.C_TORRENT_ID + ") FROM "
-                + Constants.T_TORRENT + " WHERE " + Constants.C_PIECE_COUNT + " = 0", null
+                + Constants.T_FILE + " WHERE " + Constants.C_NAME + " = ''", null
             );
 
             cursor.moveToFirst();
