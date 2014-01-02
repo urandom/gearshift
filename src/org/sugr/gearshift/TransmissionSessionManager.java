@@ -154,6 +154,7 @@ public class TransmissionSessionManager {
         if (!response.getResult().equals("success")) {
             throw new ManagerException(response.getResult(), -2);
         }
+        dataSource.removeTorrents(ids);
     }
 
     public void setTorrentsAction(String action, int[] ids) throws ManagerException {
