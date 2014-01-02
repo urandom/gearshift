@@ -108,6 +108,7 @@ public class TransmissionDataLoader extends AsyncTaskLoader<TransmissionData> {
     private DataSource dataSource;
 
     private boolean queryOnly;
+    private boolean clearTorrents;
 
     private static final Object exceptionLock = new Object();
 
@@ -138,6 +139,10 @@ public class TransmissionDataLoader extends AsyncTaskLoader<TransmissionData> {
 
     public void setQueryOnly(boolean queryOnly) {
         this.queryOnly = queryOnly;
+    }
+
+    public void setClearTorrents(boolean clearTorrents) {
+        this.clearTorrents = clearTorrents;
     }
 
     public void setProfile(TransmissionProfile profile) {
@@ -251,6 +256,11 @@ public class TransmissionDataLoader extends AsyncTaskLoader<TransmissionData> {
             } else {
                 /* Remove any previous waiting runners */
                 intervalHandler.removeCallbacks(intervalRunner);
+
+                if (clearTorrents) {
+                    clearTorrents = false;
+                    dataSource.clearTorrents();
+                }
             }
 
             if (lastError > 0) {

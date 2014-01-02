@@ -81,10 +81,9 @@ public class Torrent {
     public static class Fields {
         /*
          * commonly used fields which only need to be loaded once, either on
-         * startup or when a magnet finishes downloading its metadata finishes
-         * downloading its metadata
+         * startup or when a magnet finishes downloading its metadata
          * */
-        public static final String[] METADATA = { "addedDate", "name", "totalSize" };
+        public static final String[] METADATA = { "addedDate", "name", "totalSize",  "hashString", };
 
         // commonly used fields which need to be periodically refreshed
         public static final String[] STATS = {
@@ -99,7 +98,7 @@ public class Torrent {
 
         // fields used by the inspector which only need to be loaded once
         public static final String[] INFO_EXTRA = {
-            "comment", "creator", "dateCreated", "files", "hashString",
+            "comment", "creator", "dateCreated", "files",
             "isPrivate", "pieceCount", "pieceSize"
         };
 

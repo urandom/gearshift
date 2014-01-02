@@ -84,6 +84,27 @@ public class DataSource {
         this.dbHelper = new SQLiteHelper(context.getApplicationContext());
     }
 
+    public void clearTorrents() {
+        if (!isOpen())
+            return;
+
+        synchronized (lock) {
+            try {
+                database.beginTransaction();
+
+                database.delete(Constants.T_TORRENT, null, null);
+                database.delete(Constants.T_TORRENT_TRACKER, null, null);
+                database.delete(Constants.T_TRACKER, null, null);
+                database.delete(Constants.T_FILE, null, null);
+                database.delete(Constants.T_PEER, null, null);
+
+                database.setTransactionSuccessful();
+            } finally {
+                database.endTransaction();
+            }
+        }
+    }
+
     public boolean updateSession(JsonParser parser) throws IOException {
         if (!isOpen())
             return false;
@@ -266,13 +287,14 @@ public class DataSource {
         Cursor cursor = null;
         try {
             cursor = database.rawQuery(
-                "SELECT count(" + Constants.C_TORRENT_ID + ") FROM "
-                + Constants.T_FILE + " WHERE " + Constants.C_NAME + " = ''", null
+                "SELECT count(" + Constants.C_TORRENT_ID + "), count(CASE "
+                + Constants.C_NAME + " WHEN '' THEN 1 ELSE NULL END) FROM "
+                + Constants.T_FILE, null
             );
 
             cursor.moveToFirst();
 
-            return cursor.getInt(0) == 0;
+            return cursor.getInt(0) != 0 && cursor.getInt(1) == 0;
         } finally {
             if (cursor != null) {
                 cursor.close();

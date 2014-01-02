@@ -86,6 +86,7 @@ public class TorrentListActivity extends FragmentActivity
 
     private boolean altSpeed = false;
     private boolean refreshing = false;
+    private boolean requery = false;
 
     private boolean preventRefreshIndicator;
 
@@ -110,7 +111,7 @@ public class TorrentListActivity extends FragmentActivity
             android.support.v4.content.Loader<TransmissionProfile[]> loader,
             TransmissionProfile[] profiles) {
 
-            TransmissionProfile oldProfile =profile;
+            TransmissionProfile oldProfile = profile;
             profile = null;
             profileAdapter.clear();
             if (profiles.length > 0) {
@@ -147,10 +148,11 @@ public class TorrentListActivity extends FragmentActivity
                  * appear until the next server request */
                 preventRefreshIndicator = true;
 
-                Bundle args = null;
-                if (oldProfile != null && profile.getId().equals(oldProfile.getId())) {
-                    args = new Bundle();
-                    args.putBoolean(ARG_QUERY_ONLY, true);
+                Bundle args = new Bundle();
+                if (oldProfile != null) {
+                    if (profile.getId().equals(oldProfile.getId())) {
+                        args.putBoolean(ARG_QUERY_ONLY, true);
+                    }
                 }
 
                 /* The old cursor will probably already be closed, so start fresh */
@@ -188,7 +190,6 @@ public class TorrentListActivity extends FragmentActivity
         public void onLoadFinished(
             android.support.v4.content.Loader<TransmissionData> loader,
             TransmissionData data) {
-
 
             G.logD("Data loaded: " + (data.cursor == null ? 0 : data.cursor.getCount()) + " torrents, error: " + data.error + " , removed: " + data.hasRemoved + ", added: " + data.hasAdded + ", changed: " + data.hasStatusChanged + ", metadata: " + data.hasMetadataNeeded);
             setSession(data.session);
@@ -262,6 +263,11 @@ public class TorrentListActivity extends FragmentActivity
             if (fragment != null) {
                 fragment.notifyTorrentListChanged(data.cursor, data.error, data.hasAdded,
                     data.hasRemoved, data.hasStatusChanged, data.hasMetadataNeeded);
+            }
+
+            if (requery) {
+                requery = false;
+                loader.onContentChanged();
             }
         }
 
@@ -362,6 +368,7 @@ public class TorrentListActivity extends FragmentActivity
                         ((TransmissionDataLoader) loader).setQueryOnly(true);
                         ((TransmissionDataLoader) loader).setDetails(true);
                         loader.onContentChanged();
+                        requery = true;
                     }
 
                     fragment.onCreateOptionsMenu(menu, getMenuInflater());
@@ -447,6 +454,7 @@ public class TorrentListActivity extends FragmentActivity
                         TransmissionProfile.setCurrentProfile(profile, TorrentListActivity.this);
                         setProfile(profile);
                         if (loader != null) {
+                            ((TransmissionDataLoader) loader).setClearTorrents(true);
                             ((TransmissionDataLoader) loader).setProfile(profile);
                         }
 
