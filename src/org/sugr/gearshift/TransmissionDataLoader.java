@@ -274,6 +274,7 @@ public class TransmissionDataLoader extends AsyncTaskLoader<TransmissionData> {
             ArrayList<Thread> threads = new ArrayList<Thread>();
 
             final ArrayList<ManagerException> exceptions = new ArrayList<ManagerException>();
+            final TorrentStatus actionStatus = new TorrentStatus();
 
             /* Setters */
             if (torrentActionIds != null) {
@@ -289,6 +290,15 @@ public class TransmissionDataLoader extends AsyncTaskLoader<TransmissionData> {
                             executeTorrentsAction(
                                 torrentActionIds, torrentAction, torrentLocation,
                                 torrentSetKey, torrentSetValue, deleteData, moveData);
+
+                            if (torrentAction.equals("torrent-remove")) {
+                                actionStatus.hasRemoved = true;
+                            } else if (torrentAction.equals("torrent-set-location")) {
+                                actionStatus.hasAdded = true;
+                                actionStatus.hasRemoved = true;
+                            } else {
+                                actionStatus.hasStatusChanged = true;
+                            }
                         } catch (ManagerException e) {
                             synchronized(exceptionLock) {
                                 exceptions.add(e);
@@ -367,6 +377,7 @@ public class TransmissionDataLoader extends AsyncTaskLoader<TransmissionData> {
                             sessManager.addTorrent(torrentAddUri, torrentAddData,
                                 torrentLocation, torrentAddPaused);
 
+                            actionStatus.hasAdded = true;
                             if (torrentAddDeleteLocal != null) {
                                 File file = new File(torrentAddDeleteLocal);
                                 if (!file.delete()) {
@@ -462,10 +473,10 @@ public class TransmissionDataLoader extends AsyncTaskLoader<TransmissionData> {
                 return handleError(e);
             }
 
-            hasAdded = status.hasAdded;
-            hasRemoved = status.hasRemoved;
-            hasStatusChanged = status.hasStatusChanged;
-            hasMetadataNeeded = status.hasIncompleteMetadata;
+            hasAdded = actionStatus.hasAdded || status.hasAdded;
+            hasRemoved = actionStatus.hasRemoved || status.hasRemoved;
+            hasStatusChanged = actionStatus.hasStatusChanged || status.hasStatusChanged;
+            hasMetadataNeeded = actionStatus.hasIncompleteMetadata || status.hasIncompleteMetadata;
 
             if (exceptions.size() > 0) {
                 return handleError(exceptions.get(0));
