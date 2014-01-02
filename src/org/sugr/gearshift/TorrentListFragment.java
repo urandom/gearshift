@@ -85,8 +85,9 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
     private TorrentCursorAdapter torrentAdapter;
 
     private boolean scrollToTop = false;
-
     private boolean findVisible = false;
+    private boolean initialLoading = false;
+
     private String findQuery;
 
     private SharedPreferences sharedPrefs;
@@ -360,6 +361,7 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
         sharedPrefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
         getActivity().setProgressBarIndeterminateVisibility(true);
 
+        initialLoading = true;
         if (savedInstanceState == null) {
             sharedPrefs.registerOnSharedPreferenceChangeListener(settingsChangeListener);
         }
@@ -1027,6 +1029,18 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
                     if (detail != null) {
                         detail.notifyTorrentListChanged(newCursor, 0, true, true, false, false);
                     }
+                }
+            }
+
+            if (initialLoading) {
+                initialLoading = false;
+                final int position = getListView().getCheckedItemPosition();
+                if (position != ListView.INVALID_POSITION) {
+                    new Handler().postDelayed(new Runnable() {
+                        @Override public void run() {
+                            callbacks.onItemSelected(position);
+                        }
+                    }, 500);
                 }
             }
 

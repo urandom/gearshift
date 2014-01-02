@@ -701,6 +701,10 @@ public class TorrentListActivity extends FragmentActivity
     }
 
     public void setProfile(TransmissionProfile profile) {
+        if (this.profile == profile
+            || (this.profile != null && profile != null && profile.getId().equals(this.profile.getId()))) {
+            return;
+        }
         this.profile = profile;
         toggleRightPane(false);
     }
