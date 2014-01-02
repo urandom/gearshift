@@ -265,8 +265,7 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
                             setEmptyText(R.string.no_profiles_empty_list);
                         }
                     } else if (key.equals(G.PREF_SHOW_STATUS) && getView() != null) {
-                        View status = getView().findViewById(R.id.status_bar_text);
-                        status.setVisibility(prefs.getBoolean(key, false) ? View.VISIBLE : View.GONE);
+                        toggleStatusBar();
                     }
                 }
             };
@@ -297,6 +296,15 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
                                              TorrentTrafficLoader.TorrentTrafficOutputData data) {
             TransmissionSession session = ((TransmissionSessionInterface) getActivity()).getSession();
             TextView status = (TextView) getView().findViewById(R.id.status_bar_text);
+
+            if (!sharedPrefs.getBoolean(G.PREF_SHOW_STATUS, false)) {
+                return;
+            }
+
+            if (status.getVisibility() == View.GONE) {
+                toggleStatusBar(status);
+            }
+
             String limitDown = "";
             String limitUp = "";
             long free = 0;
@@ -384,9 +392,6 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
         TextView status = (TextView) view.findViewById(R.id.status_bar_text);
         /* Enable the marquee animation */
         status.setSelected(true);
-        if (sharedPrefs.getBoolean(G.PREF_SHOW_STATUS, false)) {
-            status.setVisibility(View.VISIBLE);
-        }
 
         setHasOptionsMenu(true);
     }
@@ -733,6 +738,21 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
         }
     }
 
+    private void toggleStatusBar() {
+        View status = getView().findViewById(R.id.status_bar_text);
+        toggleStatusBar(status);
+    }
+
+    private void toggleStatusBar(View status) {
+        if (sharedPrefs.getBoolean(G.PREF_SHOW_STATUS, false)) {
+            status.setVisibility(View.VISIBLE);
+            status.setTranslationY(100);
+            status.animate().alpha((float) 1.0).translationY(0).setStartDelay(500);
+        } else {
+            status.setVisibility(View.GONE);
+            status.setAlpha((float) 0.3);
+        }
+    }
 
     private class TorrentCursorAdapter extends CursorAdapter {
         private SparseBooleanArray torrentAdded= new SparseBooleanArray();
