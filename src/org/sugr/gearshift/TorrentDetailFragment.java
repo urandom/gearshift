@@ -283,9 +283,11 @@ public class TorrentDetailFragment extends Fragment implements TorrentListNotifi
         cursor.moveToFirst();
 
         while (!cursor.isAfterLast()) {
-            torrentIds[++position] = Torrent.getId(cursor);
-            torrentPositionMap.append(torrentIds[position], position);
-            if (torrentIds[position] == currentTorrentId) {
+            int id = Torrent.getId(cursor);
+            torrentIds[++position] = id;
+            torrentPositionMap.append(id, position);
+            if (-1 == currentTorrentId && position == currentTorrentPosition
+                || id == currentTorrentId) {
                 currentTorrentStatus = Torrent.getStatus(cursor);
                 currentTorrentName = Torrent.getName(cursor);
             }
@@ -368,12 +370,11 @@ public class TorrentDetailFragment extends Fragment implements TorrentListNotifi
         menu.findItem(R.id.verify).setVisible(visible);
         menu.findItem(R.id.reannounce).setVisible(visible);
 
-        boolean found = currentTorrentId != -1;
         boolean isActive = Torrent.isActive(currentTorrentStatus);
 
         boolean resumeState = false;
         boolean pauseState = false;
-        if (found) {
+        if (currentTorrentId != -1) {
             if (isActive) {
                 resumeState = false;
                 pauseState = true;
