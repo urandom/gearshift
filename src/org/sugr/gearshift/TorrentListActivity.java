@@ -658,7 +658,7 @@ public class TorrentListActivity extends FragmentActivity
         }
     }
 
-    public boolean isDetailPanelShown() {
+    public boolean isDetailPanelVisible() {
         return twoPaneLayout && detailPanelVisible;
     }
 

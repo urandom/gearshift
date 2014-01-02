@@ -409,7 +409,7 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
             public boolean onItemLongClick(AdapterView<?> parent, View view,
                     int position, long id) {
 
-                if (!((TorrentListActivity) getActivity()).isDetailPanelShown()) {
+                if (!((TorrentListActivity) getActivity()).isDetailPanelVisible()) {
                     list.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE_MODAL);
                     setActivatedPosition(position);
                     return true;
@@ -563,7 +563,7 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
                         statusChanged, metadataNeeded);
                 }
 
-                if (((TorrentListActivity) getActivity()).isDetailPanelShown() && (!filtered || statusChanged)) {
+                if (((TorrentListActivity) getActivity()).isDetailPanelVisible() && (!filtered || statusChanged)) {
                     TorrentDetailFragment detail = (TorrentDetailFragment) manager.findFragmentByTag(
                         G.DETAIL_FRAGMENT_TAG);
                     if (detail != null) {
@@ -1022,7 +1022,7 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
 
             if (filterActive) {
                 filterActive = false;
-                if (((TorrentListActivity) getActivity()).isDetailPanelShown()) {
+                if (((TorrentListActivity) getActivity()).isDetailPanelVisible()) {
                     FragmentManager manager = getActivity().getSupportFragmentManager();
                     TorrentDetailFragment detail = (TorrentDetailFragment) manager.findFragmentByTag(
                         G.DETAIL_FRAGMENT_TAG);

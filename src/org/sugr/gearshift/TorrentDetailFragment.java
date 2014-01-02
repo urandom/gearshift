@@ -331,8 +331,8 @@ public class TorrentDetailFragment extends Fragment implements TorrentListNotifi
                 pager.setCurrentItem(position);
             } else {
                 updateMenu = true;
-                pagerCallbacks.onPageSelected(pager.getCurrentItem());
             }
+            pagerCallbacks.onPageSelected(pager.getCurrentItem());
         }
 
         if (updateMenu) {
