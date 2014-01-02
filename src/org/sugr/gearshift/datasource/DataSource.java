@@ -244,12 +244,19 @@ public class DataSource {
         if (!isOpen())
             return null;
 
-        Cursor cursor = database.query(Constants.T_SESSION, new String[] {
-            Constants.C_NAME, Constants.C_VALUE_INTEGER,
-            Constants.C_VALUE_REAL, Constants.C_VALUE_TEXT
-        }, null, null, null, null, null);
+        Cursor cursor = null;
+        try {
+            cursor = database.query(Constants.T_SESSION, new String[] {
+                Constants.C_NAME, Constants.C_VALUE_INTEGER,
+                Constants.C_VALUE_REAL, Constants.C_VALUE_TEXT
+            }, null, null, null, null, null);
 
-        return cursorToSession(cursor);
+            return cursorToSession(cursor);
+        } finally {
+            if (cursor != null) {
+                cursor.close();
+            }
+        }
     }
 
     public boolean hasExtraInfo() {
@@ -267,8 +274,9 @@ public class DataSource {
 
             return cursor.getInt(0) == 0;
         } finally {
-            if (cursor != null)
+            if (cursor != null) {
                 cursor.close();
+            }
         }
     }
 
@@ -360,18 +368,23 @@ public class DataSource {
 
         Set<String> urls = new HashSet<String>();
 
-        Cursor cursor = database.query(true, Constants.T_TRACKER, new String[] { Constants.C_ANNOUNCE },
-            null, null, null, null, Constants.C_ANNOUNCE, null);
+        Cursor cursor = null;
+        try {
+            cursor = database.query(true, Constants.T_TRACKER, new String[] { Constants.C_ANNOUNCE },
+                null, null, null, null, Constants.C_ANNOUNCE, null);
 
-        cursor.moveToFirst();
-        while (!cursor.isAfterLast()) {
-            urls.add(cursor.getString(0));
-            cursor.moveToNext();
+            cursor.moveToFirst();
+            while (!cursor.isAfterLast()) {
+                urls.add(cursor.getString(0));
+                cursor.moveToNext();
+            }
+
+            return urls;
+        } finally {
+            if (cursor != null) {
+                cursor.close();
+            }
         }
-
-        cursor.close();
-
-        return urls;
     }
 
     public Set<String> getDownloadDirectories() {
@@ -380,19 +393,24 @@ public class DataSource {
 
         Set<String> directories = new HashSet<String>();
 
-        Cursor cursor = database.query(true, Constants.T_TORRENT,
-            new String[]{Constants.C_DOWNLOAD_DIR}, null, null, null, null,
-            null, null);
+        Cursor cursor = null;
+        try {
+            cursor = database.query(true, Constants.T_TORRENT,
+                new String[]{Constants.C_DOWNLOAD_DIR}, null, null, null, null,
+                null, null);
 
-        cursor.moveToFirst();
-        while (!cursor.isAfterLast()) {
-            directories.add(cursor.getString(0));
-            cursor.moveToNext();
+            cursor.moveToFirst();
+            while (!cursor.isAfterLast()) {
+                directories.add(cursor.getString(0));
+                cursor.moveToNext();
+            }
+
+            return directories;
+        } finally {
+            if (cursor != null) {
+                cursor.close();
+            }
         }
-
-        cursor.close();
-
-        return directories;
     }
 
     public long[] getTrafficSpeed() {
@@ -401,19 +419,24 @@ public class DataSource {
 
         long[] speed = new long[2];
 
-        Cursor cursor = database.rawQuery("SELECT SUM("
-            + Constants.C_RATE_DOWNLOAD + "), SUM("
-            + Constants.C_RATE_UPLOAD + ") FROM "
-            + Constants.T_TORRENT, null);
+        Cursor cursor = null;
+        try {
+            cursor = database.rawQuery("SELECT SUM("
+                + Constants.C_RATE_DOWNLOAD + "), SUM("
+                + Constants.C_RATE_UPLOAD + ") FROM "
+                + Constants.T_TORRENT, null);
 
-        cursor.moveToFirst();
+            cursor.moveToFirst();
 
-        speed[0] = cursor.getLong(0);
-        speed[1] = cursor.getLong(1);
+            speed[0] = cursor.getLong(0);
+            speed[1] = cursor.getLong(1);
 
-        cursor.close();
-
-        return speed;
+            return speed;
+        } finally {
+            if (cursor != null) {
+                cursor.close();
+            }
+        }
     }
 
     public Cursor getTorrentCursor() {
@@ -449,7 +472,31 @@ public class DataSource {
 
         return database.rawQuery(query, selectionArgs);
     }
-     public TorrentDetails getTorrentDetails(int id) {
+
+    public TorrentNameStatus getTorrentNameStatus(int id) {
+        if (!isOpen())
+            return null;
+
+        Cursor cursor = null;
+        try {
+            cursor = database.query(Constants.T_TORRENT,
+                new String[] { Constants.C_NAME, Constants.C_STATUS },
+                Constants.C_TORRENT_ID + " = ?",
+                new String[] { Integer.toString(id) },
+                null, null, null
+            );
+
+            cursor.moveToFirst();
+
+            return new TorrentNameStatus(cursor.getString(0), cursor.getInt(1));
+        } finally {
+            if (cursor != null) {
+                cursor.close();
+            }
+        }
+    }
+
+    public TorrentDetails getTorrentDetails(int id) {
         if (!isOpen())
             return null;
 
@@ -584,8 +631,6 @@ public class DataSource {
 
             cursor.moveToNext();
         }
-
-        cursor.close();
 
         return session;
     }

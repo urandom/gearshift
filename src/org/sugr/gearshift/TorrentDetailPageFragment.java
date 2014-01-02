@@ -1782,18 +1782,19 @@ public class TorrentDetailPageFragment extends Fragment {
             DataSource readSource = new DataSource(getContext());
 
             readSource.open();
+            try {
+                TorrentDetails details = readSource.getTorrentDetails(torrentId);
+                /* fill the windows */
+                details.torrentCursor.getCount();
+                details.filesCursor.getCount();
+                details.trackersCursor.getCount();
 
-            TorrentDetails details = readSource.getTorrentDetails(torrentId);
-            /* fill the windows */
-            details.torrentCursor.getCount();
-            details.filesCursor.getCount();
-            details.trackersCursor.getCount();
+                details.torrentCursor.moveToFirst();
 
-            details.torrentCursor.moveToFirst();
-
-            readSource.close();
-
-            return details;
+                return details;
+            } finally {
+                readSource.close();
+            }
         }
 
         @Override protected void onStartLoading() {

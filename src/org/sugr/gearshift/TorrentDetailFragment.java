@@ -5,6 +5,7 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.Loader;
@@ -19,6 +20,9 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.CheckBox;
 import android.widget.Spinner;
+
+import org.sugr.gearshift.datasource.DataSource;
+import org.sugr.gearshift.datasource.TorrentNameStatus;
 
 public class TorrentDetailFragment extends Fragment implements TorrentListNotification {
     public static final String ARG_SHOW_PAGER = "show_pager";
@@ -100,11 +104,11 @@ public class TorrentDetailFragment extends Fragment implements TorrentListNotifi
                     getActivity().sendBroadcast(intent);
                 }
 
-                currentTorrentPosition=position;
+                currentTorrentPosition = position;
                 setCurrentTorrentId(position);
 
                 pagerCallbacks.onPageSelected(position);
-                setMenuTorrentState();
+                new QueryCurrentDataTask().execute(currentTorrentId);
             }
         });
 
@@ -230,6 +234,7 @@ public class TorrentDetailFragment extends Fragment implements TorrentListNotifi
             setCurrentTorrentId(currentTorrentPosition);
 
             resetPagerAdapter();
+            setMenuTorrentState();
         }
     }
     public int getTorrentPositionInCursor(int id) {
@@ -263,6 +268,7 @@ public class TorrentDetailFragment extends Fragment implements TorrentListNotifi
             if (position != currentTorrentPosition) {
                 currentTorrentPosition = position;
                 setCurrentTorrentId(position);
+                new QueryCurrentDataTask().execute(currentTorrentId);
             }
         } else {
             pager.setCurrentItem(position);
@@ -311,10 +317,10 @@ public class TorrentDetailFragment extends Fragment implements TorrentListNotifi
             setMenuTorrentState();
             return;
         }
+        boolean updateMenu = status;
 
         changeCursor(cursor);
 
-        boolean updateMenu = status;
         if (removed || added) {
             int position = getTorrentPositionInCursor(currentTorrentId);
 
@@ -362,7 +368,7 @@ public class TorrentDetailFragment extends Fragment implements TorrentListNotifi
         menu.findItem(R.id.verify).setVisible(visible);
         menu.findItem(R.id.reannounce).setVisible(visible);
 
-        boolean found = false;
+        boolean found = currentTorrentId != -1;
         boolean isActive = Torrent.isActive(currentTorrentStatus);
 
         boolean resumeState = false;
@@ -457,5 +463,31 @@ public class TorrentDetailFragment extends Fragment implements TorrentListNotifi
             profile != null && profile.getMoveData());
 
         return true;
+    }
+
+    private class QueryCurrentDataTask extends AsyncTask<Integer, Void, Boolean> {
+        @Override protected Boolean doInBackground(Integer... ids) {
+            if (!isCancelled()) {
+                DataSource readSource = new DataSource(getActivity());
+
+                readSource.open();
+
+                try {
+                    TorrentNameStatus tuple = readSource.getTorrentNameStatus(ids[0]);
+                    currentTorrentName = tuple.name;
+                    currentTorrentStatus = tuple.status;
+                } finally {
+                    readSource.close();
+                }
+            }
+
+            return null;
+        }
+
+        @Override protected void onPostExecute(Boolean success) {
+            if (isResumed()) {
+                setMenuTorrentState();
+            }
+        }
     }
 }
