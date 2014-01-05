@@ -10,7 +10,6 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.Loader;
 import android.support.v4.view.ViewPager;
-import android.util.SparseIntArray;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -24,6 +23,8 @@ import android.widget.Spinner;
 import org.sugr.gearshift.datasource.DataSource;
 import org.sugr.gearshift.datasource.TorrentNameStatus;
 
+import java.util.HashMap;
+
 public class TorrentDetailFragment extends Fragment implements TorrentListNotification {
     public static final String ARG_SHOW_PAGER = "show_pager";
 
@@ -33,7 +34,7 @@ public class TorrentDetailFragment extends Fragment implements TorrentListNotifi
 
     private PagerCallbacks pagerCallbacks = dummyCallbacks;
     private ViewPager pager;
-    private int currentTorrentId = -1;
+    private String currentTorrentHashString;
     private int currentTorrentPosition = 0;
     private int currentTorrentStatus;
     private String currentTorrentName;
@@ -41,16 +42,16 @@ public class TorrentDetailFragment extends Fragment implements TorrentListNotifi
     private boolean showPager = false;
 
     private static final String STATE_LOCATION_POSITION = "location_position";
-    private static final String STATE_ACTION_MOVE_IDS = "action_move_ids";
+    private static final String STATE_ACTION_MOVE_HASH_STRINGS= "action_move_hash_strings";
 
     private int locationPosition = AdapterView.INVALID_POSITION;
 
-    private int[] actionMoveIds;
+    private String[] actionMoveHashStrings;
 
     private Menu menu;
 
-    private int[] torrentIds;
-    private SparseIntArray torrentPositionMap = new SparseIntArray();
+    private String[] torrentHashStrings;
+    private HashMap<String, Integer> torrentPositionMap = new HashMap<String, Integer>();
 
     private static PagerCallbacks dummyCallbacks = new PagerCallbacks() {
         @Override
@@ -79,10 +80,10 @@ public class TorrentDetailFragment extends Fragment implements TorrentListNotifi
             if (savedInstanceState.containsKey(STATE_LOCATION_POSITION)) {
                 locationPosition = savedInstanceState.getInt(STATE_LOCATION_POSITION);
             }
-            if (savedInstanceState.containsKey(STATE_ACTION_MOVE_IDS)) {
-                actionMoveIds = savedInstanceState.getIntArray(STATE_ACTION_MOVE_IDS);
-                if (actionMoveIds != null) {
-                    showMoveDialog(actionMoveIds);
+            if (savedInstanceState.containsKey(STATE_ACTION_MOVE_HASH_STRINGS)) {
+                actionMoveHashStrings = savedInstanceState.getStringArray(STATE_ACTION_MOVE_HASH_STRINGS);
+                if (actionMoveHashStrings != null) {
+                    showMoveDialog(actionMoveHashStrings);
                 }
             }
         }
@@ -105,10 +106,10 @@ public class TorrentDetailFragment extends Fragment implements TorrentListNotifi
                 }
 
                 currentTorrentPosition = position;
-                setCurrentTorrentId(position);
+                setCurrentTorrentHashString(position);
 
                 pagerCallbacks.onPageSelected(position);
-                new QueryCurrentDataTask().execute(currentTorrentId);
+                new QueryCurrentDataTask().execute(currentTorrentHashString);
             }
         });
 
@@ -159,11 +160,11 @@ public class TorrentDetailFragment extends Fragment implements TorrentListNotifi
 
         final TransmissionSessionInterface context = ((TransmissionSessionInterface) getActivity());
 
-        if (loader == null || torrentIds == null || torrentIds.length <= currentTorrentPosition) {
+        if (loader == null || torrentHashStrings == null || torrentHashStrings.length <= currentTorrentPosition) {
             return super.onOptionsItemSelected(item);
         }
 
-        final int[] ids = new int[] {currentTorrentId};
+        final String[] hashStrings = new String[] { currentTorrentHashString };
 
         switch (item.getItemId()) {
             case R.id.remove:
@@ -176,7 +177,7 @@ public class TorrentDetailFragment extends Fragment implements TorrentListNotifi
                     new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int id) {
-                        ((TransmissionDataLoader) loader).setTorrentsRemove(ids, item.getItemId() == R.id.delete);
+                        ((TransmissionDataLoader) loader).setTorrentsRemove(hashStrings, item.getItemId() == R.id.delete);
                         context.setRefreshing(true);
                     }
                 })
@@ -198,19 +199,19 @@ public class TorrentDetailFragment extends Fragment implements TorrentListNotifi
                         action = "torrent-start";
                         break;
                 }
-                ((TransmissionDataLoader) loader).setTorrentsAction(action, ids);
+                ((TransmissionDataLoader) loader).setTorrentsAction(action, hashStrings);
                 break;
             case R.id.pause:
-                ((TransmissionDataLoader) loader).setTorrentsAction("torrent-stop", ids);
+                ((TransmissionDataLoader) loader).setTorrentsAction("torrent-stop", hashStrings);
                 break;
             case R.id.move:
-                actionMoveIds = ids;
-                return showMoveDialog(ids);
+                actionMoveHashStrings = hashStrings;
+                return showMoveDialog(hashStrings);
             case R.id.verify:
-                ((TransmissionDataLoader) loader).setTorrentsAction("torrent-verify", ids);
+                ((TransmissionDataLoader) loader).setTorrentsAction("torrent-verify", hashStrings);
                 break;
             case R.id.reannounce:
-                ((TransmissionDataLoader) loader).setTorrentsAction("torrent-reannounce", ids);
+                ((TransmissionDataLoader) loader).setTorrentsAction("torrent-reannounce", hashStrings);
                 break;
             default:
                 return false;
@@ -225,24 +226,26 @@ public class TorrentDetailFragment extends Fragment implements TorrentListNotifi
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putInt(STATE_LOCATION_POSITION, locationPosition);
-        outState.putIntArray(STATE_ACTION_MOVE_IDS, actionMoveIds);
+        outState.putStringArray(STATE_ACTION_MOVE_HASH_STRINGS, actionMoveHashStrings);
     }
 
     public void changeCursor(Cursor newCursor) {
         updateTorrentData(newCursor);
         if (pager.getAdapter() == null) {
-            setCurrentTorrentId(currentTorrentPosition);
+            setCurrentTorrentHashString(currentTorrentPosition);
 
             resetPagerAdapter();
             setMenuTorrentState();
         }
     }
-    public int getTorrentPositionInCursor(int id) {
-        return torrentPositionMap.get(id, -1);
+    public int getTorrentPositionInCursor(String hash) {
+        Integer position = torrentPositionMap.get(hash);
+
+        return position == null ? -1 : position;
     }
 
-    public int getTorrentId(int position) {
-        return torrentIds != null && torrentIds.length > position ? torrentIds[position] : -1;
+    public String getTorrentHashString(int position) {
+        return torrentHashStrings != null && torrentHashStrings.length > position ? torrentHashStrings[position] : null;
     }
 
     public void removeMenuEntries() {
@@ -267,8 +270,8 @@ public class TorrentDetailFragment extends Fragment implements TorrentListNotifi
         if (position == pager.getCurrentItem()) {
             if (position != currentTorrentPosition) {
                 currentTorrentPosition = position;
-                setCurrentTorrentId(position);
-                new QueryCurrentDataTask().execute(currentTorrentId);
+                setCurrentTorrentHashString(position);
+                new QueryCurrentDataTask().execute(currentTorrentHashString);
             }
         } else {
             pager.setCurrentItem(position);
@@ -278,16 +281,16 @@ public class TorrentDetailFragment extends Fragment implements TorrentListNotifi
         int cursorPosition = cursor.getPosition();
         int position = -1;
 
-        torrentIds = new int[cursor.getCount()];
+        torrentHashStrings = new String[cursor.getCount()];
         torrentPositionMap.clear();
         cursor.moveToFirst();
 
         while (!cursor.isAfterLast()) {
-            int id = Torrent.getId(cursor);
-            torrentIds[++position] = id;
-            torrentPositionMap.append(id, position);
-            if (-1 == currentTorrentId && position == currentTorrentPosition
-                || id == currentTorrentId) {
+            String hash = Torrent.getHashString(cursor);
+            torrentHashStrings[++position] = hash;
+            torrentPositionMap.put(hash, position);
+            if (currentTorrentHashString == null && position == currentTorrentPosition
+                || hash.equals(currentTorrentHashString)) {
                 currentTorrentStatus = Torrent.getStatus(cursor);
                 currentTorrentName = Torrent.getName(cursor);
             }
@@ -299,10 +302,10 @@ public class TorrentDetailFragment extends Fragment implements TorrentListNotifi
     }
 
     public void resetPagerAdapter() {
-        if (torrentIds == null) {
+        if (torrentHashStrings == null) {
             pager.setAdapter(null);
         } else {
-            pager.setAdapter(new TorrentDetailPagerAdapter(getActivity(), torrentIds.length));
+            pager.setAdapter(new TorrentDetailPagerAdapter(getActivity(), torrentHashStrings.length));
             pager.setCurrentItem(currentTorrentPosition);
 
             if (showPager) {
@@ -324,7 +327,7 @@ public class TorrentDetailFragment extends Fragment implements TorrentListNotifi
         changeCursor(cursor);
 
         if (removed || added) {
-            int position = getTorrentPositionInCursor(currentTorrentId);
+            int position = getTorrentPositionInCursor(currentTorrentHashString);
 
             resetPagerAdapter();
             if (position != -1) {
@@ -355,8 +358,8 @@ public class TorrentDetailFragment extends Fragment implements TorrentListNotifi
         }
     }
 
-    private void setCurrentTorrentId(int position) {
-        currentTorrentId = getTorrentId(position);
+    private void setCurrentTorrentHashString(int position) {
+        currentTorrentHashString = getTorrentHashString(position);
     }
 
     private void setMenuTorrentState() {
@@ -374,7 +377,7 @@ public class TorrentDetailFragment extends Fragment implements TorrentListNotifi
 
         boolean resumeState = false;
         boolean pauseState = false;
-        if (currentTorrentId != -1) {
+        if (currentTorrentHashString != null) {
             if (isActive) {
                 resumeState = false;
                 pauseState = true;
@@ -391,7 +394,7 @@ public class TorrentDetailFragment extends Fragment implements TorrentListNotifi
         item.setVisible(pauseState).setEnabled(pauseState);
     }
 
-    private boolean showMoveDialog(final int[] ids) {
+    private boolean showMoveDialog(final String[] hashStrings) {
         LayoutInflater inflater = getActivity().getLayoutInflater();
         final TransmissionSessionInterface context = ((TransmissionSessionInterface) getActivity());
         final Loader<TransmissionData> loader = getActivity().getSupportLoaderManager()
@@ -402,7 +405,7 @@ public class TorrentDetailFragment extends Fragment implements TorrentListNotifi
             .setCancelable(false)
             .setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
                 @Override public void onClick(DialogInterface dialogInterface, int i) {
-                    actionMoveIds = null;
+                    actionMoveHashStrings = null;
                 }
             })
             .setPositiveButton(android.R.string.yes,
@@ -414,10 +417,10 @@ public class TorrentDetailFragment extends Fragment implements TorrentListNotifi
 
                 String dir = (String) location.getSelectedItem();
                 ((TransmissionDataLoader) loader).setTorrentsLocation(
-                        ids, dir, move.isChecked());
+                    hashStrings, dir, move.isChecked());
 
                 context.setRefreshing(true);
-                actionMoveIds = null;
+                actionMoveHashStrings = null;
             }
         }).setView(inflater.inflate(R.layout.torrent_location_dialog, null));
 
@@ -466,15 +469,15 @@ public class TorrentDetailFragment extends Fragment implements TorrentListNotifi
         return true;
     }
 
-    private class QueryCurrentDataTask extends AsyncTask<Integer, Void, Boolean> {
-        @Override protected Boolean doInBackground(Integer... ids) {
+    private class QueryCurrentDataTask extends AsyncTask<String, Void, Boolean> {
+        @Override protected Boolean doInBackground(String... hashStrings) {
             if (!isCancelled()) {
                 DataSource readSource = new DataSource(getActivity());
 
                 readSource.open();
 
                 try {
-                    TorrentNameStatus tuple = readSource.getTorrentNameStatus(ids[0]);
+                    TorrentNameStatus tuple = readSource.getTorrentNameStatus(hashStrings[0]);
                     currentTorrentName = tuple.name;
                     currentTorrentStatus = tuple.status;
                 } finally {

@@ -93,9 +93,6 @@ public final class G {
     public static final int TORRENT_LIST_TRAFFIC_LOADER_ID = 4;
     public static final int TORRENT_MENU_TRAFFIC_LOADER_ID = 5;
 
-    /* This has to be the largest id */
-    public static final int TORRENT_DETAILS_LOADER_ID = 6;
-
     private static final String LogTag = "GearShift";
 
     public static enum FilterBy {

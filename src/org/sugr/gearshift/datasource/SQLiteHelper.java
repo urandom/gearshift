@@ -18,6 +18,7 @@ public class SQLiteHelper extends SQLiteOpenHelper {
     public void onCreate(SQLiteDatabase db) {
         db.execSQL(Constants.T_SESSION_CREATE);
         db.execSQL(Constants.T_TORRENT_CREATE);
+        db.execSQL(Constants.T_TORRENT_PROFILE_CREATE);
         db.execSQL(Constants.T_TRACKER_CREATE);
         db.execSQL(Constants.T_TORRENT_TRACKER_CREATE);
         db.execSQL(Constants.T_FILE_CREATE);
@@ -30,10 +31,12 @@ public class SQLiteHelper extends SQLiteOpenHelper {
 
         db.execSQL("DROP TABLE IF EXISTS " + Constants.T_SESSION);
         db.execSQL("DROP TABLE IF EXISTS " + Constants.T_TORRENT);
+        db.execSQL("DROP TABLE IF EXISTS " + Constants.T_TORRENT_PROFILE);
         db.execSQL("DROP TABLE IF EXISTS " + Constants.T_TRACKER);
         db.execSQL("DROP TABLE IF EXISTS " + Constants.T_TORRENT_TRACKER);
         db.execSQL("DROP TABLE IF EXISTS " + Constants.T_FILE);
         db.execSQL("DROP TABLE IF EXISTS " + Constants.T_PEER);
+
         onCreate(db);
     }
 

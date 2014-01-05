@@ -87,6 +87,7 @@ public class TorrentListActivity extends FragmentActivity
     private boolean altSpeed = false;
     private boolean refreshing = false;
     private boolean requery = false;
+    private boolean fatalError = false;
 
     private boolean preventRefreshIndicator;
 
@@ -198,12 +199,14 @@ public class TorrentListActivity extends FragmentActivity
             if (data.error == 0 && error.getVisibility() != View.GONE) {
                 error.setVisibility(View.GONE);
             }
+            fatalError = false;
             if (data.error > 0) {
                 if (data.error == TransmissionData.Errors.DUPLICATE_TORRENT) {
                     Toast.makeText(TorrentListActivity.this, R.string.duplicate_torrent, Toast.LENGTH_SHORT).show();
                 } else if (data.error == TransmissionData.Errors.INVALID_TORRENT) {
                     Toast.makeText(TorrentListActivity.this, R.string.invalid_torrent, Toast.LENGTH_SHORT).show();
                 } else {
+                    fatalError = true;
                     error.setVisibility(View.VISIBLE);
                     TextView text = (TextView) findViewById(R.id.transmission_error);
                     toggleRightPane(false);
@@ -454,7 +457,6 @@ public class TorrentListActivity extends FragmentActivity
                         TransmissionProfile.setCurrentProfile(profile, TorrentListActivity.this);
                         setProfile(profile);
                         if (loader != null) {
-                            ((TransmissionDataLoader) loader).setClearTorrents(true);
                             ((TransmissionDataLoader) loader).setProfile(profile);
                         }
 
@@ -607,12 +609,17 @@ public class TorrentListActivity extends FragmentActivity
                 }
                 return true;
             case R.id.menu_refresh:
-                loader = getSupportLoaderManager()
-                    .getLoader(G.TORRENTS_LOADER_ID);
-                if (loader != null) {
-                    loader.onContentChanged();
-                    setRefreshing(!refreshing);
+                if (fatalError) {
+                    getSupportLoaderManager().restartLoader(G.TORRENTS_LOADER_ID,
+                        new Bundle(), torrentLoaderCallbacks);
+                } else {
+                    loader = getSupportLoaderManager()
+                        .getLoader(G.TORRENTS_LOADER_ID);
+                    if (loader != null) {
+                        loader.onContentChanged();
+                    }
                 }
+                setRefreshing(!refreshing);
                 return true;
             case R.id.menu_session_settings:
                 intent = new Intent(this, TransmissionSessionActivity.class);

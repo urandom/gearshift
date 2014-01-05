@@ -25,6 +25,7 @@ class TransmissionData {
     public boolean hasAdded = false;
     public boolean hasStatusChanged = false;
     public boolean hasMetadataNeeded = false;
+    public boolean queryOnly = false;
 
     public static class Errors {
         public static final int NO_CONNECTIVITY = 1;
@@ -48,7 +49,8 @@ class TransmissionData {
     }
 
     public TransmissionData(TransmissionSession session, Cursor cursor, boolean hasRemoved,
-                            boolean hasAdded, boolean hasStatusChanged, boolean hasMetadataNeeded) {
+                            boolean hasAdded, boolean hasStatusChanged, boolean hasMetadataNeeded,
+                            boolean queryOnly) {
         this.session = session;
         this.cursor = cursor;
 
@@ -56,6 +58,7 @@ class TransmissionData {
         this.hasAdded = hasAdded;
         this.hasStatusChanged = hasStatusChanged;
         this.hasMetadataNeeded = hasMetadataNeeded;
+        this.queryOnly = queryOnly;
     }
 }
 
@@ -67,7 +70,7 @@ public class TransmissionDataLoader extends AsyncTaskLoader<TransmissionData> {
     boolean details;
 
     private Cursor cursor;
-    private int[] updateIds;
+    private String[] updateHashStrings;
 
     private int lastError;
     private int lastErrorCode;
@@ -94,7 +97,7 @@ public class TransmissionDataLoader extends AsyncTaskLoader<TransmissionData> {
     private String[] sessionSetKeys;
 
     private String torrentAction;
-    private int[] torrentActionIds;
+    private String[] torrentActionHashStrings;
     private boolean deleteData = false;
     private String torrentLocation;
     private String torrentSetKey;
@@ -108,7 +111,6 @@ public class TransmissionDataLoader extends AsyncTaskLoader<TransmissionData> {
     private DataSource dataSource;
 
     private boolean queryOnly;
-    private boolean clearTorrents;
 
     private static final Object exceptionLock = new Object();
 
@@ -125,11 +127,11 @@ public class TransmissionDataLoader extends AsyncTaskLoader<TransmissionData> {
     }
 
     public TransmissionDataLoader(Context context, TransmissionProfile profile,
-                                  TransmissionSession session, boolean details, int[] ids) {
+                                  TransmissionSession session, boolean details, String[] hashStrings) {
         this(context, profile);
 
         this.session = session;
-        this.updateIds = ids;
+        this.updateHashStrings = hashStrings;
         this.details = details;
     }
 
@@ -139,10 +141,6 @@ public class TransmissionDataLoader extends AsyncTaskLoader<TransmissionData> {
 
     public void setQueryOnly(boolean queryOnly) {
         this.queryOnly = queryOnly;
-    }
-
-    public void setClearTorrents(boolean clearTorrents) {
-        this.clearTorrents = clearTorrents;
     }
 
     public void setProfile(TransmissionProfile profile) {
@@ -162,28 +160,28 @@ public class TransmissionDataLoader extends AsyncTaskLoader<TransmissionData> {
         onContentChanged();
     }
 
-    public void setUpdateIds(int[] ids) {
-        updateIds = ids;
+    public void setUpdateHashStrings(String[] hashStrings) {
+        updateHashStrings = hashStrings;
         onContentChanged();
     }
 
-    public void setTorrentsRemove(int[] ids, boolean delete) {
+    public void setTorrentsRemove(String[] hashStrings, boolean delete) {
         torrentAction = "torrent-remove";
-        torrentActionIds = ids;
+        torrentActionHashStrings = hashStrings;
         deleteData = delete;
         onContentChanged();
     }
 
-    public void setTorrentsAction(String action, int[] ids) {
+    public void setTorrentsAction(String action, String[] hashStrings) {
         torrentAction = action;
-        torrentActionIds = ids;
+        torrentActionHashStrings = hashStrings;
         onContentChanged();
     }
 
-    public void setTorrentsLocation(int[] ids, String location, boolean move) {
+    public void setTorrentsLocation(String[] hashStrings, String location, boolean move) {
         torrentAction = "torrent-set-location";
         torrentLocation = location;
-        torrentActionIds = ids;
+        torrentActionHashStrings = hashStrings;
         moveData = move;
 
         profile.setLastDownloadDirectory(location);
@@ -191,12 +189,12 @@ public class TransmissionDataLoader extends AsyncTaskLoader<TransmissionData> {
         onContentChanged();
     }
 
-    public void setTorrentProperty(int id, String key, Object value) {
+    public void setTorrentProperty(String hash, String key, Object value) {
         if (key.equals(Torrent.SetterFields.FILES_WANTED)
                 || key.equals(Torrent.SetterFields.FILES_UNWANTED)) {
 
             Runnable r = new TorrentActionRunnable(
-                new int[] {id}, "torrent-set", null, key, value,
+                new String[] { hash }, "torrent-set", null, key, value,
                 false, false);
 
             new Thread(r).start();
@@ -204,7 +202,7 @@ public class TransmissionDataLoader extends AsyncTaskLoader<TransmissionData> {
         }
 
         torrentAction = "torrent-set";
-        torrentActionIds = new int[] {id};
+        torrentActionHashStrings = new String[] { hash };
         torrentSetKey = key;
         torrentSetValue = value;
 
@@ -244,24 +242,18 @@ public class TransmissionDataLoader extends AsyncTaskLoader<TransmissionData> {
                     cursor = dataSource.getTorrentCursor();
 
                     /* Fill the cursor window */
-                    cursor.getCount();
+                    if (cursor.getCount() > 0) {
+                        if (session == null) {
+                            session = dataSource.getSession();
+                            session.setDownloadDirectories(profile, dataSource.getDownloadDirectories());
+                        }
 
-                    if (session == null) {
-                        session = dataSource.getSession();
-                        session.setDownloadDirectories(profile, dataSource.getDownloadDirectories());
+                        return new TransmissionData(session, cursor, true, true, false, false, true);
                     }
-
-                    return new TransmissionData(session, cursor, true, true, false, false);
-                }
-            } else {
-                /* Remove any previous waiting runners */
-                intervalHandler.removeCallbacks(intervalRunner);
-
-                if (clearTorrents) {
-                    clearTorrents = false;
-                    dataSource.clearTorrents();
                 }
             }
+            /* Remove any previous waiting runners */
+            intervalHandler.removeCallbacks(intervalRunner);
 
             if (lastError > 0) {
                 lastError = 0;
@@ -287,7 +279,7 @@ public class TransmissionDataLoader extends AsyncTaskLoader<TransmissionData> {
             final TorrentStatus actionStatus = new TorrentStatus();
 
             /* Setters */
-            if (torrentActionIds != null) {
+            if (torrentActionHashStrings != null) {
                 Thread thread = new Thread(new Runnable() {
                     @Override public void run() {
                         synchronized(exceptionLock) {
@@ -298,7 +290,7 @@ public class TransmissionDataLoader extends AsyncTaskLoader<TransmissionData> {
                         }
                         try {
                             executeTorrentsAction(
-                                torrentActionIds, torrentAction, torrentLocation,
+                                torrentActionHashStrings, torrentAction, torrentLocation,
                                 torrentSetKey, torrentSetValue, deleteData, moveData);
 
                             if (torrentAction.equals("torrent-remove")) {
@@ -314,7 +306,7 @@ public class TransmissionDataLoader extends AsyncTaskLoader<TransmissionData> {
                                 exceptions.add(e);
                             }
                         } finally {
-                            torrentActionIds = null;
+                            torrentActionHashStrings = null;
                             torrentAction = null;
                             torrentSetKey = null;
                             torrentSetValue = null;
@@ -450,7 +442,7 @@ public class TransmissionDataLoader extends AsyncTaskLoader<TransmissionData> {
                 fields = G.concat(Torrent.Fields.METADATA, fields);
             }
 
-            if (details) {
+            if (details || iteration == 1) {
                 fields = G.concat(fields, Torrent.Fields.STATS_EXTRA);
                 if (!dataSource.hasExtraInfo()) {
                     fields = G.concat(fields, Torrent.Fields.INFO_EXTRA);
@@ -466,18 +458,18 @@ public class TransmissionDataLoader extends AsyncTaskLoader<TransmissionData> {
             }
 
             try {
-                if (updateIds != null) {
-                    status = sessManager.getTorrents(fields, updateIds);
+                if (updateHashStrings != null) {
+                    status = sessManager.getTorrents(fields, updateHashStrings, false);
                 } else if (active && !details) {
                     int full = Integer.parseInt(sharedPrefs.getString(G.PREF_FULL_UPDATE, "2"));
 
                     if (iteration % full == 0) {
-                        status = sessManager.getTorrents(fields, null);
+                        status = sessManager.getTorrents(fields, null, iteration == 0);
                     } else {
                         status = sessManager.getActiveTorrents(fields);
                     }
                 } else {
-                    status = sessManager.getTorrents(fields, null);
+                    status = sessManager.getTorrents(fields, null, iteration == 0);
                 }
             } catch (ManagerException e) {
                 return handleError(e);
@@ -492,10 +484,10 @@ public class TransmissionDataLoader extends AsyncTaskLoader<TransmissionData> {
                 return handleError(exceptions.get(0));
             }
 
-            int[] unnamed = dataSource.getUnnamedTorrentIds();
+            String[] unnamed = dataSource.getUnnamedTorrentHashStrings();
             if (unnamed != null && unnamed.length > 0) {
                 try {
-                    sessManager.getTorrents(Torrent.Fields.METADATA, unnamed);
+                    sessManager.getTorrents(G.concat(new String[] {Torrent.Fields.hashString}, Torrent.Fields.METADATA), unnamed, false);
                 } catch (ManagerException e) {
                     return handleError(e);
                 }
@@ -510,7 +502,7 @@ public class TransmissionDataLoader extends AsyncTaskLoader<TransmissionData> {
             cursor.getCount();
 
             return new TransmissionData(session, cursor, hasRemoved, hasAdded,
-                hasStatusChanged, hasMetadataNeeded);
+                hasStatusChanged, hasMetadataNeeded, false);
         } finally {
             dataSource.close();
         }
@@ -541,7 +533,7 @@ public class TransmissionDataLoader extends AsyncTaskLoader<TransmissionData> {
             session = null;
             deliverResult(new TransmissionData(session, lastError, lastErrorCode));
         } else if (cursor != null && !cursor.isClosed()) {
-            deliverResult(new TransmissionData(session, cursor, false, false, false, false));
+            deliverResult(new TransmissionData(session, cursor, false, false, false, false, false));
         }
 
         if (takeContentChanged() || iteration == 0) {
@@ -578,17 +570,17 @@ public class TransmissionDataLoader extends AsyncTaskLoader<TransmissionData> {
             intervalHandler.postDelayed(intervalRunner, update * 1000);
     }
 
-    private void executeTorrentsAction(int[] ids,
+    private void executeTorrentsAction(String[] hashStrings,
                 String action, String location, String setKey,
                 Object setValue, boolean deleteData, boolean moveData) throws ManagerException {
         if (action.equals("torrent-remove")) {
-            sessManager.setTorrentsRemove(ids, deleteData);
+            sessManager.setTorrentsRemove(hashStrings, deleteData);
         } else if (action.equals("torrent-set-location")) {
-            sessManager.setTorrentsLocation(ids, location, moveData);
+            sessManager.setTorrentsLocation(hashStrings, location, moveData);
         } else if (action.equals("torrent-set")) {
-            sessManager.setTorrentsProperty(ids, setKey, setValue);
+            sessManager.setTorrentsProperty(hashStrings, setKey, setValue);
         } else {
-            sessManager.setTorrentsAction(action, ids);
+            sessManager.setTorrentsAction(action, hashStrings);
         }
     }
 
@@ -661,14 +653,14 @@ public class TransmissionDataLoader extends AsyncTaskLoader<TransmissionData> {
     private class TorrentActionRunnable implements Runnable {
         private String action, location, setKey;
         private boolean deleteData, moveData;
-        private int[] ids;
+        private String[] hashStrings;
         private Object setValue;
 
-        public TorrentActionRunnable(int[] ids,
+        public TorrentActionRunnable(String[] hashStrings,
                 String action, String location, String setKey,
                 Object setValue, boolean deleteData, boolean moveData) {
 
-            this.ids = ids;
+            this.hashStrings = hashStrings;
             this.action = action;
             this.location = location;
             this.setKey = setKey;
@@ -681,7 +673,7 @@ public class TransmissionDataLoader extends AsyncTaskLoader<TransmissionData> {
         public void run() {
             try {
                 executeTorrentsAction(
-                    ids, action, location, setKey, setValue,
+                    hashStrings, action, location, setKey, setValue,
                     deleteData, moveData);
             } catch (Exception e) {
                 e.printStackTrace();

@@ -3,20 +3,21 @@ package org.sugr.gearshift.datasource;
 public final class Constants {
     public static final String T_SESSION = "session";
     public static final String T_TORRENT = "torrent";
+    public static final String T_TORRENT_PROFILE = "torrent_profile";
     public static final String T_TRACKER = "tracker";
     public static final String T_TORRENT_TRACKER = "torrent_tracker";
     public static final String T_FILE = "file";
     public static final String T_PEER = "peer";
 
     public static final String C_ID = "_id";
-
+    public static final String C_HASH_STRING = "hash_string";
+    public static final String C_TORRENT_ID = "torrent_id";
     public static final String C_NAME = "name";
     public static final String C_VALUE_AFFINITY = "value_affinity";
     public static final String C_VALUE_INTEGER = "value_integer";
     public static final String C_VALUE_REAL = "value_real";
     public static final String C_VALUE_TEXT = "value_text";
 
-    public static final String C_TORRENT_ID = "torrent_id";
     public static final String C_STATUS = "status";
 
     public static final String C_ERROR = "error";
@@ -53,7 +54,6 @@ public final class Constants {
     public static final String C_COMMENT = "comment";
     public static final String C_CREATOR = "creator";
     public static final String C_DATE_CREATED = "date_created";
-    public static final String C_HASH_STRING = "hash_string";
     public static final String C_IS_PRIVATE = "is_private";
     public static final String C_PIECE_COUNT = "piece_count";
     public static final String C_PIECE_SIZE = "piece_size";
@@ -68,6 +68,8 @@ public final class Constants {
 
     public static final String C_TRAFFIC_TEXT = "traffic_text";
     public static final String C_STATUS_TEXT = "status_text";
+
+    public static final String C_PROFILE_ID = "profile_id";
 
     public static final String C_TRACKER_ID = "tracker_id";
     public static final String C_ANNOUNCE = "announce";
@@ -119,6 +121,7 @@ public final class Constants {
 
     public static final String T_TORRENT_CREATE = "CREATE TABLE "
         + T_TORRENT + "("
+        + C_HASH_STRING + " TEXT PRIMARY KEY, "
         + C_TORRENT_ID + " INTEGER NOT NULL, "
         + C_STATUS + " INTEGER NOT NULL, "
         + C_NAME + " TEXT NOT NULL DEFAULT '', "
@@ -156,7 +159,6 @@ public final class Constants {
         + C_COMMENT + " TEXT NOT NULL DEFAULT '', "
         + C_CREATOR + " TEXT NOT NULL DEFAULT '', "
         + C_DATE_CREATED + " INTEGER, "
-        + C_HASH_STRING + " TEXT NOT NULL DEFAULT '', "
         + C_IS_PRIVATE + " INTEGER NOT NULL DEFAULT 0, "
         + C_PIECE_COUNT + " INTEGER NOT NULL DEFAULT 0, "
         + C_PIECE_SIZE + " INTEGER NOT NULL DEFAULT 0, "
@@ -169,16 +171,24 @@ public final class Constants {
         + C_WEBSEEDS_SENDING_TO_US + " INTEGER, "
         + C_PEER_LIMIT + " INTEGER, "
         + C_TRAFFIC_TEXT + " TEXT NOT NULL DEFAULT '', "
-        + C_STATUS_TEXT + " TEXT NOT NULL DEFAULT '', "
+        + C_STATUS_TEXT + " TEXT NOT NULL DEFAULT '' "
 
-        + "PRIMARY KEY (" + C_TORRENT_ID + ")"
+        + ");";
+
+
+    public static final String T_TORRENT_PROFILE_CREATE = "CREATE TABLE "
+        + T_TORRENT_PROFILE + "("
+        + C_HASH_STRING + " TEXT REFERENCES " + T_TORRENT + "(" + C_HASH_STRING + ") ON DELETE CASCADE, "
+        + C_PROFILE_ID + " TEXT, "
+
+        + "PRIMARY KEY (" + C_HASH_STRING + ", " + C_PROFILE_ID + ")"
         + ");";
 
     /* The tracker is not associated with a torrent */
     public static final String T_TRACKER_CREATE = "CREATE TABLE "
         + T_TRACKER + "("
         + C_TRACKER_ID + " INTEGER, "
-        + C_ANNOUNCE + " TEXT NOT NULL UNIQUE, "
+        + C_ANNOUNCE + " TEXT NOT NULL, "
         + C_SCRAPE + " TEXT NOT NULL DEFAULT '', "
         + C_TIER + " INTEGER, "
         + C_HAS_ANNOUNCED + " INTEGER NOT NULL DEFAULT 0, "
@@ -198,15 +208,15 @@ public final class Constants {
 
     public static final String T_TORRENT_TRACKER_CREATE = "CREATE TABLE "
         + T_TORRENT_TRACKER + "("
-        + C_TORRENT_ID + " INTEGER REFERENCES " + T_TORRENT + "(" + C_TORRENT_ID + ") ON DELETE CASCADE, "
+        + C_HASH_STRING + " TEXT REFERENCES " + T_TORRENT + "(" + C_HASH_STRING + ") ON DELETE CASCADE, "
         + C_TRACKER_ID + " INTEGER REFERENCES " + T_TRACKER + "(" + C_TRACKER_ID + ") ON DELETE CASCADE, "
 
-        + "PRIMARY KEY (" + C_TORRENT_ID + ", " + C_TRACKER_ID + ")"
+        + "PRIMARY KEY (" + C_HASH_STRING + ", " + C_TRACKER_ID + ")"
         + ");";
 
     public static final String T_FILE_CREATE = "CREATE TABLE "
         + T_FILE + "("
-        + C_TORRENT_ID + " INTEGER REFERENCES " + T_TORRENT + "(" + C_TORRENT_ID + ") ON DELETE CASCADE, "
+        + C_HASH_STRING + " TEXT REFERENCES " + T_TORRENT + "(" + C_HASH_STRING + ") ON DELETE CASCADE, "
         + C_FILE_INDEX + " INTEGER NOT NULL, "
         + C_NAME + " TEXT NOT NULL DEFAULT '', "
         + C_LENGTH + " INTEGER, "
@@ -214,12 +224,12 @@ public final class Constants {
         + C_WANTED + " INTEGER, "
         + C_PRIORITY + " INTEGER, "
 
-        + "PRIMARY KEY (" + C_TORRENT_ID + ", " + C_FILE_INDEX + ")"
+        + "PRIMARY KEY (" + C_HASH_STRING + ", " + C_FILE_INDEX + ")"
         + ");";
 
     public static final String T_PEER_CREATE = "CREATE TABLE "
         + T_PEER + "("
-        + C_TORRENT_ID + " INTEGER REFERENCES " + T_TORRENT + "(" + C_TORRENT_ID + ") ON DELETE CASCADE, "
+        + C_HASH_STRING + " TEXT REFERENCES " + T_TORRENT + "(" + C_HASH_STRING + ") ON DELETE CASCADE, "
         + C_ADDRESS + " TEXT NOT NULL DEFAULT '', "
         + C_CLIENT_NAME + " TEXT NOT NULL DEFAULT '', "
         + C_CLIENT_IS_CHOKED + " INTEGER, "
@@ -235,7 +245,7 @@ public final class Constants {
         + C_RATE_TO_CLIENT + " INTEGER, "
         + C_RATE_TO_PEER + " INTEGER, "
 
-        + "PRIMARY KEY (" + C_TORRENT_ID + ")"
+        + "PRIMARY KEY (" + C_HASH_STRING + ")"
         + ");";
 
     public static final String TYPE_INT = "int";
@@ -246,16 +256,14 @@ public final class Constants {
 
     public static class ColumnGroups {
         public static final String[] TORRENT_OVERVIEW = {
-            /* The torrent id is not here, as it is aliased to '_id' */
             C_NAME, C_STATUS, C_METADATA_PERCENT_COMPLETE, C_PERCENT_DONE,
             C_UPLOAD_RATIO, C_SEED_RATIO_LIMIT, C_TRAFFIC_TEXT, C_STATUS_TEXT,
             C_ERROR, C_ERROR_STRING
         };
 
         public static final String[] TORRENT_DETAILS = {
-            C_COMMENT, C_CREATOR, C_DATE_CREATED, C_HASH_STRING,
-            C_IS_PRIVATE, C_PIECE_COUNT, C_PIECE_SIZE, C_ACTIVITY_DATE,
-            C_TORRENT_PRIORITY, C_CORRUPT_EVER, C_DESIRED_AVAILABLE,
+            C_COMMENT, C_CREATOR, C_DATE_CREATED, C_IS_PRIVATE, C_PIECE_COUNT, C_PIECE_SIZE,
+            C_ACTIVITY_DATE, C_TORRENT_PRIORITY, C_CORRUPT_EVER, C_DESIRED_AVAILABLE,
             C_DOWNLOADED_EVER, C_DOWNLOAD_LIMIT, C_DOWNLOAD_LIMITED,
             C_HAVE_UNCHECKED, C_HAVE_VALID, C_HONORS_SESSION_LIMITS,
             C_PEER_LIMIT, C_START_DATE, C_UPLOAD_LIMIT, C_UPLOAD_LIMITED,

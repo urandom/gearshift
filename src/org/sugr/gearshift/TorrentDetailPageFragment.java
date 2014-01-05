@@ -11,12 +11,11 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.database.Cursor;
 import android.database.DataSetObserver;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.LoaderManager;
-import android.support.v4.content.AsyncTaskLoader;
 import android.support.v4.content.Loader;
 import android.text.Html;
 import android.text.TextUtils;
@@ -64,7 +63,7 @@ import java.util.Set;
  * on handsets.
  */
 public class TorrentDetailPageFragment extends Fragment {
-    private int torrentId;
+    private String torrentHash;
     private TorrentDetails details;
 
     private static List<String> priorityNames;
@@ -73,7 +72,7 @@ public class TorrentDetailPageFragment extends Fragment {
 
     private static final String STATE_EXPANDED = "expanded_states";
     private static final String STATE_SCROLL_POSITION = "scroll_position_state";
-    private static final String STATE_TORRENT_ID = "torrent_id";
+    private static final String STATE_TORRENT_HASH = "torrent_hash";
 
     private static class Expanders {
         public static final int TOTAL_EXPANDERS = 4;
@@ -354,59 +353,21 @@ public class TorrentDetailPageFragment extends Fragment {
         }
     };
 
-    private LoaderManager.LoaderCallbacks<TorrentDetails> torrentDetailsLoaderCallbacks
-        = new LoaderManager.LoaderCallbacks<TorrentDetails>() {
-
-        @Override public Loader<TorrentDetails> onCreateLoader(int id, Bundle bundle) {
-            if (id == G.TORRENT_DETAILS_LOADER_ID + torrentId && torrentId != -1) {
-                return new TorrentDetailsLoader(getActivity(), torrentId);
-            }
-            return null;
-        }
-
-        @Override public void onLoadFinished(Loader<TorrentDetails> loader, TorrentDetails details) {
-            if (TorrentDetailPageFragment.this.details != null) {
-                TorrentDetailPageFragment.this.details.torrentCursor.close();
-                TorrentDetailPageFragment.this.details.filesCursor.close();
-                TorrentDetailPageFragment.this.details.trackersCursor.close();
-
-                TorrentDetailPageFragment.this.details = null;
-            }
-            TorrentDetailPageFragment.this.details = details;
-            updateFields(getView());
-        }
-
-        @Override public void onLoaderReset(Loader<TorrentDetails> loader) {
-            if (TorrentDetailPageFragment.this.details != null) {
-                TorrentDetailPageFragment.this.details.torrentCursor.close();
-                TorrentDetailPageFragment.this.details.filesCursor.close();
-                TorrentDetailPageFragment.this.details.trackersCursor.close();
-
-                TorrentDetailPageFragment.this.details = null;
-            }
-            TorrentDetailPageFragment.this.details = null;
-        }
-    };
-
     private class UpdateReceiver extends BroadcastReceiver {
         @Override
         public void onReceive(Context context, Intent intent) {
             int index = intent.getIntExtra(G.ARG_TORRENT_INDEX, -1);
-            if (index != -1 && torrentId != -1 && getActivity() != null) {
+            if (index != -1 && torrentHash != null && getActivity() != null) {
                 TorrentDetailFragment fragment
                     = (TorrentDetailFragment) getActivity().getSupportFragmentManager().findFragmentByTag(G.DETAIL_FRAGMENT_TAG);
 
                 if (fragment != null) {
-                    int position = fragment.getTorrentPositionInCursor(torrentId);
+                    int position = fragment.getTorrentPositionInCursor(torrentHash);
                     if (position != -1) {
                         if (details != null && !details.torrentCursor.isClosed())
                             G.logD("Updating detail view for '" + Torrent.getName(details.torrentCursor) + "'");
 
-                        Loader<TorrentDetails> loader = getActivity().getSupportLoaderManager()
-                            .getLoader(G.TORRENT_DETAILS_LOADER_ID + torrentId);
-                        if (loader != null) {
-                            loader.onContentChanged();
-                        }
+                        new TorrentDetailTask().execute(torrentHash);
                     }
                 }
             }
@@ -452,22 +413,32 @@ public class TorrentDetailPageFragment extends Fragment {
         updateReceiver = new UpdateReceiver();
         pageUnselectedReceiver = new PageUnselectedReceiver();
 
-        if (savedInstanceState != null && savedInstanceState.containsKey(STATE_TORRENT_ID)) {
-            torrentId = savedInstanceState.getInt(STATE_TORRENT_ID);
+        if (savedInstanceState != null && savedInstanceState.containsKey(STATE_TORRENT_HASH)) {
+            torrentHash = savedInstanceState.getString(STATE_TORRENT_HASH);
         } else if (getArguments().containsKey(G.ARG_PAGE_POSITION)) {
             int position = getArguments().getInt(G.ARG_PAGE_POSITION);
             TorrentDetailFragment fragment
                 = (TorrentDetailFragment) getActivity().getSupportFragmentManager().findFragmentByTag(G.DETAIL_FRAGMENT_TAG);
 
             if (fragment != null) {
-                torrentId = fragment.getTorrentId(position);
+                torrentHash = fragment.getTorrentHashString(position);
             }
         }
 
-        if (torrentId != -1) {
-            getActivity().getSupportLoaderManager().initLoader(
-                G.TORRENT_DETAILS_LOADER_ID + torrentId, null, torrentDetailsLoaderCallbacks);
+        if (torrentHash != null) {
+            new TorrentDetailTask().execute(torrentHash);
         }
+    }
+
+    @Override public void onDestroy() {
+        if (details != null) {
+            details.torrentCursor.close();
+            details.filesCursor.close();
+            details.trackersCursor.close();
+
+            details = null;
+        }
+        super.onDestroy();
     }
 
     @Override
@@ -759,7 +730,7 @@ public class TorrentDetailPageFragment extends Fragment {
             outState.putInt(STATE_SCROLL_POSITION, scroll.getScrollY());
         }
 
-        outState.putInt(STATE_TORRENT_ID, torrentId);
+        outState.putString(STATE_TORRENT_HASH, torrentHash);
     }
 
     @Override
@@ -783,11 +754,12 @@ public class TorrentDetailPageFragment extends Fragment {
         Loader<TransmissionData> loader = getActivity()
             .getSupportLoaderManager().getLoader(
                     G.TORRENTS_LOADER_ID);
-        ((TransmissionDataLoader) loader).setTorrentProperty(torrentId, key, value);
+        ((TransmissionDataLoader) loader).setTorrentProperty(torrentHash, key, value);
     }
 
     private void updateFields(View root) {
-         if (root == null || details == null) return;
+         if (root == null || details == null || details.torrentCursor.isClosed()
+             || details.torrentCursor.getCount() == 0) return;
 
         String name = Torrent.getName(details.torrentCursor);
         int status = Torrent.getStatus(details.torrentCursor);
@@ -1771,39 +1743,41 @@ public class TorrentDetailPageFragment extends Fragment {
         }
     }
 
-    private static class TorrentDetailsLoader extends AsyncTaskLoader<TorrentDetails> {
-        private int torrentId;
+    private class TorrentDetailTask extends AsyncTask<String, Void, TorrentDetails> {
+        @Override protected TorrentDetails doInBackground(String... hashStrings) {
+            if (!isCancelled()) {
+                DataSource readSource = new DataSource(getActivity());
 
-        public TorrentDetailsLoader(Context context, int id) {
-            super(context);
-            torrentId = id;
-        }
-        @Override public TorrentDetails loadInBackground() {
-            DataSource readSource = new DataSource(getContext());
+                readSource.open();
+                try {
+                    TorrentDetails details = readSource.getTorrentDetails(hashStrings[0]);
+                    /* fill the windows */
+                    details.torrentCursor.getCount();
+                    details.filesCursor.getCount();
+                    details.trackersCursor.getCount();
 
-            readSource.open();
-            try {
-                TorrentDetails details = readSource.getTorrentDetails(torrentId);
-                /* fill the windows */
-                details.torrentCursor.getCount();
-                details.filesCursor.getCount();
-                details.trackersCursor.getCount();
+                    details.torrentCursor.moveToFirst();
 
-                details.torrentCursor.moveToFirst();
-
-                return details;
-            } finally {
-                readSource.close();
+                    return details;
+                } finally {
+                    readSource.close();
+                }
             }
+
+            return null;
         }
 
-        @Override protected void onStartLoading() {
-            forceLoad();
-        }
+        @Override protected void onPostExecute(TorrentDetails details) {
+            if (isResumed()) {
+                if (TorrentDetailPageFragment.this.details != null) {
+                    TorrentDetailPageFragment.this.details.torrentCursor.close();
+                    TorrentDetailPageFragment.this.details.filesCursor.close();
+                    TorrentDetailPageFragment.this.details.trackersCursor.close();
 
-        @Override public void deliverResult(TorrentDetails data) {
-            if (isStarted()) {
-                super.deliverResult(data);
+                    TorrentDetailPageFragment.this.details = null;
+                }
+                TorrentDetailPageFragment.this.details = details;
+                updateFields(getView());
             }
         }
     }

@@ -79,15 +79,17 @@ public class Torrent {
     }
 
     public static class Fields {
+        public static final String hashString = "hashString";
+
         /*
          * commonly used fields which only need to be loaded once, either on
          * startup or when a magnet finishes downloading its metadata
          * */
-        public static final String[] METADATA = { "addedDate", "name", "totalSize",  "hashString", };
+        public static final String[] METADATA = { "addedDate", "name", "totalSize", };
 
         // commonly used fields which need to be periodically refreshed
         public static final String[] STATS = {
-            "id", "error", "errorString", "eta", "isFinished", "isStalled",
+            hashString, "id", "error", "errorString", "eta", "isFinished", "isStalled",
             "leftUntilDone", "metadataPercentComplete", "peersConnected",
             "peersGettingFromUs", "peersSendingToUs", "percentDone",
             SetterFields.QUEUE_POSITION, "rateDownload", "rateUpload",
@@ -247,8 +249,13 @@ public class Torrent {
     }
     */
 
+    /* This is the rowid in the database */
     public static int getId(Cursor cursor) {
         return cursor.getInt(cursor.getColumnIndex(Constants.C_ID));
+    }
+
+    public static String getHashString(Cursor cursor) {
+        return cursor.getString(cursor.getColumnIndex(Constants.C_HASH_STRING));
     }
 
     public static String getName(Cursor cursor) {
@@ -337,10 +344,6 @@ public class Torrent {
 
     public static int getPieceCount(Cursor cursor) {
         return cursor.getInt(cursor.getColumnIndex(Constants.C_PIECE_COUNT));
-    }
-
-    public static String getHashString(Cursor cursor) {
-        return cursor.getString(cursor.getColumnIndex(Constants.C_HASH_STRING));
     }
 
     public static boolean isPrivate(Cursor cursor) {

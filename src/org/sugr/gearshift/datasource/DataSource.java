@@ -4,6 +4,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.database.Cursor;
+import android.database.DatabaseUtils;
 import android.database.sqlite.SQLiteDatabase;
 import android.preference.PreferenceManager;
 import android.text.TextUtils;
@@ -15,6 +16,7 @@ import com.fasterxml.jackson.core.JsonToken;
 import org.sugr.gearshift.G;
 import org.sugr.gearshift.R;
 import org.sugr.gearshift.Torrent;
+import org.sugr.gearshift.TransmissionProfile;
 import org.sugr.gearshift.TransmissionSession;
 
 import java.io.IOException;
@@ -48,20 +50,18 @@ public class DataSource {
 
     private int rpcVersion = -1;
 
-    private static final Object lock = new Object();
-
     public DataSource(Context context) {
         setContext(context);
     }
 
     public void open() {
-        synchronized (lock) {
+        synchronized (DataSource.class) {
             database = dbHelper.getWritableDatabase();
         }
     }
 
     public void close() {
-        synchronized (lock) {
+        synchronized (DataSource.class) {
             dbHelper.close();
             database = null;
         }
@@ -84,34 +84,13 @@ public class DataSource {
         this.dbHelper = new SQLiteHelper(context.getApplicationContext());
     }
 
-    public void clearTorrents() {
-        if (!isOpen())
-            return;
-
-        synchronized (lock) {
-            try {
-                database.beginTransaction();
-
-                database.delete(Constants.T_TORRENT, null, null);
-                database.delete(Constants.T_TORRENT_TRACKER, null, null);
-                database.delete(Constants.T_TRACKER, null, null);
-                database.delete(Constants.T_FILE, null, null);
-                database.delete(Constants.T_PEER, null, null);
-
-                database.setTransactionSuccessful();
-            } finally {
-                database.endTransaction();
-            }
-        }
-    }
-
     public boolean updateSession(JsonParser parser) throws IOException {
         if (!isOpen())
             return false;
 
         List<ContentValues> session = jsonToSessionValues(parser);
 
-        synchronized (lock) {
+        synchronized (DataSource.class) {
             try {
                 database.beginTransaction();
 
@@ -129,31 +108,48 @@ public class DataSource {
         }
     }
 
-    public TorrentStatus updateTorrents(JsonParser parser) throws IOException {
+    public TorrentStatus updateTorrents(JsonParser parser, boolean removeObsolete) throws IOException {
         if (!isOpen())
             return null;
 
         int[] idChanges = queryTorrentIdChanges();
         int[] status = queryStatusCount();
 
-        synchronized (lock) {
+        synchronized (DataSource.class) {
             try {
                 database.beginTransaction();
 
                 SparseBooleanArray trackers = new SparseBooleanArray();
+                String profile = TransmissionProfile.getCurrentProfileId(context);
+
+                List<String> validHashStrings = null;
+                if (removeObsolete) {
+                    validHashStrings = new ArrayList<String>();
+                    database.delete(Constants.T_TRACKER, null, null);
+                }
 
                 while (parser.nextToken() != JsonToken.END_ARRAY) {
                     TorrentValues values = jsonToTorrentValues(parser);
 
-                    int torrentId = (Integer) values.torrent.get(Constants.C_TORRENT_ID);
+                    String hash = (String) values.torrent.get(Constants.C_HASH_STRING);
+                    if (removeObsolete) {
+                        validHashStrings.add(hash);
+                    }
+
                     int updated = database.update(
-                        Constants.T_TORRENT, values.torrent, Constants.C_TORRENT_ID + " = ?",
-                        new String[] { Integer.toString(torrentId )});
+                        Constants.T_TORRENT, values.torrent, Constants.C_HASH_STRING + " = ?",
+                        new String[] { hash });
 
                     if (updated < 1) {
                         database.insertWithOnConflict(Constants.T_TORRENT, null,
                             values.torrent, SQLiteDatabase.CONFLICT_REPLACE);
                     }
+
+                    ContentValues profileValues = new ContentValues();
+                    profileValues.put(Constants.C_HASH_STRING, hash);
+                    profileValues.put(Constants.C_PROFILE_ID, profile);
+                    database.insertWithOnConflict(Constants.T_TORRENT_PROFILE, null,
+                        profileValues, SQLiteDatabase.CONFLICT_IGNORE);
 
                     if (values.trackers != null) {
                         for (ContentValues tracker : values.trackers) {
@@ -172,7 +168,7 @@ public class DataSource {
                             }
 
                             ContentValues m2m = new ContentValues();
-                            m2m.put(Constants.C_TORRENT_ID, torrentId);
+                            m2m.put(Constants.C_HASH_STRING, hash);
                             m2m.put(Constants.C_TRACKER_ID, trackerId);
                             database.insertWithOnConflict(Constants.T_TORRENT_TRACKER, null,
                                 m2m, SQLiteDatabase.CONFLICT_REPLACE);
@@ -182,11 +178,11 @@ public class DataSource {
                     if (values.files != null) {
                         for (ContentValues file : values.files) {
                             Integer index = (Integer) file.get(Constants.C_FILE_INDEX);
-                            file.put(Constants.C_TORRENT_ID, torrentId);
+                            file.put(Constants.C_HASH_STRING, hash);
 
                             updated = database.update(Constants.T_FILE, file,
-                                Constants.C_TORRENT_ID + " = ? AND " + Constants.C_FILE_INDEX + " = ?",
-                                new String[] { Integer.toString(torrentId), index.toString() });
+                                Constants.C_HASH_STRING + " = ? AND " + Constants.C_FILE_INDEX + " = ?",
+                                new String[] { hash, index.toString() });
 
                             if (updated < 1) {
                                 database.insertWithOnConflict(Constants.T_FILE, null,
@@ -197,11 +193,15 @@ public class DataSource {
 
                     if (values.peers != null) {
                         for (ContentValues peer : values.peers) {
-                            peer.put(Constants.C_TORRENT_ID, torrentId);
+                            peer.put(Constants.C_HASH_STRING, hash);
                             database.insertWithOnConflict(Constants.T_PEER, null,
                                 peer, SQLiteDatabase.CONFLICT_REPLACE);
                         }
                     }
+                }
+
+                if (removeObsolete) {
+                    removeObsolete(validHashStrings);
                 }
 
                 database.setTransactionSuccessful();
@@ -239,11 +239,32 @@ public class DataSource {
         }
     }
 
+    public boolean removeTorrents(String... hashStrings) {
+        if (!isOpen())
+            return false;
+
+        synchronized (DataSource.class) {
+            try {
+                database.beginTransaction();
+
+                for (String hash : hashStrings) {
+                    removeTorrent(hash);
+                }
+
+                database.setTransactionSuccessful();
+
+                return true;
+            } finally {
+                database.endTransaction();
+            }
+        }
+    }
+
     public boolean removeTorrents(int... ids) {
         if (!isOpen())
             return false;
 
-        synchronized (lock) {
+        synchronized (DataSource.class) {
             try {
                 database.beginTransaction();
 
@@ -259,6 +280,7 @@ public class DataSource {
             }
         }
     }
+
 
     /* Transmission implementation */
     public TransmissionSession getSession() {
@@ -286,10 +308,21 @@ public class DataSource {
 
         Cursor cursor = null;
         try {
+            String profile = TransmissionProfile.getCurrentProfileId(context);
+
             cursor = database.rawQuery(
-                "SELECT count(" + Constants.C_TORRENT_ID + "), count(CASE "
-                + Constants.C_NAME + " WHEN '' THEN 1 ELSE NULL END) FROM "
-                + Constants.T_FILE, null
+                "SELECT count(" + Constants.T_FILE + ".rowid), count(CASE "
+                    + Constants.T_FILE + "." + Constants.C_NAME
+                    + " WHEN '' THEN 1 ELSE NULL END) FROM "
+                    + Constants.T_TORRENT_PROFILE
+                    + " JOIN " + Constants.T_TORRENT
+                    + " ON " + Constants.T_TORRENT_PROFILE + "." + Constants.C_HASH_STRING
+                    + " = " + Constants.T_TORRENT + "." + Constants.C_HASH_STRING
+                    + " JOIN " + Constants.T_FILE
+                    + " ON " + Constants.T_FILE + "." + Constants.C_HASH_STRING
+                    + " = " + Constants.T_TORRENT + "." + Constants.C_HASH_STRING
+                    + " WHERE " + Constants.C_PROFILE_ID + " = ?",
+                new String[] { profile }
             );
 
             cursor.moveToFirst();
@@ -308,10 +341,15 @@ public class DataSource {
 
         Cursor cursor = null;
         try {
+            String profile = TransmissionProfile.getCurrentProfileId(context);
+
             cursor = database.rawQuery(
-                "SELECT count(" + Constants.C_TORRENT_ID + ") FROM "
-                    + Constants.T_TORRENT + " WHERE "
-                    + Constants.C_TOTAL_SIZE + " = 0 AND ("
+                "SELECT count(" + Constants.T_TORRENT + ".rowid) FROM "
+                    + Constants.T_TORRENT_PROFILE
+                    + " JOIN " + Constants.T_TORRENT
+                    + " ON " + Constants.T_TORRENT_PROFILE + "." + Constants.C_HASH_STRING
+                    + " = " + Constants.T_TORRENT + "." + Constants.C_HASH_STRING
+                    + " WHERE " + Constants.C_TOTAL_SIZE + " = 0 AND ("
                     + Constants.C_STATUS + " = "
                     + Torrent.Status.CHECKING
                     + " OR "
@@ -320,7 +358,8 @@ public class DataSource {
                     + " OR "
                     + Constants.C_STATUS + " = "
                     + Torrent.Status.SEEDING
-                    + ")", null
+                    + ") AND " + Constants.C_PROFILE_ID + " = ?",
+                new String[] { profile }
             );
 
             cursor.moveToFirst();
@@ -332,25 +371,34 @@ public class DataSource {
         }
     }
 
-    public int[] getUnnamedTorrentIds() {
+    public String[] getUnnamedTorrentHashStrings() {
         if (!isOpen())
             return null;
 
         Cursor cursor = null;
         try {
-            cursor = database.query(Constants.T_TORRENT, new String[] { Constants.C_TORRENT_ID },
-                Constants.C_NAME + " = ''", null, null, null, null);
+            String profile = TransmissionProfile.getCurrentProfileId(context);
+            cursor = database.rawQuery(
+                "SELECT " + Constants.T_TORRENT + "." + Constants.C_HASH_STRING
+                    + " FROM " + Constants.T_TORRENT_PROFILE
+                    + " JOIN " + Constants.T_TORRENT
+                    + " ON " + Constants.T_TORRENT_PROFILE + "." + Constants.C_HASH_STRING
+                    + " = " + Constants.T_TORRENT + "." + Constants.C_HASH_STRING
+                    + " WHERE " + Constants.C_PROFILE_ID + " = ?"
+                    + " AND " + Constants.C_NAME + " = ''",
+                new String[] { profile }
+            );
 
-            int[] ids = new int[cursor.getCount()];
+            String[] hashStrings = new String[cursor.getCount()];
             int index = 0;
             cursor.moveToFirst();
 
             while (!cursor.isAfterLast()) {
-                ids[index++] = cursor.getInt(0);
+                hashStrings[index++] = cursor.getString(0);
                 cursor.moveToNext();
             }
 
-            return ids;
+            return hashStrings;
         } finally {
             if (cursor != null) {
                 cursor.close();
@@ -362,22 +410,78 @@ public class DataSource {
         if (!isOpen())
             return false;
 
-        synchronized (lock) {
+        synchronized (DataSource.class) {
             try {
                 database.beginTransaction();
 
                 ContentValues values = new ContentValues();
 
+                values.put(Constants.C_HASH_STRING, hash);
                 values.put(Constants.C_TORRENT_ID, id);
                 values.put(Constants.C_NAME, name);
-                values.put(Constants.C_HASH_STRING, hash);
                 values.put(Constants.C_STATUS, Torrent.Status.STOPPED);
 
                 long result = database.insert(Constants.T_TORRENT, null, values);
 
+                if (result > -1) {
+                    String profile = TransmissionProfile.getCurrentProfileId(context);
+
+                    values = new ContentValues();
+                    values.put(Constants.C_HASH_STRING, hash);
+                    values.put(Constants.C_PROFILE_ID, profile);
+
+                    result = database.insert(Constants.T_TORRENT_PROFILE, null, values);
+                }
+
                 database.setTransactionSuccessful();
 
                 return result > -1;
+            } finally {
+                database.endTransaction();
+            }
+        }
+    }
+
+    public boolean clearTorrentsForProfile(String profile) {
+        if (!isOpen())
+            return false;
+
+        synchronized (DataSource.class) {
+            try {
+                database.beginTransaction();
+
+                String[] args = new String[] { profile };
+
+                /* Delete all torrents that are only present for the given profile
+                    DELETE FROM torrent
+                    WHERE hash_string IN (
+                        SELECT hash_string FROM torrent_profile t1 WHERE NOT EXISTS (
+                            SELECT 1 FROM torrent_profile t2
+                            WHERE t1.hash_string = t2.hash_string
+                            AND t1.profile_id != t2.profile_id
+                        ) AND t1.profile_id = ?
+                    )
+                */
+
+                database.delete(Constants.T_TORRENT, Constants.C_HASH_STRING
+                    + " IN ("
+                    + " SELECT " + Constants.C_HASH_STRING
+                    + " FROM " + Constants.T_TORRENT_PROFILE + " t1"
+                    + " WHERE NOT EXISTS ("
+                    + " SELECT 1"
+                    + " FROM " + Constants.T_TORRENT_PROFILE + " t2"
+                    + " WHERE t1." + Constants.C_HASH_STRING + " = t2." + Constants.C_HASH_STRING
+                    + " AND t1." + Constants.C_PROFILE_ID + " != t2." + Constants.C_PROFILE_ID
+                    + ")"
+                    + " AND t1." + Constants.C_PROFILE_ID + " = ?"
+                    + ")",
+                    args);
+
+                database.delete(Constants.T_TORRENT_PROFILE, Constants.C_PROFILE_ID + " = ?", args);
+
+                database.setTransactionSuccessful();
+
+                return true;
             } finally {
                 database.endTransaction();
             }
@@ -392,8 +496,22 @@ public class DataSource {
 
         Cursor cursor = null;
         try {
-            cursor = database.query(true, Constants.T_TRACKER, new String[] { Constants.C_ANNOUNCE },
-                null, null, null, null, Constants.C_ANNOUNCE, null);
+            String profile = TransmissionProfile.getCurrentProfileId(context);
+            cursor = database.rawQuery(
+                "SELECT DISTINCT " + Constants.C_ANNOUNCE
+                    + " FROM " + Constants.T_TORRENT_PROFILE
+                    + " JOIN " + Constants.T_TORRENT
+                    + " ON " + Constants.T_TORRENT_PROFILE + "." + Constants.C_HASH_STRING
+                    + " = " + Constants.T_TORRENT + "." + Constants.C_HASH_STRING
+                    + " JOIN " + Constants.T_TORRENT_TRACKER
+                    + " ON " + Constants.T_TORRENT_TRACKER + "." + Constants.C_HASH_STRING
+                    + " = " + Constants.T_TORRENT + "." + Constants.C_HASH_STRING
+                    + " JOIN " + Constants.T_TRACKER
+                    + " ON " + Constants.T_TRACKER + "." + Constants.C_TRACKER_ID
+                    + " = " + Constants.T_TORRENT_TRACKER + "." + Constants.C_TRACKER_ID
+                    + " WHERE " + Constants.C_PROFILE_ID + " = ?"
+                    + " ORDER BY " + Constants.C_ANNOUNCE, new String[] { profile }
+            );
 
             cursor.moveToFirst();
             while (!cursor.isAfterLast()) {
@@ -417,9 +535,16 @@ public class DataSource {
 
         Cursor cursor = null;
         try {
-            cursor = database.query(true, Constants.T_TORRENT,
-                new String[]{Constants.C_DOWNLOAD_DIR}, null, null, null, null,
-                null, null);
+            String profile = TransmissionProfile.getCurrentProfileId(context);
+            cursor = database.rawQuery(
+                "SELECT DISTINCT " + Constants.C_DOWNLOAD_DIR
+                    + " FROM " + Constants.T_TORRENT_PROFILE
+                    + " JOIN " + Constants.T_TORRENT
+                    + " ON " + Constants.T_TORRENT_PROFILE + "." + Constants.C_HASH_STRING
+                    + " = " + Constants.T_TORRENT + "." + Constants.C_HASH_STRING
+                    + " WHERE " + Constants.C_PROFILE_ID + " = ?",
+                new String[] { profile }
+            );
 
             cursor.moveToFirst();
             while (!cursor.isAfterLast()) {
@@ -443,10 +568,16 @@ public class DataSource {
 
         Cursor cursor = null;
         try {
-            cursor = database.rawQuery("SELECT SUM("
-                + Constants.C_RATE_DOWNLOAD + "), SUM("
-                + Constants.C_RATE_UPLOAD + ") FROM "
-                + Constants.T_TORRENT, null);
+            String profile = TransmissionProfile.getCurrentProfileId(context);
+            cursor = database.rawQuery(
+                "SELECT SUM(" + Constants.C_RATE_DOWNLOAD + "), SUM(" + Constants.C_RATE_UPLOAD + ")"
+                    + " FROM " + Constants.T_TORRENT_PROFILE
+                    + " JOIN " + Constants.T_TORRENT
+                    + " ON " + Constants.T_TORRENT_PROFILE + "." + Constants.C_HASH_STRING
+                    + " = " + Constants.T_TORRENT + "." + Constants.C_HASH_STRING
+                    + " WHERE " + Constants.C_PROFILE_ID + " = ?",
+                new String[] { profile }
+            );
 
             cursor.moveToFirst();
 
@@ -479,11 +610,16 @@ public class DataSource {
             columnList = G.concat(columnList, Constants.ColumnGroups.TORRENT_DETAILS);
         }
 
-        String columns = Constants.C_TORRENT_ID + " AS " + Constants.C_ID + ", "
+        String columns = Constants.T_TORRENT + ".rowid AS " + Constants.C_ID + ", "
+            + Constants.T_TORRENT + "." + Constants.C_HASH_STRING + ", "
             + TextUtils.join(", ", columnList);
 
         String query = "SELECT " + columns
-            + " FROM " + Constants.T_TORRENT;
+            + " FROM " + Constants.T_TORRENT_PROFILE
+            + " JOIN " + Constants.T_TORRENT
+            + " ON " + Constants.T_TORRENT_PROFILE + "." + Constants.C_HASH_STRING
+            + " = " + Constants.T_TORRENT + "." + Constants.C_HASH_STRING
+            + " AND " + Constants.T_TORRENT_PROFILE + "." + Constants.C_PROFILE_ID + " = ?";
 
         if (selection != null && selection.length() > 0) {
             query = query + " WHERE " + selection;
@@ -492,20 +628,26 @@ public class DataSource {
             query = query + " ORDER BY " + orderBy;
         }
 
-        return database.rawQuery(query, selectionArgs);
+        String profile = TransmissionProfile.getCurrentProfileId(context);
+        return database.rawQuery(query, G.concat(new String[] { profile }, selectionArgs));
     }
 
-    public TorrentNameStatus getTorrentNameStatus(int id) {
+    public TorrentNameStatus getTorrentNameStatus(String hash) {
         if (!isOpen())
             return null;
 
         Cursor cursor = null;
         try {
-            cursor = database.query(Constants.T_TORRENT,
-                new String[] { Constants.C_NAME, Constants.C_STATUS },
-                Constants.C_TORRENT_ID + " = ?",
-                new String[] { Integer.toString(id) },
-                null, null, null
+            String profile = TransmissionProfile.getCurrentProfileId(context);
+            cursor = database.rawQuery(
+                "SELECT " + Constants.C_NAME + ", " + Constants.C_STATUS
+                    + " FROM " + Constants.T_TORRENT_PROFILE
+                    + " JOIN " + Constants.T_TORRENT
+                    + " ON " + Constants.T_TORRENT_PROFILE + "." + Constants.C_HASH_STRING
+                    + " = " + Constants.T_TORRENT + "." + Constants.C_HASH_STRING
+                    + " WHERE " + Constants.C_PROFILE_ID + " = ?"
+                    + " AND " + Constants.T_TORRENT + "." + Constants.C_HASH_STRING + " = ?",
+                new String[] { profile, hash }
             );
 
             cursor.moveToFirst();
@@ -518,13 +660,15 @@ public class DataSource {
         }
     }
 
-    public TorrentDetails getTorrentDetails(int id) {
+    public TorrentDetails getTorrentDetails(String hash) {
         if (!isOpen())
             return null;
 
-         String[] selectionArgs = new String[] { Integer.toString(id) };
+         String[] selectionArgs = new String[] { hash };
 
-         Cursor torrent = getTorrentCursor(Constants.C_ID + " = ?", selectionArgs, null, true);
+         Cursor torrent = getTorrentCursor(
+             Constants.T_TORRENT + "." + Constants.C_HASH_STRING + " = ?",
+             selectionArgs, null, true);
 
          String select = Constants.T_TRACKER + "." + Constants.C_TRACKER_ID + ", "
              + Constants.C_ANNOUNCE + ", " + Constants.C_SCRAPE + ", " + Constants.C_TIER + ", "
@@ -540,12 +684,12 @@ public class DataSource {
              + " = " + Constants.T_TORRENT_TRACKER + "." + Constants.C_TRACKER_ID;
 
          String query = "SELECT " + select + " FROM " + from
-             + " WHERE " + Constants.T_TORRENT_TRACKER + "." + Constants.C_TORRENT_ID + " = ?";
+             + " WHERE " + Constants.T_TORRENT_TRACKER + "." + Constants.C_HASH_STRING + " = ?";
 
          Cursor trackers = database.rawQuery(query, selectionArgs);
 
          Cursor files = database.query(Constants.T_FILE, Constants.ColumnGroups.FILE,
-             Constants.C_TORRENT_ID + " = ?", selectionArgs, null, null, null);
+             Constants.C_HASH_STRING + " = ?", selectionArgs, null, null, null);
 
          return new TorrentDetails(torrent, trackers, files);
     }
@@ -885,6 +1029,8 @@ public class DataSource {
 
             if (name.equals("id")) {
                 torrent.put(Constants.C_TORRENT_ID, parser.getIntValue());
+            } else if (name.equals("hashString")) {
+                torrent.put(Constants.C_HASH_STRING, parser.getText());
             } else if (name.equals("status")) {
                 status = parser.getIntValue();
                 if (rpcVersion != -1 && rpcVersion < NEW_STATUS_RPC_VERSION) {
@@ -992,8 +1138,6 @@ public class DataSource {
                 torrent.put(Constants.C_CREATOR, parser.getText());
             } else if (name.equals("dateCreated")) {
                 torrent.put(Constants.C_DATE_CREATED, parser.getLongValue());
-            } else if (name.equals("hashString")) {
-                torrent.put(Constants.C_HASH_STRING, parser.getText());
             } else if (name.equals("isPrivate")) {
                 torrent.put(Constants.C_IS_PRIVATE, parser.getBooleanValue());
             } else if (name.equals("pieceCount")) {
@@ -1379,20 +1523,32 @@ public class DataSource {
         return values;
     }
 
+    protected void removeTorrent(String hash) {
+        database.delete(Constants.T_TORRENT, Constants.C_HASH_STRING + " = ?",
+            new String[] { hash } );
+    }
+
     protected void removeTorrent(int id) {
         database.delete(Constants.T_TORRENT, Constants.C_TORRENT_ID + " = ?",
             new String[] { Integer.toString(id) } );
+    }
+
+    protected void removeObsolete(List<String> validHashStrings) {
+        List<String> where = new ArrayList<String>();
+        for (String hash : validHashStrings) {
+            where.add(DatabaseUtils.sqlEscapeString(hash));
+        }
+
+        database.delete(Constants.T_TORRENT, Constants.C_HASH_STRING + " NOT IN ("
+            + TextUtils.join(", ", where)
+            + ")", null);
     }
 
     protected int[] queryTorrentIdChanges() {
         Cursor cursor = null;
         try {
             cursor = database.rawQuery(
-                "SELECT max("
-                + Constants.C_TORRENT_ID
-                + "), count("
-                + Constants.C_TORRENT_ID
-                + ") FROM " + Constants.T_TORRENT, null
+                "SELECT max(rowid), count(rowid) FROM " + Constants.T_TORRENT, null
             );
 
             cursor.moveToFirst();
@@ -1527,8 +1683,8 @@ public class DataSource {
         }
 
         if (tracker != null && tracker.length() > 0) {
-            selection.add(Constants.C_TORRENT_ID + " IN ("
-                + "SELECT " + Constants.C_TORRENT_ID
+            selection.add(Constants.C_HASH_STRING + " IN ("
+                + "SELECT " + Constants.C_HASH_STRING
                 + " FROM " + Constants.T_TORRENT_TRACKER
                 + " JOIN " + Constants.T_TRACKER
                 + " ON " + Constants.T_TORRENT_TRACKER + "." + Constants.C_TRACKER_ID

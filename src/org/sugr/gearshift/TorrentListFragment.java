@@ -19,8 +19,8 @@ import android.text.Html;
 import android.text.SpannableString;
 import android.text.Spanned;
 import android.text.style.ForegroundColorSpan;
+import android.util.SparseArray;
 import android.util.SparseBooleanArray;
-import android.util.SparseIntArray;
 import android.view.ActionMode;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -117,7 +117,7 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
     };
 
     private MultiChoiceModeListener listChoiceListener = new MultiChoiceModeListener() {
-        private SparseIntArray selectedTorrentIds;
+        private SparseArray<String> selectedTorrentIds;
         private boolean hasQueued = false;
 
         @Override
@@ -128,9 +128,9 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
             if (loader == null)
                 return false;
 
-            final int[] ids = new int[selectedTorrentIds.size()];
+            final String[] hashStrings = new String[selectedTorrentIds.size()];
             for (int i = 0; i < selectedTorrentIds.size(); ++i) {
-                ids[i] = selectedTorrentIds.valueAt(i);
+                hashStrings[i] = selectedTorrentIds.valueAt(i);
             }
 
             AlertDialog.Builder builder;
@@ -153,7 +153,7 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
                             new DialogInterface.OnClickListener() {
                                 @Override
                                 public void onClick(DialogInterface dialog, int id) {
-                                    ((TransmissionDataLoader) loader).setTorrentsRemove(ids, item.getItemId() == R.id.delete);
+                                    ((TransmissionDataLoader) loader).setTorrentsRemove(hashStrings, item.getItemId() == R.id.delete);
                                     ((TransmissionSessionInterface) getActivity()).setRefreshing(true);
 
                                     mode.finish();
@@ -167,18 +167,18 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
                 case R.id.resume:
                     ((TransmissionDataLoader) loader).setTorrentsAction(
                         hasQueued ? "torrent-start-now" : "torrent-start",
-                        ids);
+                        hashStrings);
                     break;
                 case R.id.pause:
-                    ((TransmissionDataLoader) loader).setTorrentsAction("torrent-stop", ids);
+                    ((TransmissionDataLoader) loader).setTorrentsAction("torrent-stop", hashStrings);
                     break;
                 case R.id.move:
-                    return showMoveDialog(ids);
+                    return showMoveDialog(hashStrings);
                 case R.id.verify:
-                    ((TransmissionDataLoader) loader).setTorrentsAction("torrent-verify", ids);
+                    ((TransmissionDataLoader) loader).setTorrentsAction("torrent-verify", hashStrings);
                     break;
                 case R.id.reannounce:
-                    ((TransmissionDataLoader) loader).setTorrentsAction("torrent-reannounce", ids);
+                    ((TransmissionDataLoader) loader).setTorrentsAction("torrent-reannounce", hashStrings);
                     break;
                 default:
                     return true;
@@ -196,7 +196,7 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
             if (inflater != null)
                 inflater.inflate(R.menu.torrent_list_multiselect, menu);
 
-            selectedTorrentIds = new SparseIntArray();
+            selectedTorrentIds = new SparseArray<String>();
             actionMode = mode;
             return true;
         }
@@ -217,9 +217,10 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
         public void onItemCheckedStateChanged(ActionMode mode,
                                               int position, long id, boolean checked) {
 
-            int torrentId = (int) torrentAdapter.getItemId(position);
+            Cursor cursor = (Cursor) torrentAdapter.getItem(position);
+            String hash = Torrent.getHashString(cursor);
             if (checked)
-                selectedTorrentIds.append(position, torrentId);
+                selectedTorrentIds.append(position, hash);
             else
                 selectedTorrentIds.delete(position);
 
@@ -228,7 +229,7 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
 
             hasQueued = false;
             for (int i = 0; i < selectedTorrentIds.size(); ++i) {
-                Cursor cursor = (Cursor) torrentAdapter.getItem(selectedTorrentIds.keyAt(i));
+                cursor = (Cursor) torrentAdapter.getItem(selectedTorrentIds.keyAt(i));
                 int status = Torrent.getStatus(cursor);
                 if (status == Torrent.Status.STOPPED) {
                     hasPaused = true;
@@ -657,7 +658,7 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
         activatedPosition = position;
     }
 
-    private boolean showMoveDialog(final int[] ids) {
+    private boolean showMoveDialog(final String[] hashStrings) {
         LayoutInflater inflater = getActivity().getLayoutInflater();
         final Loader<TransmissionData> loader = getActivity().getSupportLoaderManager()
             .getLoader(G.TORRENTS_LOADER_ID);
@@ -674,7 +675,7 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
 
                 String dir = (String) location.getSelectedItem();
                 ((TransmissionDataLoader) loader).setTorrentsLocation(
-                        ids, dir, move.isChecked());
+                    hashStrings, dir, move.isChecked());
                 ((TransmissionSessionInterface) getActivity()).setRefreshing(true);
 
                 if (actionMode != null) {
@@ -791,8 +792,7 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
                     }
 
                     if (charSequence != null && charSequence.length() > 0) {
-                        MatrixCursor cursor = new MatrixCursor(G.concat(
-                            new String[] { Constants.C_ID }, Constants.ColumnGroups.TORRENT_OVERVIEW));
+                        MatrixCursor cursor = new MatrixCursor(originalCursor.getColumnNames());
 
                         String prefixString = charSequence.toString().toLowerCase(Locale.getDefault());
                         Pattern prefixPattern = null;
@@ -855,6 +855,8 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
                                         row.add(originalCursor.getInt(index));
                                     } else if (column.equals(Constants.C_NAME)) {
                                         row.add(name);
+                                    } else if (column.equals(Constants.C_HASH_STRING)) {
+                                        row.add(originalCursor.getString(index));
                                     } else if (column.equals(Constants.C_STATUS)) {
                                         row.add(originalCursor.getInt(index));
                                     } else if (column.equals(Constants.C_METADATA_PERCENT_COMPLETE)) {

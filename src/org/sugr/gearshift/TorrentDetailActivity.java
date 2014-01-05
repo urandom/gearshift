@@ -50,7 +50,7 @@ public class TorrentDetailActivity extends FragmentActivity implements Transmiss
             if (profile == null) return null;
 
             TransmissionDataLoader loader = new TransmissionDataLoader(
-                TorrentDetailActivity.this, profile, session, true, getCurrentTorrentIds());
+                TorrentDetailActivity.this, profile, session, true, getCurrentTorrentHashStrings());
             loader.setQueryOnly(true);
 
             return loader;
@@ -229,40 +229,6 @@ public class TorrentDetailActivity extends FragmentActivity implements Transmiss
         }
     }
 
-    public int[] getCurrentTorrentIds() {
-        TorrentDetailFragment fragment =
-            (TorrentDetailFragment) getSupportFragmentManager().findFragmentByTag(G.DETAIL_FRAGMENT_TAG);
-
-        if (fragment == null) {
-            return null;
-        }
-
-        int current = currentTorrentPosition;
-        int offscreen = 1;
-        int count = offscreen * 2 + 1;
-        if (current == 0) {
-            count--;
-        }
-
-        List<Integer> idList = new ArrayList<Integer>();
-
-        for (int i = 0; i < count; i++) {
-            int position = current + i - (current == 0 ? 0 : offscreen);
-            int id = fragment.getTorrentId(position);
-            if (id != -1) {
-                idList.add(id);
-            }
-        }
-
-        int[] ids = new int[idList.size()];
-        int index = 0;
-        for (int id : idList) {
-            ids[index++] = id;
-        }
-
-        return ids;
-    }
-
     @Override
     public void onPageSelected(int position) {
         currentTorrentPosition = position;
@@ -270,7 +236,7 @@ public class TorrentDetailActivity extends FragmentActivity implements Transmiss
         Loader<TransmissionData> loader = getSupportLoaderManager()
             .getLoader(G.TORRENTS_LOADER_ID);
 
-        ((TransmissionDataLoader) loader).setUpdateIds(getCurrentTorrentIds());
+        ((TransmissionDataLoader) loader).setUpdateHashStrings(getCurrentTorrentHashStrings());
     }
 
     @Override
@@ -298,4 +264,33 @@ public class TorrentDetailActivity extends FragmentActivity implements Transmiss
         else
             item.setActionView(null);
     }
+
+    private String[] getCurrentTorrentHashStrings() {
+        TorrentDetailFragment fragment =
+            (TorrentDetailFragment) getSupportFragmentManager().findFragmentByTag(G.DETAIL_FRAGMENT_TAG);
+
+        if (fragment == null) {
+            return null;
+        }
+
+        int current = currentTorrentPosition;
+        int offscreen = 1;
+        int count = offscreen * 2 + 1;
+        if (current == 0) {
+            count--;
+        }
+
+        List<String> hashList = new ArrayList<String>();
+
+        for (int i = 0; i < count; i++) {
+            int position = current + i - (current == 0 ? 0 : offscreen);
+            String hash = fragment.getTorrentHashString(position);
+            if (hash != null) {
+                hashList.add(hash);
+            }
+        }
+
+        return hashList.toArray(new String[hashList.size()]);
+    }
+
 }

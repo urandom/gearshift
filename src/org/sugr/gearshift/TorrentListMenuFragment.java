@@ -118,7 +118,7 @@ public class TorrentListMenuFragment extends Fragment implements TorrentListNoti
                     equalDirectories = false;
                 } else {
                     for (String d : data.directories) {
-                        if (directories.contains(d)) {
+                        if (!directories.contains(d)) {
                             equalDirectories = false;
                             break;
                         }

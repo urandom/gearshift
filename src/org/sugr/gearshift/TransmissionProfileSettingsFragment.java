@@ -4,6 +4,7 @@ import android.app.ActionBar;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceManager;
@@ -13,6 +14,8 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
+
+import org.sugr.gearshift.datasource.DataSource;
 
 public class TransmissionProfileSettingsFragment extends BasePreferenceFragment {
     private TransmissionProfile mProfile;
@@ -127,8 +130,9 @@ public class TransmissionProfileSettingsFragment extends BasePreferenceFragment 
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.delete:
-                /* FIXME: show undo bar https://plus.google.com/113735310430199015092/posts/RA9WEEGWYp6 */
                 mDeleted = true;
+
+                new CleanDatabaseTask().execute(mProfile.getId());
 
                 PreferenceActivity context = (PreferenceActivity) getActivity();
 
@@ -159,5 +163,21 @@ public class TransmissionProfileSettingsFragment extends BasePreferenceFragment 
         }
 
         super.onDestroy();
+    }
+
+    private class CleanDatabaseTask extends AsyncTask<String, Void, Void> {
+        @Override protected Void doInBackground(String... strings) {
+            DataSource dataSource = new DataSource(getActivity());
+
+            dataSource.open();
+
+            try {
+                dataSource.clearTorrentsForProfile(strings[0]);
+            } finally {
+                dataSource.close();
+            }
+
+            return null;
+        }
     }
 }
