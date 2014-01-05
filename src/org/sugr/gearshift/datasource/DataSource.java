@@ -287,12 +287,13 @@ public class DataSource {
         if (!isOpen())
             return null;
 
+        String profile = TransmissionProfile.getCurrentProfileId(context);
         Cursor cursor = null;
         try {
             cursor = database.query(Constants.T_SESSION, new String[] {
                 Constants.C_NAME, Constants.C_VALUE_INTEGER,
                 Constants.C_VALUE_REAL, Constants.C_VALUE_TEXT
-            }, null, null, null, null, null);
+            }, Constants.C_PROFILE_ID + " = ?", new String[] { profile }, null, null, null);
 
             return cursorToSession(cursor);
         } finally {
@@ -803,6 +804,7 @@ public class DataSource {
 
     protected List<ContentValues> jsonToSessionValues(JsonParser parser) throws IOException {
         List<ContentValues> values = new ArrayList<ContentValues>();
+        String profile = TransmissionProfile.getCurrentProfileId(context);
 
         while (parser.nextToken() != JsonToken.END_OBJECT) {
             String name = parser.getCurrentName();
@@ -810,6 +812,7 @@ public class DataSource {
             boolean valid = true;
 
             parser.nextToken();
+            item.put(Constants.C_PROFILE_ID, profile);
             if (name.equals(TransmissionSession.SetterFields.ALT_SPEED_LIMIT_ENABLED)) {
                 item.put(Constants.C_NAME, name);
                 item.put(Constants.C_VALUE_AFFINITY, Constants.TYPE_BOOLEAN);
