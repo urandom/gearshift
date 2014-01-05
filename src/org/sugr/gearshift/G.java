@@ -78,7 +78,7 @@ public final class G {
     public static final String ARG_PROFILE_ID = "profile_id";
     public static final String ARG_DIRECTORIES = "directories";
     public static final String ARG_PAGE_POSITION = "page_position";
-    public static final String ARG_TORRENT_INDEX = "torrent_index";
+    public static final String ARG_TORRENT_HASH_STRING = "torrent_hash_string";
 
     public static final String DETAIL_FRAGMENT_TAG = "detail_fragment";
 

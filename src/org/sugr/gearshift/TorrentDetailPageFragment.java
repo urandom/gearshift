@@ -356,19 +356,17 @@ public class TorrentDetailPageFragment extends Fragment {
     private class UpdateReceiver extends BroadcastReceiver {
         @Override
         public void onReceive(Context context, Intent intent) {
-            int index = intent.getIntExtra(G.ARG_TORRENT_INDEX, -1);
-            if (index != -1 && torrentHash != null && getActivity() != null) {
+            String hash = intent.getStringExtra(G.ARG_TORRENT_HASH_STRING);
+            if (hash != null && hash.equals(torrentHash) && !isDetached()) {
                 TorrentDetailFragment fragment
                     = (TorrentDetailFragment) getActivity().getSupportFragmentManager().findFragmentByTag(G.DETAIL_FRAGMENT_TAG);
 
                 if (fragment != null) {
-                    int position = fragment.getTorrentPositionInCursor(torrentHash);
-                    if (position != -1) {
-                        if (details != null && !details.torrentCursor.isClosed())
-                            G.logD("Updating detail view for '" + Torrent.getName(details.torrentCursor) + "'");
-
-                        new TorrentDetailTask().execute(torrentHash);
+                    if (details != null && !details.torrentCursor.isClosed()) {
+                        G.logD("Updating detail view for '" + Torrent.getName(details.torrentCursor) + "'");
                     }
+
+                    new TorrentDetailTask().execute(torrentHash);
                 }
             }
         }

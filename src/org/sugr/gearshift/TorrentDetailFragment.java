@@ -101,7 +101,7 @@ public class TorrentDetailFragment extends Fragment implements TorrentListNotifi
             public void onPageSelected(int position) {
                 if (currentTorrentPosition != -1) {
                     Intent intent=new Intent(G.INTENT_PAGE_UNSELECTED);
-                    intent.putExtra(G.ARG_TORRENT_INDEX, currentTorrentPosition);
+                    intent.putExtra(G.ARG_TORRENT_HASH_STRING, currentTorrentPosition);
 
                     getActivity().sendBroadcast(intent);
                 }
@@ -354,7 +354,7 @@ public class TorrentDetailFragment extends Fragment implements TorrentListNotifi
             }
             for (int i = startPosition; i < currentTorrentPosition + limit + 1; ++i) {
                 Intent intent = new Intent(G.INTENT_TORRENT_UPDATE);
-                intent.putExtra(G.ARG_TORRENT_INDEX, i);
+                intent.putExtra(G.ARG_TORRENT_HASH_STRING, getTorrentHashString(i));
 
                 getActivity().sendBroadcast(intent);
             }
