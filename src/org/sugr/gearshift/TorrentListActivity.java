@@ -136,14 +136,17 @@ public class TorrentListActivity extends FragmentActivity
                     setProfile(profiles[0]);
                 } else {
                     setProfile(null);
+                    getSupportLoaderManager().destroyLoader(G.TORRENTS_LOADER_ID);
+                    /* TODO: should display the message that the user hasn't created a profile yet */
                 }
-                getSupportLoaderManager().destroyLoader(G.TORRENTS_LOADER_ID);
             } else {
                 /* The torrents might be loaded before the navigation
                  * callback fires, which will cause the refresh indicator to
                  * appear until the next server request */
                 preventRefreshIndicator = true;
+            }
 
+            if (profile != null) {
                 /* The old cursor will probably already be closed, so start fresh */
                 getSupportLoaderManager().restartLoader(G.TORRENTS_LOADER_ID,
                     null, torrentLoaderCallbacks);
@@ -595,8 +598,8 @@ public class TorrentListActivity extends FragmentActivity
                     .getLoader(G.TORRENTS_LOADER_ID);
                 if (loader != null) {
                     loader.onContentChanged();
-                    setRefreshing(!refreshing);
                 }
+                setRefreshing(!refreshing);
                 return true;
             case R.id.menu_session_settings:
                 intent = new Intent(this, TransmissionSessionActivity.class);
