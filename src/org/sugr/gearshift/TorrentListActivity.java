@@ -53,8 +53,6 @@ public class TorrentListActivity extends FragmentActivity
     public static final String ARG_FILE_PATH = "torrent_file_path";
     public final static String ACTION_OPEN = "torrent_file_open_action";
 
-    private static final String ARG_QUERY_ONLY = "query_only";
-
     /**
      * Whether or not the activity is in two-pane mode, i.e. running on a tablet
      * device.
@@ -86,7 +84,6 @@ public class TorrentListActivity extends FragmentActivity
 
     private boolean altSpeed = false;
     private boolean refreshing = false;
-    private boolean requery = false;
     private boolean fatalError = false;
 
     private boolean preventRefreshIndicator;
@@ -112,7 +109,6 @@ public class TorrentListActivity extends FragmentActivity
             android.support.v4.content.Loader<TransmissionProfile[]> loader,
             TransmissionProfile[] profiles) {
 
-            TransmissionProfile oldProfile = profile;
             profile = null;
             profileAdapter.clear();
             if (profiles.length > 0) {
@@ -149,16 +145,9 @@ public class TorrentListActivity extends FragmentActivity
                  * appear until the next server request */
                 preventRefreshIndicator = true;
 
-                Bundle args = new Bundle();
-                if (oldProfile != null) {
-                    if (profile.getId().equals(oldProfile.getId())) {
-                        args.putBoolean(ARG_QUERY_ONLY, true);
-                    }
-                }
-
                 /* The old cursor will probably already be closed, so start fresh */
                 getSupportLoaderManager().restartLoader(G.TORRENTS_LOADER_ID,
-                    args, torrentLoaderCallbacks);
+                    null, torrentLoaderCallbacks);
             }
 
             TransmissionProfile.setCurrentProfile(profile, TorrentListActivity.this);
@@ -181,9 +170,7 @@ public class TorrentListActivity extends FragmentActivity
             if (profile == null) return null;
 
             TransmissionDataLoader loader = new TransmissionDataLoader(TorrentListActivity.this, profile);
-            if (args != null && args.getBoolean(ARG_QUERY_ONLY, false)) {
-                loader.setQueryOnly(true);
-            }
+            loader.setQueryOnly(true);
             return loader;
         }
 
@@ -268,8 +255,7 @@ public class TorrentListActivity extends FragmentActivity
                     data.hasRemoved, data.hasStatusChanged, data.hasMetadataNeeded);
             }
 
-            if (requery) {
-                requery = false;
+            if (data.queryOnly) {
                 loader.onContentChanged();
             }
         }
@@ -371,7 +357,6 @@ public class TorrentListActivity extends FragmentActivity
                         ((TransmissionDataLoader) loader).setQueryOnly(true);
                         ((TransmissionDataLoader) loader).setDetails(true);
                         loader.onContentChanged();
-                        requery = true;
                     }
 
                     fragment.onCreateOptionsMenu(menu, getMenuInflater());
