@@ -1745,7 +1745,7 @@ public class TorrentDetailPageFragment extends Fragment {
 
     private class TorrentDetailTask extends AsyncTask<String, Void, TorrentDetails> {
         @Override protected TorrentDetails doInBackground(String... hashStrings) {
-            if (!isCancelled()) {
+            if (!isCancelled() && !isDetached()) {
                 DataSource readSource = new DataSource(getActivity());
 
                 readSource.open();

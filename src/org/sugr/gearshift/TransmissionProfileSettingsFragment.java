@@ -132,7 +132,7 @@ public class TransmissionProfileSettingsFragment extends BasePreferenceFragment 
             case R.id.delete:
                 mDeleted = true;
 
-                new CleanDatabaseTask().execute(mProfile.getId());
+                new CleanDatabaseTask(getActivity()).execute(mProfile.getId());
 
                 PreferenceActivity context = (PreferenceActivity) getActivity();
 
@@ -166,8 +166,14 @@ public class TransmissionProfileSettingsFragment extends BasePreferenceFragment 
     }
 
     private class CleanDatabaseTask extends AsyncTask<String, Void, Void> {
+        private Context context;
+        public CleanDatabaseTask(Context context) {
+            super();
+            this.context = context;
+        }
+
         @Override protected Void doInBackground(String... strings) {
-            DataSource dataSource = new DataSource(getActivity());
+            DataSource dataSource = new DataSource(context);
 
             dataSource.open();
 

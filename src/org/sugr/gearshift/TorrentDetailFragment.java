@@ -471,7 +471,7 @@ public class TorrentDetailFragment extends Fragment implements TorrentListNotifi
 
     private class QueryCurrentDataTask extends AsyncTask<String, Void, Boolean> {
         @Override protected Boolean doInBackground(String... hashStrings) {
-            if (!isCancelled()) {
+            if (!isCancelled() && !isDetached()) {
                 DataSource readSource = new DataSource(getActivity());
 
                 readSource.open();

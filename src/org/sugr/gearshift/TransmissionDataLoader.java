@@ -255,7 +255,12 @@ public class TransmissionDataLoader extends AsyncTaskLoader<TransmissionData> {
             /* Remove any previous waiting runners */
             intervalHandler.removeCallbacks(intervalRunner);
 
+            boolean isLastErrorFatal = false;
             if (lastError > 0) {
+                if (lastError != TransmissionData.Errors.DUPLICATE_TORRENT
+                    && lastError != TransmissionData.Errors.INVALID_TORRENT) {
+                    isLastErrorFatal = true;
+                }
                 lastError = 0;
                 lastErrorCode = 0;
             }
@@ -464,12 +469,12 @@ public class TransmissionDataLoader extends AsyncTaskLoader<TransmissionData> {
                     int full = Integer.parseInt(sharedPrefs.getString(G.PREF_FULL_UPDATE, "2"));
 
                     if (iteration % full == 0) {
-                        status = sessManager.getTorrents(fields, null, iteration == 0);
+                        status = sessManager.getTorrents(fields, null, iteration == 0 || isLastErrorFatal);
                     } else {
                         status = sessManager.getActiveTorrents(fields);
                     }
                 } else {
-                    status = sessManager.getTorrents(fields, null, iteration == 0);
+                    status = sessManager.getTorrents(fields, null, iteration == 0 || isLastErrorFatal);
                 }
             } catch (ManagerException e) {
                 return handleError(e);

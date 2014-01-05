@@ -1019,7 +1019,9 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
 
             if (scrollToTop) {
                 scrollToTop = false;
-                getListView().setSelectionAfterHeaderView();
+                if (TorrentListFragment.this.getView() != null) {
+                    getListView().setSelectionAfterHeaderView();
+                }
             }
 
             if (filterActive) {

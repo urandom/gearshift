@@ -479,6 +479,7 @@ public class DataSource {
                     args);
 
                 database.delete(Constants.T_TORRENT_PROFILE, Constants.C_PROFILE_ID + " = ?", args);
+                database.delete(Constants.T_SESSION, Constants.C_PROFILE_ID + " = ?", args);
 
                 database.setTransactionSuccessful();
 
