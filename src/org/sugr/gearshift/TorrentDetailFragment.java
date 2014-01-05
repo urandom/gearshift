@@ -23,6 +23,7 @@ import android.widget.Spinner;
 import org.sugr.gearshift.datasource.DataSource;
 import org.sugr.gearshift.datasource.TorrentNameStatus;
 
+import java.util.Arrays;
 import java.util.HashMap;
 
 public class TorrentDetailFragment extends Fragment implements TorrentListNotification {
@@ -229,14 +230,16 @@ public class TorrentDetailFragment extends Fragment implements TorrentListNotifi
         outState.putStringArray(STATE_ACTION_MOVE_HASH_STRINGS, actionMoveHashStrings);
     }
 
-    public void changeCursor(Cursor newCursor) {
-        updateTorrentData(newCursor);
+    public boolean changeCursor(Cursor newCursor) {
+        boolean equal = updateTorrentData(newCursor);
         if (pager.getAdapter() == null) {
             setCurrentTorrentHashString(currentTorrentPosition);
 
             resetPagerAdapter();
             setMenuTorrentState();
         }
+
+        return equal;
     }
     public int getTorrentPositionInCursor(String hash) {
         Integer position = torrentPositionMap.get(hash);
@@ -277,10 +280,11 @@ public class TorrentDetailFragment extends Fragment implements TorrentListNotifi
             pager.setCurrentItem(position);
         }
     }
-    private void updateTorrentData(Cursor cursor) {
+    private boolean updateTorrentData(Cursor cursor) {
         int cursorPosition = cursor.getPosition();
         int position = -1;
 
+        String[] oldHashStrings = torrentHashStrings;
         torrentHashStrings = new String[cursor.getCount()];
         torrentPositionMap.clear();
         cursor.moveToFirst();
@@ -299,6 +303,8 @@ public class TorrentDetailFragment extends Fragment implements TorrentListNotifi
         }
 
         cursor.moveToPosition(cursorPosition);
+
+        return Arrays.equals(oldHashStrings, torrentHashStrings);
     }
 
     public void resetPagerAdapter() {
@@ -324,9 +330,7 @@ public class TorrentDetailFragment extends Fragment implements TorrentListNotifi
         }
         boolean updateMenu = status;
 
-        changeCursor(cursor);
-
-        if (removed || added) {
+        if (!changeCursor(cursor)) {
             int position = getTorrentPositionInCursor(currentTorrentHashString);
 
             resetPagerAdapter();
