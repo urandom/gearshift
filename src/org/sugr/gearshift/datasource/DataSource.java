@@ -1758,7 +1758,7 @@ public class DataSource {
                     + Constants.C_UPLOAD_RATIO + " < " + Constants.C_SEED_RATIO_LIMIT
                     + " THEN " + (Torrent.Status.STOPPED + 40)
                     + " ELSE " + (Torrent.Status.STOPPED + 50)
-                    + " END)"   
+                    + " END)"
                     + " WHEN " + Torrent.Status.CHECK_WAITING
                     + " THEN " + (Torrent.Status.CHECK_WAITING + 100)
                     + " WHEN " + Torrent.Status.DOWNLOAD_WAITING
