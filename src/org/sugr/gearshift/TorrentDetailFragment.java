@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.Loader;
 import android.support.v4.view.ViewPager;
@@ -339,7 +340,11 @@ public class TorrentDetailFragment extends Fragment implements TorrentListNotifi
             } else {
                 updateMenu = true;
             }
-            pagerCallbacks.onPageSelected(pager.getCurrentItem());
+            new Handler().post(new Runnable() {
+                @Override public void run() {
+                    pagerCallbacks.onPageSelected(pager.getCurrentItem());
+                }
+            });
         }
 
         if (updateMenu) {
