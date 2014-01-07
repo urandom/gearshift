@@ -263,7 +263,7 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
                             ((TransmissionSessionInterface) getActivity()).setRefreshing(true);
                         }
                     } else if (key.equals(G.PREF_CURRENT_PROFILE)) {
-                        if (prefs.getString(key, null) == null) {
+                        if (prefs.getString(key, null) == null && getActivity() != null) {
                             setEmptyText(R.string.no_profiles_empty_list);
                         }
                     } else if (key.equals(G.PREF_SHOW_STATUS) && getView() != null) {
