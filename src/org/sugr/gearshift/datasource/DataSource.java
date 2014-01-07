@@ -1506,10 +1506,9 @@ public class DataSource {
 
                 break;
             case Torrent.Status.STOPPED:
-                statusText = context.getString(
-                    status == Torrent.Status.STOPPED || uploadRatio < seedLimit
-                        ? R.string.status_state_paused
-                        : R.string.status_state_finished
+                statusText = context.getString(uploadRatio < seedLimit
+                    ? R.string.status_state_paused
+                    : R.string.status_state_finished
                 );
 
                 break;
@@ -1755,12 +1754,16 @@ public class DataSource {
             case STATUS:
                 sort = "(CASE " + Constants.C_STATUS
                     + " WHEN " + Torrent.Status.STOPPED
+                    + " THEN (CASE WHEN "
+                    + Constants.C_UPLOAD_RATIO + " < " + Constants.C_SEED_RATIO_LIMIT
                     + " THEN " + (Torrent.Status.STOPPED + 40)
+                    + " ELSE " + (Torrent.Status.STOPPED + 50)
+                    + " END)"   
                     + " WHEN " + Torrent.Status.CHECK_WAITING
                     + " THEN " + (Torrent.Status.CHECK_WAITING + 100)
                     + " WHEN " + Torrent.Status.DOWNLOAD_WAITING
                     + " THEN " + (Torrent.Status.DOWNLOAD_WAITING + 10)
-                    + " WHEN " + Torrent.Status.CHECK_WAITING
+                    + " WHEN " + Torrent.Status.SEED_WAITING
                     + " THEN " + (Torrent.Status.SEED_WAITING + 20)
                     + " ELSE " + Constants.C_STATUS
                     + " END)";

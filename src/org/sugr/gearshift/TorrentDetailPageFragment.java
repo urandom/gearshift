@@ -357,15 +357,11 @@ public class TorrentDetailPageFragment extends Fragment {
         @Override
         public void onReceive(Context context, Intent intent) {
             String hash = intent.getStringExtra(G.ARG_TORRENT_HASH_STRING);
-            if (hash != null && hash.equals(torrentHash) && !isDetached()) {
+            if (hash != null && hash.equals(torrentHash) && getActivity() != null) {
                 TorrentDetailFragment fragment
                     = (TorrentDetailFragment) getActivity().getSupportFragmentManager().findFragmentByTag(G.DETAIL_FRAGMENT_TAG);
 
                 if (fragment != null) {
-                    if (details != null && !details.torrentCursor.isClosed()) {
-                        G.logD("Updating detail view for '" + Torrent.getName(details.torrentCursor) + "'");
-                    }
-
                     new TorrentDetailTask().execute(torrentHash);
                 }
             }
@@ -1743,7 +1739,7 @@ public class TorrentDetailPageFragment extends Fragment {
 
     private class TorrentDetailTask extends AsyncTask<String, Void, TorrentDetails> {
         @Override protected TorrentDetails doInBackground(String... hashStrings) {
-            if (!isCancelled() && !isDetached()) {
+            if (!isCancelled() && getActivity() != null) {
                 DataSource readSource = new DataSource(getActivity());
 
                 readSource.open();
