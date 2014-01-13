@@ -108,6 +108,7 @@ public class TorrentListActivity extends FragmentActivity
             android.support.v4.content.Loader<TransmissionProfile[]> loader,
             TransmissionProfile[] profiles) {
 
+            TransmissionProfile oldProfile = profile;
             profile = null;
             profileAdapter.clear();
             if (profiles.length > 0) {
@@ -146,7 +147,7 @@ public class TorrentListActivity extends FragmentActivity
                 preventRefreshIndicator = true;
             }
 
-            if (profile != null) {
+            if (profile != null && (oldProfile == null || !profile.getId().equals(oldProfile.getId()))) {
                 /* The old cursor will probably already be closed, so start fresh */
                 getSupportLoaderManager().restartLoader(G.TORRENTS_LOADER_ID,
                     null, torrentLoaderCallbacks);
@@ -466,6 +467,8 @@ public class TorrentListActivity extends FragmentActivity
         if (savedInstanceState != null
             && savedInstanceState.containsKey(STATE_CURRENT_PROFILE)) {
             profile = savedInstanceState.getParcelable(STATE_CURRENT_PROFILE);
+            getSupportLoaderManager().restartLoader(G.TORRENTS_LOADER_ID,
+                    null, torrentLoaderCallbacks);
         }
 
         getSupportLoaderManager().initLoader(G.PROFILES_LOADER_ID, null, profileLoaderCallbacks);
