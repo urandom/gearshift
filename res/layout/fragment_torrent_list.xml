@@ -19,6 +19,7 @@
         <TextView
             android:id="@+id/status_bar_text"
             android:visibility="gone"
+            android:alpha="0.3"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:paddingLeft="4dp"

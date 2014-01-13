@@ -19,6 +19,10 @@
 #   public *;
 #}
 
+# Keep line numbers
+-renamesourcefileattribute SourceFile    
+-keepattributes SourceFile,LineNumberTable
+
 -optimizationpasses 5
 -dontusemixedcaseclassnames
 -dontskipnonpubliclibraryclasses
@@ -29,3 +33,32 @@
 
 -keep public class * extends android.support.v4.app.Fragment
 -keep public class * extends android.app.Fragment
+-dontwarn org.w3c.dom.bootstrap.DOMImplementationRegistry
+-keep public class com.google.vending.licensing.ILicensingService
+-keep public class com.android.vending.licensing.ILicensingService
+
+-keepattributes *Annotation*,EnclosingMethod,Signature
+-keepnames class com.fasterxml.jackson.** {
+  *;
+}
+-dontwarn com.fasterxml.jackson.databind.**
+-keep public class org.sugr.gearshift.Torrent {
+  public void set*(***);
+  public *** get*();
+  public boolean is*();
+}
+-keep public class org.sugr.gearshift.Torrent$* {
+  public void set*(***);
+  public *** get*();
+  public boolean is*();
+}
+-keep public class org.sugr.gearshift.TransmissionSession {
+  public void set*(***);
+  public *** get*();
+  public boolean is*();
+}
+-keep public class org.sugr.gearshift.TransmissionSessionStats {
+  public void set*(***);
+  public *** get*();
+  public boolean is*();
+}

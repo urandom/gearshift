@@ -9,14 +9,12 @@ import java.io.StringWriter;
 import java.text.DecimalFormat;
 import java.util.Comparator;
 
-class G {
+public final class G {
     public static final String PREF_DEBUG = "debug";
 
     public static final String PREF_UPDATE_ACTIVE = "update_active_torrents";
     public static final String PREF_FULL_UPDATE = "full_update";
     public static final String PREF_UPDATE_INTERVAL = "update_interval";
-    public static final String PREF_START_PAUSED = "start_paused";
-    public static final String PREF_DELETE_LOCAL = "delete_local";
     public static final String PREF_SHOW_STATUS = "show_status";
 
     public static final String PREF_PROFILES = "profiles";
@@ -33,6 +31,9 @@ class G {
     public static final String PREF_RETRIES = "profile_retries";
     public static final String PREF_DIRECTORIES = "profile_directories";
     public static final String PREF_LAST_DIRECTORY = "profile_last_directory";
+    public static final String PREF_MOVE_DATA = "profile_move_data";
+    public static final String PREF_DELETE_LOCAL = "profile_delete_local";
+    public static final String PREF_START_PAUSED = "profile_start_paused";
     public static final String PREF_PREFIX = "profile_";
 
     public static final String PREF_LIST_SORT_BY = "torrents_sort_by";
@@ -77,30 +78,36 @@ class G {
     public static final String ARG_PROFILE_ID = "profile_id";
     public static final String ARG_DIRECTORIES = "directories";
     public static final String ARG_PAGE_POSITION = "page_position";
+    public static final String ARG_TORRENT_HASH_STRING = "torrent_hash_string";
 
     public static final String DETAIL_FRAGMENT_TAG = "detail_fragment";
 
     public static final String PROFILES_PREF_NAME = "profiles";
 
+    public static final String INTENT_TORRENT_UPDATE = "org.sugr.gearshift.TORRENT_UPDATE";
+    public static final String INTENT_PAGE_UNSELECTED = "org.sugr.gearshift.PAGE_UNSELECTED";
+
     public static final int PROFILES_LOADER_ID = 1;
     public static final int TORRENTS_LOADER_ID = 2;
     public static final int SESSION_LOADER_ID = 3;
+    public static final int TORRENT_LIST_TRAFFIC_LOADER_ID = 4;
+    public static final int TORRENT_MENU_TRAFFIC_LOADER_ID = 5;
 
     private static final String LogTag = "GearShift";
 
     public static enum FilterBy {
         ALL, DOWNLOADING, SEEDING, PAUSED, COMPLETE, INCOMPLETE,
         ACTIVE, CHECKING
-    };
+    }
 
     public static enum SortBy {
         NAME, SIZE, STATUS, RATE_DOWNLOAD, RATE_UPLOAD, AGE,
         PROGRESS, RATIO, ACTIVITY, LOCATION, PEERS, QUEUE
-    };
+    }
 
     public static enum SortOrder {
         ASCENDING, DESCENDING
-    };
+    }
 
     public static Comparator<String> SIMPLE_STRING_COMPARATOR = new Comparator<String>() {
         @Override
@@ -157,7 +164,12 @@ class G {
         if(size <= 0) return "0 B";
         final String[] units = new String[] { "B", "KB", "MB", "GB", "TB" };
         int digitGroups = (int) (Math.log10(size)/Math.log10(1024));
-        return new DecimalFormat("#,##0.#").format(size/Math.pow(1024, digitGroups)) + " " + units[digitGroups];
+        float scaledSize = size / (float) Math.pow(1024, digitGroups);
+        if (scaledSize < 100) {
+            return new DecimalFormat("#,##0.##").format(scaledSize) + " " + units[digitGroups];
+        } else {
+            return new DecimalFormat("#,##0.#").format(scaledSize) + " " + units[digitGroups];
+        }
     }
 
     public static String readablePercent(float percent) {
@@ -208,4 +220,32 @@ class G {
         BackupManager bm = new BackupManager(context);
         bm.dataChanged();
     }
+
+    public static String[] concat(String[]... arrays) {
+        int len = 0;
+        for (final String[] array : arrays) {
+            len += array.length;
+        }
+
+        final String[] result = new String[len];
+
+        int currentPos = 0;
+        for (final String[] array : arrays) {
+            System.arraycopy(array, 0, result, currentPos, array.length);
+            currentPos += array.length;
+        }
+
+        return result;
+    }
+
+    public static CharSequence trimTrailingWhitespace(CharSequence source) {
+        if (source == null)
+            return "";
+
+        int i = source.length();
+        while (--i >= 0 && Character.isWhitespace(source.charAt(i))) {}
+
+        return source.subSequence(0, i + 1);
+    }
+
 }

@@ -85,10 +85,7 @@
     <string name="update_interval">Update interval</string>
     <string name="update_interval_summary_format">%1$s</string>
     <string name="session_update_interval">Session update interval</string>
-    <string name="torrents">Torrents</string>
-    <string name="start_paused">Start paused</string>
-    <string name="delete_local">Delete local torrent file when adding</string>
-    
+
     <string name="profile">Profile</string>
     <string name="profile_summary_format">%1$s</string>
     <string name="profile_name">Name</string>
@@ -122,11 +119,12 @@
     <string name="access_denied_empty_list">&lt;h2&gt;&lt;font color="#cc0000"&gt;Access denied!&lt;/font&gt;&lt;/h2&gt;Your credentials might be incorrect, or your IP address might not be in the daemon\'s white list.</string>
     <string name="no_json_empty_list">&lt;h2&gt;&lt;font color="#cc0000"&gt;Unexpected response!&lt;/font&gt;&lt;/h2&gt;Please check if the RPC path in your current profile is correct.</string>
     <string name="no_connection_empty_list">&lt;h2&gt;&lt;font color="#cc0000"&gt;Unable to connect!&lt;/font&gt;&lt;/h2&gt;Please check if the server address and port in your current profile are correct.</string>
-    <string name="generic_http_empty_list"><![CDATA[<h2><font color="#cc0000>HTTP client error!</font></h2>The server might be expecting an SSL connection.]]></string>
+    <string name="generic_http_empty_list"><![CDATA[<h2><font color="#cc0000>HTTP client error!</font></h2>The HTTP status code is '%1$s'. The server might be expecting an SSL connection.]]></string>
     <string name="thread_error_empty_list">&lt;h2&gt;&lt;font color="#cc0000"&gt;Internal error!&lt;/font&gt;&lt;/h2&gt;</string>
     <string name="response_error_empty_list">&lt;h2&gt;&lt;font color="#cc0000"&gt;Transmission daemon error!&lt;/font&gt;&lt;/h2&gt;A request to the daemon was not successful. See the logcat for more details.</string>
     <string name="timeout_empty_list"><![CDATA[<h2><font color="#cc0000>Connection timeout!</font></h2>]]></string>
     <string name="out_of_memory_empty_list"><![CDATA[<h2><font color="#cc0000>Out of memory!</font></h2>]]></string>
+    <string name="json_parse_empty_list"><![CDATA[<h2><font color="#cc0000>Unexpected server response!</font></h2>]]>This isn't the response we are looking for.</string>
     
     <string name="traffic_downloading_format">%1$s of %2$s (%3$s)%4$s</string>
     <string name="traffic_downloading_percentage_format">%1$s%%</string>
@@ -210,8 +208,8 @@
     <string name="about_name">Gear Shift</string>
     <string name="app_icon">App icon</string>
     <string name="about_description">Gear Shift is a Transmission remote client, created to provide a great experience when dealing with all aspects of torrent management.</string>
-    <string name="about_contact">If you find any bugs, please write a post in the <![CDATA[<a href="https://plus.google.com/communities/115768021623513120266">Gear Shift G+ community</a>]]>, filed under bugs. Doing so will also show other people whether the bug has been reported already. Be sure to turn on the \'Debug\' options under \'General Settings\', and include the logcat related to the app.</string>
-    <string name="about_donation">This app is provided for free, without any annoying ads. If you find it useful, consider <![CDATA[<a href="https://www.paypal.com/bg/cgi-bin/webscr?cmd=_donations&business=support@sugr.org&lc=US&item_name=Gear Shift&no_note=1&no_shipping=1&currency_code=EUR">sending a beer ot two this way</a>]]>.</string>
+    <string name="about_contact">If you find any bugs, please write a post in the <![CDATA[<a href="%1$s">Gear Shift G+ community</a>]]>, filed under bugs. Doing so will also show other people whether the bug has been reported already. Be sure to turn on the \'Debug\' options under \'General Settings\', and include the logcat related to the app.</string>
+    <string name="about_donation">This app is provided for free, without any annoying ads. If you find it useful, consider <![CDATA[<a href="%1$s">sending a beer or two this way</a>]]>.</string>
     
     <string name="ic_menu_select_all">Select All</string>
     
@@ -325,6 +323,8 @@
     <string name="session_settings_distributed_hash_table">Distributed Hash Table (DHT)</string>
         
     <string name="session_settings_local_discovery">Local peer discovery</string>
+
+    <string name="session_settings_utp">Micro Transport Protocol (µTP)</string>
         
     <string name="session_settings_blocklist">Blocklist</string>
         
@@ -403,7 +403,7 @@
     <string name="find">Find</string>
 
     <string name="filter">Filter</string>
-    <string name="import_session_directories">Import sesssion directories</string>
+    <string name="import_session_directories">Import session directories</string>
 
     <string name="tracker_unknown_host">Unknown host</string>
     <string name="tracker_tier"><![CDATA[Tier %1$d]]></string>
@@ -435,4 +435,76 @@
     <string name="status_bar_limit_format"><![CDATA[ (<i>%1$s</i>)]]></string>
     <string name="user_interface_header">User interface</string>
     <string name="show_status_bar">Status bar below the torrent list</string>
+    <string name="error_deleting_torrent_file">Unable to delete torrent file</string>
+
+    <string-array name="torrent_priority">
+        <item>Low</item>
+        <item>Normal</item>
+        <item>High</item>
+    </string-array>
+
+    <string-array name="torrent_seed_ratio_mode">
+        <item>Use global settings</item>
+        <item>Stop seeding at ratio</item>
+        <item>Seed regardless of ratio</item>
+    </string-array>
+
+    <string-array name="pref_full_update_entries">
+        <item>2 updates</item>
+        <item>3 updates</item>
+        <item>5 updates</item>
+        <item>10 updates</item>
+        <item>30 updates</item>
+        <item>60 updates</item>
+        <item>100 updates</item>
+    </string-array>
+
+    <string-array name="pref_update_interval_entries">
+        <item>Every second</item>
+        <item>2 seconds</item>
+        <item>5 seconds</item>
+        <item>10 seconds</item>
+        <item>30 seconds</item>
+        <item>Every minute</item>
+        <item>2 minutes</item>
+        <item>Never</item>
+    </string-array>
+
+    <string-array name="pref_con_retries_entries">
+        <item>Once</item>
+        <item>Twice</item>
+        <item>3 times</item>
+        <item>5 times</item>
+        <item>10 times</item>
+        <item>15 times</item>
+    </string-array>
+
+    <string-array name="pref_base_sort_method_entries">
+        <item>Name</item>
+        <item>Size</item>
+        <item>Status</item>
+        <item>Download speed</item>
+        <item>Upload speed</item>
+        <item>Age</item>
+        <item>Progress</item>
+        <item>Ratio</item>
+        <item>Activity</item>
+        <item>Location</item>
+        <item>Peers</item>
+        <item>Queue position</item>
+    </string-array>
+
+    <string-array name="pref_base_sort_order_entries">
+        <item>Ascending</item>
+        <item>Descending</item>
+        <item>Primary order</item>
+        <item>Reverse primary order</item>
+    </string-array>
+
+    <string-array name="session_settings_encryption">
+        <item>Required</item>
+        <item>Preferred</item>
+        <item>Tolerated</item>
+    </string-array>
+
 </resources>
