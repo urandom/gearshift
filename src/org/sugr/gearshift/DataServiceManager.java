@@ -21,7 +21,7 @@ public class DataServiceManager {
     }
 
     public DataServiceManager start() {
-        return start(DataService.REQUEST_TYPE_ALL_TORRENTS, null);
+        return start(DataService.Requests.ALL_TORRENTS, null);
     }
 
     public DataServiceManager start(String requestType, Bundle args) {
@@ -46,6 +46,14 @@ public class DataServiceManager {
                 0,  new Intent(context, DataService.class), 0);
 
         alarmManager.cancel(pendingIntent);
+
+        return this;
+    }
+
+    public DataServiceManager clearTorrents() {
+        Intent intent = createIntent(DataService.Requests.CURRENT_TORRENTS, null);
+
+        context.startService(intent);
 
         return this;
     }

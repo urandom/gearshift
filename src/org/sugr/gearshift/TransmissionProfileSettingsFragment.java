@@ -18,10 +18,10 @@ import android.view.View.OnClickListener;
 import org.sugr.gearshift.datasource.DataSource;
 
 public class TransmissionProfileSettingsFragment extends BasePreferenceFragment {
-    private TransmissionProfile mProfile;
+    private TransmissionProfile profile;
 
-    private boolean mDeleted = false;
-    private boolean mSaved = false;
+    private boolean deleted = false;
+    private boolean saved = false;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -34,13 +34,13 @@ public class TransmissionProfileSettingsFragment extends BasePreferenceFragment 
         }
 
         if (id == null)
-            mProfile = new TransmissionProfile(getActivity());
+            profile = new TransmissionProfile(getActivity());
         else {
-            mProfile = new TransmissionProfile(id, getActivity());
-            mProfile.fillTemporatyPreferences();
+            profile = new TransmissionProfile(id, getActivity());
+            profile.fillTemporatyPreferences();
         }
 
-        mSharedPrefs = mProfile.getPreferences(getActivity());
+        mSharedPrefs = profile.getPreferences(getActivity());
 
         getPreferenceManager().setSharedPreferencesName(G.PROFILES_PREF_NAME);
 
@@ -98,7 +98,7 @@ public class TransmissionProfileSettingsFragment extends BasePreferenceFragment 
                         return;
                     }
 
-                    mSaved = true;
+                    saved = true;
 
                     PreferenceActivity context = (PreferenceActivity) getActivity();
 
@@ -122,7 +122,7 @@ public class TransmissionProfileSettingsFragment extends BasePreferenceFragment 
         menu.clear();
 
         inflater.inflate(R.menu.torrent_profile_settings_fragment, menu);
-        if (mProfile == null)
+        if (profile == null)
             menu.findItem(R.id.delete).setVisible(false);
     }
 
@@ -130,9 +130,9 @@ public class TransmissionProfileSettingsFragment extends BasePreferenceFragment 
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.delete:
-                mDeleted = true;
+                deleted = true;
 
-                new CleanDatabaseTask(getActivity()).execute(mProfile.getId());
+                new CleanDatabaseTask(getActivity()).execute(profile.getId());
 
                 PreferenceActivity context = (PreferenceActivity) getActivity();
 
@@ -149,15 +149,15 @@ public class TransmissionProfileSettingsFragment extends BasePreferenceFragment 
 
     @Override
     public void onDestroy() {
-        if (mSaved) {
-            mProfile.save(true);
-        } else if (mDeleted) {
-            mProfile.delete();
+        if (saved) {
+            profile.save(true);
+        } else if (deleted) {
+            profile.delete();
         }
 
         TransmissionProfile.cleanTemporaryPreferences(getActivity());
 
-        if (mSaved || mDeleted) {
+        if (saved || deleted) {
             PreferenceActivity context = (PreferenceActivity) getActivity();
             G.requestBackup(context);
         }

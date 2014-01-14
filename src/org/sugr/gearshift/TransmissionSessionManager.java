@@ -44,48 +44,48 @@ import javax.net.ssl.X509TrustManager;
 public class TransmissionSessionManager {
     public class ManagerException extends Exception {
         private static final long serialVersionUID = 6477491498169428449L;
-        int mCode;
+        private int code;
         public ManagerException(String message, int code) {
             super(message == null ? "" : message);
-            mCode = code;
+            this.code = code;
         }
 
         public int getCode() {
-            return mCode;
+            return code;
         }
     }
 
     public final static String PREF_LAST_SESSION_ID = "last_session_id";
 
-    private TransmissionProfile mProfile;
+    private TransmissionProfile profile;
 
-    private ConnectivityManager mConnManager;
+    private ConnectivityManager connManager;
 
-    private String mSessionId;
+    private String sessionId;
 
-    private int mInvalidSessionRetries = 0;
-    private SharedPreferences mDefaultPrefs;
+    private int invalidSessionRetries = 0;
+    private SharedPreferences defaultPrefs;
 
     private DataSource dataSource;
 
     public TransmissionSessionManager(Context context, TransmissionProfile profile, DataSource dataSource) {
-        mProfile = profile;
+        this.profile = profile;
 
         this.dataSource = dataSource;
-        mConnManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
-        mDefaultPrefs = PreferenceManager.getDefaultSharedPreferences(context);
+        connManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        defaultPrefs = PreferenceManager.getDefaultSharedPreferences(context);
 
-        mSessionId = mDefaultPrefs.getString(PREF_LAST_SESSION_ID, null);
+        sessionId = defaultPrefs.getString(PREF_LAST_SESSION_ID, null);
     }
 
     public boolean hasConnectivity() {
-        NetworkInfo info = mConnManager.getActiveNetworkInfo();
+        NetworkInfo info = connManager.getActiveNetworkInfo();
         return (info != null);
     }
 
     public void setProfile(TransmissionProfile profile) {
-        mProfile = profile;
-        mSessionId = null;
+        this.profile = profile;
+        sessionId = null;
     }
 
     public void updateSession() throws ManagerException {
@@ -247,6 +247,10 @@ public class TransmissionSessionManager {
         }
     }
 
+    public void clearTorrents() {
+        dataSource.clearTorrentsForProfile(profile.getId());
+    }
+
     public int addTorrent(String uri, String meta, String location, boolean paused)
             throws ManagerException {
         ObjectNode request = createRequest("torrent-add", true);
@@ -299,7 +303,7 @@ public class TransmissionSessionManager {
         ObjectNode request = createRequest("free-space", true);
         ObjectNode arguments = (ObjectNode) request.path("arguments");
 
-        String path = mDefaultPrefs.getString(G.PREF_LIST_DIRECTORY, null);
+        String path = defaultPrefs.getString(G.PREF_LIST_DIRECTORY, null);
         if (path == null) {
             path = defaultPath;
         }
@@ -324,11 +328,11 @@ public class TransmissionSessionManager {
         HttpURLConnection conn = null;
         try {
             URL url = new URL(
-                  (mProfile.isUseSSL() ? "https://" : "http://")
-                + mProfile.getHost() + ":" + mProfile.getPort()
-                + mProfile.getPath());
+                  (profile.isUseSSL() ? "https://" : "http://")
+                + profile.getHost() + ":" + profile.getPort()
+                + profile.getPath());
             conn = (HttpURLConnection) url.openConnection();
-            if (mProfile.isUseSSL()) {
+            if (profile.isUseSSL()) {
                 try {
                     SSLContext sc = SSLContext.getInstance("TLS");
                     sc.init(null, new TrustManager[] {
@@ -359,8 +363,8 @@ public class TransmissionSessionManager {
                     throw new ManagerException("ssl", -1);
                 }
             }
-            int timeout = mProfile.getTimeout() > 0
-                ? mProfile.getTimeout() * 1000
+            int timeout = profile.getTimeout() > 0
+                ? profile.getTimeout() * 1000
                 : 10000;
             conn.setReadTimeout(timeout);
             conn.setConnectTimeout(timeout);
@@ -373,15 +377,15 @@ public class TransmissionSessionManager {
             conn.setDoInput(true);
             conn.setDoOutput(true);
 
-            if (mSessionId != null) {
-                conn.setRequestProperty("X-Transmission-Session-Id", mSessionId);
+            if (sessionId != null) {
+                conn.setRequestProperty("X-Transmission-Session-Id", sessionId);
             }
 
-            String user = mProfile.getUsername();
+            String user = profile.getUsername();
             if (user != null && user.length() > 0) {
                 conn.setRequestProperty("Authorization",
                         "Basic " + Base64.encodeToString(
-                                (user + ":" + mProfile.getPassword()).getBytes(), Base64.DEFAULT));
+                                (user + ":" + profile.getPassword()).getBytes(), Base64.DEFAULT));
             }
 
             String json = data.toString();
@@ -400,16 +404,16 @@ public class TransmissionSessionManager {
 
             // TorrentListActivity.logD("Got a response code " + code);
             if (code == 409) {
-                mSessionId = getSessionId(conn);
-                if (mInvalidSessionRetries < 3 && mSessionId != null) {
-                    ++mInvalidSessionRetries;
+                sessionId = getSessionId(conn);
+                if (invalidSessionRetries < 3 && sessionId != null) {
+                    ++invalidSessionRetries;
                     requestData(data, response);
                     return;
                 } else {
-                    mInvalidSessionRetries = 0;
+                    invalidSessionRetries = 0;
                 }
             } else {
-                mInvalidSessionRetries = 0;
+                invalidSessionRetries = 0;
             }
 
             switch(code) {
@@ -467,7 +471,7 @@ public class TransmissionSessionManager {
         String id = conn.getHeaderField("X-Transmission-Session-Id");
 
         if (id != null && !id.equals("")) {
-            Editor e = mDefaultPrefs.edit();
+            Editor e = defaultPrefs.edit();
             e.putString(PREF_LAST_SESSION_ID, id);
             e.commit();
         }

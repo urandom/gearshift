@@ -15,27 +15,27 @@ import java.util.Set;
 import java.util.UUID;
 
 public class TransmissionProfile implements Parcelable, Comparable<TransmissionProfile> {
-    private String mId;
-    private String mName = "";
-    private String mHost = "";
-    private int mPort = 9091;
-    private String mPath = "/transmission/rpc";
-    private String mUsername = "";
-    private String mPassword = "";
+    private String id;
+    private String name = "";
+    private String host = "";
+    private int port = 9091;
+    private String path = "/transmission/rpc";
+    private String username = "";
+    private String password = "";
 
-    private boolean mUseSSL = false;
+    private boolean useSSL = false;
 
-    private int mTimeout = 40;
-    private int mRetries = 3;
+    private int timeout = 40;
+    private int retries = 3;
 
-    private String mLastDirectory;
-    private boolean mMoveData = true;
-    private boolean mDeleteLocal= false;
-    private boolean mStartPaused = false;
+    private String lastDirectory;
+    private boolean moveData = true;
+    private boolean deleteLocal = false;
+    private boolean startPaused = false;
 
-    private Set<String> mDirectories = new HashSet<String>();
+    private Set<String> directories = new HashSet<String>();
 
-    private Context mContext;
+    private Context context;
 
     public static TransmissionProfile[] readProfiles(Context context) {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
@@ -95,81 +95,81 @@ public class TransmissionProfile implements Parcelable, Comparable<TransmissionP
     }
 
     public TransmissionProfile(Context context) {
-        mId = generateId();
+        id = generateId();
 
-        mContext = context;
+        this.context = context;
     }
 
     public TransmissionProfile(String id, Context context) {
-        mId = id;
+        this.id = id;
 
-        mContext = context;
+        this.context = context;
         load();
     }
 
     public String getId() {
-        return mId;
+        return id;
     }
 
     public String getName() {
-        return mName;
+        return name;
     }
     public String getHost() {
-        return mHost;
+        return host;
     }
     public int getPort() {
-        return mPort;
+        return port;
     }
     public String getPath() {
-        return mPath;
+        return path;
     }
     public String getUsername() {
-        return mUsername;
+        return username;
     }
     public String getPassword() {
-        return mPassword;
+        return password;
     }
     public boolean isUseSSL() {
-        return mUseSSL;
+        return useSSL;
     }
     public int getTimeout() {
-        return mTimeout;
+        return timeout;
     }
     public int getRetries() {
-        return mRetries;
+        return retries;
     }
     public Set<String> getDirectories() {
-        return mDirectories;
+        return directories;
     }
     public void setName(String name) {
-        mName = name;
+        this.name = name;
     }
     public void setHost(String host) {
-        mHost = host;
+        this.host = host;
     }
     public void setPort(int port) {
-        this.mPort = port;
+        this.port = port;
     }
     public void setPath(String path) {
-        mPath = path;
+        this.path = path;
     }
     public void setUsername(String username) {
-        mUsername = username;
+        this.username = username;
     }
     public void setPassword(String password) {
-        mPassword = password;
+        this.password = password;
     }
     public void setUseSSL(boolean useSSL) {
-        mUseSSL = useSSL;
+        this.useSSL = useSSL;
     }
     public void setTimeout(int timeout) {
-        mTimeout = timeout;
+        this.timeout = timeout;
     }
     public void setRetries(int retries) {
-        mRetries = retries;
+        this.retries = retries;
     }
     public void setDirectories(Set<String> directories) {
-        mDirectories = directories;
+        this.directories = directories;
     }
     
     public void load() {
@@ -177,45 +177,45 @@ public class TransmissionProfile implements Parcelable, Comparable<TransmissionP
     }
 
     public void load(boolean fromPreferences) {
-        SharedPreferences pref = getPreferences(mContext);
+        SharedPreferences pref = getPreferences(context);
         boolean legacy = false;
-        if (!fromPreferences && pref.getString(G.PREF_NAME + mId, null) == null) {
+        if (!fromPreferences && pref.getString(G.PREF_NAME + id, null) == null) {
             legacy = true;
-            pref = getLegacyPreferences(mContext);
+            pref = getLegacyPreferences(context);
         }
 
-        mName = pref.getString(getPrefName(G.PREF_NAME, legacy, fromPreferences), "").trim();
-        mHost = pref.getString(getPrefName(G.PREF_HOST, legacy, fromPreferences), "").trim();
+        name = pref.getString(getPrefName(G.PREF_NAME, legacy, fromPreferences), "").trim();
+        host = pref.getString(getPrefName(G.PREF_HOST, legacy, fromPreferences), "").trim();
         try {
-            mPort = Integer.parseInt(pref.getString(getPrefName(G.PREF_PORT, legacy, fromPreferences), "9091"));
-            if (mPort < 1) {
-                mPort = 1;
-            } else if (mPort > 65535) {
-                mPort = 65535;
+             port = Integer.parseInt(pref.getString(getPrefName(G.PREF_PORT, legacy, fromPreferences), "9091"));
+            if ( port < 1) {
+                 port = 1;
+            } else if ( port > 65535) {
+                 port = 65535;
             }
         } catch (NumberFormatException e) {
-            mPort = 65535;
+             port = 65535;
         }
-        mPath = pref.getString(getPrefName(G.PREF_PATH, legacy, fromPreferences), "").trim();
-        mUsername = pref.getString(getPrefName(G.PREF_USER, legacy, fromPreferences), "").trim();
-        mPassword = pref.getString(getPrefName(G.PREF_PASS, legacy, fromPreferences), "").trim();
-        mUseSSL = pref.getBoolean(getPrefName(G.PREF_SSL, legacy, fromPreferences), false);
+        path = pref.getString(getPrefName(G.PREF_PATH, legacy, fromPreferences), "").trim();
+        username = pref.getString(getPrefName(G.PREF_USER, legacy, fromPreferences), "").trim();
+        password = pref.getString(getPrefName(G.PREF_PASS, legacy, fromPreferences), "").trim();
+        useSSL = pref.getBoolean(getPrefName(G.PREF_SSL, legacy, fromPreferences), false);
         try {
-            mTimeout = Integer.parseInt(pref.getString(getPrefName(G.PREF_TIMEOUT, legacy, fromPreferences), "-1"));
+            timeout = Integer.parseInt(pref.getString(getPrefName(G.PREF_TIMEOUT, legacy, fromPreferences), "-1"));
         } catch (NumberFormatException e) {
-            mTimeout = Integer.MAX_VALUE;
+            timeout = Integer.MAX_VALUE;
         }
         try {
-            mRetries = Integer.parseInt(pref.getString(getPrefName(G.PREF_RETRIES, legacy, fromPreferences), "-1"));
+            retries = Integer.parseInt(pref.getString(getPrefName(G.PREF_RETRIES, legacy, fromPreferences), "-1"));
         } catch (NumberFormatException e) {
-            mRetries = Integer.MAX_VALUE;
+            retries = Integer.MAX_VALUE;
         }
-        mDirectories = pref.getStringSet(getPrefName(G.PREF_DIRECTORIES, legacy, fromPreferences), new HashSet<String>());
+        directories = pref.getStringSet(getPrefName(G.PREF_DIRECTORIES, legacy, fromPreferences), new HashSet<String>());
 
-        mLastDirectory = pref.getString(getPrefName(G.PREF_LAST_DIRECTORY, legacy, fromPreferences), "");
-        mMoveData = pref.getBoolean(getPrefName(G.PREF_MOVE_DATA, legacy, fromPreferences), true);
-        mDeleteLocal = pref.getBoolean(getPrefName(G.PREF_DELETE_LOCAL, legacy, fromPreferences), false);
-        mStartPaused = pref.getBoolean(getPrefName(G.PREF_START_PAUSED, legacy, fromPreferences), false);
+        lastDirectory = pref.getString(getPrefName(G.PREF_LAST_DIRECTORY, legacy, fromPreferences), "");
+        moveData = pref.getBoolean(getPrefName(G.PREF_MOVE_DATA, legacy, fromPreferences), true);
+        deleteLocal = pref.getBoolean(getPrefName(G.PREF_DELETE_LOCAL, legacy, fromPreferences), false);
+        startPaused = pref.getBoolean(getPrefName(G.PREF_START_PAUSED, legacy, fromPreferences), false);
 
         if (legacy) {
             Editor e = pref.edit();
@@ -235,171 +235,171 @@ public class TransmissionProfile implements Parcelable, Comparable<TransmissionP
             load(true);
         }
 
-        SharedPreferences pref = getPreferences(mContext);
+        SharedPreferences pref = getPreferences(context);
         Editor e = pref.edit();
 
-        e.putString(G.PREF_NAME + mId, mName);
-        e.putString(G.PREF_HOST + mId, mHost);
-        e.putString(G.PREF_PORT + mId, Integer.toString(mPort));
-        e.putString(G.PREF_PATH + mId, mPath);
-        e.putString(G.PREF_USER + mId, mUsername);
-        e.putString(G.PREF_PASS + mId, mPassword);
-        e.putBoolean(G.PREF_SSL + mId, mUseSSL);
-        e.putString(G.PREF_TIMEOUT + mId, Integer.toString(mTimeout));
-        e.putString(G.PREF_RETRIES + mId, Integer.toString(mRetries));
-        e.putStringSet(G.PREF_DIRECTORIES + mId, mDirectories);
+        e.putString(G.PREF_NAME + id, name);
+        e.putString(G.PREF_HOST + id, host);
+        e.putString(G.PREF_PORT + id, Integer.toString(port));
+        e.putString(G.PREF_PATH + id, path);
+        e.putString(G.PREF_USER + id, username);
+        e.putString(G.PREF_PASS + id, password);
+        e.putBoolean(G.PREF_SSL + id, useSSL);
+        e.putString(G.PREF_TIMEOUT + id, Integer.toString(timeout));
+        e.putString(G.PREF_RETRIES + id, Integer.toString(retries));
+        e.putStringSet(G.PREF_DIRECTORIES + id, directories);
 
         e.commit();
 
         G.logD("Saving profile to prefs: id %s, name %s, host %s, port %d",
-            new Object[] {mId, mName, mHost, mPort});
+            new Object[] {id, name, host, port});
 
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(mContext);
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
         e = prefs.edit();
 
         Set<String> ids = prefs.getStringSet(G.PREF_PROFILES, new HashSet<String>());
 
-        if (ids.add(mId)) {
+        if (ids.add(id)) {
             e.remove(G.PREF_PROFILES);
             e.commit();
 
-            if (ids.size() == 1 && !prefs.getString(G.PREF_CURRENT_PROFILE, "").equals(mId)) {
-                e.putString(G.PREF_CURRENT_PROFILE, mId);
+            if (ids.size() == 1 && !prefs.getString(G.PREF_CURRENT_PROFILE, "").equals(id)) {
+                e.putString(G.PREF_CURRENT_PROFILE, id);
             }
             e.putStringSet(G.PREF_PROFILES, ids);
             e.commit();
 
             G.logD("Adding the profile %s to the set of profiles",
-                    new Object[] {mId});
+                    new Object[] {id});
         }
     }
 
     public void delete() {
-        SharedPreferences pref = getPreferences(mContext);
+        SharedPreferences pref = getPreferences(context);
         Editor e = pref.edit();
 
-        e.remove(G.PREF_NAME + mId);
-        e.remove(G.PREF_HOST + mId);
-        e.remove(G.PREF_PORT + mId);
-        e.remove(G.PREF_PATH + mId);
-        e.remove(G.PREF_USER + mId);
-        e.remove(G.PREF_PASS + mId);
-        e.remove(G.PREF_SSL + mId);
-        e.remove(G.PREF_TIMEOUT + mId);
-        e.remove(G.PREF_RETRIES + mId);
-        e.remove(G.PREF_DIRECTORIES + mId);
+        e.remove(G.PREF_NAME + id);
+        e.remove(G.PREF_HOST + id);
+        e.remove(G.PREF_PORT + id);
+        e.remove(G.PREF_PATH + id);
+        e.remove(G.PREF_USER + id);
+        e.remove(G.PREF_PASS + id);
+        e.remove(G.PREF_SSL + id);
+        e.remove(G.PREF_TIMEOUT + id);
+        e.remove(G.PREF_RETRIES + id);
+        e.remove(G.PREF_DIRECTORIES + id);
 
         e.commit();
 
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(mContext);
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
         e = prefs.edit();
 
         Set<String> ids = prefs.getStringSet(G.PREF_PROFILES, new HashSet<String>());
 
-        if (ids.remove(mId)) {
+        if (ids.remove(id)) {
             e.remove(G.PREF_PROFILES);
             e.commit();
             e.putStringSet(G.PREF_PROFILES, ids);
             e.commit();
 
             G.logD("Removing the profile %s from the set of profiles",
-                    new Object[] {mId});
+                    new Object[] {id});
         }
 
         G.logD("Deleting profile from prefs: id %s, name %s, host %s, port %d",
-                new Object[] {mId, mName, mHost, mPort});
+                new Object[] {id, name, host, port});
     }
 
     public void fillTemporatyPreferences() {
-        SharedPreferences pref = getPreferences(mContext);
+        SharedPreferences pref = getPreferences(context);
         Editor e = pref.edit();
 
-        e.putString(G.PREF_NAME, mName);
-        e.putString(G.PREF_HOST, mHost);
-        e.putString(G.PREF_PORT, Integer.toString(mPort));
-        e.putString(G.PREF_PATH, mPath);
-        e.putString(G.PREF_USER, mUsername);
-        e.putString(G.PREF_PASS, mPassword);
-        e.putBoolean(G.PREF_SSL, mUseSSL);
-        e.putString(G.PREF_TIMEOUT, Integer.toString(mTimeout));
-        e.putString(G.PREF_RETRIES, Integer.toString(mRetries));
-        e.putStringSet(G.PREF_DIRECTORIES, mDirectories);
+        e.putString(G.PREF_NAME, name);
+        e.putString(G.PREF_HOST, host);
+        e.putString(G.PREF_PORT, Integer.toString(port));
+        e.putString(G.PREF_PATH, path);
+        e.putString(G.PREF_USER, username);
+        e.putString(G.PREF_PASS, password);
+        e.putBoolean(G.PREF_SSL, useSSL);
+        e.putString(G.PREF_TIMEOUT, Integer.toString(timeout));
+        e.putString(G.PREF_RETRIES, Integer.toString(retries));
+        e.putStringSet(G.PREF_DIRECTORIES, directories);
 
         e.apply();
     }
 
     public String getLastDownloadDirectory() {
-        return mLastDirectory;
+        return lastDirectory;
     }
 
     public void setLastDownloadDirectory(String directory) {
-        SharedPreferences pref = getPreferences(mContext);
+        SharedPreferences pref = getPreferences(context);
         Editor e = pref.edit();
 
-        mLastDirectory = directory;
+        lastDirectory = directory;
 
-        e.putString(G.PREF_LAST_DIRECTORY + mId, directory);
+        e.putString(G.PREF_LAST_DIRECTORY + id, directory);
         e.apply();
     }
 
     public boolean getMoveData() {
-        return mMoveData;
+        return moveData;
     }
 
     public void setMoveData(boolean move) {
-        SharedPreferences pref = getPreferences(mContext);
+        SharedPreferences pref = getPreferences(context);
         Editor e = pref.edit();
 
-        mMoveData = move;
+        moveData = move;
 
-        e.putBoolean(G.PREF_MOVE_DATA + mId, move);
+        e.putBoolean(G.PREF_MOVE_DATA + id, move);
         e.apply();
     }
 
     public boolean getDeleteLocal() {
-        return mDeleteLocal;
+        return deleteLocal;
     }
 
     public void setDeleteLocal(boolean delete) {
-        SharedPreferences pref = getPreferences(mContext);
+        SharedPreferences pref = getPreferences(context);
         Editor e = pref.edit();
 
-        mDeleteLocal = delete;
+        deleteLocal = delete;
 
-        e.putBoolean(G.PREF_DELETE_LOCAL + mId, delete);
+        e.putBoolean(G.PREF_DELETE_LOCAL + id, delete);
         e.apply();
     }
 
     public boolean getStartPaused() {
-        return mStartPaused;
+        return startPaused;
     }
 
     public void setStartPaused(boolean paused) {
-        SharedPreferences pref = getPreferences(mContext);
+        SharedPreferences pref = getPreferences(context);
         Editor e = pref.edit();
 
-        mStartPaused = paused;
+        startPaused = paused;
 
-        e.putBoolean(G.PREF_START_PAUSED + mId, paused);
+        e.putBoolean(G.PREF_START_PAUSED + id, paused);
         e.commit();
     }
 
     public Context getContext() {
-        return mContext;
+        return context;
     }
 
     public void setContext(Context context) {
-        mContext = context;
+        this.context = context;
     }
 
     @Override
     public int compareTo(TransmissionProfile another) {
-        return mName.compareToIgnoreCase(another.getName());
+        return name.compareToIgnoreCase(another.getName());
     }
 
     @Override
     public String toString() {
-        return mName + "://" + mUsername + '@' + mHost + ':' + mPort;
+        return name + "://" + username + '@' + host + ':' + port;
     }
 
     @Override
@@ -409,20 +409,20 @@ public class TransmissionProfile implements Parcelable, Comparable<TransmissionP
 
     @Override
     public void writeToParcel(Parcel in, int flags) {
-        in.writeString(mId);
-        in.writeString(mName);
-        in.writeString(mHost);
-        in.writeInt(mPort);
-        in.writeString(mUsername);
-        in.writeString(mPassword);
-        in.writeInt(mUseSSL ? 1 : 0);
-        in.writeInt(mTimeout);
-        in.writeInt(mRetries);
-        in.writeStringList(new ArrayList<String>(mDirectories));
-        in.writeString(mLastDirectory);
-        in.writeInt(mMoveData ? 1 : 0);
-        in.writeInt(mDeleteLocal ? 1 : 0);
-        in.writeInt(mStartPaused ? 1 : 0);
+        in.writeString(id);
+        in.writeString(name);
+        in.writeString(host);
+        in.writeInt(port);
+        in.writeString(username);
+        in.writeString(password);
+        in.writeInt(useSSL ? 1 : 0);
+        in.writeInt(timeout);
+        in.writeInt(retries);
+        in.writeStringList(new ArrayList<String>(directories));
+        in.writeString(lastDirectory);
+        in.writeInt(moveData ? 1 : 0);
+        in.writeInt(deleteLocal ? 1 : 0);
+        in.writeInt(startPaused ? 1 : 0);
     }
 
     public static final Parcelable.Creator<TransmissionProfile> CREATOR
@@ -439,29 +439,29 @@ public class TransmissionProfile implements Parcelable, Comparable<TransmissionP
     };
 
     private TransmissionProfile(Parcel in) {
-        mId = in.readString();
-        mName = in.readString();
-        mHost = in.readString();
-        mPort = in.readInt();
-        mUsername = in.readString();
-        mPassword = in.readString();
-        mUseSSL = in.readInt() == 1;
-        mTimeout = in.readInt();
-        mRetries = in.readInt();
+        id = in.readString();
+        name = in.readString();
+        host = in.readString();
+         port = in.readInt();
+        username = in.readString();
+        password = in.readString();
+        useSSL = in.readInt() == 1;
+        timeout = in.readInt();
+        retries = in.readInt();
 
         ArrayList<String> directories = new ArrayList<String>();
         in.readStringList(directories);
-        mDirectories = new HashSet<String>(directories);
-        mLastDirectory = in.readString();
+        this.directories = new HashSet<String>(directories);
+        lastDirectory = in.readString();
 
-        mMoveData = in.readInt() == 1;
-        mDeleteLocal= in.readInt() == 1;
-        mStartPaused = in.readInt() == 1;
+        moveData = in.readInt() == 1;
+        deleteLocal = in.readInt() == 1;
+        startPaused = in.readInt() == 1;
     }
 
     private SharedPreferences getLegacyPreferences(Context context) {
         return context.getSharedPreferences(
-                G.PREF_PREFIX + mId, Activity.MODE_PRIVATE);
+                G.PREF_PREFIX + id, Activity.MODE_PRIVATE);
     }
 
     private String getPrefName(String name, boolean legacy, boolean fromPreferences) {
@@ -470,7 +470,7 @@ public class TransmissionProfile implements Parcelable, Comparable<TransmissionP
         } else if (fromPreferences) {
             return name;
         } else {
-            return  name + mId;
+            return  name + id;
         }
     }
 }
