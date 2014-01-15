@@ -274,7 +274,7 @@ public class TransmissionDataLoader extends AsyncTaskLoader<TransmissionData> {
                 lastError = TransmissionData.Errors.NO_CONNECTIVITY;
                 session = null;
                 stopUpdates = true;
-                return new TransmissionData(session, lastError, 0);
+                return new TransmissionData(null, lastError, 0);
             }
             G.logD("Fetching data");
 
@@ -536,7 +536,7 @@ public class TransmissionDataLoader extends AsyncTaskLoader<TransmissionData> {
         stopUpdates = false;
         if (lastError > 0) {
             session = null;
-            deliverResult(new TransmissionData(session, lastError, lastErrorCode));
+            deliverResult(new TransmissionData(null, lastError, lastErrorCode));
         } else if (cursor != null && !cursor.isClosed()) {
             deliverResult(new TransmissionData(session, cursor, false, false, false, false, false));
         }
@@ -652,7 +652,7 @@ public class TransmissionDataLoader extends AsyncTaskLoader<TransmissionData> {
         G.logE("Got an error when processing the threads", e);
 
         session = null;
-        return new TransmissionData(session, lastError, 0);
+        return new TransmissionData(null, lastError, 0);
     }
 
     private class TorrentActionRunnable implements Runnable {

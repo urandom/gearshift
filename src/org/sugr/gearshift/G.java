@@ -87,6 +87,14 @@ public final class G {
     public static final String INTENT_TORRENT_UPDATE = "org.sugr.gearshift.TORRENT_UPDATE";
     public static final String INTENT_PAGE_UNSELECTED = "org.sugr.gearshift.PAGE_UNSELECTED";
 
+    public static final String INTENT_SERVICE_ACTION_COMPLETE = "org.sugr.gearshift.SERVICE_ACTION_COMPLETE";
+    public static final String ARG_REQUEST_TYPE = "request_type";
+    public static final String ARG_REQUEST_ARGS = "request_args";
+    public static final String ARG_ADDED = "added";
+    public static final String ARG_REMOVED = "removed";
+    public static final String ARG_STATUS_CHANGED = "status_changed";
+    public static final String ARG_INCOMPLETE_METADATA = "incomplete_metadata";
+
     public static final int PROFILES_LOADER_ID = 1;
     public static final int TORRENTS_LOADER_ID = 2;
     public static final int SESSION_LOADER_ID = 3;

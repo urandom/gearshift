@@ -51,7 +51,7 @@ public class DataServiceManager {
     }
 
     public DataServiceManager clearTorrents() {
-        Intent intent = createIntent(DataService.Requests.CURRENT_TORRENTS, null);
+        Intent intent = createIntent(DataService.Requests.ACTIVE_TORRENTS, null);
 
         context.startService(intent);
 
@@ -64,9 +64,9 @@ public class DataServiceManager {
 
     private Intent createIntent(String requestType, Bundle args) {
         Intent intent = new Intent(context, DataService.class);
-        intent.putExtra(context.getPackageName() + DataService.EXTRA_PROFILE_ID, profileId);
-        intent.putExtra(context.getPackageName() + DataService.EXTRA_REQUEST_TYPE, requestType);
-        intent.putExtra(context.getPackageName() + DataService.EXTRA_REQUEST_ARGS, args);
+        intent.putExtra(G.ARG_PROFILE_ID, profileId);
+        intent.putExtra(G.ARG_REQUEST_TYPE, requestType);
+        intent.putExtra(G.ARG_REQUEST_ARGS, args == null ? new Bundle() : args);
 
         return intent;
     }
