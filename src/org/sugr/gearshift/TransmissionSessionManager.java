@@ -164,7 +164,7 @@ public class TransmissionSessionManager {
         dataSource.removeTorrents(hashStrings);
     }
 
-    public void setTorrentsAction(String action, String[] hashStrings) throws ManagerException {
+    public void setTorrentsAction(String[] hashStrings, String action) throws ManagerException {
         ObjectMapper mapper = new ObjectMapper();
         ObjectNode request = createRequest(action, true);
         ObjectNode arguments = (ObjectNode) request.path("arguments");
@@ -251,7 +251,7 @@ public class TransmissionSessionManager {
         dataSource.clearTorrentsForProfile(profile.getId());
     }
 
-    public int addTorrent(String uri, String meta, String location, boolean paused)
+    public String addTorrent(String uri, String meta, String location, boolean paused)
             throws ManagerException {
         ObjectNode request = createRequest("torrent-add", true);
         ObjectNode arguments = (ObjectNode) request.path("arguments");
@@ -267,7 +267,7 @@ public class TransmissionSessionManager {
         AddTorrentResponse response = new AddTorrentResponse();
         requestData(request, response);
         if (response.getResult().equals("success")) {
-            return response.getAddedId();
+            return response.getAddedHash();
         } else if (response.isDuplicate()) {
             throw new ManagerException("duplicate torrent", -2);
         } else {
@@ -563,6 +563,7 @@ public class TransmissionSessionManager {
                                     addedName = parser.getText();
                                 } else if (key.equals("hashString")) {
                                     addedHash = parser.getText();
+                                    ((AddTorrentResponse) response).setAddedHash(addedHash);
                                 }
                             }
                             dataSource.addTorrent(id, addedName, addedHash);
@@ -660,6 +661,7 @@ public class TransmissionSessionManager {
 
     public static class AddTorrentResponse extends Response {
         private int addedId = -1;
+        private String addedHash;
 
         private int duplicateId = -1;
 
@@ -668,6 +670,14 @@ public class TransmissionSessionManager {
         }
         public void setAddedId(int id) {
             addedId = id;
+        }
+
+        public String getAddedHash() {
+            return addedHash;
+        }
+
+        public void setAddedHash(String hash) {
+            addedHash = hash;
         }
 
         public boolean isDuplicate() {

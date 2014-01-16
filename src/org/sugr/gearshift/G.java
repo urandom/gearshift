@@ -94,6 +94,13 @@ public final class G {
     public static final String ARG_REMOVED = "removed";
     public static final String ARG_STATUS_CHANGED = "status_changed";
     public static final String ARG_INCOMPLETE_METADATA = "incomplete_metadata";
+    public static final String ARG_ADDED_HASH = "added_hash";
+    public static final String ARG_FREE_SPACE = "free_space";
+    public static final String ARG_PORT_IS_OPEN = "port_is_open";
+    public static final String ARG_BLOCKLIST_SIZE = "blocklist_size";
+
+    public static final String ARG_ERROR = "error";
+    public static final String ARG_ERROR_CODE = "error_code";
 
     public static final int PROFILES_LOADER_ID = 1;
     public static final int TORRENTS_LOADER_ID = 2;

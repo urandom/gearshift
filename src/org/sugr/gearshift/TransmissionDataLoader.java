@@ -585,7 +585,7 @@ public class TransmissionDataLoader extends AsyncTaskLoader<TransmissionData> {
         } else if (action.equals("torrent-set")) {
             sessManager.setTorrentsProperty(hashStrings, setKey, setValue);
         } else {
-            sessManager.setTorrentsAction(action, hashStrings);
+            sessManager.setTorrentsAction(hashStrings, action);
         }
     }
 
