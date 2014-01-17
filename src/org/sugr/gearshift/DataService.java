@@ -17,8 +17,8 @@ public class DataService extends IntentService {
         public static final String GET_SESSION = "get_session";
         public static final String SET_SESSION = "set_session";
 
-        public static final String ALL_TORRENTS = "all_torrents";
-        public static final String ACTIVE_TORRENTS = "current_torrents";
+        public static final String GET_ALL_TORRENTS = "get_all_torrents";
+        public static final String GET_ACTIVE_TORRENTS = "get_active_torrents";
         public static final String ADD_TORRENT = "add_torrent";
         public static final String REMOVE_TORRENTS = "remove_torrents";
         public static final String SET_TORRENT = "set_torrent";
@@ -112,8 +112,8 @@ public class DataService extends IntentService {
 
                 manager.setSession(session, keys);
                 response = createResponse(requestType, profileId);
-            } else if (requestType.equals(Requests.ALL_TORRENTS)
-                    || requestType.equals(Requests.ACTIVE_TORRENTS)) {
+            } else if (requestType.equals(Requests.GET_ALL_TORRENTS)
+                    || requestType.equals(Requests.GET_ACTIVE_TORRENTS)) {
                 TorrentStatus status;
                 String[] fields = Torrent.Fields.STATS;
 
@@ -131,7 +131,7 @@ public class DataService extends IntentService {
                 String[] hashStrings = args.getStringArray(Args.TORRENTS_TO_UPDATE);
                 if (hashStrings != null) {
                     status = manager.getTorrents(fields, hashStrings, false);
-                } else if (requestType.equals(Requests.ACTIVE_TORRENTS)
+                } else if (requestType.equals(Requests.GET_ACTIVE_TORRENTS)
                         && !args.getBoolean(Args.DETAIL_FIELDS, false)) {
                     status = manager.getActiveTorrents(fields);
                 } else {
