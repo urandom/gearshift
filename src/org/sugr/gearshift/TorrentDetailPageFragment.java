@@ -176,7 +176,7 @@ public class TorrentDetailPageFragment extends Fragment {
     private TrackersAdapter trackersAdapter;
 
     private ActionMode fileActionMode;
-    private Set<View> selectedFiles = new HashSet<View>();
+    private Set<View> selectedFiles = new HashSet<>();
 
     private ActionMode.Callback actionModeFiles = new ActionMode.Callback() {
 
@@ -241,7 +241,7 @@ public class TorrentDetailPageFragment extends Fragment {
                     return false;
             }
             List<View> allViews = filesAdapter.getViews();
-            List<Integer> indexes = new ArrayList<Integer>();
+            List<Integer> indexes = new ArrayList<>();
             for (View v : selectedFiles) {
                 TorrentFile file = filesAdapter.getItem(allViews.indexOf(v));
                 if (priority == null) {
@@ -326,7 +326,7 @@ public class TorrentDetailPageFragment extends Fragment {
                 default:
                     return false;
             }
-            List<Integer> ids = new ArrayList<Integer>();
+            List<Integer> ids = new ArrayList<>();
             for (View v : selectedTrackers) {
                 View parent = (View) v.getParent();
                 Tracker tracker = trackersAdapter.getItem(
@@ -665,7 +665,7 @@ public class TorrentDetailPageFragment extends Fragment {
         Button addTracker = (Button) root.findViewById(R.id.torrent_detail_add_tracker);
         addTracker.setOnClickListener(new View.OnClickListener() {
             @Override public void onClick(View v) {
-                final List<String> urls = new ArrayList<String>();
+                final List<String> urls = new ArrayList<>();
                 LayoutInflater inflater = getActivity().getLayoutInflater();
 
                 AlertDialog.Builder builder = new AlertDialog.Builder(getActivity())
@@ -954,7 +954,7 @@ public class TorrentDetailPageFragment extends Fragment {
             filesAdapter.setNotifyOnChange(false);
             if (filesAdapter.getCount() == 0) {
                 filesAdapter.clear();
-                ArrayList<TorrentFile> torrentFiles = new ArrayList<TorrentFile>();
+                ArrayList<TorrentFile> torrentFiles = new ArrayList<>();
 
                 details.filesCursor.moveToFirst();
 
@@ -970,7 +970,7 @@ public class TorrentDetailPageFragment extends Fragment {
                 Collections.sort(torrentFiles, new TorrentFileComparator());
                 String directory = "";
 
-                ArrayList<Integer> directories = new ArrayList<Integer>();
+                ArrayList<Integer> directories = new ArrayList<>();
                 for (int i = 0; i < torrentFiles.size(); i++) {
                     TorrentFile file = torrentFiles.get(i);
                     if (!directory.equals(file.directory)) {
@@ -1079,7 +1079,7 @@ public class TorrentDetailPageFragment extends Fragment {
                 trackersAdapter.clear();
 
                 int index = 0;
-                ArrayList<Tracker> trackers = new ArrayList<Tracker>();
+                ArrayList<Tracker> trackers = new ArrayList<>();
 
                 details.trackersCursor.moveToFirst();
 
@@ -1180,7 +1180,7 @@ public class TorrentDetailPageFragment extends Fragment {
 
     private class FilesAdapter extends ArrayAdapter<TorrentFile> {
         private static final int mFieldId = R.id.torrent_detail_files_row;
-        private List<View> mViews = new ArrayList<View>();
+        private List<View> mViews = new ArrayList<>();
 
         public FilesAdapter() {
             super(getActivity(), mFieldId);
@@ -1314,7 +1314,7 @@ public class TorrentDetailPageFragment extends Fragment {
                 }
                 if (!hasChild || (file.index != -1 && fileChanged(file, details.filesCursor))) {
                     v = filesAdapter.getView(i, v, null);
-                    if (!hasChild) {
+                    if (!hasChild && v != null) {
                         views.filesContent.addView(v, i);
                     }
                 }
@@ -1416,7 +1416,7 @@ public class TorrentDetailPageFragment extends Fragment {
 
     private class TrackersAdapter extends ArrayAdapter<Tracker> {
         private static final int mFieldId = R.id.torrent_detail_trackers_row;
-        private List<View> mViews = new ArrayList<View>();
+        private List<View> mViews = new ArrayList<>();
 
         public TrackersAdapter() {
             super(getActivity(), mFieldId);
@@ -1579,7 +1579,7 @@ public class TorrentDetailPageFragment extends Fragment {
                 buttons.findViewById(R.id.torrent_detail_tracker_remove).setOnClickListener(new View.OnClickListener() {
                     @Override public void onClick(View v) {
                         trackersAdapter.remove(tracker);
-                        List<Integer> ids = new ArrayList<Integer>();
+                        List<Integer> ids = new ArrayList<>();
                         ids.add(tracker.id);
 
                         setTorrentProperty(Torrent.SetterFields.TRACKER_REMOVE, ids);
@@ -1592,7 +1592,7 @@ public class TorrentDetailPageFragment extends Fragment {
 
                 buttons.findViewById(R.id.torrent_detail_tracker_replace).setOnClickListener(new View.OnClickListener() {
                     @Override public void onClick(View v) {
-                        final List<Object> tuple = new ArrayList<Object>();
+                        final List<Object> tuple = new ArrayList<>();
                         tuple.add(tracker.id);
 
                         LayoutInflater inflater = getActivity().getLayoutInflater();

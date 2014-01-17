@@ -196,7 +196,7 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
             if (inflater != null)
                 inflater.inflate(R.menu.torrent_list_multiselect, menu);
 
-            selectedTorrentIds = new SparseArray<String>();
+            selectedTorrentIds = new SparseArray<>();
             actionMode = mode;
             return true;
         }
@@ -851,30 +851,43 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
 
                                 int index = 0;
                                 for (String column : originalCursor.getColumnNames()) {
-                                    if (column.equals(Constants.C_ID)) {
-                                        row.add(originalCursor.getInt(index));
-                                    } else if (column.equals(Constants.C_NAME)) {
-                                        row.add(name);
-                                    } else if (column.equals(Constants.C_HASH_STRING)) {
-                                        row.add(originalCursor.getString(index));
-                                    } else if (column.equals(Constants.C_STATUS)) {
-                                        row.add(originalCursor.getInt(index));
-                                    } else if (column.equals(Constants.C_METADATA_PERCENT_COMPLETE)) {
-                                        row.add(originalCursor.getFloat(index));
-                                    } else if (column.equals(Constants.C_PERCENT_DONE)) {
-                                        row.add(originalCursor.getFloat(index));
-                                    } else if (column.equals(Constants.C_UPLOAD_RATIO)) {
-                                        row.add(originalCursor.getFloat(index));
-                                    } else if (column.equals(Constants.C_SEED_RATIO_LIMIT)) {
-                                        row.add(originalCursor.getFloat(index));
-                                    } else if (column.equals(Constants.C_TRAFFIC_TEXT)) {
-                                        row.add(originalCursor.getString(index));
-                                    } else if (column.equals(Constants.C_STATUS_TEXT)) {
-                                        row.add(originalCursor.getString(index));
-                                    } else if (column.equals(Constants.C_ERROR)) {
-                                        row.add(originalCursor.getInt(index));
-                                    } else if (column.equals(Constants.C_ERROR_STRING)) {
-                                        row.add(originalCursor.getString(index));
+                                    switch (column) {
+                                        case Constants.C_ID:
+                                            row.add(originalCursor.getInt(index));
+                                            break;
+                                        case Constants.C_NAME:
+                                            row.add(name);
+                                            break;
+                                        case Constants.C_HASH_STRING:
+                                            row.add(originalCursor.getString(index));
+                                            break;
+                                        case Constants.C_STATUS:
+                                            row.add(originalCursor.getInt(index));
+                                            break;
+                                        case Constants.C_METADATA_PERCENT_COMPLETE:
+                                            row.add(originalCursor.getFloat(index));
+                                            break;
+                                        case Constants.C_PERCENT_DONE:
+                                            row.add(originalCursor.getFloat(index));
+                                            break;
+                                        case Constants.C_UPLOAD_RATIO:
+                                            row.add(originalCursor.getFloat(index));
+                                            break;
+                                        case Constants.C_SEED_RATIO_LIMIT:
+                                            row.add(originalCursor.getFloat(index));
+                                            break;
+                                        case Constants.C_TRAFFIC_TEXT:
+                                            row.add(originalCursor.getString(index));
+                                            break;
+                                        case Constants.C_STATUS_TEXT:
+                                            row.add(originalCursor.getString(index));
+                                            break;
+                                        case Constants.C_ERROR:
+                                            row.add(originalCursor.getInt(index));
+                                            break;
+                                        case Constants.C_ERROR_STRING:
+                                            row.add(originalCursor.getString(index));
+                                            break;
                                     }
 
                                     ++index;

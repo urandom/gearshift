@@ -33,7 +33,7 @@ public class TransmissionProfile implements Parcelable, Comparable<TransmissionP
     private boolean deleteLocal = false;
     private boolean startPaused = false;
 
-    private Set<String> directories = new HashSet<String>();
+    private Set<String> directories = new HashSet<>();
 
     private Context context;
 
@@ -418,7 +418,7 @@ public class TransmissionProfile implements Parcelable, Comparable<TransmissionP
         in.writeInt(useSSL ? 1 : 0);
         in.writeInt(timeout);
         in.writeInt(retries);
-        in.writeStringList(new ArrayList<String>(directories));
+        in.writeStringList(new ArrayList<>(directories));
         in.writeString(lastDirectory);
         in.writeInt(moveData ? 1 : 0);
         in.writeInt(deleteLocal ? 1 : 0);
@@ -449,9 +449,9 @@ public class TransmissionProfile implements Parcelable, Comparable<TransmissionP
         timeout = in.readInt();
         retries = in.readInt();
 
-        ArrayList<String> directories = new ArrayList<String>();
+        ArrayList<String> directories = new ArrayList<>();
         in.readStringList(directories);
-        this.directories = new HashSet<String>(directories);
+        this.directories = new HashSet<>(directories);
         lastDirectory = in.readString();
 
         moveData = in.readInt() == 1;

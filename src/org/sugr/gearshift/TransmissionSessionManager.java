@@ -209,34 +209,42 @@ public class TransmissionSessionManager {
 
             arguments.put(key, list);
         } else {
-            if (   key.equals(Torrent.SetterFields.DOWNLOAD_LIMITED)
-                || key.equals(Torrent.SetterFields.SESSION_LIMITS)
-                || key.equals(Torrent.SetterFields.UPLOAD_LIMITED)) {
-                arguments.put(key, (Boolean) value);
-            } else if (   key.equals(Torrent.SetterFields.TORRENT_PRIORITY)
-                       || key.equals(Torrent.SetterFields.QUEUE_POSITION)
-                       || key.equals(Torrent.SetterFields.PEER_LIMIT)
-                       || key.equals(Torrent.SetterFields.SEED_RATIO_MODE)) {
-                arguments.put(key, (Integer) value);
-            } else if (   key.equals(Torrent.SetterFields.FILES_WANTED)
-                       || key.equals(Torrent.SetterFields.FILES_UNWANTED)) {
-                if (value instanceof Integer) {
-                    arguments.put(key, mapper.valueToTree(new int[] { (Integer) value }));
-                } else {
+            switch (key) {
+                case Torrent.SetterFields.DOWNLOAD_LIMITED:
+                case Torrent.SetterFields.SESSION_LIMITS:
+                case Torrent.SetterFields.UPLOAD_LIMITED:
+                    arguments.put(key, (Boolean) value);
+                    break;
+                case Torrent.SetterFields.TORRENT_PRIORITY:
+                case Torrent.SetterFields.QUEUE_POSITION:
+                case Torrent.SetterFields.PEER_LIMIT:
+                case Torrent.SetterFields.SEED_RATIO_MODE:
+                    arguments.put(key, (Integer) value);
+                    break;
+                case Torrent.SetterFields.FILES_WANTED:
+                case Torrent.SetterFields.FILES_UNWANTED:
+                    if (value instanceof Integer) {
+                        arguments.put(key, mapper.valueToTree(new int[]{(Integer) value}));
+                    } else {
+                        arguments.put(key, mapper.valueToTree(value));
+                    }
+                    break;
+                case Torrent.SetterFields.DOWNLOAD_LIMIT:
+                case Torrent.SetterFields.UPLOAD_LIMIT:
+                    arguments.put(key, (Long) value);
+                    break;
+                case Torrent.SetterFields.SEED_RATIO_LIMIT:
+                    arguments.put(key, (Float) value);
+                    break;
+                case Torrent.SetterFields.FILES_HIGH:
+                case Torrent.SetterFields.FILES_NORMAL:
+                case Torrent.SetterFields.FILES_LOW:
+                case Torrent.SetterFields.TRACKER_REMOVE:
                     arguments.put(key, mapper.valueToTree(value));
-                }
-            } else if (   key.equals(Torrent.SetterFields.DOWNLOAD_LIMIT)
-                       || key.equals(Torrent.SetterFields.UPLOAD_LIMIT)) {
-                arguments.put(key, (Long) value);
-            } else if (key.equals(Torrent.SetterFields.SEED_RATIO_LIMIT)) {
-                arguments.put(key, (Float) value);
-            } else if (   key.equals(Torrent.SetterFields.FILES_HIGH)
-                       || key.equals(Torrent.SetterFields.FILES_NORMAL)
-                       || key.equals(Torrent.SetterFields.FILES_LOW)
-                       || key.equals(Torrent.SetterFields.TRACKER_REMOVE)) {
-                arguments.put(key, mapper.valueToTree(value));
-            } else if (key.equals(Torrent.SetterFields.TRACKER_ADD)) {
-                arguments.put(key, mapper.valueToTree(value));
+                    break;
+                case Torrent.SetterFields.TRACKER_ADD:
+                    arguments.put(key, mapper.valueToTree(value));
+                    break;
             }
         }
 
@@ -440,10 +448,7 @@ public class TransmissionSessionManager {
             }
         } catch (java.net.SocketTimeoutException e) {
             throw new ManagerException("timeout", -1);
-        } catch (JsonParseException e) {
-            G.logE("Error parsing JSON", e);
-            throw new ManagerException(e.getMessage(), -4);
-        } catch (JsonMappingException e) {
+        } catch (JsonParseException | JsonMappingException e) {
             G.logE("Error parsing JSON", e);
             throw new ManagerException(e.getMessage(), -4);
         } catch (IOException e) {
@@ -511,114 +516,126 @@ public class TransmissionSessionManager {
         while (parser.nextToken() != JsonToken.END_OBJECT) {
             String name = parser.getCurrentName();
 
-            if (name.equals("result")) {
-                result = parser.nextTextValue();
-            } else if (name.equals("arguments")) {
-                if (response.getClass() == SessionGetResponse.class) {
-                    parser.nextValue();
+            switch (name) {
+                case "result":
+                    result = parser.nextTextValue();
+                    break;
+                case "arguments":
+                    if (response.getClass() == SessionGetResponse.class) {
+                        parser.nextValue();
 
-                    dataSource.updateSession(parser);
-                } else if (response.getClass() == TorrentGetResponse.class) {
-                    int[] removed = null;
-
-                    parser.nextToken();
-                    while (parser.nextToken() != JsonToken.END_OBJECT) {
-                        String argname = parser.getCurrentName();
+                        dataSource.updateSession(parser);
+                    } else if (response.getClass() == TorrentGetResponse.class) {
+                        int[] removed = null;
 
                         parser.nextToken();
-                        if (argname.equals("torrents")) {
-                            ((TorrentGetResponse) response).setTorrentStatus(
-                                dataSource.updateTorrents(
-                                    parser, ((TorrentGetResponse) response).getRemoveObsolete()
-                                )
-                            );
-                        } else if (argname.equals("removed")) {
-                            removed = mapper.readValue(parser, int[].class);
-                        }
-                    }
+                        while (parser.nextToken() != JsonToken.END_OBJECT) {
+                            String argname = parser.getCurrentName();
 
-                    if (removed != null && removed.length > 0) {
-                        if (dataSource.removeTorrents(removed)) {
-                            ((TorrentGetResponse) response).getTorrentStatus().hasRemoved = true;
-                        }
-                    }
-                } else if (response.getClass() == AddTorrentResponse.class) {
-                    parser.nextToken();
-                    while (parser.nextToken() != JsonToken.END_OBJECT) {
-                        String argname = parser.getCurrentName();
-
-                        parser.nextValue();
-                        if (argname.equals("torrent-added")) {
-                            int id = -1;
-                            String addedName = null;
-                            String addedHash = null;
-                            while (parser.nextToken() != JsonToken.END_OBJECT) {
-                                String key = parser.getCurrentName();
-
-                                parser.nextValue();
-                                if (key.equals("id")) {
-                                    id = parser.getIntValue();
-                                    ((AddTorrentResponse) response).setAddedId(id);
-                                } else if (key.equals("name")) {
-                                    addedName = parser.getText();
-                                } else if (key.equals("hashString")) {
-                                    addedHash = parser.getText();
-                                    ((AddTorrentResponse) response).setAddedHash(addedHash);
-                                }
-                            }
-                            dataSource.addTorrent(id, addedName, addedHash);
-                        } else if (argname.equals("torrent-duplicate")) {
-                            while (parser.nextToken() != JsonToken.END_OBJECT) {
-                                String key = parser.getCurrentName();
-
-                                parser.nextValue();
-                                if (key.equals("id")) {
-                                    ((AddTorrentResponse) response).setDuplicateId(parser.getIntValue());
-                                }
+                            parser.nextToken();
+                            if (argname.equals("torrents")) {
+                                ((TorrentGetResponse) response).setTorrentStatus(
+                                    dataSource.updateTorrents(
+                                        parser, ((TorrentGetResponse) response).getRemoveObsolete()
+                                    )
+                                );
+                            } else if (argname.equals("removed")) {
+                                removed = mapper.readValue(parser, int[].class);
                             }
                         }
-                    }
-                } else if (response.getClass() == PortTestResponse.class) {
-                    parser.nextToken();
-                    while (parser.nextToken() != JsonToken.END_OBJECT) {
-                        String argname = parser.getCurrentName();
-                        if (argname.equals("port-is-open")) {
-                            boolean isOpen = parser.nextBooleanValue();
-                            ((PortTestResponse) response).setPortOpen(isOpen);
-                        } else {
-                            parser.nextToken();
+
+                        if (removed != null && removed.length > 0) {
+                            if (dataSource.removeTorrents(removed)) {
+                                ((TorrentGetResponse) response).getTorrentStatus().hasRemoved = true;
+                            }
                         }
-                    }
-                } else if (response.getClass() == BlocklistUpdateResponse.class) {
-                    parser.nextToken();
-                    while (parser.nextToken() != JsonToken.END_OBJECT) {
-                        String argname = parser.getCurrentName();
-                        if (argname.equals("blocklist-size")) {
-                            long size = parser.nextLongValue(0);
-                            ((BlocklistUpdateResponse) response).setBlocklistSize(size);
-                        } else {
-                            parser.nextToken();
+                    } else if (response.getClass() == AddTorrentResponse.class) {
+                        parser.nextToken();
+                        while (parser.nextToken() != JsonToken.END_OBJECT) {
+                            String argname = parser.getCurrentName();
+
+                            parser.nextValue();
+                            if (argname.equals("torrent-added")) {
+                                int id = -1;
+                                String addedName = null;
+                                String addedHash = null;
+                                while (parser.nextToken() != JsonToken.END_OBJECT) {
+                                    String key = parser.getCurrentName();
+
+                                    parser.nextValue();
+                                    switch (key) {
+                                        case "id":
+                                            id = parser.getIntValue();
+                                            ((AddTorrentResponse) response).setAddedId(id);
+                                            break;
+                                        case "name":
+                                            addedName = parser.getText();
+                                            break;
+                                        case "hashString":
+                                            addedHash = parser.getText();
+                                            ((AddTorrentResponse) response).setAddedHash(addedHash);
+                                            break;
+                                    }
+                                }
+                                dataSource.addTorrent(id, addedName, addedHash);
+                            } else if (argname.equals("torrent-duplicate")) {
+                                while (parser.nextToken() != JsonToken.END_OBJECT) {
+                                    String key = parser.getCurrentName();
+
+                                    parser.nextValue();
+                                    if (key.equals("id")) {
+                                        ((AddTorrentResponse) response).setDuplicateId(parser.getIntValue());
+                                    }
+                                }
+                            }
                         }
-                    }
-                } else if (response.getClass() == FreeSpaceResponse.class) {
-                    parser.nextToken();
-                    while (parser.nextToken() != JsonToken.END_OBJECT) {
-                        String argname = parser.getCurrentName();
-                        if (argname.equals("size-bytes")) {
-                            long size = parser.nextLongValue(0);
-                            ((FreeSpaceResponse) response).setFreeSpace(size);
-                        } else if (argname.equals("path")) {
-                            String path = parser.nextTextValue();
-                            ((FreeSpaceResponse) response).setPath(path);
-                        } else {
-                            parser.nextToken();
+                    } else if (response.getClass() == PortTestResponse.class) {
+                        parser.nextToken();
+                        while (parser.nextToken() != JsonToken.END_OBJECT) {
+                            String argname = parser.getCurrentName();
+                            if (argname.equals("port-is-open")) {
+                                boolean isOpen = parser.nextBooleanValue();
+                                ((PortTestResponse) response).setPortOpen(isOpen);
+                            } else {
+                                parser.nextToken();
+                            }
                         }
+                    } else if (response.getClass() == BlocklistUpdateResponse.class) {
+                        parser.nextToken();
+                        while (parser.nextToken() != JsonToken.END_OBJECT) {
+                            String argname = parser.getCurrentName();
+                            if (argname.equals("blocklist-size")) {
+                                long size = parser.nextLongValue(0);
+                                ((BlocklistUpdateResponse) response).setBlocklistSize(size);
+                            } else {
+                                parser.nextToken();
+                            }
+                        }
+                    } else if (response.getClass() == FreeSpaceResponse.class) {
+                        parser.nextToken();
+                        while (parser.nextToken() != JsonToken.END_OBJECT) {
+                            String argname = parser.getCurrentName();
+                            switch (argname) {
+                                case "size-bytes":
+                                    long size = parser.nextLongValue(0);
+                                    ((FreeSpaceResponse) response).setFreeSpace(size);
+                                    break;
+                                case "path":
+                                    String path = parser.nextTextValue();
+                                    ((FreeSpaceResponse) response).setPath(path);
+                                    break;
+                                default:
+                                    parser.nextToken();
+                                    break;
+                            }
+                        }
+                    } else {
+                        parser.skipChildren();
                     }
-                } else {
-                    parser.skipChildren();
-                }
-            } else {
-                parser.nextToken();
+                    break;
+                default:
+                    parser.nextToken();
+                    break;
             }
         }
 

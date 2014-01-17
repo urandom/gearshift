@@ -53,7 +53,7 @@ public class TorrentDetailFragment extends Fragment implements TorrentListNotifi
     private Menu menu;
 
     private String[] torrentHashStrings;
-    private HashMap<String, Integer> torrentPositionMap = new HashMap<String, Integer>();
+    private HashMap<String, Integer> torrentPositionMap = new HashMap<>();
 
     private static PagerCallbacks dummyCallbacks = new PagerCallbacks() {
         @Override

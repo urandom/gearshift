@@ -278,7 +278,7 @@ public class TorrentListActivity extends FragmentActivity
         new SharedPreferences.OnSharedPreferenceChangeListener() {
             @Override
             public void onSharedPreferenceChanged(SharedPreferences prefs, String key) {
-                if (TorrentListActivity.this == null || profile == null) return;
+                if (profile == null) return;
 
                 if (!key.endsWith(profile.getId())) return;
 
@@ -370,7 +370,7 @@ public class TorrentListActivity extends FragmentActivity
                             if (bg != null) {
                                 bg.setVisibility(View.GONE);
                             }
-                            View pager=findViewById(R.id.torrent_detail_pager);
+                            View pager = findViewById(R.id.torrent_detail_pager);
                             pager.setVisibility(View.VISIBLE);
                             pager.animate().alpha((float) 1.0);
                         }
@@ -384,8 +384,8 @@ public class TorrentListActivity extends FragmentActivity
             detailSlideAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
                 @Override
                 public void onAnimationUpdate(ValueAnimator animation) {
-                    float value=(Float) animation.getAnimatedValue();
-                    LinearLayout.LayoutParams params=(LinearLayout.LayoutParams)
+                    float value = (Float) animation.getAnimatedValue();
+                    LinearLayout.LayoutParams params = (LinearLayout.LayoutParams)
                         detailPanel.getLayoutParams();
 
                     params.weight=value;
@@ -613,7 +613,7 @@ public class TorrentListActivity extends FragmentActivity
             case R.id.menu_settings:
                 intent = new Intent(this, SettingsActivity.class);
                 if (session != null) {
-                    ArrayList<String> directories = new ArrayList<String>(session.getDownloadDirectories());
+                    ArrayList<String> directories = new ArrayList<>(session.getDownloadDirectories());
                     directories.remove(session.getDownloadDir());
                     intent.putExtra(G.ARG_DIRECTORIES, directories);
                 }

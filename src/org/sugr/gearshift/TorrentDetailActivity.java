@@ -280,7 +280,7 @@ public class TorrentDetailActivity extends FragmentActivity implements Transmiss
             count--;
         }
 
-        List<String> hashList = new ArrayList<String>();
+        List<String> hashList = new ArrayList<>();
 
         for (int i = 0; i < count; i++) {
             int position = current + i - (current == 0 ? 0 : offscreen);
