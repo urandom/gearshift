@@ -9,7 +9,6 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.Fragment;
-import android.support.v4.content.Loader;
 import android.support.v4.view.ViewPager;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -23,6 +22,8 @@ import android.widget.Spinner;
 
 import org.sugr.gearshift.datasource.DataSource;
 import org.sugr.gearshift.datasource.TorrentNameStatus;
+import org.sugr.gearshift.service.DataServiceManager;
+import org.sugr.gearshift.service.DataServiceManagerInterface;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -157,12 +158,12 @@ public class TorrentDetailFragment extends Fragment implements TorrentListNotifi
 
     @Override
     public boolean onOptionsItemSelected(final MenuItem item) {
-        final Loader<TransmissionData> loader = getActivity().getSupportLoaderManager()
-            .getLoader(G.TORRENTS_LOADER_ID);
+        final DataServiceManager manager =
+            ((DataServiceManagerInterface) getActivity()).getDataServiceManager();
 
         final TransmissionSessionInterface context = ((TransmissionSessionInterface) getActivity());
 
-        if (loader == null || torrentHashStrings == null || torrentHashStrings.length <= currentTorrentPosition) {
+        if (manager == null || torrentHashStrings == null || torrentHashStrings.length <= currentTorrentPosition) {
             return super.onOptionsItemSelected(item);
         }
 
@@ -175,11 +176,9 @@ public class TorrentDetailFragment extends Fragment implements TorrentListNotifi
                     .setCancelable(false)
                     .setNegativeButton(android.R.string.no, null);
 
-                builder.setPositiveButton(android.R.string.yes,
-                    new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int id) {
-                        ((TransmissionDataLoader) loader).setTorrentsRemove(hashStrings, item.getItemId() == R.id.delete);
+                builder.setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                    @Override public void onClick(DialogInterface dialog, int id) {
+                        manager.removeTorrent(hashStrings, item.getItemId() == R.id.delete);
                         context.setRefreshing(true);
                     }
                 })
@@ -201,19 +200,19 @@ public class TorrentDetailFragment extends Fragment implements TorrentListNotifi
                         action = "torrent-start";
                         break;
                 }
-                ((TransmissionDataLoader) loader).setTorrentsAction(action, hashStrings);
+                manager.setTorrentAction(hashStrings, action);
                 break;
             case R.id.pause:
-                ((TransmissionDataLoader) loader).setTorrentsAction("torrent-stop", hashStrings);
+                manager.setTorrentAction(hashStrings, "torrent-stop");
                 break;
             case R.id.move:
                 actionMoveHashStrings = hashStrings;
                 return showMoveDialog(hashStrings);
             case R.id.verify:
-                ((TransmissionDataLoader) loader).setTorrentsAction("torrent-verify", hashStrings);
+                manager.setTorrentAction(hashStrings, "torrent-verify");
                 break;
             case R.id.reannounce:
-                ((TransmissionDataLoader) loader).setTorrentsAction("torrent-reannounce", hashStrings);
+                manager.setTorrentAction(hashStrings, "torrent-reannounce");
                 break;
             default:
                 return false;
@@ -404,10 +403,15 @@ public class TorrentDetailFragment extends Fragment implements TorrentListNotifi
     }
 
     private boolean showMoveDialog(final String[] hashStrings) {
+        final DataServiceManager manager =
+            ((DataServiceManagerInterface) getActivity()).getDataServiceManager();
+
+        if (manager == null) {
+            return true;
+        }
+
         LayoutInflater inflater = getActivity().getLayoutInflater();
         final TransmissionSessionInterface context = ((TransmissionSessionInterface) getActivity());
-        final Loader<TransmissionData> loader = getActivity().getSupportLoaderManager()
-            .getLoader(G.TORRENTS_LOADER_ID);
 
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity())
             .setTitle(R.string.set_location)
@@ -425,8 +429,7 @@ public class TorrentDetailFragment extends Fragment implements TorrentListNotifi
                 CheckBox move = (CheckBox) ((AlertDialog) dialog).findViewById(R.id.move);
 
                 String dir = (String) location.getSelectedItem();
-                ((TransmissionDataLoader) loader).setTorrentsLocation(
-                    hashStrings, dir, move.isChecked());
+                manager.setTorrentLocation(hashStrings, dir, move.isChecked());
 
                 context.setRefreshing(true);
                 actionMoveHashStrings = null;

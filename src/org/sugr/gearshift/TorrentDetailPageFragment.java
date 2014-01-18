@@ -42,6 +42,8 @@ import android.widget.Toast;
 
 import org.sugr.gearshift.datasource.DataSource;
 import org.sugr.gearshift.datasource.TorrentDetails;
+import org.sugr.gearshift.service.DataServiceManager;
+import org.sugr.gearshift.service.DataServiceManagerInterface;
 
 import java.io.File;
 import java.net.URI;
@@ -241,7 +243,7 @@ public class TorrentDetailPageFragment extends Fragment {
                     return false;
             }
             List<View> allViews = filesAdapter.getViews();
-            List<Integer> indexes = new ArrayList<>();
+            ArrayList<Integer> indexes = new ArrayList<>();
             for (View v : selectedFiles) {
                 TorrentFile file = filesAdapter.getItem(allViews.indexOf(v));
                 if (priority == null) {
@@ -268,9 +270,12 @@ public class TorrentDetailPageFragment extends Fragment {
                 if (priority == null) {
                     mode.finish();
                     ((TransmissionSessionInterface) getActivity()).setRefreshing(true);
-                    Loader<TransmissionData> loader = getActivity().getSupportLoaderManager()
-                        .getLoader(G.TORRENTS_LOADER_ID);
-                    loader.onContentChanged();
+                    DataServiceManager manager =
+                        ((DataServiceManagerInterface) getActivity()).getDataServiceManager();
+
+                    if (manager != null) {
+                        manager.update();
+                    }
                 }
             }
             return true;
@@ -326,7 +331,7 @@ public class TorrentDetailPageFragment extends Fragment {
                 default:
                     return false;
             }
-            List<Integer> ids = new ArrayList<>();
+            ArrayList<Integer> ids = new ArrayList<>();
             for (View v : selectedTrackers) {
                 View parent = (View) v.getParent();
                 Tracker tracker = trackersAdapter.getItem(
@@ -338,9 +343,12 @@ public class TorrentDetailPageFragment extends Fragment {
                 setTorrentProperty(key, ids);
                 mode.finish();
                 ((TransmissionSessionInterface) getActivity()).setRefreshing(true);
-                Loader<TransmissionData> loader = getActivity().getSupportLoaderManager()
-                        .getLoader(G.TORRENTS_LOADER_ID);
-                loader.onContentChanged();
+                DataServiceManager manager =
+                    ((DataServiceManagerInterface) getActivity()).getDataServiceManager();
+
+                if (manager != null) {
+                    manager.update();
+                }
             }
 
             return true;
@@ -665,7 +673,7 @@ public class TorrentDetailPageFragment extends Fragment {
         Button addTracker = (Button) root.findViewById(R.id.torrent_detail_add_tracker);
         addTracker.setOnClickListener(new View.OnClickListener() {
             @Override public void onClick(View v) {
-                final List<String> urls = new ArrayList<>();
+                final ArrayList<String> urls = new ArrayList<>();
                 LayoutInflater inflater = getActivity().getLayoutInflater();
 
                 AlertDialog.Builder builder = new AlertDialog.Builder(getActivity())
@@ -683,10 +691,12 @@ public class TorrentDetailPageFragment extends Fragment {
                                         setTorrentProperty(Torrent.SetterFields.TRACKER_ADD, urls);
 
                                         ((TransmissionSessionInterface) getActivity()).setRefreshing(true);
-                                        Loader<TransmissionData> loader = getActivity()
-                                                .getSupportLoaderManager().getLoader(
-                                                        G.TORRENTS_LOADER_ID);
-                                        loader.onContentChanged();
+                                        DataServiceManager manager =
+                                            ((DataServiceManagerInterface) getActivity()).getDataServiceManager();
+
+                                        if (manager != null) {
+                                            manager.update();
+                                        }
                                     }
                                 }).setView(inflater.inflate(R.layout.replace_tracker_dialog, null));
                 AlertDialog dialog = builder.create();
@@ -743,12 +753,49 @@ public class TorrentDetailPageFragment extends Fragment {
         getActivity().unregisterReceiver(pageUnselectedReceiver);
     }
 
-    private void setTorrentProperty(String key, Object value) {
+    private void setTorrentProperty(String key, int value) {
+        DataServiceManager manager =
+            ((DataServiceManagerInterface) getActivity()).getDataServiceManager();
 
-        Loader<TransmissionData> loader = getActivity()
-            .getSupportLoaderManager().getLoader(
-                    G.TORRENTS_LOADER_ID);
-        ((TransmissionDataLoader) loader).setTorrentProperty(torrentHash, key, value);
+        if (manager != null) {
+            manager.setTorrent(new String[] { torrentHash }, key, value);
+        }
+    }
+
+    private void setTorrentProperty(String key, long value) {
+        DataServiceManager manager =
+            ((DataServiceManagerInterface) getActivity()).getDataServiceManager();
+
+        if (manager != null) {
+            manager.setTorrent(new String[] { torrentHash }, key, value);
+        }
+    }
+
+    private void setTorrentProperty(String key, boolean value) {
+        DataServiceManager manager =
+            ((DataServiceManagerInterface) getActivity()).getDataServiceManager();
+
+        if (manager != null) {
+            manager.setTorrent(new String[] { torrentHash }, key, value);
+        }
+    }
+
+    private void setTorrentProperty(String key, float value) {
+        DataServiceManager manager =
+            ((DataServiceManagerInterface) getActivity()).getDataServiceManager();
+
+        if (manager != null) {
+            manager.setTorrent(new String[] { torrentHash }, key, value);
+        }
+    }
+
+    private void setTorrentProperty(String key, ArrayList<?> value) {
+        DataServiceManager manager =
+            ((DataServiceManagerInterface) getActivity()).getDataServiceManager();
+
+        if (manager != null) {
+            manager.setTorrent(new String[] { torrentHash }, key, value);
+        }
     }
 
     private void updateFields(View root) {
@@ -1573,18 +1620,21 @@ public class TorrentDetailPageFragment extends Fragment {
                 });
 
                 final TransmissionSessionInterface context = (TransmissionSessionInterface) getActivity();
-                final Loader<TransmissionData> loader = getActivity().getSupportLoaderManager()
-                        .getLoader(G.TORRENTS_LOADER_ID);
+                final DataServiceManager manager =
+                    ((DataServiceManagerInterface) getActivity()).getDataServiceManager();
 
                 buttons.findViewById(R.id.torrent_detail_tracker_remove).setOnClickListener(new View.OnClickListener() {
                     @Override public void onClick(View v) {
                         trackersAdapter.remove(tracker);
-                        List<Integer> ids = new ArrayList<>();
+                        ArrayList<Integer> ids = new ArrayList<>();
                         ids.add(tracker.id);
 
                         setTorrentProperty(Torrent.SetterFields.TRACKER_REMOVE, ids);
                         context.setRefreshing(true);
-                        loader.onContentChanged();
+
+                        if (manager != null) {
+                            manager.update();
+                        }
 
                         hideAllButtons(null);
                     }
@@ -1592,7 +1642,7 @@ public class TorrentDetailPageFragment extends Fragment {
 
                 buttons.findViewById(R.id.torrent_detail_tracker_replace).setOnClickListener(new View.OnClickListener() {
                     @Override public void onClick(View v) {
-                        final List<String> tuple = new ArrayList<>();
+                        final ArrayList<String> tuple = new ArrayList<>();
                         tuple.add(Integer.toString(tracker.id));
 
                         LayoutInflater inflater = getActivity().getLayoutInflater();
@@ -1612,7 +1662,9 @@ public class TorrentDetailPageFragment extends Fragment {
                                             setTorrentProperty(Torrent.SetterFields.TRACKER_REPLACE, tuple);
 
                                             context.setRefreshing(true);
-                                            loader.onContentChanged();
+                                            if (manager != null) {
+                                                manager.update();
+                                            }
                                         }
                                     }).setView(inflater.inflate(R.layout.replace_tracker_dialog, null));
                         AlertDialog dialog = builder.create();

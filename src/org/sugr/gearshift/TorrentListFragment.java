@@ -45,6 +45,8 @@ import org.sugr.gearshift.G.SortBy;
 import org.sugr.gearshift.G.SortOrder;
 import org.sugr.gearshift.datasource.Constants;
 import org.sugr.gearshift.datasource.DataSource;
+import org.sugr.gearshift.service.DataServiceManager;
+import org.sugr.gearshift.service.DataServiceManagerInterface;
 
 import java.util.Locale;
 import java.util.regex.Matcher;
@@ -122,10 +124,10 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
 
         @Override
         public boolean onActionItemClicked(final ActionMode mode, final MenuItem item) {
-            final Loader<TransmissionData> loader = getActivity().getSupportLoaderManager()
-                    .getLoader(G.TORRENTS_LOADER_ID);
+            final DataServiceManager manager =
+                ((DataServiceManagerInterface) getActivity()).getDataServiceManager();
 
-            if (loader == null)
+            if (manager == null)
                 return false;
 
             final String[] hashStrings = new String[selectedTorrentIds.size()];
@@ -153,7 +155,7 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
                             new DialogInterface.OnClickListener() {
                                 @Override
                                 public void onClick(DialogInterface dialog, int id) {
-                                    ((TransmissionDataLoader) loader).setTorrentsRemove(hashStrings, item.getItemId() == R.id.delete);
+                                    manager.removeTorrent(hashStrings, item.getItemId() == R.id.delete);
                                     ((TransmissionSessionInterface) getActivity()).setRefreshing(true);
 
                                     mode.finish();
@@ -165,20 +167,19 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
                             .show();
                     return true;
                 case R.id.resume:
-                    ((TransmissionDataLoader) loader).setTorrentsAction(
-                        hasQueued ? "torrent-start-now" : "torrent-start",
-                        hashStrings);
+                    manager.setTorrentAction(hashStrings,
+                        hasQueued ? "torrent-start-now" : "torrent-start");
                     break;
                 case R.id.pause:
-                    ((TransmissionDataLoader) loader).setTorrentsAction("torrent-stop", hashStrings);
+                    manager.setTorrentAction(hashStrings, "torrent-stop");
                     break;
                 case R.id.move:
                     return showMoveDialog(hashStrings);
                 case R.id.verify:
-                    ((TransmissionDataLoader) loader).setTorrentsAction("torrent-verify", hashStrings);
+                    manager.setTorrentAction(hashStrings, "torrent-verify");
                     break;
                 case R.id.reannounce:
-                    ((TransmissionDataLoader) loader).setTorrentsAction("torrent-reannounce", hashStrings);
+                    manager.setTorrentAction(hashStrings, "torrent-reannounce");
                     break;
                 default:
                     return true;
@@ -659,9 +660,14 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
     }
 
     private boolean showMoveDialog(final String[] hashStrings) {
+        final DataServiceManager manager =
+            ((DataServiceManagerInterface) getActivity()).getDataServiceManager();
+
+        if (manager == null) {
+            return true;
+        }
+
         LayoutInflater inflater = getActivity().getLayoutInflater();
-        final Loader<TransmissionData> loader = getActivity().getSupportLoaderManager()
-            .getLoader(G.TORRENTS_LOADER_ID);
 
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity())
             .setTitle(R.string.set_location)
@@ -674,8 +680,7 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
                 CheckBox move = (CheckBox) ((AlertDialog) dialog).findViewById(R.id.move);
 
                 String dir = (String) location.getSelectedItem();
-                ((TransmissionDataLoader) loader).setTorrentsLocation(
-                    hashStrings, dir, move.isChecked());
+                manager.setTorrentLocation(hashStrings, dir, move.isChecked());
                 ((TransmissionSessionInterface) getActivity()).setRefreshing(true);
 
                 if (actionMode != null) {

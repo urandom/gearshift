@@ -16,6 +16,7 @@ import android.view.View;
 import android.view.View.OnClickListener;
 
 import org.sugr.gearshift.datasource.DataSource;
+import org.sugr.gearshift.service.DataServiceManager;
 
 public class TransmissionProfileSettingsFragment extends BasePreferenceFragment {
     private TransmissionProfile profile;

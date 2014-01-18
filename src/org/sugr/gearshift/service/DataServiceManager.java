@@ -175,7 +175,7 @@ public class DataServiceManager {
 
         args.putStringArray(DataService.Args.HASH_STRINGS, hashStrings);
         args.putBoolean(DataService.Args.DELETE_DATA, deleteData);
-        Intent intent = createIntent(DataService.Requests.REMOVE_TORRENTS, args);
+        Intent intent = createIntent(DataService.Requests.REMOVE_TORRENT, args);
 
         context.startService(intent);
 

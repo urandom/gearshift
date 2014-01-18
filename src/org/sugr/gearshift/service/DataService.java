@@ -26,7 +26,7 @@ public class DataService extends IntentService {
         public static final String GET_ALL_TORRENTS = "get_all_torrents";
         public static final String GET_ACTIVE_TORRENTS = "get_active_torrents";
         public static final String ADD_TORRENT = "add_torrent";
-        public static final String REMOVE_TORRENTS = "remove_torrents";
+        public static final String REMOVE_TORRENT = "remove_torrents";
         public static final String SET_TORRENT = "set_torrent";
         public static final String SET_TORRENT_LOCATION = "set_torrent_location";
         public static final String SET_TORRENT_ACTION = "set_torrent_action";
@@ -187,7 +187,7 @@ public class DataService extends IntentService {
                         .putExtra(G.ARG_ADDED_HASH, addedHash);
                     break;
                 }
-                case Requests.REMOVE_TORRENTS: {
+                case Requests.REMOVE_TORRENT: {
                     String[] hashStrings = args.getStringArray(Args.HASH_STRINGS);
                     boolean delete = args.getBoolean(Args.DELETE_DATA, false);
 
