@@ -24,9 +24,10 @@ public class DataServiceManager {
     private boolean details;
     private boolean isStopped;
     private boolean isLastErrorFatal;
+    private boolean sessionOnly;
 
     private String[] torrentsToUpdate;
-    private ResponceReceiver responceReceiver;
+    private ServiceReceiver serviceReceiver;
 
     private Handler updateHandler = new Handler();
     private Runnable updateRunnable = new Runnable() {
@@ -43,23 +44,33 @@ public class DataServiceManager {
         this.context = context;
         this.profileId = profileId;
 
-        responceReceiver = new ResponceReceiver();
-        context.registerReceiver(responceReceiver,
+        serviceReceiver = new ServiceReceiver();
+        context.registerReceiver(serviceReceiver,
             new IntentFilter(G.INTENT_SERVICE_ACTION_COMPLETE));
     }
 
     public void reset() {
         stopUpdating();
-        context.unregisterReceiver(responceReceiver);
+        context.unregisterReceiver(serviceReceiver);
     }
 
-    public void setDetails(boolean details) {
+    public DataServiceManager setDetails(boolean details) {
         this.details = details;
+
+        return this;
     }
 
-    public void setTorrentsToUpdate(String[] hashStrings) {
+    public DataServiceManager setSessionOnly(boolean sessionOnly) {
+        this.sessionOnly = sessionOnly;
+
+        return this;
+    }
+
+    public DataServiceManager setTorrentsToUpdate(String[] hashStrings) {
         torrentsToUpdate = hashStrings;
         update();
+
+        return this;
     }
 
     public DataServiceManager startUpdating() {
@@ -254,37 +265,41 @@ public class DataServiceManager {
     private void update() {
         updateHandler.removeCallbacks(updateRunnable);
 
-        SharedPreferences prefs = getPreferences();
-        boolean active = prefs.getBoolean(G.PREF_UPDATE_ACTIVE, false);
-        int fullUpdate = Integer.parseInt(prefs.getString(G.PREF_FULL_UPDATE, "2"));
-
-        String requestType;
-        if (active && !details && iteration % fullUpdate != 0) {
-            requestType = DataService.Requests.GET_ACTIVE_TORRENTS;
-        } else {
-            requestType = DataService.Requests.GET_ALL_TORRENTS;
-        }
-
-        Bundle args = new Bundle();
-        if (details) {
-            args.putBoolean(DataService.Args.DETAIL_FIELDS, details);
-        }
-
-        if (torrentsToUpdate != null) {
-            args.putStringArray(DataService.Args.TORRENTS_TO_UPDATE, torrentsToUpdate);
-        }
-
-        if (iteration == 0 || isLastErrorFatal) {
-            args.putBoolean(DataService.Args.REMOVE_OBSOLETE, true);
-        }
-
-        if (iteration % 3 == 0) {
+        if (sessionOnly) {
             context.startService(createIntent(DataService.Requests.GET_SESSION, null));
+        } else {
+            SharedPreferences prefs = getPreferences();
+            boolean active = prefs.getBoolean(G.PREF_UPDATE_ACTIVE, false);
+            int fullUpdate = Integer.parseInt(prefs.getString(G.PREF_FULL_UPDATE, "2"));
+
+            String requestType;
+            if (active && !details && iteration % fullUpdate != 0) {
+                requestType = DataService.Requests.GET_ACTIVE_TORRENTS;
+            } else {
+                requestType = DataService.Requests.GET_ALL_TORRENTS;
+            }
+
+            Bundle args = new Bundle();
+            if (details) {
+                args.putBoolean(DataService.Args.DETAIL_FIELDS, details);
+            }
+
+            if (torrentsToUpdate != null) {
+                args.putStringArray(DataService.Args.TORRENTS_TO_UPDATE, torrentsToUpdate);
+            }
+
+            if (iteration == 0 || isLastErrorFatal) {
+                args.putBoolean(DataService.Args.REMOVE_OBSOLETE, true);
+            }
+
+            if (iteration % 3 == 0) {
+                context.startService(createIntent(DataService.Requests.GET_SESSION, null));
+            }
+
+            Intent intent = createIntent(requestType, args);
+
+            context.startService(intent);
         }
-
-        Intent intent = createIntent(requestType, args);
-
-        context.startService(intent);
 
         iteration++;
         isLastErrorFatal = false;
@@ -294,27 +309,10 @@ public class DataServiceManager {
         SharedPreferences prefs = getPreferences();
         int update = Integer.parseInt(prefs.getString(G.PREF_UPDATE_INTERVAL, "-1"));
         if (update >= 0 && !isStopped) {
-            updateHandler.postDelayed(updateRunnable, update * 1000);
-        }
-    }
-
-    private class ResponceReceiver extends BroadcastReceiver {
-        @Override public void onReceive(Context context, Intent intent) {
-            int error = intent.getIntExtra(G.ARG_ERROR, 0);
-
-            if (error == 0 || error == TransmissionData.Errors.DUPLICATE_TORRENT
-                    || error == TransmissionData.Errors.INVALID_TORRENT) {
-
-                String type = intent.getStringExtra(G.ARG_REQUEST_TYPE);
-                if (DataService.Requests.GET_ACTIVE_TORRENTS.equals(type)
-                        || DataService.Requests.GET_ALL_TORRENTS.equals(type)) {
-                    repeatLoading();
-                } else if (DataService.Requests.ADD_TORRENT.equals(type)) {
-                    update();
-                }
-            } else {
-                isLastErrorFatal = true;
+            if (sessionOnly && update < 10) {
+                update = 10;
             }
+            updateHandler.postDelayed(updateRunnable, update * 1000);
         }
     }
 
@@ -327,4 +325,25 @@ public class DataServiceManager {
 
         return this;
     }
+
+    private class ServiceReceiver extends BroadcastReceiver {
+        @Override public void onReceive(Context context, Intent intent) {
+            int error = intent.getIntExtra(G.ARG_ERROR, 0);
+
+            if (error == 0 || error == TransmissionData.Errors.DUPLICATE_TORRENT
+                || error == TransmissionData.Errors.INVALID_TORRENT) {
+
+                String type = intent.getStringExtra(G.ARG_REQUEST_TYPE);
+                if (DataService.Requests.GET_ACTIVE_TORRENTS.equals(type)
+                    || DataService.Requests.GET_ALL_TORRENTS.equals(type)) {
+                    repeatLoading();
+                } else if (DataService.Requests.ADD_TORRENT.equals(type)) {
+                    update();
+                }
+            } else {
+                isLastErrorFatal = true;
+            }
+        }
+    }
+
 }

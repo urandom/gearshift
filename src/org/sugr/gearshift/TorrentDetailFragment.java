@@ -27,7 +27,7 @@ import org.sugr.gearshift.datasource.TorrentNameStatus;
 import java.util.Arrays;
 import java.util.HashMap;
 
-public class TorrentDetailFragment extends Fragment implements TorrentListNotification {
+public class TorrentDetailFragment extends Fragment implements TorrentListNotificationInterface {
     public static final String ARG_SHOW_PAGER = "show_pager";
 
     public interface PagerCallbacks {

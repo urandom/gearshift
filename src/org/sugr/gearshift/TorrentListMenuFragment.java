@@ -31,7 +31,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.TreeSet;
 
-public class TorrentListMenuFragment extends Fragment implements TorrentListNotification {
+public class TorrentListMenuFragment extends Fragment implements TorrentListNotificationInterface {
     private ListView filterList;
     private View footer;
     private FilterAdapter filterAdapter;

@@ -59,7 +59,7 @@ import java.util.regex.Pattern;
  * Activities containing this fragment MUST implement the {@link Callbacks}
  * interface.
  */
-public class TorrentListFragment extends ListFragment implements TorrentListNotification {
+public class TorrentListFragment extends ListFragment implements TorrentListNotificationInterface {
     /**
      * The serialization (saved instance state) Bundle key representing the
      * activated item position. Only used on tablets.
