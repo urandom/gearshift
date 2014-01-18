@@ -9,6 +9,8 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
 
+import java.util.ArrayList;
+
 public class DataServiceManager {
     private Context context;
     private String profileId;
@@ -75,8 +77,156 @@ public class DataServiceManager {
         return this;
     }
 
+    public DataServiceManager setSession(TransmissionSession session, String... fields) {
+        Bundle args = new Bundle();
+
+        args.putParcelable(DataService.Args.SESSION, session);
+        args.putStringArray(DataService.Args.SESSION_FIELDS, fields);
+        Intent intent = createIntent(DataService.Requests.SET_SESSION, args);
+
+        context.startService(intent);
+
+        return this;
+    }
+
+    public DataServiceManager addTorrent(String magnet, String data, String location,
+                                         boolean addPaused, String temporaryFile) {
+        Bundle args = new Bundle();
+
+        args.putString(DataService.Args.MAGNET_URI, magnet);
+        args.putString(DataService.Args.TORRENT_DATA, data);
+        args.putString(DataService.Args.LOCATION, location);
+        args.putBoolean(DataService.Args.ADD_PAUSED, addPaused);
+        args.putString(DataService.Args.TEMPORARY_FILE, temporaryFile);
+        Intent intent = createIntent(DataService.Requests.ADD_TORRENT, args);
+
+        context.startService(intent);
+
+        return this;
+    }
+
+    public DataServiceManager removeTorrent(String[] hashStrings, boolean deleteData) {
+        Bundle args = new Bundle();
+
+        args.putStringArray(DataService.Args.HASH_STRINGS, hashStrings);
+        args.putBoolean(DataService.Args.DELETE_DATA, deleteData);
+        Intent intent = createIntent(DataService.Requests.REMOVE_TORRENTS, args);
+
+        context.startService(intent);
+
+        return this;
+    }
+
+    public DataServiceManager setTorrent(String[] hashStrings, String field, int value) {
+        Bundle args = new Bundle();
+
+        args.putInt(DataService.Args.TORRENT_FIELD_VALUE, value);
+        return setTorrent(hashStrings, field, args);
+    }
+
+    public DataServiceManager setTorrent(String[] hashStrings, String field, long value) {
+        Bundle args = new Bundle();
+
+        args.putLong(DataService.Args.TORRENT_FIELD_VALUE, value);
+        return setTorrent(hashStrings, field, args);
+    }
+
+    public DataServiceManager setTorrent(String[] hashStrings, String field, boolean value) {
+        Bundle args = new Bundle();
+
+        args.putBoolean(DataService.Args.TORRENT_FIELD_VALUE, value);
+        return setTorrent(hashStrings, field, args);
+    }
+
+    public DataServiceManager setTorrent(String[] hashStrings, String field, float value) {
+        Bundle args = new Bundle();
+
+        args.putFloat(DataService.Args.TORRENT_FIELD_VALUE, value);
+        return setTorrent(hashStrings, field, args);
+    }
+
+    public DataServiceManager setTorrent(String[] hashStrings, String field, String value) {
+        Bundle args = new Bundle();
+
+        args.putString(DataService.Args.TORRENT_FIELD_VALUE, value);
+        return setTorrent(hashStrings, field, args);
+    }
+
+    @SuppressWarnings("unchecked")
+    public DataServiceManager setTorrent(String[] hashStrings, String field, ArrayList<?> value) {
+        Bundle args = new Bundle();
+
+        switch (field) {
+            case Torrent.SetterFields.FILES_WANTED:
+            case Torrent.SetterFields.FILES_UNWANTED:
+            case Torrent.SetterFields.FILES_LOW:
+            case Torrent.SetterFields.FILES_NORMAL:
+            case Torrent.SetterFields.FILES_HIGH:
+            case Torrent.SetterFields.TRACKER_REMOVE:
+                args.putIntegerArrayList(DataService.Args.TORRENT_FIELD_VALUE, (ArrayList<Integer>) value);
+                break;
+            case Torrent.SetterFields.TRACKER_ADD:
+            case Torrent.SetterFields.TRACKER_REPLACE:
+                args.putStringArrayList(DataService.Args.TORRENT_FIELD_VALUE, (ArrayList<String>) value);
+                break;
+        }
+        return setTorrent(hashStrings, field, args);
+    }
+
+    public DataServiceManager setTorrentLocation(String[] hashStrings, String location, boolean move) {
+        Bundle args = new Bundle();
+
+        args.putStringArray(DataService.Args.HASH_STRINGS, hashStrings);
+        args.putString(DataService.Args.LOCATION, location);
+        args.putBoolean(DataService.Args.MOVE_DATA, move);
+        Intent intent = createIntent(DataService.Requests.SET_TORRENT_LOCATION, args);
+
+        context.startService(intent);
+
+        return this;
+    }
+
+    public DataServiceManager setTorrentAction(String[] hashStrings, String action) {
+        Bundle args = new Bundle();
+
+        args.putStringArray(DataService.Args.HASH_STRINGS, hashStrings);
+        args.putString(DataService.Args.TORRENT_ACTION, action);
+        Intent intent = createIntent(DataService.Requests.SET_TORRENT_ACTION, args);
+
+        context.startService(intent);
+
+        return this;
+    }
+
     public DataServiceManager clearTorrents() {
         Intent intent = createIntent(DataService.Requests.CLEAR_TORRENTS_FOR_PROFILE, null);
+
+        context.startService(intent);
+
+        return this;
+    }
+
+    public DataServiceManager getFreeSpace(String location) {
+        Bundle args = new Bundle();
+
+        args.putString(DataService.Args.LOCATION, location);
+        Intent intent = createIntent(DataService.Requests.GET_FREE_SPACE, args);
+
+        context.startService(intent);
+
+        return this;
+    }
+
+    public DataServiceManager testPort() {
+        Intent intent = createIntent(DataService.Requests.TEST_PORT, null);
+
+        context.startService(intent);
+
+        return this;
+    }
+
+    public DataServiceManager updateBlocklist() {
+        Intent intent = createIntent(DataService.Requests.UPDATE_BLOCKLIST, null);
 
         context.startService(intent);
 
@@ -161,5 +311,15 @@ public class DataServiceManager {
                 isLastErrorFatal = true;
             }
         }
+    }
+
+    private DataServiceManager setTorrent(String[] hashStrings, String field, Bundle args) {
+        args.putStringArray(DataService.Args.HASH_STRINGS, hashStrings);
+        args.putString(DataService.Args.TORRENT_FIELD, field);
+        Intent intent = createIntent(DataService.Requests.SET_TORRENT, args);
+
+        context.startService(intent);
+
+        return this;
     }
 }

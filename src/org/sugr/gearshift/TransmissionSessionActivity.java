@@ -1242,7 +1242,7 @@ public class TransmissionSessionActivity extends FragmentActivity {
             }
 
             try {
-                return manager.blocklistUpdate();
+                return manager.updateBlocklist();
             } catch (ManagerException e) {
                 return null;
             }

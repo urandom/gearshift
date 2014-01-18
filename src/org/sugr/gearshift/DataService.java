@@ -28,7 +28,7 @@ public class DataService extends IntentService {
 
         public static final String GET_FREE_SPACE = "get_free_space";
         public static final String TEST_PORT = "test_port";
-        public static final String BLOCKLIST_UPDATE = "blocklist_update";
+        public static final String UPDATE_BLOCKLIST = "blocklist_update";
     }
 
     public static final class Args {
@@ -189,7 +189,7 @@ public class DataService extends IntentService {
                         throw new IllegalArgumentException("No hash strings provided");
                     }
 
-                    manager.setTorrentsRemove(hashStrings, delete);
+                    manager.removeTorrent(hashStrings, delete);
                     response = createResponse(requestType, profileId);
                     break;
                 }
@@ -206,7 +206,7 @@ public class DataService extends IntentService {
                         throw new IllegalArgumentException("No torrent field provided");
                     }
 
-                    manager.setTorrentsProperty(hashStrings, field, value);
+                    manager.setTorrentProperty(hashStrings, field, value);
                     response = createResponse(requestType, profileId);
                     break;
                 }
@@ -223,7 +223,7 @@ public class DataService extends IntentService {
                         throw new IllegalArgumentException("No torrent location provided");
                     }
 
-                    manager.setTorrentsLocation(hashStrings, location, move);
+                    manager.setTorrentLocation(hashStrings, location, move);
                     response = createResponse(requestType, profileId);
                     break;
                 }
@@ -239,7 +239,7 @@ public class DataService extends IntentService {
                         throw new IllegalArgumentException("No action provided");
                     }
 
-                    manager.setTorrentsAction(hashStrings, action);
+                    manager.setTorrentAction(hashStrings, action);
                     response = createResponse(requestType, profileId);
                     break;
                 }
@@ -264,8 +264,8 @@ public class DataService extends IntentService {
                     response = createResponse(requestType, profileId)
                         .putExtra(G.ARG_PORT_IS_OPEN, isOpen);
                     break;
-                case Requests.BLOCKLIST_UPDATE:
-                    long size = manager.blocklistUpdate();
+                case Requests.UPDATE_BLOCKLIST:
+                    long size = manager.updateBlocklist();
                     response = createResponse(requestType, profileId)
                         .putExtra(G.ARG_BLOCKLIST_SIZE, size);
                     break;

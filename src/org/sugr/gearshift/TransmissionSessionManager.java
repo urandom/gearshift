@@ -149,7 +149,7 @@ public class TransmissionSessionManager {
         }
     }
 
-    public void setTorrentsRemove(String[] hashStrings, boolean delete) throws ManagerException {
+    public void removeTorrent(String[] hashStrings, boolean delete) throws ManagerException {
         ObjectMapper mapper = new ObjectMapper();
         ObjectNode request = createRequest("torrent-remove", true);
         ObjectNode arguments = (ObjectNode) request.path("arguments");
@@ -164,7 +164,7 @@ public class TransmissionSessionManager {
         dataSource.removeTorrents(hashStrings);
     }
 
-    public void setTorrentsAction(String[] hashStrings, String action) throws ManagerException {
+    public void setTorrentAction(String[] hashStrings, String action) throws ManagerException {
         ObjectMapper mapper = new ObjectMapper();
         ObjectNode request = createRequest(action, true);
         ObjectNode arguments = (ObjectNode) request.path("arguments");
@@ -177,7 +177,7 @@ public class TransmissionSessionManager {
         }
     }
 
-    public void setTorrentsLocation(String[] hashStrings, String location, boolean move) throws ManagerException {
+    public void setTorrentLocation(String[] hashStrings, String location, boolean move) throws ManagerException {
         ObjectMapper mapper = new ObjectMapper();
         ObjectNode request = createRequest("torrent-set-location", true);
         ObjectNode arguments = (ObjectNode) request.path("arguments");
@@ -193,18 +193,18 @@ public class TransmissionSessionManager {
     }
 
     @SuppressWarnings("unchecked")
-    public void setTorrentsProperty(String[] hashStrings, String key, Object value) throws ManagerException {
+    public void setTorrentProperty(String[] hashStrings, String key, Object value) throws ManagerException {
         ObjectMapper mapper = new ObjectMapper();
         ObjectNode request = createRequest("torrent-set", true);
         ObjectNode arguments = (ObjectNode) request.path("arguments");
         arguments.put("ids", mapper.valueToTree(hashStrings));
 
         if (key.equals(Torrent.SetterFields.TRACKER_REPLACE)) {
-            List<Object> tuple = (List<Object>) value;
+            List<String> tuple = (List<String>) value;
             ArrayNode list = JsonNodeFactory.instance.arrayNode();
 
             for (int i = 0; i < tuple.size(); i += 2) {
-                list.add((Integer) tuple.get(i)).add((String) tuple.get(i + 1));
+                list.add(Integer.parseInt(tuple.get(i))).add(tuple.get(i + 1));
             }
 
             arguments.put(key, list);
@@ -295,7 +295,7 @@ public class TransmissionSessionManager {
         return response.isPortOpen();
     }
 
-    public long blocklistUpdate() throws ManagerException {
+    public long updateBlocklist() throws ManagerException {
         ObjectNode request = createRequest("blocklist-update");
 
         BlocklistUpdateResponse response = new BlocklistUpdateResponse();

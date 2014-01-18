@@ -278,7 +278,7 @@ public class TorrentDetailPageFragment extends Fragment {
     };
 
     private ActionMode trackerActionMode;
-    private Set<View> selectedTrackers = new HashSet<View>();
+    private Set<View> selectedTrackers = new HashSet<>();
 
     private ActionMode.Callback actionModeTrackers = new ActionMode.Callback() {
 
@@ -1592,8 +1592,8 @@ public class TorrentDetailPageFragment extends Fragment {
 
                 buttons.findViewById(R.id.torrent_detail_tracker_replace).setOnClickListener(new View.OnClickListener() {
                     @Override public void onClick(View v) {
-                        final List<Object> tuple = new ArrayList<>();
-                        tuple.add(tracker.id);
+                        final List<String> tuple = new ArrayList<>();
+                        tuple.add(Integer.toString(tracker.id));
 
                         LayoutInflater inflater = getActivity().getLayoutInflater();
 

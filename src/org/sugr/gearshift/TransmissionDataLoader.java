@@ -579,13 +579,13 @@ public class TransmissionDataLoader extends AsyncTaskLoader<TransmissionData> {
                 String action, String location, String setKey,
                 Object setValue, boolean deleteData, boolean moveData) throws ManagerException {
         if (action.equals("torrent-remove")) {
-            sessManager.setTorrentsRemove(hashStrings, deleteData);
+            sessManager.removeTorrent(hashStrings, deleteData);
         } else if (action.equals("torrent-set-location")) {
-            sessManager.setTorrentsLocation(hashStrings, location, moveData);
+            sessManager.setTorrentLocation(hashStrings, location, moveData);
         } else if (action.equals("torrent-set")) {
-            sessManager.setTorrentsProperty(hashStrings, setKey, setValue);
+            sessManager.setTorrentProperty(hashStrings, setKey, setValue);
         } else {
-            sessManager.setTorrentsAction(hashStrings, action);
+            sessManager.setTorrentAction(hashStrings, action);
         }
     }
 
