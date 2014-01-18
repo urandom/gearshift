@@ -1,4 +1,4 @@
-package org.sugr.gearshift;
+package org.sugr.gearshift.service;
 
 import android.app.IntentService;
 import android.content.Intent;
@@ -6,6 +6,12 @@ import android.os.Bundle;
 import android.support.v4.content.LocalBroadcastManager;
 import android.text.TextUtils;
 
+import org.sugr.gearshift.G;
+import org.sugr.gearshift.Torrent;
+import org.sugr.gearshift.TransmissionData;
+import org.sugr.gearshift.TransmissionProfile;
+import org.sugr.gearshift.TransmissionSession;
+import org.sugr.gearshift.TransmissionSessionManager;
 import org.sugr.gearshift.datasource.DataSource;
 import org.sugr.gearshift.datasource.TorrentStatus;
 

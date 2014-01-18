@@ -1,4 +1,4 @@
-package org.sugr.gearshift;
+package org.sugr.gearshift.service;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -8,6 +8,11 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
+
+import org.sugr.gearshift.G;
+import org.sugr.gearshift.Torrent;
+import org.sugr.gearshift.TransmissionData;
+import org.sugr.gearshift.TransmissionSession;
 
 import java.util.ArrayList;
 
