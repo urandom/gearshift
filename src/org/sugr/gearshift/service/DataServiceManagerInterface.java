@@ -1,5 +1,5 @@
 package org.sugr.gearshift.service;
 
 public interface DataServiceManagerInterface {
-    public DataServiceManager getManager();
+    public DataServiceManager getDataServiceManager();
 }

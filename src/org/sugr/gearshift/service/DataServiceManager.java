@@ -93,6 +93,55 @@ public class DataServiceManager {
         return this;
     }
 
+    public void update() {
+        updateHandler.removeCallbacks(updateRunnable);
+
+        if (sessionOnly) {
+            getSession();
+        } else {
+            SharedPreferences prefs = getPreferences();
+            boolean active = prefs.getBoolean(G.PREF_UPDATE_ACTIVE, false);
+            int fullUpdate = Integer.parseInt(prefs.getString(G.PREF_FULL_UPDATE, "2"));
+
+            String requestType;
+            if (active && !details && iteration % fullUpdate != 0) {
+                requestType = DataService.Requests.GET_ACTIVE_TORRENTS;
+            } else {
+                requestType = DataService.Requests.GET_ALL_TORRENTS;
+            }
+
+            Bundle args = new Bundle();
+            if (details) {
+                args.putBoolean(DataService.Args.DETAIL_FIELDS, details);
+            }
+
+            if (torrentsToUpdate != null) {
+                args.putStringArray(DataService.Args.TORRENTS_TO_UPDATE, torrentsToUpdate);
+            }
+
+            if (iteration == 0 || isLastErrorFatal) {
+                args.putBoolean(DataService.Args.REMOVE_OBSOLETE, true);
+            }
+
+            if (iteration % 3 == 0) {
+                getSession();
+            }
+
+            Intent intent = createIntent(requestType, args);
+
+            context.startService(intent);
+        }
+
+        iteration++;
+        isLastErrorFatal = false;
+    }
+
+    public DataServiceManager getSession() {
+        context.startService(createIntent(DataService.Requests.GET_SESSION, null));
+
+        return this;
+    }
+
     public DataServiceManager setSession(TransmissionSession session, String... fields) {
         Bundle args = new Bundle();
 
@@ -260,49 +309,6 @@ public class DataServiceManager {
         intent.putExtra(G.ARG_REQUEST_ARGS, args == null ? new Bundle() : args);
 
         return intent;
-    }
-
-    private void update() {
-        updateHandler.removeCallbacks(updateRunnable);
-
-        if (sessionOnly) {
-            context.startService(createIntent(DataService.Requests.GET_SESSION, null));
-        } else {
-            SharedPreferences prefs = getPreferences();
-            boolean active = prefs.getBoolean(G.PREF_UPDATE_ACTIVE, false);
-            int fullUpdate = Integer.parseInt(prefs.getString(G.PREF_FULL_UPDATE, "2"));
-
-            String requestType;
-            if (active && !details && iteration % fullUpdate != 0) {
-                requestType = DataService.Requests.GET_ACTIVE_TORRENTS;
-            } else {
-                requestType = DataService.Requests.GET_ALL_TORRENTS;
-            }
-
-            Bundle args = new Bundle();
-            if (details) {
-                args.putBoolean(DataService.Args.DETAIL_FIELDS, details);
-            }
-
-            if (torrentsToUpdate != null) {
-                args.putStringArray(DataService.Args.TORRENTS_TO_UPDATE, torrentsToUpdate);
-            }
-
-            if (iteration == 0 || isLastErrorFatal) {
-                args.putBoolean(DataService.Args.REMOVE_OBSOLETE, true);
-            }
-
-            if (iteration % 3 == 0) {
-                context.startService(createIntent(DataService.Requests.GET_SESSION, null));
-            }
-
-            Intent intent = createIntent(requestType, args);
-
-            context.startService(intent);
-        }
-
-        iteration++;
-        isLastErrorFatal = false;
     }
 
     private void repeatLoading() {

@@ -11,9 +11,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentActivity;
-import android.support.v4.app.LoaderManager.LoaderCallbacks;
-import android.support.v4.content.AsyncTaskLoader;
-import android.support.v4.content.Loader;
 import android.text.Html;
 import android.text.format.DateFormat;
 import android.view.KeyEvent;
@@ -31,7 +28,6 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.TimePicker;
 
-import org.sugr.gearshift.TransmissionSessionManager.ManagerException;
 import org.sugr.gearshift.datasource.DataSource;
 import org.sugr.gearshift.service.DataService;
 import org.sugr.gearshift.service.DataServiceManager;
@@ -49,27 +45,7 @@ public class TransmissionSessionActivity extends FragmentActivity implements Dat
     private boolean refreshing = false;
 
     private ServiceReceiver serviceReceiver;
-
-    private LoaderCallbacks<TransmissionSession> sessionLoaderCallbacks = new LoaderCallbacks<TransmissionSession>() {
-
-        @Override public Loader<TransmissionSession> onCreateLoader(int arg0, Bundle arg1) {
-            return new TransmissionSessionLoader(TransmissionSessionActivity.this);
-        }
-
-        @Override public void onLoadFinished(Loader<TransmissionSession> loader,
-                TransmissionSession session) {
-
-            updateFields(session, false);
-            TransmissionSessionActivity.this.session = session;
-
-            if (refreshing) {
-                refreshing = false;
-                invalidateOptionsMenu();
-            }
-        }
-
-        @Override public void onLoaderReset(Loader<TransmissionSession> loader) { }
-    };
+    private SessionTask sessionTask;
 
     private static final String STATE_EXPANDED = "expanded_states";
     private static final String STATE_SCROLL_POSITION = "scroll_position_state";
@@ -146,7 +122,7 @@ public class TransmissionSessionActivity extends FragmentActivity implements Dat
 
         profile = in.getParcelableExtra(G.ARG_PROFILE);
         session = in.getParcelableExtra(G.ARG_SESSION);
-        manager = new DataServiceManager(this, profile.getId()).setSessionOnly(true);
+        sessionTask = new SessionTask(this);
 
         super.onCreate(savedInstanceState);
 
@@ -184,21 +160,21 @@ public class TransmissionSessionActivity extends FragmentActivity implements Dat
         initListeners();
 
         serviceReceiver = new ServiceReceiver();
-
-        getSupportLoaderManager().restartLoader(G.SESSION_LOADER_ID, null, sessionLoaderCallbacks);
     }
 
     @Override protected void onResume() {
         super.onResume();
 
-        registerReceiver(serviceReceiver,
-            new IntentFilter(G.INTENT_SERVICE_ACTION_COMPLETE));
+        manager = new DataServiceManager(this, profile.getId())
+            .setSessionOnly(true).startUpdating();
+        registerReceiver(serviceReceiver, new IntentFilter(G.INTENT_SERVICE_ACTION_COMPLETE));
     }
 
     @Override protected void onPause() {
         super.onPause();
 
         unregisterReceiver(serviceReceiver);
+        manager.reset();
     }
 
     @Override public void onSaveInstanceState(Bundle outState) {
@@ -227,23 +203,17 @@ public class TransmissionSessionActivity extends FragmentActivity implements Dat
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        Loader<TransmissionData> loader;
-
         switch (item.getItemId()) {
             case R.id.menu_refresh:
-                loader = getSupportLoaderManager()
-                    .getLoader(G.SESSION_LOADER_ID);
-                if (loader != null) {
-                    loader.onContentChanged();
-                    refreshing = !refreshing;
-                    invalidateOptionsMenu();
-                }
+                sessionTask.execute();
+                refreshing = !refreshing;
+                invalidateOptionsMenu();
                 return true;
         }
         return super.onOptionsItemSelected(item);
     }
 
-    public DataServiceManager getManager() {
+    public DataServiceManager getDataServiceManager() {
         return manager;
     }
 
@@ -1189,17 +1159,14 @@ public class TransmissionSessionActivity extends FragmentActivity implements Dat
             switch (type) {
                 case DataService.Requests.GET_SESSION:
                 case DataService.Requests.TEST_PORT:
+                case DataService.Requests.UPDATE_BLOCKLIST:
                     if (error == 0 || error == TransmissionData.Errors.DUPLICATE_TORRENT
                         || error == TransmissionData.Errors.INVALID_TORRENT) {
 
                         switch (type) {
                             case DataService.Requests.GET_SESSION:
                                 findViewById(R.id.fatal_error_layer).setVisibility(View.GONE);
-                                Loader loader = getSupportLoaderManager().getLoader(G.SESSION_LOADER_ID);
-
-                                if (loader != null) {
-                                    loader.onContentChanged();
-                                }
+                                sessionTask.execute();
                                 break;
                             case DataService.Requests.TEST_PORT:
                                 boolean open = intent.getBooleanExtra(G.ARG_PORT_IS_OPEN, false);
@@ -1257,24 +1224,33 @@ public class TransmissionSessionActivity extends FragmentActivity implements Dat
         }
     }
 
-    private class TransmissionSessionLoader extends AsyncTaskLoader<TransmissionSession> {
-        private DataSource dataSource;
+    private class SessionTask extends AsyncTask<Void, Void, TransmissionSession> {
+        DataSource readSource;
+        public SessionTask(Context context) {
+            super();
 
-        public TransmissionSessionLoader(Context context) {
-            super(context);
-
-            dataSource = new DataSource(context);
+            readSource = new DataSource(context);
         }
 
-        @Override public TransmissionSession loadInBackground() {
+        @Override protected TransmissionSession doInBackground(Void... params) {
             try {
-                dataSource.open();
+                readSource.open();
 
-                return dataSource.getSession();
+                return readSource.getSession();
             } finally {
-                if (dataSource.isOpen()) {
-                    dataSource.close();
+                if (readSource.isOpen()) {
+                    readSource.close();
                 }
+            }
+        }
+
+        @Override protected void onPostExecute(TransmissionSession session) {
+            updateFields(session, false);
+            TransmissionSessionActivity.this.session = session;
+
+            if (refreshing) {
+                refreshing = false;
+                invalidateOptionsMenu();
             }
         }
     }
