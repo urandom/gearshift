@@ -734,7 +734,13 @@ public class TransmissionSessionActivity extends FragmentActivity implements Dat
         Button button = (Button) findViewById(R.id.transmission_session_port_test);
         button.setOnClickListener(new View.OnClickListener() {
             @Override  public void onClick(View v) {
-                new PortTestAsyncTask().execute();
+                Button test = (Button) TransmissionSessionActivity.this.findViewById(
+                        R.id.transmission_session_port_test);
+
+                test.setText(R.string.port_test_testing);
+                test.setEnabled(false);
+
+                manager.testPort();
             }
         });
 
@@ -841,7 +847,13 @@ public class TransmissionSessionActivity extends FragmentActivity implements Dat
         button = (Button) findViewById(R.id.transmission_session_blocklist_update);
         button.setOnClickListener(new View.OnClickListener() {
             @Override  public void onClick(View v) {
-                new BlocklistUpdateAsyncTask().execute();
+                Button update = (Button) TransmissionSessionActivity.this.findViewById(
+                    R.id.transmission_session_blocklist_update);
+
+                update.setText(R.string.blocklist_updating);
+                update.setEnabled(false);
+
+                manager.updateBlocklist();
             }
         });
 
@@ -1169,127 +1181,78 @@ public class TransmissionSessionActivity extends FragmentActivity implements Dat
         newFragment.show(getSupportFragmentManager(), "timePicker");
     }
 
-    private class PortTestAsyncTask extends AsyncTask<Void, Void, Boolean> {
-        @Override
-        protected Boolean doInBackground(Void... params) {
-            TransmissionSessionManager manager = new TransmissionSessionManager(
-                    TransmissionSessionActivity.this, profile, null);
-
-            if (!manager.hasConnectivity()) {
-                return null;
-            }
-
-            try {
-                return manager.testPort();
-            } catch (ManagerException e) {
-                return null;
-            }
-        }
-
-        @Override
-        protected void onPreExecute() {
-            Button test = (Button) TransmissionSessionActivity.this.findViewById(
-                    R.id.transmission_session_port_test);
-
-            test.setText(R.string.port_test_testing);
-            test.setEnabled(false);
-        }
-
-        @Override
-        protected void onPostExecute(Boolean result) {
-            Button test = (Button) TransmissionSessionActivity.this.findViewById(
-                    R.id.transmission_session_port_test);
-            test.setEnabled(true);
-            if (result == null) {
-                test.setText(Html.fromHtml(getString(R.string.port_test_error)));
-            } else if (result) {
-                test.setText(Html.fromHtml(getString(R.string.port_test_open)));
-            } else if (!result) {
-                test.setText(Html.fromHtml(getString(R.string.port_test_closed)));
-            }
-
-        }
-    }
-
-    private class BlocklistUpdateAsyncTask extends AsyncTask<Void, Void, Long> {
-        @Override
-        protected Long doInBackground(Void... params) {
-            TransmissionSessionManager manager = new TransmissionSessionManager(
-                    TransmissionSessionActivity.this, profile, null);
-
-            if (!manager.hasConnectivity()) {
-                return null;
-            }
-
-            try {
-                return manager.updateBlocklist();
-            } catch (ManagerException e) {
-                return null;
-            }
-        }
-
-        @Override
-        protected void onPreExecute() {
-            Button update = (Button) TransmissionSessionActivity.this.findViewById(
-                    R.id.transmission_session_blocklist_update);
-
-            update.setText(R.string.blocklist_updating);
-            update.setEnabled(false);
-        }
-
-        @Override
-        protected void onPostExecute(Long result) {
-            Button update = (Button) TransmissionSessionActivity.this.findViewById(
-                    R.id.transmission_session_blocklist_update);
-            update.setEnabled(true);
-            if (result == null) {
-                update.setText(Html.fromHtml(getString(R.string.blocklist_update_error)));
-            } else {
-                update.setText(R.string.session_settings_blocklist_update);
-                TextView text = (TextView) TransmissionSessionActivity.this.findViewById(
-                        R.id.transmission_session_blocklist_size);
-                text.setText(String.format(
-                        getString(R.string.session_settings_blocklist_count_format),
-                        result
-                ));
-
-            }
-        }
-    }
-
     private class ServiceReceiver extends BroadcastReceiver {
         @Override public void onReceive(Context context, Intent intent) {
             int error = intent.getIntExtra(G.ARG_ERROR, 0);
 
             String type = intent.getStringExtra(G.ARG_REQUEST_TYPE);
-            if (DataService.Requests.GET_SESSION.equals(type)) {
-                if (error == 0 || error == TransmissionData.Errors.DUPLICATE_TORRENT
+            switch (type) {
+                case DataService.Requests.GET_SESSION:
+                case DataService.Requests.TEST_PORT:
+                    if (error == 0 || error == TransmissionData.Errors.DUPLICATE_TORRENT
                         || error == TransmissionData.Errors.INVALID_TORRENT) {
-                    findViewById(R.id.fatal_error_layer).setVisibility(View.GONE);
-                } else {
-                    findViewById(R.id.fatal_error_layer).setVisibility(View.VISIBLE);
-                    TextView text = (TextView) findViewById(R.id.transmission_error);
 
-                    if (error == TransmissionData.Errors.NO_CONNECTIVITY) {
-                        text.setText(Html.fromHtml(getString(R.string.no_connectivity_empty_list)));
-                    } else if (error == TransmissionData.Errors.ACCESS_DENIED) {
-                        text.setText(Html.fromHtml(getString(R.string.access_denied_empty_list)));
-                    } else if (error == TransmissionData.Errors.NO_JSON) {
-                        text.setText(Html.fromHtml(getString(R.string.no_json_empty_list)));
-                    } else if (error == TransmissionData.Errors.NO_CONNECTION) {
-                        text.setText(Html.fromHtml(getString(R.string.no_connection_empty_list)));
-                    } else if (error == TransmissionData.Errors.THREAD_ERROR) {
-                        text.setText(Html.fromHtml(getString(R.string.thread_error_empty_list)));
-                    } else if (error == TransmissionData.Errors.RESPONSE_ERROR) {
-                        text.setText(Html.fromHtml(getString(R.string.response_error_empty_list)));
-                    } else if (error == TransmissionData.Errors.TIMEOUT) {
-                        text.setText(Html.fromHtml(getString(R.string.timeout_empty_list)));
-                    } else if (error == TransmissionData.Errors.OUT_OF_MEMORY) {
-                        text.setText(Html.fromHtml(getString(R.string.out_of_memory_empty_list)));
-                    } else if (error == TransmissionData.Errors.JSON_PARSE_ERROR) {
-                        text.setText(Html.fromHtml(getString(R.string.json_parse_empty_list)));
+                        switch (type) {
+                            case DataService.Requests.GET_SESSION:
+                                findViewById(R.id.fatal_error_layer).setVisibility(View.GONE);
+                                Loader loader = getSupportLoaderManager().getLoader(G.SESSION_LOADER_ID);
+
+                                if (loader != null) {
+                                    loader.onContentChanged();
+                                }
+                                break;
+                            case DataService.Requests.TEST_PORT:
+                                boolean open = intent.getBooleanExtra(G.ARG_PORT_IS_OPEN, false);
+                                Button test = (Button) TransmissionSessionActivity.this.findViewById(
+                                    R.id.transmission_session_port_test);
+                                test.setEnabled(true);
+                                test.setText(Html.fromHtml(getString(open
+                                    ? R.string.port_test_open : R.string.port_test_closed)));
+                                break;
+                            case DataService.Requests.UPDATE_BLOCKLIST:
+                                long size = intent.getLongExtra(G.ARG_BLOCKLIST_SIZE, -1);
+                                Button update = (Button) TransmissionSessionActivity.this.findViewById(
+                                    R.id.transmission_session_blocklist_update);
+                                update.setEnabled(true);
+                                if (size == -1) {
+                                    update.setText(Html.fromHtml(getString(R.string.blocklist_update_error)));
+                                } else {
+                                    update.setText(R.string.session_settings_blocklist_update);
+                                    TextView text = (TextView) TransmissionSessionActivity.this.findViewById(
+                                        R.id.transmission_session_blocklist_size);
+                                    text.setText(String.format(
+                                        getString(R.string.session_settings_blocklist_count_format),
+                                        size
+                                    ));
+
+                                }
+                                break;
+                        }
+                    } else {
+                        findViewById(R.id.fatal_error_layer).setVisibility(View.VISIBLE);
+                        TextView text = (TextView) findViewById(R.id.transmission_error);
+
+                        if (error == TransmissionData.Errors.NO_CONNECTIVITY) {
+                            text.setText(Html.fromHtml(getString(R.string.no_connectivity_empty_list)));
+                        } else if (error == TransmissionData.Errors.ACCESS_DENIED) {
+                            text.setText(Html.fromHtml(getString(R.string.access_denied_empty_list)));
+                        } else if (error == TransmissionData.Errors.NO_JSON) {
+                            text.setText(Html.fromHtml(getString(R.string.no_json_empty_list)));
+                        } else if (error == TransmissionData.Errors.NO_CONNECTION) {
+                            text.setText(Html.fromHtml(getString(R.string.no_connection_empty_list)));
+                        } else if (error == TransmissionData.Errors.THREAD_ERROR) {
+                            text.setText(Html.fromHtml(getString(R.string.thread_error_empty_list)));
+                        } else if (error == TransmissionData.Errors.RESPONSE_ERROR) {
+                            text.setText(Html.fromHtml(getString(R.string.response_error_empty_list)));
+                        } else if (error == TransmissionData.Errors.TIMEOUT) {
+                            text.setText(Html.fromHtml(getString(R.string.timeout_empty_list)));
+                        } else if (error == TransmissionData.Errors.OUT_OF_MEMORY) {
+                            text.setText(Html.fromHtml(getString(R.string.out_of_memory_empty_list)));
+                        } else if (error == TransmissionData.Errors.JSON_PARSE_ERROR) {
+                            text.setText(Html.fromHtml(getString(R.string.json_parse_empty_list)));
+                        }
                     }
-                }
+                    break;
             }
         }
     }
@@ -1313,12 +1276,6 @@ public class TransmissionSessionActivity extends FragmentActivity implements Dat
                     dataSource.close();
                 }
             }
-        }
-
-        @Override protected void onStartLoading() {
-            super.onStartLoading();
-
-            forceLoad();
         }
     }
 }

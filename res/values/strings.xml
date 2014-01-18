@@ -383,8 +383,6 @@
         
     <string name="port_test_testing">Testing …</string>
         
-    <string name="port_test_error"><![CDATA[<font color="#CC0000">Error</font>]]></string>
-        
     <string name="port_test_closed"><![CDATA[<font color="#E73939">Closed</font>]]></string>
         
     <string name="port_test_open"><![CDATA[<font color="#7CAF00">Open</font>]]></string>
