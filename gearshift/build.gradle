@@ -2,7 +2,7 @@ apply plugin: 'android'
 
 android {
     compileSdkVersion 19
-    buildToolsVersion "18.0.1"
+    buildToolsVersion '18.0.1'
 
     defaultConfig {
         minSdkVersion 15
@@ -23,13 +23,13 @@ android {
             signingConfig signingConfigs.release
             runProguard false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
+            zipAlign true
         }
     }
 }
 
 dependencies {
     compile 'com.android.support:support-v4:18.0.+'
-
     compile 'com.fasterxml.jackson.core:jackson-core:2.3.0'
     compile 'com.fasterxml.jackson.core:jackson-databind:2.3.0'
     compile 'com.fasterxml.jackson.core:jackson-annotations:2.3.0'
