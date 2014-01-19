@@ -26,7 +26,7 @@
         android:label="@string/app_name"
         android:theme="@style/AppTheme" >
         <activity
-            android:name="org.sugr.gearshift.TorrentListActivity"
+            android:name=".TorrentListActivity"
             android:label="@string/app_name"
             android:launchMode="singleTask" >
             <intent-filter>
@@ -85,7 +85,7 @@
         <meta-data android:name="com.google.android.backup.api_key"
             android:value="AEdPqrEAAAAIPmUc7ecxzuRYH5xae0ephTNsrjJDOho8oAYxLA" />
         
-        <service android:name=".DataService" android:exported="false" />
+        <service android:name=".service.DataService" android:exported="false" />
     </application>
 
 </manifest>
