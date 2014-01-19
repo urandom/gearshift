@@ -1,3 +1,5 @@
+// Top-level build file where you can add configuration options common to all sub-projects/modules.
+
 buildscript {
     repositories {
         mavenCentral()
@@ -6,72 +8,9 @@ buildscript {
         classpath 'com.android.tools.build:gradle:0.7.+'
     }
 }
-apply plugin: 'android'
 
-repositories {
-    mavenCentral()
-}
-
-dependencies {
-    compile 'com.android.support:support-v4:18.0.+'
-
-    compile 'com.fasterxml.jackson.core:jackson-core:2.3.0'
-    compile 'com.fasterxml.jackson.core:jackson-databind:2.3.0'
-    compile 'com.fasterxml.jackson.core:jackson-annotations:2.3.0'
-}
-
-android {
-    compileSdkVersion 19
-    buildToolsVersion "18.0.1"
-
-    compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_7
-        targetCompatibility JavaVersion.VERSION_1_7
+allprojects {
+    repositories {
+        mavenCentral()
     }
-
-    defaultConfig {
-        minSdkVersion 15
-        targetSdkVersion 17
-    }
-    sourceSets {
-        main {
-            manifest.srcFile 'AndroidManifest.xml'
-            java.srcDirs = ['src']
-            resources.srcDirs = ['src']
-            aidl.srcDirs = ['src']
-            renderscript.srcDirs = ['src']
-            res.srcDirs = ['res']
-            assets.srcDirs = ['assets']
-        }
-
-        instrumentTest.setRoot('tests')
-    }
-
-    signingConfigs {
-        release
-    }
-
-    buildTypes {
-        release {
-            debuggable false
-            jniDebugBuild false
-            signingConfig signingConfigs.release
-
-            runProguard false
-            proguardFile getDefaultProguardFile('proguard-android.txt')
-            proguardFile 'proguard-project.txt'
-        }
-    }
-}
-
-def runTasks = gradle.startParameter.taskNames
-if ('assemble' in runTasks || 'assembleRelease' in runTasks || 'aR' in runTasks) {
-    def storePass = System.env.STORE_PASS ?: new String(System.console().readPassword('\nKeyStore Password: '))
-    def keyPass = System.env.KEY_PASS ?: new String(System.console().readPassword('Alias Password: '))
-
-    android.signingConfigs.release.storeFile = file('/home/urandom/.android/sugr.keystore')
-    android.signingConfigs.release.storePassword = storePass
-    android.signingConfigs.release.keyAlias = "gearshift"
-    android.signingConfigs.release.keyPassword = keyPass
-    android.buildTypes.release.signingConfig = android.signingConfigs.release
 }
