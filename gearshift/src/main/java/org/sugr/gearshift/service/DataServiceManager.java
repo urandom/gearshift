@@ -341,11 +341,14 @@ public class DataServiceManager {
                 || error == TransmissionData.Errors.INVALID_TORRENT) {
 
                 String type = intent.getStringExtra(G.ARG_REQUEST_TYPE);
-                if (DataService.Requests.GET_ACTIVE_TORRENTS.equals(type)
-                    || DataService.Requests.GET_ALL_TORRENTS.equals(type)) {
-                    repeatLoading();
-                } else if (DataService.Requests.ADD_TORRENT.equals(type)) {
-                    update();
+                switch (type) {
+                    case DataService.Requests.GET_ACTIVE_TORRENTS:
+                    case DataService.Requests.GET_ALL_TORRENTS:
+                        repeatLoading();
+                        break;
+                    case DataService.Requests.ADD_TORRENT:
+                        update();
+                        break;
                 }
             } else {
                 isLastErrorFatal = true;

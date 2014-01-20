@@ -92,6 +92,11 @@ public class TorrentDetailActivity extends FragmentActivity implements Transmiss
     @Override protected void onResume() {
         super.onResume();
 
+        if (profile != null && manager == null) {
+            manager = new DataServiceManager(this, profile.getId())
+                .setDetails(true).startUpdating();
+        }
+
         LocalBroadcastManager.getInstance(this).registerReceiver(serviceReceiver, new IntentFilter(G.INTENT_SERVICE_ACTION_COMPLETE));
     }
 
@@ -100,6 +105,7 @@ public class TorrentDetailActivity extends FragmentActivity implements Transmiss
 
         LocalBroadcastManager.getInstance(this).unregisterReceiver(serviceReceiver);
         manager.reset();
+        manager = null;
     }
 
     @Override

@@ -229,11 +229,11 @@ public class TorrentListActivity extends FragmentActivity
 
                 @Override
                 public void onAnimationEnd(Animator animation) {
-                    final FragmentManager manager=getSupportFragmentManager();
-                    TorrentDetailFragment fragment=(TorrentDetailFragment) manager.findFragmentByTag(
+                    final FragmentManager manager = getSupportFragmentManager();
+                    TorrentDetailFragment fragment = (TorrentDetailFragment) manager.findFragmentByTag(
                         G.DETAIL_FRAGMENT_TAG);
                     if (fragment == null) {
-                        fragment=new TorrentDetailFragment();
+                        fragment = new TorrentDetailFragment();
                         fragment.setArguments(new Bundle());
                         manager.beginTransaction()
                             .replace(R.id.torrent_detail_container, fragment, G.DETAIL_FRAGMENT_TAG)
@@ -371,10 +371,10 @@ public class TorrentListActivity extends FragmentActivity
     @Override protected void onResume() {
         super.onResume();
 
-        if (profile != null) {
-            manager = new DataServiceManager(this, profile.getId())
-                .setSessionOnly(true).startUpdating();
+        if (profile != null && manager == null) {
+            manager = new DataServiceManager(this, profile.getId()).startUpdating();
         }
+
         LocalBroadcastManager.getInstance(this).registerReceiver(
             serviceReceiver, new IntentFilter(G.INTENT_SERVICE_ACTION_COMPLETE));
     }
@@ -385,6 +385,7 @@ public class TorrentListActivity extends FragmentActivity
         LocalBroadcastManager.getInstance(this).unregisterReceiver(serviceReceiver);
         if (manager != null) {
             manager.reset();
+            manager = null;
         }
     }
 
@@ -598,9 +599,10 @@ public class TorrentListActivity extends FragmentActivity
         }
         this.profile = profile;
         toggleRightPane(false);
-        if (profile == null) {
+        if (manager != null) {
             manager.reset();
-        } else {
+        }
+        if (profile != null) {
             manager = new DataServiceManager(this, profile.getId()).startUpdating();
             new SessionTask(this).execute(true);
         }
