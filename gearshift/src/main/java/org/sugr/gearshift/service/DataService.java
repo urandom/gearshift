@@ -170,7 +170,7 @@ public class DataService extends IntentService {
                     boolean paused = args.getBoolean(Args.ADD_PAUSED, false);
                     String temporary = args.getString(Args.TEMPORARY_FILE);
 
-                    if (TextUtils.isEmpty(uri) || TextUtils.isEmpty(data)) {
+                    if (TextUtils.isEmpty(uri) && TextUtils.isEmpty(data)) {
                         throw new IllegalArgumentException(
                             "Either a uri or the torrent data needs to be specified");
                     }

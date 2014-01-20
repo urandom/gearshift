@@ -8,6 +8,7 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
+import android.support.v4.content.LocalBroadcastManager;
 
 import org.sugr.gearshift.G;
 import org.sugr.gearshift.Torrent;
@@ -45,13 +46,13 @@ public class DataServiceManager {
         this.profileId = profileId;
 
         serviceReceiver = new ServiceReceiver();
-        context.registerReceiver(serviceReceiver,
+        LocalBroadcastManager.getInstance(context).registerReceiver(serviceReceiver,
             new IntentFilter(G.INTENT_SERVICE_ACTION_COMPLETE));
     }
 
     public void reset() {
         stopUpdating();
-        context.unregisterReceiver(serviceReceiver);
+        LocalBroadcastManager.getInstance(context).unregisterReceiver(serviceReceiver);
     }
 
     public DataServiceManager setDetails(boolean details) {

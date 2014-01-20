@@ -168,6 +168,15 @@ public class SettingsActivity extends PreferenceActivity
         invalidateOptionsMenu();
     }
 
+    @Override protected boolean isValidFragment(String name) {
+        return GeneralSettingsFragment.class.getName().equals(name)
+            || FiltersSettingsFragment.class.getName().equals(name)
+            || SortSettingsFragment.class.getName().equals(name)
+            || TransmissionProfileSettingsFragment.class.getName().equals(name)
+            || TransmissionProfileDirectoriesSettingsFragment.class.getName().equals(name);
+
+    }
+
     private Header getProfileHeader(TransmissionProfile profile) {
         Header header = new Header();
 
