@@ -63,6 +63,8 @@ public class TransmissionSession implements Parcelable {
         public static final String UPLOAD_SPEED_LIMIT_ENABLED = "speed-limit-up-enabled";
     }
 
+    public static final int FREE_SPACE_METHOD_RPC_VERSION = 15;
+
     private boolean mAltSpeedEnabled;
     private long mAltSpeedDown;
     private long mAltSpeedUp;

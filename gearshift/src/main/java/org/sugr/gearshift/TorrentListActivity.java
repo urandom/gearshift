@@ -893,6 +893,7 @@ public class TorrentListActivity extends FragmentActivity
                 case DataService.Requests.SET_TORRENT:
                 case DataService.Requests.SET_TORRENT_ACTION:
                 case DataService.Requests.SET_TORRENT_LOCATION:
+                case DataService.Requests.GET_FREE_SPACE:
                     setRefreshing(false);
                     if (error == 0) {
 
@@ -930,6 +931,13 @@ public class TorrentListActivity extends FragmentActivity
                             case DataService.Requests.SET_TORRENT_ACTION:
                                 manager.update();
                                 new TorrentTask(TorrentListActivity.this).execute(false, false, true, false);
+                                break;
+                            case DataService.Requests.GET_FREE_SPACE:
+                                long freeSpace = intent.getLongExtra(G.ARG_FREE_SPACE, 0);
+                                TransmissionSession session = getSession();
+                                if (session != null && freeSpace != 0) {
+                                    session.setDownloadDirFreeSpace(freeSpace);
+                                }
                                 break;
                         }
                     } else {
@@ -1007,6 +1015,10 @@ public class TorrentListActivity extends FragmentActivity
 
         @Override protected void onPostExecute(TransmissionSession session) {
             setSession(session);
+
+            if (session.getRPCVersion() >= TransmissionSession.FREE_SPACE_METHOD_RPC_VERSION) {
+                manager.getFreeSpace(session.getDownloadDir());
+            }
 
             if (startTorrentTask) {
                 new TorrentTask(TorrentListActivity.this).execute();
