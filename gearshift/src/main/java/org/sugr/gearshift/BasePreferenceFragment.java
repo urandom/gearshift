@@ -9,8 +9,8 @@ import android.preference.PreferenceFragment;
 import java.util.Arrays;
 
 public class BasePreferenceFragment extends PreferenceFragment implements OnSharedPreferenceChangeListener {
-    protected SharedPreferences mSharedPrefs;
-    protected Object[][] mSummaryPrefs = {
+    protected SharedPreferences sharedPrefs;
+    protected Object[][] summaryPrefs = {
     };
 
     @Override
@@ -24,13 +24,13 @@ public class BasePreferenceFragment extends PreferenceFragment implements OnShar
     public void onResume() {
         super.onResume();
         updatePrefSummary(null);
-        mSharedPrefs.registerOnSharedPreferenceChangeListener(this);
+        sharedPrefs.registerOnSharedPreferenceChangeListener(this);
     }
 
     @Override
     public void onPause() {
         super.onPause();
-        mSharedPrefs.unregisterOnSharedPreferenceChangeListener(this);
+        sharedPrefs.unregisterOnSharedPreferenceChangeListener(this);
     }
 
     @Override
@@ -44,34 +44,34 @@ public class BasePreferenceFragment extends PreferenceFragment implements OnShar
     }
 
     protected void updatePrefSummary(String aKey) {
-        for (int i = 0; i < mSummaryPrefs.length; i++) {
+        for (int i = 0; i < summaryPrefs.length; i++) {
             String key;
             if (aKey != null) {
-                if (aKey.equals(mSummaryPrefs[i][0]))
+                if (aKey.equals(summaryPrefs[i][0]))
                     key = aKey;
                 else
                     continue;
             } else {
-                key = (String) mSummaryPrefs[i][0];
+                key = (String) summaryPrefs[i][0];
             }
 
             Preference pref = findPreference(key);
             if (pref == null)
                 continue;
 
-            String summary = (String) mSummaryPrefs[i][1];
+            String summary = (String) summaryPrefs[i][1];
 
-            if ((Integer) mSummaryPrefs[i][2] == -1)
+            if ((Integer) summaryPrefs[i][2] == -1)
                 pref.setSummary(String.format(summary,
-                    mSummaryPrefs[i][4] == "int"
-                        ? Integer.parseInt(mSharedPrefs.getString(key, mSharedPrefs.getString(key, "-1")))
-                        : mSharedPrefs.getString(key, mSharedPrefs.getString(key, ""))
+                    summaryPrefs[i][4] == "int"
+                        ? Integer.parseInt(sharedPrefs.getString(key, sharedPrefs.getString(key, "-1")))
+                        : sharedPrefs.getString(key, sharedPrefs.getString(key, ""))
                 ));
             else {
-                String[] values = getResources().getStringArray((Integer) mSummaryPrefs[i][2]);
-                String[] entries = getResources().getStringArray((Integer) mSummaryPrefs[i][3]);
+                String[] values = getResources().getStringArray((Integer) summaryPrefs[i][2]);
+                String[] entries = getResources().getStringArray((Integer) summaryPrefs[i][3]);
                 int index = Arrays.asList(values).indexOf(
-                        mSharedPrefs.getString(key, mSharedPrefs.getString(key, null)));
+                        sharedPrefs.getString(key, sharedPrefs.getString(key, null)));
                 if (index > -1 && entries.length > index)
                     pref.setSummary(String.format(summary, entries[index]));
             }

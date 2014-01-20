@@ -90,7 +90,7 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
     private boolean findVisible = false;
     private boolean initialLoading = false;
 
-    private String findQuery;
+    private String findQuery = "";
 
     private SharedPreferences sharedPrefs;
 
@@ -512,7 +512,7 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
 
             @Override public boolean onMenuItemActionCollapse(MenuItem item) {
                 item.setVisible(false);
-                findQuery = null;
+                findQuery = "";
                 findVisible = false;
                 setListFilter((String) null);
 
@@ -905,6 +905,7 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
                         filteredCursor = cursor;
                         originalCursor.close();
                     } else {
+                        originalCursor.getCount();
                         filteredCursor = originalCursor;
                     }
 
@@ -963,7 +964,7 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
             TextView status = (TextView) view.findViewById(R.id.status);
             TextView errorText = (TextView) view.findViewById(R.id.error_text);
 
-            if (findQuery != null && !findQuery.equals("")) {
+            if (!findQuery.equals("")) {
                 name.setText(G.trimTrailingWhitespace(Html.fromHtml(Torrent.getName(cursor))));
             } else {
                 name.setText(Torrent.getName(cursor));

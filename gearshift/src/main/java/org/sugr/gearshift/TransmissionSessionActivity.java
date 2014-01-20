@@ -11,6 +11,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentActivity;
+import android.support.v4.content.LocalBroadcastManager;
 import android.text.Html;
 import android.text.format.DateFormat;
 import android.view.KeyEvent;
@@ -45,7 +46,6 @@ public class TransmissionSessionActivity extends FragmentActivity implements Dat
     private boolean refreshing = false;
 
     private ServiceReceiver serviceReceiver;
-    private SessionTask sessionTask;
 
     private static final String STATE_EXPANDED = "expanded_states";
     private static final String STATE_SCROLL_POSITION = "scroll_position_state";
@@ -122,7 +122,6 @@ public class TransmissionSessionActivity extends FragmentActivity implements Dat
 
         profile = in.getParcelableExtra(G.ARG_PROFILE);
         session = in.getParcelableExtra(G.ARG_SESSION);
-        sessionTask = new SessionTask(this);
 
         super.onCreate(savedInstanceState);
 
@@ -167,13 +166,13 @@ public class TransmissionSessionActivity extends FragmentActivity implements Dat
 
         manager = new DataServiceManager(this, profile.getId())
             .setSessionOnly(true).startUpdating();
-        registerReceiver(serviceReceiver, new IntentFilter(G.INTENT_SERVICE_ACTION_COMPLETE));
+        LocalBroadcastManager.getInstance(this).registerReceiver(serviceReceiver, new IntentFilter(G.INTENT_SERVICE_ACTION_COMPLETE));
     }
 
     @Override protected void onPause() {
         super.onPause();
 
-        unregisterReceiver(serviceReceiver);
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(serviceReceiver);
         manager.reset();
     }
 
@@ -205,7 +204,7 @@ public class TransmissionSessionActivity extends FragmentActivity implements Dat
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.menu_refresh:
-                sessionTask.execute();
+                new SessionTask(this).execute();
                 refreshing = !refreshing;
                 invalidateOptionsMenu();
                 return true;
@@ -1166,7 +1165,7 @@ public class TransmissionSessionActivity extends FragmentActivity implements Dat
                         switch (type) {
                             case DataService.Requests.GET_SESSION:
                                 findViewById(R.id.fatal_error_layer).setVisibility(View.GONE);
-                                sessionTask.execute();
+                                new SessionTask(TransmissionSessionActivity.this).execute();
                                 break;
                             case DataService.Requests.TEST_PORT:
                                 boolean open = intent.getBooleanExtra(G.ARG_PORT_IS_OPEN, false);

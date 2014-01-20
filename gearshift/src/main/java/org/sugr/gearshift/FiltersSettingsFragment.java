@@ -13,10 +13,10 @@ public class FiltersSettingsFragment extends BasePreferenceFragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        mSharedPrefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
+        sharedPrefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
         addPreferencesFromResource(R.xml.filters_preferences);
 
-        mSummaryPrefs = new Object[][] {};
+        summaryPrefs = new Object[][] {};
 
         ActionBar actionBar = getActivity().getActionBar();
         if (actionBar != null) {

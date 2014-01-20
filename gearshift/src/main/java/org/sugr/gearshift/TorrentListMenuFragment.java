@@ -112,7 +112,7 @@ public class TorrentListMenuFragment extends Fragment implements TorrentListNoti
             if (data.directories != null) {
                 String dir = sharedPrefs.getString(G.PREF_LIST_DIRECTORY, "");
                 boolean equalDirectories = true;
-                boolean currentDirectoryTorrents = data.directories.contains(dir);
+                boolean currentDirectoryTorrents = dir.equals("") || data.directories.contains(dir);
 
                 if (data.directories.size() != directories.size()) {
                     equalDirectories = false;
@@ -171,7 +171,7 @@ public class TorrentListMenuFragment extends Fragment implements TorrentListNoti
             if (data.trackers != null) {
                 String track = sharedPrefs.getString(G.PREF_LIST_TRACKER, "");
                 boolean equalTrackers = true;
-                boolean currentTrackerTorrents = data.trackers.contains(track);
+                boolean currentTrackerTorrents = track.equals("") || data.trackers.contains(track);
 
                 if (data.trackers.size() != trackers.size()) {
                     equalTrackers = false;

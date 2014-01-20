@@ -12,6 +12,7 @@ import android.preference.PreferenceManager;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.NavUtils;
+import android.support.v4.content.LocalBroadcastManager;
 import android.text.Html;
 import android.text.Spanned;
 import android.view.Menu;
@@ -49,8 +50,6 @@ public class TorrentDetailActivity extends FragmentActivity implements Transmiss
     private DataServiceManager manager;
 
     private ServiceReceiver serviceReceiver;
-    private SessionTask sessionTask;
-    private TorrentTask torrentTask;
 
     private Menu menu;
 
@@ -64,8 +63,6 @@ public class TorrentDetailActivity extends FragmentActivity implements Transmiss
         setSession(session);
 
         serviceReceiver = new ServiceReceiver();
-        sessionTask = new SessionTask(this);
-        torrentTask = new TorrentTask(this);
         manager = new DataServiceManager(this, profile.getId())
             .setDetails(true).startUpdating();
 
@@ -95,13 +92,13 @@ public class TorrentDetailActivity extends FragmentActivity implements Transmiss
     @Override protected void onResume() {
         super.onResume();
 
-        registerReceiver(serviceReceiver, new IntentFilter(G.INTENT_SERVICE_ACTION_COMPLETE));
+        LocalBroadcastManager.getInstance(this).registerReceiver(serviceReceiver, new IntentFilter(G.INTENT_SERVICE_ACTION_COMPLETE));
     }
 
     @Override protected void onPause() {
         super.onPause();
 
-        unregisterReceiver(serviceReceiver);
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(serviceReceiver);
         manager.reset();
     }
 
@@ -231,7 +228,7 @@ public class TorrentDetailActivity extends FragmentActivity implements Transmiss
 
                         switch (type) {
                             case DataService.Requests.GET_SESSION:
-                                sessionTask.execute();
+                                new SessionTask(TorrentDetailActivity.this).execute();
                                 break;
                             case DataService.Requests.SET_SESSION:
                                 manager.getSession();
@@ -243,24 +240,24 @@ public class TorrentDetailActivity extends FragmentActivity implements Transmiss
                                 boolean statusChanged = intent.getBooleanExtra(G.ARG_STATUS_CHANGED, false);
                                 boolean incomplete = intent.getBooleanExtra(G.ARG_INCOMPLETE_METADATA, false);
 
-                                torrentTask.execute(added, removed, statusChanged, incomplete);
+                                new TorrentTask(TorrentDetailActivity.this).execute(added, removed, statusChanged, incomplete);
                                 break;
                             case DataService.Requests.ADD_TORRENT:
                                 manager.update();
-                                torrentTask.execute(true, false, false, true);
+                                new TorrentTask(TorrentDetailActivity.this).execute(true, false, false, true);
                                 break;
                             case DataService.Requests.REMOVE_TORRENT:
                                 manager.update();
-                                torrentTask.execute(false, true, false, false);
+                                new TorrentTask(TorrentDetailActivity.this).execute(false, true, false, false);
                                 break;
                             case DataService.Requests.SET_TORRENT_LOCATION:
                                 manager.update();
-                                torrentTask.execute(true, true, false, false);
+                                new TorrentTask(TorrentDetailActivity.this).execute(true, true, false, false);
                                 break;
                             case DataService.Requests.SET_TORRENT:
                             case DataService.Requests.SET_TORRENT_ACTION:
                                 manager.update();
-                                torrentTask.execute(false, false, true, false);
+                                new TorrentTask(TorrentDetailActivity.this).execute(false, false, true, false);
                                 break;
                         }
                     } else {
@@ -339,7 +336,7 @@ public class TorrentDetailActivity extends FragmentActivity implements Transmiss
             setSession(session);
 
             if (startTorrentTask) {
-                torrentTask.execute();
+                new TorrentTask(TorrentDetailActivity.this).execute();
             }
         }
     }
@@ -368,6 +365,8 @@ public class TorrentDetailActivity extends FragmentActivity implements Transmiss
                     statusChanged = flags[2];
                     incompleteMetadata = flags[3];
                 }
+                /* Fill the cursor window */
+                cursor.getCount();
 
                 return cursor;
             } finally {

@@ -4,7 +4,6 @@ import android.app.ActionBar;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceManager;
@@ -15,7 +14,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 
-import org.sugr.gearshift.datasource.DataSource;
 import org.sugr.gearshift.service.DataServiceManager;
 
 public class TransmissionProfileSettingsFragment extends BasePreferenceFragment {
@@ -41,7 +39,7 @@ public class TransmissionProfileSettingsFragment extends BasePreferenceFragment 
             profile.fillTemporatyPreferences();
         }
 
-        mSharedPrefs = profile.getPreferences(getActivity());
+        sharedPrefs = profile.getPreferences(getActivity());
 
         getPreferenceManager().setSharedPreferencesName(G.PROFILES_PREF_NAME);
 
@@ -50,7 +48,7 @@ public class TransmissionProfileSettingsFragment extends BasePreferenceFragment 
                 getActivity(), G.PROFILES_PREF_NAME,
                 Activity.MODE_PRIVATE, R.xml.torrent_profile_preferences, true);
 
-        mSummaryPrefs = new Object[][] {
+        summaryPrefs = new Object[][] {
             {G.PREF_NAME, getString(R.string.profile_summary_format), -1, -1, ""},
             {G.PREF_HOST, getString(R.string.profile_summary_format), -1, -1, ""},
             {G.PREF_PORT, getString(R.string.profile_summary_format), -1, -1, ""},
@@ -83,9 +81,9 @@ public class TransmissionProfileSettingsFragment extends BasePreferenceFragment 
                 @Override
                 public void onClick(View v) {
                     int errorRes = -1;
-                    if (mSharedPrefs.getString(G.PREF_NAME, "").trim().equals("")) {
+                    if (sharedPrefs.getString(G.PREF_NAME, "").trim().equals("")) {
                         errorRes = R.string.con_name_cannot_be_empty;
-                    } else if (mSharedPrefs.getString(G.PREF_HOST, "").trim().equals("")) {
+                    } else if (sharedPrefs.getString(G.PREF_HOST, "").trim().equals("")) {
                         errorRes = R.string.con_host_cannot_be_empty;
                     }
 

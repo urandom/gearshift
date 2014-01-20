@@ -87,7 +87,7 @@ public final class G {
     public static final String INTENT_TORRENT_UPDATE = "org.sugr.gearshift.TORRENT_UPDATE";
     public static final String INTENT_PAGE_UNSELECTED = "org.sugr.gearshift.PAGE_UNSELECTED";
 
-    public static final String INTENT_SERVICE_ACTION_COMPLETE = "org.sugr.gearshift.SERVICE_ACTION_COMPLETE";
+    public static final String INTENT_SERVICE_ACTION_COMPLETE = "org.sugr.gearshift.service.SERVICE_ACTION_COMPLETE";
     public static final String ARG_REQUEST_TYPE = "request_type";
     public static final String ARG_REQUEST_ARGS = "request_args";
     public static final String ARG_ADDED = "added";

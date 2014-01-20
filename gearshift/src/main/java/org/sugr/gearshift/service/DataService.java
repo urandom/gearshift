@@ -62,17 +62,18 @@ public class DataService extends IntentService {
 
     public DataService() {
         super("DataService");
-
-        dataSource = new DataSource(this);
     }
 
     @Override
     protected void onHandleIntent(Intent intent) {
-        String packageName = getPackageName();
-        String profileId = intent.getStringExtra(packageName + G.ARG_PROFILE_ID);
-        String requestType = intent.getStringExtra(packageName + G.ARG_REQUEST_TYPE);
-        Bundle args = intent.getBundleExtra(packageName + G.ARG_REQUEST_ARGS);
+        String profileId = intent.getStringExtra(G.ARG_PROFILE_ID);
+        String requestType = intent.getStringExtra(G.ARG_REQUEST_TYPE);
+        Bundle args = intent.getBundleExtra(G.ARG_REQUEST_ARGS);
         Intent response = null;
+
+        if (dataSource == null) {
+            dataSource = new DataSource(this);
+        }
 
         dataSource.open();
         try {

@@ -24,18 +24,18 @@ import java.util.List;
 public class SettingsActivity extends PreferenceActivity
         implements LoaderManager.LoaderCallbacks<TransmissionProfile[]> {
 
-    private Header mAppPreferencesHeader;
-    private Header mFiltersHeader;
-    private Header mSortHeader;
-    private Header mProfileHeaderSeparatorHeader;
-    private Header[] mProfileHeaders = new Header[0];
+    private Header appPreferencesHeader;
+    private Header filtersHeader;
+    private Header sortHeader;
+    private Header profileHeaderSeparatorHeader;
+    private Header[] profileHeaders = new Header[0];
 
-    private List<Header> mHeaders = new ArrayList<Header>();
-    private TransmissionProfile[] mProfiles;
+    private List<Header> headers = new ArrayList<Header>();
+    private TransmissionProfile[] profiles;
 
     private static final int LOADER_ID = 1;
 
-    private SharedPreferences.OnSharedPreferenceChangeListener mDefaultPrefListener
+    private SharedPreferences.OnSharedPreferenceChangeListener defaultPrefListener
             = new SharedPreferences.OnSharedPreferenceChangeListener() {
         @Override
         public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
@@ -49,7 +49,7 @@ public class SettingsActivity extends PreferenceActivity
         }
     };
 
-    private SharedPreferences.OnSharedPreferenceChangeListener mProfilesPrefListener
+    private SharedPreferences.OnSharedPreferenceChangeListener profilesPrefListener
             = new SharedPreferences.OnSharedPreferenceChangeListener() {
         @Override
         public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
@@ -68,18 +68,18 @@ public class SettingsActivity extends PreferenceActivity
         target.add(getFiltersHeader());
         target.add(getSortHeader());
 
-        if (mProfileHeaders.length > 0) {
-            if (mProfileHeaderSeparatorHeader == null) {
-                mProfileHeaderSeparatorHeader = new Header();
-                mProfileHeaderSeparatorHeader.title = getText(R.string.header_label_profiles);
+        if (profileHeaders.length > 0) {
+            if (profileHeaderSeparatorHeader == null) {
+                profileHeaderSeparatorHeader = new Header();
+                profileHeaderSeparatorHeader.title = getText(R.string.header_label_profiles);
             }
-            target.add(mProfileHeaderSeparatorHeader);
+            target.add(profileHeaderSeparatorHeader);
 
-            for (Header profile : mProfileHeaders)
+            for (Header profile : profileHeaders)
                 target.add(profile);
         }
 
-        mHeaders = target;
+        headers = target;
     }
 
     @Override
@@ -87,7 +87,7 @@ public class SettingsActivity extends PreferenceActivity
         if (adapter == null)
             super.setListAdapter(null);
         else
-            super.setListAdapter(new HeaderAdapter(this, mHeaders));
+            super.setListAdapter(new HeaderAdapter(this, headers));
     }
 
     @Override
@@ -103,17 +103,17 @@ public class SettingsActivity extends PreferenceActivity
             getLoaderManager().initLoader(LOADER_ID, null, this);
 
             SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
-            prefs.registerOnSharedPreferenceChangeListener(mDefaultPrefListener);
+            prefs.registerOnSharedPreferenceChangeListener(defaultPrefListener);
 
             prefs = TransmissionProfile.getPreferences(this);
-            prefs.registerOnSharedPreferenceChangeListener(mProfilesPrefListener);
+            prefs.registerOnSharedPreferenceChangeListener(profilesPrefListener);
         }
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         super.onCreateOptionsMenu(menu);
-        if (mProfiles != null)
+        if (profiles != null)
             getMenuInflater().inflate(R.menu.add_profile_option, menu);
 
         return true;
@@ -143,14 +143,14 @@ public class SettingsActivity extends PreferenceActivity
     @Override
     public void onLoadFinished(Loader<TransmissionProfile[]> loader,
             TransmissionProfile[] profiles) {
-        mProfiles = profiles;
+        this.profiles = profiles;
 
         G.logD("Finished loading %d profiles", new Object[] {profiles.length});
 
-        mProfileHeaders = new Header[profiles.length];
+        profileHeaders = new Header[profiles.length];
         int index = 0;
         for (TransmissionProfile profile : profiles) {
-            mProfileHeaders[index++] = getProfileHeader(profile);
+            profileHeaders[index++] = getProfileHeader(profile);
         }
 
         invalidateOptionsMenu();
@@ -159,8 +159,8 @@ public class SettingsActivity extends PreferenceActivity
 
     @Override
     public void onLoaderReset(Loader<TransmissionProfile[]> loader) {/*
-        mProfileHeaders = new Header[0];
-        mProfiles = null;
+        profileHeaders = new Header[0];
+        profiles = null;
 
         TorrentListActivity.logD("Received profile loader reset");
         */
@@ -193,44 +193,44 @@ public class SettingsActivity extends PreferenceActivity
 
     private Header getAppPreferencesHeader() {
         // Set up fixed header for general settings
-        if (mAppPreferencesHeader == null) {
-            mAppPreferencesHeader = new Header();
-            mAppPreferencesHeader.id = R.id.general_preferences;
-            mAppPreferencesHeader.title = getText(R.string.header_label_general_preferences);
-            mAppPreferencesHeader.summary = null;
-            mAppPreferencesHeader.iconRes = 0;
-            mAppPreferencesHeader.fragment = GeneralSettingsFragment.class.getCanonicalName();
-            mAppPreferencesHeader.fragmentArguments = null;
+        if (appPreferencesHeader == null) {
+            appPreferencesHeader = new Header();
+            appPreferencesHeader.id = R.id.general_preferences;
+            appPreferencesHeader.title = getText(R.string.header_label_general_preferences);
+            appPreferencesHeader.summary = null;
+            appPreferencesHeader.iconRes = 0;
+            appPreferencesHeader.fragment = GeneralSettingsFragment.class.getCanonicalName();
+            appPreferencesHeader.fragmentArguments = null;
         }
-        return mAppPreferencesHeader;
+        return appPreferencesHeader;
     }
 
     private Header getFiltersHeader() {
-        if (mFiltersHeader == null) {
-            mFiltersHeader = new Header();
-            mFiltersHeader.id = R.id.filters_preferences;
-            mFiltersHeader.title = getText(R.string.header_label_filters);
-            mFiltersHeader.summary = null;
-            mFiltersHeader.iconRes = 0;
-            mFiltersHeader.fragment = FiltersSettingsFragment.class.getCanonicalName();
-            mFiltersHeader.fragmentArguments = null;
+        if (filtersHeader == null) {
+            filtersHeader = new Header();
+            filtersHeader.id = R.id.filters_preferences;
+            filtersHeader.title = getText(R.string.header_label_filters);
+            filtersHeader.summary = null;
+            filtersHeader.iconRes = 0;
+            filtersHeader.fragment = FiltersSettingsFragment.class.getCanonicalName();
+            filtersHeader.fragmentArguments = null;
         }
 
-        return mFiltersHeader;
+        return filtersHeader;
     }
 
     private Header getSortHeader() {
-        if (mSortHeader == null) {
-            mSortHeader = new Header();
-            mSortHeader.id = R.id.sort_preferences;
-            mSortHeader.title = getText(R.string.header_label_sort);
-            mSortHeader.summary = null;
-            mSortHeader.iconRes = 0;
-            mSortHeader.fragment = SortSettingsFragment.class.getCanonicalName();
-            mSortHeader.fragmentArguments = null;
+        if (sortHeader == null) {
+            sortHeader = new Header();
+            sortHeader.id = R.id.sort_preferences;
+            sortHeader.title = getText(R.string.header_label_sort);
+            sortHeader.summary = null;
+            sortHeader.iconRes = 0;
+            sortHeader.fragment = SortSettingsFragment.class.getCanonicalName();
+            sortHeader.fragmentArguments = null;
         }
 
-        return mSortHeader;
+        return sortHeader;
     }
 
     private static class HeaderAdapter extends ArrayAdapter<Header> {
@@ -243,7 +243,7 @@ public class SettingsActivity extends PreferenceActivity
             TextView summary;
         }
 
-        private LayoutInflater mInflater;
+        private LayoutInflater inflater;
 
         static int getHeaderType(Header header) {
             if (header.fragment == null && header.intent == null) {
@@ -282,7 +282,7 @@ public class SettingsActivity extends PreferenceActivity
         public HeaderAdapter(Context context, List<Header> objects) {
             super(context, 0, objects);
 
-            mInflater = (LayoutInflater)context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+            inflater = (LayoutInflater)context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         }
 
         @Override
@@ -301,7 +301,7 @@ public class SettingsActivity extends PreferenceActivity
                         holder.title = (TextView) view;
                         break;
                     case HEADER_TYPE_NORMAL:
-                        view = mInflater.inflate(
+                        view = inflater.inflate(
                                 R.layout.preference_header_item, parent,
                                 false);
                         holder.title = (TextView)

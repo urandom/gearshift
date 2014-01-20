@@ -23,6 +23,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.LoaderManager;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.text.Html;
@@ -73,8 +74,6 @@ public class TorrentListActivity extends FragmentActivity
     private DataServiceManager manager;
 
     private ServiceReceiver serviceReceiver;
-    private SessionTask sessionTask;
-    private TorrentTask torrentTask;
 
     private boolean intentConsumed = false;
     private boolean dialogShown = false;
@@ -191,8 +190,6 @@ public class TorrentListActivity extends FragmentActivity
         super.onCreate(savedInstanceState);
 
         serviceReceiver = new ServiceReceiver();
-        sessionTask = new SessionTask(this);
-        torrentTask = new TorrentTask(this);
 
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
         G.DEBUG = prefs.getBoolean(G.PREF_DEBUG, false);
@@ -248,7 +245,7 @@ public class TorrentListActivity extends FragmentActivity
 
                     G.logD("Opening the detail panel");
                     TorrentListActivity.this.manager.setDetails(true);
-                    torrentTask.execute(true);
+                    new TorrentTask(TorrentListActivity.this).execute(true);
 
                     fragment.onCreateOptionsMenu(menu, getMenuInflater());
 
@@ -286,7 +283,7 @@ public class TorrentListActivity extends FragmentActivity
         }
 
         if (savedInstanceState == null) {
-            refreshing = true;
+            setRefreshing(true);
         } else {
             if (savedInstanceState.containsKey(STATE_INTENT_CONSUMED)) {
                 intentConsumed = savedInstanceState.getBoolean(STATE_INTENT_CONSUMED);
@@ -352,7 +349,7 @@ public class TorrentListActivity extends FragmentActivity
             && savedInstanceState.containsKey(STATE_CURRENT_PROFILE)) {
             profile = savedInstanceState.getParcelable(STATE_CURRENT_PROFILE);
             manager = new DataServiceManager(this, profile.getId()).startUpdating();
-            sessionTask.execute(true);
+            new SessionTask(this).execute(true);
         }
 
         getSupportLoaderManager().initLoader(G.PROFILES_LOADER_ID, null, profileLoaderCallbacks);
@@ -378,14 +375,17 @@ public class TorrentListActivity extends FragmentActivity
             manager = new DataServiceManager(this, profile.getId())
                 .setSessionOnly(true).startUpdating();
         }
-        registerReceiver(serviceReceiver, new IntentFilter(G.INTENT_SERVICE_ACTION_COMPLETE));
+        LocalBroadcastManager.getInstance(this).registerReceiver(
+            serviceReceiver, new IntentFilter(G.INTENT_SERVICE_ACTION_COMPLETE));
     }
 
     @Override protected void onPause() {
         super.onPause();
 
-        unregisterReceiver(serviceReceiver);
-        manager.reset();
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(serviceReceiver);
+        if (manager != null) {
+            manager.reset();
+        }
     }
 
     /**
@@ -602,7 +602,7 @@ public class TorrentListActivity extends FragmentActivity
             manager.reset();
         } else {
             manager = new DataServiceManager(this, profile.getId()).startUpdating();
-            sessionTask.execute(true);
+            new SessionTask(this).execute(true);
         }
     }
 
@@ -655,10 +655,10 @@ public class TorrentListActivity extends FragmentActivity
 
     @Override
     public void setRefreshing(boolean refreshing) {
+        this.refreshing = refreshing;
         if (menu == null) {
             return;
         }
-        this.refreshing = refreshing;
 
         MenuItem item = menu.findItem(R.id.menu_refresh);
         if (this.refreshing)
@@ -891,6 +891,7 @@ public class TorrentListActivity extends FragmentActivity
                 case DataService.Requests.SET_TORRENT:
                 case DataService.Requests.SET_TORRENT_ACTION:
                 case DataService.Requests.SET_TORRENT_LOCATION:
+                    setRefreshing(false);
                     if (error == 0 || error == TransmissionData.Errors.DUPLICATE_TORRENT
                         || error == TransmissionData.Errors.INVALID_TORRENT) {
 
@@ -898,7 +899,7 @@ public class TorrentListActivity extends FragmentActivity
 
                         switch (type) {
                             case DataService.Requests.GET_SESSION:
-                                sessionTask.execute();
+                                new SessionTask(TorrentListActivity.this).execute();
                                 break;
                             case DataService.Requests.SET_SESSION:
                                 manager.getSession();
@@ -910,24 +911,24 @@ public class TorrentListActivity extends FragmentActivity
                                 boolean statusChanged = intent.getBooleanExtra(G.ARG_STATUS_CHANGED, false);
                                 boolean incomplete = intent.getBooleanExtra(G.ARG_INCOMPLETE_METADATA, false);
 
-                                torrentTask.execute(added, removed, statusChanged, incomplete);
+                                new TorrentTask(TorrentListActivity.this).execute(added, removed, statusChanged, incomplete);
                                 break;
                             case DataService.Requests.ADD_TORRENT:
                                 manager.update();
-                                torrentTask.execute(true, false, false, true);
+                                new TorrentTask(TorrentListActivity.this).execute(true, false, false, true);
                                 break;
                             case DataService.Requests.REMOVE_TORRENT:
                                 manager.update();
-                                torrentTask.execute(false, true, false, false);
+                                new TorrentTask(TorrentListActivity.this).execute(false, true, false, false);
                                 break;
                             case DataService.Requests.SET_TORRENT_LOCATION:
                                 manager.update();
-                                torrentTask.execute(true, true, false, false);
+                                new TorrentTask(TorrentListActivity.this).execute(true, true, false, false);
                                 break;
                             case DataService.Requests.SET_TORRENT:
                             case DataService.Requests.SET_TORRENT_ACTION:
                                 manager.update();
-                                torrentTask.execute(false, false, true, false);
+                                new TorrentTask(TorrentListActivity.this).execute(false, false, true, false);
                                 break;
                         }
                     } else {
@@ -941,7 +942,6 @@ public class TorrentListActivity extends FragmentActivity
                             findViewById(R.id.fatal_error_layer).setVisibility(View.VISIBLE);
                             TextView text = (TextView) findViewById(R.id.transmission_error);
                             expecting = 0;
-                            setRefreshing(false);
                             toggleRightPane(false);
                             FragmentManager manager = getSupportFragmentManager();
                             TorrentListFragment fragment = (TorrentListFragment) manager.findFragmentById(R.id.torrent_list);
@@ -1008,7 +1008,7 @@ public class TorrentListActivity extends FragmentActivity
             setSession(session);
 
             if (startTorrentTask) {
-                torrentTask.execute();
+                new TorrentTask(TorrentListActivity.this).execute();
             }
         }
     }
@@ -1039,6 +1039,9 @@ public class TorrentListActivity extends FragmentActivity
                     statusChanged = flags[2];
                     incompleteMetadata = flags[3];
                 }
+
+                /* Fill the cursor window */
+                cursor.getCount();
 
                 return cursor;
             } finally {

@@ -13,10 +13,10 @@ public class GeneralSettingsFragment extends BasePreferenceFragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        mSharedPrefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
+        sharedPrefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
         addPreferencesFromResource(R.xml.general_preferences);
 
-        mSummaryPrefs = new Object[][] {
+        summaryPrefs = new Object[][] {
             {G.PREF_FULL_UPDATE, getString(R.string.full_update_summary_format), -1, -1, "int"},
             {G.PREF_UPDATE_INTERVAL, getString(R.string.update_interval_summary_format),
                 R.array.pref_update_interval_values, R.array.pref_update_interval_entries, ""},
