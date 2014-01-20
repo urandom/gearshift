@@ -892,8 +892,7 @@ public class TorrentListActivity extends FragmentActivity
                 case DataService.Requests.SET_TORRENT_ACTION:
                 case DataService.Requests.SET_TORRENT_LOCATION:
                     setRefreshing(false);
-                    if (error == 0 || error == TransmissionData.Errors.DUPLICATE_TORRENT
-                        || error == TransmissionData.Errors.INVALID_TORRENT) {
+                    if (error == 0) {
 
                         findViewById(R.id.fatal_error_layer).setVisibility(View.GONE);
 
