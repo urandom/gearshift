@@ -41,18 +41,40 @@ public class DataServiceManager {
         }
     };
 
+    private static final String STATE_ITERATION = "data_service_iteration";
+
     public DataServiceManager(Context context, String profileId) {
         this.context = context;
         this.profileId = profileId;
 
+        iteration = 0;
         serviceReceiver = new ServiceReceiver();
         LocalBroadcastManager.getInstance(context).registerReceiver(serviceReceiver,
             new IntentFilter(G.INTENT_SERVICE_ACTION_COMPLETE));
     }
 
-    public void reset() {
+    public DataServiceManager onSaveInstanceState(Bundle savedInstanceState) {
+        savedInstanceState.putInt(STATE_ITERATION, iteration);
+
+        return this;
+    }
+
+    public DataServiceManager onRestoreInstanceState(Bundle savedInstanceState) {
+        if (savedInstanceState != null) {
+            if (savedInstanceState.containsKey(STATE_ITERATION)) {
+                iteration = savedInstanceState.getInt(STATE_ITERATION);
+            }
+        }
+
+        return this;
+    }
+
+    public DataServiceManager reset() {
+        iteration = 0;
         stopUpdating();
         LocalBroadcastManager.getInstance(context).unregisterReceiver(serviceReceiver);
+
+        return this;
     }
 
     public DataServiceManager setDetails(boolean details) {
@@ -78,7 +100,6 @@ public class DataServiceManager {
         synchronized (this) {
             isStopped = false;
         }
-        iteration = 0;
         isLastErrorFatal = false;
 
         update();

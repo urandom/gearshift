@@ -122,6 +122,8 @@ public class TransmissionSessionActivity extends FragmentActivity implements Dat
 
         profile = in.getParcelableExtra(G.ARG_PROFILE);
         session = in.getParcelableExtra(G.ARG_SESSION);
+        manager = new DataServiceManager(this, profile.getId())
+            .setSessionOnly(true).onRestoreInstanceState(savedInstanceState).startUpdating();
 
         super.onCreate(savedInstanceState);
 
@@ -164,8 +166,10 @@ public class TransmissionSessionActivity extends FragmentActivity implements Dat
     @Override protected void onResume() {
         super.onResume();
 
-        manager = new DataServiceManager(this, profile.getId())
-            .setSessionOnly(true).startUpdating();
+        if (profile != null && manager == null) {
+            manager = new DataServiceManager(this, profile.getId())
+                .setDetails(true).startUpdating();
+        }
         LocalBroadcastManager.getInstance(this).registerReceiver(serviceReceiver, new IntentFilter(G.INTENT_SERVICE_ACTION_COMPLETE));
     }
 
@@ -182,6 +186,9 @@ public class TransmissionSessionActivity extends FragmentActivity implements Dat
         ScrollView scroll = (ScrollView) findViewById(R.id.session_scroll);
         if (scroll != null) {
             outState.putInt(STATE_SCROLL_POSITION, scroll.getScrollY());
+        }
+        if (manager != null) {
+            manager.onSaveInstanceState(outState);
         }
     }
 

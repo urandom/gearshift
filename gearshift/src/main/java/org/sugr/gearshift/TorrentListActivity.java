@@ -348,7 +348,8 @@ public class TorrentListActivity extends FragmentActivity
         if (savedInstanceState != null
             && savedInstanceState.containsKey(STATE_CURRENT_PROFILE)) {
             profile = savedInstanceState.getParcelable(STATE_CURRENT_PROFILE);
-            manager = new DataServiceManager(this, profile.getId()).startUpdating();
+            manager = new DataServiceManager(this, profile.getId())
+                .onRestoreInstanceState(savedInstanceState).startUpdating();
             new SessionTask(this).execute(true);
         }
 
@@ -536,6 +537,9 @@ public class TorrentListActivity extends FragmentActivity
         outState.putBoolean(STATE_INTENT_CONSUMED, intentConsumed);
         outState.putInt(STATE_LOCATION_POSITION, locationPosition);
         outState.putParcelable(STATE_CURRENT_PROFILE, profile);
+        if (manager != null) {
+            manager.onSaveInstanceState(outState);
+        }
     }
 
     @Override

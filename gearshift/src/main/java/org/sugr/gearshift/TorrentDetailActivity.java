@@ -64,7 +64,7 @@ public class TorrentDetailActivity extends FragmentActivity implements Transmiss
 
         serviceReceiver = new ServiceReceiver();
         manager = new DataServiceManager(this, profile.getId())
-            .setDetails(true).startUpdating();
+            .setDetails(true).onRestoreInstanceState(savedInstanceState).startUpdating();
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_torrent_detail);
@@ -107,6 +107,14 @@ public class TorrentDetailActivity extends FragmentActivity implements Transmiss
         manager.reset();
         manager = null;
     }
+
+    @Override public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        if (manager != null) {
+            manager.onSaveInstanceState(outState);
+        }
+    }
+
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
