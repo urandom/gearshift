@@ -536,7 +536,7 @@ public class TorrentListActivity extends FragmentActivity
         }
         if (twoPaneLayout) {
             Fragment fragment = getSupportFragmentManager().findFragmentByTag(G.DETAIL_FRAGMENT_TAG);
-            if (fragment.onOptionsItemSelected(item)) {
+            if (fragment != null && fragment.onOptionsItemSelected(item)) {
                 return true;
             }
         }
