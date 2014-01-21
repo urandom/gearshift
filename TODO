@@ -1,0 +1,2 @@
+* adding/removing torrents aren't reflected immediately in the list, even though the response is a success
+* if the last torrent in a directory is removed, the directory filter disappears

@@ -27,18 +27,18 @@ public class TorrentFileReadActivity extends FragmentActivity {
         if (Intent.ACTION_VIEW.equals(intent.getAction())) {
             setContentView(R.layout.activity_torrent_file_read);
 
-            new ReadDataAsyncTask().execute(intent.getData());
+            new ReadTorrentDataTask().execute(intent.getData());
         } else {
             finish();
         }
     }
 
-    private class TaskData {
-        public File file;
-        public String path;
-    }
+    private class ReadTorrentDataTask extends AsyncTask<Uri, Void, ReadTorrentDataTask.TaskData> {
+        public class TaskData {
+            public File file;
+            public String path;
+        }
 
-    private class ReadDataAsyncTask extends AsyncTask<Uri, Void, TaskData> {
         private Uri uri;
 
         @Override protected TaskData doInBackground(Uri... params) {

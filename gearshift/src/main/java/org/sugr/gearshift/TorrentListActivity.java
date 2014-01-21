@@ -4,8 +4,10 @@ import android.animation.Animator;
 import android.animation.AnimatorInflater;
 import android.animation.ValueAnimator;
 import android.app.ActionBar;
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.BroadcastReceiver;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -15,6 +17,7 @@ import android.content.res.Configuration;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
@@ -36,6 +39,7 @@ import android.view.animation.DecelerateInterpolator;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.CheckBox;
+import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.Spinner;
@@ -46,11 +50,15 @@ import org.sugr.gearshift.datasource.DataSource;
 import org.sugr.gearshift.service.DataService;
 import org.sugr.gearshift.service.DataServiceManager;
 import org.sugr.gearshift.service.DataServiceManagerInterface;
+import org.sugr.gearshift.util.Base64;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URI;
 import java.util.ArrayList;
 
@@ -76,11 +84,13 @@ public class TorrentListActivity extends FragmentActivity
     private ServiceReceiver serviceReceiver;
 
     private boolean intentConsumed = false;
-    private boolean dialogShown = false;
+    private boolean newTorrentDialogVisible = false;
 
     private static final String STATE_INTENT_CONSUMED = "intent_consumed";
     private static final String STATE_LOCATION_POSITION = "location_position";
     private static final String STATE_CURRENT_PROFILE = "current_profile";
+
+    private static final int BROWSE_REQUEST_CODE = 1;
 
     private DrawerLayout drawerLayout;
     private ActionBarDrawerToggle drawerToggle;
@@ -498,6 +508,9 @@ public class TorrentListActivity extends FragmentActivity
                 manager.update();
                 setRefreshing(!refreshing);
                 return true;
+            case R.id.menu_add_torrent:
+                showAddTorrentDialog();
+                break;
             case R.id.menu_session_settings:
                 intent = new Intent(this, TransmissionSessionActivity.class);
                 intent.putExtra(G.ARG_PROFILE, profile);
@@ -542,13 +555,23 @@ public class TorrentListActivity extends FragmentActivity
         }
     }
 
-    @Override
-    public void onNewIntent(Intent intent) {
-        if (!dialogShown) {
+    @Override public void onNewIntent(Intent intent) {
+        if (!newTorrentDialogVisible) {
             intentConsumed = false;
             setIntent(intent);
             if (session != null) {
                 consumeIntent();
+            }
+        }
+    }
+
+    @Override public void onActivityResult(int requestCode, int resultCode, Intent resultData) {
+        if (requestCode == BROWSE_REQUEST_CODE && resultCode == Activity.RESULT_OK) {
+            if (resultData != null) {
+                Uri uri = resultData.getData();
+
+                new ReadTorrentDataTask().execute(uri);
+                Toast.makeText(this, R.string.reading_torrent_file, Toast.LENGTH_SHORT).show();
             }
         }
     }
@@ -650,7 +673,7 @@ public class TorrentListActivity extends FragmentActivity
                 menu.findItem(R.id.menu_session_settings).setVisible(true);
             }
 
-            if (initial && !intentConsumed && !dialogShown) {
+            if (initial && !intentConsumed && !newTorrentDialogVisible) {
                 consumeIntent();
             }
         }
@@ -681,17 +704,20 @@ public class TorrentListActivity extends FragmentActivity
         }
         altSpeed = alt;
 
-        MenuItem item = menu.findItem(R.id.menu_alt_speed);
+        MenuItem altSpeed = menu.findItem(R.id.menu_alt_speed);
+        MenuItem addTorrent = menu.findItem(R.id.menu_add_torrent);
         if (session == null) {
-            item.setVisible(false);
+            altSpeed.setVisible(false);
+            addTorrent.setVisible(false);
         } else {
-            item.setVisible(true);
-            if (altSpeed) {
-                item.setIcon(R.drawable.ic_action_data_usage_on);
-                item.setTitle(R.string.alt_speed_label_off);
+            altSpeed.setVisible(true);
+            addTorrent.setVisible(true);
+            if (this.altSpeed) {
+                altSpeed.setIcon(R.drawable.ic_action_data_usage_on);
+                altSpeed.setTitle(R.string.alt_speed_label_off);
             } else {
-                item.setIcon(R.drawable.ic_action_data_usage);
-                item.setTitle(R.string.alt_speed_label_on);
+                altSpeed.setIcon(R.drawable.ic_action_data_usage);
+                altSpeed.setTitle(R.string.alt_speed_label_on);
             }
         }
     }
@@ -702,61 +728,72 @@ public class TorrentListActivity extends FragmentActivity
 
         if ((intent.getFlags() & Intent.FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY) == 0
                 && (Intent.ACTION_VIEW.equals(action) || ACTION_OPEN.equals(action))) {
-            dialogShown = true;
-            final Uri data = intent.getData();
 
-            LayoutInflater inflater = getLayoutInflater();
-            View view = inflater.inflate(R.layout.add_torrent_dialog, null);
+            Uri data = intent.getData();
+            String fileURI = intent.getStringExtra(ARG_FILE_URI);
+            String filePath = intent.getStringExtra(ARG_FILE_PATH);
 
-            final AlertDialog.Builder builder = new AlertDialog.Builder(this)
-                .setCancelable(false)
-                .setView(view)
-                .setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        intentConsumed = true;
-                        dialogShown = false;
-                    }
+            showNewTorrentDialog(data, fileURI, filePath);
+        } else {
+            intentConsumed = true;
+        }
+    }
 
-                });
+    private void showNewTorrentDialog(final Uri data, final String fileURI, final String filePath) {
+        newTorrentDialogVisible = true;
 
-            TransmissionProfileDirectoryAdapter adapter =
-                    new TransmissionProfileDirectoryAdapter(
-                    this, android.R.layout.simple_spinner_item);
+        LayoutInflater inflater = getLayoutInflater();
+        View view = inflater.inflate(R.layout.new_torrent_dialog, null);
 
-            adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-            adapter.addAll(getSession().getDownloadDirectories());
-            adapter.sort();
-
-            Spinner location = (Spinner) view.findViewById(R.id.location_choice);
-            location.setAdapter(adapter);
-
-            if (locationPosition == AdapterView.INVALID_POSITION) {
-                if (profile != null && profile.getLastDownloadDirectory() != null) {
-                    int position = adapter.getPosition(profile.getLastDownloadDirectory());
-
-                    if (position > -1) {
-                        location.setSelection(position);
-                    }
+        final AlertDialog.Builder builder = new AlertDialog.Builder(this)
+            .setCancelable(false)
+            .setView(view)
+            .setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    intentConsumed = true;
+                    newTorrentDialogVisible = false;
                 }
-            } else {
-                location.setSelection(locationPosition);
-            }
-            location.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-                @Override public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
-                    locationPosition = i;
-                }
-                @Override public void onNothingSelected(AdapterView<?> adapterView) {}
+
             });
 
-            ((CheckBox) view.findViewById(R.id.start_paused)).setChecked(profile != null && profile.getStartPaused());
+        TransmissionProfileDirectoryAdapter adapter =
+            new TransmissionProfileDirectoryAdapter(
+                this, android.R.layout.simple_spinner_item);
 
-            final CheckBox deleteLocal = ((CheckBox) view.findViewById(R.id.delete_local));
-            deleteLocal.setChecked(profile != null && profile.getDeleteLocal());
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        adapter.addAll(getSession().getDownloadDirectories());
+        adapter.sort();
 
-            if (data.getScheme().equals("magnet")) {
-                builder.setTitle(R.string.add_magnet).setPositiveButton(android.R.string.ok,
-                        new DialogInterface.OnClickListener() {
+        Spinner location = (Spinner) view.findViewById(R.id.location_choice);
+        location.setAdapter(adapter);
+
+        if (locationPosition == AdapterView.INVALID_POSITION) {
+            if (profile != null && profile.getLastDownloadDirectory() != null) {
+                int position = adapter.getPosition(profile.getLastDownloadDirectory());
+
+                if (position > -1) {
+                    location.setSelection(position);
+                }
+            }
+        } else {
+            location.setSelection(locationPosition);
+        }
+        location.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+                locationPosition = i;
+            }
+            @Override public void onNothingSelected(AdapterView<?> adapterView) {}
+        });
+
+        ((CheckBox) view.findViewById(R.id.start_paused)).setChecked(profile != null && profile.getStartPaused());
+
+        final CheckBox deleteLocal = ((CheckBox) view.findViewById(R.id.delete_local));
+        deleteLocal.setChecked(profile != null && profile.getDeleteLocal());
+
+        if (data != null && data.getScheme().equals("magnet")) {
+            builder.setTitle(R.string.add_new_magnet).setPositiveButton(android.R.string.ok,
+                new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int id) {
                         Spinner location = (Spinner) ((AlertDialog) dialog).findViewById(R.id.location_choice);
@@ -767,19 +804,19 @@ public class TorrentListActivity extends FragmentActivity
 
                         setRefreshing(true);
                         intentConsumed = true;
-                        dialogShown = false;
+                        newTorrentDialogVisible = false;
                     }
                 });
 
-                AlertDialog dialog = builder.create();
-                dialog.show();
-            } else {
-                final String fileURI = intent.getStringExtra(ARG_FILE_URI);
-                final String filePath = intent.getStringExtra(ARG_FILE_PATH);
-
+            AlertDialog dialog = builder.create();
+            dialog.show();
+        } else if (fileURI != null) {
+            if (filePath != null) {
                 deleteLocal.setVisibility(View.VISIBLE);
-                builder.setTitle(R.string.add_torrent).setPositiveButton(android.R.string.ok,
-                        new DialogInterface.OnClickListener() {
+            }
+
+            builder.setTitle(R.string.add_new_torrent).setPositiveButton(android.R.string.ok,
+                new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(final DialogInterface dialog, int which) {
                         Spinner location = (Spinner) ((AlertDialog) dialog).findViewById(R.id.location_choice);
@@ -812,7 +849,7 @@ public class TorrentListActivity extends FragmentActivity
                             setRefreshing(true);
                         } catch (Exception e) {
                             Toast.makeText(TorrentListActivity.this,
-                                    R.string.error_reading_torrent_file, Toast.LENGTH_SHORT).show();
+                                R.string.error_reading_torrent_file, Toast.LENGTH_SHORT).show();
                         } finally {
                             if (reader != null) {
                                 try {
@@ -823,16 +860,59 @@ public class TorrentListActivity extends FragmentActivity
                             }
                         }
                         intentConsumed = true;
-                        dialogShown = false;
+                        newTorrentDialogVisible = false;
                     }
                 });
 
-                AlertDialog dialog = builder.create();
-                dialog.show();
-            }
-        } else {
-            intentConsumed = true;
+            AlertDialog dialog = builder.create();
+            dialog.show();
         }
+    }
+
+    private void showAddTorrentDialog() {
+        LayoutInflater inflater = getLayoutInflater();
+        View view = inflater.inflate(R.layout.add_torrent_dialog, null);
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(this)
+            .setCancelable(true)
+            .setView(view)
+            .setTitle(R.string.add_torrent)
+            .setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                }
+
+            })
+            .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                @Override public void onClick(DialogInterface dialog, int which) {
+                    EditText magnet = (EditText) ((AlertDialog) dialog).findViewById(R.id.magnet_link);
+                    Uri data = Uri.parse(magnet.getText().toString());
+
+                    if (data != null && "magnet".equals(data.getScheme())) {
+                        showNewTorrentDialog(data, null, null);
+                    } else {
+                        Toast.makeText(TorrentListActivity.this,
+                            R.string.invalid_magnet_link, Toast.LENGTH_SHORT).show();
+                    }
+                }
+            });
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+            builder.setNeutralButton(R.string.browse, new DialogInterface.OnClickListener() {
+                @Override public void onClick(DialogInterface dialog, int which) {
+                    Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+
+                    intent.addCategory(Intent.CATEGORY_OPENABLE);
+                    intent.setType("application/x-bittorrent");
+
+                    startActivityForResult(intent, BROWSE_REQUEST_CODE);
+                }
+            });
+        }
+
+        AlertDialog dialog = builder.create();
+        dialog.show();
+
     }
 
     private static class TransmissionProfileListAdapter extends ArrayAdapter<TransmissionProfile> {
@@ -1095,6 +1175,89 @@ public class TorrentListActivity extends FragmentActivity
             if (update) {
                 update = false;
                 TorrentListActivity.this.manager.update();
+            }
+        }
+    }
+
+    private class ReadTorrentDataTask extends AsyncTask<Uri, Void, ReadTorrentDataTask.TaskData> {
+        public class TaskData {
+            public File file;
+            public String path;
+        }
+
+        @Override protected TaskData doInBackground(Uri... params) {
+            if (params.length == 0) {
+                return null;
+            }
+
+            Uri uri = params[0];
+            ContentResolver cr = getContentResolver();
+            InputStream stream = null;
+            Base64.InputStream base64 = null;
+
+            try {
+                stream = cr.openInputStream(uri);
+
+                base64 = new Base64.InputStream(stream, Base64.ENCODE | Base64.DO_BREAK_LINES);
+                StringBuilder fileContent = new StringBuilder("");
+                int ch;
+
+                while( (ch = base64.read()) != -1)
+                    fileContent.append((char)ch);
+
+                File file = new File(TorrentListActivity.this.getCacheDir(), "torrentdata");
+
+                if (file.exists()) {
+                    file.delete();
+                }
+
+                file.createNewFile();
+                BufferedWriter bw = new BufferedWriter(new FileWriter(file));
+                bw.append(fileContent);
+                bw.close();
+
+                String path = null;
+                if ("content".equals(uri.getScheme())) {
+                    Cursor cursor = cr.query(uri,
+                        new String[] {
+                            android.provider.MediaStore.Files.FileColumns.DATA
+                        }, null, null, null);
+                    if (cursor.moveToFirst()) {
+                        path = cursor.getString(0);
+                    }
+                    cursor.close();
+                } else if ("file".equals(uri.getScheme())) {
+                    path = uri.getPath();
+                }
+
+                G.logD("Torrent file path: " + path);
+
+                TaskData data = new TaskData();
+                data.file = file;
+                data.path = path;
+                return data;
+            } catch (Exception e) {
+                /* FIXME: proper error handling */
+                G.logE("Error while reading the torrent file", e);
+                return null;
+            } finally {
+                try {
+                    if (base64 != null)
+                        base64.close();
+                    if (stream != null)
+                        stream.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+
+        @Override protected void onPostExecute(TaskData data) {
+            if (data == null) {
+                Toast.makeText(TorrentListActivity.this,
+                    R.string.error_reading_torrent_file, Toast.LENGTH_SHORT).show();
+            } else {
+                showNewTorrentDialog(null, data.file.toURI().toString(), data.path);
             }
         }
     }

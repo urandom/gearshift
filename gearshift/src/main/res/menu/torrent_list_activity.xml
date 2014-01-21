@@ -19,6 +19,13 @@
           android:title="@string/alt_speed_label_on"
           android:titleCondensed="@string/alt_speed"/>
 
+    <item android:id="@+id/menu_add_torrent"
+          android:visible="false"
+          android:showAsAction="never"
+          android:menuCategory="system"
+          android:orderInCategory="75"
+          android:title="@string/add_torrent" />
+
     <item android:id="@+id/menu_session_settings"
         android:visible="false"
         android:showAsAction="never"
