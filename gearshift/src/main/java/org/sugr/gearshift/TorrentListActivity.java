@@ -1027,7 +1027,7 @@ public class TorrentListActivity extends FragmentActivity
             }
 
             if (startTorrentTask) {
-                new TorrentTask(TorrentListActivity.this).execute();
+                new TorrentTask(TorrentListActivity.this).execute(true);
             }
         }
     }
