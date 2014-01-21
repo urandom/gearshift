@@ -112,8 +112,8 @@ public class DataServiceManager {
             }
 
             Bundle args = new Bundle();
-            if (details) {
-                args.putBoolean(DataService.Args.DETAIL_FIELDS, details);
+            if (details || iteration == 1) {
+                args.putBoolean(DataService.Args.DETAIL_FIELDS, true);
             }
 
             if (torrentsToUpdate != null) {
