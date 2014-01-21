@@ -637,6 +637,8 @@ public class TorrentListActivity extends FragmentActivity
 
                 invalidateOptionsMenu();
                 initial = true;
+            } else if (session.getRPCVersion() >= TransmissionSession.FREE_SPACE_METHOD_RPC_VERSION) {
+                session.setDownloadDirFreeSpace(this.session.getDownloadDirFreeSpace());
             }
 
             this.session = session;
