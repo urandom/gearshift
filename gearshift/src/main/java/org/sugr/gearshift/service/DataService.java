@@ -1,8 +1,10 @@
 package org.sugr.gearshift.service;
 
+import android.annotation.TargetApi;
 import android.app.IntentService;
 import android.content.Intent;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.provider.DocumentsContract;
 import android.support.v4.content.LocalBroadcastManager;
@@ -67,6 +69,7 @@ public class DataService extends IntentService {
         super("DataService");
     }
 
+    @TargetApi(Build.VERSION_CODES.KITKAT)
     @Override
     protected void onHandleIntent(Intent intent) {
         String profileId = intent.getStringExtra(G.ARG_PROFILE_ID);
@@ -187,7 +190,7 @@ public class DataService extends IntentService {
                             G.logD("Couldn't remove torrent " + file.getName());
                         }
                     }
-                    if (document != null) {
+                    if (document != null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
                         if (!DocumentsContract.deleteDocument(getContentResolver(), document)) {
                             G.logD("Couldn't remove torrent " + document.toString());
                         }
