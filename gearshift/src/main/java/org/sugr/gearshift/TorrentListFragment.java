@@ -540,45 +540,39 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
             filtered = true;
         }
 
-        int count = cursor != null ? cursor.getCount() : 0;
+        if (error > 0) {
+            if (error != TransmissionData.Errors.DUPLICATE_TORRENT
+                && error != TransmissionData.Errors.INVALID_TORRENT
+                && actionMode != null) {
 
-        if (count > 0 || error > 0) {
-            if (error > 0) {
-                if (error != TransmissionData.Errors.DUPLICATE_TORRENT
-                    && error != TransmissionData.Errors.INVALID_TORRENT
-                    && actionMode != null) {
+                actionMode.finish();
+                actionMode = null;
+            }
+        } else {
+            getActivity().getSupportLoaderManager().restartLoader(G.TORRENT_LIST_TRAFFIC_LOADER_ID,
+                null, torrentTrafficLoaderCallbacks);
 
-                    actionMode.finish();
-                    actionMode = null;
-                }
+            FragmentManager manager = getActivity().getSupportFragmentManager();
+            TorrentListMenuFragment menu = (TorrentListMenuFragment) manager.findFragmentById(R.id.torrent_list_menu);
+
+            if (menu != null) {
+                menu.notifyTorrentListChanged(cursor, error, added, removed,
+                    statusChanged, metadataNeeded);
             }
 
-            if (error == 0) {
-                getActivity().getSupportLoaderManager().restartLoader(G.TORRENT_LIST_TRAFFIC_LOADER_ID,
-                    null, torrentTrafficLoaderCallbacks);
-
-                FragmentManager manager = getActivity().getSupportFragmentManager();
-                TorrentListMenuFragment menu = (TorrentListMenuFragment) manager.findFragmentById(R.id.torrent_list_menu);
-
-                if (menu != null) {
-                    menu.notifyTorrentListChanged(cursor, error, added, removed,
+            if (((TorrentListActivity) getActivity()).isDetailPanelVisible() && (!filtered || statusChanged)) {
+                TorrentDetailFragment detail = (TorrentDetailFragment) manager.findFragmentByTag(
+                    G.DETAIL_FRAGMENT_TAG);
+                if (detail != null) {
+                    detail.notifyTorrentListChanged(cursor, error, added, removed,
                         statusChanged, metadataNeeded);
                 }
-
-                if (((TorrentListActivity) getActivity()).isDetailPanelVisible() && (!filtered || statusChanged)) {
-                    TorrentDetailFragment detail = (TorrentDetailFragment) manager.findFragmentByTag(
-                        G.DETAIL_FRAGMENT_TAG);
-                    if (detail != null) {
-                        detail.notifyTorrentListChanged(cursor, error, added, removed,
-                            statusChanged, metadataNeeded);
-                    }
-                }
-                if (filtered) {
-                    torrentAdapter.setTemporaryFilterCursor(cursor);
-                    torrentAdapter.getFilter().filter(query);
-                } else {
-                    torrentAdapter.changeCursor(cursor);
-                }
+            }
+            if (filtered) {
+                torrentAdapter.setTemporaryFilterCursor(cursor);
+                torrentAdapter.getFilter().filter(query);
+            } else {
+                torrentAdapter.changeCursor(cursor);
             }
         }
     }
