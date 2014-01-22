@@ -10,6 +10,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.ViewPager;
+import android.text.Html;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -186,8 +187,8 @@ public class TorrentDetailFragment extends Fragment implements TorrentListNotifi
                                     item.getItemId() == R.id.delete
                             ? R.string.delete_current_confirmation
                             : R.string.remove_current_confirmation),
-                                currentTorrentName))
-                .show();
+                                G.trimTrailingWhitespace(Html.fromHtml(currentTorrentName))))
+                    .show();
                 return true;
             case R.id.resume:
                 String action;

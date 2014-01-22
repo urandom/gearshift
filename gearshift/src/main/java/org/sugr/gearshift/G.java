@@ -255,10 +255,18 @@ public final class G {
         if (source == null)
             return "";
 
-        int i = source.length();
-        while (--i >= 0 && Character.isWhitespace(source.charAt(i))) {}
+        int i = 0;
+        while (Character.isWhitespace(i) && i < source.length()) {
+            ++i;
+        }
+        source = source.subSequence(i, source.length());
 
-        return source.subSequence(0, i + 1);
+        int j = source.length() - 1;
+        while (Character.isWhitespace(source.charAt(j)) && j > 0) {
+            --j;
+        }
+
+        return source.subSequence(0, j + 1);
     }
 
 }
