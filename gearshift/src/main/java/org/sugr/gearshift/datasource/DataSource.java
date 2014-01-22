@@ -92,7 +92,7 @@ public class DataSource {
 
         synchronized (DataSource.class) {
             try {
-                database.beginTransaction();
+                database.beginTransactionNonExclusive();
 
                 for (ContentValues item : session) {
                     database.insertWithOnConflict(Constants.T_SESSION, null,
@@ -117,7 +117,7 @@ public class DataSource {
 
         synchronized (DataSource.class) {
             try {
-                database.beginTransaction();
+                database.beginTransactionNonExclusive();
 
                 SparseBooleanArray trackers = new SparseBooleanArray();
                 String profile = TransmissionProfile.getCurrentProfileId(context);
@@ -245,7 +245,7 @@ public class DataSource {
 
         synchronized (DataSource.class) {
             try {
-                database.beginTransaction();
+                database.beginTransactionNonExclusive();
 
                 for (String hash : hashStrings) {
                     removeTorrent(hash);
@@ -266,7 +266,7 @@ public class DataSource {
 
         synchronized (DataSource.class) {
             try {
-                database.beginTransaction();
+                database.beginTransactionNonExclusive();
 
                 for (int id : ids) {
                     removeTorrent(id);
@@ -413,7 +413,7 @@ public class DataSource {
 
         synchronized (DataSource.class) {
             try {
-                database.beginTransaction();
+                database.beginTransactionNonExclusive();
 
                 ContentValues values = new ContentValues();
 
@@ -449,7 +449,7 @@ public class DataSource {
 
         synchronized (DataSource.class) {
             try {
-                database.beginTransaction();
+                database.beginTransactionNonExclusive();
 
                 String[] args = new String[] { profile };
 
