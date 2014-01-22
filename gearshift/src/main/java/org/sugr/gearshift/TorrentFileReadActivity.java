@@ -63,33 +63,35 @@ public class TorrentFileReadActivity extends FragmentActivity {
                     file.delete();
                 }
 
-                file.createNewFile();
-                BufferedWriter bw = new BufferedWriter(new FileWriter(file));
-                bw.append(fileContent);
-                bw.close();
+                if (file.createNewFile()) {
+                    BufferedWriter bw = new BufferedWriter(new FileWriter(file));
+                    bw.append(fileContent);
+                    bw.close();
 
-                String path = null;
-                if ("content".equals(uri.getScheme())) {
-                    Cursor cursor = cr.query(uri,
-                        new String[] {
-                            android.provider.MediaStore.Files.FileColumns.DATA 
-                        }, null, null, null);
-                    if (cursor.moveToFirst()) {
-                        path = cursor.getString(0);
+                    String path = null;
+                    if ("content".equals(uri.getScheme())) {
+                        Cursor cursor = cr.query(uri,
+                            new String[] {
+                                android.provider.MediaStore.Files.FileColumns.DATA
+                            }, null, null, null);
+                        if (cursor.moveToFirst()) {
+                            path = cursor.getString(0);
+                        }
+                        cursor.close();
+                    } else if ("file".equals(uri.getScheme())) {
+                        path = uri.getPath();
                     }
-                    cursor.close();
-                } else if ("file".equals(uri.getScheme())) {
-                    path = uri.getPath();
+
+                    G.logD("Torrent file path: " + path);
+
+                    TaskData data = new TaskData();
+                    data.file = file;
+                    data.path = path;
+                    return data;
+                } else {
+                    return null;
                 }
-
-                G.logD("Torrent file path: " + path);
-
-                TaskData data = new TaskData();
-                data.file = file;
-                data.path = path;
-                return data;
             } catch (Exception e) {
-                /* FIXME: proper error handling */
                 G.logE("Error while reading the torrent file", e);
                 return null;
             } finally {

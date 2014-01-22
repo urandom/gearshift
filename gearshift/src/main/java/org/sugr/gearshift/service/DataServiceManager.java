@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
@@ -177,7 +178,7 @@ public class DataServiceManager {
     }
 
     public DataServiceManager addTorrent(String magnet, String data, String location,
-                                         boolean addPaused, String temporaryFile) {
+                                         boolean addPaused, String temporaryFile, Uri documentUri) {
         Bundle args = new Bundle();
 
         args.putString(DataService.Args.MAGNET_URI, magnet);
@@ -185,6 +186,7 @@ public class DataServiceManager {
         args.putString(DataService.Args.LOCATION, location);
         args.putBoolean(DataService.Args.ADD_PAUSED, addPaused);
         args.putString(DataService.Args.TEMPORARY_FILE, temporaryFile);
+        args.putParcelable(DataService.Args.DOCUMENT_URI, documentUri);
         Intent intent = createIntent(DataService.Requests.ADD_TORRENT, args);
 
         context.startService(intent);

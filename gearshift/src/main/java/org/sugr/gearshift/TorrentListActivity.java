@@ -733,13 +733,14 @@ public class TorrentListActivity extends FragmentActivity
             String fileURI = intent.getStringExtra(ARG_FILE_URI);
             String filePath = intent.getStringExtra(ARG_FILE_PATH);
 
-            showNewTorrentDialog(data, fileURI, filePath);
+            showNewTorrentDialog(data, fileURI, filePath, null);
         } else {
             intentConsumed = true;
         }
     }
 
-    private void showNewTorrentDialog(final Uri data, final String fileURI, final String filePath) {
+    private void showNewTorrentDialog(final Uri data, final String fileURI,
+                                      final String filePath, final Uri documentUri) {
         newTorrentDialogVisible = true;
 
         LayoutInflater inflater = getLayoutInflater();
@@ -800,7 +801,7 @@ public class TorrentListActivity extends FragmentActivity
                         CheckBox paused = (CheckBox) ((AlertDialog) dialog).findViewById(R.id.start_paused);
 
                         String dir = (String) location.getSelectedItem();
-                        manager.addTorrent(data.toString(), null, dir, paused.isChecked(), null);
+                        manager.addTorrent(data.toString(), null, dir, paused.isChecked(), null, null);
 
                         setRefreshing(true);
                         intentConsumed = true;
@@ -811,9 +812,7 @@ public class TorrentListActivity extends FragmentActivity
             AlertDialog dialog = builder.create();
             dialog.show();
         } else if (fileURI != null) {
-            if (filePath != null) {
-                deleteLocal.setVisibility(View.VISIBLE);
-            }
+            deleteLocal.setVisibility(View.VISIBLE);
 
             builder.setTitle(R.string.add_new_torrent).setPositiveButton(android.R.string.ok,
                 new DialogInterface.OnClickListener() {
@@ -841,10 +840,14 @@ public class TorrentListActivity extends FragmentActivity
                             }
 
                             String path = filePath;
+                            Uri uri = documentUri;
                             if (!deleteLocal.isChecked()) {
                                 path = null;
+                                uri = null;
                             }
-                            manager.addTorrent(null, filedata.toString(), dir, paused.isChecked(), path);
+
+                            manager.addTorrent(null, filedata.toString(), dir, paused.isChecked(),
+                                path, uri);
 
                             setRefreshing(true);
                         } catch (Exception e) {
@@ -889,7 +892,7 @@ public class TorrentListActivity extends FragmentActivity
                     Uri data = Uri.parse(magnet.getText().toString());
 
                     if (data != null && "magnet".equals(data.getScheme())) {
-                        showNewTorrentDialog(data, null, null);
+                        showNewTorrentDialog(data, null, null, null);
                     } else {
                         Toast.makeText(TorrentListActivity.this,
                             R.string.invalid_magnet_link, Toast.LENGTH_SHORT).show();
@@ -1182,7 +1185,7 @@ public class TorrentListActivity extends FragmentActivity
     private class ReadTorrentDataTask extends AsyncTask<Uri, Void, ReadTorrentDataTask.TaskData> {
         public class TaskData {
             public File file;
-            public String path;
+            public Uri uri;
         }
 
         @Override protected TaskData doInBackground(Uri... params) {
@@ -1211,33 +1214,21 @@ public class TorrentListActivity extends FragmentActivity
                     file.delete();
                 }
 
-                file.createNewFile();
-                BufferedWriter bw = new BufferedWriter(new FileWriter(file));
-                bw.append(fileContent);
-                bw.close();
+                if (file.createNewFile()) {
+                    BufferedWriter bw = new BufferedWriter(new FileWriter(file));
+                    bw.append(fileContent);
+                    bw.close();
 
-                String path = null;
-                if ("content".equals(uri.getScheme())) {
-                    Cursor cursor = cr.query(uri,
-                        new String[] {
-                            android.provider.MediaStore.Files.FileColumns.DATA
-                        }, null, null, null);
-                    if (cursor.moveToFirst()) {
-                        path = cursor.getString(0);
-                    }
-                    cursor.close();
-                } else if ("file".equals(uri.getScheme())) {
-                    path = uri.getPath();
+                    G.logD("Torrent file uri: " + uri.toString());
+
+                    TaskData data = new TaskData();
+                    data.file = file;
+                    data.uri = uri;
+                    return data;
+                } else {
+                    return  null;
                 }
-
-                G.logD("Torrent file path: " + path);
-
-                TaskData data = new TaskData();
-                data.file = file;
-                data.path = path;
-                return data;
             } catch (Exception e) {
-                /* FIXME: proper error handling */
                 G.logE("Error while reading the torrent file", e);
                 return null;
             } finally {
@@ -1257,7 +1248,7 @@ public class TorrentListActivity extends FragmentActivity
                 Toast.makeText(TorrentListActivity.this,
                     R.string.error_reading_torrent_file, Toast.LENGTH_SHORT).show();
             } else {
-                showNewTorrentDialog(null, data.file.toURI().toString(), data.path);
+                showNewTorrentDialog(null, data.file.toURI().toString(), null, data.uri);
             }
         }
     }

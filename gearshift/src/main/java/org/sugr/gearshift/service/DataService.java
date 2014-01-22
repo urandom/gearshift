@@ -2,7 +2,9 @@ package org.sugr.gearshift.service;
 
 import android.app.IntentService;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
+import android.provider.DocumentsContract;
 import android.support.v4.content.LocalBroadcastManager;
 import android.text.TextUtils;
 
@@ -49,6 +51,7 @@ public class DataService extends IntentService {
         public static final String MOVE_DATA = "move_data";
         public static final String ADD_PAUSED = "add_paused";
         public static final String TEMPORARY_FILE = "temporary_file";
+        public static final String DOCUMENT_URI = "document_uri";
         public static final String HASH_STRINGS = "hash_strings";
         public static final String DELETE_DATA = "delete_data";
         public static final String TORRENT_FIELD = "torrent_field";
@@ -169,6 +172,7 @@ public class DataService extends IntentService {
                     String location = args.getString(Args.LOCATION);
                     boolean paused = args.getBoolean(Args.ADD_PAUSED, false);
                     String temporary = args.getString(Args.TEMPORARY_FILE);
+                    Uri document = args.getParcelable(Args.DOCUMENT_URI);
 
                     if (TextUtils.isEmpty(uri) && TextUtils.isEmpty(data)) {
                         throw new IllegalArgumentException(
@@ -181,6 +185,11 @@ public class DataService extends IntentService {
                         File file = new File(temporary);
                         if (!file.delete()) {
                             G.logD("Couldn't remove torrent " + file.getName());
+                        }
+                    }
+                    if (document != null) {
+                        if (!DocumentsContract.deleteDocument(getContentResolver(), document)) {
+                            G.logD("Couldn't remove torrent " + document.toString());
                         }
                     }
 
