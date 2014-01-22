@@ -87,6 +87,7 @@ public class TorrentDetailActivity extends FragmentActivity implements Transmiss
                     .replace(R.id.torrent_detail_container, fragment, G.DETAIL_FRAGMENT_TAG)
                     .commit();
         }
+        new SessionTask(this).execute(true);
     }
 
     @Override protected void onResume() {
