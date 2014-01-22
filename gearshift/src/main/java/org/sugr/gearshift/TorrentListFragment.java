@@ -548,7 +548,7 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
                 actionMode.finish();
                 actionMode = null;
             }
-        } else {
+        } else if (cursor != null) {
             getActivity().getSupportLoaderManager().restartLoader(G.TORRENT_LIST_TRAFFIC_LOADER_ID,
                 null, torrentTrafficLoaderCallbacks);
 
