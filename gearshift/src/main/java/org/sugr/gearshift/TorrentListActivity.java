@@ -259,7 +259,7 @@ public class TorrentListActivity extends FragmentActivity
 
                     G.logD("Opening the detail panel");
                     TorrentListActivity.this.manager.setDetails(true);
-                    new TorrentTask(TorrentListActivity.this).execute(TorrentTask.Flags.UPDATE);
+                    new TorrentTask(TorrentListActivity.this, TorrentTask.Flags.UPDATE).execute();
 
                     fragment.onCreateOptionsMenu(menu, getMenuInflater());
 
@@ -1001,6 +1001,7 @@ public class TorrentListActivity extends FragmentActivity
 
                         findViewById(R.id.fatal_error_layer).setVisibility(View.GONE);
 
+                        int flags = TorrentTask.Flags.CONNECTED;
                         switch (type) {
                             case DataService.Requests.GET_SESSION:
                                 new SessionTask(TorrentListActivity.this).execute();
@@ -1015,7 +1016,6 @@ public class TorrentListActivity extends FragmentActivity
                                 boolean statusChanged = intent.getBooleanExtra(G.ARG_STATUS_CHANGED, false);
                                 boolean incomplete = intent.getBooleanExtra(G.ARG_INCOMPLETE_METADATA, false);
 
-                                int flags = 0;
                                 if (added) {
                                     flags |= TorrentTask.Flags.HAS_ADDED;
                                 }
@@ -1029,24 +1029,28 @@ public class TorrentListActivity extends FragmentActivity
                                     flags |= TorrentTask.Flags.HAS_INCOMPLETE_METADATA;
                                 }
 
-                                new TorrentTask(TorrentListActivity.this).execute(flags);
+                                new TorrentTask(TorrentListActivity.this, flags).execute();
                                 break;
                             case DataService.Requests.ADD_TORRENT:
                                 manager.update();
-                                new TorrentTask(TorrentListActivity.this).execute(TorrentTask.Flags.HAS_ADDED | TorrentTask.Flags.HAS_INCOMPLETE_METADATA);
+                                flags |= TorrentTask.Flags.HAS_ADDED | TorrentTask.Flags.HAS_INCOMPLETE_METADATA;
+                                new TorrentTask(TorrentListActivity.this, flags).execute();
                                 break;
                             case DataService.Requests.REMOVE_TORRENT:
                                 manager.update();
-                                new TorrentTask(TorrentListActivity.this).execute(TorrentTask.Flags.HAS_REMOVED);
+                                flags |= TorrentTask.Flags.HAS_REMOVED;
+                                new TorrentTask(TorrentListActivity.this, flags).execute();
                                 break;
                             case DataService.Requests.SET_TORRENT_LOCATION:
                                 manager.update();
-                                new TorrentTask(TorrentListActivity.this).execute(TorrentTask.Flags.HAS_ADDED | TorrentTask.Flags.HAS_REMOVED);
+                                flags |= TorrentTask.Flags.HAS_ADDED | TorrentTask.Flags.HAS_REMOVED;
+                                new TorrentTask(TorrentListActivity.this, flags).execute();
                                 break;
                             case DataService.Requests.SET_TORRENT:
                             case DataService.Requests.SET_TORRENT_ACTION:
                                 manager.update();
-                                new TorrentTask(TorrentListActivity.this).execute(TorrentTask.Flags.HAS_STATUS_CHANGED);
+                                flags |= TorrentTask.Flags.HAS_STATUS_CHANGED;
+                                new TorrentTask(TorrentListActivity.this, flags).execute();
                                 break;
                             case DataService.Requests.GET_FREE_SPACE:
                                 long freeSpace = intent.getLongExtra(G.ARG_FREE_SPACE, 0);
@@ -1072,7 +1076,7 @@ public class TorrentListActivity extends FragmentActivity
                             FragmentManager manager = getSupportFragmentManager();
                             TorrentListFragment fragment = (TorrentListFragment) manager.findFragmentById(R.id.torrent_list);
                             if (fragment != null) {
-                                fragment.notifyTorrentListChanged(null, error, false, false, false, false);
+                                fragment.notifyTorrentListChanged(null, error, false, false, false, false, false);
                             }
 
                             if (error == TransmissionData.Errors.NO_CONNECTIVITY) {
@@ -1120,7 +1124,9 @@ public class TorrentListActivity extends FragmentActivity
                 readSource.open();
 
                 TransmissionSession session = readSource.getSession();
-                session.setDownloadDirectories(profile, readSource.getDownloadDirectories());
+                if (profile != null) {
+                    session.setDownloadDirectories(profile, readSource.getDownloadDirectories());
+                }
 
                 if (flags.length == 1) {
                     if ((flags[0] & Flags.START_TORRENT_TASK) == Flags.START_TORRENT_TASK) {
@@ -1144,7 +1150,7 @@ public class TorrentListActivity extends FragmentActivity
             }
 
             if (startTorrentTask) {
-                new TorrentTask(TorrentListActivity.this).execute(TorrentTask.Flags.UPDATE);
+                new TorrentTask(TorrentListActivity.this, TorrentTask.Flags.UPDATE).execute();
             }
 
             if (hasNewIntent && session != null) {
@@ -1156,9 +1162,9 @@ public class TorrentListActivity extends FragmentActivity
         }
     }
 
-    private class TorrentTask extends AsyncTask<Integer, Void, Cursor> {
+    private class TorrentTask extends AsyncTask<Void, Void, Cursor> {
         DataSource readSource;
-        boolean added, removed, statusChanged, incompleteMetadata, update;
+        boolean added, removed, statusChanged, incompleteMetadata, update, connected;
 
         public class Flags {
             public static final int HAS_ADDED = 1;
@@ -1166,39 +1172,38 @@ public class TorrentListActivity extends FragmentActivity
             public static final int HAS_STATUS_CHANGED = 1 << 2;
             public static final int HAS_INCOMPLETE_METADATA = 1 << 3;
             public static final int UPDATE = 1 << 4;
+            public static final int CONNECTED = 1 << 5;
         }
 
-        public TorrentTask(Context context) {
+        public TorrentTask(Context context, int flags) {
             super();
 
             readSource = new DataSource(context);
+            if ((flags & Flags.HAS_ADDED) == Flags.HAS_ADDED) {
+                added = true;
+            }
+            if ((flags & Flags.HAS_REMOVED) == Flags.HAS_REMOVED) {
+                removed = true;
+            }
+            if ((flags & Flags.HAS_STATUS_CHANGED) == Flags.HAS_STATUS_CHANGED) {
+                statusChanged = true;
+            }
+            if ((flags & Flags.HAS_INCOMPLETE_METADATA) == Flags.HAS_INCOMPLETE_METADATA) {
+                incompleteMetadata = true;
+            }
+            if ((flags & Flags.UPDATE) == Flags.UPDATE) {
+                update = true;
+            }
+            if ((flags & Flags.CONNECTED) == Flags.CONNECTED) {
+                connected = true;
+            }
         }
 
-        @Override protected Cursor doInBackground(Integer... flags) {
+        @Override protected Cursor doInBackground(Void... unused) {
             try {
                 readSource.open();
 
                 Cursor cursor = readSource.getTorrentCursor();
-
-                added = true;
-                removed = true;
-                if (flags.length == 1) {
-                    if ((flags[0] & Flags.HAS_ADDED) == Flags.HAS_ADDED) {
-                        added = true;
-                    }
-                    if ((flags[0] & Flags.HAS_REMOVED) == Flags.HAS_REMOVED) {
-                        removed = true;
-                    }
-                    if ((flags[0] & Flags.HAS_STATUS_CHANGED) == Flags.HAS_STATUS_CHANGED) {
-                        statusChanged = true;
-                    }
-                    if ((flags[0] & Flags.HAS_INCOMPLETE_METADATA) == Flags.HAS_INCOMPLETE_METADATA) {
-                        incompleteMetadata = true;
-                    }
-                    if ((flags[0] & Flags.UPDATE) == Flags.UPDATE) {
-                        update = true;
-                    }
-                }
 
                 /* Fill the cursor window */
                 cursor.getCount();
@@ -1230,7 +1235,7 @@ public class TorrentListActivity extends FragmentActivity
             TorrentListFragment fragment = (TorrentListFragment) manager.findFragmentById(R.id.torrent_list);
             if (fragment != null) {
                 fragment.notifyTorrentListChanged(cursor, 0, added, removed,
-                    statusChanged, incompleteMetadata);
+                    statusChanged, incompleteMetadata, connected);
             }
 
             if (update) {

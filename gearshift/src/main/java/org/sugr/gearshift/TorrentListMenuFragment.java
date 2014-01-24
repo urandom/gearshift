@@ -51,11 +51,10 @@ public class TorrentListMenuFragment extends Fragment implements TorrentListNoti
     private static final String SORT_BY_HEADER_KEY = "sort_by_header";
     private static final String SORT_ORDER_HEADER_KEY = "sort_order_header";
 
-    private TreeSet<String> directories = new TreeSet<String>(G.SIMPLE_STRING_COMPARATOR);
-    private TreeSet<String> trackers = new TreeSet<String>(G.SIMPLE_STRING_COMPARATOR);
+    private TreeSet<String> directories = new TreeSet<>(G.SIMPLE_STRING_COMPARATOR);
+    private TreeSet<String> trackers = new TreeSet<>(G.SIMPLE_STRING_COMPARATOR);
 
-    private HashMap<String, ListItem> listItemMap
-        = new HashMap<String, ListItem>();
+    private HashMap<String, ListItem> listItemMap = new HashMap<>();
 
     private SharedPreferences sharedPrefs;
 
@@ -348,7 +347,8 @@ public class TorrentListMenuFragment extends Fragment implements TorrentListNoti
     }
 
     public void notifyTorrentListChanged(Cursor cursor, int error, boolean added, boolean removed,
-                                        boolean statusChanged, boolean metadataNeeded) {
+                                        boolean statusChanged, boolean metadataNeeded,
+                                        boolean connected) {
 
         getActivity().getSupportLoaderManager().restartLoader(G.TORRENT_MENU_TRAFFIC_LOADER_ID,
             null, torrentTrafficLoaderCallbacks);
@@ -470,7 +470,7 @@ public class TorrentListMenuFragment extends Fragment implements TorrentListNoti
     }
 
     private void fillMenuItems() {
-        ArrayList<ListItem> list = new ArrayList<ListItem>();
+        ArrayList<ListItem> list = new ArrayList<>();
 
         filterAdapter.setNotifyOnChange(false);
         filterAdapter.clear();
@@ -748,7 +748,7 @@ public class TorrentListMenuFragment extends Fragment implements TorrentListNoti
         int position = filterAdapter.getPosition(item);
 
         if (position != -1) {
-            ArrayList<ListItem> removal = new ArrayList<ListItem>();
+            ArrayList<ListItem> removal = new ArrayList<>();
             removal.add(item);
             for (int i = 0; i < filterAdapter.getCount(); i++) {
                 item = filterAdapter.getItem(i);
@@ -781,7 +781,7 @@ public class TorrentListMenuFragment extends Fragment implements TorrentListNoti
         int position = filterAdapter.getPosition(item);
 
         if (position != -1) {
-            ArrayList<ListItem> removal = new ArrayList<ListItem>();
+            ArrayList<ListItem> removal = new ArrayList<>();
             removal.add(item);
             for (int i = 0; i < filterAdapter.getCount(); i++) {
                 item = filterAdapter.getItem(i);

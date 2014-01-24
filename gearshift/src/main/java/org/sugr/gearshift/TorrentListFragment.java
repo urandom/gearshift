@@ -529,7 +529,8 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
 
     @Override
     public void notifyTorrentListChanged(Cursor cursor, int error, boolean added, boolean removed,
-                                         boolean statusChanged, boolean metadataNeeded) {
+                                         boolean statusChanged, boolean metadataNeeded,
+                                         boolean connected) {
         if (error == -1) {
             return;
         }
@@ -549,15 +550,17 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
                 actionMode = null;
             }
         } else if (cursor != null) {
-            getActivity().getSupportLoaderManager().restartLoader(G.TORRENT_LIST_TRAFFIC_LOADER_ID,
-                null, torrentTrafficLoaderCallbacks);
+            if (connected) {
+                getActivity().getSupportLoaderManager().restartLoader(G.TORRENT_LIST_TRAFFIC_LOADER_ID,
+                    null, torrentTrafficLoaderCallbacks);
+            }
 
             FragmentManager manager = getActivity().getSupportFragmentManager();
             TorrentListMenuFragment menu = (TorrentListMenuFragment) manager.findFragmentById(R.id.torrent_list_menu);
 
             if (menu != null) {
                 menu.notifyTorrentListChanged(cursor, error, added, removed,
-                    statusChanged, metadataNeeded);
+                    statusChanged, metadataNeeded, connected);
             }
 
             if (((TorrentListActivity) getActivity()).isDetailPanelVisible() && (!filtered || statusChanged)) {
@@ -565,7 +568,7 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
                     G.DETAIL_FRAGMENT_TAG);
                 if (detail != null) {
                     detail.notifyTorrentListChanged(cursor, error, added, removed,
-                        statusChanged, metadataNeeded);
+                        statusChanged, metadataNeeded, connected);
                 }
             }
             if (filtered) {
@@ -1044,7 +1047,7 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
                     TorrentDetailFragment detail = (TorrentDetailFragment) manager.findFragmentByTag(
                         G.DETAIL_FRAGMENT_TAG);
                     if (detail != null) {
-                        detail.notifyTorrentListChanged(newCursor, 0, true, true, false, false);
+                        detail.notifyTorrentListChanged(newCursor, 0, true, true, false, false, true);
                     }
                 }
             }
