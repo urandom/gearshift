@@ -3,6 +3,7 @@ package org.sugr.gearshift;
 import android.animation.Animator;
 import android.animation.AnimatorInflater;
 import android.animation.ValueAnimator;
+import android.annotation.TargetApi;
 import android.app.ActionBar;
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -21,6 +22,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
+import android.service.textservice.SpellCheckerService;
 import android.support.v4.app.ActionBarDrawerToggle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
@@ -85,10 +87,13 @@ public class TorrentListActivity extends FragmentActivity
 
     private boolean intentConsumed = false;
     private boolean newTorrentDialogVisible = false;
+    private boolean hasNewIntent = false;
+    private boolean hasFatalError = false;
 
     private static final String STATE_INTENT_CONSUMED = "intent_consumed";
     private static final String STATE_LOCATION_POSITION = "location_position";
     private static final String STATE_CURRENT_PROFILE = "current_profile";
+    private static final String STATE_FATAL_ERROR = "fatal_error";
 
     private static final int BROWSE_REQUEST_CODE = 1;
 
@@ -255,7 +260,7 @@ public class TorrentListActivity extends FragmentActivity
 
                     G.logD("Opening the detail panel");
                     TorrentListActivity.this.manager.setDetails(true);
-                    new TorrentTask(TorrentListActivity.this).execute(true);
+                    new TorrentTask(TorrentListActivity.this).execute(TorrentTask.Flags.UPDATE);
 
                     fragment.onCreateOptionsMenu(menu, getMenuInflater());
 
@@ -355,12 +360,16 @@ public class TorrentListActivity extends FragmentActivity
             actionBar.setDisplayOptions(0, ActionBar.DISPLAY_SHOW_TITLE);
         }
 
-        if (savedInstanceState != null
-            && savedInstanceState.containsKey(STATE_CURRENT_PROFILE)) {
-            profile = savedInstanceState.getParcelable(STATE_CURRENT_PROFILE);
-            manager = new DataServiceManager(this, profile.getId())
-                .onRestoreInstanceState(savedInstanceState).startUpdating();
-            new SessionTask(this).execute(true);
+        if (savedInstanceState != null) {
+            if (savedInstanceState.containsKey(STATE_CURRENT_PROFILE)) {
+                profile = savedInstanceState.getParcelable(STATE_CURRENT_PROFILE);
+                manager = new DataServiceManager(this, profile.getId())
+                    .onRestoreInstanceState(savedInstanceState).startUpdating();
+                new SessionTask(this).execute(SessionTask.Flags.START_TORRENT_TASK);
+            }
+            if (savedInstanceState.containsKey(STATE_FATAL_ERROR)) {
+                hasFatalError = savedInstanceState.getBoolean(STATE_FATAL_ERROR, false);
+            }
         }
 
         getSupportLoaderManager().initLoader(G.PROFILES_LOADER_ID, null, profileLoaderCallbacks);
@@ -550,6 +559,7 @@ public class TorrentListActivity extends FragmentActivity
         outState.putBoolean(STATE_INTENT_CONSUMED, intentConsumed);
         outState.putInt(STATE_LOCATION_POSITION, locationPosition);
         outState.putParcelable(STATE_CURRENT_PROFILE, profile);
+        outState.putBoolean(STATE_FATAL_ERROR, hasFatalError);
         if (manager != null) {
             manager.onSaveInstanceState(outState);
         }
@@ -558,10 +568,9 @@ public class TorrentListActivity extends FragmentActivity
     @Override public void onNewIntent(Intent intent) {
         if (!newTorrentDialogVisible) {
             intentConsumed = false;
+            hasNewIntent = true;
             setIntent(intent);
-            if (session != null) {
-                consumeIntent();
-            }
+            manager.getSession();
         }
     }
 
@@ -631,7 +640,7 @@ public class TorrentListActivity extends FragmentActivity
         }
         if (profile != null) {
             manager = new DataServiceManager(this, profile.getId()).startUpdating();
-            new SessionTask(this).execute(true);
+            new SessionTask(this).execute(SessionTask.Flags.START_TORRENT_TASK);
         }
     }
 
@@ -902,6 +911,7 @@ public class TorrentListActivity extends FragmentActivity
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
             builder.setNeutralButton(R.string.browse, new DialogInterface.OnClickListener() {
+                @TargetApi(Build.VERSION_CODES.KITKAT)
                 @Override public void onClick(DialogInterface dialog, int which) {
                     Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
 
@@ -970,6 +980,7 @@ public class TorrentListActivity extends FragmentActivity
     private class ServiceReceiver extends BroadcastReceiver {
         @Override public void onReceive(Context context, Intent intent) {
             int error = intent.getIntExtra(G.ARG_ERROR, 0);
+            hasFatalError = false;
 
             String type = intent.getStringExtra(G.ARG_REQUEST_TYPE);
             switch (type) {
@@ -1002,24 +1013,38 @@ public class TorrentListActivity extends FragmentActivity
                                 boolean statusChanged = intent.getBooleanExtra(G.ARG_STATUS_CHANGED, false);
                                 boolean incomplete = intent.getBooleanExtra(G.ARG_INCOMPLETE_METADATA, false);
 
-                                new TorrentTask(TorrentListActivity.this).execute(added, removed, statusChanged, incomplete);
+                                int flags = 0;
+                                if (added) {
+                                    flags |= TorrentTask.Flags.HAS_ADDED;
+                                }
+                                if (removed) {
+                                    flags |= TorrentTask.Flags.HAS_REMOVED;
+                                }
+                                if (statusChanged) {
+                                    flags |= TorrentTask.Flags.HAS_STATUS_CHANGED;
+                                }
+                                if (incomplete) {
+                                    flags |= TorrentTask.Flags.HAS_INCOMPLETE_METADATA;
+                                }
+
+                                new TorrentTask(TorrentListActivity.this).execute(flags);
                                 break;
                             case DataService.Requests.ADD_TORRENT:
                                 manager.update();
-                                new TorrentTask(TorrentListActivity.this).execute(true, false, false, true);
+                                new TorrentTask(TorrentListActivity.this).execute(TorrentTask.Flags.HAS_ADDED | TorrentTask.Flags.HAS_INCOMPLETE_METADATA);
                                 break;
                             case DataService.Requests.REMOVE_TORRENT:
                                 manager.update();
-                                new TorrentTask(TorrentListActivity.this).execute(false, true, false, false);
+                                new TorrentTask(TorrentListActivity.this).execute(TorrentTask.Flags.HAS_REMOVED);
                                 break;
                             case DataService.Requests.SET_TORRENT_LOCATION:
                                 manager.update();
-                                new TorrentTask(TorrentListActivity.this).execute(true, true, false, false);
+                                new TorrentTask(TorrentListActivity.this).execute(TorrentTask.Flags.HAS_ADDED | TorrentTask.Flags.HAS_REMOVED);
                                 break;
                             case DataService.Requests.SET_TORRENT:
                             case DataService.Requests.SET_TORRENT_ACTION:
                                 manager.update();
-                                new TorrentTask(TorrentListActivity.this).execute(false, false, true, false);
+                                new TorrentTask(TorrentListActivity.this).execute(TorrentTask.Flags.HAS_STATUS_CHANGED);
                                 break;
                             case DataService.Requests.GET_FREE_SPACE:
                                 long freeSpace = intent.getLongExtra(G.ARG_FREE_SPACE, 0);
@@ -1040,6 +1065,7 @@ public class TorrentListActivity extends FragmentActivity
                             findViewById(R.id.fatal_error_layer).setVisibility(View.VISIBLE);
                             TextView text = (TextView) findViewById(R.id.transmission_error);
                             expecting = 0;
+                            hasFatalError = true;
                             toggleRightPane(false);
                             FragmentManager manager = getSupportFragmentManager();
                             TorrentListFragment fragment = (TorrentListFragment) manager.findFragmentById(R.id.torrent_list);
@@ -1073,9 +1099,13 @@ public class TorrentListActivity extends FragmentActivity
         }
     }
 
-    private class SessionTask extends AsyncTask<Boolean, Void, TransmissionSession> {
+    private class SessionTask extends AsyncTask<Integer, Void, TransmissionSession> {
         DataSource readSource;
         boolean startTorrentTask;
+
+        public class Flags {
+            public static final int START_TORRENT_TASK = 1;
+        }
 
         public SessionTask(Context context) {
             super();
@@ -1083,15 +1113,17 @@ public class TorrentListActivity extends FragmentActivity
             readSource = new DataSource(context);
         }
 
-        @Override protected TransmissionSession doInBackground(Boolean... startTorrentTask) {
+        @Override protected TransmissionSession doInBackground(Integer... flags) {
             try {
                 readSource.open();
 
                 TransmissionSession session = readSource.getSession();
                 session.setDownloadDirectories(profile, readSource.getDownloadDirectories());
 
-                if (startTorrentTask.length == 1 && startTorrentTask[0]) {
-                    this.startTorrentTask = true;
+                if (flags.length == 1) {
+                    if ((flags[0] & Flags.START_TORRENT_TASK) == Flags.START_TORRENT_TASK) {
+                        startTorrentTask = true;
+                    }
                 }
 
                 return session;
@@ -1110,14 +1142,29 @@ public class TorrentListActivity extends FragmentActivity
             }
 
             if (startTorrentTask) {
-                new TorrentTask(TorrentListActivity.this).execute(true);
+                new TorrentTask(TorrentListActivity.this).execute(TorrentTask.Flags.UPDATE);
+            }
+
+            if (hasNewIntent && session != null) {
+                hasNewIntent = false;
+                if (!intentConsumed && !newTorrentDialogVisible) {
+                    consumeIntent();
+                }
             }
         }
     }
 
-    private class TorrentTask extends AsyncTask<Boolean, Void, Cursor> {
+    private class TorrentTask extends AsyncTask<Integer, Void, Cursor> {
         DataSource readSource;
         boolean added, removed, statusChanged, incompleteMetadata, update;
+
+        public class Flags {
+            public static final int HAS_ADDED = 1;
+            public static final int HAS_REMOVED = 1 << 1;
+            public static final int HAS_STATUS_CHANGED = 1 << 2;
+            public static final int HAS_INCOMPLETE_METADATA = 1 << 3;
+            public static final int UPDATE = 1 << 4;
+        }
 
         public TorrentTask(Context context) {
             super();
@@ -1125,7 +1172,7 @@ public class TorrentListActivity extends FragmentActivity
             readSource = new DataSource(context);
         }
 
-        @Override protected Cursor doInBackground(Boolean... flags) {
+        @Override protected Cursor doInBackground(Integer... flags) {
             try {
                 readSource.open();
 
@@ -1134,12 +1181,21 @@ public class TorrentListActivity extends FragmentActivity
                 added = true;
                 removed = true;
                 if (flags.length == 1) {
-                    update = flags[0];
-                } else if (flags.length == 4) {
-                    added = flags[0];
-                    removed = flags[1];
-                    statusChanged = flags[2];
-                    incompleteMetadata = flags[3];
+                    if ((flags[0] & Flags.HAS_ADDED) == Flags.HAS_ADDED) {
+                        added = true;
+                    }
+                    if ((flags[0] & Flags.HAS_REMOVED) == Flags.HAS_REMOVED) {
+                        removed = true;
+                    }
+                    if ((flags[0] & Flags.HAS_STATUS_CHANGED) == Flags.HAS_STATUS_CHANGED) {
+                        statusChanged = true;
+                    }
+                    if ((flags[0] & Flags.HAS_INCOMPLETE_METADATA) == Flags.HAS_INCOMPLETE_METADATA) {
+                        incompleteMetadata = true;
+                    }
+                    if ((flags[0] & Flags.UPDATE) == Flags.UPDATE) {
+                        update = true;
+                    }
                 }
 
                 /* Fill the cursor window */

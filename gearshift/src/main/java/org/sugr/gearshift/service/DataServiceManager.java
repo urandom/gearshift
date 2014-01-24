@@ -234,13 +234,6 @@ public class DataServiceManager {
         return setTorrent(hashStrings, field, args);
     }
 
-    public DataServiceManager setTorrent(String[] hashStrings, String field, String value) {
-        Bundle args = new Bundle();
-
-        args.putString(DataService.Args.TORRENT_FIELD_VALUE, value);
-        return setTorrent(hashStrings, field, args);
-    }
-
     @SuppressWarnings("unchecked")
     public DataServiceManager setTorrent(String[] hashStrings, String field, ArrayList<?> value) {
         Bundle args = new Bundle();

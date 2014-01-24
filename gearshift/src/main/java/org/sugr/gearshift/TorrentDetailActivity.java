@@ -87,7 +87,7 @@ public class TorrentDetailActivity extends FragmentActivity implements Transmiss
                     .replace(R.id.torrent_detail_container, fragment, G.DETAIL_FRAGMENT_TAG)
                     .commit();
         }
-        new SessionTask(this).execute(true);
+        new SessionTask(this).execute(SessionTask.Flags.START_TORRENT_TASK);
     }
 
     @Override protected void onResume() {
@@ -255,24 +255,38 @@ public class TorrentDetailActivity extends FragmentActivity implements Transmiss
                                 boolean statusChanged = intent.getBooleanExtra(G.ARG_STATUS_CHANGED, false);
                                 boolean incomplete = intent.getBooleanExtra(G.ARG_INCOMPLETE_METADATA, false);
 
-                                new TorrentTask(TorrentDetailActivity.this).execute(added, removed, statusChanged, incomplete);
+                                int flags = 0;
+                                if (added) {
+                                    flags |= TorrentTask.Flags.HAS_ADDED;
+                                }
+                                if (removed) {
+                                    flags |= TorrentTask.Flags.HAS_REMOVED;
+                                }
+                                if (statusChanged) {
+                                    flags |= TorrentTask.Flags.HAS_STATUS_CHANGED;
+                                }
+                                if (incomplete) {
+                                    flags |= TorrentTask.Flags.HAS_INCOMPLETE_METADATA;
+                                }
+
+                                new TorrentTask(TorrentDetailActivity.this).execute(flags);
                                 break;
                             case DataService.Requests.ADD_TORRENT:
                                 manager.update();
-                                new TorrentTask(TorrentDetailActivity.this).execute(true, false, false, true);
+                                new TorrentTask(TorrentDetailActivity.this).execute(TorrentTask.Flags.HAS_ADDED | TorrentTask.Flags.HAS_INCOMPLETE_METADATA);
                                 break;
                             case DataService.Requests.REMOVE_TORRENT:
                                 manager.update();
-                                new TorrentTask(TorrentDetailActivity.this).execute(false, true, false, false);
+                                new TorrentTask(TorrentDetailActivity.this).execute(TorrentTask.Flags.HAS_REMOVED);
                                 break;
                             case DataService.Requests.SET_TORRENT_LOCATION:
                                 manager.update();
-                                new TorrentTask(TorrentDetailActivity.this).execute(true, true, false, false);
+                                new TorrentTask(TorrentDetailActivity.this).execute(TorrentTask.Flags.HAS_ADDED | TorrentTask.Flags.HAS_REMOVED);
                                 break;
                             case DataService.Requests.SET_TORRENT:
                             case DataService.Requests.SET_TORRENT_ACTION:
                                 manager.update();
-                                new TorrentTask(TorrentDetailActivity.this).execute(false, false, true, false);
+                                new TorrentTask(TorrentDetailActivity.this).execute(TorrentTask.Flags.HAS_STATUS_CHANGED);
                                 break;
                         }
                     } else {
@@ -318,9 +332,13 @@ public class TorrentDetailActivity extends FragmentActivity implements Transmiss
         }
     }
 
-    private class SessionTask extends AsyncTask<Boolean, Void, TransmissionSession> {
+    private class SessionTask extends AsyncTask<Integer, Void, TransmissionSession> {
         DataSource readSource;
         boolean startTorrentTask;
+
+        public class Flags {
+            public static final int START_TORRENT_TASK = 1;
+        }
 
         public SessionTask(Context context) {
             super();
@@ -328,15 +346,17 @@ public class TorrentDetailActivity extends FragmentActivity implements Transmiss
             readSource = new DataSource(context);
         }
 
-        @Override protected TransmissionSession doInBackground(Boolean... startTorrentTask) {
+        @Override protected TransmissionSession doInBackground(Integer... flags) {
             try {
                 readSource.open();
 
                 TransmissionSession session = readSource.getSession();
                 session.setDownloadDirectories(profile, readSource.getDownloadDirectories());
 
-                if (startTorrentTask.length == 1 && startTorrentTask[0]) {
-                    this.startTorrentTask = true;
+                if (flags.length == 1) {
+                    if ((flags[0] & Flags.START_TORRENT_TASK) == Flags.START_TORRENT_TASK) {
+                        startTorrentTask = true;
+                    }
                 }
 
                 return session;
@@ -356,9 +376,17 @@ public class TorrentDetailActivity extends FragmentActivity implements Transmiss
         }
     }
 
-    private class TorrentTask extends AsyncTask<Boolean, Void, Cursor> {
+    private class TorrentTask extends AsyncTask<Integer, Void, Cursor> {
         DataSource readSource;
         boolean added, removed, statusChanged, incompleteMetadata, update;
+
+        public class Flags {
+            public static final int HAS_ADDED = 1;
+            public static final int HAS_REMOVED = 1 << 1;
+            public static final int HAS_STATUS_CHANGED = 1 << 2;
+            public static final int HAS_INCOMPLETE_METADATA = 1 << 3;
+            public static final int UPDATE = 1 << 4;
+        }
 
         public TorrentTask(Context context) {
             super();
@@ -366,19 +394,28 @@ public class TorrentDetailActivity extends FragmentActivity implements Transmiss
             readSource = new DataSource(context);
         }
 
-        @Override protected Cursor doInBackground(Boolean... flags) {
+        @Override protected Cursor doInBackground(Integer... flags) {
             try {
                 readSource.open();
 
                 Cursor cursor = readSource.getTorrentCursor();
 
                 if (flags.length == 1) {
-                    update = flags[0];
-                } else if (flags.length == 4) {
-                    added = flags[0];
-                    removed = flags[1];
-                    statusChanged = flags[2];
-                    incompleteMetadata = flags[3];
+                    if ((flags[0] & Flags.HAS_ADDED) == Flags.HAS_ADDED) {
+                        added = true;
+                    }
+                    if ((flags[0] & Flags.HAS_REMOVED) == Flags.HAS_REMOVED) {
+                        removed = true;
+                    }
+                    if ((flags[0] & Flags.HAS_STATUS_CHANGED) == Flags.HAS_STATUS_CHANGED) {
+                        statusChanged = true;
+                    }
+                    if ((flags[0] & Flags.HAS_INCOMPLETE_METADATA) == Flags.HAS_INCOMPLETE_METADATA) {
+                        incompleteMetadata = true;
+                    }
+                    if ((flags[0] & Flags.UPDATE) == Flags.UPDATE) {
+                        update = true;
+                    }
                 }
                 /* Fill the cursor window */
                 cursor.getCount();
