@@ -22,7 +22,6 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
-import android.service.textservice.SpellCheckerService;
 import android.support.v4.app.ActionBarDrawerToggle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
@@ -570,7 +569,10 @@ public class TorrentListActivity extends FragmentActivity
             intentConsumed = false;
             hasNewIntent = true;
             setIntent(intent);
-            manager.getSession();
+            setRefreshing(true);
+            if (manager != null) {
+                manager.getSession();
+            }
         }
     }
 
@@ -1267,6 +1269,7 @@ public class TorrentListActivity extends FragmentActivity
                 File file = new File(TorrentListActivity.this.getCacheDir(), "torrentdata");
 
                 if (file.exists()) {
+                    //noinspection ResultOfMethodCallIgnored
                     file.delete();
                 }
 
