@@ -249,7 +249,8 @@ public class TorrentDetailFragment extends Fragment implements TorrentListNotifi
     }
 
     public String getTorrentHashString(int position) {
-        return torrentHashStrings != null && torrentHashStrings.length > position ? torrentHashStrings[position] : null;
+        return torrentHashStrings != null && torrentHashStrings.length > position && position != -1
+            ? torrentHashStrings[position] : null;
     }
 
     public void removeMenuEntries() {
@@ -339,6 +340,18 @@ public class TorrentDetailFragment extends Fragment implements TorrentListNotifi
                 pager.setCurrentItem(position);
             } else {
                 updateMenu = true;
+
+                int cursorPosition = cursor.getPosition();
+
+                cursor.moveToPosition(currentTorrentPosition);
+
+                if (!cursor.isAfterLast()) {
+                    currentTorrentHashString = Torrent.getHashString(cursor);
+                    currentTorrentName = Torrent.getName(cursor);
+                    currentTorrentStatus = Torrent.getStatus(cursor);
+                }
+
+                cursor.moveToPosition(cursorPosition);
             }
             new Handler().post(new Runnable() {
                 @Override public void run() {

@@ -697,6 +697,9 @@ public class TorrentListActivity extends FragmentActivity
 
     @Override
     public void setRefreshing(boolean refreshing) {
+        if (this.refreshing == refreshing) {
+            return;
+        }
         this.refreshing = refreshing;
         if (menu == null) {
             return;
