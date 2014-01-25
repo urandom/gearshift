@@ -381,8 +381,6 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
                     findQuery = savedInstanceState.getString(STATE_FIND_QUERY);
                 }
             }
-
-            ((TransmissionSessionInterface) getActivity()).setRefreshing(false);
         }
         if (!findVisible) {
             Editor e = sharedPrefs.edit();

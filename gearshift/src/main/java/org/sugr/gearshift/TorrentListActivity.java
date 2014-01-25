@@ -1240,7 +1240,9 @@ public class TorrentListActivity extends FragmentActivity
 
             if (update) {
                 update = false;
-                TorrentListActivity.this.manager.update();
+                if (TorrentListActivity.this.manager != null) {
+                    TorrentListActivity.this.manager.update();
+                }
             }
         }
     }
