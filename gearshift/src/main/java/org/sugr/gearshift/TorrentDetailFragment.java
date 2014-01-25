@@ -23,6 +23,7 @@ import android.widget.Spinner;
 
 import org.sugr.gearshift.datasource.DataSource;
 import org.sugr.gearshift.datasource.TorrentNameStatus;
+import org.sugr.gearshift.service.DataService;
 import org.sugr.gearshift.service.DataServiceManager;
 import org.sugr.gearshift.service.DataServiceManagerInterface;
 
@@ -170,6 +171,7 @@ public class TorrentDetailFragment extends Fragment implements TorrentListNotifi
 
         final String[] hashStrings = new String[] { currentTorrentHashString };
 
+        String action;
         switch (item.getItemId()) {
             case R.id.remove:
             case R.id.delete:
@@ -180,7 +182,7 @@ public class TorrentDetailFragment extends Fragment implements TorrentListNotifi
                 builder.setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
                     @Override public void onClick(DialogInterface dialog, int id) {
                         manager.removeTorrent(hashStrings, item.getItemId() == R.id.delete);
-                        context.setRefreshing(true);
+                        context.setRefreshing(true, DataService.Requests.REMOVE_TORRENT);
                     }
                 })
                     .setMessage(String.format(getString(
@@ -191,7 +193,6 @@ public class TorrentDetailFragment extends Fragment implements TorrentListNotifi
                     .show();
                 return true;
             case R.id.resume:
-                String action;
                 switch(currentTorrentStatus) {
                     case Torrent.Status.DOWNLOAD_WAITING:
                     case Torrent.Status.SEED_WAITING:
@@ -201,25 +202,25 @@ public class TorrentDetailFragment extends Fragment implements TorrentListNotifi
                         action = "torrent-start";
                         break;
                 }
-                manager.setTorrentAction(hashStrings, action);
                 break;
             case R.id.pause:
-                manager.setTorrentAction(hashStrings, "torrent-stop");
+                action = "torrent-stop";
                 break;
             case R.id.move:
                 actionMoveHashStrings = hashStrings;
                 return showMoveDialog(hashStrings);
             case R.id.verify:
-                manager.setTorrentAction(hashStrings, "torrent-verify");
+                action = "torrent-verify";
                 break;
             case R.id.reannounce:
-                manager.setTorrentAction(hashStrings, "torrent-reannounce");
+                action = "torrent-reannounce";
                 break;
             default:
                 return false;
         }
 
-        context.setRefreshing(true);
+        manager.setTorrentAction(hashStrings, action);
+        context.setRefreshing(true, DataService.Requests.SET_TORRENT_ACTION);
 
         return true;
     }
@@ -445,7 +446,7 @@ public class TorrentDetailFragment extends Fragment implements TorrentListNotifi
                 String dir = (String) location.getSelectedItem();
                 manager.setTorrentLocation(hashStrings, dir, move.isChecked());
 
-                context.setRefreshing(true);
+                context.setRefreshing(true, DataService.Requests.SET_TORRENT_LOCATION);
                 actionMoveHashStrings = null;
             }
         }).setView(inflater.inflate(R.layout.torrent_location_dialog, null));

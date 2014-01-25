@@ -111,6 +111,7 @@ public class TorrentListActivity extends FragmentActivity
 
     private boolean altSpeed = false;
     private boolean refreshing = false;
+    private String refreshType;
 
     private boolean preventRefreshIndicator;
 
@@ -142,7 +143,7 @@ public class TorrentListActivity extends FragmentActivity
             } else {
                 profileAdapter.add(TransmissionProfileListAdapter.EMPTY_PROFILE);
                 TransmissionProfile.setCurrentProfile(null, TorrentListActivity.this);
-                setRefreshing(false);
+                setRefreshing(false, DataService.Requests.GET_TORRENTS);
             }
 
             String currentId = TransmissionProfile.getCurrentProfileId(TorrentListActivity.this);
@@ -297,7 +298,7 @@ public class TorrentListActivity extends FragmentActivity
         }
 
         if (savedInstanceState == null) {
-            setRefreshing(true);
+            setRefreshing(true, DataService.Requests.GET_TORRENTS);
         } else {
             if (savedInstanceState.containsKey(STATE_INTENT_CONSUMED)) {
                 intentConsumed = savedInstanceState.getBoolean(STATE_INTENT_CONSUMED);
@@ -348,7 +349,7 @@ public class TorrentListActivity extends FragmentActivity
                         if (preventRefreshIndicator) {
                             preventRefreshIndicator = false;
                         } else {
-                            setRefreshing(true);
+                            setRefreshing(true, DataService.Requests.GET_TORRENTS);
                         }
                     }
 
@@ -468,7 +469,7 @@ public class TorrentListActivity extends FragmentActivity
         getMenuInflater().inflate(R.menu.torrent_list_activity, menu);
 
         setSession(session);
-        setRefreshing(refreshing);
+        setRefreshing(refreshing, refreshType);
         setAltSpeed(altSpeed);
 
         return true;
@@ -514,7 +515,7 @@ public class TorrentListActivity extends FragmentActivity
                 return true;
             case R.id.menu_refresh:
                 manager.update();
-                setRefreshing(!refreshing);
+                setRefreshing(true, DataService.Requests.GET_TORRENTS);
                 return true;
             case R.id.menu_add_torrent:
                 showAddTorrentDialog();
@@ -569,7 +570,7 @@ public class TorrentListActivity extends FragmentActivity
             intentConsumed = false;
             hasNewIntent = true;
             setIntent(intent);
-            setRefreshing(true);
+            setRefreshing(true, null);
             if (manager != null) {
                 manager.getSession();
             }
@@ -690,17 +691,17 @@ public class TorrentListActivity extends FragmentActivity
         }
     }
 
-    @Override
-    public TransmissionSession getSession() {
+    @Override public TransmissionSession getSession() {
         return session;
     }
 
-    @Override
-    public void setRefreshing(boolean refreshing) {
-        if (this.refreshing == refreshing) {
+    @Override public void setRefreshing(boolean refreshing, String type) {
+        if (!refreshing && type != null && !type.equals(refreshType)) {
             return;
         }
+
         this.refreshing = refreshing;
+        refreshType = type;
         if (menu == null) {
             return;
         }
@@ -817,7 +818,7 @@ public class TorrentListActivity extends FragmentActivity
                         String dir = (String) location.getSelectedItem();
                         manager.addTorrent(data.toString(), null, dir, paused.isChecked(), null, null);
 
-                        setRefreshing(true);
+                        setRefreshing(true, DataService.Requests.ADD_TORRENT);
                         intentConsumed = true;
                         newTorrentDialogVisible = false;
                     }
@@ -863,7 +864,7 @@ public class TorrentListActivity extends FragmentActivity
                             manager.addTorrent(null, filedata.toString(), dir, paused.isChecked(),
                                 path, uri);
 
-                            setRefreshing(true);
+                            setRefreshing(true, DataService.Requests.ADD_TORRENT);
                         } catch (Exception e) {
                             Toast.makeText(TorrentListActivity.this,
                                 R.string.error_reading_torrent_file, Toast.LENGTH_SHORT).show();
@@ -991,15 +992,14 @@ public class TorrentListActivity extends FragmentActivity
             switch (type) {
                 case DataService.Requests.GET_SESSION:
                 case DataService.Requests.SET_SESSION:
-                case DataService.Requests.GET_ACTIVE_TORRENTS:
-                case DataService.Requests.GET_ALL_TORRENTS:
+                case DataService.Requests.GET_TORRENTS:
                 case DataService.Requests.ADD_TORRENT:
                 case DataService.Requests.REMOVE_TORRENT:
                 case DataService.Requests.SET_TORRENT:
                 case DataService.Requests.SET_TORRENT_ACTION:
                 case DataService.Requests.SET_TORRENT_LOCATION:
                 case DataService.Requests.GET_FREE_SPACE:
-                    setRefreshing(false);
+                    setRefreshing(false, type);
                     if (error == 0) {
 
                         findViewById(R.id.fatal_error_layer).setVisibility(View.GONE);
@@ -1012,8 +1012,7 @@ public class TorrentListActivity extends FragmentActivity
                             case DataService.Requests.SET_SESSION:
                                 manager.getSession();
                                 break;
-                            case DataService.Requests.GET_ACTIVE_TORRENTS:
-                            case DataService.Requests.GET_ALL_TORRENTS:
+                            case DataService.Requests.GET_TORRENTS:
                                 boolean added = intent.getBooleanExtra(G.ARG_ADDED, false);
                                 boolean removed = intent.getBooleanExtra(G.ARG_REMOVED, false);
                                 boolean statusChanged = intent.getBooleanExtra(G.ARG_STATUS_CHANGED, false);
@@ -1076,6 +1075,7 @@ public class TorrentListActivity extends FragmentActivity
                             expecting = 0;
                             hasFatalError = true;
                             toggleRightPane(false);
+                            setRefreshing(false, null);
                             FragmentManager manager = getSupportFragmentManager();
                             TorrentListFragment fragment = (TorrentListFragment) manager.findFragmentById(R.id.torrent_list);
                             if (fragment != null) {
@@ -1231,9 +1231,6 @@ public class TorrentListActivity extends FragmentActivity
                 }
             }
 
-            if (refreshing && !update) {
-                setRefreshing(false);
-            }
             FragmentManager manager = getSupportFragmentManager();
             TorrentListFragment fragment = (TorrentListFragment) manager.findFragmentById(R.id.torrent_list);
             if (fragment != null) {

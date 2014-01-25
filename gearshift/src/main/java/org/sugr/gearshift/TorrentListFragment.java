@@ -45,6 +45,7 @@ import org.sugr.gearshift.G.SortBy;
 import org.sugr.gearshift.G.SortOrder;
 import org.sugr.gearshift.datasource.Constants;
 import org.sugr.gearshift.datasource.DataSource;
+import org.sugr.gearshift.service.DataService;
 import org.sugr.gearshift.service.DataServiceManager;
 import org.sugr.gearshift.service.DataServiceManagerInterface;
 
@@ -136,6 +137,7 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
             }
 
             AlertDialog.Builder builder;
+            String action;
             switch (item.getItemId()) {
                 case R.id.select_all:
                     ListView v = getListView();
@@ -156,7 +158,8 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
                                 @Override
                                 public void onClick(DialogInterface dialog, int id) {
                                     manager.removeTorrent(hashStrings, item.getItemId() == R.id.delete);
-                                    ((TransmissionSessionInterface) getActivity()).setRefreshing(true);
+                                    ((TransmissionSessionInterface) getActivity()).setRefreshing(true,
+                                        DataService.Requests.REMOVE_TORRENT);
 
                                     mode.finish();
                                 }
@@ -167,25 +170,26 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
                             .show();
                     return true;
                 case R.id.resume:
-                    manager.setTorrentAction(hashStrings,
-                        hasQueued ? "torrent-start-now" : "torrent-start");
+                    action = hasQueued ? "torrent-start-now" : "torrent-start";
                     break;
                 case R.id.pause:
-                    manager.setTorrentAction(hashStrings, "torrent-stop");
+                    action = "torrent-stop";
                     break;
                 case R.id.move:
                     return showMoveDialog(hashStrings);
                 case R.id.verify:
-                    manager.setTorrentAction(hashStrings, "torrent-verify");
+                    action = "torrent-verify";
                     break;
                 case R.id.reannounce:
-                    manager.setTorrentAction(hashStrings, "torrent-reannounce");
+                    action = "torrent-reannounce";
                     break;
                 default:
                     return true;
             }
 
-            ((TransmissionSessionInterface) getActivity()).setRefreshing(true);
+            manager.setTorrentAction(hashStrings, action);
+            ((TransmissionSessionInterface) getActivity()).setRefreshing(true,
+                DataService.Requests.SET_TORRENT_ACTION);
 
             mode.finish();
             return true;
@@ -261,7 +265,8 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
                         torrentAdapter.getFilter().filter(prefs.getString(G.PREF_LIST_SEARCH, ""));
                     } else if (key.equals(G.PREF_PROFILES)) {
                         if (getActivity() != null) {
-                            ((TransmissionSessionInterface) getActivity()).setRefreshing(true);
+                            ((TransmissionSessionInterface) getActivity()).setRefreshing(true,
+                                DataService.Requests.GET_TORRENTS);
                         }
                     } else if (key.equals(G.PREF_CURRENT_PROFILE)) {
                         if (prefs.getString(key, null) == null && getActivity() != null) {
@@ -585,10 +590,6 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
         ((TextView) getListView().getEmptyView()).setText(text);
     }
 
-    public void setEmptyText(String text) {
-        ((TextView) getListView().getEmptyView()).setText(text);
-    }
-
     /**
      * Turns on activate-on-click mode. When this mode is on, list items will be
      * given the 'activated' state when touched.
@@ -676,7 +677,8 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
 
                 String dir = (String) location.getSelectedItem();
                 manager.setTorrentLocation(hashStrings, dir, move.isChecked());
-                ((TransmissionSessionInterface) getActivity()).setRefreshing(true);
+                ((TransmissionSessionInterface) getActivity()).setRefreshing(true,
+                    DataService.Requests.SET_TORRENT_LOCATION);
 
                 if (actionMode != null) {
                     actionMode.finish();

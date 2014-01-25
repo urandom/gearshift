@@ -126,14 +126,13 @@ public class DataServiceManager {
             boolean active = prefs.getBoolean(G.PREF_UPDATE_ACTIVE, false);
             int fullUpdate = Integer.parseInt(prefs.getString(G.PREF_FULL_UPDATE, "2"));
 
-            String requestType;
+            String requestType = DataService.Requests.GET_TORRENTS;
+            Bundle args = new Bundle();
+
             if (active && !details && iteration % fullUpdate != 0) {
-                requestType = DataService.Requests.GET_ACTIVE_TORRENTS;
-            } else {
-                requestType = DataService.Requests.GET_ALL_TORRENTS;
+                args.putBoolean(DataService.Args.UPDATE_ACTIVE, true);
             }
 
-            Bundle args = new Bundle();
             if (details || iteration == 1) {
                 args.putBoolean(DataService.Args.DETAIL_FIELDS, true);
             }
@@ -358,8 +357,7 @@ public class DataServiceManager {
 
                 String type = intent.getStringExtra(G.ARG_REQUEST_TYPE);
                 switch (type) {
-                    case DataService.Requests.GET_ACTIVE_TORRENTS:
-                    case DataService.Requests.GET_ALL_TORRENTS:
+                    case DataService.Requests.GET_TORRENTS:
                         repeatLoading();
                         break;
                     case DataService.Requests.ADD_TORRENT:

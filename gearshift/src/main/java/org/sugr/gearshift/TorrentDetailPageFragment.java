@@ -16,7 +16,6 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.Fragment;
-import android.support.v4.content.Loader;
 import android.text.Html;
 import android.text.TextUtils;
 import android.view.ActionMode;
@@ -42,6 +41,7 @@ import android.widget.Toast;
 
 import org.sugr.gearshift.datasource.DataSource;
 import org.sugr.gearshift.datasource.TorrentDetails;
+import org.sugr.gearshift.service.DataService;
 import org.sugr.gearshift.service.DataServiceManager;
 import org.sugr.gearshift.service.DataServiceManagerInterface;
 
@@ -269,7 +269,8 @@ public class TorrentDetailPageFragment extends Fragment {
                 filesAdapter.notifyDataSetChanged();
                 if (priority == null) {
                     mode.finish();
-                    ((TransmissionSessionInterface) getActivity()).setRefreshing(true);
+                    ((TransmissionSessionInterface) getActivity()).setRefreshing(true,
+                        DataService.Requests.GET_TORRENTS);
                     DataServiceManager manager =
                         ((DataServiceManagerInterface) getActivity()).getDataServiceManager();
 
@@ -342,7 +343,8 @@ public class TorrentDetailPageFragment extends Fragment {
             if (ids.size() > 0) {
                 setTorrentProperty(key, ids);
                 mode.finish();
-                ((TransmissionSessionInterface) getActivity()).setRefreshing(true);
+                ((TransmissionSessionInterface) getActivity()).setRefreshing(true,
+                    DataService.Requests.SET_TORRENT);
                 DataServiceManager manager =
                     ((DataServiceManagerInterface) getActivity()).getDataServiceManager();
 
@@ -690,7 +692,8 @@ public class TorrentDetailPageFragment extends Fragment {
 
                                         setTorrentProperty(Torrent.SetterFields.TRACKER_ADD, urls);
 
-                                        ((TransmissionSessionInterface) getActivity()).setRefreshing(true);
+                                        ((TransmissionSessionInterface) getActivity()).setRefreshing(true,
+                                            DataService.Requests.GET_TORRENTS);
                                         DataServiceManager manager =
                                             ((DataServiceManagerInterface) getActivity()).getDataServiceManager();
 
@@ -1206,10 +1209,6 @@ public class TorrentDetailPageFragment extends Fragment {
             priority = Torrent.File.getPriority(cursor);
             wanted = Torrent.File.isWanted(cursor);
         }
-
-        public void setIndex(int index) {
-            this.index = index;
-        }
     }
 
     private class TorrentFileComparator implements Comparator<TorrentFile> {
@@ -1630,7 +1629,7 @@ public class TorrentDetailPageFragment extends Fragment {
                         ids.add(tracker.id);
 
                         setTorrentProperty(Torrent.SetterFields.TRACKER_REMOVE, ids);
-                        context.setRefreshing(true);
+                        context.setRefreshing(true, DataService.Requests.SET_TORRENT);
 
                         if (manager != null) {
                             manager.update();
@@ -1661,7 +1660,7 @@ public class TorrentDetailPageFragment extends Fragment {
 
                                             setTorrentProperty(Torrent.SetterFields.TRACKER_REPLACE, tuple);
 
-                                            context.setRefreshing(true);
+                                            context.setRefreshing(true, DataService.Requests.GET_TORRENTS);
                                             if (manager != null) {
                                                 manager.update();
                                             }

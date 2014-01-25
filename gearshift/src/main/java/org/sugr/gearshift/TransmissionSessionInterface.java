@@ -6,5 +6,5 @@ public interface TransmissionSessionInterface {
     public void setSession(TransmissionSession session);
     public TransmissionSession getSession();
 
-    public void setRefreshing(boolean refreshing);
+    public void setRefreshing(boolean refreshing, String type);
 }

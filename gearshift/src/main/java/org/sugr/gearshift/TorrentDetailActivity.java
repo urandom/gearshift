@@ -42,6 +42,7 @@ import java.util.List;
 public class TorrentDetailActivity extends FragmentActivity implements TransmissionSessionInterface,
        TorrentDetailFragment.PagerCallbacks, DataServiceManagerInterface {
     private boolean refreshing = false;
+    private String refreshType;
 
     private int currentTorrentPosition = 0;
 
@@ -136,7 +137,7 @@ public class TorrentDetailActivity extends FragmentActivity implements Transmiss
                 return true;
             case R.id.menu_refresh:
                 manager.update();
-                setRefreshing(!refreshing);
+                setRefreshing(true, DataService.Requests.GET_TORRENTS);
                 return true;
         }
         return super.onOptionsItemSelected(item);
@@ -180,9 +181,15 @@ public class TorrentDetailActivity extends FragmentActivity implements Transmiss
         return session;
     }
 
-    @Override
-    public void setRefreshing(boolean refreshing) {
+    @Override public void setRefreshing(boolean refreshing, String type) {
+        if (!refreshing && type != null && !type.equals(refreshType)) {
+            return;
+        }
         this.refreshing = refreshing;
+        refreshType = type;
+        if (menu == null) {
+            return;
+        }
 
         MenuItem item = menu.findItem(R.id.menu_refresh);
         if (this.refreshing)
@@ -231,13 +238,13 @@ public class TorrentDetailActivity extends FragmentActivity implements Transmiss
             switch (type) {
                 case DataService.Requests.GET_SESSION:
                 case DataService.Requests.SET_SESSION:
-                case DataService.Requests.GET_ACTIVE_TORRENTS:
-                case DataService.Requests.GET_ALL_TORRENTS:
+                case DataService.Requests.GET_TORRENTS:
                 case DataService.Requests.ADD_TORRENT:
                 case DataService.Requests.REMOVE_TORRENT:
                 case DataService.Requests.SET_TORRENT:
                 case DataService.Requests.SET_TORRENT_ACTION:
                 case DataService.Requests.SET_TORRENT_LOCATION:
+                    setRefreshing(false, type);
                     if (error == 0) {
                         findViewById(R.id.fatal_error_layer).setVisibility(View.GONE);
 
@@ -249,8 +256,7 @@ public class TorrentDetailActivity extends FragmentActivity implements Transmiss
                             case DataService.Requests.SET_SESSION:
                                 manager.getSession();
                                 break;
-                            case DataService.Requests.GET_ACTIVE_TORRENTS:
-                            case DataService.Requests.GET_ALL_TORRENTS:
+                            case DataService.Requests.GET_TORRENTS:
                                 boolean added = intent.getBooleanExtra(G.ARG_ADDED, false);
                                 boolean removed = intent.getBooleanExtra(G.ARG_REMOVED, false);
                                 boolean statusChanged = intent.getBooleanExtra(G.ARG_STATUS_CHANGED, false);
@@ -303,7 +309,7 @@ public class TorrentDetailActivity extends FragmentActivity implements Transmiss
                         } else {
                             findViewById(R.id.fatal_error_layer).setVisibility(View.VISIBLE);
                             TextView text = (TextView) findViewById(R.id.transmission_error);
-                            setRefreshing(false);
+                            setRefreshing(false, null);
                             FragmentManager manager = getSupportFragmentManager();
                             TorrentDetailFragment fragment =
                                 (TorrentDetailFragment) manager.findFragmentByTag(G.DETAIL_FRAGMENT_TAG);
@@ -454,10 +460,6 @@ public class TorrentDetailActivity extends FragmentActivity implements Transmiss
             if (detail != null) {
                 detail.notifyTorrentListChanged(cursor, 0, added, removed,
                     statusChanged, incompleteMetadata, connected);
-            }
-
-            if (refreshing && !update) {
-                setRefreshing(false);
             }
 
             if (update) {

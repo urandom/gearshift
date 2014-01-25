@@ -27,8 +27,7 @@ public class DataService extends IntentService {
         public static final String GET_SESSION = "get_session";
         public static final String SET_SESSION = "set_session";
 
-        public static final String GET_ALL_TORRENTS = "get_all_torrents";
-        public static final String GET_ACTIVE_TORRENTS = "get_active_torrents";
+        public static final String GET_TORRENTS = "get_torrents";
         public static final String ADD_TORRENT = "add_torrent";
         public static final String REMOVE_TORRENT = "remove_torrents";
         public static final String SET_TORRENT = "set_torrent";
@@ -45,6 +44,7 @@ public class DataService extends IntentService {
         public static final String SESSION = "session";
         public static final String SESSION_FIELDS = "session_fields";
         public static final String DETAIL_FIELDS = "detail_fields";
+        public static final String UPDATE_ACTIVE = "update_active";
         public static final String TORRENTS_TO_UPDATE = "torrents_to_update";
         public static final String REMOVE_OBSOLETE = "remove_obsolete";
         public static final String MAGNET_URI = "magnet_uri";
@@ -128,8 +128,7 @@ public class DataService extends IntentService {
                     manager.setSession(session, keys);
                     response = createResponse(requestType, profileId);
                     break;
-                case Requests.GET_ALL_TORRENTS:
-                case Requests.GET_ACTIVE_TORRENTS: {
+                case Requests.GET_TORRENTS: {
                     TorrentStatus status;
                     String[] fields = Torrent.Fields.STATS;
 
@@ -147,7 +146,7 @@ public class DataService extends IntentService {
                     String[] hashStrings = args.getStringArray(Args.TORRENTS_TO_UPDATE);
                     if (hashStrings != null) {
                         status = manager.getTorrents(fields, hashStrings, false);
-                    } else if (requestType.equals(Requests.GET_ACTIVE_TORRENTS)
+                    } else if (args.getBoolean(Args.UPDATE_ACTIVE, false)
                         && !args.getBoolean(Args.DETAIL_FIELDS, false)) {
                         status = manager.getActiveTorrents(fields);
                     } else {
@@ -294,7 +293,6 @@ public class DataService extends IntentService {
 
         } catch (IllegalArgumentException e) {
             G.logE("Error while processing service request!", e);
-            /* TODO send an 'error' broadcast */
         } catch (TransmissionSessionManager.ManagerException e) {
             G.logE("Error while processing service request!", e);
             response = handleError(e, requestType, profileId);
