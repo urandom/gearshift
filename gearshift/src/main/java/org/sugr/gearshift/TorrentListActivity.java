@@ -24,7 +24,6 @@ import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.support.v4.app.ActionBarDrawerToggle;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.LocalBroadcastManager;
@@ -50,7 +49,6 @@ import android.widget.Toast;
 import org.sugr.gearshift.datasource.DataSource;
 import org.sugr.gearshift.service.DataService;
 import org.sugr.gearshift.service.DataServiceManager;
-import org.sugr.gearshift.service.DataServiceManagerInterface;
 import org.sugr.gearshift.util.Base64;
 
 import java.io.BufferedReader;
@@ -63,10 +61,8 @@ import java.io.InputStream;
 import java.net.URI;
 import java.util.ArrayList;
 
-public class TorrentListActivity extends FragmentActivity
-        implements TransmissionSessionInterface, TorrentListFragment.Callbacks,
-                   TorrentDetailFragment.PagerCallbacks,
-                   DataServiceManagerInterface {
+public class TorrentListActivity extends BaseTorrentActivity
+        implements TorrentListFragment.Callbacks {
 
     public static final String ARG_FILE_URI = "torrent_file_uri";
     public static final String ARG_FILE_PATH = "torrent_file_path";
@@ -77,10 +73,6 @@ public class TorrentListActivity extends FragmentActivity
      * device.
      */
     private boolean twoPaneLayout;
-
-    private TransmissionProfile profile;
-    private TransmissionSession session;
-    private DataServiceManager manager;
 
     private ServiceReceiver serviceReceiver;
 
@@ -110,8 +102,6 @@ public class TorrentListActivity extends FragmentActivity
     private TransmissionProfileListAdapter profileAdapter;
 
     private boolean altSpeed = false;
-    private boolean refreshing = false;
-    private String refreshType;
 
     private boolean preventRefreshIndicator;
 
@@ -121,8 +111,6 @@ public class TorrentListActivity extends FragmentActivity
         static int ALT_SPEED_ON = 1;
         static int ALT_SPEED_OFF = 1 << 1;
     }
-
-    private Menu menu;
 
     private LoaderManager.LoaderCallbacks<TransmissionProfile[]> profileLoaderCallbacks= new LoaderManager.LoaderCallbacks<TransmissionProfile[]>() {
         @Override
@@ -436,8 +424,7 @@ public class TorrentListActivity extends FragmentActivity
         }
     }
 
-    @Override
-    public void onPageSelected(int position) {
+    @Override public void onPageSelected(int position) {
         if (twoPaneLayout) {
             ((TorrentListFragment) getSupportFragmentManager()
              .findFragmentById(R.id.torrent_list))
@@ -445,8 +432,7 @@ public class TorrentListActivity extends FragmentActivity
         }
     }
 
-    @Override
-    public void onBackPressed() {
+    @Override public void onBackPressed() {
         TorrentListFragment fragment = ((TorrentListFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.torrent_list));
 
@@ -647,13 +633,7 @@ public class TorrentListActivity extends FragmentActivity
         }
     }
 
-    @Override
-    public TransmissionProfile getProfile() {
-        return profile;
-    }
-
-    @Override
-    public void setSession(TransmissionSession session) {
+    @Override public void setSession(TransmissionSession session) {
         if (session == null) {
             if (this.session != null) {
                 drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED,
@@ -689,28 +669,6 @@ public class TorrentListActivity extends FragmentActivity
                 consumeIntent();
             }
         }
-    }
-
-    @Override public TransmissionSession getSession() {
-        return session;
-    }
-
-    @Override public void setRefreshing(boolean refreshing, String type) {
-        if (!refreshing && type != null && !type.equals(refreshType)) {
-            return;
-        }
-
-        this.refreshing = refreshing;
-        refreshType = type;
-        if (menu == null) {
-            return;
-        }
-
-        MenuItem item = menu.findItem(R.id.menu_refresh);
-        if (this.refreshing)
-            item.setActionView(R.layout.action_progress_bar);
-        else
-            item.setActionView(null);
     }
 
     private void setAltSpeed(boolean alt) {
@@ -1075,7 +1033,6 @@ public class TorrentListActivity extends FragmentActivity
                             expecting = 0;
                             hasFatalError = true;
                             toggleRightPane(false);
-                            setRefreshing(false, null);
                             FragmentManager manager = getSupportFragmentManager();
                             TorrentListFragment fragment = (TorrentListFragment) manager.findFragmentById(R.id.torrent_list);
                             if (fragment != null) {

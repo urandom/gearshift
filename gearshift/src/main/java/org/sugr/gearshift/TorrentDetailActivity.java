@@ -39,20 +39,10 @@ import java.util.List;
  * This activity is mostly just a 'shell' activity containing nothing
  * more than a {@link TorrentDetailFragment}.
  */
-public class TorrentDetailActivity extends FragmentActivity implements TransmissionSessionInterface,
-       TorrentDetailFragment.PagerCallbacks, DataServiceManagerInterface {
-    private boolean refreshing = false;
-    private String refreshType;
-
+public class TorrentDetailActivity extends BaseTorrentActivity {
     private int currentTorrentPosition = 0;
 
-    private TransmissionProfile profile;
-    private TransmissionSession session;
-    private DataServiceManager manager;
-
     private ServiceReceiver serviceReceiver;
-
-    private Menu menu;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -159,47 +149,10 @@ public class TorrentDetailActivity extends FragmentActivity implements Transmiss
         }
     }
 
-    @Override
-    public void onPageSelected(int position) {
+    @Override public void onPageSelected(int position) {
         currentTorrentPosition = position;
 
         manager.setTorrentsToUpdate(getCurrentTorrentHashStrings());
-    }
-
-    @Override
-    public TransmissionProfile getProfile() {
-        return profile;
-    }
-
-    @Override
-    public void setSession(TransmissionSession session) {
-        this.session = session;
-    }
-
-    @Override
-    public TransmissionSession getSession() {
-        return session;
-    }
-
-    @Override public void setRefreshing(boolean refreshing, String type) {
-        if (!refreshing && type != null && !type.equals(refreshType)) {
-            return;
-        }
-        this.refreshing = refreshing;
-        refreshType = type;
-        if (menu == null) {
-            return;
-        }
-
-        MenuItem item = menu.findItem(R.id.menu_refresh);
-        if (this.refreshing)
-            item.setActionView(R.layout.action_progress_bar);
-        else
-            item.setActionView(null);
-    }
-
-    public DataServiceManager getDataServiceManager() {
-        return manager;
     }
 
     private String[] getCurrentTorrentHashStrings() {
@@ -309,7 +262,6 @@ public class TorrentDetailActivity extends FragmentActivity implements Transmiss
                         } else {
                             findViewById(R.id.fatal_error_layer).setVisibility(View.VISIBLE);
                             TextView text = (TextView) findViewById(R.id.transmission_error);
-                            setRefreshing(false, null);
                             FragmentManager manager = getSupportFragmentManager();
                             TorrentDetailFragment fragment =
                                 (TorrentDetailFragment) manager.findFragmentByTag(G.DETAIL_FRAGMENT_TAG);
