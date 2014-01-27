@@ -12,7 +12,9 @@
         <Spinner
             android:id="@+id/location_choice"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
+            android:layout_height="wrap_content"
+            android:fontFamily="sans-serif"
+            android:textSize="16sp" />
 
         <EditText
             android:id="@+id/location_entry"
@@ -20,6 +22,8 @@
             android:layout_height="wrap_content"
             android:hint="@string/hint_download_directory"
             android:inputType="textNoSuggestions"
+            android:fontFamily="sans-serif"
+            android:textSize="16sp"
             android:visibility="gone" />
 
     </FrameLayout>
@@ -30,6 +34,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:fontFamily="sans-serif-condensed"
+        android:textSize="16sp"
         android:text="@string/move_checkbox" />
 
 </LinearLayout>
