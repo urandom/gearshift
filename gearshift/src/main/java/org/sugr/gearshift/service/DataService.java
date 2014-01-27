@@ -195,6 +195,10 @@ public class DataService extends IntentService {
                         }
                     }
 
+                    profile.setLastDownloadDirectory(location);
+                    profile.setDeleteLocal(temporary != null || document != null);
+                    profile.setStartPaused(paused);
+
                     response = createResponse(requestType, profileId)
                         .putExtra(G.ARG_ADDED_HASH, addedHash);
                     break;
@@ -242,6 +246,10 @@ public class DataService extends IntentService {
                     }
 
                     manager.setTorrentLocation(hashStrings, location, move);
+
+                    profile.setLastDownloadDirectory(location);
+                    profile.setMoveData(move);
+
                     response = createResponse(requestType, profileId);
                     break;
                 }
