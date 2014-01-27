@@ -2,6 +2,7 @@ package org.sugr.gearshift;
 
 import android.animation.Animator;
 import android.animation.AnimatorInflater;
+import android.animation.AnimatorListenerAdapter;
 import android.animation.ValueAnimator;
 import android.annotation.TargetApi;
 import android.app.ActionBar;
@@ -30,6 +31,7 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.text.Html;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -717,7 +719,7 @@ public class TorrentListActivity extends BaseTorrentActivity
         newTorrentDialogVisible = true;
 
         LayoutInflater inflater = getLayoutInflater();
-        View view = inflater.inflate(R.layout.new_torrent_dialog, null);
+        final View view = inflater.inflate(R.layout.new_torrent_dialog, null);
 
         final AlertDialog.Builder builder = new AlertDialog.Builder(this)
             .setCancelable(false)
@@ -731,16 +733,44 @@ public class TorrentListActivity extends BaseTorrentActivity
 
             });
 
-        TransmissionProfileDirectoryAdapter adapter =
+        final TransmissionProfileDirectoryAdapter adapter =
             new TransmissionProfileDirectoryAdapter(
                 this, android.R.layout.simple_spinner_item);
 
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         adapter.addAll(getSession().getDownloadDirectories());
         adapter.sort();
+        adapter.add(getString(R.string.spinner_custom_directory));
 
-        Spinner location = (Spinner) view.findViewById(R.id.location_choice);
+        final Spinner location = (Spinner) view.findViewById(R.id.location_choice);
+        final Runnable swapLocationSpinner = new Runnable() {
+            @Override public void run() {
+                final EditText entry = (EditText) view.findViewById(R.id.location_entry);
+                int duration = getResources().getInteger(android.R.integer.config_shortAnimTime);
+
+                entry.setAlpha(0f);
+                entry.setVisibility(View.VISIBLE);
+                entry.animate().alpha(1f).setDuration(duration);
+
+                location.animate().alpha(0f).setDuration(duration).setListener(new AnimatorListenerAdapter() {
+                    @Override public void onAnimationEnd(Animator animation) {
+                        super.onAnimationEnd(animation);
+                        location.setVisibility(View.GONE);
+                        if (location.getSelectedItemPosition() != adapter.getCount() - 1) {
+                            entry.setText((String) location.getSelectedItem());
+                        }
+                        entry.requestFocus();
+                    }
+                });
+            }
+        };
         location.setAdapter(adapter);
+        location.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override public boolean onLongClick(final View v) {
+                swapLocationSpinner.run();
+                return true;
+            }
+        });
 
         if (locationPosition == AdapterView.INVALID_POSITION) {
             if (profile != null && profile.getLastDownloadDirectory() != null) {
@@ -755,6 +785,9 @@ public class TorrentListActivity extends BaseTorrentActivity
         }
         location.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+                if (adapter.getCount() == i + 1) {
+                    swapLocationSpinner.run();
+                }
                 locationPosition = i;
             }
             @Override public void onNothingSelected(AdapterView<?> adapterView) {}
@@ -771,9 +804,19 @@ public class TorrentListActivity extends BaseTorrentActivity
                     @Override
                     public void onClick(DialogInterface dialog, int id) {
                         Spinner location = (Spinner) ((AlertDialog) dialog).findViewById(R.id.location_choice);
+                        EditText entry = (EditText) ((AlertDialog) dialog).findViewById(R.id.location_entry);
                         CheckBox paused = (CheckBox) ((AlertDialog) dialog).findViewById(R.id.start_paused);
+                        String dir;
 
-                        String dir = (String) location.getSelectedItem();
+                        if (entry.getVisibility() == View.GONE) {
+                            dir = (String) location.getSelectedItem();
+                        } else {
+                            dir = entry.getText().toString();
+                        }
+
+                        if (TextUtils.isEmpty(dir)) {
+                            dir = session.getDownloadDir();
+                        }
                         manager.addTorrent(data.toString(), null, dir, paused.isChecked(), null, null);
 
                         setRefreshing(true, DataService.Requests.ADD_TORRENT);

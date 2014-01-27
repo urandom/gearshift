@@ -5,10 +5,24 @@
     android:padding="8dp"
     android:orientation="vertical" >
 
-    <Spinner
-        android:id="@+id/location_choice"
+    <FrameLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content">
+
+        <Spinner
+            android:id="@+id/location_choice"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+        <EditText
+            android:id="@+id/location_entry"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/hint_download_directory"
+            android:inputType="textNoSuggestions"
+            android:visibility="gone" />
+
+    </FrameLayout>
 
     <CheckBox
         android:id="@+id/start_paused"

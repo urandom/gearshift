@@ -9,7 +9,6 @@ import android.database.Cursor;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.NavUtils;
 import android.support.v4.content.LocalBroadcastManager;
@@ -24,7 +23,6 @@ import android.widget.Toast;
 import org.sugr.gearshift.datasource.DataSource;
 import org.sugr.gearshift.service.DataService;
 import org.sugr.gearshift.service.DataServiceManager;
-import org.sugr.gearshift.service.DataServiceManagerInterface;
 
 import java.util.ArrayList;
 import java.util.List;

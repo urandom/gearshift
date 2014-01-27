@@ -436,6 +436,8 @@
     <string name="user_interface_header">User interface</string>
     <string name="show_status_bar">Status bar below the torrent list</string>
     <string name="error_deleting_torrent_file">Unable to delete torrent file</string>
+    <string name="hint_download_directory">Download directory</string>
+    <string name="spinner_custom_directory">Custom directory &#8230;</string>
 
     <string-array name="torrent_priority">
         <item>Low</item>

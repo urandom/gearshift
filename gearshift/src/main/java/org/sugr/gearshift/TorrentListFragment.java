@@ -1,5 +1,7 @@
 package org.sugr.gearshift;
 
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
@@ -18,6 +20,7 @@ import android.support.v4.content.Loader;
 import android.text.Html;
 import android.text.SpannableString;
 import android.text.Spanned;
+import android.text.TextUtils;
 import android.text.style.ForegroundColorSpan;
 import android.util.SparseArray;
 import android.util.SparseBooleanArray;
@@ -33,12 +36,14 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.CheckBox;
 import android.widget.CursorAdapter;
+import android.widget.EditText;
 import android.widget.FilterQueryProvider;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.SearchView;
 import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import org.sugr.gearshift.G.FilterBy;
 import org.sugr.gearshift.G.SortBy;
@@ -663,6 +668,11 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
             return true;
         }
 
+        final TransmissionSession session = ((TransmissionSessionInterface) getActivity()).getSession();
+        if (session == null) {
+            return true;
+        }
+
         LayoutInflater inflater = getActivity().getLayoutInflater();
 
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity())
@@ -673,9 +683,20 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
             new DialogInterface.OnClickListener() {
             @Override public void onClick(DialogInterface dialog, int id) {
                 Spinner location = (Spinner) ((AlertDialog) dialog).findViewById(R.id.location_choice);
+                EditText entry = (EditText) ((AlertDialog) dialog).findViewById(R.id.location_entry);
                 CheckBox move = (CheckBox) ((AlertDialog) dialog).findViewById(R.id.move);
+                String dir;
 
-                String dir = (String) location.getSelectedItem();
+                if (entry.getVisibility() == View.GONE) {
+                    dir = (String) location.getSelectedItem();
+                } else {
+                    dir = entry.getText().toString();
+                }
+
+                if (TextUtils.isEmpty(dir)) {
+                    dir = session.getDownloadDir();
+                }
+
                 manager.setTorrentLocation(hashStrings, dir, move.isChecked());
                 ((TransmissionSessionInterface) getActivity()).setRefreshing(true,
                     DataService.Requests.SET_TORRENT_LOCATION);
@@ -686,24 +707,55 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
             }
         }).setView(inflater.inflate(R.layout.torrent_location_dialog, null));
 
-        TransmissionSession session = ((TransmissionSessionInterface) getActivity()).getSession();
-        if (session == null) {
-            return true;
-        }
-
-        AlertDialog dialog = builder.create();
+        final AlertDialog dialog = builder.create();
         dialog.show();
 
-        TransmissionProfileDirectoryAdapter adapter =
+        final TransmissionProfileDirectoryAdapter adapter =
                 new TransmissionProfileDirectoryAdapter(
                 getActivity(), android.R.layout.simple_spinner_item);
 
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         adapter.addAll(session.getDownloadDirectories());
         adapter.sort();
+        adapter.add(getString(R.string.spinner_custom_directory));
 
-        Spinner location = (Spinner) dialog.findViewById(R.id.location_choice);
+        final Spinner location = (Spinner) dialog.findViewById(R.id.location_choice);
+        final Runnable swapLocationSpinner = new Runnable() {
+            @Override public void run() {
+                final EditText entry = (EditText) dialog.findViewById(R.id.location_entry);
+                int duration = getResources().getInteger(android.R.integer.config_shortAnimTime);
+
+                entry.setAlpha(0f);
+                entry.setVisibility(View.VISIBLE);
+                entry.animate().alpha(1f).setDuration(duration);
+
+                location.animate().alpha(0f).setDuration(duration).setListener(new AnimatorListenerAdapter() {
+                    @Override public void onAnimationEnd(Animator animation) {
+                        super.onAnimationEnd(animation);
+                        location.setVisibility(View.GONE);
+                        if (location.getSelectedItemPosition() != adapter.getCount() - 1) {
+                            entry.setText((String) location.getSelectedItem());
+                        }
+                        entry.requestFocus();
+                    }
+                });
+            }
+        };
         location.setAdapter(adapter);
+        location.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override public boolean onLongClick(final View v) {
+                swapLocationSpinner.run();
+                return true;
+            }
+        });
+        location.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                if (adapter.getCount() == position + 1) {
+                    swapLocationSpinner.run();
+                }
+            }
+            @Override public void onNothingSelected(AdapterView<?> parent) { }
+        });
 
         TransmissionProfile profile = ((TransmissionSessionInterface) getActivity()).getProfile();
 
