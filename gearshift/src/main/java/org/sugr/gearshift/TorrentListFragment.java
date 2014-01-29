@@ -246,9 +246,9 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
                 if (status == Torrent.Status.STOPPED) {
                     hasPaused = true;
                 } else if (Torrent.isActive(status)) {
-                    hasQueued = true;
-                } else {
                     hasRunning = true;
+                } else {
+                    hasQueued = true;
                 }
             }
 
