@@ -94,14 +94,18 @@ public class LocationDialogHelper {
             @Override public void onNothingSelected(AdapterView<?> adapterView) {}
         });
 
-        TransmissionProfile profile = ((TransmissionSessionInterface) activity).getProfile();
-        if (profile != null && profile.getLastDownloadDirectory() != null) {
-            int position = adapter.getPosition(profile.getLastDownloadDirectory());
+        final Runnable setInitialLocation = new Runnable() {
+            @Override public void run() {
+                TransmissionProfile profile = ((TransmissionSessionInterface) activity).getProfile();
+                if (profile != null && profile.getLastDownloadDirectory() != null) {
+                    int position = adapter.getPosition(profile.getLastDownloadDirectory());
 
-            if (position > -1) {
-                location.setSelection(position);
+                    location.setSelection(position == -1 ? 0 : position);
+                }
             }
-        }
+        };
+
+        setInitialLocation.run();
 
         View collapse = view.findViewById(R.id.location_collapse);
         collapse.setOnClickListener(new View.OnClickListener() {
@@ -109,6 +113,9 @@ public class LocationDialogHelper {
                 location.setAlpha(0f);
                 location.setVisibility(View.VISIBLE);
                 location.animate().alpha(1f).setDuration(duration);
+                if (location.getSelectedItemPosition() == adapter.getCount() - 1) {
+                    setInitialLocation.run();
+                }
 
                 container.animate().alpha(0f).setDuration(duration).setListener(new AnimatorListenerAdapter() {
                     @Override public void onAnimationEnd(Animator animation) {
