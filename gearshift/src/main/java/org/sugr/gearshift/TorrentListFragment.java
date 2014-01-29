@@ -38,6 +38,7 @@ import android.widget.CheckBox;
 import android.widget.CursorAdapter;
 import android.widget.EditText;
 import android.widget.FilterQueryProvider;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.SearchView;
@@ -687,7 +688,7 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
                 CheckBox move = (CheckBox) ((AlertDialog) dialog).findViewById(R.id.move);
                 String dir;
 
-                if (entry.getVisibility() == View.GONE) {
+                if (location.getVisibility() != View.GONE) {
                     dir = (String) location.getSelectedItem();
                 } else {
                     dir = entry.getText().toString();
@@ -720,23 +721,24 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
         adapter.add(getString(R.string.spinner_custom_directory));
 
         final Spinner location = (Spinner) dialog.findViewById(R.id.location_choice);
+        final int duration = getResources().getInteger(android.R.integer.config_shortAnimTime);
+        final LinearLayout container = (LinearLayout) dialog.findViewById(R.id.location_container);
         final Runnable swapLocationSpinner = new Runnable() {
             @Override public void run() {
-                final EditText entry = (EditText) dialog.findViewById(R.id.location_entry);
-                int duration = getResources().getInteger(android.R.integer.config_shortAnimTime);
 
-                entry.setAlpha(0f);
-                entry.setVisibility(View.VISIBLE);
-                entry.animate().alpha(1f).setDuration(duration);
+                container.setAlpha(0f);
+                container.setVisibility(View.VISIBLE);
+                container.animate().alpha(1f).setDuration(duration);
 
                 location.animate().alpha(0f).setDuration(duration).setListener(new AnimatorListenerAdapter() {
                     @Override public void onAnimationEnd(Animator animation) {
                         super.onAnimationEnd(animation);
                         location.setVisibility(View.GONE);
+                        location.animate().setListener(null).cancel();
                         if (location.getSelectedItemPosition() != adapter.getCount() - 1) {
-                            entry.setText((String) location.getSelectedItem());
+                            ((EditText) dialog.findViewById(R.id.location_entry)).setText((String) location.getSelectedItem());
                         }
-                        entry.requestFocus();
+                        container.requestFocus();
                     }
                 });
             }
@@ -755,6 +757,23 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
                 }
             }
             @Override public void onNothingSelected(AdapterView<?> parent) { }
+        });
+
+        View collapse = dialog.findViewById(R.id.location_collapse);
+        collapse.setOnClickListener(new View.OnClickListener() {
+            @Override public void onClick(View v) {
+                location.setAlpha(0f);
+                location.setVisibility(View.VISIBLE);
+                location.animate().alpha(1f).setDuration(duration);
+
+                container.animate().alpha(0f).setDuration(duration).setListener(new AnimatorListenerAdapter() {
+                    @Override public void onAnimationEnd(Animator animation) {
+                        super.onAnimationEnd(animation);
+                        container.setVisibility(View.GONE);
+                        container.animate().setListener(null).cancel();
+                    }
+                });
+            }
         });
 
         TransmissionProfile profile = ((TransmissionSessionInterface) getActivity()).getProfile();

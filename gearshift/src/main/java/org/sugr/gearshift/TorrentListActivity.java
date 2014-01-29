@@ -234,22 +234,22 @@ public class TorrentListActivity extends BaseTorrentActivity
 
                 @Override
                 public void onAnimationEnd(Animator animation) {
-                    final FragmentManager manager = getSupportFragmentManager();
-                    TorrentDetailFragment fragment = (TorrentDetailFragment) manager.findFragmentByTag(
+                    final FragmentManager fm = getSupportFragmentManager();
+                    TorrentDetailFragment fragment = (TorrentDetailFragment) fm.findFragmentByTag(
                         G.DETAIL_FRAGMENT_TAG);
                     if (fragment == null) {
                         fragment = new TorrentDetailFragment();
                         fragment.setArguments(new Bundle());
-                        manager.beginTransaction()
+                        fm.beginTransaction()
                             .replace(R.id.torrent_detail_container, fragment, G.DETAIL_FRAGMENT_TAG)
                             .commit();
-                        manager.executePendingTransactions();
+                        fm.executePendingTransactions();
                     }
 
                     fragment.setCurrentTorrent(currentTorrentIndex);
 
                     G.logD("Opening the detail panel");
-                    TorrentListActivity.this.manager.setDetails(true);
+                    manager.setDetails(true);
                     new TorrentTask(TorrentListActivity.this, TorrentTask.Flags.UPDATE).execute();
 
                     fragment.onCreateOptionsMenu(menu, getMenuInflater());
@@ -743,23 +743,23 @@ public class TorrentListActivity extends BaseTorrentActivity
         adapter.add(getString(R.string.spinner_custom_directory));
 
         final Spinner location = (Spinner) view.findViewById(R.id.location_choice);
+        final LinearLayout container = (LinearLayout) view.findViewById(R.id.location_container);
+        final int duration = getResources().getInteger(android.R.integer.config_shortAnimTime);
         final Runnable swapLocationSpinner = new Runnable() {
             @Override public void run() {
-                final EditText entry = (EditText) view.findViewById(R.id.location_entry);
-                int duration = getResources().getInteger(android.R.integer.config_shortAnimTime);
-
-                entry.setAlpha(0f);
-                entry.setVisibility(View.VISIBLE);
-                entry.animate().alpha(1f).setDuration(duration);
+                container.setAlpha(0f);
+                container.setVisibility(View.VISIBLE);
+                container.animate().alpha(1f).setDuration(duration);
 
                 location.animate().alpha(0f).setDuration(duration).setListener(new AnimatorListenerAdapter() {
                     @Override public void onAnimationEnd(Animator animation) {
                         super.onAnimationEnd(animation);
                         location.setVisibility(View.GONE);
+                        location.animate().setListener(null).cancel();
                         if (location.getSelectedItemPosition() != adapter.getCount() - 1) {
-                            entry.setText((String) location.getSelectedItem());
+                            ((EditText) view.findViewById(R.id.location_entry)).setText((String) location.getSelectedItem());
                         }
-                        entry.requestFocus();
+                        container.requestFocus();
                     }
                 });
             }
@@ -792,6 +792,22 @@ public class TorrentListActivity extends BaseTorrentActivity
             }
             @Override public void onNothingSelected(AdapterView<?> adapterView) {}
         });
+        View collapse = view.findViewById(R.id.location_collapse);
+        collapse.setOnClickListener(new View.OnClickListener() {
+            @Override public void onClick(View v) {
+                location.setAlpha(0f);
+                location.setVisibility(View.VISIBLE);
+                location.animate().alpha(1f).setDuration(duration);
+
+                container.animate().alpha(0f).setDuration(duration).setListener(new AnimatorListenerAdapter() {
+                    @Override public void onAnimationEnd(Animator animation) {
+                        super.onAnimationEnd(animation);
+                        container.setVisibility(View.GONE);
+                        container.animate().setListener(null).cancel();
+                    }
+                });
+            }
+        });
 
         ((CheckBox) view.findViewById(R.id.start_paused)).setChecked(profile != null && profile.getStartPaused());
 
@@ -808,7 +824,7 @@ public class TorrentListActivity extends BaseTorrentActivity
                         CheckBox paused = (CheckBox) ((AlertDialog) dialog).findViewById(R.id.start_paused);
                         String dir;
 
-                        if (entry.getVisibility() == View.GONE) {
+                        if (location.getVisibility() != View.GONE) {
                             dir = (String) location.getSelectedItem();
                         } else {
                             dir = entry.getText().toString();
@@ -835,11 +851,18 @@ public class TorrentListActivity extends BaseTorrentActivity
                     @Override
                     public void onClick(final DialogInterface dialog, int which) {
                         Spinner location = (Spinner) ((AlertDialog) dialog).findViewById(R.id.location_choice);
+                        EditText entry = (EditText) ((AlertDialog) dialog).findViewById(R.id.location_entry);
                         CheckBox paused = (CheckBox) ((AlertDialog) dialog).findViewById(R.id.start_paused);
                         BufferedReader reader = null;
 
                         try {
-                            String dir = (String) location.getSelectedItem();
+                            String dir;
+                            if (location.getVisibility() != View.GONE) {
+                                dir = (String) location.getSelectedItem();
+                            } else {
+                                dir = entry.getText().toString();
+                            }
+
                             File file = new File(new URI(fileURI));
 
                             reader = new BufferedReader(new FileReader(file));
@@ -1148,7 +1171,7 @@ public class TorrentListActivity extends BaseTorrentActivity
         @Override protected void onPostExecute(TransmissionSession session) {
             setSession(session);
 
-            if (session.getRPCVersion() >= TransmissionSession.FREE_SPACE_METHOD_RPC_VERSION) {
+            if (session.getRPCVersion() >= TransmissionSession.FREE_SPACE_METHOD_RPC_VERSION && manager != null) {
                 manager.getFreeSpace(session.getDownloadDir());
             }
 
@@ -1231,8 +1254,8 @@ public class TorrentListActivity extends BaseTorrentActivity
                 }
             }
 
-            FragmentManager manager = getSupportFragmentManager();
-            TorrentListFragment fragment = (TorrentListFragment) manager.findFragmentById(R.id.torrent_list);
+            FragmentManager fm = getSupportFragmentManager();
+            TorrentListFragment fragment = (TorrentListFragment) fm.findFragmentById(R.id.torrent_list);
             if (fragment != null) {
                 fragment.notifyTorrentListChanged(cursor, 0, added, removed,
                     statusChanged, incompleteMetadata, connected);
@@ -1240,8 +1263,8 @@ public class TorrentListActivity extends BaseTorrentActivity
 
             if (update) {
                 update = false;
-                if (TorrentListActivity.this.manager != null) {
-                    TorrentListActivity.this.manager.update();
+                if (manager != null) {
+                    manager.update();
                 }
             }
         }
