@@ -10,6 +10,7 @@ import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.database.Cursor;
 import android.database.MatrixCursor;
+import android.location.Location;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
@@ -674,15 +675,11 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
             return true;
         }
 
-        LayoutInflater inflater = getActivity().getLayoutInflater();
+        LocationDialogHelper helper = new LocationDialogHelper(getActivity());
 
-        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity())
-            .setTitle(R.string.set_location)
-            .setCancelable(false)
-            .setNegativeButton(android.R.string.no, null)
-            .setPositiveButton(android.R.string.yes,
-            new DialogInterface.OnClickListener() {
-            @Override public void onClick(DialogInterface dialog, int id) {
+        AlertDialog dialog = helper.showDialog(R.layout.torrent_location_dialog,
+            R.string.set_location, null, new DialogInterface.OnClickListener() {
+            @Override public void onClick(DialogInterface dialog, int which) {
                 Spinner location = (Spinner) ((AlertDialog) dialog).findViewById(R.id.location_choice);
                 EditText entry = (EditText) ((AlertDialog) dialog).findViewById(R.id.location_entry);
                 CheckBox move = (CheckBox) ((AlertDialog) dialog).findViewById(R.id.move);
@@ -706,86 +703,9 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
                     actionMode.finish();
                 }
             }
-        }).setView(inflater.inflate(R.layout.torrent_location_dialog, null));
-
-        final AlertDialog dialog = builder.create();
-        dialog.show();
-
-        final TransmissionProfileDirectoryAdapter adapter =
-                new TransmissionProfileDirectoryAdapter(
-                getActivity(), android.R.layout.simple_spinner_item);
-
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        adapter.addAll(session.getDownloadDirectories());
-        adapter.sort();
-        adapter.add(getString(R.string.spinner_custom_directory));
-
-        final Spinner location = (Spinner) dialog.findViewById(R.id.location_choice);
-        final int duration = getResources().getInteger(android.R.integer.config_shortAnimTime);
-        final LinearLayout container = (LinearLayout) dialog.findViewById(R.id.location_container);
-        final Runnable swapLocationSpinner = new Runnable() {
-            @Override public void run() {
-
-                container.setAlpha(0f);
-                container.setVisibility(View.VISIBLE);
-                container.animate().alpha(1f).setDuration(duration);
-
-                location.animate().alpha(0f).setDuration(duration).setListener(new AnimatorListenerAdapter() {
-                    @Override public void onAnimationEnd(Animator animation) {
-                        super.onAnimationEnd(animation);
-                        location.setVisibility(View.GONE);
-                        location.animate().setListener(null).cancel();
-                        if (location.getSelectedItemPosition() != adapter.getCount() - 1) {
-                            ((EditText) dialog.findViewById(R.id.location_entry)).setText((String) location.getSelectedItem());
-                        }
-                        container.requestFocus();
-                    }
-                });
-            }
-        };
-        location.setAdapter(adapter);
-        location.setOnLongClickListener(new View.OnLongClickListener() {
-            @Override public boolean onLongClick(final View v) {
-                swapLocationSpinner.run();
-                return true;
-            }
-        });
-        location.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                if (adapter.getCount() == position + 1) {
-                    swapLocationSpinner.run();
-                }
-            }
-            @Override public void onNothingSelected(AdapterView<?> parent) { }
-        });
-
-        View collapse = dialog.findViewById(R.id.location_collapse);
-        collapse.setOnClickListener(new View.OnClickListener() {
-            @Override public void onClick(View v) {
-                location.setAlpha(0f);
-                location.setVisibility(View.VISIBLE);
-                location.animate().alpha(1f).setDuration(duration);
-
-                container.animate().alpha(0f).setDuration(duration).setListener(new AnimatorListenerAdapter() {
-                    @Override public void onAnimationEnd(Animator animation) {
-                        super.onAnimationEnd(animation);
-                        container.setVisibility(View.GONE);
-                        container.animate().setListener(null).cancel();
-                    }
-                });
-            }
         });
 
         TransmissionProfile profile = ((TransmissionSessionInterface) getActivity()).getProfile();
-
-        if (profile != null && profile.getLastDownloadDirectory() != null) {
-            int position = adapter.getPosition(profile.getLastDownloadDirectory());
-
-            if (position > -1) {
-                location.setSelection(position);
-            }
-        }
-
         ((CheckBox) dialog.findViewById(R.id.move)).setChecked(
             profile != null && profile.getMoveData());
 

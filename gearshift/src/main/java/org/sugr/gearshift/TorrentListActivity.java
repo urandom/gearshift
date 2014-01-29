@@ -2,7 +2,6 @@ package org.sugr.gearshift;
 
 import android.animation.Animator;
 import android.animation.AnimatorInflater;
-import android.animation.AnimatorListenerAdapter;
 import android.animation.ValueAnimator;
 import android.annotation.TargetApi;
 import android.app.ActionBar;
@@ -38,7 +37,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.DecelerateInterpolator;
-import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.CheckBox;
 import android.widget.EditText;
@@ -84,7 +82,6 @@ public class TorrentListActivity extends BaseTorrentActivity
     private boolean hasFatalError = false;
 
     private static final String STATE_INTENT_CONSUMED = "intent_consumed";
-    private static final String STATE_LOCATION_POSITION = "location_position";
     private static final String STATE_CURRENT_PROFILE = "current_profile";
     private static final String STATE_FATAL_ERROR = "fatal_error";
 
@@ -96,8 +93,6 @@ public class TorrentListActivity extends BaseTorrentActivity
     private ValueAnimator detailSlideAnimator;
 
     private boolean detailPanelVisible;
-
-    private int locationPosition = AdapterView.INVALID_POSITION;
 
     private int currentTorrentIndex = -1;
 
@@ -292,9 +287,6 @@ public class TorrentListActivity extends BaseTorrentActivity
         } else {
             if (savedInstanceState.containsKey(STATE_INTENT_CONSUMED)) {
                 intentConsumed = savedInstanceState.getBoolean(STATE_INTENT_CONSUMED);
-            }
-            if (savedInstanceState.containsKey(STATE_LOCATION_POSITION)) {
-                locationPosition = savedInstanceState.getInt(STATE_LOCATION_POSITION);
             }
         }
 
@@ -545,7 +537,6 @@ public class TorrentListActivity extends BaseTorrentActivity
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putBoolean(STATE_INTENT_CONSUMED, intentConsumed);
-        outState.putInt(STATE_LOCATION_POSITION, locationPosition);
         outState.putParcelable(STATE_CURRENT_PROFILE, profile);
         outState.putBoolean(STATE_FATAL_ERROR, hasFatalError);
         if (manager != null) {
@@ -716,198 +707,125 @@ public class TorrentListActivity extends BaseTorrentActivity
 
     private void showNewTorrentDialog(final Uri data, final String fileURI,
                                       final String filePath, final Uri documentUri) {
+
+        if (manager == null || session == null) {
+            return;
+        }
+
         newTorrentDialogVisible = true;
 
-        LayoutInflater inflater = getLayoutInflater();
-        final View view = inflater.inflate(R.layout.new_torrent_dialog, null);
+        LocationDialogHelper helper = new LocationDialogHelper(this);
+        int title;
+        DialogInterface.OnClickListener okListener;
 
-        final AlertDialog.Builder builder = new AlertDialog.Builder(this)
-            .setCancelable(false)
-            .setView(view)
-            .setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
+        if (data != null && data.getScheme().equals("magnet")) {
+            title = R.string.add_new_magnet;
+            okListener = new DialogInterface.OnClickListener() {
                 @Override
-                public void onClick(DialogInterface dialog, int which) {
+                public void onClick(DialogInterface dialog, int id) {
+                    Spinner location = (Spinner) ((AlertDialog) dialog).findViewById(R.id.location_choice);
+                    EditText entry = (EditText) ((AlertDialog) dialog).findViewById(R.id.location_entry);
+                    CheckBox paused = (CheckBox) ((AlertDialog) dialog).findViewById(R.id.start_paused);
+                    String dir;
+
+                    if (location.getVisibility() != View.GONE) {
+                        dir = (String) location.getSelectedItem();
+                    } else {
+                        dir = entry.getText().toString();
+                    }
+
+                    if (TextUtils.isEmpty(dir)) {
+                        dir = session.getDownloadDir();
+                    }
+                    manager.addTorrent(data.toString(), null, dir, paused.isChecked(), null, null);
+
+                    setRefreshing(true, DataService.Requests.ADD_TORRENT);
                     intentConsumed = true;
                     newTorrentDialogVisible = false;
                 }
+            };
+        } else if (fileURI != null) {
+            title = R.string.add_new_torrent;
+            okListener = new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(final DialogInterface dialog, int which) {
+                    Spinner location = (Spinner) ((AlertDialog) dialog).findViewById(R.id.location_choice);
+                    EditText entry = (EditText) ((AlertDialog) dialog).findViewById(R.id.location_entry);
+                    CheckBox paused = (CheckBox) ((AlertDialog) dialog).findViewById(R.id.start_paused);
+                    CheckBox deleteLocal = (CheckBox) ((AlertDialog) dialog).findViewById(R.id.delete_local);
+                    BufferedReader reader = null;
 
-            });
-
-        final TransmissionProfileDirectoryAdapter adapter =
-            new TransmissionProfileDirectoryAdapter(
-                this, android.R.layout.simple_spinner_item);
-
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        adapter.addAll(getSession().getDownloadDirectories());
-        adapter.sort();
-        adapter.add(getString(R.string.spinner_custom_directory));
-
-        final Spinner location = (Spinner) view.findViewById(R.id.location_choice);
-        final LinearLayout container = (LinearLayout) view.findViewById(R.id.location_container);
-        final int duration = getResources().getInteger(android.R.integer.config_shortAnimTime);
-        final Runnable swapLocationSpinner = new Runnable() {
-            @Override public void run() {
-                container.setAlpha(0f);
-                container.setVisibility(View.VISIBLE);
-                container.animate().alpha(1f).setDuration(duration);
-
-                location.animate().alpha(0f).setDuration(duration).setListener(new AnimatorListenerAdapter() {
-                    @Override public void onAnimationEnd(Animator animation) {
-                        super.onAnimationEnd(animation);
-                        location.setVisibility(View.GONE);
-                        location.animate().setListener(null).cancel();
-                        if (location.getSelectedItemPosition() != adapter.getCount() - 1) {
-                            ((EditText) view.findViewById(R.id.location_entry)).setText((String) location.getSelectedItem());
-                        }
-                        container.requestFocus();
-                    }
-                });
-            }
-        };
-        location.setAdapter(adapter);
-        location.setOnLongClickListener(new View.OnLongClickListener() {
-            @Override public boolean onLongClick(final View v) {
-                swapLocationSpinner.run();
-                return true;
-            }
-        });
-
-        if (locationPosition == AdapterView.INVALID_POSITION) {
-            if (profile != null && profile.getLastDownloadDirectory() != null) {
-                int position = adapter.getPosition(profile.getLastDownloadDirectory());
-
-                if (position > -1) {
-                    location.setSelection(position);
-                }
-            }
-        } else {
-            location.setSelection(locationPosition);
-        }
-        location.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
-                if (adapter.getCount() == i + 1) {
-                    swapLocationSpinner.run();
-                }
-                locationPosition = i;
-            }
-            @Override public void onNothingSelected(AdapterView<?> adapterView) {}
-        });
-        View collapse = view.findViewById(R.id.location_collapse);
-        collapse.setOnClickListener(new View.OnClickListener() {
-            @Override public void onClick(View v) {
-                location.setAlpha(0f);
-                location.setVisibility(View.VISIBLE);
-                location.animate().alpha(1f).setDuration(duration);
-
-                container.animate().alpha(0f).setDuration(duration).setListener(new AnimatorListenerAdapter() {
-                    @Override public void onAnimationEnd(Animator animation) {
-                        super.onAnimationEnd(animation);
-                        container.setVisibility(View.GONE);
-                        container.animate().setListener(null).cancel();
-                    }
-                });
-            }
-        });
-
-        ((CheckBox) view.findViewById(R.id.start_paused)).setChecked(profile != null && profile.getStartPaused());
-
-        final CheckBox deleteLocal = ((CheckBox) view.findViewById(R.id.delete_local));
-        deleteLocal.setChecked(profile != null && profile.getDeleteLocal());
-
-        if (data != null && data.getScheme().equals("magnet")) {
-            builder.setTitle(R.string.add_new_magnet).setPositiveButton(android.R.string.ok,
-                new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int id) {
-                        Spinner location = (Spinner) ((AlertDialog) dialog).findViewById(R.id.location_choice);
-                        EditText entry = (EditText) ((AlertDialog) dialog).findViewById(R.id.location_entry);
-                        CheckBox paused = (CheckBox) ((AlertDialog) dialog).findViewById(R.id.start_paused);
+                    try {
                         String dir;
-
                         if (location.getVisibility() != View.GONE) {
                             dir = (String) location.getSelectedItem();
                         } else {
                             dir = entry.getText().toString();
                         }
 
-                        if (TextUtils.isEmpty(dir)) {
-                            dir = session.getDownloadDir();
+                        File file = new File(new URI(fileURI));
+
+                        reader = new BufferedReader(new FileReader(file));
+                        StringBuilder filedata = new StringBuilder();
+                        String line;
+
+                        while ((line = reader.readLine()) != null) {
+                            filedata.append(line).append("\n");
                         }
-                        manager.addTorrent(data.toString(), null, dir, paused.isChecked(), null, null);
+
+                        if (!file.delete()) {
+                            Toast.makeText(TorrentListActivity.this,
+                                R.string.error_deleting_torrent_file, Toast.LENGTH_SHORT).show();
+                        }
+
+                        String path = filePath;
+                        Uri uri = documentUri;
+                        if (!deleteLocal.isChecked()) {
+                            path = null;
+                            uri = null;
+                        }
+
+                        manager.addTorrent(null, filedata.toString(), dir, paused.isChecked(),
+                            path, uri);
 
                         setRefreshing(true, DataService.Requests.ADD_TORRENT);
-                        intentConsumed = true;
-                        newTorrentDialogVisible = false;
-                    }
-                });
-
-            AlertDialog dialog = builder.create();
-            dialog.show();
-        } else if (fileURI != null) {
-            deleteLocal.setVisibility(View.VISIBLE);
-
-            builder.setTitle(R.string.add_new_torrent).setPositiveButton(android.R.string.ok,
-                new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(final DialogInterface dialog, int which) {
-                        Spinner location = (Spinner) ((AlertDialog) dialog).findViewById(R.id.location_choice);
-                        EditText entry = (EditText) ((AlertDialog) dialog).findViewById(R.id.location_entry);
-                        CheckBox paused = (CheckBox) ((AlertDialog) dialog).findViewById(R.id.start_paused);
-                        BufferedReader reader = null;
-
-                        try {
-                            String dir;
-                            if (location.getVisibility() != View.GONE) {
-                                dir = (String) location.getSelectedItem();
-                            } else {
-                                dir = entry.getText().toString();
-                            }
-
-                            File file = new File(new URI(fileURI));
-
-                            reader = new BufferedReader(new FileReader(file));
-                            StringBuilder filedata = new StringBuilder();
-                            String line;
-
-                            while ((line = reader.readLine()) != null) {
-                                filedata.append(line).append("\n");
-                            }
-
-                            if (!file.delete()) {
-                                Toast.makeText(TorrentListActivity.this,
-                                    R.string.error_deleting_torrent_file, Toast.LENGTH_SHORT).show();
-                            }
-
-                            String path = filePath;
-                            Uri uri = documentUri;
-                            if (!deleteLocal.isChecked()) {
-                                path = null;
-                                uri = null;
-                            }
-
-                            manager.addTorrent(null, filedata.toString(), dir, paused.isChecked(),
-                                path, uri);
-
-                            setRefreshing(true, DataService.Requests.ADD_TORRENT);
-                        } catch (Exception e) {
-                            Toast.makeText(TorrentListActivity.this,
-                                R.string.error_reading_torrent_file, Toast.LENGTH_SHORT).show();
-                        } finally {
-                            if (reader != null) {
-                                try {
-                                    reader.close();
-                                } catch (IOException e) {
-                                    e.printStackTrace();
-                                }
+                    } catch (Exception e) {
+                        Toast.makeText(TorrentListActivity.this,
+                            R.string.error_reading_torrent_file, Toast.LENGTH_SHORT).show();
+                    } finally {
+                        if (reader != null) {
+                            try {
+                                reader.close();
+                            } catch (IOException e) {
+                                e.printStackTrace();
                             }
                         }
-                        intentConsumed = true;
-                        newTorrentDialogVisible = false;
                     }
-                });
+                    intentConsumed = true;
+                    newTorrentDialogVisible = false;
+                }
+            };
+        } else {
+            return;
+        }
 
-            AlertDialog dialog = builder.create();
-            dialog.show();
+        AlertDialog dialog = helper.showDialog(R.layout.new_torrent_dialog,
+            title, new DialogInterface.OnClickListener() {
+                @Override public void onClick(DialogInterface dialog, int which) {
+                    intentConsumed = true;
+                    newTorrentDialogVisible = false;
+                }
+            }, okListener
+        );
+
+        CheckBox startPaused = (CheckBox) dialog.findViewById(R.id.start_paused);
+        startPaused.setChecked(profile != null && profile.getStartPaused());
+
+        CheckBox deleteLocal = (CheckBox) dialog.findViewById(R.id.delete_local);
+        deleteLocal.setChecked(profile != null && profile.getDeleteLocal());
+
+        if (fileURI != null) {
+            deleteLocal.setVisibility(View.VISIBLE);
         }
     }
 
@@ -919,12 +837,7 @@ public class TorrentListActivity extends BaseTorrentActivity
             .setCancelable(true)
             .setView(view)
             .setTitle(R.string.add_torrent)
-            .setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                }
-
-            })
+            .setNegativeButton(android.R.string.cancel, null)
             .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
                 @Override public void onClick(DialogInterface dialog, int which) {
                     EditText magnet = (EditText) ((AlertDialog) dialog).findViewById(R.id.magnet_link);
