@@ -273,6 +273,7 @@ public class TransmissionSessionManager {
         arguments.put(Torrent.AddFields.PAUSED, paused);
 
         AddTorrentResponse response = new AddTorrentResponse();
+        response.setLocation(location);
         requestData(request, response);
         if (response.getResult().equals("success")) {
             return response.getAddedHash();
@@ -577,7 +578,8 @@ public class TransmissionSessionManager {
                                             break;
                                     }
                                 }
-                                dataSource.addTorrent(id, addedName, addedHash);
+                                dataSource.addTorrent(id, addedName, addedHash,
+                                    ((AddTorrentResponse) response).getLocation());
                             } else if (argname.equals("torrent-duplicate")) {
                                 while (parser.nextToken() != JsonToken.END_OBJECT) {
                                     String key = parser.getCurrentName();
@@ -681,6 +683,7 @@ public class TransmissionSessionManager {
         private String addedHash;
 
         private int duplicateId = -1;
+        private String location;
 
         public int getAddedId() {
             return addedId;
@@ -702,6 +705,14 @@ public class TransmissionSessionManager {
         }
         public void setDuplicateId(int id) {
             duplicateId = id;
+        }
+
+        public String getLocation() {
+            return location;
+        }
+
+        public void setLocation(String location) {
+            this.location = location;
         }
     }
 

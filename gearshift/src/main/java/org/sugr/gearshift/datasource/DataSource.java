@@ -21,6 +21,7 @@ import org.sugr.gearshift.TransmissionSession;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
@@ -407,7 +408,7 @@ public class DataSource {
         }
     }
 
-    public boolean addTorrent(int id, String name, String hash) {
+    public boolean addTorrent(int id, String name, String hash, String location) {
         if (!isOpen())
             return false;
 
@@ -421,6 +422,8 @@ public class DataSource {
                 values.put(Constants.C_TORRENT_ID, id);
                 values.put(Constants.C_NAME, name);
                 values.put(Constants.C_STATUS, Torrent.Status.STOPPED);
+                values.put(Constants.C_ADDED_DATE, new Date().getTime() / 1000);
+                values.put(Constants.C_DOWNLOAD_DIR, location);
 
                 long result = database.insert(Constants.T_TORRENT, null, values);
 

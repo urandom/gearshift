@@ -534,8 +534,8 @@ public class TorrentListActivity extends BaseTorrentActivity
             setIntent(intent);
             setRefreshing(true, null);
 
-            /* Less than a minute ago */
-            if (new Date().getTime() - lastServerActivity < 60000) {
+            /* Less than 30 seconds ago */
+            if (new Date().getTime() - lastServerActivity < 30000) {
                 consumeIntent();
             } else if (manager != null) {
                 manager.getSession();
