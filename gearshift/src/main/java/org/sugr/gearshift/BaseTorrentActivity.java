@@ -1,6 +1,9 @@
 package org.sugr.gearshift;
 
+import android.content.BroadcastReceiver;
+import android.content.IntentFilter;
 import android.support.v4.app.FragmentActivity;
+import android.support.v4.content.LocalBroadcastManager;
 import android.view.Menu;
 import android.view.MenuItem;
 
@@ -19,6 +22,34 @@ public abstract class BaseTorrentActivity extends FragmentActivity
     protected String refreshType;
 
     protected Menu menu;
+
+    protected BroadcastReceiver serviceReceiver;
+
+    @Override protected void onResume() {
+        super.onResume();
+
+        if (profile != null && manager == null) {
+            manager = new DataServiceManager(this, profile.getId()).startUpdating();
+        }
+
+        LocalBroadcastManager.getInstance(this).registerReceiver(
+            serviceReceiver, new IntentFilter(G.INTENT_SERVICE_ACTION_COMPLETE));
+
+        GearShiftApplication.setActivityVisible(true);
+    }
+
+    @Override protected void onPause() {
+        super.onPause();
+
+        if (manager != null) {
+            manager.reset();
+            manager = null;
+        }
+
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(serviceReceiver);
+
+        GearShiftApplication.setActivityVisible(false);
+    }
 
     @Override public TransmissionProfile getProfile() {
         return profile;

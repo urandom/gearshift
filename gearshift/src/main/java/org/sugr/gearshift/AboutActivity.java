@@ -31,4 +31,16 @@ public class AboutActivity extends FragmentActivity {
             "https://www.paypal.com/bg/cgi-bin/webscr?cmd=_donations&business=support@sugr.org&lc=US&item_name=Gear Shift&no_note=1&no_shipping=1&currency_code=EUR")));
         donation.setMovementMethod(LinkMovementMethod.getInstance());
     }
+
+    @Override protected void onResume() {
+        super.onResume();
+
+        GearShiftApplication.setActivityVisible(true);
+    }
+
+    @Override protected void onPause() {
+        super.onPause();
+
+        GearShiftApplication.setActivityVisible(false);
+    }
 }

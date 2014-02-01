@@ -12,7 +12,6 @@ import android.content.ContentResolver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.database.Cursor;
@@ -26,7 +25,6 @@ import android.support.v4.app.ActionBarDrawerToggle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.LoaderManager;
-import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.text.Html;
@@ -60,6 +58,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.Date;
 
 public class TorrentListActivity extends BaseTorrentActivity
         implements TorrentListFragment.Callbacks {
@@ -74,16 +73,17 @@ public class TorrentListActivity extends BaseTorrentActivity
      */
     private boolean twoPaneLayout;
 
-    private ServiceReceiver serviceReceiver;
-
     private boolean intentConsumed = false;
     private boolean newTorrentDialogVisible = false;
     private boolean hasNewIntent = false;
     private boolean hasFatalError = false;
 
+    private long lastServerActivity;
+
     private static final String STATE_INTENT_CONSUMED = "intent_consumed";
     private static final String STATE_CURRENT_PROFILE = "current_profile";
     private static final String STATE_FATAL_ERROR = "fatal_error";
+    private static final String STATE_LAST_SERVER_ACTIVITY = "last_server_activity";
 
     private static final int BROWSE_REQUEST_CODE = 1;
 
@@ -352,6 +352,9 @@ public class TorrentListActivity extends BaseTorrentActivity
             if (savedInstanceState.containsKey(STATE_FATAL_ERROR)) {
                 hasFatalError = savedInstanceState.getBoolean(STATE_FATAL_ERROR, false);
             }
+            if (savedInstanceState.containsKey(STATE_LAST_SERVER_ACTIVITY)) {
+                lastServerActivity = savedInstanceState.getLong(STATE_LAST_SERVER_ACTIVITY, 0);
+            }
         }
 
         getSupportLoaderManager().initLoader(G.PROFILES_LOADER_ID, null, profileLoaderCallbacks);
@@ -368,27 +371,6 @@ public class TorrentListActivity extends BaseTorrentActivity
     public void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
         drawerToggle.onConfigurationChanged(newConfig);
-    }
-
-    @Override protected void onResume() {
-        super.onResume();
-
-        if (profile != null && manager == null) {
-            manager = new DataServiceManager(this, profile.getId()).startUpdating();
-        }
-
-        LocalBroadcastManager.getInstance(this).registerReceiver(
-            serviceReceiver, new IntentFilter(G.INTENT_SERVICE_ACTION_COMPLETE));
-    }
-
-    @Override protected void onPause() {
-        super.onPause();
-
-        LocalBroadcastManager.getInstance(this).unregisterReceiver(serviceReceiver);
-        if (manager != null) {
-            manager.reset();
-            manager = null;
-        }
     }
 
     /**
@@ -539,6 +521,7 @@ public class TorrentListActivity extends BaseTorrentActivity
         outState.putBoolean(STATE_INTENT_CONSUMED, intentConsumed);
         outState.putParcelable(STATE_CURRENT_PROFILE, profile);
         outState.putBoolean(STATE_FATAL_ERROR, hasFatalError);
+        outState.putLong(STATE_LAST_SERVER_ACTIVITY, lastServerActivity);
         if (manager != null) {
             manager.onSaveInstanceState(outState);
         }
@@ -550,7 +533,11 @@ public class TorrentListActivity extends BaseTorrentActivity
             hasNewIntent = true;
             setIntent(intent);
             setRefreshing(true, null);
-            if (manager != null) {
+
+            /* Less than a minute ago */
+            if (new Date().getTime() - lastServerActivity < 60000) {
+                consumeIntent();
+            } else if (manager != null) {
                 manager.getSession();
             }
         }
@@ -937,6 +924,8 @@ public class TorrentListActivity extends BaseTorrentActivity
                 case DataService.Requests.SET_TORRENT_LOCATION:
                 case DataService.Requests.GET_FREE_SPACE:
                     setRefreshing(false, type);
+                    lastServerActivity = new Date().getTime();
+
                     if (error == 0) {
 
                         findViewById(R.id.fatal_error_layer).setVisibility(View.GONE);

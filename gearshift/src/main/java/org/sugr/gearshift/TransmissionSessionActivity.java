@@ -171,13 +171,20 @@ public class TransmissionSessionActivity extends FragmentActivity implements Dat
                 .setDetails(true).startUpdating();
         }
         LocalBroadcastManager.getInstance(this).registerReceiver(serviceReceiver, new IntentFilter(G.INTENT_SERVICE_ACTION_COMPLETE));
+
+        GearShiftApplication.setActivityVisible(true);
     }
 
     @Override protected void onPause() {
         super.onPause();
 
         LocalBroadcastManager.getInstance(this).unregisterReceiver(serviceReceiver);
-        manager.reset();
+        if (manager != null) {
+            manager.reset();
+            manager = null;
+        }
+
+        GearShiftApplication.setActivityVisible(false);
     }
 
     @Override public void onSaveInstanceState(Bundle outState) {

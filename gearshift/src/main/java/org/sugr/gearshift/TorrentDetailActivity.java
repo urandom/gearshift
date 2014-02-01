@@ -40,8 +40,6 @@ import java.util.List;
 public class TorrentDetailActivity extends BaseTorrentActivity {
     private int currentTorrentPosition = 0;
 
-    private ServiceReceiver serviceReceiver;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         Intent in = getIntent();
@@ -77,25 +75,6 @@ public class TorrentDetailActivity extends BaseTorrentActivity {
                     .commit();
         }
         new SessionTask(this, SessionTask.Flags.START_TORRENT_TASK).execute();
-    }
-
-    @Override protected void onResume() {
-        super.onResume();
-
-        if (profile != null && manager == null) {
-            manager = new DataServiceManager(this, profile.getId())
-                .setDetails(true).startUpdating();
-        }
-
-        LocalBroadcastManager.getInstance(this).registerReceiver(serviceReceiver, new IntentFilter(G.INTENT_SERVICE_ACTION_COMPLETE));
-    }
-
-    @Override protected void onPause() {
-        super.onPause();
-
-        LocalBroadcastManager.getInstance(this).unregisterReceiver(serviceReceiver);
-        manager.reset();
-        manager = null;
     }
 
     @Override public void onSaveInstanceState(Bundle outState) {

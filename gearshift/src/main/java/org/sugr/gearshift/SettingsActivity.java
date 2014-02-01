@@ -135,6 +135,18 @@ public class SettingsActivity extends PreferenceActivity
         return super.onOptionsItemSelected(item);
     }
 
+    @Override protected void onResume() {
+        super.onResume();
+
+        GearShiftApplication.setActivityVisible(true);
+    }
+
+    @Override protected void onPause() {
+        super.onPause();
+
+        GearShiftApplication.setActivityVisible(false);
+    }
+
     @Override
     public Loader<TransmissionProfile[]> onCreateLoader(int id, Bundle args) {
         return new TransmissionProfileLoader(this);

@@ -15,6 +15,7 @@
 
     <application
         android:allowBackup="true"
+        android:name=".GearShiftApplication"
         android:backupAgent=".BackupAgent"
         android:restoreAnyVersion="true"
         android:icon="@drawable/ic_launcher"
