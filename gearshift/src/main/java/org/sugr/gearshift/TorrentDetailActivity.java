@@ -40,8 +40,7 @@ import java.util.List;
 public class TorrentDetailActivity extends BaseTorrentActivity {
     private int currentTorrentPosition = 0;
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    @Override protected void onCreate(Bundle savedInstanceState) {
         Intent in = getIntent();
 
         profile = in.getParcelableExtra(G.ARG_PROFILE);

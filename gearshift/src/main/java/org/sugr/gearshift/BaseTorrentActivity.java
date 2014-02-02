@@ -2,6 +2,7 @@ package org.sugr.gearshift;
 
 import android.content.BroadcastReceiver;
 import android.content.IntentFilter;
+import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.content.LocalBroadcastManager;
 import android.view.Menu;
@@ -12,6 +13,7 @@ import org.sugr.gearshift.service.DataServiceManagerInterface;
 
 public abstract class BaseTorrentActivity extends FragmentActivity
     implements TransmissionSessionInterface, DataServiceManagerInterface,
+               LocationDialogHelperInterface,
                TorrentDetailFragment.PagerCallbacks {
 
     protected TransmissionProfile profile;
@@ -24,6 +26,14 @@ public abstract class BaseTorrentActivity extends FragmentActivity
     protected Menu menu;
 
     protected BroadcastReceiver serviceReceiver;
+
+    protected LocationDialogHelper locationDialogHelper;
+
+    @Override protected void onCreate(Bundle savedInstanceState) {
+        locationDialogHelper = new LocationDialogHelper(this);
+
+        super.onCreate(savedInstanceState);
+    }
 
     @Override protected void onResume() {
         super.onResume();
@@ -49,6 +59,8 @@ public abstract class BaseTorrentActivity extends FragmentActivity
         LocalBroadcastManager.getInstance(this).unregisterReceiver(serviceReceiver);
 
         GearShiftApplication.setActivityVisible(false);
+
+        locationDialogHelper.reset();
     }
 
     @Override public TransmissionProfile getProfile() {
@@ -83,5 +95,9 @@ public abstract class BaseTorrentActivity extends FragmentActivity
 
     @Override public DataServiceManager getDataServiceManager() {
         return manager;
+    }
+
+    @Override public LocationDialogHelper getLocationDialogHelper() {
+        return locationDialogHelper;
     }
 }

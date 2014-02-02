@@ -670,35 +670,35 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
             return true;
         }
 
-        LocationDialogHelper helper = new LocationDialogHelper(getActivity());
+        AlertDialog dialog = ((LocationDialogHelperInterface) getActivity())
+            .getLocationDialogHelper().showDialog(R.layout.torrent_location_dialog,
+                R.string.set_location, null, new DialogInterface.OnClickListener() {
+                @Override public void onClick(DialogInterface dialog, int which) {
+                    Spinner location = (Spinner) ((AlertDialog) dialog).findViewById(R.id.location_choice);
+                    EditText entry = (EditText) ((AlertDialog) dialog).findViewById(R.id.location_entry);
+                    CheckBox move = (CheckBox) ((AlertDialog) dialog).findViewById(R.id.move);
+                    String dir;
 
-        AlertDialog dialog = helper.showDialog(R.layout.torrent_location_dialog,
-            R.string.set_location, null, new DialogInterface.OnClickListener() {
-            @Override public void onClick(DialogInterface dialog, int which) {
-                Spinner location = (Spinner) ((AlertDialog) dialog).findViewById(R.id.location_choice);
-                EditText entry = (EditText) ((AlertDialog) dialog).findViewById(R.id.location_entry);
-                CheckBox move = (CheckBox) ((AlertDialog) dialog).findViewById(R.id.move);
-                String dir;
+                    if (location.getVisibility() != View.GONE) {
+                        dir = (String) location.getSelectedItem();
+                    } else {
+                        dir = entry.getText().toString();
+                    }
 
-                if (location.getVisibility() != View.GONE) {
-                    dir = (String) location.getSelectedItem();
-                } else {
-                    dir = entry.getText().toString();
-                }
+                    if (TextUtils.isEmpty(dir)) {
+                        dir = session.getDownloadDir();
+                    }
 
-                if (TextUtils.isEmpty(dir)) {
-                    dir = session.getDownloadDir();
-                }
+                    manager.setTorrentLocation(hashStrings, dir, move.isChecked());
+                    ((TransmissionSessionInterface) getActivity()).setRefreshing(true,
+                        DataService.Requests.SET_TORRENT_LOCATION);
 
-                manager.setTorrentLocation(hashStrings, dir, move.isChecked());
-                ((TransmissionSessionInterface) getActivity()).setRefreshing(true,
-                    DataService.Requests.SET_TORRENT_LOCATION);
-
-                if (actionMode != null) {
-                    actionMode.finish();
+                    if (actionMode != null) {
+                        actionMode.finish();
+                    }
                 }
             }
-        });
+        );
 
         TransmissionProfile profile = ((TransmissionSessionInterface) getActivity()).getProfile();
         ((CheckBox) dialog.findViewById(R.id.move)).setChecked(

@@ -360,11 +360,28 @@ public class TorrentListActivity extends BaseTorrentActivity
         getSupportLoaderManager().initLoader(G.PROFILES_LOADER_ID, null, profileLoaderCallbacks);
     }
 
-    @Override
-    protected void onPostCreate(Bundle savedInstanceState) {
+    @Override protected void onPostCreate(Bundle savedInstanceState) {
         super.onPostCreate(savedInstanceState);
         // Sync the toggle state after onRestoreInstanceState has occurred.
         drawerToggle.syncState();
+    }
+
+    @Override protected void onResume() {
+        super.onResume();
+
+        if (!newTorrentDialogVisible) {
+            intentConsumed = false;
+            hasNewIntent = true;
+
+            /* Less than a minute ago */
+            long now = new Date().getTime();
+            if (now - lastServerActivity < 60000) {
+                consumeIntent();
+            } else if (manager != null) {
+                setRefreshing(true, DataService.Requests.GET_SESSION);
+                manager.getSession();
+            }
+        }
     }
 
     @Override
@@ -515,8 +532,7 @@ public class TorrentListActivity extends BaseTorrentActivity
         return super.onOptionsItemSelected(item);
     }
 
-    @Override
-    public void onSaveInstanceState(Bundle outState) {
+    @Override public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putBoolean(STATE_INTENT_CONSUMED, intentConsumed);
         outState.putParcelable(STATE_CURRENT_PROFILE, profile);
@@ -528,19 +544,7 @@ public class TorrentListActivity extends BaseTorrentActivity
     }
 
     @Override public void onNewIntent(Intent intent) {
-        if (!newTorrentDialogVisible) {
-            intentConsumed = false;
-            hasNewIntent = true;
-            setIntent(intent);
-            setRefreshing(true, null);
-
-            /* Less than a minute ago */
-            if (new Date().getTime() - lastServerActivity < 60000) {
-                consumeIntent();
-            } else if (manager != null) {
-                manager.getSession();
-            }
-        }
+        setIntent(intent);
     }
 
     @Override public void onActivityResult(int requestCode, int resultCode, Intent resultData) {
@@ -701,7 +705,6 @@ public class TorrentListActivity extends BaseTorrentActivity
 
         newTorrentDialogVisible = true;
 
-        LocationDialogHelper helper = new LocationDialogHelper(this);
         int title;
         DialogInterface.OnClickListener okListener;
 
@@ -796,7 +799,7 @@ public class TorrentListActivity extends BaseTorrentActivity
             return;
         }
 
-        AlertDialog dialog = helper.showDialog(R.layout.new_torrent_dialog,
+        AlertDialog dialog = locationDialogHelper.showDialog(R.layout.new_torrent_dialog,
             title, new DialogInterface.OnClickListener() {
                 @Override public void onClick(DialogInterface dialog, int which) {
                     intentConsumed = true;

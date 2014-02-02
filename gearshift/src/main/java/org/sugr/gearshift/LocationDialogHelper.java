@@ -4,7 +4,6 @@ import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
-import android.support.v4.app.FragmentActivity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.AdapterView;
@@ -16,9 +15,10 @@ import org.sugr.gearshift.service.DataServiceManager;
 import org.sugr.gearshift.service.DataServiceManagerInterface;
 
 public class LocationDialogHelper {
-    private FragmentActivity activity;
+    private BaseTorrentActivity activity;
+    private AlertDialog dialog;
 
-    public LocationDialogHelper(FragmentActivity activity) {
+    public LocationDialogHelper(BaseTorrentActivity activity) {
         if (!(activity instanceof TransmissionSessionInterface)
             || !(activity instanceof DataServiceManagerInterface)) {
             throw new IllegalArgumentException("Invalid activity instance");
@@ -32,8 +32,8 @@ public class LocationDialogHelper {
                                   DialogInterface.OnClickListener okListener) {
         LayoutInflater inflater = activity.getLayoutInflater();
 
-        final TransmissionSession session = ((TransmissionSessionInterface) activity).getSession();
-        final DataServiceManager manager = ((DataServiceManagerInterface) activity).getDataServiceManager();
+        final TransmissionSession session = activity.getSession();
+        final DataServiceManager manager = activity.getDataServiceManager();
         if (session == null || manager == null) {
             return null;
         }
@@ -96,7 +96,7 @@ public class LocationDialogHelper {
 
         final Runnable setInitialLocation = new Runnable() {
             @Override public void run() {
-                TransmissionProfile profile = ((TransmissionSessionInterface) activity).getProfile();
+                TransmissionProfile profile = activity.getProfile();
                 if (profile != null && profile.getLastDownloadDirectory() != null) {
                     int position = adapter.getPosition(profile.getLastDownloadDirectory());
 
@@ -127,9 +127,19 @@ public class LocationDialogHelper {
             }
         });
 
-        AlertDialog dialog = builder.create();
+        if (dialog != null) {
+            dialog.dismiss();
+        }
+        dialog = builder.create();
 
         dialog.show();
         return dialog;
+    }
+
+    public void reset() {
+        if (dialog != null) {
+            dialog.dismiss();
+            dialog = null;
+        }
     }
 }
