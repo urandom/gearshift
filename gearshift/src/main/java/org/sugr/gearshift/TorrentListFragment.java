@@ -51,6 +51,7 @@ import org.sugr.gearshift.service.DataService;
 import org.sugr.gearshift.service.DataServiceManager;
 import org.sugr.gearshift.service.DataServiceManagerInterface;
 
+import java.util.ArrayList;
 import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -395,7 +396,7 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
             e.apply();
         }
 
-        torrentAdapter = new TorrentCursorAdapter(getActivity(), null);
+        torrentAdapter = new TorrentCursorAdapter(getActivity(), savedInstanceState);
         setListAdapter(torrentAdapter);
 
         TextView status = (TextView) view.findViewById(R.id.status_bar_text);
@@ -472,6 +473,7 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
 
         outState.putBoolean(STATE_FIND_SHOWN, findVisible);
         outState.putString(STATE_FIND_QUERY, findQuery);
+        torrentAdapter.onSaveInstanceState(outState);
     }
 
     @Override
@@ -746,7 +748,7 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
     }
 
     private class TorrentCursorAdapter extends CursorAdapter {
-        private SparseBooleanArray torrentAdded= new SparseBooleanArray();
+        private SparseBooleanArray addedTorrents = new SparseBooleanArray();
         private DataSource readDataSource;
         private Cursor temporaryFilterCursor;
 
@@ -755,11 +757,17 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
 
         private final Object lock = new Object();
 
-        public TorrentCursorAdapter(Context context, Cursor cursor) {
-            super(context, cursor, 0);
+        private static final String STATE_ADDED_TORRENTS = "adapter_added_torrents";
+
+        public TorrentCursorAdapter(Context context, Bundle state) {
+            super(context, null, 0);
 
             resourcesCleared = false;
             readDataSource = new DataSource(context);
+
+            if (state != null) {
+                onRestoreInstanceState(state);
+            }
 
             setFilterQueryProvider(new FilterQueryProvider() {
                 @Override public Cursor runQuery(CharSequence charSequence) {
@@ -910,6 +918,28 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
             }
         }
 
+        public void onSaveInstanceState(Bundle outState) {
+            int[] ids = new int[addedTorrents.size()];
+
+            for (int i = 0; i < addedTorrents.size(); ++i) {
+                int id = addedTorrents.keyAt(i);
+                ids[i] = id;
+            }
+
+            outState.putIntArray(STATE_ADDED_TORRENTS, ids);
+        }
+
+        public void onRestoreInstanceState(Bundle state) {
+            if (state.containsKey(STATE_ADDED_TORRENTS)) {
+                int[] ids = state.getIntArray(STATE_ADDED_TORRENTS);
+                if (ids != null) {
+                    for (int id : ids) {
+                        addedTorrents.append(id, true);
+                    }
+                }
+            }
+        }
+
         public void setTemporaryFilterCursor(Cursor cursor) {
             temporaryFilterCursor = cursor;
         }
@@ -928,7 +958,7 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
 
             getFilter().filter(sharedPrefs.getString(G.PREF_LIST_SEARCH, ""));
             if (animate) {
-                torrentAdded = new SparseBooleanArray();
+                addedTorrents = new SparseBooleanArray();
             }
         }
 
@@ -996,12 +1026,12 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
                 errorText.setText(Torrent.getErrorString(cursor));
             }
 
-            if (!torrentAdded.get(id, false)) {
+            if (!addedTorrents.get(id, false)) {
                 view.setTranslationY(100);
                 view.setAlpha((float) 0.3);
                 view.setRotationX(10);
                 view.animate().setDuration(300).translationY(0).alpha(1).rotationX(0).start();
-                torrentAdded.append(id, true);
+                addedTorrents.append(id, true);
             }
         }
 
