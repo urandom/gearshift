@@ -100,8 +100,6 @@ public class TorrentListActivity extends BaseTorrentActivity
 
     private boolean altSpeed = false;
 
-    private boolean preventRefreshIndicator;
-
     private int expecting = 0;
 
     private static class Expecting {
@@ -122,6 +120,7 @@ public class TorrentListActivity extends BaseTorrentActivity
             TransmissionProfile[] profiles) {
 
             profile = null;
+            profileAdapter.setNotifyOnChange(false);
             profileAdapter.clear();
             if (profiles.length > 0) {
                 profileAdapter.addAll(profiles);
@@ -135,10 +134,11 @@ public class TorrentListActivity extends BaseTorrentActivity
             int index = 0;
             for (TransmissionProfile prof : profiles) {
                 if (prof.getId().equals(currentId)) {
-                    ActionBar actionBar = getActionBar();
-                    if (actionBar != null)
-                        actionBar.setSelectedNavigationItem(index);
                     setProfile(prof);
+                    ActionBar actionBar = getActionBar();
+                    if (actionBar != null) {
+                        actionBar.setSelectedNavigationItem(index);
+                    }
                     break;
                 }
                 index++;
@@ -151,14 +151,10 @@ public class TorrentListActivity extends BaseTorrentActivity
                     setProfile(null);
                     /* TODO: should display the message that the user hasn't created a profile yet */
                 }
-            } else {
-                /* The torrents might be loaded before the navigation
-                 * callback fires, which will cause the refresh indicator to
-                 * appear until the next server request */
-                preventRefreshIndicator = true;
             }
 
             TransmissionProfile.setCurrentProfile(profile, TorrentListActivity.this);
+            profileAdapter.notifyDataSetChanged();
         }
 
         @Override
@@ -315,7 +311,11 @@ public class TorrentListActivity extends BaseTorrentActivity
                 public boolean onNavigationItemSelected(int pos, long id) {
                     TransmissionProfile profile = profileAdapter.getItem(pos);
                     if (profile != TransmissionProfileListAdapter.EMPTY_PROFILE) {
-                        if (TorrentListActivity.this.profile != null) {
+                        if (getProfile() != null) {
+                            if (getProfile().getId().equals(profile.getId())) {
+                                return false;
+                            }
+
                             SharedPreferences prefs = TransmissionProfile.getPreferences(TorrentListActivity.this);
                             if (prefs != null)
                                 prefs.unregisterOnSharedPreferenceChangeListener(profileChangeListener);
@@ -328,11 +328,7 @@ public class TorrentListActivity extends BaseTorrentActivity
                         if (prefs != null)
                             prefs.registerOnSharedPreferenceChangeListener(profileChangeListener);
 
-                        if (preventRefreshIndicator) {
-                            preventRefreshIndicator = false;
-                        } else {
-                            setRefreshing(true, DataService.Requests.GET_TORRENTS);
-                        }
+                        setRefreshing(true, DataService.Requests.GET_TORRENTS);
                     }
 
                     return false;
@@ -369,9 +365,8 @@ public class TorrentListActivity extends BaseTorrentActivity
     @Override protected void onResume() {
         super.onResume();
 
-        if (!newTorrentDialogVisible) {
+        if (!newTorrentDialogVisible && hasNewIntent) {
             intentConsumed = false;
-            hasNewIntent = true;
 
             /* Less than a minute ago */
             long now = new Date().getTime();
@@ -544,6 +539,7 @@ public class TorrentListActivity extends BaseTorrentActivity
     }
 
     @Override public void onNewIntent(Intent intent) {
+        hasNewIntent = true;
         setIntent(intent);
     }
 
@@ -1004,6 +1000,7 @@ public class TorrentListActivity extends BaseTorrentActivity
                             expecting = 0;
                             hasFatalError = true;
                             toggleRightPane(false);
+                            setRefreshing(false, refreshType);
                             FragmentManager manager = getSupportFragmentManager();
                             TorrentListFragment fragment = (TorrentListFragment) manager.findFragmentById(R.id.torrent_list);
                             if (fragment != null) {
@@ -1162,6 +1159,10 @@ public class TorrentListActivity extends BaseTorrentActivity
             FragmentManager fm = getSupportFragmentManager();
             TorrentListFragment fragment = (TorrentListFragment) fm.findFragmentById(R.id.torrent_list);
             if (fragment != null) {
+                long now = new Date().getTime();
+                if (now - lastServerActivity < 30000) {
+                    connected = true;
+                }
                 fragment.notifyTorrentListChanged(cursor, 0, added, removed,
                     statusChanged, incompleteMetadata, connected);
             }
