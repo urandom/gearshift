@@ -7,7 +7,6 @@ import android.annotation.TargetApi;
 import android.app.ActionBar;
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.content.BroadcastReceiver;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -27,7 +26,6 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
-import android.text.Html;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -44,7 +42,6 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import org.sugr.gearshift.datasource.DataSource;
 import org.sugr.gearshift.service.DataService;
 import org.sugr.gearshift.service.DataServiceManager;
 import org.sugr.gearshift.util.Base64;
@@ -76,14 +73,9 @@ public class TorrentListActivity extends BaseTorrentActivity
     private boolean intentConsumed = false;
     private boolean newTorrentDialogVisible = false;
     private boolean hasNewIntent = false;
-    private boolean hasFatalError = false;
-
-    private long lastServerActivity;
 
     private static final String STATE_INTENT_CONSUMED = "intent_consumed";
     private static final String STATE_CURRENT_PROFILE = "current_profile";
-    private static final String STATE_FATAL_ERROR = "fatal_error";
-    private static final String STATE_LAST_SERVER_ACTIVITY = "last_server_activity";
 
     private static final int BROWSE_REQUEST_CODE = 1;
 
@@ -184,8 +176,6 @@ public class TorrentListActivity extends BaseTorrentActivity
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        serviceReceiver = new ServiceReceiver();
 
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
         G.DEBUG = prefs.getBoolean(G.PREF_DEBUG, false);
@@ -343,13 +333,7 @@ public class TorrentListActivity extends BaseTorrentActivity
                 profile = savedInstanceState.getParcelable(STATE_CURRENT_PROFILE);
                 manager = new DataServiceManager(this, profile.getId())
                     .onRestoreInstanceState(savedInstanceState).startUpdating();
-                new SessionTask(this).execute(SessionTask.Flags.START_TORRENT_TASK);
-            }
-            if (savedInstanceState.containsKey(STATE_FATAL_ERROR)) {
-                hasFatalError = savedInstanceState.getBoolean(STATE_FATAL_ERROR, false);
-            }
-            if (savedInstanceState.containsKey(STATE_LAST_SERVER_ACTIVITY)) {
-                lastServerActivity = savedInstanceState.getLong(STATE_LAST_SERVER_ACTIVITY, 0);
+                new SessionTask(this, SessionTask.Flags.START_TORRENT_TASK).execute();
             }
         }
 
@@ -372,9 +356,6 @@ public class TorrentListActivity extends BaseTorrentActivity
             long now = new Date().getTime();
             if (now - lastServerActivity < 60000) {
                 consumeIntent();
-            } else if (manager != null) {
-                setRefreshing(true, DataService.Requests.GET_SESSION);
-                manager.getSession();
             }
         }
     }
@@ -531,11 +512,6 @@ public class TorrentListActivity extends BaseTorrentActivity
         super.onSaveInstanceState(outState);
         outState.putBoolean(STATE_INTENT_CONSUMED, intentConsumed);
         outState.putParcelable(STATE_CURRENT_PROFILE, profile);
-        outState.putBoolean(STATE_FATAL_ERROR, hasFatalError);
-        outState.putLong(STATE_LAST_SERVER_ACTIVITY, lastServerActivity);
-        if (manager != null) {
-            manager.onSaveInstanceState(outState);
-        }
     }
 
     @Override public void onNewIntent(Intent intent) {
@@ -552,10 +528,6 @@ public class TorrentListActivity extends BaseTorrentActivity
                 Toast.makeText(this, R.string.reading_torrent_file, Toast.LENGTH_SHORT).show();
             }
         }
-    }
-
-    public DataServiceManager getDataServiceManager() {
-        return manager;
     }
 
     public boolean isDetailPanelVisible() {
@@ -609,7 +581,7 @@ public class TorrentListActivity extends BaseTorrentActivity
         }
         if (profile != null) {
             manager = new DataServiceManager(this, profile.getId()).startUpdating();
-            new SessionTask(this).execute(SessionTask.Flags.START_TORRENT_TASK);
+            new SessionTask(this, SessionTask.Flags.START_TORRENT_TASK).execute();
         }
     }
 
@@ -648,6 +620,117 @@ public class TorrentListActivity extends BaseTorrentActivity
             if (initial && !intentConsumed && !newTorrentDialogVisible) {
                 consumeIntent();
             }
+        }
+    }
+
+    @Override protected boolean handleSuccessServiceBroadcast(String type, Intent intent) {
+        int flags = TorrentTask.Flags.CONNECTED;
+        switch (type) {
+            case DataService.Requests.GET_SESSION:
+                new SessionTask(TorrentListActivity.this, 0).execute();
+                break;
+            case DataService.Requests.SET_SESSION:
+                manager.getSession();
+                break;
+            case DataService.Requests.GET_TORRENTS:
+                boolean added = intent.getBooleanExtra(G.ARG_ADDED, false);
+                boolean removed = intent.getBooleanExtra(G.ARG_REMOVED, false);
+                boolean statusChanged = intent.getBooleanExtra(G.ARG_STATUS_CHANGED, false);
+                boolean incomplete = intent.getBooleanExtra(G.ARG_INCOMPLETE_METADATA, false);
+
+                if (added) {
+                    flags |= TorrentTask.Flags.HAS_ADDED;
+                }
+                if (removed) {
+                    flags |= TorrentTask.Flags.HAS_REMOVED;
+                }
+                if (statusChanged) {
+                    flags |= TorrentTask.Flags.HAS_STATUS_CHANGED;
+                }
+                if (incomplete) {
+                    flags |= TorrentTask.Flags.HAS_INCOMPLETE_METADATA;
+                }
+
+                new TorrentTask(TorrentListActivity.this, flags).execute();
+                break;
+            case DataService.Requests.ADD_TORRENT:
+                manager.update();
+                flags |= TorrentTask.Flags.HAS_ADDED | TorrentTask.Flags.HAS_INCOMPLETE_METADATA;
+                new TorrentTask(TorrentListActivity.this, flags).execute();
+                break;
+            case DataService.Requests.REMOVE_TORRENT:
+                manager.update();
+                flags |= TorrentTask.Flags.HAS_REMOVED;
+                new TorrentTask(TorrentListActivity.this, flags).execute();
+                break;
+            case DataService.Requests.SET_TORRENT_LOCATION:
+                manager.update();
+                flags |= TorrentTask.Flags.HAS_ADDED | TorrentTask.Flags.HAS_REMOVED;
+                new TorrentTask(TorrentListActivity.this, flags).execute();
+                break;
+            case DataService.Requests.SET_TORRENT:
+            case DataService.Requests.SET_TORRENT_ACTION:
+                manager.update();
+                flags |= TorrentTask.Flags.HAS_STATUS_CHANGED;
+                new TorrentTask(TorrentListActivity.this, flags).execute();
+                break;
+            case DataService.Requests.GET_FREE_SPACE:
+                long freeSpace = intent.getLongExtra(G.ARG_FREE_SPACE, 0);
+                TransmissionSession session = getSession();
+                if (session != null && freeSpace != 0) {
+                    session.setDownloadDirFreeSpace(freeSpace);
+                }
+                break;
+        }
+
+        return true;
+    }
+
+    @Override protected boolean handleErrorServiceBroadcast(String type, int error, Intent intent) {
+        expecting = 0;
+        toggleRightPane(false);
+
+        FragmentManager manager = getSupportFragmentManager();
+        TorrentListFragment fragment = (TorrentListFragment) manager.findFragmentById(R.id.torrent_list);
+        if (fragment != null) {
+            fragment.notifyTorrentListChanged(null, error, false, false, false, false, false);
+        }
+
+        return true;
+    }
+
+    @Override protected void onSessionTaskPostExecute(TransmissionSession session) {
+        if (hasNewIntent && session != null) {
+            hasNewIntent = false;
+            if (!intentConsumed && !newTorrentDialogVisible) {
+                consumeIntent();
+            }
+        }
+    }
+
+    @Override protected void onTorrentTaskPostExecute(Cursor cursor, boolean added,
+                                                      boolean removed, boolean statusChanged,
+                                                      boolean incompleteMetadata, boolean connected) {
+        if (altSpeed == session.isAltSpeedLimitEnabled()) {
+            expecting &= ~(Expecting.ALT_SPEED_ON | Expecting.ALT_SPEED_OFF);
+        } else {
+            if (expecting == 0
+                || (expecting & Expecting.ALT_SPEED_ON) > 0 && session.isAltSpeedLimitEnabled()
+                || (expecting & Expecting.ALT_SPEED_OFF) > 0 && !session.isAltSpeedLimitEnabled()) {
+                setAltSpeed(session.isAltSpeedLimitEnabled());
+                expecting &= ~(Expecting.ALT_SPEED_ON | Expecting.ALT_SPEED_OFF);
+            }
+        }
+
+        FragmentManager fm = getSupportFragmentManager();
+        TorrentListFragment fragment = (TorrentListFragment) fm.findFragmentById(R.id.torrent_list);
+        if (fragment != null) {
+            long now = new Date().getTime();
+            if (now - lastServerActivity < 30000) {
+                connected = true;
+            }
+            fragment.notifyTorrentListChanged(cursor, 0, added, removed,
+                statusChanged, incompleteMetadata, connected);
         }
     }
 
@@ -825,7 +908,8 @@ public class TorrentListActivity extends BaseTorrentActivity
             .setTitle(R.string.add_torrent)
             .setNegativeButton(android.R.string.cancel, null)
             .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-                @Override public void onClick(DialogInterface dialog, int which) {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
                     EditText magnet = (EditText) ((AlertDialog) dialog).findViewById(R.id.magnet_link);
                     Uri data = Uri.parse(magnet.getText().toString());
 
@@ -903,276 +987,6 @@ public class TorrentListActivity extends BaseTorrentActivity
             }
 
             return getView(position, rowView, parent);
-        }
-    }
-
-    private class ServiceReceiver extends BroadcastReceiver {
-        @Override public void onReceive(Context context, Intent intent) {
-            int error = intent.getIntExtra(G.ARG_ERROR, 0);
-            hasFatalError = false;
-
-            String type = intent.getStringExtra(G.ARG_REQUEST_TYPE);
-            switch (type) {
-                case DataService.Requests.GET_SESSION:
-                case DataService.Requests.SET_SESSION:
-                case DataService.Requests.GET_TORRENTS:
-                case DataService.Requests.ADD_TORRENT:
-                case DataService.Requests.REMOVE_TORRENT:
-                case DataService.Requests.SET_TORRENT:
-                case DataService.Requests.SET_TORRENT_ACTION:
-                case DataService.Requests.SET_TORRENT_LOCATION:
-                case DataService.Requests.GET_FREE_SPACE:
-                    setRefreshing(false, type);
-                    lastServerActivity = new Date().getTime();
-
-                    if (error == 0) {
-
-                        findViewById(R.id.fatal_error_layer).setVisibility(View.GONE);
-
-                        int flags = TorrentTask.Flags.CONNECTED;
-                        switch (type) {
-                            case DataService.Requests.GET_SESSION:
-                                new SessionTask(TorrentListActivity.this).execute();
-                                break;
-                            case DataService.Requests.SET_SESSION:
-                                manager.getSession();
-                                break;
-                            case DataService.Requests.GET_TORRENTS:
-                                boolean added = intent.getBooleanExtra(G.ARG_ADDED, false);
-                                boolean removed = intent.getBooleanExtra(G.ARG_REMOVED, false);
-                                boolean statusChanged = intent.getBooleanExtra(G.ARG_STATUS_CHANGED, false);
-                                boolean incomplete = intent.getBooleanExtra(G.ARG_INCOMPLETE_METADATA, false);
-
-                                if (added) {
-                                    flags |= TorrentTask.Flags.HAS_ADDED;
-                                }
-                                if (removed) {
-                                    flags |= TorrentTask.Flags.HAS_REMOVED;
-                                }
-                                if (statusChanged) {
-                                    flags |= TorrentTask.Flags.HAS_STATUS_CHANGED;
-                                }
-                                if (incomplete) {
-                                    flags |= TorrentTask.Flags.HAS_INCOMPLETE_METADATA;
-                                }
-
-                                new TorrentTask(TorrentListActivity.this, flags).execute();
-                                break;
-                            case DataService.Requests.ADD_TORRENT:
-                                manager.update();
-                                flags |= TorrentTask.Flags.HAS_ADDED | TorrentTask.Flags.HAS_INCOMPLETE_METADATA;
-                                new TorrentTask(TorrentListActivity.this, flags).execute();
-                                break;
-                            case DataService.Requests.REMOVE_TORRENT:
-                                manager.update();
-                                flags |= TorrentTask.Flags.HAS_REMOVED;
-                                new TorrentTask(TorrentListActivity.this, flags).execute();
-                                break;
-                            case DataService.Requests.SET_TORRENT_LOCATION:
-                                manager.update();
-                                flags |= TorrentTask.Flags.HAS_ADDED | TorrentTask.Flags.HAS_REMOVED;
-                                new TorrentTask(TorrentListActivity.this, flags).execute();
-                                break;
-                            case DataService.Requests.SET_TORRENT:
-                            case DataService.Requests.SET_TORRENT_ACTION:
-                                manager.update();
-                                flags |= TorrentTask.Flags.HAS_STATUS_CHANGED;
-                                new TorrentTask(TorrentListActivity.this, flags).execute();
-                                break;
-                            case DataService.Requests.GET_FREE_SPACE:
-                                long freeSpace = intent.getLongExtra(G.ARG_FREE_SPACE, 0);
-                                TransmissionSession session = getSession();
-                                if (session != null && freeSpace != 0) {
-                                    session.setDownloadDirFreeSpace(freeSpace);
-                                }
-                                break;
-                        }
-                    } else {
-                        if (error == TransmissionData.Errors.DUPLICATE_TORRENT) {
-                            Toast.makeText(TorrentListActivity.this,
-                                R.string.duplicate_torrent, Toast.LENGTH_SHORT).show();
-                        } else if (error == TransmissionData.Errors.INVALID_TORRENT) {
-                            Toast.makeText(TorrentListActivity.this,
-                                R.string.invalid_torrent, Toast.LENGTH_SHORT).show();
-                        } else {
-                            findViewById(R.id.fatal_error_layer).setVisibility(View.VISIBLE);
-                            TextView text = (TextView) findViewById(R.id.transmission_error);
-                            expecting = 0;
-                            hasFatalError = true;
-                            toggleRightPane(false);
-                            setRefreshing(false, refreshType);
-                            FragmentManager manager = getSupportFragmentManager();
-                            TorrentListFragment fragment = (TorrentListFragment) manager.findFragmentById(R.id.torrent_list);
-                            if (fragment != null) {
-                                fragment.notifyTorrentListChanged(null, error, false, false, false, false, false);
-                            }
-
-                            if (error == TransmissionData.Errors.NO_CONNECTIVITY) {
-                                text.setText(Html.fromHtml(getString(R.string.no_connectivity_empty_list)));
-                            } else if (error == TransmissionData.Errors.ACCESS_DENIED) {
-                                text.setText(Html.fromHtml(getString(R.string.access_denied_empty_list)));
-                            } else if (error == TransmissionData.Errors.NO_JSON) {
-                                text.setText(Html.fromHtml(getString(R.string.no_json_empty_list)));
-                            } else if (error == TransmissionData.Errors.NO_CONNECTION) {
-                                text.setText(Html.fromHtml(getString(R.string.no_connection_empty_list)));
-                            } else if (error == TransmissionData.Errors.THREAD_ERROR) {
-                                text.setText(Html.fromHtml(getString(R.string.thread_error_empty_list)));
-                            } else if (error == TransmissionData.Errors.RESPONSE_ERROR) {
-                                text.setText(Html.fromHtml(getString(R.string.response_error_empty_list)));
-                            } else if (error == TransmissionData.Errors.TIMEOUT) {
-                                text.setText(Html.fromHtml(getString(R.string.timeout_empty_list)));
-                            } else if (error == TransmissionData.Errors.OUT_OF_MEMORY) {
-                                text.setText(Html.fromHtml(getString(R.string.out_of_memory_empty_list)));
-                            } else if (error == TransmissionData.Errors.JSON_PARSE_ERROR) {
-                                text.setText(Html.fromHtml(getString(R.string.json_parse_empty_list)));
-                            }
-                        }
-                    }
-                    break;
-            }
-        }
-    }
-
-    private class SessionTask extends AsyncTask<Integer, Void, TransmissionSession> {
-        DataSource readSource;
-        boolean startTorrentTask;
-
-        public class Flags {
-            public static final int START_TORRENT_TASK = 1;
-        }
-
-        public SessionTask(Context context) {
-            super();
-
-            readSource = new DataSource(context);
-        }
-
-        @Override protected TransmissionSession doInBackground(Integer... flags) {
-            try {
-                readSource.open();
-
-                TransmissionSession session = readSource.getSession();
-                if (profile != null) {
-                    session.setDownloadDirectories(profile, readSource.getDownloadDirectories());
-                }
-
-                if (flags.length == 1) {
-                    if ((flags[0] & Flags.START_TORRENT_TASK) == Flags.START_TORRENT_TASK) {
-                        startTorrentTask = true;
-                    }
-                }
-
-                return session;
-            } finally {
-                if (readSource.isOpen()) {
-                    readSource.close();
-                }
-            }
-        }
-
-        @Override protected void onPostExecute(TransmissionSession session) {
-            setSession(session);
-
-            if (session.getRPCVersion() >= TransmissionSession.FREE_SPACE_METHOD_RPC_VERSION && manager != null) {
-                manager.getFreeSpace(session.getDownloadDir());
-            }
-
-            if (startTorrentTask) {
-                new TorrentTask(TorrentListActivity.this, TorrentTask.Flags.UPDATE).execute();
-            }
-
-            if (hasNewIntent && session != null) {
-                hasNewIntent = false;
-                if (!intentConsumed && !newTorrentDialogVisible) {
-                    consumeIntent();
-                }
-            }
-        }
-    }
-
-    private class TorrentTask extends AsyncTask<Void, Void, Cursor> {
-        DataSource readSource;
-        boolean added, removed, statusChanged, incompleteMetadata, update, connected;
-
-        public class Flags {
-            public static final int HAS_ADDED = 1;
-            public static final int HAS_REMOVED = 1 << 1;
-            public static final int HAS_STATUS_CHANGED = 1 << 2;
-            public static final int HAS_INCOMPLETE_METADATA = 1 << 3;
-            public static final int UPDATE = 1 << 4;
-            public static final int CONNECTED = 1 << 5;
-        }
-
-        public TorrentTask(Context context, int flags) {
-            super();
-
-            readSource = new DataSource(context);
-            if ((flags & Flags.HAS_ADDED) == Flags.HAS_ADDED) {
-                added = true;
-            }
-            if ((flags & Flags.HAS_REMOVED) == Flags.HAS_REMOVED) {
-                removed = true;
-            }
-            if ((flags & Flags.HAS_STATUS_CHANGED) == Flags.HAS_STATUS_CHANGED) {
-                statusChanged = true;
-            }
-            if ((flags & Flags.HAS_INCOMPLETE_METADATA) == Flags.HAS_INCOMPLETE_METADATA) {
-                incompleteMetadata = true;
-            }
-            if ((flags & Flags.UPDATE) == Flags.UPDATE) {
-                update = true;
-            }
-            if ((flags & Flags.CONNECTED) == Flags.CONNECTED) {
-                connected = true;
-            }
-        }
-
-        @Override protected Cursor doInBackground(Void... unused) {
-            try {
-                readSource.open();
-
-                Cursor cursor = readSource.getTorrentCursor();
-
-                /* Fill the cursor window */
-                cursor.getCount();
-
-                return cursor;
-            } finally {
-                if (readSource.isOpen()) {
-                    readSource.close();
-                }
-            }
-        }
-
-        @Override protected void onPostExecute(Cursor cursor) {
-            if (altSpeed == session.isAltSpeedLimitEnabled()) {
-                expecting &= ~(Expecting.ALT_SPEED_ON | Expecting.ALT_SPEED_OFF);
-            } else {
-                if (expecting == 0
-                    || (expecting & Expecting.ALT_SPEED_ON) > 0 && session.isAltSpeedLimitEnabled()
-                    || (expecting & Expecting.ALT_SPEED_OFF) > 0 && !session.isAltSpeedLimitEnabled()) {
-                    setAltSpeed(session.isAltSpeedLimitEnabled());
-                    expecting &= ~(Expecting.ALT_SPEED_ON | Expecting.ALT_SPEED_OFF);
-                }
-            }
-
-            FragmentManager fm = getSupportFragmentManager();
-            TorrentListFragment fragment = (TorrentListFragment) fm.findFragmentById(R.id.torrent_list);
-            if (fragment != null) {
-                long now = new Date().getTime();
-                if (now - lastServerActivity < 30000) {
-                    connected = true;
-                }
-                fragment.notifyTorrentListChanged(cursor, 0, added, removed,
-                    statusChanged, incompleteMetadata, connected);
-            }
-
-            if (update) {
-                update = false;
-                if (manager != null) {
-                    manager.update();
-                }
-            }
         }
     }
 

@@ -1,15 +1,27 @@
 package org.sugr.gearshift;
 
 import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
 import android.content.IntentFilter;
+import android.database.Cursor;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.content.LocalBroadcastManager;
+import android.text.Html;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.TextView;
+import android.widget.Toast;
 
+import org.sugr.gearshift.datasource.DataSource;
+import org.sugr.gearshift.service.DataService;
 import org.sugr.gearshift.service.DataServiceManager;
 import org.sugr.gearshift.service.DataServiceManagerInterface;
+
+import java.util.Date;
 
 public abstract class BaseTorrentActivity extends FragmentActivity
     implements TransmissionSessionInterface, DataServiceManagerInterface,
@@ -29,8 +41,24 @@ public abstract class BaseTorrentActivity extends FragmentActivity
 
     protected LocationDialogHelper locationDialogHelper;
 
+    protected boolean hasFatalError = false;
+    protected long lastServerActivity;
+
+    private static final String STATE_LAST_SERVER_ACTIVITY = "last_server_activity";
+    private static final String STATE_FATAL_ERROR = "fatal_error";
+
     @Override protected void onCreate(Bundle savedInstanceState) {
         locationDialogHelper = new LocationDialogHelper(this);
+        serviceReceiver = new ServiceReceiver();
+
+        if (savedInstanceState != null) {
+            if (savedInstanceState.containsKey(STATE_LAST_SERVER_ACTIVITY)) {
+                lastServerActivity = savedInstanceState.getLong(STATE_LAST_SERVER_ACTIVITY, 0);
+            }
+            if (savedInstanceState.containsKey(STATE_FATAL_ERROR)) {
+                hasFatalError = savedInstanceState.getBoolean(STATE_FATAL_ERROR, false);
+            }
+        }
 
         super.onCreate(savedInstanceState);
     }
@@ -46,6 +74,12 @@ public abstract class BaseTorrentActivity extends FragmentActivity
             serviceReceiver, new IntentFilter(G.INTENT_SERVICE_ACTION_COMPLETE));
 
         GearShiftApplication.setActivityVisible(true);
+
+        long now = new Date().getTime();
+        if (manager != null && now - lastServerActivity >= 60000) {
+            setRefreshing(true, DataService.Requests.GET_SESSION);
+            manager.getSession();
+        }
     }
 
     @Override protected void onPause() {
@@ -61,6 +95,15 @@ public abstract class BaseTorrentActivity extends FragmentActivity
         GearShiftApplication.setActivityVisible(false);
 
         locationDialogHelper.reset();
+    }
+
+    @Override public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putBoolean(STATE_FATAL_ERROR, hasFatalError);
+        outState.putLong(STATE_LAST_SERVER_ACTIVITY, lastServerActivity);
+        if (manager != null) {
+            manager.onSaveInstanceState(outState);
+        }
     }
 
     @Override public TransmissionProfile getProfile() {
@@ -99,5 +142,191 @@ public abstract class BaseTorrentActivity extends FragmentActivity
 
     @Override public LocationDialogHelper getLocationDialogHelper() {
         return locationDialogHelper;
+    }
+
+    protected abstract void onSessionTaskPostExecute(TransmissionSession session);
+    protected abstract void onTorrentTaskPostExecute(Cursor cursor, boolean added,
+                                                     boolean removed, boolean statusChanged,
+                                                     boolean incompleteMetadata, boolean connected);
+
+    protected abstract boolean handleSuccessServiceBroadcast(String type, Intent intent);
+    protected abstract boolean handleErrorServiceBroadcast(String type, int error, Intent intent);
+
+    protected class SessionTask extends AsyncTask<Void, Void, TransmissionSession> {
+        DataSource readSource;
+        boolean startTorrentTask;
+
+        public class Flags {
+            public static final int START_TORRENT_TASK = 1;
+        }
+
+        public SessionTask(Context context, int flags) {
+            super();
+
+            readSource = new DataSource(context);
+            if ((flags & Flags.START_TORRENT_TASK) == Flags.START_TORRENT_TASK) {
+                startTorrentTask = true;
+            }
+        }
+
+        @Override protected TransmissionSession doInBackground(Void... ignored) {
+            try {
+                readSource.open();
+
+                TransmissionSession session = readSource.getSession();
+                session.setDownloadDirectories(profile, readSource.getDownloadDirectories());
+
+                return session;
+            } finally {
+                if (readSource.isOpen()) {
+                    readSource.close();
+                }
+            }
+        }
+
+        @Override protected void onPostExecute(TransmissionSession session) {
+            setSession(session);
+
+            if (session.getRPCVersion() >= TransmissionSession.FREE_SPACE_METHOD_RPC_VERSION
+                    && manager != null) {
+                manager.getFreeSpace(session.getDownloadDir());
+            }
+
+            if (startTorrentTask) {
+                new TorrentTask(BaseTorrentActivity.this, 0).execute();
+            }
+
+            onSessionTaskPostExecute(session);
+        }
+    }
+
+    protected class TorrentTask extends AsyncTask<Void, Void, Cursor> {
+        DataSource readSource;
+        boolean added, removed, statusChanged, incompleteMetadata, update, connected;
+
+        public class Flags {
+            public static final int HAS_ADDED = 1;
+            public static final int HAS_REMOVED = 1 << 1;
+            public static final int HAS_STATUS_CHANGED = 1 << 2;
+            public static final int HAS_INCOMPLETE_METADATA = 1 << 3;
+            public static final int UPDATE = 1 << 4;
+            public static final int CONNECTED = 1 << 5;
+        }
+
+        public TorrentTask(Context context, int flags) {
+            super();
+
+            readSource = new DataSource(context);
+            if ((flags & Flags.HAS_ADDED) == Flags.HAS_ADDED) {
+                added = true;
+            }
+            if ((flags & Flags.HAS_REMOVED) == Flags.HAS_REMOVED) {
+                removed = true;
+            }
+            if ((flags & Flags.HAS_STATUS_CHANGED) == Flags.HAS_STATUS_CHANGED) {
+                statusChanged = true;
+            }
+            if ((flags & Flags.HAS_INCOMPLETE_METADATA) == Flags.HAS_INCOMPLETE_METADATA) {
+                incompleteMetadata = true;
+            }
+            if ((flags & Flags.UPDATE) == Flags.UPDATE) {
+                update = true;
+            }
+            if ((flags & Flags.CONNECTED) == Flags.CONNECTED) {
+                connected = true;
+            }
+        }
+
+        @Override protected Cursor doInBackground(Void... unused) {
+            try {
+                readSource.open();
+
+                Cursor cursor = readSource.getTorrentCursor();
+
+                /* Fill the cursor window */
+                cursor.getCount();
+
+                return cursor;
+            } finally {
+                if (readSource.isOpen()) {
+                    readSource.close();
+                }
+            }
+        }
+
+        @Override protected void onPostExecute(Cursor cursor) {
+            if (update) {
+                update = false;
+                manager.update();
+            }
+
+            onTorrentTaskPostExecute(cursor, added, removed, statusChanged,
+                incompleteMetadata, connected);
+        }
+    }
+    private class ServiceReceiver extends BroadcastReceiver {
+        @Override public void onReceive(Context context, Intent intent) {
+            int error = intent.getIntExtra(G.ARG_ERROR, 0);
+            hasFatalError = false;
+
+            String type = intent.getStringExtra(G.ARG_REQUEST_TYPE);
+            switch (type) {
+                case DataService.Requests.GET_SESSION:
+                case DataService.Requests.SET_SESSION:
+                case DataService.Requests.GET_TORRENTS:
+                case DataService.Requests.ADD_TORRENT:
+                case DataService.Requests.REMOVE_TORRENT:
+                case DataService.Requests.SET_TORRENT:
+                case DataService.Requests.SET_TORRENT_ACTION:
+                case DataService.Requests.SET_TORRENT_LOCATION:
+                case DataService.Requests.GET_FREE_SPACE:
+                    setRefreshing(false, type);
+                    lastServerActivity = new Date().getTime();
+
+                    if (error == 0) {
+                        if (!handleSuccessServiceBroadcast(type, intent)) {
+                            return;
+                        }
+                        findViewById(R.id.fatal_error_layer).setVisibility(View.GONE);
+                    } else {
+                        if (!handleErrorServiceBroadcast(type, error, intent)) {
+                            return;
+                        }
+                        if (error == TransmissionData.Errors.DUPLICATE_TORRENT) {
+                            Toast.makeText(BaseTorrentActivity.this,
+                                R.string.duplicate_torrent, Toast.LENGTH_SHORT).show();
+                        } else if (error == TransmissionData.Errors.INVALID_TORRENT) {
+                            Toast.makeText(BaseTorrentActivity.this,
+                                R.string.invalid_torrent, Toast.LENGTH_SHORT).show();
+                        } else {
+                            findViewById(R.id.fatal_error_layer).setVisibility(View.VISIBLE);
+                            TextView text = (TextView) findViewById(R.id.transmission_error);
+                            hasFatalError = true;
+                            setRefreshing(false, refreshType);
+
+                            if (error == TransmissionData.Errors.NO_CONNECTIVITY) {
+                                text.setText(Html.fromHtml(getString(R.string.no_connectivity_empty_list)));
+                            } else if (error == TransmissionData.Errors.ACCESS_DENIED) {
+                                text.setText(Html.fromHtml(getString(R.string.access_denied_empty_list)));
+                            } else if (error == TransmissionData.Errors.NO_JSON) {
+                                text.setText(Html.fromHtml(getString(R.string.no_json_empty_list)));
+                            } else if (error == TransmissionData.Errors.NO_CONNECTION) {
+                                text.setText(Html.fromHtml(getString(R.string.no_connection_empty_list)));
+                            } else if (error == TransmissionData.Errors.THREAD_ERROR) {
+                                text.setText(Html.fromHtml(getString(R.string.thread_error_empty_list)));
+                            } else if (error == TransmissionData.Errors.RESPONSE_ERROR) {
+                                text.setText(Html.fromHtml(getString(R.string.response_error_empty_list)));
+                            } else if (error == TransmissionData.Errors.TIMEOUT) {
+                                text.setText(Html.fromHtml(getString(R.string.timeout_empty_list)));
+                            } else if (error == TransmissionData.Errors.OUT_OF_MEMORY) {
+                                text.setText(Html.fromHtml(getString(R.string.out_of_memory_empty_list)));
+                            } else if (error == TransmissionData.Errors.JSON_PARSE_ERROR) {
+                                text.setText(Html.fromHtml(getString(R.string.json_parse_empty_list)));
+                            }
+                        }
+                    }
+                    break;
+            }
+        }
     }
 }
