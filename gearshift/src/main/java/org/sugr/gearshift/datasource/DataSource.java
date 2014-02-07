@@ -5,9 +5,14 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.DatabaseUtils;
+import android.database.MatrixCursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.preference.PreferenceManager;
+import android.text.Html;
+import android.text.SpannableString;
+import android.text.Spanned;
 import android.text.TextUtils;
+import android.text.style.ForegroundColorSpan;
 import android.util.SparseBooleanArray;
 
 import com.fasterxml.jackson.core.JsonParser;
@@ -26,6 +31,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 class TorrentValues {
     public ContentValues torrent;
@@ -603,7 +610,110 @@ public class DataSource {
 
         TorrentCursorArgs args = getTorrentCursorArgs();
 
-        return getTorrentCursor(args.selection, args.selectionArgs, args.orderBy, false);
+        Cursor cursor = getTorrentCursor(args.selection, args.selectionArgs, args.orderBy, false);
+
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+        String search = prefs.getString(G.PREF_LIST_SEARCH, null);
+
+        if (!TextUtils.isEmpty(search)) {
+            MatrixCursor matrix = new MatrixCursor(cursor.getColumnNames());
+
+            String prefixString = search.toLowerCase(Locale.getDefault());
+            Pattern prefixPattern = null;
+            int hiPrimary = context.getResources().getColor(R.color.filter_highlight_primary);
+            int hiSecondary = context.getResources().getColor(R.color.filter_highlight_secondary);
+
+            if (prefixString.length() > 0) {
+                String[] split = prefixString.split("");
+                StringBuilder pattern = new StringBuilder();
+                for (int i = 0; i < split.length; i++) {
+                    if (split[i].equals("")) {
+                        continue;
+                    }
+                    pattern.append("\\Q").append(split[i]).append("\\E");
+                    if (i < split.length - 1) {
+                        pattern.append(".{0,2}?");
+                    }
+                }
+
+                prefixPattern = Pattern.compile(pattern.toString());
+            }
+
+            cursor.moveToFirst();
+
+            while (!cursor.isAfterLast()) {
+                String name = Torrent.getName(cursor);
+
+                Matcher m = prefixPattern.matcher(name.toLowerCase(Locale.getDefault()));
+                if (m.find()) {
+                    SpannableString spannedName = new SpannableString(name);
+                    spannedName.setSpan(
+                        new ForegroundColorSpan(hiPrimary),
+                        m.start(),
+                        m.start() + 1,
+                        Spanned.SPAN_INCLUSIVE_INCLUSIVE
+                    );
+                    if (m.end() - m.start() > 2) {
+                        spannedName.setSpan(
+                            new ForegroundColorSpan(hiSecondary),
+                            m.start() + 1,
+                            m.end() - 1,
+                            Spanned.SPAN_INCLUSIVE_INCLUSIVE
+                        );
+                    }
+                    if (m.end() - m.start() > 1) {
+                        spannedName.setSpan(
+                            new ForegroundColorSpan(hiPrimary),
+                            m.end() - 1,
+                            m.end(),
+                            Spanned.SPAN_INCLUSIVE_INCLUSIVE
+                        );
+                    }
+                    name = Html.toHtml(spannedName);
+
+                    MatrixCursor.RowBuilder row = matrix.newRow();
+
+                    int index = 0;
+                    for (String column : cursor.getColumnNames()) {
+                        switch (column) {
+                            case Constants.C_NAME:
+                                row.add(name);
+                                break;
+                            case Constants.C_ID:
+                            case Constants.C_STATUS:
+                            case Constants.C_ERROR:
+                                row.add(cursor.getInt(index));
+                                break;
+                            case Constants.C_HASH_STRING:
+                            case Constants.C_TRAFFIC_TEXT:
+                            case Constants.C_STATUS_TEXT:
+                            case Constants.C_ERROR_STRING:
+                                row.add(cursor.getString(index));
+                                break;
+                            case Constants.C_METADATA_PERCENT_COMPLETE:
+                            case Constants.C_PERCENT_DONE:
+                            case Constants.C_UPLOAD_RATIO:
+                            case Constants.C_SEED_RATIO_LIMIT:
+                                row.add(cursor.getFloat(index));
+                                break;
+                        }
+
+                        ++index;
+                    }
+                }
+
+                cursor.moveToNext();
+            }
+
+            cursor.close();
+
+            return matrix;
+        }
+
+        /* Fill the cursor window */
+        cursor.getCount();
+
+        return cursor;
     }
 
     public Cursor getTorrentCursor(String selection, String[] selectionArgs, String orderBy, boolean details) {

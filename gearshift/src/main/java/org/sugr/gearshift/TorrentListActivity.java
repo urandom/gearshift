@@ -732,6 +732,22 @@ public class TorrentListActivity extends BaseTorrentActivity
             fragment.notifyTorrentListChanged(cursor, 0, added, removed,
                 statusChanged, incompleteMetadata, connected);
         }
+
+        TorrentListMenuFragment menu = (TorrentListMenuFragment) fm.findFragmentById(R.id.torrent_list_menu);
+
+        if (menu != null) {
+            menu.notifyTorrentListChanged(cursor, 0, added, removed,
+                statusChanged, incompleteMetadata, connected);
+        }
+
+        if (isDetailPanelVisible()) {
+            TorrentDetailFragment detail = (TorrentDetailFragment) fm.findFragmentByTag(
+                G.DETAIL_FRAGMENT_TAG);
+            if (detail != null) {
+                detail.notifyTorrentListChanged(cursor, 0, added, removed,
+                    statusChanged, incompleteMetadata, connected);
+            }
+        }
     }
 
     private void setAltSpeed(boolean alt) {

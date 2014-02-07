@@ -243,9 +243,6 @@ public abstract class BaseTorrentActivity extends FragmentActivity
 
                 Cursor cursor = readSource.getTorrentCursor();
 
-                /* Fill the cursor window */
-                cursor.getCount();
-
                 return cursor;
             } finally {
                 if (readSource.isOpen()) {

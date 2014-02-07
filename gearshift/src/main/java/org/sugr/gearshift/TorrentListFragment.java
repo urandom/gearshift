@@ -7,19 +7,15 @@ import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.database.Cursor;
-import android.database.MatrixCursor;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
-import android.support.v4.app.FragmentManager;
 import android.support.v4.app.ListFragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
 import android.text.Html;
-import android.text.SpannableString;
 import android.text.Spanned;
 import android.text.TextUtils;
-import android.text.style.ForegroundColorSpan;
 import android.util.SparseArray;
 import android.util.SparseBooleanArray;
 import android.view.ActionMode;
@@ -45,15 +41,11 @@ import android.widget.TextView;
 import org.sugr.gearshift.G.FilterBy;
 import org.sugr.gearshift.G.SortBy;
 import org.sugr.gearshift.G.SortOrder;
-import org.sugr.gearshift.datasource.Constants;
 import org.sugr.gearshift.datasource.DataSource;
 import org.sugr.gearshift.service.DataService;
 import org.sugr.gearshift.service.DataServiceManager;
 import org.sugr.gearshift.service.DataServiceManagerInterface;
-
-import java.util.Locale;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import org.w3c.dom.Text;
 
 /**
  * A list fragment representing a list of Torrents. This fragment
@@ -264,7 +256,7 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
                 @Override
                 public void onSharedPreferenceChanged(SharedPreferences prefs, String key) {
                     if (key.equals(G.PREF_BASE_SORT_ORDER) || key.equals(G.PREF_BASE_SORT_ORDER)) {
-                        torrentAdapter.getFilter().filter(prefs.getString(G.PREF_LIST_SEARCH, ""));
+                        torrentAdapter.getFilter().filter("");
                     } else if (key.equals(G.PREF_PROFILES)) {
                         if (getActivity() != null) {
                             ((TransmissionSessionInterface) getActivity()).setRefreshing(true,
@@ -541,12 +533,6 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
             return;
         }
 
-        String query = sharedPrefs.getString(G.PREF_LIST_SEARCH, null);
-        boolean filtered = false;
-        if (cursor != null && query != null && !query.equals("")) {
-            filtered = true;
-        }
-
         if (error > 0) {
             if (error != TransmissionData.Errors.DUPLICATE_TORRENT
                 && error != TransmissionData.Errors.INVALID_TORRENT
@@ -561,28 +547,7 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
                     null, torrentTrafficLoaderCallbacks);
             }
 
-            FragmentManager manager = getActivity().getSupportFragmentManager();
-            TorrentListMenuFragment menu = (TorrentListMenuFragment) manager.findFragmentById(R.id.torrent_list_menu);
-
-            if (menu != null) {
-                menu.notifyTorrentListChanged(cursor, error, added, removed,
-                    statusChanged, metadataNeeded, connected);
-            }
-
-            if (((TorrentListActivity) getActivity()).isDetailPanelVisible() && (!filtered || statusChanged)) {
-                TorrentDetailFragment detail = (TorrentDetailFragment) manager.findFragmentByTag(
-                    G.DETAIL_FRAGMENT_TAG);
-                if (detail != null) {
-                    detail.notifyTorrentListChanged(cursor, error, added, removed,
-                        statusChanged, metadataNeeded, connected);
-                }
-            }
-            if (filtered) {
-                torrentAdapter.setTemporaryFilterCursor(cursor);
-                torrentAdapter.getFilter().filter(query);
-            } else {
-                torrentAdapter.changeCursor(cursor);
-            }
+            torrentAdapter.changeCursor(cursor);
         }
     }
 
@@ -749,10 +714,8 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
     private class TorrentCursorAdapter extends CursorAdapter {
         private SparseBooleanArray addedTorrents = new SparseBooleanArray();
         private DataSource readDataSource;
-        private Cursor temporaryFilterCursor;
 
         private boolean resourcesCleared = false;
-        private boolean filterActive = false;
 
         private final Object lock = new Object();
 
@@ -770,138 +733,15 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
 
             setFilterQueryProvider(new FilterQueryProvider() {
                 @Override public Cursor runQuery(CharSequence charSequence) {
-                    Cursor originalCursor, filteredCursor;
-
                     synchronized (lock) {
                         if (resourcesCleared) {
                             return null;
                         }
+
                         readDataSource.open();
 
-                        if (temporaryFilterCursor != null) {
-                            originalCursor = temporaryFilterCursor;
-                            temporaryFilterCursor = null;
-                        } else {
-                            originalCursor = readDataSource.getTorrentCursor();
-                        }
+                        return readDataSource.getTorrentCursor();
                     }
-
-                    if (charSequence != null && charSequence.length() > 0) {
-                        MatrixCursor cursor = new MatrixCursor(originalCursor.getColumnNames());
-
-                        String prefixString = charSequence.toString().toLowerCase(Locale.getDefault());
-                        Pattern prefixPattern = null;
-                        int hiPrimary = getResources().getColor(R.color.filter_highlight_primary);
-                        int hiSecondary = getResources().getColor(R.color.filter_highlight_secondary);
-
-                        if (prefixString.length() > 0) {
-                            String[] split = prefixString.split("");
-                            StringBuilder pattern = new StringBuilder();
-                            for (int i = 0; i < split.length; i++) {
-                                if (split[i].equals("")) {
-                                    continue;
-                                }
-                                pattern.append("\\Q").append(split[i]).append("\\E");
-                                if (i < split.length - 1) {
-                                    pattern.append(".{0,2}?");
-                                }
-                            }
-
-                            prefixPattern = Pattern.compile(pattern.toString());
-                        }
-
-                        originalCursor.moveToFirst();
-
-                        while (!originalCursor.isAfterLast()) {
-                            String name = Torrent.getName(originalCursor);
-
-                            Matcher m = prefixPattern.matcher(name.toLowerCase(Locale.getDefault()));
-                            if (m.find()) {
-                                SpannableString spannedName = new SpannableString(name);
-                                spannedName.setSpan(
-                                    new ForegroundColorSpan(hiPrimary),
-                                    m.start(),
-                                    m.start() + 1,
-                                    Spanned.SPAN_INCLUSIVE_INCLUSIVE
-                                );
-                                if (m.end() - m.start() > 2) {
-                                    spannedName.setSpan(
-                                        new ForegroundColorSpan(hiSecondary),
-                                        m.start() + 1,
-                                        m.end() - 1,
-                                        Spanned.SPAN_INCLUSIVE_INCLUSIVE
-                                    );
-                                }
-                                if (m.end() - m.start() > 1) {
-                                    spannedName.setSpan(
-                                        new ForegroundColorSpan(hiPrimary),
-                                        m.end() - 1,
-                                        m.end(),
-                                        Spanned.SPAN_INCLUSIVE_INCLUSIVE
-                                    );
-                                }
-                                name = Html.toHtml(spannedName);
-
-                                MatrixCursor.RowBuilder row = cursor.newRow();
-
-                                int index = 0;
-                                for (String column : originalCursor.getColumnNames()) {
-                                    switch (column) {
-                                        case Constants.C_ID:
-                                            row.add(originalCursor.getInt(index));
-                                            break;
-                                        case Constants.C_NAME:
-                                            row.add(name);
-                                            break;
-                                        case Constants.C_HASH_STRING:
-                                            row.add(originalCursor.getString(index));
-                                            break;
-                                        case Constants.C_STATUS:
-                                            row.add(originalCursor.getInt(index));
-                                            break;
-                                        case Constants.C_METADATA_PERCENT_COMPLETE:
-                                            row.add(originalCursor.getFloat(index));
-                                            break;
-                                        case Constants.C_PERCENT_DONE:
-                                            row.add(originalCursor.getFloat(index));
-                                            break;
-                                        case Constants.C_UPLOAD_RATIO:
-                                            row.add(originalCursor.getFloat(index));
-                                            break;
-                                        case Constants.C_SEED_RATIO_LIMIT:
-                                            row.add(originalCursor.getFloat(index));
-                                            break;
-                                        case Constants.C_TRAFFIC_TEXT:
-                                            row.add(originalCursor.getString(index));
-                                            break;
-                                        case Constants.C_STATUS_TEXT:
-                                            row.add(originalCursor.getString(index));
-                                            break;
-                                        case Constants.C_ERROR:
-                                            row.add(originalCursor.getInt(index));
-                                            break;
-                                        case Constants.C_ERROR_STRING:
-                                            row.add(originalCursor.getString(index));
-                                            break;
-                                    }
-
-                                    ++index;
-                                }
-                            }
-
-                            originalCursor.moveToNext();
-                        }
-
-                        filteredCursor = cursor;
-                        originalCursor.close();
-                    } else {
-                        originalCursor.getCount();
-                        filteredCursor = originalCursor;
-                    }
-
-                    filterActive = true;
-
-                    return filteredCursor;
                 }
             });
         }
@@ -910,10 +750,6 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
             synchronized (lock) {
                 resourcesCleared = true;
                 readDataSource.close();
-                if (temporaryFilterCursor != null) {
-                    temporaryFilterCursor.close();
-                    temporaryFilterCursor = null;
-                }
             }
         }
 
@@ -939,10 +775,6 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
             }
         }
 
-        public void setTemporaryFilterCursor(Cursor cursor) {
-            temporaryFilterCursor = cursor;
-        }
-
         private void applyFilter(String value, String pref, boolean animate) {
             if (actionMode != null) {
                 actionMode.finish();
@@ -955,7 +787,7 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
                 G.requestBackup(getActivity());
             }
 
-            getFilter().filter(sharedPrefs.getString(G.PREF_LIST_SEARCH, ""));
+            getFilter().filter("");
             if (animate) {
                 addedTorrents = new SparseBooleanArray();
             }
@@ -976,10 +808,11 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
             TextView status = (TextView) view.findViewById(R.id.status);
             TextView errorText = (TextView) view.findViewById(R.id.error_text);
 
-            if (!findQuery.equals("")) {
-                name.setText(G.trimTrailingWhitespace(Html.fromHtml(Torrent.getName(cursor))));
-            } else {
+            String search = sharedPrefs.getString(G.PREF_LIST_SEARCH, null);
+            if (TextUtils.isEmpty(search)) {
                 name.setText(Torrent.getName(cursor));
+            } else {
+                name.setText(G.trimTrailingWhitespace(Html.fromHtml(Torrent.getName(cursor))));
             }
 
             float metadata = Torrent.getMetadataPercentDone(cursor);
@@ -1052,18 +885,6 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
                 scrollToTop = false;
                 if (TorrentListFragment.this.getView() != null) {
                     getListView().setSelectionAfterHeaderView();
-                }
-            }
-
-            if (filterActive) {
-                filterActive = false;
-                if (((TorrentListActivity) getActivity()).isDetailPanelVisible()) {
-                    FragmentManager manager = getActivity().getSupportFragmentManager();
-                    TorrentDetailFragment detail = (TorrentDetailFragment) manager.findFragmentByTag(
-                        G.DETAIL_FRAGMENT_TAG);
-                    if (detail != null) {
-                        detail.notifyTorrentListChanged(newCursor, 0, true, true, false, false, true);
-                    }
                 }
             }
 
