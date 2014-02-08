@@ -60,7 +60,7 @@
     <string name="free_space_format">&lt;b>Места на диске&lt;/b>: %1$s</string>
     <string name="full_update">Полное обновление</string>
     <string name="full_update_summary_format">После каждых %1$d обновлений активных торрентов</string>
-    <string name="generic_http_empty_list">&lt;h2>&lt;font color=#cc0000>Ошибка HTTP!&lt;/font>&lt;/h2>HTTP Status code: \'%1$s\'. Возможно сервер ожидает подключение через SSL.</string>
+    <string name="generic_http_empty_list">&lt;h2>&lt;font color=#cc0000>Ошибка HTTP!&lt;/font>&lt;/h2>HTTP Status: \'%1$s %2$s\'.</string>
     <string name="header_label_filters">Фильтры</string>
     <string name="header_label_general_preferences">Основные настройки</string>
     <string name="header_label_profiles">Профили</string>

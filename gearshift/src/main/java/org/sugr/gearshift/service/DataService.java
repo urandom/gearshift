@@ -370,6 +370,8 @@ public class DataService extends IntentService {
                 break;
         }
 
-        return intent.putExtra(G.ARG_ERROR, error).putExtra(G.ARG_ERROR_CODE, e.getCode());
+        return intent.putExtra(G.ARG_ERROR, error)
+            .putExtra(G.ARG_ERROR_CODE, e.getCode())
+            .putExtra(G.ARG_ERROR_STRING, e.getMessage());
     }
 }

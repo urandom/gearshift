@@ -319,6 +319,10 @@ public abstract class BaseTorrentActivity extends FragmentActivity
                                 text.setText(Html.fromHtml(getString(R.string.out_of_memory_empty_list)));
                             } else if (error == TransmissionData.Errors.JSON_PARSE_ERROR) {
                                 text.setText(Html.fromHtml(getString(R.string.json_parse_empty_list)));
+                            } else if (error == TransmissionData.Errors.GENERIC_HTTP) {
+                                text.setText(Html.fromHtml(String.format(getString(R.string.generic_http_empty_list),
+                                    intent.getIntExtra(G.ARG_ERROR_CODE, 0),
+                                    intent.getStringExtra(G.ARG_ERROR_STRING))));
                             }
                         }
                     }

@@ -101,6 +101,7 @@ public final class G {
 
     public static final String ARG_ERROR = "error";
     public static final String ARG_ERROR_CODE = "error_code";
+    public static final String ARG_ERROR_STRING = "error_string";
 
     public static final int PROFILES_LOADER_ID = 1;
     public static final int TORRENT_LIST_TRAFFIC_LOADER_ID = 2;
