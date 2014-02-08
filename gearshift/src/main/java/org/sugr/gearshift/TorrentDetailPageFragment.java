@@ -1069,7 +1069,7 @@ public class TorrentDetailPageFragment extends Fragment {
             }
 
             String queue = Integer.toString(queuePosition);
-            if (!queue.equals(views.queuePosition.getText().toString())) {
+            if (!views.queuePosition.isFocused() && !queue.equals(views.queuePosition.getText().toString())) {
                 views.queuePosition.setText(queue);
             }
 
@@ -1078,7 +1078,7 @@ public class TorrentDetailPageFragment extends Fragment {
             }
 
             String download = Long.toString(downloadLimit);
-            if (!download.equals(views.downloadLimit.getText().toString())) {
+            if (!views.downloadLimit.isFocused() && !download.equals(views.downloadLimit.getText().toString())) {
                 views.downloadLimit.setText(download);
             }
             if (views.downloadLimit.isEnabled() != views.downloadLimited.isChecked()) {
@@ -1090,7 +1090,7 @@ public class TorrentDetailPageFragment extends Fragment {
             }
 
             String upload = Long.toString(uploadLimit);
-            if (!upload.equals(views.uploadLimit.getText().toString())) {
+            if (!views.uploadLimit.isFocused() && !upload.equals(views.uploadLimit.getText().toString())) {
                 views.uploadLimit.setText(upload);
             }
             if (views.uploadLimit.isEnabled() != views.uploadLimited.isChecked()) {
@@ -1111,12 +1111,12 @@ public class TorrentDetailPageFragment extends Fragment {
             }
 
             String ratio = G.readablePercent(seedRatioLimit);
-            if (!ratio.equals(views.seedRatioLimit.getText().toString())) {
+            if (!views.seedRatioLimit.isFocused() && !ratio.equals(views.seedRatioLimit.getText().toString())) {
                 views.seedRatioLimit.setText(ratio);
             }
 
             String peers = Integer.toString(peerLimit);
-            if (!peers.equals(views.peerLimit.getText().toString())) {
+            if (!views.peerLimit.isFocused() && !peers.equals(views.peerLimit.getText().toString())) {
                 views.peerLimit.setText(peers);
             }
         }
