@@ -20,7 +20,7 @@
 -repackageclasses ''
 -allowaccessmodification
 -optimizations !code/simplification/arithmetic,!field/*,!class/merging/*
--keepattributes *Annotation*
+-keepattributes *Annotation*,SourceFile,LineNumberTable
 
 -keep public class * {
     public protected *;

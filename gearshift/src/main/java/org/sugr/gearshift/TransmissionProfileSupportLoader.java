@@ -5,6 +5,12 @@ import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.preference.PreferenceManager;
 import android.support.v4.content.AsyncTaskLoader;
+import android.text.TextUtils;
+
+import org.w3c.dom.Text;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class TransmissionProfileSupportLoader extends AsyncTaskLoader<TransmissionProfile[]> {
     private TransmissionProfile[] mProfiles;
@@ -13,7 +19,6 @@ public class TransmissionProfileSupportLoader extends AsyncTaskLoader<Transmissi
         @Override
         public void onSharedPreferenceChanged(
                 SharedPreferences sharedPreferences, String key) {
-            G.logD("TPLoader: the pref of a profile has changed.");
             onContentChanged();
         }
 
@@ -24,9 +29,7 @@ public class TransmissionProfileSupportLoader extends AsyncTaskLoader<Transmissi
         @Override
         public void onSharedPreferenceChanged(
                 SharedPreferences sharedPreferences, String key) {
-            G.logD("Detault prefs changed " + key);
             if (key.equals(G.PREF_PROFILES)) {
-                G.logD("TPLoader: the pref 'profiles' has changed.");
                 onContentChanged();
             }
         }
@@ -45,10 +48,16 @@ public class TransmissionProfileSupportLoader extends AsyncTaskLoader<Transmissi
     @Override
     public TransmissionProfile[] loadInBackground() {
         TransmissionProfile[] profiles = TransmissionProfile.readProfiles(getContext().getApplicationContext());
+        List<TransmissionProfile> profileList = new ArrayList<>();
+        for (TransmissionProfile profile : profiles) {
+            if (!TextUtils.isEmpty(profile.getHost())) {
+                profileList.add(profile);
+            }
+        }
 
-        G.logD("TPLoader: Read %d profiles", new Object[] {profiles.length});
+        G.logD("TPLoader: Read %d profiles", new Object[] {profileList.size()});
 
-        return profiles;
+        return profileList.toArray(new TransmissionProfile[profileList.size()]);
     }
 
     @Override

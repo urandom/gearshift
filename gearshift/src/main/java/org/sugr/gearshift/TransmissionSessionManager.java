@@ -255,10 +255,6 @@ public class TransmissionSessionManager {
         }
     }
 
-    public void clearTorrents() {
-        dataSource.clearTorrentsForProfile(profile.getId());
-    }
-
     public String addTorrent(String uri, String meta, String location, boolean paused)
             throws ManagerException {
         ObjectNode request = createRequest("torrent-add", true);
@@ -340,6 +336,7 @@ public class TransmissionSessionManager {
                   (profile.isUseSSL() ? "https://" : "http://")
                 + profile.getHost() + ":" + profile.getPort()
                 + profile.getPath());
+            G.logD("Initializing a request to " + url);
             conn = (HttpURLConnection) url.openConnection();
             if (profile.isUseSSL()) {
                 try {
@@ -476,7 +473,7 @@ public class TransmissionSessionManager {
     private String getSessionId(HttpURLConnection conn) {
         String id = conn.getHeaderField("X-Transmission-Session-Id");
 
-        if (id != null && !id.equals("")) {
+        if (id != null && !id.equals("") && !id.equals(defaultPrefs.getString(PREF_LAST_SESSION_ID, null))) {
             Editor e = defaultPrefs.edit();
             e.putString(PREF_LAST_SESSION_ID, id);
             e.commit();

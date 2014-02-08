@@ -50,8 +50,6 @@ public class DataServiceManager {
 
         iteration = 0;
         serviceReceiver = new ServiceReceiver();
-        LocalBroadcastManager.getInstance(context).registerReceiver(serviceReceiver,
-            new IntentFilter(G.INTENT_SERVICE_ACTION_COMPLETE));
     }
 
     public DataServiceManager onSaveInstanceState(Bundle savedInstanceState) {
@@ -73,7 +71,6 @@ public class DataServiceManager {
     public DataServiceManager reset() {
         iteration = 0;
         stopUpdating();
-        LocalBroadcastManager.getInstance(context).unregisterReceiver(serviceReceiver);
 
         return this;
     }
@@ -100,6 +97,8 @@ public class DataServiceManager {
     public DataServiceManager startUpdating() {
         synchronized (this) {
             isStopped = false;
+            LocalBroadcastManager.getInstance(context).registerReceiver(serviceReceiver,
+                new IntentFilter(G.INTENT_SERVICE_ACTION_COMPLETE));
         }
         isLastErrorFatal = false;
 
@@ -111,6 +110,7 @@ public class DataServiceManager {
     public DataServiceManager stopUpdating() {
         synchronized (this) {
             isStopped = true;
+            LocalBroadcastManager.getInstance(context).unregisterReceiver(serviceReceiver);
         }
 
         return this;
@@ -279,8 +279,8 @@ public class DataServiceManager {
         return this;
     }
 
-    public DataServiceManager clearTorrents() {
-        Intent intent = createIntent(DataService.Requests.CLEAR_TORRENTS_FOR_PROFILE, null);
+    public DataServiceManager removeProfile() {
+        Intent intent = createIntent(DataService.Requests.REMOVE_PROFILE, null);
 
         context.startService(intent);
 

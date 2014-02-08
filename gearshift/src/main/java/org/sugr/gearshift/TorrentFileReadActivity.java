@@ -60,6 +60,7 @@ public class TorrentFileReadActivity extends FragmentActivity {
                 File file = new File(TorrentFileReadActivity.this.getCacheDir(), "torrentdata");
 
                 if (file.exists()) {
+                    //noinspection ResultOfMethodCallIgnored
                     file.delete();
                 }
 

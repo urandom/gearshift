@@ -8,6 +8,7 @@ import android.os.Parcel;
 import android.os.Parcelable;
 import android.preference.PreferenceManager;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -43,8 +44,9 @@ public class TransmissionProfile implements Parcelable, Comparable<TransmissionP
         TransmissionProfile[] profiles = new TransmissionProfile[profile_ids.size()];
         int index = 0;
 
-        for (String id : profile_ids)
+        for (String id : profile_ids) {
             profiles[index++] = new TransmissionProfile(id, context);
+        }
 
         Arrays.sort(profiles);
         return profiles;
@@ -220,7 +222,20 @@ public class TransmissionProfile implements Parcelable, Comparable<TransmissionP
         if (legacy) {
             Editor e = pref.edit();
             e.clear();
-            e.apply();
+            e.commit();
+
+            String dir = context.getFilesDir().getParent() + "/shared_prefs";
+            File file = new File(dir, G.PREF_PREFIX + id + ".xml");
+            if (file.exists()) {
+                //noinspection ResultOfMethodCallIgnored
+                file.delete();
+            }
+
+            file = new File(dir, G.PREF_PREFIX + id + ".bak");
+            if (file.exists()) {
+                //noinspection ResultOfMethodCallIgnored
+                file.delete();
+            }
 
             save();
         }

@@ -438,6 +438,7 @@
     <string name="error_deleting_torrent_file">Unable to delete torrent file</string>
     <string name="hint_download_directory">Download directory</string>
     <string name="spinner_custom_directory">Custom directory &#8230;</string>
+    <string name="error_removing_profile">Error while removing profile!</string>
 
     <string-array name="torrent_priority">
         <item>Low</item>

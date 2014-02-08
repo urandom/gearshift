@@ -24,6 +24,8 @@ import java.net.ConnectException;
 
 public class DataService extends IntentService {
     public static final class Requests {
+        public static final String REMOVE_PROFILE = "remove_profile";
+
         public static final String GET_SESSION = "get_session";
         public static final String SET_SESSION = "set_session";
 
@@ -33,7 +35,6 @@ public class DataService extends IntentService {
         public static final String SET_TORRENT = "set_torrent";
         public static final String SET_TORRENT_LOCATION = "set_torrent_location";
         public static final String SET_TORRENT_ACTION = "set_torrent_action";
-        public static final String CLEAR_TORRENTS_FOR_PROFILE = "clear_torrents_for_profile";
 
         public static final String GET_FREE_SPACE = "get_free_space";
         public static final String TEST_PORT = "test_port";
@@ -88,217 +89,219 @@ public class DataService extends IntentService {
             }
             if (profileId == null) {
                 throw new IllegalArgumentException("No profile specified");
-            } else if (profile == null || !profile.getId().equals(profileId)) {
+            }
+            if (args == null) {
+                throw new IllegalArgumentException("No arguments bundle");
+            }
+            if (profile == null || !profile.getId().equals(profileId)) {
                 profile = new TransmissionProfile(profileId, this);
+            }
+
+            if (requestType.equals(Requests.REMOVE_PROFILE)) {
+                profile.delete();
+                dataSource.clearTorrentsForProfile(profileId);
+                response = createResponse(requestType, profileId);
+            } else {
                 if (profile.getHost().equals("")) {
                     throw new IllegalArgumentException("No profile specified");
                 }
                 if (manager != null) {
                     manager.setProfile(profile);
                 }
-            }
-            if (args == null) {
-                throw new IllegalArgumentException("No arguments bundle");
-            }
+                if (manager == null) {
+                    manager = new TransmissionSessionManager(this, profile, dataSource);
+                }
 
-            if (manager == null) {
-                manager = new TransmissionSessionManager(this, profile, dataSource);
-            }
+                if (!manager.hasConnectivity()) {
+                    throw new ConnectException();
+                }
 
-            if (!manager.hasConnectivity()) {
-                throw new ConnectException();
-            }
+                switch (requestType) {
+                    case Requests.GET_SESSION:
+                        manager.updateSession();
+                        response = createResponse(requestType, profileId);
+                        break;
+                    case Requests.SET_SESSION:
+                        TransmissionSession session = args.getParcelable(Args.SESSION);
+                        String[] keys = args.getStringArray(Args.SESSION_FIELDS);
 
-            switch (requestType) {
-                case Requests.GET_SESSION:
-                    manager.updateSession();
-                    response = createResponse(requestType, profileId);
-                    break;
-                case Requests.SET_SESSION:
-                    TransmissionSession session = args.getParcelable(Args.SESSION);
-                    String[] keys = args.getStringArray(Args.SESSION_FIELDS);
-
-                    if (session == null) {
-                        throw new IllegalArgumentException("No session object given");
-                    }
-                    if (keys == null || keys.length == 0) {
-                        throw new IllegalArgumentException("No session fields given");
-                    }
-
-                    manager.setSession(session, keys);
-                    response = createResponse(requestType, profileId);
-                    break;
-                case Requests.GET_TORRENTS: {
-                    TorrentStatus status;
-                    String[] fields = Torrent.Fields.STATS;
-
-                    if (!dataSource.hasCompleteMetadata()) {
-                        fields = G.concat(Torrent.Fields.METADATA, fields);
-                    }
-
-                    if (args.getBoolean(Args.DETAIL_FIELDS, false)) {
-                        fields = G.concat(fields, Torrent.Fields.STATS_EXTRA);
-                        if (!dataSource.hasExtraInfo()) {
-                            fields = G.concat(fields, Torrent.Fields.INFO_EXTRA);
+                        if (session == null) {
+                            throw new IllegalArgumentException("No session object given");
                         }
-                    }
-
-                    String[] hashStrings = args.getStringArray(Args.TORRENTS_TO_UPDATE);
-                    if (hashStrings != null) {
-                        status = manager.getTorrents(fields, hashStrings, false);
-                    } else if (args.getBoolean(Args.UPDATE_ACTIVE, false)
-                        && !args.getBoolean(Args.DETAIL_FIELDS, false)) {
-                        status = manager.getActiveTorrents(fields);
-                    } else {
-                        status = manager.getTorrents(fields, null,
-                            args.getBoolean(Args.REMOVE_OBSOLETE, false));
-                    }
-
-                    String[] unnamed = dataSource.getUnnamedTorrentHashStrings();
-                    if (unnamed != null && unnamed.length > 0) {
-                        manager.getTorrents(
-                            G.concat(new String[]{Torrent.Fields.hashString}, Torrent.Fields.METADATA),
-                            unnamed, false);
-                    }
-
-                    response = createResponse(requestType, profileId)
-                        .putExtra(G.ARG_ADDED, status.hasAdded)
-                        .putExtra(G.ARG_REMOVED, status.hasRemoved)
-                        .putExtra(G.ARG_STATUS_CHANGED, status.hasStatusChanged)
-                        .putExtra(G.ARG_INCOMPLETE_METADATA, status.hasIncompleteMetadata);
-                    break;
-                }
-                case Requests.ADD_TORRENT: {
-                    String uri = args.getString(Args.MAGNET_URI);
-                    String data = args.getString(Args.TORRENT_DATA);
-                    String location = args.getString(Args.LOCATION);
-                    boolean paused = args.getBoolean(Args.ADD_PAUSED, false);
-                    String temporary = args.getString(Args.TEMPORARY_FILE);
-                    Uri document = args.getParcelable(Args.DOCUMENT_URI);
-
-                    if (TextUtils.isEmpty(uri) && TextUtils.isEmpty(data)) {
-                        throw new IllegalArgumentException(
-                            "Either a uri or the torrent data needs to be specified");
-                    }
-
-                    String addedHash = manager.addTorrent(uri, data, location, paused);
-
-                    if (!TextUtils.isEmpty(temporary)) {
-                        File file = new File(temporary);
-                        if (!file.delete()) {
-                            G.logD("Couldn't remove torrent " + file.getName());
+                        if (keys == null || keys.length == 0) {
+                            throw new IllegalArgumentException("No session fields given");
                         }
-                    }
-                    if (document != null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-                        if (!DocumentsContract.deleteDocument(getContentResolver(), document)) {
-                            G.logD("Couldn't remove torrent " + document.toString());
+
+                        manager.setSession(session, keys);
+                        response = createResponse(requestType, profileId);
+                        break;
+                    case Requests.GET_TORRENTS: {
+                        TorrentStatus status;
+                        String[] fields = Torrent.Fields.STATS;
+
+                        if (!dataSource.hasCompleteMetadata()) {
+                            fields = G.concat(Torrent.Fields.METADATA, fields);
                         }
+
+                        if (args.getBoolean(Args.DETAIL_FIELDS, false)) {
+                            fields = G.concat(fields, Torrent.Fields.STATS_EXTRA);
+                            if (!dataSource.hasExtraInfo()) {
+                                fields = G.concat(fields, Torrent.Fields.INFO_EXTRA);
+                            }
+                        }
+
+                        String[] hashStrings = args.getStringArray(Args.TORRENTS_TO_UPDATE);
+                        if (hashStrings != null) {
+                            status = manager.getTorrents(fields, hashStrings, false);
+                        } else if (args.getBoolean(Args.UPDATE_ACTIVE, false)
+                            && !args.getBoolean(Args.DETAIL_FIELDS, false)) {
+                            status = manager.getActiveTorrents(fields);
+                        } else {
+                            status = manager.getTorrents(fields, null,
+                                args.getBoolean(Args.REMOVE_OBSOLETE, false));
+                        }
+
+                        String[] unnamed = dataSource.getUnnamedTorrentHashStrings();
+                        if (unnamed != null && unnamed.length > 0) {
+                            manager.getTorrents(
+                                G.concat(new String[]{Torrent.Fields.hashString}, Torrent.Fields.METADATA),
+                                unnamed, false);
+                        }
+
+                        response = createResponse(requestType, profileId)
+                            .putExtra(G.ARG_ADDED, status.hasAdded)
+                            .putExtra(G.ARG_REMOVED, status.hasRemoved)
+                            .putExtra(G.ARG_STATUS_CHANGED, status.hasStatusChanged)
+                            .putExtra(G.ARG_INCOMPLETE_METADATA, status.hasIncompleteMetadata);
+                        break;
                     }
+                    case Requests.ADD_TORRENT: {
+                        String uri = args.getString(Args.MAGNET_URI);
+                        String data = args.getString(Args.TORRENT_DATA);
+                        String location = args.getString(Args.LOCATION);
+                        boolean paused = args.getBoolean(Args.ADD_PAUSED, false);
+                        String temporary = args.getString(Args.TEMPORARY_FILE);
+                        Uri document = args.getParcelable(Args.DOCUMENT_URI);
 
-                    profile.setLastDownloadDirectory(location);
-                    profile.setDeleteLocal(temporary != null || document != null);
-                    profile.setStartPaused(paused);
+                        if (TextUtils.isEmpty(uri) && TextUtils.isEmpty(data)) {
+                            throw new IllegalArgumentException(
+                                "Either a uri or the torrent data needs to be specified");
+                        }
 
-                    response = createResponse(requestType, profileId)
-                        .putExtra(G.ARG_ADDED_HASH, addedHash);
-                    break;
+                        String addedHash = manager.addTorrent(uri, data, location, paused);
+
+                        if (!TextUtils.isEmpty(temporary)) {
+                            File file = new File(temporary);
+                            if (!file.delete()) {
+                                G.logD("Couldn't remove torrent " + file.getName());
+                            }
+                        }
+                        if (document != null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+                            if (!DocumentsContract.deleteDocument(getContentResolver(), document)) {
+                                G.logD("Couldn't remove torrent " + document.toString());
+                            }
+                        }
+
+                        profile.setLastDownloadDirectory(location);
+                        profile.setDeleteLocal(temporary != null || document != null);
+                        profile.setStartPaused(paused);
+
+                        response = createResponse(requestType, profileId)
+                            .putExtra(G.ARG_ADDED_HASH, addedHash);
+                        break;
+                    }
+                    case Requests.REMOVE_TORRENT: {
+                        String[] hashStrings = args.getStringArray(Args.HASH_STRINGS);
+                        boolean delete = args.getBoolean(Args.DELETE_DATA, false);
+
+                        if (hashStrings == null || hashStrings.length == 0) {
+                            throw new IllegalArgumentException("No hash strings provided");
+                        }
+
+                        manager.removeTorrent(hashStrings, delete);
+                        response = createResponse(requestType, profileId);
+                        break;
+                    }
+                    case Requests.SET_TORRENT: {
+                        String[] hashStrings = args.getStringArray(Args.HASH_STRINGS);
+                        String field = args.getString(Args.TORRENT_FIELD);
+                        Object value = args.get(Args.TORRENT_FIELD_VALUE);
+
+                        if (hashStrings == null || hashStrings.length == 0) {
+                            throw new IllegalArgumentException("No hash strings provided");
+                        }
+
+                        if (TextUtils.isEmpty(field)) {
+                            throw new IllegalArgumentException("No torrent field provided");
+                        }
+
+                        manager.setTorrentProperty(hashStrings, field, value);
+                        response = createResponse(requestType, profileId);
+                        break;
+                    }
+                    case Requests.SET_TORRENT_LOCATION: {
+                        String[] hashStrings = args.getStringArray(Args.HASH_STRINGS);
+                        String location = args.getString(Args.LOCATION);
+                        boolean move = args.getBoolean(Args.MOVE_DATA, false);
+
+                        if (hashStrings == null || hashStrings.length == 0) {
+                            throw new IllegalArgumentException("No hash strings provided");
+                        }
+
+                        if (TextUtils.isEmpty(location)) {
+                            throw new IllegalArgumentException("No torrent location provided");
+                        }
+
+                        manager.setTorrentLocation(hashStrings, location, move);
+
+                        profile.setLastDownloadDirectory(location);
+                        profile.setMoveData(move);
+
+                        response = createResponse(requestType, profileId);
+                        break;
+                    }
+                    case Requests.SET_TORRENT_ACTION: {
+                        String[] hashStrings = args.getStringArray(Args.HASH_STRINGS);
+                        String action = args.getString(Args.TORRENT_ACTION);
+
+                        if (hashStrings == null || hashStrings.length == 0) {
+                            throw new IllegalArgumentException("No hash strings provided");
+                        }
+
+                        if (TextUtils.isEmpty(action)) {
+                            throw new IllegalArgumentException("No action provided");
+                        }
+
+                        manager.setTorrentAction(hashStrings, action);
+                        response = createResponse(requestType, profileId);
+                        break;
+                    }
+                    case Requests.GET_FREE_SPACE: {
+                        String location = args.getString(Args.LOCATION);
+
+                        if (TextUtils.isEmpty(location)) {
+                            throw new IllegalArgumentException("No torrent location provided");
+                        }
+
+                        long freeSpace = manager.getFreeSpace(location);
+                        response = createResponse(requestType, profileId)
+                            .putExtra(G.ARG_FREE_SPACE, freeSpace);
+                        break;
+                    }
+                    case Requests.TEST_PORT:
+                        boolean isOpen = manager.testPort();
+                        response = createResponse(requestType, profileId)
+                            .putExtra(G.ARG_PORT_IS_OPEN, isOpen);
+                        break;
+                    case Requests.UPDATE_BLOCKLIST:
+                        long size = manager.updateBlocklist();
+                        response = createResponse(requestType, profileId)
+                            .putExtra(G.ARG_BLOCKLIST_SIZE, size);
+                        break;
+                    default:
+                        throw new IllegalArgumentException("Invalid request type");
                 }
-                case Requests.REMOVE_TORRENT: {
-                    String[] hashStrings = args.getStringArray(Args.HASH_STRINGS);
-                    boolean delete = args.getBoolean(Args.DELETE_DATA, false);
-
-                    if (hashStrings == null || hashStrings.length == 0) {
-                        throw new IllegalArgumentException("No hash strings provided");
-                    }
-
-                    manager.removeTorrent(hashStrings, delete);
-                    response = createResponse(requestType, profileId);
-                    break;
-                }
-                case Requests.SET_TORRENT: {
-                    String[] hashStrings = args.getStringArray(Args.HASH_STRINGS);
-                    String field = args.getString(Args.TORRENT_FIELD);
-                    Object value = args.get(Args.TORRENT_FIELD_VALUE);
-
-                    if (hashStrings == null || hashStrings.length == 0) {
-                        throw new IllegalArgumentException("No hash strings provided");
-                    }
-
-                    if (TextUtils.isEmpty(field)) {
-                        throw new IllegalArgumentException("No torrent field provided");
-                    }
-
-                    manager.setTorrentProperty(hashStrings, field, value);
-                    response = createResponse(requestType, profileId);
-                    break;
-                }
-                case Requests.SET_TORRENT_LOCATION: {
-                    String[] hashStrings = args.getStringArray(Args.HASH_STRINGS);
-                    String location = args.getString(Args.LOCATION);
-                    boolean move = args.getBoolean(Args.MOVE_DATA, false);
-
-                    if (hashStrings == null || hashStrings.length == 0) {
-                        throw new IllegalArgumentException("No hash strings provided");
-                    }
-
-                    if (TextUtils.isEmpty(location)) {
-                        throw new IllegalArgumentException("No torrent location provided");
-                    }
-
-                    manager.setTorrentLocation(hashStrings, location, move);
-
-                    profile.setLastDownloadDirectory(location);
-                    profile.setMoveData(move);
-
-                    response = createResponse(requestType, profileId);
-                    break;
-                }
-                case Requests.SET_TORRENT_ACTION: {
-                    String[] hashStrings = args.getStringArray(Args.HASH_STRINGS);
-                    String action = args.getString(Args.TORRENT_ACTION);
-
-                    if (hashStrings == null || hashStrings.length == 0) {
-                        throw new IllegalArgumentException("No hash strings provided");
-                    }
-
-                    if (TextUtils.isEmpty(action)) {
-                        throw new IllegalArgumentException("No action provided");
-                    }
-
-                    manager.setTorrentAction(hashStrings, action);
-                    response = createResponse(requestType, profileId);
-                    break;
-                }
-                case Requests.CLEAR_TORRENTS_FOR_PROFILE:
-                    manager.clearTorrents();
-                    response = createResponse(requestType, profileId);
-                    break;
-                case Requests.GET_FREE_SPACE: {
-                    String location = args.getString(Args.LOCATION);
-
-                    if (TextUtils.isEmpty(location)) {
-                        throw new IllegalArgumentException("No torrent location provided");
-                    }
-
-                    long freeSpace = manager.getFreeSpace(location);
-                    response = createResponse(requestType, profileId)
-                        .putExtra(G.ARG_FREE_SPACE, freeSpace);
-                    break;
-                }
-                case Requests.TEST_PORT:
-                    boolean isOpen = manager.testPort();
-                    response = createResponse(requestType, profileId)
-                        .putExtra(G.ARG_PORT_IS_OPEN, isOpen);
-                    break;
-                case Requests.UPDATE_BLOCKLIST:
-                    long size = manager.updateBlocklist();
-                    response = createResponse(requestType, profileId)
-                        .putExtra(G.ARG_BLOCKLIST_SIZE, size);
-                    break;
-                default:
-                    throw new IllegalArgumentException("Invalid request type");
             }
-
         } catch (IllegalArgumentException e) {
             G.logE("Error while processing service request!", e);
         } catch (TransmissionSessionManager.ManagerException e) {

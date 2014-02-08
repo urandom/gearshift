@@ -11,22 +11,16 @@ public class TransmissionProfileLoader extends AsyncTaskLoader<TransmissionProfi
 
     private OnSharedPreferenceChangeListener mListener = new OnSharedPreferenceChangeListener() {
         @Override
-        public void onSharedPreferenceChanged(
-                SharedPreferences sharedPreferences, String key) {
-            G.logD("TPLoader: the pref of a profile has changed.");
+        public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
             onContentChanged();
         }
-
     };
 
 
     private OnSharedPreferenceChangeListener mDefaultListener = new OnSharedPreferenceChangeListener() {
         @Override
-        public void onSharedPreferenceChanged(
-                SharedPreferences sharedPreferences, String key) {
-            G.logD("Detault prefs changed " + key);
+        public void onSharedPreferenceChanged( SharedPreferences sharedPreferences, String key) {
             if (key.equals(G.PREF_PROFILES)) {
-                G.logD("TPLoader: the pref 'profiles' has changed.");
                 onContentChanged();
             }
         }

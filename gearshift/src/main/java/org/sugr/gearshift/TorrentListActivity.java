@@ -143,9 +143,9 @@ public class TorrentListActivity extends BaseTorrentActivity
                     setProfile(null);
                     /* TODO: should display the message that the user hasn't created a profile yet */
                 }
+                TransmissionProfile.setCurrentProfile(profile, TorrentListActivity.this);
             }
 
-            TransmissionProfile.setCurrentProfile(profile, TorrentListActivity.this);
             profileAdapter.notifyDataSetChanged();
         }
 

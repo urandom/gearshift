@@ -3,17 +3,23 @@ package org.sugr.gearshift;
 import android.app.ActionBar;
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceManager;
+import android.support.v4.content.LocalBroadcastManager;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.widget.Toast;
 
+import org.sugr.gearshift.service.DataService;
 import org.sugr.gearshift.service.DataServiceManager;
 
 public class TransmissionProfileSettingsFragment extends BasePreferenceFragment {
@@ -39,7 +45,7 @@ public class TransmissionProfileSettingsFragment extends BasePreferenceFragment 
             profile.fillTemporatyPreferences();
         }
 
-        sharedPrefs = profile.getPreferences(getActivity());
+        sharedPrefs = TransmissionProfile.getPreferences(getActivity());
 
         getPreferenceManager().setSharedPreferencesName(G.PROFILES_PREF_NAME);
 
@@ -131,15 +137,12 @@ public class TransmissionProfileSettingsFragment extends BasePreferenceFragment 
             case R.id.delete:
                 deleted = true;
 
-                new DataServiceManager(getActivity(), profile.getId()).clearTorrents();
+                LocalBroadcastManager.getInstance(getActivity()).registerReceiver(
+                    new ServiceReceiver(), new IntentFilter(G.INTENT_SERVICE_ACTION_COMPLETE));
 
-                PreferenceActivity context = (PreferenceActivity) getActivity();
+                new DataServiceManager(getActivity(), profile.getId()).removeProfile();
 
-                if (context.onIsHidingHeaders() || !context.onIsMultiPane()) {
-                    getActivity().finish();
-                } else {
-                    ((PreferenceActivity) getActivity()).switchToHeader(GeneralSettingsFragment.class.getCanonicalName(), new Bundle());
-                }
+                item.setActionView(R.layout.action_progress_bar);
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -150,8 +153,6 @@ public class TransmissionProfileSettingsFragment extends BasePreferenceFragment 
     public void onDestroy() {
         if (saved) {
             profile.save(true);
-        } else if (deleted) {
-            profile.delete();
         }
 
         TransmissionProfile.cleanTemporaryPreferences(getActivity());
@@ -162,5 +163,31 @@ public class TransmissionProfileSettingsFragment extends BasePreferenceFragment 
         }
 
         super.onDestroy();
+    }
+
+    private class ServiceReceiver extends BroadcastReceiver {
+        @Override public void onReceive(Context context, Intent intent) {
+            int error = intent.getIntExtra(G.ARG_ERROR, 0);
+
+            String type = intent.getStringExtra(G.ARG_REQUEST_TYPE);
+            switch (type) {
+                case DataService.Requests.REMOVE_PROFILE:
+                    LocalBroadcastManager.getInstance(context).unregisterReceiver(this);
+                    getActivity().invalidateOptionsMenu();
+                    if (error == 0) {
+                        PreferenceActivity activity = (PreferenceActivity) getActivity();
+
+                        if (activity.onIsHidingHeaders() || !activity.onIsMultiPane()) {
+                            getActivity().finish();
+                        } else {
+                            ((PreferenceActivity) getActivity()).switchToHeader(GeneralSettingsFragment.class.getCanonicalName(), new Bundle());
+                        }
+                    } else {
+                        Toast.makeText(context, R.string.error_removing_profile, Toast.LENGTH_LONG)
+                            .show();
+                    }
+                    break;
+            }
+        }
     }
 }
