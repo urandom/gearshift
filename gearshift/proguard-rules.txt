@@ -19,7 +19,7 @@
 -dontpreverify
 -repackageclasses ''
 -allowaccessmodification
--optimizations !code/simplification/arithmetic
+-optimizations !code/simplification/arithmetic,!field/*,!class/merging/*
 -keepattributes *Annotation*
 
 -keep public class * {
