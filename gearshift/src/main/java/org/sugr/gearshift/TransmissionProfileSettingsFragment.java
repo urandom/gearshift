@@ -25,6 +25,7 @@ import org.sugr.gearshift.service.DataServiceManager;
 public class TransmissionProfileSettingsFragment extends BasePreferenceFragment {
     private TransmissionProfile profile;
 
+    private boolean isNew = false;
     private boolean deleted = false;
     private boolean saved = false;
 
@@ -38,14 +39,16 @@ public class TransmissionProfileSettingsFragment extends BasePreferenceFragment 
             id = args.getString(G.ARG_PROFILE_ID);
         }
 
-        if (id == null)
+        sharedPrefs = TransmissionProfile.getPreferences(getActivity());
+
+        if (id == null) {
+            TransmissionProfile.cleanTemporaryPreferences(getActivity());
             profile = new TransmissionProfile(getActivity());
-        else {
+            isNew = true;
+        } else {
             profile = new TransmissionProfile(id, getActivity());
             profile.fillTemporatyPreferences();
         }
-
-        sharedPrefs = TransmissionProfile.getPreferences(getActivity());
 
         getPreferenceManager().setSharedPreferencesName(G.PROFILES_PREF_NAME);
 
@@ -105,13 +108,7 @@ public class TransmissionProfileSettingsFragment extends BasePreferenceFragment 
 
                     saved = true;
 
-                    PreferenceActivity context = (PreferenceActivity) getActivity();
-
-                    if (context.onIsHidingHeaders() || !context.onIsMultiPane()) {
-                        getActivity().finish();
-                    } else {
-                        ((PreferenceActivity) getActivity()).switchToHeader(GeneralSettingsFragment.class.getCanonicalName(), new Bundle());
-                    }
+                    close();
                 }
             });
             actionBar.setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM,
@@ -127,8 +124,13 @@ public class TransmissionProfileSettingsFragment extends BasePreferenceFragment 
         menu.clear();
 
         inflater.inflate(R.menu.torrent_profile_settings_fragment, menu);
-        if (profile == null)
-            menu.findItem(R.id.delete).setVisible(false);
+        MenuItem item = menu.findItem(R.id.delete);
+        if (isNew) {
+            item.setTitle(android.R.string.cancel);
+        }
+        if (profile == null) {
+            item.setVisible(false);
+        }
     }
 
     @Override
@@ -137,12 +139,16 @@ public class TransmissionProfileSettingsFragment extends BasePreferenceFragment 
             case R.id.delete:
                 deleted = true;
 
-                LocalBroadcastManager.getInstance(getActivity()).registerReceiver(
-                    new ServiceReceiver(), new IntentFilter(G.INTENT_SERVICE_ACTION_COMPLETE));
+                if (isNew) {
+                    close();
+                } else {
+                    LocalBroadcastManager.getInstance(getActivity()).registerReceiver(
+                        new ServiceReceiver(), new IntentFilter(G.INTENT_SERVICE_ACTION_COMPLETE));
 
-                new DataServiceManager(getActivity(), profile.getId()).removeProfile();
+                    new DataServiceManager(getActivity(), profile.getId()).removeProfile();
 
-                item.setActionView(R.layout.action_progress_bar);
+                    item.setActionView(R.layout.action_progress_bar);
+                }
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -165,6 +171,16 @@ public class TransmissionProfileSettingsFragment extends BasePreferenceFragment 
         super.onDestroy();
     }
 
+    private void close() {
+        PreferenceActivity context = (PreferenceActivity) getActivity();
+
+        if (context.onIsHidingHeaders() || !context.onIsMultiPane()) {
+            getActivity().finish();
+        } else {
+            ((PreferenceActivity) getActivity()).switchToHeader(GeneralSettingsFragment.class.getCanonicalName(), new Bundle());
+        }
+    }
+
     private class ServiceReceiver extends BroadcastReceiver {
         @Override public void onReceive(Context context, Intent intent) {
             int error = intent.getIntExtra(G.ARG_ERROR, 0);
@@ -174,18 +190,11 @@ public class TransmissionProfileSettingsFragment extends BasePreferenceFragment 
                 case DataService.Requests.REMOVE_PROFILE:
                     LocalBroadcastManager.getInstance(context).unregisterReceiver(this);
                     getActivity().invalidateOptionsMenu();
-                    if (error == 0) {
-                        PreferenceActivity activity = (PreferenceActivity) getActivity();
-
-                        if (activity.onIsHidingHeaders() || !activity.onIsMultiPane()) {
-                            getActivity().finish();
-                        } else {
-                            ((PreferenceActivity) getActivity()).switchToHeader(GeneralSettingsFragment.class.getCanonicalName(), new Bundle());
-                        }
-                    } else {
+                    if (error != 0) {
                         Toast.makeText(context, R.string.error_removing_profile, Toast.LENGTH_LONG)
                             .show();
                     }
+                    close();
                     break;
             }
         }

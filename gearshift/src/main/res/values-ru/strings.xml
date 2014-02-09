@@ -50,7 +50,6 @@
     <string name="directory_filters">Фильтр каталогов</string>
     <string name="done">Готово</string>
     <string name="duplicate_torrent">Этот торрент уже есть в списке.</string>
-    <string name="empty_string" />
     <string name="error_deleting_torrent_file">Ошибка удаления торрент-файла</string>
     <string name="error_reading_torrent_file">Ошибка чтения торрент-файла</string>
     <string name="error_title">Ошибка!</string>

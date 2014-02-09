@@ -13345,7 +13345,7 @@ org.sugr.gearshift.BasePreferenceFragment -> org.sugr.gearshift.BasePreferenceFr
     25:28:void onResume() -> onResume
     32:34:void onPause() -> onPause
     38:44:void onSharedPreferenceChanged(android.content.SharedPreferences,java.lang.String) -> onSharedPreferenceChanged
-    47:79:void updatePrefSummary(java.lang.String) -> updatePrefSummary
+    47:78:void updatePrefSummary(java.lang.String) -> updatePrefSummary
 org.sugr.gearshift.BaseTorrentActivity -> org.sugr.gearshift.BaseTorrentActivity:
     org.sugr.gearshift.TransmissionProfile profile -> profile
     org.sugr.gearshift.TransmissionSession session -> session
@@ -13975,7 +13975,6 @@ org.sugr.gearshift.R$string -> org.sugr.gearshift.R$string:
     int directory_filters -> directory_filters
     int done -> done
     int duplicate_torrent -> duplicate_torrent
-    int empty_string -> empty_string
     int error_deleting_torrent_file -> error_deleting_torrent_file
     int error_reading_torrent_file -> error_reading_torrent_file
     int error_removing_profile -> error_removing_profile
@@ -15262,33 +15261,33 @@ org.sugr.gearshift.TransmissionProfile -> org.sugr.gearshift.TransmissionProfile
     171:172:void setRetries(int) -> setRetries
     174:175:void setDirectories(java.util.Set) -> setDirectories
     178:179:void load() -> load
-    182:242:void load(boolean) -> load
-    245:246:void save() -> save
-    249:290:void save(boolean) -> save
-    293:326:void delete() -> delete
-    329:344:void fillTemporatyPreferences() -> fillTemporatyPreferences
-    347:347:java.lang.String getLastDownloadDirectory() -> getLastDownloadDirectory
-    351:358:void setLastDownloadDirectory(java.lang.String) -> setLastDownloadDirectory
-    361:361:boolean getMoveData() -> getMoveData
-    365:372:void setMoveData(boolean) -> setMoveData
-    375:375:boolean getDeleteLocal() -> getDeleteLocal
-    379:386:void setDeleteLocal(boolean) -> setDeleteLocal
-    389:389:boolean getStartPaused() -> getStartPaused
-    393:400:void setStartPaused(boolean) -> setStartPaused
-    403:403:android.content.Context getContext() -> getContext
-    407:408:void setContext(android.content.Context) -> setContext
-    412:412:int compareTo(org.sugr.gearshift.TransmissionProfile) -> compareTo
-    417:417:java.lang.String toString() -> toString
-    422:422:int describeContents() -> describeContents
-    427:441:void writeToParcel(android.os.Parcel,int) -> writeToParcel
-    478:478:android.content.SharedPreferences getLegacyPreferences(android.content.Context) -> a
-    483:488:java.lang.String getPrefName(java.lang.String,boolean,boolean) -> a
+    182:241:void load(boolean) -> load
+    244:245:void save() -> save
+    248:289:void save(boolean) -> save
+    292:325:void delete() -> delete
+    328:343:void fillTemporatyPreferences() -> fillTemporatyPreferences
+    346:346:java.lang.String getLastDownloadDirectory() -> getLastDownloadDirectory
+    350:357:void setLastDownloadDirectory(java.lang.String) -> setLastDownloadDirectory
+    360:360:boolean getMoveData() -> getMoveData
+    364:371:void setMoveData(boolean) -> setMoveData
+    374:374:boolean getDeleteLocal() -> getDeleteLocal
+    378:385:void setDeleteLocal(boolean) -> setDeleteLocal
+    388:388:boolean getStartPaused() -> getStartPaused
+    392:399:void setStartPaused(boolean) -> setStartPaused
+    402:402:android.content.Context getContext() -> getContext
+    406:407:void setContext(android.content.Context) -> setContext
+    410:410:int compareTo(org.sugr.gearshift.TransmissionProfile) -> compareTo
+    414:414:java.lang.String toString() -> toString
+    419:419:int describeContents() -> describeContents
+    424:438:void writeToParcel(android.os.Parcel,int) -> writeToParcel
+    475:475:android.content.SharedPreferences getLegacyPreferences(android.content.Context) -> a
+    480:485:java.lang.String getPrefName(java.lang.String,boolean,boolean) -> a
     18:18:int compareTo(java.lang.Object) -> compareTo
 org.sugr.gearshift.TransmissionProfile$1 -> sk:
-    447:447:org.sugr.gearshift.TransmissionProfile createFromParcel(android.os.Parcel) -> a
-    452:452:org.sugr.gearshift.TransmissionProfile[] newArray(int) -> a
-    444:444:java.lang.Object[] newArray(int) -> newArray
-    444:444:java.lang.Object createFromParcel(android.os.Parcel) -> createFromParcel
+    444:444:org.sugr.gearshift.TransmissionProfile createFromParcel(android.os.Parcel) -> a
+    449:449:org.sugr.gearshift.TransmissionProfile[] newArray(int) -> a
+    441:441:java.lang.Object[] newArray(int) -> newArray
+    441:441:java.lang.Object createFromParcel(android.os.Parcel) -> createFromParcel
 org.sugr.gearshift.TransmissionProfileDirectoriesSettingsFragment -> org.sugr.gearshift.TransmissionProfileDirectoriesSettingsFragment:
     android.content.SharedPreferences mSharedPrefs -> a
     java.util.Set mDirectories -> b
@@ -15367,20 +15366,23 @@ org.sugr.gearshift.TransmissionProfileLoader$2 -> ss:
     23:26:void onSharedPreferenceChanged(android.content.SharedPreferences,java.lang.String) -> onSharedPreferenceChanged
 org.sugr.gearshift.TransmissionProfileSettingsFragment -> org.sugr.gearshift.TransmissionProfileSettingsFragment:
     org.sugr.gearshift.TransmissionProfile profile -> a
-    boolean deleted -> b
-    boolean saved -> c
-    33:74:void onCreate(android.os.Bundle) -> onCreate
-    78:122:void onResume() -> onResume
-    126:132:void onCreateOptionsMenu(android.view.Menu,android.view.MenuInflater) -> onCreateOptionsMenu
-    136:148:boolean onOptionsItemSelected(android.view.MenuItem) -> onOptionsItemSelected
-    154:166:void onDestroy() -> onDestroy
+    boolean isNew -> b
+    boolean deleted -> c
+    boolean saved -> d
+    34:77:void onCreate(android.os.Bundle) -> onCreate
+    81:119:void onResume() -> onResume
+    123:134:void onCreateOptionsMenu(android.view.Menu,android.view.MenuInflater) -> onCreateOptionsMenu
+    138:154:boolean onOptionsItemSelected(android.view.MenuItem) -> onOptionsItemSelected
+    160:172:void onDestroy() -> onDestroy
+    175:182:void close() -> a
     25:25:boolean access$002(org.sugr.gearshift.TransmissionProfileSettingsFragment,boolean) -> a
+    25:25:void access$100(org.sugr.gearshift.TransmissionProfileSettingsFragment) -> a
 org.sugr.gearshift.TransmissionProfileSettingsFragment$1 -> st:
     org.sugr.gearshift.TransmissionProfileSettingsFragment this$0 -> a
-    89:115:void onClick(android.view.View) -> onClick
+    92:112:void onClick(android.view.View) -> onClick
 org.sugr.gearshift.TransmissionProfileSettingsFragment$ServiceReceiver -> su:
     org.sugr.gearshift.TransmissionProfileSettingsFragment this$0 -> a
-    170:191:void onReceive(android.content.Context,android.content.Intent) -> onReceive
+    186:200:void onReceive(android.content.Context,android.content.Intent) -> onReceive
 org.sugr.gearshift.TransmissionProfileSupportLoader -> org.sugr.gearshift.TransmissionProfileSupportLoader:
     org.sugr.gearshift.TransmissionProfile[] mProfiles -> f
     android.content.SharedPreferences$OnSharedPreferenceChangeListener mListener -> g

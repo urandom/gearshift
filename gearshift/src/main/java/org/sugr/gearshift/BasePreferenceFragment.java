@@ -44,34 +44,33 @@ public class BasePreferenceFragment extends PreferenceFragment implements OnShar
     }
 
     protected void updatePrefSummary(String aKey) {
-        for (int i = 0; i < summaryPrefs.length; i++) {
+        for (Object[] summaryPref : summaryPrefs) {
             String key;
             if (aKey != null) {
-                if (aKey.equals(summaryPrefs[i][0]))
+                if (aKey.equals(summaryPref[0]))
                     key = aKey;
                 else
                     continue;
             } else {
-                key = (String) summaryPrefs[i][0];
+                key = (String) summaryPref[0];
             }
 
             Preference pref = findPreference(key);
             if (pref == null)
                 continue;
 
-            String summary = (String) summaryPrefs[i][1];
+            String summary = (String) summaryPref[1];
 
-            if ((Integer) summaryPrefs[i][2] == -1)
-                pref.setSummary(String.format(summary,
-                    summaryPrefs[i][4] == "int"
-                        ? Integer.parseInt(sharedPrefs.getString(key, sharedPrefs.getString(key, "-1")))
-                        : sharedPrefs.getString(key, sharedPrefs.getString(key, ""))
+            if ((Integer) summaryPref[2] == -1)
+                pref.setSummary(String.format(summary, summaryPref[4] == "int"
+                    ? Integer.parseInt(sharedPrefs.getString(key, "-1"))
+                    : sharedPrefs.getString(key, "")
                 ));
             else {
-                String[] values = getResources().getStringArray((Integer) summaryPrefs[i][2]);
-                String[] entries = getResources().getStringArray((Integer) summaryPrefs[i][3]);
+                String[] values = getResources().getStringArray((Integer) summaryPref[2]);
+                String[] entries = getResources().getStringArray((Integer) summaryPref[3]);
                 int index = Arrays.asList(values).indexOf(
-                        sharedPrefs.getString(key, sharedPrefs.getString(key, null)));
+                    sharedPrefs.getString(key, sharedPrefs.getString(key, null)));
                 if (index > -1 && entries.length > index)
                     pref.setSummary(String.format(summary, entries[index]));
             }

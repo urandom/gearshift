@@ -181,7 +181,10 @@ public class TransmissionProfile implements Parcelable, Comparable<TransmissionP
     public void load(boolean fromPreferences) {
         SharedPreferences pref = getPreferences(context);
         boolean legacy = false;
-        if (!fromPreferences && pref.getString(G.PREF_NAME + id, null) == null) {
+        String dir = context.getFilesDir().getParent() + "/shared_prefs";
+        File legacyFile = new File(dir, G.PREF_PREFIX + id + ".xml");
+
+        if (!fromPreferences && pref.getString(G.PREF_NAME + id, null) == null && legacyFile.exists()) {
             legacy = true;
             pref = getLegacyPreferences(context);
         }
@@ -224,14 +227,10 @@ public class TransmissionProfile implements Parcelable, Comparable<TransmissionP
             e.clear();
             e.commit();
 
-            String dir = context.getFilesDir().getParent() + "/shared_prefs";
-            File file = new File(dir, G.PREF_PREFIX + id + ".xml");
-            if (file.exists()) {
-                //noinspection ResultOfMethodCallIgnored
-                file.delete();
-            }
+            //noinspection ResultOfMethodCallIgnored
+            legacyFile.delete();
 
-            file = new File(dir, G.PREF_PREFIX + id + ".bak");
+            File file = new File(dir, G.PREF_PREFIX + id + ".bak");
             if (file.exists()) {
                 //noinspection ResultOfMethodCallIgnored
                 file.delete();
@@ -407,13 +406,11 @@ public class TransmissionProfile implements Parcelable, Comparable<TransmissionP
         this.context = context;
     }
 
-    @Override
-    public int compareTo(TransmissionProfile another) {
+    @Override public int compareTo(TransmissionProfile another) {
         return name.compareToIgnoreCase(another.getName());
     }
 
-    @Override
-    public String toString() {
+    @Override public String toString() {
         return name + "://" + username + '@' + host + ':' + port;
     }
 
