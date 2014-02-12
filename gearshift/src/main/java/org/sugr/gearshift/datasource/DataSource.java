@@ -1997,7 +1997,7 @@ public class DataSource {
         }
 
         if (tracker != null && tracker.length() > 0) {
-            selection.add(Constants.C_HASH_STRING + " IN ("
+            selection.add(Constants.T_TORRENT + "." + Constants.C_HASH_STRING + " IN ("
                 + "SELECT " + Constants.C_HASH_STRING
                 + " FROM " + Constants.T_TORRENT_TRACKER
                 + " JOIN " + Constants.T_TRACKER
