@@ -1204,6 +1204,10 @@ public class TorrentDetailPageFragment extends Fragment {
             directory = f.getParent();
             name = f.getName();
 
+            if (directory == null) {
+                directory = "";
+            }
+
             bytesCompleted = Torrent.File.getBytesCompleted(cursor);
             length = Torrent.File.getLength(cursor);
             priority = Torrent.File.getPriority(cursor);
@@ -1254,7 +1258,7 @@ public class TorrentDetailPageFragment extends Fragment {
 
             if (file.name == null) {
                 TextView row = (TextView) rowView.findViewById(mFieldId);
-                if (file.directory == null) {
+                if (TextUtils.isEmpty(file.directory)) {
                     row.setVisibility(View.GONE);
                 } else {
                     row.setText(file.directory);

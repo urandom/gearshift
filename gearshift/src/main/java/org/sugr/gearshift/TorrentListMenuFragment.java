@@ -395,6 +395,10 @@ public class TorrentListMenuFragment extends Fragment implements TorrentListNoti
             directoryPosition = ListView.INVALID_POSITION;
             trackerPosition = ListView.INVALID_POSITION;
         } else {
+            if (filterAdapter.getCount() <= position) {
+                return;
+            }
+
             ListItem item = filterAdapter.getItem(position);
             TorrentListFragment fragment =
                     ((TorrentListFragment) getFragmentManager().findFragmentById(R.id.torrent_list));
