@@ -181,7 +181,7 @@
     <string name="move_checkbox">Mover datos de su ruta actual</string>
     <string name="set_location">Establecer ruta</string>
     
-    <string name="add_magnet">Nuevo enlace Magnet</string>
+    <string name="add_new_magnet">Nuevo enlace Magnet</string>
     <string name="add_torrent">Nuevo torrent</string>
     <string name="start_paused_checkbox">Comenzar pausado</string>
     <string name="delete_local_checkbox">Eliminar archivo local torrent</string>

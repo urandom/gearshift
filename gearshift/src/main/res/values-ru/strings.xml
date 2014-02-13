@@ -7,7 +7,7 @@
     <string name="about_name">Gear Shift</string>
     <string name="access_denied_empty_list">&lt;h2>&lt;font color=#cc0000>Доступ запрещен!&lt;/font>&lt;/h2>Неверные данные учетной записи, или ваш IP-адрес не занесен в белый список.</string>
     <string name="add_directory_option">Добавить папку</string>
-    <string name="add_magnet">Новая magnet-ссылка</string>
+    <string name="add_new_magnet">Новая magnet-ссылка</string>
     <string name="add_profile_option">Добавить профиль</string>
     <string name="add_torrent">Новый торрент</string>
     <string name="alt_speed">Альтернативные скорости</string>
@@ -114,7 +114,6 @@
     <string name="out_of_memory_empty_list">&lt;h2>&lt;font color=#cc0000>Недостаточно памяти!&lt;/font>&lt;/h2></string>
     <string name="pause">Pause</string>
     <string name="port_test_closed">&lt;font color=#E73939>Закрыт&lt;/font></string>
-    <string name="port_test_error">&lt;font color=#CC0000>Ошибка&lt;/font></string>
     <string name="port_test_open">&lt;font color=#7CAF00>Открыт&lt;/font></string>
     <string name="port_test_testing">Тестирование …</string>
     <string name="profile">Профиль</string>
@@ -308,9 +307,6 @@
     <string name="user_interface_header">Интерфейс пользователя</string>
     <string name="verify">Проверить локальные данные</string>
     <string name="want_file">Загрузка</string>
-    <string name="remove_tracker">Удалить</string>
-    <string name="show_status_bar_summary">Отображать строку состояния под списком торрентов</string>
-    <string name="update_active_torrents_summary">Обновлять только активные торренты</string>
 
     <string-array name="pref_base_sort_method_entries">
         <item>Имя</item>
