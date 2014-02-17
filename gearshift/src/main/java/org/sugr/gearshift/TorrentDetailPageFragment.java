@@ -1,5 +1,10 @@
 package org.sugr.gearshift;
 
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
+import android.animation.AnimatorSet;
+import android.animation.ObjectAnimator;
+import android.animation.PropertyValuesHolder;
 import android.annotation.TargetApi;
 import android.app.AlertDialog;
 import android.content.BroadcastReceiver;
@@ -26,6 +31,7 @@ import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
 import android.view.inputmethod.EditorInfo;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -54,8 +60,10 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -1229,15 +1237,15 @@ public class TorrentDetailPageFragment extends Fragment {
     }
 
     private class FilesAdapter extends ArrayAdapter<TorrentFile> {
-        private static final int mFieldId = R.id.torrent_detail_files_row;
-        private List<View> mViews = new ArrayList<>();
+        private static final int fieldId = R.id.torrent_detail_files_row;
+        private List<View> views = new ArrayList<>();
 
         public FilesAdapter() {
-            super(getActivity(), mFieldId);
+            super(getActivity(), fieldId);
         }
 
         public List<View> getViews() {
-            return mViews;
+            return views;
         }
 
         @Override
@@ -1257,7 +1265,7 @@ public class TorrentDetailPageFragment extends Fragment {
             }
 
             if (file.name == null) {
-                TextView row = (TextView) rowView.findViewById(mFieldId);
+                TextView row = (TextView) rowView.findViewById(fieldId);
                 if (TextUtils.isEmpty(file.directory)) {
                     row.setVisibility(View.GONE);
                 } else {
@@ -1265,7 +1273,7 @@ public class TorrentDetailPageFragment extends Fragment {
                 }
             } else {
                 final View container = rowView;
-                CheckBox row = (CheckBox) rowView.findViewById(mFieldId);
+                CheckBox row = (CheckBox) rowView.findViewById(fieldId);
                 if (initial) {
                     row.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
                         @Override public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
@@ -1333,9 +1341,9 @@ public class TorrentDetailPageFragment extends Fragment {
                 row.setChecked(file.wanted);
 
                 if (initial) {
-                    while (mViews.size() <= position)
-                        mViews.add(null);
-                    mViews.set(position, rowView);
+                    while (views.size() <= position)
+                        views.add(null);
+                    views.set(position, rowView);
                 }
             }
 
@@ -1465,15 +1473,15 @@ public class TorrentDetailPageFragment extends Fragment {
     }
 
     private class TrackersAdapter extends ArrayAdapter<Tracker> {
-        private static final int mFieldId = R.id.torrent_detail_trackers_row;
-        private List<View> mViews = new ArrayList<>();
+        private static final int fieldId = R.id.torrent_detail_trackers_row;
+        private List<View> views = new ArrayList<>();
 
         public TrackersAdapter() {
-            super(getActivity(), mFieldId);
+            super(getActivity(), fieldId);
         }
 
         public List<View> getViews() {
-            return mViews;
+            return views;
         }
 
         @Override
@@ -1565,9 +1573,9 @@ public class TorrentDetailPageFragment extends Fragment {
             }
 
             if (initial) {
-                while (mViews.size() <= position)
-                    mViews.add(null);
-                mViews.set(position, rowView);
+                while (views.size() <= position)
+                    views.add(null);
+                views.set(position, rowView);
 
                 View row = rowView.findViewById(R.id.torrent_detail_trackers_row_info);
                 final View buttons = rowView.findViewById(R.id.torrent_detail_tracker_buttons);
@@ -1603,22 +1611,68 @@ public class TorrentDetailPageFragment extends Fragment {
                             return;
                         }
 
-                        hideAllButtons(buttons);
+                        final Map<View, int[]> coordinates = new HashMap<>();
+                        for (View child : views) {
+                            coordinates.put(child, new int[]{child.getTop(), child.getBottom()});
+                        }
+
+                        final ViewTreeObserver observer =
+                            TorrentDetailPageFragment.this.views.trackersContent.getViewTreeObserver();
+
+                        observer.addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener() {
+                            @Override public boolean onPreDraw() {
+                                observer.removeOnPreDrawListener(this);
+
+                                List<Animator> animations = new ArrayList<>();
+                                final List<View> hiddenButtons = new ArrayList<>();
+
+                                for (View child : views) {
+                                    int[] oldCoordinates = coordinates.get(child);
+                                    int top = child.getTop();
+                                    int bottom = child.getBottom();
+
+                                    animations.add(getCoordinateAnimator(
+                                        child, oldCoordinates[0], oldCoordinates[1]));
+
+                                    View buttons = child.findViewById(R.id.torrent_detail_tracker_buttons);
+                                    if (bottom - top > oldCoordinates[1] - oldCoordinates[0]
+                                            && buttons.getVisibility() == View.VISIBLE) {
+                                        animations.add(ObjectAnimator.ofFloat(buttons, View.ALPHA, 0.3f, 1));
+                                        animations.add(ObjectAnimator.ofFloat(buttons, View.TRANSLATION_Y, -50f, 0f));
+                                    } else if (bottom - top < oldCoordinates[1] - oldCoordinates[0]
+                                            && buttons.getVisibility() == View.GONE) {
+                                        buttons.setVisibility(View.VISIBLE);
+                                        animations.add(ObjectAnimator.ofFloat(buttons, View.ALPHA, 1, 0));
+                                        animations.add(ObjectAnimator.ofFloat(buttons, View.TRANSLATION_Y, 0f, -50f));
+                                        hiddenButtons.add(buttons);
+                                    }
+                                }
+
+                                AnimatorSet set = new AnimatorSet();
+                                set.playTogether(animations);
+                                set.addListener(new AnimatorListenerAdapter() {
+                                    @Override public void onAnimationEnd(Animator animation) {
+                                        super.onAnimationEnd(animation);
+
+                                        for (View v : hiddenButtons) {
+                                            v.setAlpha(1f);
+                                            v.setVisibility(View.GONE);
+                                        }
+                                    }
+                                });
+
+                                set.start();
+
+                                return true;
+                            }
+                        });
 
                         if (buttons.getVisibility() == View.GONE) {
                             buttons.setVisibility(View.VISIBLE);
-                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN)  {
-                                buttons.setAlpha(0.3f);
-                                buttons.setTranslationY(-50);
-                                buttons.animate().setDuration(200).alpha(1).translationY(0).start();
-                            }
                         } else {
-                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN)  {
-                                animateHideButtons(buttons);
-                            } else {
-                                buttons.setVisibility(View.GONE);
-                            }
+                            buttons.setVisibility(View.GONE);
                         }
+
                     }
                 });
 
@@ -1696,27 +1750,23 @@ public class TorrentDetailPageFragment extends Fragment {
         }
 
         private void hideAllButtons(View ignore) {
-            for (View v : mViews) {
+            for (View v : views) {
                 if (v != null) {
                     View buttons = v.findViewById(R.id.torrent_detail_tracker_buttons);
                     if (buttons != null && (ignore == null || ignore != buttons) && buttons.getVisibility() != View.GONE) {
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN)  {
-                            animateHideButtons(buttons);
-                        } else {
-                            buttons.setVisibility(View.GONE);
-                        }
+                        buttons.setVisibility(View.GONE);
                     }
                 }
             }
         }
 
-        @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
-        private void animateHideButtons(final View v) {
-            v.animate().setDuration(250).alpha(0).translationY(-50).withEndAction(new Runnable() {
-                @Override public void run() {
-                    v.setVisibility(View.GONE);
-                }
-            });
+        private Animator getCoordinateAnimator(View view, int oldTop, int oldBottom) {
+            PropertyValuesHolder translationTop =
+                PropertyValuesHolder.ofInt("top", oldTop, view.getTop());
+            PropertyValuesHolder translationBottom =
+                PropertyValuesHolder.ofInt("bottom", oldBottom, view.getBottom());
+
+            return ObjectAnimator.ofPropertyValuesHolder(view, translationTop, translationBottom);
         }
     }
 
