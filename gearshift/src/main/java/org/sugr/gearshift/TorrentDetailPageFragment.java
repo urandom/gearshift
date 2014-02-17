@@ -1611,13 +1611,24 @@ public class TorrentDetailPageFragment extends Fragment {
                             return;
                         }
 
+                        if (buttons.getVisibility() == View.GONE) {
+                            buttons.setVisibility(View.VISIBLE);
+                        } else {
+                            buttons.setVisibility(View.GONE);
+                        }
+
                         final Map<View, int[]> coordinates = new HashMap<>();
                         for (View child : views) {
                             coordinates.put(child, new int[]{child.getTop(), child.getBottom()});
                         }
 
+                        View content = TorrentDetailPageFragment.this.views.trackersContent;
                         final ViewTreeObserver observer =
-                            TorrentDetailPageFragment.this.views.trackersContent.getViewTreeObserver();
+                            content.getViewTreeObserver();
+                        final View addButton = content.findViewById(R.id.torrent_detail_add_tracker);
+
+                        coordinates.put(addButton,
+                            new int[] { addButton.getTop(), addButton.getBottom() });
 
                         observer.addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener() {
                             @Override public boolean onPreDraw() {
@@ -1631,8 +1642,7 @@ public class TorrentDetailPageFragment extends Fragment {
                                     int top = child.getTop();
                                     int bottom = child.getBottom();
 
-                                    animations.add(getCoordinateAnimator(
-                                        child, oldCoordinates[0], oldCoordinates[1]));
+                                    animations.add(getCoordinateAnimator(child, oldCoordinates));
 
                                     View buttons = child.findViewById(R.id.torrent_detail_tracker_buttons);
                                     if (bottom - top > oldCoordinates[1] - oldCoordinates[0]
@@ -1647,6 +1657,8 @@ public class TorrentDetailPageFragment extends Fragment {
                                         hiddenButtons.add(buttons);
                                     }
                                 }
+
+                                animations.add(getCoordinateAnimator(addButton, coordinates.get(addButton)));
 
                                 AnimatorSet set = new AnimatorSet();
                                 set.playTogether(animations);
@@ -1666,13 +1678,6 @@ public class TorrentDetailPageFragment extends Fragment {
                                 return true;
                             }
                         });
-
-                        if (buttons.getVisibility() == View.GONE) {
-                            buttons.setVisibility(View.VISIBLE);
-                        } else {
-                            buttons.setVisibility(View.GONE);
-                        }
-
                     }
                 });
 
@@ -1760,11 +1765,11 @@ public class TorrentDetailPageFragment extends Fragment {
             }
         }
 
-        private Animator getCoordinateAnimator(View view, int oldTop, int oldBottom) {
+        private Animator getCoordinateAnimator(View view, int[] oldCoordinates) {
             PropertyValuesHolder translationTop =
-                PropertyValuesHolder.ofInt("top", oldTop, view.getTop());
+                PropertyValuesHolder.ofInt("top", oldCoordinates[0], view.getTop());
             PropertyValuesHolder translationBottom =
-                PropertyValuesHolder.ofInt("bottom", oldBottom, view.getBottom());
+                PropertyValuesHolder.ofInt("bottom", oldCoordinates[1], view.getBottom());
 
             return ObjectAnimator.ofPropertyValuesHolder(view, translationTop, translationBottom);
         }
