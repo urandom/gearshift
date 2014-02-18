@@ -1476,6 +1476,9 @@ public class TorrentDetailPageFragment extends Fragment {
         private static final int fieldId = R.id.torrent_detail_trackers_row;
         private List<View> views = new ArrayList<>();
         private ViewGroup visibleButtons;
+        private List<ViewGroup> buttonsToHide = new ArrayList<>();
+        private AnimatorSet buttonsAnimator;
+        private boolean animatorStopped = false;
 
         public TrackersAdapter() {
             super(getActivity(), fieldId);
@@ -1590,6 +1593,7 @@ public class TorrentDetailPageFragment extends Fragment {
                         v.setActivated(true);
                         selectedTrackers.add(v);
                         trackerActionMode = getActivity().startActionMode(actionModeTrackers);
+                        stopAnimator();
                         animateTrackerLayout(null, visibleButtons);
 
                         return true;
@@ -1612,8 +1616,9 @@ public class TorrentDetailPageFragment extends Fragment {
                             return;
                         }
 
+                        stopAnimator();
                         if (buttons == visibleButtons) {
-                            animateTrackerLayout(null, buttons);
+                            animateTrackerLayout(null, visibleButtons);
                         } else {
                             animateTrackerLayout(buttons, visibleButtons);
                         }
@@ -1638,6 +1643,7 @@ public class TorrentDetailPageFragment extends Fragment {
                             manager.update();
                         }
 
+                        stopAnimator();
                         animateTrackerLayout(null, visibleButtons);
                     }
                 });
@@ -1672,6 +1678,7 @@ public class TorrentDetailPageFragment extends Fragment {
                         AlertDialog dialog = builder.create();
                         dialog.show();
 
+                        stopAnimator();
                         animateTrackerLayout(null, visibleButtons);
                     }
                 });
@@ -1686,6 +1693,7 @@ public class TorrentDetailPageFragment extends Fragment {
                         Toast.makeText(getActivity(),
                                 R.string.tracker_url_copy, Toast.LENGTH_SHORT).show();
 
+                        stopAnimator();
                         animateTrackerLayout(null, visibleButtons);
                     }
                 });
@@ -1694,8 +1702,8 @@ public class TorrentDetailPageFragment extends Fragment {
             return rowView;
         }
 
-        private void animateTrackerLayout(final ViewGroup buttonsToShow, final ViewGroup buttonsToHide) {
-            if (buttonsToShow == null && buttonsToHide == null) {
+        private void animateTrackerLayout(final ViewGroup toShow, ViewGroup... toHide) {
+            if (toShow == null && toHide.length == 0 && buttonsToHide.size() == 0) {
                 return;
             }
 
@@ -1712,26 +1720,39 @@ public class TorrentDetailPageFragment extends Fragment {
             coordinates.put(addButton,
                 new int[]{addButton.getTop(), addButton.getBottom()});
 
-            if (buttonsToShow != null) {
-                buttonsToShow.setVisibility(View.VISIBLE);
-                visibleButtons = buttonsToShow;
-            } else if (buttonsToHide != null) {
-                buttonsToHide.setVisibility(View.GONE);
-                if (buttonsToHide == visibleButtons) {
-                    visibleButtons = null;
+            if (toShow != null) {
+                toShow.setVisibility(View.VISIBLE);
+                visibleButtons = toShow;
+                buttonsToHide.remove(toShow);
+            }
+
+            if (toHide.length != 0) {
+                for (ViewGroup b : toHide) {
+                    if (b != null) {
+                        buttonsToHide.add(b);
+                    }
                 }
             }
 
-            if (buttonsToShow != null) {
-                for (int i = 0; i < buttonsToShow.getChildCount(); ++i) {
-                    View button = buttonsToShow.getChildAt(i);
+            if (toShow == null) {
+                for (ViewGroup b : buttonsToHide) {
+                    b.setVisibility(View.GONE);
+                    if (b == visibleButtons) {
+                        visibleButtons = null;
+                    }
+                }
+            }
+
+            if (toShow != null) {
+                for (int i = 0; i < toShow.getChildCount(); ++i) {
+                    View button = toShow.getChildAt(i);
                     button.setClickable(false);
                 }
             }
 
-            if (buttonsToHide != null) {
-                for (int i = 0; i < buttonsToHide.getChildCount(); ++i) {
-                    View button = buttonsToHide.getChildAt(i);
+            for (ViewGroup b : buttonsToHide) {
+                for (int i = 0; i < b.getChildCount(); ++i) {
+                    View button = b.getChildAt(i);
                     button.setClickable(false);
                 }
             }
@@ -1747,11 +1768,11 @@ public class TorrentDetailPageFragment extends Fragment {
 
                         animations.add(getCoordinateAnimator(child, oldCoordinates));
 
-                        View buttons = child.findViewById(R.id.torrent_detail_tracker_buttons);
-                        if (buttons == buttonsToShow) {
+                        ViewGroup buttons = (ViewGroup) child.findViewById(R.id.torrent_detail_tracker_buttons);
+                        if (buttons == toShow) {
                             animations.add(ObjectAnimator.ofFloat(buttons, View.ALPHA, 0.3f, 1));
                             animations.add(ObjectAnimator.ofFloat(buttons, View.TRANSLATION_Y, -50f, 0f));
-                        } else if (buttonsToShow == null && buttons == buttonsToHide) {
+                        } else if (toShow == null && buttonsToHide.contains(buttons)) {
                             buttons.setVisibility(View.VISIBLE);
                             animations.add(ObjectAnimator.ofFloat(buttons, View.ALPHA, 1, 0));
                             animations.add(ObjectAnimator.ofFloat(buttons, View.TRANSLATION_Y, 0f, -50f));
@@ -1766,26 +1787,34 @@ public class TorrentDetailPageFragment extends Fragment {
                         @Override public void onAnimationEnd(Animator animation) {
                             super.onAnimationEnd(animation);
 
-                            if (buttonsToShow != null) {
-                                for (int i = 0; i < buttonsToShow.getChildCount(); ++i) {
-                                    View button = buttonsToShow.getChildAt(i);
+                            if (toShow != null) {
+                                for (int i = 0; i < toShow.getChildCount(); ++i) {
+                                    View button = toShow.getChildAt(i);
                                     button.setClickable(true);
                                 }
-                                if (buttonsToHide != null) {
-                                    animateTrackerLayout(null, buttonsToHide);
+                                if (animatorStopped) {
+                                    animatorStopped = false;
+                                } else if (buttonsToHide.size() > 0) {
+                                    animateTrackerLayout(null);
                                 }
-                            } else if (buttonsToHide != null) {
-                                for (int i = 0; i < buttonsToHide.getChildCount(); ++i) {
-                                    View button = buttonsToHide.getChildAt(i);
-                                    button.setClickable(true);
+                            } else if (buttonsToHide.size() > 0) {
+                                for (ViewGroup b : buttonsToHide) {
+                                    for (int i = 0; i < b.getChildCount(); ++i) {
+                                        View button = b.getChildAt(i);
+                                        button.setClickable(true);
+                                    }
+                                    b.setAlpha(1f);
+                                    b.setVisibility(View.GONE);
                                 }
-                                buttonsToHide.setAlpha(1f);
-                                buttonsToHide.setVisibility(View.GONE);
+                                buttonsToHide.clear();
+                                animatorStopped = false;
                             }
+                            buttonsAnimator = null;
                         }
                     });
 
                     set.start();
+                    buttonsAnimator = set;
 
                     return true;
                 }
@@ -1799,6 +1828,13 @@ public class TorrentDetailPageFragment extends Fragment {
                 PropertyValuesHolder.ofInt("bottom", oldCoordinates[1], view.getBottom());
 
             return ObjectAnimator.ofPropertyValuesHolder(view, translationTop, translationBottom);
+        }
+
+        private void stopAnimator() {
+            if (buttonsAnimator != null) {
+                animatorStopped = true;
+                buttonsAnimator.end();
+            }
         }
     }
 
