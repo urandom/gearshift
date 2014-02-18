@@ -63,44 +63,35 @@
 
     </TableLayout>
 
-    <FrameLayout
+    <LinearLayout
         android:id="@+id/torrent_detail_tracker_buttons"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:paddingLeft="8dp"
+        android:paddingRight="8dp"
         android:visibility="gone"
-        android:background="@color/detail_background_edge">
+        android:background="@color/detail_background">
 
-        <LinearLayout
-            android:orientation="horizontal"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:paddingLeft="8dp"
-            android:paddingRight="8dp"
-            android:layout_marginTop="1dp"
-            android:background="@color/detail_background"
-            >
+        <Button
+            style="@style/TrackerButton"
+            android:id="@+id/torrent_detail_tracker_remove"
+            android:text="@string/remove" />
 
-            <Button
-                style="@style/TrackerButton"
-                android:id="@+id/torrent_detail_tracker_remove"
-                android:text="@string/remove" />
+        <View style="@style/TrackerButtonSeparator"/>
 
-            <View style="@style/TrackerButtonSeparator"/>
+        <Button
+            style="@style/TrackerButton"
+            android:id="@+id/torrent_detail_tracker_replace"
+            android:text="@string/replace" />
 
-            <Button
-                style="@style/TrackerButton"
-                android:id="@+id/torrent_detail_tracker_replace"
-                android:text="@string/replace" />
+        <View style="@style/TrackerButtonSeparator"/>
 
-            <View style="@style/TrackerButtonSeparator"/>
+        <Button
+            style="@style/TrackerButton"
+            android:id="@+id/torrent_detail_tracker_copy"
+            android:text="@string/copy" />
 
-            <Button
-                style="@style/TrackerButton"
-                android:id="@+id/torrent_detail_tracker_copy"
-                android:text="@string/copy" />
-
-        </LinearLayout>
-
-    </FrameLayout>
+    </LinearLayout>
 
 </LinearLayout>

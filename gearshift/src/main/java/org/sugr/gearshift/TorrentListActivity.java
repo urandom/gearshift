@@ -583,15 +583,17 @@ public class TorrentListActivity extends BaseTorrentActivity
         }
         this.profile = profile;
         toggleRightPane(false);
+
         if (manager != null) {
             manager.reset();
         }
-        MenuItem item = menu.findItem(R.id.menu_refresh);
 
-        if (profile == null) {
-            item.setVisible(false);
-        } else {
-            item.setVisible(true);
+        if (menu != null) {
+            MenuItem item = menu.findItem(R.id.menu_refresh);
+            item.setVisible(profile != null);
+        }
+
+        if (profile != null) {
             manager = new DataServiceManager(this, profile.getId()).startUpdating();
             new SessionTask(this, SessionTask.Flags.START_TORRENT_TASK).execute();
         }
