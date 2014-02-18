@@ -1475,6 +1475,7 @@ public class TorrentDetailPageFragment extends Fragment {
     private class TrackersAdapter extends ArrayAdapter<Tracker> {
         private static final int fieldId = R.id.torrent_detail_trackers_row;
         private List<View> views = new ArrayList<>();
+        private View visibleButtons;
 
         public TrackersAdapter() {
             super(getActivity(), fieldId);
@@ -1589,7 +1590,7 @@ public class TorrentDetailPageFragment extends Fragment {
                         v.setActivated(true);
                         selectedTrackers.add(v);
                         trackerActionMode = getActivity().startActionMode(actionModeTrackers);
-                        hideAllButtons(null);
+                        animateTrackerLayout(null, visibleButtons);
 
                         return true;
                     }
@@ -1611,74 +1612,13 @@ public class TorrentDetailPageFragment extends Fragment {
                             return;
                         }
 
-                        if (buttons.getVisibility() == View.GONE) {
-                            buttons.setVisibility(View.VISIBLE);
+                        if (buttons == visibleButtons) {
+                            animateTrackerLayout(null, buttons);
                         } else {
-                            buttons.setVisibility(View.GONE);
+                            animateTrackerLayout(buttons, visibleButtons);
                         }
-
-                        final Map<View, int[]> coordinates = new HashMap<>();
-                        for (View child : views) {
-                            coordinates.put(child, new int[]{child.getTop(), child.getBottom()});
-                        }
-
-                        View content = TorrentDetailPageFragment.this.views.trackersContent;
-                        final ViewTreeObserver observer =
-                            content.getViewTreeObserver();
-                        final View addButton = content.findViewById(R.id.torrent_detail_add_tracker);
-
-                        coordinates.put(addButton,
-                            new int[] { addButton.getTop(), addButton.getBottom() });
-
-                        observer.addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener() {
-                            @Override public boolean onPreDraw() {
-                                observer.removeOnPreDrawListener(this);
-
-                                List<Animator> animations = new ArrayList<>();
-                                final List<View> hiddenButtons = new ArrayList<>();
-
-                                for (View child : views) {
-                                    int[] oldCoordinates = coordinates.get(child);
-                                    int top = child.getTop();
-                                    int bottom = child.getBottom();
-
-                                    animations.add(getCoordinateAnimator(child, oldCoordinates));
-
-                                    View buttons = child.findViewById(R.id.torrent_detail_tracker_buttons);
-                                    if (bottom - top > oldCoordinates[1] - oldCoordinates[0]
-                                            && buttons.getVisibility() == View.VISIBLE) {
-                                        animations.add(ObjectAnimator.ofFloat(buttons, View.ALPHA, 0.3f, 1));
-                                        animations.add(ObjectAnimator.ofFloat(buttons, View.TRANSLATION_Y, -50f, 0f));
-                                    } else if (bottom - top < oldCoordinates[1] - oldCoordinates[0]
-                                            && buttons.getVisibility() == View.GONE) {
-                                        buttons.setVisibility(View.VISIBLE);
-                                        animations.add(ObjectAnimator.ofFloat(buttons, View.ALPHA, 1, 0));
-                                        animations.add(ObjectAnimator.ofFloat(buttons, View.TRANSLATION_Y, 0f, -50f));
-                                        hiddenButtons.add(buttons);
-                                    }
-                                }
-
-                                animations.add(getCoordinateAnimator(addButton, coordinates.get(addButton)));
-
-                                AnimatorSet set = new AnimatorSet();
-                                set.playTogether(animations);
-                                set.addListener(new AnimatorListenerAdapter() {
-                                    @Override public void onAnimationEnd(Animator animation) {
-                                        super.onAnimationEnd(animation);
-
-                                        for (View v : hiddenButtons) {
-                                            v.setAlpha(1f);
-                                            v.setVisibility(View.GONE);
-                                        }
-                                    }
-                                });
-
-                                set.start();
-
-                                return true;
-                            }
-                        });
                     }
+
                 });
 
                 final TransmissionSessionInterface context = (TransmissionSessionInterface) getActivity();
@@ -1698,7 +1638,7 @@ public class TorrentDetailPageFragment extends Fragment {
                             manager.update();
                         }
 
-                        hideAllButtons(null);
+                        animateTrackerLayout(null, visibleButtons);
                     }
                 });
 
@@ -1732,7 +1672,7 @@ public class TorrentDetailPageFragment extends Fragment {
                         AlertDialog dialog = builder.create();
                         dialog.show();
 
-                        hideAllButtons(null);
+                        animateTrackerLayout(null, visibleButtons);
                     }
                 });
 
@@ -1746,7 +1686,7 @@ public class TorrentDetailPageFragment extends Fragment {
                         Toast.makeText(getActivity(),
                                 R.string.tracker_url_copy, Toast.LENGTH_SHORT).show();
 
-                        hideAllButtons(null);
+                        animateTrackerLayout(null, visibleButtons);
                     }
                 });
             }
@@ -1754,15 +1694,78 @@ public class TorrentDetailPageFragment extends Fragment {
             return rowView;
         }
 
-        private void hideAllButtons(View ignore) {
-            for (View v : views) {
-                if (v != null) {
-                    View buttons = v.findViewById(R.id.torrent_detail_tracker_buttons);
-                    if (buttons != null && (ignore == null || ignore != buttons) && buttons.getVisibility() != View.GONE) {
-                        buttons.setVisibility(View.GONE);
-                    }
+        private void animateTrackerLayout(final View buttonsToShow, final View buttonsToHide) {
+            if (buttonsToShow == null && buttonsToHide == null) {
+                return;
+            }
+
+            final Map<View, int[]> coordinates = new HashMap<>();
+            for (View child : views) {
+                coordinates.put(child, new int[]{child.getTop(), child.getBottom()});
+            }
+
+            View content = TorrentDetailPageFragment.this.views.trackersContent;
+            final ViewTreeObserver observer =
+                content.getViewTreeObserver();
+            final View addButton = content.findViewById(R.id.torrent_detail_add_tracker);
+
+            coordinates.put(addButton,
+                new int[]{addButton.getTop(), addButton.getBottom()});
+
+            if (buttonsToShow != null) {
+                buttonsToShow.setVisibility(View.VISIBLE);
+                visibleButtons = buttonsToShow;
+            } else if (buttonsToHide != null) {
+                buttonsToHide.setVisibility(View.GONE);
+                if (buttonsToHide == visibleButtons) {
+                    visibleButtons = null;
                 }
             }
+
+            observer.addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener() {
+                @Override public boolean onPreDraw() {
+                    observer.removeOnPreDrawListener(this);
+
+                    List<Animator> animations = new ArrayList<>();
+
+                    for (View child : views) {
+                        int[] oldCoordinates = coordinates.get(child);
+
+                        animations.add(getCoordinateAnimator(child, oldCoordinates));
+
+                        View buttons = child.findViewById(R.id.torrent_detail_tracker_buttons);
+                        if (buttons == buttonsToShow) {
+                            animations.add(ObjectAnimator.ofFloat(buttons, View.ALPHA, 0.3f, 1));
+                            animations.add(ObjectAnimator.ofFloat(buttons, View.TRANSLATION_Y, -50f, 0f));
+                        } else if (buttonsToShow == null && buttons == buttonsToHide) {
+                            buttons.setVisibility(View.VISIBLE);
+                            animations.add(ObjectAnimator.ofFloat(buttons, View.ALPHA, 1, 0));
+                            animations.add(ObjectAnimator.ofFloat(buttons, View.TRANSLATION_Y, 0f, -50f));
+                        }
+                    }
+
+                    animations.add(getCoordinateAnimator(addButton, coordinates.get(addButton)));
+
+                    AnimatorSet set = new AnimatorSet();
+                    set.playTogether(animations);
+                    set.addListener(new AnimatorListenerAdapter() {
+                        @Override public void onAnimationEnd(Animator animation) {
+                            super.onAnimationEnd(animation);
+
+                            if (buttonsToShow != null && buttonsToHide != null) {
+                                animateTrackerLayout(null, buttonsToHide);
+                            } else if (buttonsToHide != null) {
+                                buttonsToHide.setAlpha(1f);
+                                buttonsToHide.setVisibility(View.GONE);
+                            }
+                        }
+                    });
+
+                    set.start();
+
+                    return true;
+                }
+            });
         }
 
         private Animator getCoordinateAnimator(View view, int[] oldCoordinates) {

@@ -424,8 +424,15 @@ public class TorrentListActivity extends BaseTorrentActivity
         getMenuInflater().inflate(R.menu.torrent_list_activity, menu);
 
         setSession(session);
-        setRefreshing(refreshing, refreshType);
         setAltSpeed(altSpeed);
+
+        if (profile == null) {
+            MenuItem item = menu.findItem(R.id.menu_refresh);
+
+            item.setVisible(false);
+        } else {
+            setRefreshing(refreshing, refreshType);
+        }
 
         return true;
     }
@@ -579,7 +586,12 @@ public class TorrentListActivity extends BaseTorrentActivity
         if (manager != null) {
             manager.reset();
         }
-        if (profile != null) {
+        MenuItem item = menu.findItem(R.id.menu_refresh);
+
+        if (profile == null) {
+            item.setVisible(false);
+        } else {
+            item.setVisible(true);
             manager = new DataServiceManager(this, profile.getId()).startUpdating();
             new SessionTask(this, SessionTask.Flags.START_TORRENT_TASK).execute();
         }
