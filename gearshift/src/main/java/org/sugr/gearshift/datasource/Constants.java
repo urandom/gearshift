@@ -258,7 +258,7 @@ public final class Constants {
     public static class ColumnGroups {
         public static final String[] TORRENT_OVERVIEW = {
             C_NAME, C_STATUS, C_METADATA_PERCENT_COMPLETE, C_PERCENT_DONE,
-            C_UPLOAD_RATIO, C_SEED_RATIO_LIMIT, C_TRAFFIC_TEXT, C_STATUS_TEXT,
+            C_UPLOAD_RATIO, C_SEED_RATIO_LIMIT, C_SEED_RATIO_MODE, C_TRAFFIC_TEXT, C_STATUS_TEXT,
             C_ERROR, C_ERROR_STRING
         };
 
@@ -275,8 +275,7 @@ public final class Constants {
             C_LEFT_UNTIL_DONE, C_PEERS_CONNECTED,
             C_PEERS_GETTING_FROM_US, C_PEERS_SENDING_TO_US,
             C_QUEUE_POSITION, C_RATE_DOWNLOAD, C_RATE_UPLOAD,
-            C_RECHECK_PROGRESS, C_SEED_RATIO_MODE,
-            C_SIZE_WHEN_DONE, C_UPLOADED_EVER, C_DOWNLOAD_DIR
+            C_RECHECK_PROGRESS, C_SIZE_WHEN_DONE, C_UPLOADED_EVER, C_DOWNLOAD_DIR
         };
 
         public static final String[] TRACKER = {

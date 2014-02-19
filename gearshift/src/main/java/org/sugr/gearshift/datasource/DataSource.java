@@ -57,6 +57,7 @@ public class DataSource {
     private static final int NEW_STATUS_RPC_VERSION = 14;
 
     private int rpcVersion = -1;
+    private float seedRatioLimit = 0;
 
     public DataSource(Context context) {
         setContext(context);
@@ -83,6 +84,9 @@ public class DataSource {
         rpcVersion = version;
     }
 
+    public void setSeedRatioLimit(float mode) {
+        seedRatioLimit = mode;
+    }
     public Context getContext() {
         return context;
     }
@@ -973,6 +977,9 @@ public class DataSource {
         List<ContentValues> values = new ArrayList<>();
         String profile = TransmissionProfile.getCurrentProfileId(context);
 
+        float seedRatioLimit = 0;
+        boolean seedRatioLimitEnabled = false;
+
         while (parser.nextToken() != JsonToken.END_OBJECT) {
             String name = parser.getCurrentName();
             ContentValues item = new ContentValues();
@@ -1162,11 +1169,13 @@ public class DataSource {
                     item.put(Constants.C_NAME, name);
                     item.put(Constants.C_VALUE_AFFINITY, Constants.TYPE_FLOAT);
                     item.put(Constants.C_VALUE_REAL, parser.getFloatValue());
+                    seedRatioLimit = parser.getFloatValue();
                     break;
                 case TransmissionSession.SetterFields.SEED_RATIO_LIMIT_ENABLED:
                     item.put(Constants.C_NAME, name);
                     item.put(Constants.C_VALUE_AFFINITY, Constants.TYPE_BOOLEAN);
                     item.put(Constants.C_VALUE_INTEGER, parser.getBooleanValue());
+                    seedRatioLimitEnabled = parser.getBooleanValue();
                     break;
                 case TransmissionSession.SetterFields.DOWNLOAD_SPEED_LIMIT:
                     item.put(Constants.C_NAME, name);
@@ -1224,6 +1233,8 @@ public class DataSource {
             }
         }
 
+        setSeedRatioLimit(seedRatioLimitEnabled ? seedRatioLimit : 0);
+
         return values;
     }
 
@@ -1233,7 +1244,8 @@ public class DataSource {
 
         values.torrent = torrent;
 
-        int status = 0, peersConnected = 0, peersGettingFromUs = 0, peersSendingToUs = 0;
+        int status = 0, peersConnected = 0, peersGettingFromUs = 0, peersSendingToUs = 0,
+            seedRatioMode = Torrent.SeedRatioMode.GLOBAL_LIMIT;
         long eta = 0, leftUntilDone = 0, sizeWhenDone = 0, uploadedEver = 0,
             rateDownload = 0, rateUpload = 0;
         float metadataPercentComplete = 0, percentDone = 0, uploadRatio = 0,
@@ -1345,7 +1357,8 @@ public class DataSource {
                     torrent.put(Constants.C_RECHECK_PROGRESS, recheckProgress);
                     break;
                 case Torrent.SetterFields.SEED_RATIO_MODE:
-                    torrent.put(Constants.C_SEED_RATIO_MODE, parser.getIntValue());
+                    seedRatioMode = parser.getIntValue();
+                    torrent.put(Constants.C_SEED_RATIO_MODE, seedRatioMode);
                     break;
                 case Torrent.SetterFields.SEED_RATIO_LIMIT:
                     seedLimit = parser.getFloatValue();
@@ -1672,6 +1685,13 @@ public class DataSource {
             }
 
         }
+
+        if (seedRatioMode == Torrent.SeedRatioMode.NO_LIMIT) {
+            seedLimit = 0;
+        } else if (seedRatioMode == Torrent.SeedRatioMode.GLOBAL_LIMIT) {
+            seedLimit = seedRatioLimit;
+        }
+
         String trafficText = null;
         switch (status) {
             case Torrent.Status.DOWNLOAD_WAITING:

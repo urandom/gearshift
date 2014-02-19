@@ -630,8 +630,8 @@ public class TorrentDetailPageFragment extends Fragment {
             new AdapterView.OnItemSelectedListener() {
                 @Override
                 public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
-                    String val=seedRatioModeValues.get(pos);
-                    int mode=Torrent.SeedRatioMode.GLOBAL_LIMIT;
+                    String val = seedRatioModeValues.get(pos);
+                    int mode = Torrent.SeedRatioMode.GLOBAL_LIMIT;
                     if (val.equals("user")) {
                         mode=Torrent.SeedRatioMode.TORRENT_LIMIT;
                     } else if (val.equals("infinite")) {

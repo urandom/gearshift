@@ -826,10 +826,24 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
             } else {
                 progress.setSecondaryProgress(100);
 
+                int mode = Torrent.getSeedRatioMode(cursor);
                 float limit = Torrent.getSeedRatioLimit(cursor);
                 float current = Torrent.getUploadRatio(cursor);
 
-                if (limit == -1) {
+                if (mode == Torrent.SeedRatioMode.NO_LIMIT) {
+                    limit = 0;
+                } else if (mode == Torrent.SeedRatioMode.GLOBAL_LIMIT) {
+                    TransmissionSession session = ((TransmissionSessionInterface) getActivity()).getSession();
+                    if (session != null) {
+                        if (session.isSeedRatioLimitEnabled()) {
+                            limit = session.getSeedRatioLimit();
+                        } else {
+                            limit = 0;
+                        }
+                    }
+                }
+
+                if (limit <= 0) {
                     progress.setProgress(100);
                 } else {
                     if (current >= limit) {
