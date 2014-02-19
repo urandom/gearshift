@@ -99,9 +99,8 @@ public class DataSource {
         List<ContentValues> session = jsonToSessionValues(parser);
 
         synchronized (DataSource.class) {
+            database.beginTransactionNonExclusive();
             try {
-                database.beginTransactionNonExclusive();
-
                 for (ContentValues item : session) {
                     database.insertWithOnConflict(Constants.T_SESSION, null,
                         item, SQLiteDatabase.CONFLICT_REPLACE);
@@ -111,7 +110,9 @@ public class DataSource {
 
                 return true;
             } finally {
-                database.endTransaction();
+                if (database.inTransaction()) {
+                    database.endTransaction();
+                }
             }
         }
     }
@@ -124,9 +125,8 @@ public class DataSource {
         int[] status = queryStatusCount();
 
         synchronized (DataSource.class) {
+            database.beginTransactionNonExclusive();
             try {
-                database.beginTransactionNonExclusive();
-
                 SparseBooleanArray trackers = new SparseBooleanArray();
                 String profile = TransmissionProfile.getCurrentProfileId(context);
 
@@ -242,7 +242,9 @@ public class DataSource {
                     incompleteMetadata
                 );
             } finally {
-                database.endTransaction();
+                if (database.inTransaction()) {
+                    database.endTransaction();
+                }
             }
         }
     }
@@ -252,9 +254,8 @@ public class DataSource {
             return false;
 
         synchronized (DataSource.class) {
+            database.beginTransactionNonExclusive();
             try {
-                database.beginTransactionNonExclusive();
-
                 for (String hash : hashStrings) {
                     removeTorrent(hash);
                 }
@@ -263,7 +264,9 @@ public class DataSource {
 
                 return true;
             } finally {
-                database.endTransaction();
+                if (database.inTransaction()) {
+                    database.endTransaction();
+                }
             }
         }
     }
@@ -273,9 +276,8 @@ public class DataSource {
             return false;
 
         synchronized (DataSource.class) {
+            database.beginTransactionNonExclusive();
             try {
-                database.beginTransactionNonExclusive();
-
                 for (int id : ids) {
                     removeTorrent(id);
                 }
@@ -284,7 +286,9 @@ public class DataSource {
 
                 return true;
             } finally {
-                database.endTransaction();
+                if (database.inTransaction()) {
+                    database.endTransaction();
+                }
             }
         }
     }
@@ -420,9 +424,8 @@ public class DataSource {
             return false;
 
         synchronized (DataSource.class) {
+            database.beginTransactionNonExclusive();
             try {
-                database.beginTransactionNonExclusive();
-
                 ContentValues values = new ContentValues();
 
                 values.put(Constants.C_HASH_STRING, hash);
@@ -448,7 +451,9 @@ public class DataSource {
 
                 return result > -1;
             } finally {
-                database.endTransaction();
+                if (database.inTransaction()) {
+                    database.endTransaction();
+                }
             }
         }
     }
@@ -458,9 +463,8 @@ public class DataSource {
             return false;
 
         synchronized (DataSource.class) {
+            database.beginTransactionNonExclusive();
             try {
-                database.beginTransactionNonExclusive();
-
                 String[] args = new String[] { profile };
 
                 /* Delete all torrents that are only present for the given profile
@@ -495,7 +499,9 @@ public class DataSource {
 
                 return true;
             } finally {
-                database.endTransaction();
+                if (database.inTransaction()) {
+                    database.endTransaction();
+                }
             }
         }
     }
