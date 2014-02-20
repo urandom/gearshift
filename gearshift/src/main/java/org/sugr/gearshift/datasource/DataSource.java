@@ -692,6 +692,7 @@ public class DataSource {
                             case Constants.C_ID:
                             case Constants.C_STATUS:
                             case Constants.C_ERROR:
+                            case Constants.C_SEED_RATIO_MODE:
                                 row.add(cursor.getInt(index));
                                 break;
                             case Constants.C_HASH_STRING:
@@ -706,6 +707,8 @@ public class DataSource {
                             case Constants.C_SEED_RATIO_LIMIT:
                                 row.add(cursor.getFloat(index));
                                 break;
+                            default:
+                                throw new IllegalStateException("Unexpected column: " + column);
                         }
 
                         ++index;
