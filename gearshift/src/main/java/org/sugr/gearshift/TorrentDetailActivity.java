@@ -40,6 +40,10 @@ public class TorrentDetailActivity extends BaseTorrentActivity {
         session = in.getParcelableExtra(G.ARG_SESSION);
         setSession(session);
 
+        if (in.hasExtra(G.ARG_REFRESH_TYPE)) {
+            setRefreshing(true, in.getStringExtra(G.ARG_REFRESH_TYPE));
+        }
+
         manager = new DataServiceManager(this, profile.getId())
             .setDetails(true).onRestoreInstanceState(savedInstanceState).startUpdating();
 
@@ -73,6 +77,8 @@ public class TorrentDetailActivity extends BaseTorrentActivity {
         this.menu = menu;
 
         getMenuInflater().inflate(R.menu.torrent_detail_activity, menu);
+
+        setRefreshing(refreshing, refreshType);
 
         return true;
     }

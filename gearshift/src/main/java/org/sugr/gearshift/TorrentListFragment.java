@@ -296,7 +296,12 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
 
         @Override public void onLoadFinished(Loader<TorrentTrafficLoader.TorrentTrafficOutputData> loader,
                                              TorrentTrafficLoader.TorrentTrafficOutputData data) {
-            TransmissionSession session = ((TransmissionSessionInterface) getActivity()).getSession();
+            TransmissionSessionInterface context = (TransmissionSessionInterface) getActivity();
+            if (context == null) {
+                return;
+            }
+
+            TransmissionSession session = context.getSession();
             TextView status = (TextView) getView().findViewById(R.id.status_bar_text);
 
             if (!sharedPrefs.getBoolean(G.PREF_SHOW_STATUS, false)) {

@@ -46,6 +46,7 @@ public abstract class BaseTorrentActivity extends FragmentActivity
 
     private static final String STATE_LAST_SERVER_ACTIVITY = "last_server_activity";
     private static final String STATE_FATAL_ERROR = "fatal_error";
+    private static final String STATE_REFRESHING = "refreshing";
 
     @Override protected void onCreate(Bundle savedInstanceState) {
         locationDialogHelper = new LocationDialogHelper(this);
@@ -57,6 +58,9 @@ public abstract class BaseTorrentActivity extends FragmentActivity
             }
             if (savedInstanceState.containsKey(STATE_FATAL_ERROR)) {
                 hasFatalError = savedInstanceState.getBoolean(STATE_FATAL_ERROR, false);
+            }
+            if (savedInstanceState.containsKey(STATE_REFRESHING)) {
+                setRefreshing(true, null);
             }
         }
 
@@ -101,6 +105,7 @@ public abstract class BaseTorrentActivity extends FragmentActivity
         super.onSaveInstanceState(outState);
         outState.putBoolean(STATE_FATAL_ERROR, hasFatalError);
         outState.putLong(STATE_LAST_SERVER_ACTIVITY, lastServerActivity);
+        outState.putBoolean(STATE_REFRESHING, refreshing);
         if (manager != null) {
             manager.onSaveInstanceState(outState);
         }

@@ -113,7 +113,7 @@
     
     <string name="no_profiles_empty_list">&lt;h2&gt;No profile seems to have been created yet.&lt;/h2&gt;You should add one by visiting the &lt;i&gt;settings&lt;/i&gt;.</string>
     <string name="connecting_empty_list"><![CDATA[<h2><font color="#666666">Connecting</font></h2>]]></string>
-    <string name="no_torrents_empty_list">&lt;h2&gt;You are connected!&lt;/h2&gt;The daemon doesn\'t manage any torrents at the moment.</string>
+    <string name="no_torrents_empty_list">&lt;h2&gt;You are connected!&lt;/h2&gt;You may want to add at least one torrent.</string>
     <string name="no_filtered_torrents_empty_list">No torrents match the current filter</string>
     <string name="no_connectivity_empty_list">&lt;h2&gt;&lt;font color="#cc0000"&gt;You need an active network connection!&lt;/font&gt;&lt;/h2&gt;</string>
     <string name="access_denied_empty_list">&lt;h2&gt;&lt;font color="#cc0000"&gt;Access denied!&lt;/font&gt;&lt;/h2&gt;Your credentials might be incorrect, or your IP address might not be in the daemon\'s white list.</string>

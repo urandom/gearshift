@@ -13374,7 +13374,7 @@ org.sugr.gearshift.BaseTorrentActivity -> org.sugr.gearshift.BaseTorrentActivity
 org.sugr.gearshift.BaseTorrentActivity$1 -> oq:
 org.sugr.gearshift.BaseTorrentActivity$ServiceReceiver -> or:
     org.sugr.gearshift.BaseTorrentActivity this$0 -> a
-    266:331:void onReceive(android.content.Context,android.content.Intent) -> onReceive
+    266:337:void onReceive(android.content.Context,android.content.Intent) -> onReceive
 org.sugr.gearshift.BaseTorrentActivity$SessionTask -> org.sugr.gearshift.BaseTorrentActivity$SessionTask:
     org.sugr.gearshift.datasource.DataSource readSource -> a
     boolean startTorrentTask -> b
@@ -15109,17 +15109,17 @@ org.sugr.gearshift.TorrentListMenuFragment -> org.sugr.gearshift.TorrentListMenu
     boolean filtersChanged -> ad
     android.content.SharedPreferences$OnSharedPreferenceChangeListener sharedPrefListener -> ae
     android.support.v4.app.LoaderManager$LoaderCallbacks torrentTrafficLoaderCallbacks -> af
-    296:332:android.view.View onCreateView(android.view.LayoutInflater,android.view.ViewGroup,android.os.Bundle) -> onCreateView
-    337:347:void onResume() -> onResume
-    353:355:void notifyTorrentListChanged(android.database.Cursor,int,boolean,boolean,boolean,boolean,boolean) -> notifyTorrentListChanged
-    358:375:void setStatus(java.lang.Object[],java.lang.String) -> a
-    378:474:void setActivatedPosition(int) -> a
-    477:642:void fillMenuItems() -> l
-    645:732:void checkSelectedItems() -> m
-    736:747:org.sugr.gearshift.TorrentListMenuFragment$ListItem getDirectoryItem(java.lang.String) -> a
-    751:769:int removeDirectoriesFilters() -> n
-    774:780:org.sugr.gearshift.TorrentListMenuFragment$ListItem getTrackerItem(java.lang.String) -> b
-    784:802:int removeTrackersFilters() -> o
+    302:338:android.view.View onCreateView(android.view.LayoutInflater,android.view.ViewGroup,android.os.Bundle) -> onCreateView
+    343:353:void onResume() -> onResume
+    359:361:void notifyTorrentListChanged(android.database.Cursor,int,boolean,boolean,boolean,boolean,boolean) -> notifyTorrentListChanged
+    364:381:void setStatus(java.lang.Object[],java.lang.String) -> a
+    384:480:void setActivatedPosition(int) -> a
+    483:648:void fillMenuItems() -> l
+    651:738:void checkSelectedItems() -> m
+    742:753:org.sugr.gearshift.TorrentListMenuFragment$ListItem getDirectoryItem(java.lang.String) -> a
+    757:775:int removeDirectoriesFilters() -> n
+    780:786:org.sugr.gearshift.TorrentListMenuFragment$ListItem getTrackerItem(java.lang.String) -> b
+    790:808:int removeTrackersFilters() -> o
     34:34:boolean access$002(org.sugr.gearshift.TorrentListMenuFragment,boolean) -> a
     34:34:android.widget.ListView access$100(org.sugr.gearshift.TorrentListMenuFragment) -> a
     34:34:android.view.View access$200(org.sugr.gearshift.TorrentListMenuFragment) -> b
@@ -15148,24 +15148,24 @@ org.sugr.gearshift.TorrentListMenuFragment$2 -> sd:
 org.sugr.gearshift.TorrentListMenuFragment$3 -> se:
     org.sugr.gearshift.TorrentListMenuFragment this$0 -> a
     93:100:android.support.v4.content.Loader onCreateLoader(int,android.os.Bundle) -> onCreateLoader
-    104:285:void onLoadFinished(android.support.v4.content.Loader,org.sugr.gearshift.TorrentTrafficLoader$TorrentTrafficOutputData) -> a
-    289:289:void onLoaderReset(android.support.v4.content.Loader) -> onLoaderReset
+    104:291:void onLoadFinished(android.support.v4.content.Loader,org.sugr.gearshift.TorrentTrafficLoader$TorrentTrafficOutputData) -> a
+    295:295:void onLoaderReset(android.support.v4.content.Loader) -> onLoaderReset
     90:90:void onLoadFinished(android.support.v4.content.Loader,java.lang.Object) -> onLoadFinished
 org.sugr.gearshift.TorrentListMenuFragment$4 -> sf:
     org.sugr.gearshift.TorrentListMenuFragment this$0 -> a
-    318:319:void onItemClick(android.widget.AdapterView,android.view.View,int,long) -> onItemClick
+    324:325:void onItemClick(android.widget.AdapterView,android.view.View,int,long) -> onItemClick
 org.sugr.gearshift.TorrentListMenuFragment$5 -> sg:
     int[] $SwitchMap$org$sugr$gearshift$TorrentListMenuFragment$Type -> a
     int[] $SwitchMap$org$sugr$gearshift$G$FilterBy -> b
     int[] $SwitchMap$org$sugr$gearshift$G$SortBy -> c
 org.sugr.gearshift.TorrentListMenuFragment$FilterAdapter -> sh:
     android.view.LayoutInflater inflater -> a
-    824:828:int getItemViewType(int) -> getItemViewType
-    834:834:boolean areAllItemsEnabled() -> areAllItemsEnabled
-    839:839:boolean isEnabled(int) -> isEnabled
-    844:844:int getViewTypeCount() -> getViewTypeCount
-    849:849:boolean hasStableIds() -> hasStableIds
-    854:878:android.view.View getView(int,android.view.View,android.view.ViewGroup) -> getView
+    830:834:int getItemViewType(int) -> getItemViewType
+    840:840:boolean areAllItemsEnabled() -> areAllItemsEnabled
+    845:845:boolean isEnabled(int) -> isEnabled
+    850:850:int getViewTypeCount() -> getViewTypeCount
+    855:855:boolean hasStableIds() -> hasStableIds
+    860:884:android.view.View getView(int,android.view.View,android.view.ViewGroup) -> getView
 org.sugr.gearshift.TorrentListMenuFragment$ListItem -> si:
     org.sugr.gearshift.TorrentListMenuFragment$Type type -> b
     java.lang.Enum value -> c
@@ -15173,11 +15173,11 @@ org.sugr.gearshift.TorrentListMenuFragment$ListItem -> si:
     java.lang.String label -> e
     java.lang.String pref -> f
     org.sugr.gearshift.TorrentListMenuFragment this$0 -> a
-    918:918:org.sugr.gearshift.TorrentListMenuFragment$Type getType() -> a
-    922:922:java.lang.Enum getValue() -> b
-    926:926:java.lang.String getValueString() -> c
-    930:930:java.lang.String getLabel() -> d
-    934:934:java.lang.String getPreferenceKey() -> e
+    924:924:org.sugr.gearshift.TorrentListMenuFragment$Type getType() -> a
+    928:928:java.lang.Enum getValue() -> b
+    932:932:java.lang.String getValueString() -> c
+    936:936:java.lang.String getLabel() -> d
+    940:940:java.lang.String getPreferenceKey() -> e
 org.sugr.gearshift.TorrentListMenuFragment$Type -> sj:
     org.sugr.gearshift.TorrentListMenuFragment$Type FIND -> a
     org.sugr.gearshift.TorrentListMenuFragment$Type FILTER -> b
@@ -15647,9 +15647,9 @@ org.sugr.gearshift.TransmissionSessionActivity -> org.sugr.gearshift.Transmissio
     229:231:void setAltSpeedLimitTimeBegin(int) -> setAltSpeedLimitTimeBegin
     234:236:void setAltSpeedLimitTimeEnd(int) -> setAltSpeedLimitTimeEnd
     239:558:void updateFields(org.sugr.gearshift.TransmissionSession,boolean) -> a
-    561:1146:void initListeners() -> b
-    1149:1150:void setSession(java.lang.String[]) -> a
-    1153:1160:void showTimePickerDialog(boolean,int,int) -> a
+    561:1269:void initListeners() -> b
+    1272:1273:void setSession(java.lang.String[]) -> a
+    1276:1283:void showTimePickerDialog(boolean,int,int) -> a
     36:36:boolean[] access$000(org.sugr.gearshift.TransmissionSessionActivity) -> a
     36:36:boolean[] access$002(org.sugr.gearshift.TransmissionSessionActivity,boolean[]) -> a
     36:36:org.sugr.gearshift.TransmissionSession access$200(org.sugr.gearshift.TransmissionSessionActivity) -> b
@@ -15667,145 +15667,145 @@ org.sugr.gearshift.TransmissionSessionActivity$1 -> sy:
     67:104:void onClick(android.view.View) -> onClick
 org.sugr.gearshift.TransmissionSessionActivity$10 -> sz:
     org.sugr.gearshift.TransmissionSessionActivity this$0 -> a
-    659:663:void onCheckedChanged(android.widget.CompoundButton,boolean) -> onCheckedChanged
+    677:684:void onCheckedChanged(android.widget.CompoundButton,boolean) -> onCheckedChanged
 org.sugr.gearshift.TransmissionSessionActivity$11 -> ta:
     org.sugr.gearshift.TransmissionSessionActivity this$0 -> a
-    669:673:void onCheckedChanged(android.widget.CompoundButton,boolean) -> onCheckedChanged
+    690:697:void onCheckedChanged(android.widget.CompoundButton,boolean) -> onCheckedChanged
 org.sugr.gearshift.TransmissionSessionActivity$12 -> tb:
     org.sugr.gearshift.TransmissionSessionActivity this$0 -> a
-    679:683:void onCheckedChanged(android.widget.CompoundButton,boolean) -> onCheckedChanged
+    703:710:void onCheckedChanged(android.widget.CompoundButton,boolean) -> onCheckedChanged
 org.sugr.gearshift.TransmissionSessionActivity$13 -> tc:
     org.sugr.gearshift.TransmissionSessionActivity this$0 -> a
-    689:708:boolean onEditorAction(android.widget.TextView,int,android.view.KeyEvent) -> onEditorAction
+    716:738:boolean onEditorAction(android.widget.TextView,int,android.view.KeyEvent) -> onEditorAction
 org.sugr.gearshift.TransmissionSessionActivity$14 -> td:
     org.sugr.gearshift.TransmissionSessionActivity this$0 -> a
-    715:722:void onClick(android.view.View) -> onClick
+    745:755:void onClick(android.view.View) -> onClick
 org.sugr.gearshift.TransmissionSessionActivity$15 -> te:
     org.sugr.gearshift.TransmissionSessionActivity this$0 -> a
-    728:733:void onItemSelected(android.widget.AdapterView,android.view.View,int,long) -> onItemSelected
-    735:735:void onNothingSelected(android.widget.AdapterView) -> onNothingSelected
+    761:769:void onItemSelected(android.widget.AdapterView,android.view.View,int,long) -> onItemSelected
+    771:771:void onNothingSelected(android.widget.AdapterView) -> onNothingSelected
 org.sugr.gearshift.TransmissionSessionActivity$16 -> tf:
     org.sugr.gearshift.TransmissionSessionActivity this$0 -> a
-    741:745:void onCheckedChanged(android.widget.CompoundButton,boolean) -> onCheckedChanged
+    777:784:void onCheckedChanged(android.widget.CompoundButton,boolean) -> onCheckedChanged
 org.sugr.gearshift.TransmissionSessionActivity$17 -> tg:
     org.sugr.gearshift.TransmissionSessionActivity this$0 -> a
-    751:755:void onCheckedChanged(android.widget.CompoundButton,boolean) -> onCheckedChanged
+    790:797:void onCheckedChanged(android.widget.CompoundButton,boolean) -> onCheckedChanged
 org.sugr.gearshift.TransmissionSessionActivity$18 -> th:
     org.sugr.gearshift.TransmissionSessionActivity this$0 -> a
-    761:765:void onCheckedChanged(android.widget.CompoundButton,boolean) -> onCheckedChanged
+    803:810:void onCheckedChanged(android.widget.CompoundButton,boolean) -> onCheckedChanged
 org.sugr.gearshift.TransmissionSessionActivity$19 -> ti:
     org.sugr.gearshift.TransmissionSessionActivity this$0 -> a
-    771:775:void onCheckedChanged(android.widget.CompoundButton,boolean) -> onCheckedChanged
+    816:823:void onCheckedChanged(android.widget.CompoundButton,boolean) -> onCheckedChanged
 org.sugr.gearshift.TransmissionSessionActivity$2 -> tj:
     org.sugr.gearshift.TransmissionSessionActivity this$0 -> a
     110:111:void run() -> run
 org.sugr.gearshift.TransmissionSessionActivity$20 -> tk:
     org.sugr.gearshift.TransmissionSessionActivity this$0 -> a
-    781:785:void onCheckedChanged(android.widget.CompoundButton,boolean) -> onCheckedChanged
+    829:836:void onCheckedChanged(android.widget.CompoundButton,boolean) -> onCheckedChanged
 org.sugr.gearshift.TransmissionSessionActivity$21 -> tl:
     org.sugr.gearshift.TransmissionSessionActivity this$0 -> a
-    791:795:void onCheckedChanged(android.widget.CompoundButton,boolean) -> onCheckedChanged
+    842:849:void onCheckedChanged(android.widget.CompoundButton,boolean) -> onCheckedChanged
 org.sugr.gearshift.TransmissionSessionActivity$22 -> tm:
     org.sugr.gearshift.TransmissionSessionActivity this$0 -> a
-    801:807:void onCheckedChanged(android.widget.CompoundButton,boolean) -> onCheckedChanged
+    855:864:void onCheckedChanged(android.widget.CompoundButton,boolean) -> onCheckedChanged
 org.sugr.gearshift.TransmissionSessionActivity$23 -> tn:
     org.sugr.gearshift.TransmissionSessionActivity this$0 -> a
-    813:821:boolean onEditorAction(android.widget.TextView,int,android.view.KeyEvent) -> onEditorAction
+    870:881:boolean onEditorAction(android.widget.TextView,int,android.view.KeyEvent) -> onEditorAction
 org.sugr.gearshift.TransmissionSessionActivity$24 -> to:
     org.sugr.gearshift.TransmissionSessionActivity this$0 -> a
-    828:835:void onClick(android.view.View) -> onClick
+    888:898:void onClick(android.view.View) -> onClick
 org.sugr.gearshift.TransmissionSessionActivity$25 -> tp:
     org.sugr.gearshift.TransmissionSessionActivity this$0 -> a
-    841:846:void onCheckedChanged(android.widget.CompoundButton,boolean) -> onCheckedChanged
+    904:912:void onCheckedChanged(android.widget.CompoundButton,boolean) -> onCheckedChanged
 org.sugr.gearshift.TransmissionSessionActivity$26 -> tq:
     org.sugr.gearshift.TransmissionSessionActivity this$0 -> a
-    852:865:boolean onEditorAction(android.widget.TextView,int,android.view.KeyEvent) -> onEditorAction
+    918:934:boolean onEditorAction(android.widget.TextView,int,android.view.KeyEvent) -> onEditorAction
 org.sugr.gearshift.TransmissionSessionActivity$27 -> tr:
     org.sugr.gearshift.TransmissionSessionActivity this$0 -> a
-    872:877:void onCheckedChanged(android.widget.CompoundButton,boolean) -> onCheckedChanged
+    941:949:void onCheckedChanged(android.widget.CompoundButton,boolean) -> onCheckedChanged
 org.sugr.gearshift.TransmissionSessionActivity$28 -> ts:
     org.sugr.gearshift.TransmissionSessionActivity this$0 -> a
-    883:896:boolean onEditorAction(android.widget.TextView,int,android.view.KeyEvent) -> onEditorAction
+    955:971:boolean onEditorAction(android.widget.TextView,int,android.view.KeyEvent) -> onEditorAction
 org.sugr.gearshift.TransmissionSessionActivity$29 -> tt:
     org.sugr.gearshift.TransmissionSessionActivity this$0 -> a
-    903:909:void onCheckedChanged(android.widget.CompoundButton,boolean) -> onCheckedChanged
+    978:987:void onCheckedChanged(android.widget.CompoundButton,boolean) -> onCheckedChanged
 org.sugr.gearshift.TransmissionSessionActivity$3 -> tu:
     android.os.Bundle val$savedInstanceState -> a
     org.sugr.gearshift.TransmissionSessionActivity this$0 -> b
     131:143:void run() -> run
 org.sugr.gearshift.TransmissionSessionActivity$30 -> tv:
     org.sugr.gearshift.TransmissionSessionActivity this$0 -> a
-    915:928:boolean onEditorAction(android.widget.TextView,int,android.view.KeyEvent) -> onEditorAction
+    993:1009:boolean onEditorAction(android.widget.TextView,int,android.view.KeyEvent) -> onEditorAction
 org.sugr.gearshift.TransmissionSessionActivity$31 -> tw:
     org.sugr.gearshift.TransmissionSessionActivity this$0 -> a
-    935:948:boolean onEditorAction(android.widget.TextView,int,android.view.KeyEvent) -> onEditorAction
+    1016:1032:boolean onEditorAction(android.widget.TextView,int,android.view.KeyEvent) -> onEditorAction
 org.sugr.gearshift.TransmissionSessionActivity$32 -> tx:
     org.sugr.gearshift.TransmissionSessionActivity this$0 -> a
-    955:961:void onCheckedChanged(android.widget.CompoundButton,boolean) -> onCheckedChanged
+    1039:1048:void onCheckedChanged(android.widget.CompoundButton,boolean) -> onCheckedChanged
 org.sugr.gearshift.TransmissionSessionActivity$33 -> ty:
     org.sugr.gearshift.TransmissionSessionActivity this$0 -> a
-    967:970:void onClick(android.view.View) -> onClick
+    1054:1060:void onClick(android.view.View) -> onClick
 org.sugr.gearshift.TransmissionSessionActivity$34 -> tz:
     org.sugr.gearshift.TransmissionSessionActivity this$0 -> a
-    976:979:void onClick(android.view.View) -> onClick
+    1066:1072:void onClick(android.view.View) -> onClick
 org.sugr.gearshift.TransmissionSessionActivity$35 -> ua:
     org.sugr.gearshift.TransmissionSessionActivity this$0 -> a
-    985:990:void onCheckedChanged(android.widget.CompoundButton,boolean) -> onCheckedChanged
+    1078:1086:void onCheckedChanged(android.widget.CompoundButton,boolean) -> onCheckedChanged
 org.sugr.gearshift.TransmissionSessionActivity$36 -> ub:
     org.sugr.gearshift.TransmissionSessionActivity this$0 -> a
-    996:1009:boolean onEditorAction(android.widget.TextView,int,android.view.KeyEvent) -> onEditorAction
+    1092:1108:boolean onEditorAction(android.widget.TextView,int,android.view.KeyEvent) -> onEditorAction
 org.sugr.gearshift.TransmissionSessionActivity$37 -> uc:
     org.sugr.gearshift.TransmissionSessionActivity this$0 -> a
-    1016:1021:void onCheckedChanged(android.widget.CompoundButton,boolean) -> onCheckedChanged
+    1115:1123:void onCheckedChanged(android.widget.CompoundButton,boolean) -> onCheckedChanged
 org.sugr.gearshift.TransmissionSessionActivity$38 -> ud:
     org.sugr.gearshift.TransmissionSessionActivity this$0 -> a
-    1027:1040:boolean onEditorAction(android.widget.TextView,int,android.view.KeyEvent) -> onEditorAction
+    1129:1145:boolean onEditorAction(android.widget.TextView,int,android.view.KeyEvent) -> onEditorAction
 org.sugr.gearshift.TransmissionSessionActivity$39 -> ue:
     org.sugr.gearshift.TransmissionSessionActivity this$0 -> a
-    1047:1052:void onCheckedChanged(android.widget.CompoundButton,boolean) -> onCheckedChanged
+    1152:1160:void onCheckedChanged(android.widget.CompoundButton,boolean) -> onCheckedChanged
 org.sugr.gearshift.TransmissionSessionActivity$4 -> uf:
     org.sugr.gearshift.TransmissionSessionActivity this$0 -> a
-    572:580:boolean onEditorAction(android.widget.TextView,int,android.view.KeyEvent) -> onEditorAction
+    572:583:boolean onEditorAction(android.widget.TextView,int,android.view.KeyEvent) -> onEditorAction
 org.sugr.gearshift.TransmissionSessionActivity$40 -> ug:
     org.sugr.gearshift.TransmissionSessionActivity this$0 -> a
-    1058:1071:boolean onEditorAction(android.widget.TextView,int,android.view.KeyEvent) -> onEditorAction
+    1166:1182:boolean onEditorAction(android.widget.TextView,int,android.view.KeyEvent) -> onEditorAction
 org.sugr.gearshift.TransmissionSessionActivity$41 -> uh:
     org.sugr.gearshift.TransmissionSessionActivity this$0 -> a
-    1078:1083:void onCheckedChanged(android.widget.CompoundButton,boolean) -> onCheckedChanged
+    1189:1197:void onCheckedChanged(android.widget.CompoundButton,boolean) -> onCheckedChanged
 org.sugr.gearshift.TransmissionSessionActivity$42 -> ui:
     org.sugr.gearshift.TransmissionSessionActivity this$0 -> a
-    1089:1102:boolean onEditorAction(android.widget.TextView,int,android.view.KeyEvent) -> onEditorAction
+    1203:1219:boolean onEditorAction(android.widget.TextView,int,android.view.KeyEvent) -> onEditorAction
 org.sugr.gearshift.TransmissionSessionActivity$43 -> uj:
     org.sugr.gearshift.TransmissionSessionActivity this$0 -> a
-    1109:1122:boolean onEditorAction(android.widget.TextView,int,android.view.KeyEvent) -> onEditorAction
+    1226:1242:boolean onEditorAction(android.widget.TextView,int,android.view.KeyEvent) -> onEditorAction
 org.sugr.gearshift.TransmissionSessionActivity$44 -> uk:
     org.sugr.gearshift.TransmissionSessionActivity this$0 -> a
-    1129:1142:boolean onEditorAction(android.widget.TextView,int,android.view.KeyEvent) -> onEditorAction
+    1249:1265:boolean onEditorAction(android.widget.TextView,int,android.view.KeyEvent) -> onEditorAction
 org.sugr.gearshift.TransmissionSessionActivity$5 -> ul:
     org.sugr.gearshift.TransmissionSessionActivity this$0 -> a
-    587:592:void onCheckedChanged(android.widget.CompoundButton,boolean) -> onCheckedChanged
+    590:598:void onCheckedChanged(android.widget.CompoundButton,boolean) -> onCheckedChanged
 org.sugr.gearshift.TransmissionSessionActivity$6 -> um:
     org.sugr.gearshift.TransmissionSessionActivity this$0 -> a
-    598:606:boolean onEditorAction(android.widget.TextView,int,android.view.KeyEvent) -> onEditorAction
+    604:615:boolean onEditorAction(android.widget.TextView,int,android.view.KeyEvent) -> onEditorAction
 org.sugr.gearshift.TransmissionSessionActivity$7 -> un:
     org.sugr.gearshift.TransmissionSessionActivity this$0 -> a
-    613:618:void onCheckedChanged(android.widget.CompoundButton,boolean) -> onCheckedChanged
+    622:630:void onCheckedChanged(android.widget.CompoundButton,boolean) -> onCheckedChanged
 org.sugr.gearshift.TransmissionSessionActivity$8 -> uo:
     org.sugr.gearshift.TransmissionSessionActivity this$0 -> a
-    624:632:boolean onEditorAction(android.widget.TextView,int,android.view.KeyEvent) -> onEditorAction
+    636:647:boolean onEditorAction(android.widget.TextView,int,android.view.KeyEvent) -> onEditorAction
 org.sugr.gearshift.TransmissionSessionActivity$9 -> up:
     org.sugr.gearshift.TransmissionSessionActivity this$0 -> a
-    639:652:boolean onEditorAction(android.widget.TextView,int,android.view.KeyEvent) -> onEditorAction
+    654:670:boolean onEditorAction(android.widget.TextView,int,android.view.KeyEvent) -> onEditorAction
 org.sugr.gearshift.TransmissionSessionActivity$ServiceReceiver -> uq:
     org.sugr.gearshift.TransmissionSessionActivity this$0 -> a
-    1164:1232:void onReceive(android.content.Context,android.content.Intent) -> onReceive
+    1287:1355:void onReceive(android.content.Context,android.content.Intent) -> onReceive
 org.sugr.gearshift.TransmissionSessionActivity$SessionTask -> ur:
     org.sugr.gearshift.datasource.DataSource readSource -> a
     org.sugr.gearshift.TransmissionSessionActivity this$0 -> b
-    1245:1250:org.sugr.gearshift.TransmissionSession doInBackground(java.lang.Void[]) -> a
-    1256:1263:void onPostExecute(org.sugr.gearshift.TransmissionSession) -> a
-    1235:1235:void onPostExecute(java.lang.Object) -> onPostExecute
-    1235:1235:java.lang.Object doInBackground(java.lang.Object[]) -> doInBackground
+    1368:1373:org.sugr.gearshift.TransmissionSession doInBackground(java.lang.Void[]) -> a
+    1379:1386:void onPostExecute(org.sugr.gearshift.TransmissionSession) -> a
+    1358:1358:void onPostExecute(java.lang.Object) -> onPostExecute
+    1358:1358:java.lang.Object doInBackground(java.lang.Object[]) -> doInBackground
 org.sugr.gearshift.TransmissionSessionInterface -> org.sugr.gearshift.TransmissionSessionInterface:
     org.sugr.gearshift.TransmissionProfile getProfile() -> getProfile
     void setSession(org.sugr.gearshift.TransmissionSession) -> setSession
@@ -16043,11 +16043,11 @@ org.sugr.gearshift.datasource.DataSource -> org.sugr.gearshift.datasource.DataSo
     1245:1861:org.sugr.gearshift.datasource.TorrentValues jsonToTorrentValues(com.fasterxml.jackson.core.JsonParser) -> jsonToTorrentValues
     1865:1867:void removeTorrent(java.lang.String) -> removeTorrent
     1870:1872:void removeTorrent(int) -> removeTorrent
-    1875:1883:void removeObsolete(java.util.List) -> removeObsolete
-    1886:1897:int[] queryTorrentIdChanges() -> queryTorrentIdChanges
-    1902:1935:int[] queryStatusCount() -> queryStatusCount
-    1940:2081:org.sugr.gearshift.datasource.TorrentCursorArgs getTorrentCursorArgs() -> getTorrentCursorArgs
-    2087:2152:java.lang.String sortToOrder(org.sugr.gearshift.G$SortBy,org.sugr.gearshift.G$SortOrder) -> sortToOrder
+    1875:1902:void removeObsolete(java.util.List) -> removeObsolete
+    1905:1916:int[] queryTorrentIdChanges() -> queryTorrentIdChanges
+    1921:1954:int[] queryStatusCount() -> queryStatusCount
+    1959:2100:org.sugr.gearshift.datasource.TorrentCursorArgs getTorrentCursorArgs() -> getTorrentCursorArgs
+    2106:2171:java.lang.String sortToOrder(org.sugr.gearshift.G$SortBy,org.sugr.gearshift.G$SortOrder) -> sortToOrder
 org.sugr.gearshift.datasource.DataSource$1 -> uu:
     int[] $SwitchMap$org$sugr$gearshift$G$SortBy -> a
 org.sugr.gearshift.datasource.SQLiteHelper -> org.sugr.gearshift.datasource.SQLiteHelper:
