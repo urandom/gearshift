@@ -106,6 +106,12 @@ public class TorrentListMenuFragment extends Fragment implements TorrentListNoti
             boolean checkSelected = false;
             boolean dataChanged = false;
 
+            TransmissionSessionInterface context = (TransmissionSessionInterface) getActivity();
+
+            if (context == null) {
+                return;
+            }
+
             filterAdapter.setNotifyOnChange(false);
 
             if (data.directories != null) {
@@ -247,7 +253,7 @@ public class TorrentListMenuFragment extends Fragment implements TorrentListNoti
             }
 
             if (data.downloadSpeed != -1 && data.uploadSpeed != -1) {
-                TransmissionSession session = ((TransmissionSessionInterface) getActivity()).getSession();
+                TransmissionSession session = context.getSession();
                 Object[] speed = {
                     G.readableFileSize(data.downloadSpeed), "",
                     G.readableFileSize(data.uploadSpeed), ""

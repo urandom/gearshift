@@ -264,6 +264,12 @@ public abstract class BaseTorrentActivity extends FragmentActivity
     private class ServiceReceiver extends BroadcastReceiver {
         @Override public void onReceive(Context context, Intent intent) {
             int error = intent.getIntExtra(G.ARG_ERROR, 0);
+            String profileId = intent.getStringExtra(G.ARG_PROFILE_ID);
+
+            if (profileId == null || !profileId.equals(profile.getId())) {
+                return;
+            }
+
             hasFatalError = false;
 
             String type = intent.getStringExtra(G.ARG_REQUEST_TYPE);

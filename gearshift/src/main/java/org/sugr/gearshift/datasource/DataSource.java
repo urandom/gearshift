@@ -1872,14 +1872,33 @@ public class DataSource {
     }
 
     protected void removeObsolete(List<String> validHashStrings) {
+        String profile = TransmissionProfile.getCurrentProfileId(context);
+        String[] args = new String[] { profile };
         List<String> where = new ArrayList<>();
+
         for (String hash : validHashStrings) {
             where.add(DatabaseUtils.sqlEscapeString(hash));
         }
 
         database.delete(Constants.T_TORRENT, Constants.C_HASH_STRING + " NOT IN ("
             + TextUtils.join(", ", where)
-            + ")", null);
+            + ") AND " + Constants.C_HASH_STRING
+            + " IN ("
+            + " SELECT " + Constants.C_HASH_STRING
+            + " FROM " + Constants.T_TORRENT_PROFILE + " t1"
+            + " WHERE NOT EXISTS ("
+            + " SELECT 1"
+            + " FROM " + Constants.T_TORRENT_PROFILE + " t2"
+            + " WHERE t1." + Constants.C_HASH_STRING + " = t2." + Constants.C_HASH_STRING
+            + " AND t1." + Constants.C_PROFILE_ID + " != t2." + Constants.C_PROFILE_ID
+            + ")"
+            + " AND t1." + Constants.C_PROFILE_ID + " = ?"
+            + ")",
+            args);
+
+        database.delete(Constants.T_TORRENT_PROFILE, Constants.C_HASH_STRING + " NOT IN ("
+            + TextUtils.join(", ", where)
+            + ") AND " + Constants.C_PROFILE_ID + " = ?", args);
     }
 
     protected int[] queryTorrentIdChanges() {

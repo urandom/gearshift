@@ -569,6 +569,9 @@ public class TransmissionSessionActivity extends FragmentActivity implements Dat
         edit = (EditText) findViewById(R.id.transmission_session_download_directory);
         edit.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                if (session == null) {
+                    return false;
+                }
                 if (actionId == EditorInfo.IME_ACTION_DONE) {
                     String value = v.getText().toString().trim();
                     if (!session.getDownloadDir().equals(value)) {
@@ -584,6 +587,9 @@ public class TransmissionSessionActivity extends FragmentActivity implements Dat
         check = (CheckBox) findViewById(R.id.transmission_session_incomplete_download_check);
         check.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (session == null) {
+                    return;
+                }
                 findViewById(R.id.transmission_session_incomplete_download_directory).setEnabled(isChecked);
                 if (session.isIncompleteDirEnabled() != isChecked) {
                     session.setIncompleteDirEnabled(isChecked);
@@ -595,6 +601,9 @@ public class TransmissionSessionActivity extends FragmentActivity implements Dat
         edit = (EditText) findViewById(R.id.transmission_session_incomplete_download_directory);
         edit.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                if (session == null) {
+                    return false;
+                }
                 if (actionId == EditorInfo.IME_ACTION_DONE) {
                     String value = v.getText().toString().trim();
                     if (!session.getIncompleteDir().equals(value)) {
@@ -610,6 +619,9 @@ public class TransmissionSessionActivity extends FragmentActivity implements Dat
         check = (CheckBox) findViewById(R.id.transmission_session_done_script_check);
         check.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (session == null) {
+                    return;
+                }
                 findViewById(R.id.transmission_session_done_script).setEnabled(isChecked);
                 if (session.isDoneScriptEnabled() != isChecked) {
                     session.setDoneScriptEnabled(isChecked);
@@ -621,6 +633,9 @@ public class TransmissionSessionActivity extends FragmentActivity implements Dat
         edit = (EditText) findViewById(R.id.transmission_session_done_script);
         edit.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                if (session == null) {
+                    return false;
+                }
                 if (actionId == EditorInfo.IME_ACTION_DONE) {
                     String value = v.getText().toString().trim();
                     if (!session.getDoneScript().equals(value)) {
@@ -636,6 +651,9 @@ public class TransmissionSessionActivity extends FragmentActivity implements Dat
         edit = (EditText) findViewById(R.id.transmission_session_cache_size);
         edit.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                if (session == null) {
+                    return false;
+                }
                 if (actionId == EditorInfo.IME_ACTION_DONE) {
                     long value;
                     try {
@@ -656,6 +674,9 @@ public class TransmissionSessionActivity extends FragmentActivity implements Dat
         check = (CheckBox) findViewById(R.id.transmission_session_rename_partial_check);
         check.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (session == null) {
+                    return;
+                }
                 if (session.isRenamePartialFilesEnabled() != isChecked) {
                     session.setRenamePartialFilesEnabled(isChecked);
                     setSession(TransmissionSession.SetterFields.RENAME_PARTIAL);
@@ -666,6 +687,9 @@ public class TransmissionSessionActivity extends FragmentActivity implements Dat
         check = (CheckBox) findViewById(R.id.transmission_session_trash_original_check);
         check.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (session == null) {
+                    return;
+                }
                 if (session.isTrashOriginalTorrentFilesEnabled() != isChecked) {
                     session.setTrashOriginalTorrentFilesEnabled(isChecked);
                     setSession(TransmissionSession.SetterFields.TRASH_ORIGINAL);
@@ -676,6 +700,9 @@ public class TransmissionSessionActivity extends FragmentActivity implements Dat
         check = (CheckBox) findViewById(R.id.transmission_session_start_added_check);
         check.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (session == null) {
+                    return;
+                }
                 if (session.isStartAddedTorrentsEnabled() != isChecked) {
                     session.setStartAddedTorrentsEnabled(isChecked);
                     setSession(TransmissionSession.SetterFields.START_ADDED);
@@ -686,6 +713,9 @@ public class TransmissionSessionActivity extends FragmentActivity implements Dat
         edit = (EditText) findViewById(R.id.transmission_session_peer_port);
         edit.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                if (session == null) {
+                    return false;
+                }
                 if (actionId == EditorInfo.IME_ACTION_DONE) {
                     int value;
                     try {
@@ -712,6 +742,9 @@ public class TransmissionSessionActivity extends FragmentActivity implements Dat
         Button button = (Button) findViewById(R.id.transmission_session_port_test);
         button.setOnClickListener(new View.OnClickListener() {
             @Override  public void onClick(View v) {
+                if (session == null) {
+                    return;
+                }
                 Button test = (Button) TransmissionSessionActivity.this.findViewById(
                         R.id.transmission_session_port_test);
 
@@ -725,6 +758,9 @@ public class TransmissionSessionActivity extends FragmentActivity implements Dat
         Spinner spinner = (Spinner) findViewById(R.id.transmission_session_encryption);
         spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
+                if (session == null) {
+                    return;
+                }
                 String value = encryptionValues.get(pos);
                 if (!session.getEncryption().equals(value)) {
                     session.setEncryption(value);
@@ -738,6 +774,9 @@ public class TransmissionSessionActivity extends FragmentActivity implements Dat
         check = (CheckBox) findViewById(R.id.transmission_session_random_port);
         check.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (session == null) {
+                    return;
+                }
                 if (session.isPeerPortRandomOnStart() != isChecked) {
                     session.setPeerPortRandomOnStart(isChecked);
                     setSession(TransmissionSession.SetterFields.RANDOM_PORT);
@@ -748,6 +787,9 @@ public class TransmissionSessionActivity extends FragmentActivity implements Dat
         check = (CheckBox) findViewById(R.id.transmission_session_port_forwarding);
         check.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (session == null) {
+                    return;
+                }
                 if (session.isPortForwardingEnabled() != isChecked) {
                     session.setPortForwardingEnabled(isChecked);
                     setSession(TransmissionSession.SetterFields.PORT_FORWARDING);
@@ -758,6 +800,9 @@ public class TransmissionSessionActivity extends FragmentActivity implements Dat
         check = (CheckBox) findViewById(R.id.transmission_session_peer_exchange);
         check.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (session == null) {
+                    return;
+                }
                 if (session.isPeerExchangeEnabled() != isChecked) {
                     session.setPeerExchangeEnabled(isChecked);
                     setSession(TransmissionSession.SetterFields.PEER_EXCHANGE);
@@ -768,6 +813,9 @@ public class TransmissionSessionActivity extends FragmentActivity implements Dat
         check = (CheckBox) findViewById(R.id.transmission_session_hash_table);
         check.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (session == null) {
+                    return;
+                }
                 if (session.isDHTEnabled() != isChecked) {
                     session.setDHTEnabled(isChecked);
                     setSession(TransmissionSession.SetterFields.DHT);
@@ -778,6 +826,9 @@ public class TransmissionSessionActivity extends FragmentActivity implements Dat
         check = (CheckBox) findViewById(R.id.transmission_session_local_discovery);
         check.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (session == null) {
+                    return;
+                }
                 if (session.isLocalDiscoveryEnabled() != isChecked) {
                     session.setLocalDiscoveryEnabled(isChecked);
                     setSession(TransmissionSession.SetterFields.LOCAL_DISCOVERY);
@@ -788,6 +839,9 @@ public class TransmissionSessionActivity extends FragmentActivity implements Dat
         check = (CheckBox) findViewById(R.id.transmission_session_utp);
         check.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (session == null) {
+                    return;
+                }
                 if (session.isUTPEnabled() != isChecked) {
                     session.setUTPEnabled(isChecked);
                     setSession(TransmissionSession.SetterFields.UTP);
@@ -798,6 +852,9 @@ public class TransmissionSessionActivity extends FragmentActivity implements Dat
         check = (CheckBox) findViewById(R.id.transmission_session_blocklist_check);
         check.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (session == null) {
+                    return;
+                }
                 findViewById(R.id.transmission_session_blocklist_update).setEnabled(isChecked);
                 findViewById(R.id.transmission_session_blocklist_url).setEnabled(isChecked);
                 if (session.isBlocklistEnabled() != isChecked) {
@@ -810,6 +867,9 @@ public class TransmissionSessionActivity extends FragmentActivity implements Dat
         edit = (EditText) findViewById(R.id.transmission_session_blocklist_url);
         edit.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                if (session == null) {
+                    return false;
+                }
                 if (actionId == EditorInfo.IME_ACTION_DONE) {
                     String value = v.getText().toString().trim();
                     if (!session.getBlocklistURL().equals(value)) {
@@ -825,6 +885,9 @@ public class TransmissionSessionActivity extends FragmentActivity implements Dat
         button = (Button) findViewById(R.id.transmission_session_blocklist_update);
         button.setOnClickListener(new View.OnClickListener() {
             @Override  public void onClick(View v) {
+                if (session == null) {
+                    return;
+                }
                 Button update = (Button) TransmissionSessionActivity.this.findViewById(
                     R.id.transmission_session_blocklist_update);
 
@@ -838,6 +901,9 @@ public class TransmissionSessionActivity extends FragmentActivity implements Dat
         check = (CheckBox) findViewById(R.id.transmission_session_down_limit_check);
         check.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (session == null) {
+                    return;
+                }
                 findViewById(R.id.transmission_session_down_limit).setEnabled(isChecked);
                 if (session.isDownloadSpeedLimitEnabled() != isChecked) {
                     session.setDownloadSpeedLimitEnabled(isChecked);
@@ -849,6 +915,9 @@ public class TransmissionSessionActivity extends FragmentActivity implements Dat
         edit = (EditText) findViewById(R.id.transmission_session_down_limit);
         edit.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                if (session == null) {
+                    return false;
+                }
                 if (actionId == EditorInfo.IME_ACTION_DONE) {
                     long value;
                     try {
@@ -869,6 +938,9 @@ public class TransmissionSessionActivity extends FragmentActivity implements Dat
         check = (CheckBox) findViewById(R.id.transmission_session_up_limit_check);
         check.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (session == null) {
+                    return;
+                }
                 findViewById(R.id.transmission_session_up_limit).setEnabled(isChecked);
                 if (session.isUploadSpeedLimitEnabled() != isChecked) {
                     session.setUploadSpeedLimitEnabled(isChecked);
@@ -880,6 +952,9 @@ public class TransmissionSessionActivity extends FragmentActivity implements Dat
         edit = (EditText) findViewById(R.id.transmission_session_up_limit);
         edit.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                if (session == null) {
+                    return false;
+                }
                 if (actionId == EditorInfo.IME_ACTION_DONE) {
                     long value;
                     try {
@@ -900,6 +975,9 @@ public class TransmissionSessionActivity extends FragmentActivity implements Dat
         check = (CheckBox) findViewById(R.id.transmission_session_alt_limits_check);
         check.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (session == null) {
+                    return;
+                }
                 findViewById(R.id.transmission_session_alt_down_limit).setEnabled(isChecked);
                 findViewById(R.id.transmission_session_alt_up_limit).setEnabled(isChecked);
                 if (session.isAltSpeedLimitEnabled() != isChecked) {
@@ -912,6 +990,9 @@ public class TransmissionSessionActivity extends FragmentActivity implements Dat
         edit = (EditText) findViewById(R.id.transmission_session_alt_down_limit);
         edit.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                if (session == null) {
+                    return false;
+                }
                 if (actionId == EditorInfo.IME_ACTION_DONE) {
                     long value;
                     try {
@@ -932,6 +1013,9 @@ public class TransmissionSessionActivity extends FragmentActivity implements Dat
         edit = (EditText) findViewById(R.id.transmission_session_alt_up_limit);
         edit.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                if (session == null) {
+                    return false;
+                }
                 if (actionId == EditorInfo.IME_ACTION_DONE) {
                     long value;
                     try {
@@ -952,6 +1036,9 @@ public class TransmissionSessionActivity extends FragmentActivity implements Dat
         check = (CheckBox) findViewById(R.id.transmission_session_alt_limits_time_check);
         check.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (session == null) {
+                    return;
+                }
                 findViewById(R.id.transmission_session_alt_limit_time_from).setEnabled(isChecked);
                 findViewById(R.id.transmission_session_alt_limit_time_to).setEnabled(isChecked);
                 if (session.isAltSpeedLimitTimeEnabled() != isChecked) {
@@ -964,6 +1051,9 @@ public class TransmissionSessionActivity extends FragmentActivity implements Dat
         button = (Button) findViewById(R.id.transmission_session_alt_limit_time_from);
         button.setOnClickListener(new View.OnClickListener() {
             @Override  public void onClick(View v) {
+                if (session == null) {
+                    return;
+                }
                 showTimePickerDialog(true,
                     session.getAltSpeedTimeBegin() / 60,
                     session.getAltSpeedTimeBegin() % 60);
@@ -973,6 +1063,9 @@ public class TransmissionSessionActivity extends FragmentActivity implements Dat
         button = (Button) findViewById(R.id.transmission_session_alt_limit_time_to);
         button.setOnClickListener(new View.OnClickListener() {
             @Override  public void onClick(View v) {
+                if (session == null) {
+                    return;
+                }
                 showTimePickerDialog(false,
                     session.getAltSpeedTimeEnd() / 60,
                     session.getAltSpeedTimeEnd() % 60);
@@ -982,6 +1075,9 @@ public class TransmissionSessionActivity extends FragmentActivity implements Dat
         check = (CheckBox) findViewById(R.id.transmission_session_seed_ratio_limit_check);
         check.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (session == null) {
+                    return;
+                }
                 findViewById(R.id.transmission_session_seed_ratio_limit).setEnabled(isChecked);
                 if (session.isSeedRatioLimitEnabled() != isChecked) {
                     session.setSeedRatioLimitEnabled(isChecked);
@@ -993,6 +1089,9 @@ public class TransmissionSessionActivity extends FragmentActivity implements Dat
         edit = (EditText) findViewById(R.id.transmission_session_seed_ratio_limit);
         edit.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                if (session == null) {
+                    return false;
+                }
                 if (actionId == EditorInfo.IME_ACTION_DONE) {
                     float value;
                     try {
@@ -1013,6 +1112,9 @@ public class TransmissionSessionActivity extends FragmentActivity implements Dat
         check = (CheckBox) findViewById(R.id.transmission_session_download_queue_size_check);
         check.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (session == null) {
+                    return;
+                }
                 findViewById(R.id.transmission_session_download_queue_size).setEnabled(isChecked);
                 if (session.isDownloadQueueEnabled() != isChecked) {
                     session.setDownloadQueueEnabled(isChecked);
@@ -1024,6 +1126,9 @@ public class TransmissionSessionActivity extends FragmentActivity implements Dat
         edit = (EditText) findViewById(R.id.transmission_session_download_queue_size);
         edit.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                if (session == null) {
+                    return false;
+                }
                 if (actionId == EditorInfo.IME_ACTION_DONE) {
                     int value;
                     try {
@@ -1044,6 +1149,9 @@ public class TransmissionSessionActivity extends FragmentActivity implements Dat
         check = (CheckBox) findViewById(R.id.transmission_session_seed_queue_size_check);
         check.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (session == null) {
+                    return;
+                }
                 findViewById(R.id.transmission_session_seed_queue_size).setEnabled(isChecked);
                 if (session.isSeedQueueEnabled() != isChecked) {
                     session.setSeedQueueEnabled(isChecked);
@@ -1055,6 +1163,9 @@ public class TransmissionSessionActivity extends FragmentActivity implements Dat
         edit = (EditText) findViewById(R.id.transmission_session_seed_queue_size);
         edit.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                if (session == null) {
+                    return false;
+                }
                 if (actionId == EditorInfo.IME_ACTION_DONE) {
                     int value;
                     try {
@@ -1075,6 +1186,9 @@ public class TransmissionSessionActivity extends FragmentActivity implements Dat
         check = (CheckBox) findViewById(R.id.transmission_session_stalled_queue_size_check);
         check.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (session == null) {
+                    return;
+                }
                 findViewById(R.id.transmission_session_stalled_queue_size).setEnabled(isChecked);
                 if (session.isStalledQueueEnabled() != isChecked) {
                     session.setStalledQueueEnabled(isChecked);
@@ -1086,6 +1200,9 @@ public class TransmissionSessionActivity extends FragmentActivity implements Dat
         edit = (EditText) findViewById(R.id.transmission_session_stalled_queue_size);
         edit.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                if (session == null) {
+                    return false;
+                }
                 if (actionId == EditorInfo.IME_ACTION_DONE) {
                     int value;
                     try {
@@ -1106,6 +1223,9 @@ public class TransmissionSessionActivity extends FragmentActivity implements Dat
         edit = (EditText) findViewById(R.id.transmission_session_global_peer_limit);
         edit.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                if (session == null) {
+                    return false;
+                }
                 if (actionId == EditorInfo.IME_ACTION_DONE) {
                     int value;
                     try {
@@ -1126,6 +1246,9 @@ public class TransmissionSessionActivity extends FragmentActivity implements Dat
         edit = (EditText) findViewById(R.id.transmission_session_torrent_peer_limit);
         edit.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                if (session == null) {
+                    return false;
+                }
                 if (actionId == EditorInfo.IME_ACTION_DONE) {
                     int value;
                     try {
