@@ -1992,11 +1992,17 @@ public class TorrentDetailPageFragment extends Fragment {
     private class TorrentDetailTask extends AsyncTask<String, Void, TorrentDetails> {
         @Override protected TorrentDetails doInBackground(String... hashStrings) {
             if (!isCancelled() && getActivity() != null) {
+                TransmissionSessionInterface context = (TransmissionSessionInterface) getActivity();
+                if (context == null) {
+                    return null;
+                }
                 DataSource readSource = new DataSource(getActivity());
 
                 readSource.open();
                 try {
-                    TorrentDetails details = readSource.getTorrentDetails(hashStrings[0]);
+                    TorrentDetails details = readSource.getTorrentDetails(
+                        context.getProfile().getId(), hashStrings[0]);
+
                     /* fill the windows */
                     details.torrentCursor.getCount();
                     details.filesCursor.getCount();

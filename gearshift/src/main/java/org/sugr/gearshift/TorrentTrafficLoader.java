@@ -17,15 +17,17 @@ public class TorrentTrafficLoader
         public Set<String> trackers = null;
     }
 
+    private String profile;
     private TorrentTrafficOutputData result;
     private boolean queryTraffic;
     private boolean queryDirectories;
     private boolean queryTrackers;
 
-    public TorrentTrafficLoader(Context context, boolean queryTraffic,
+    public TorrentTrafficLoader(Context context, String profile, boolean queryTraffic,
                                 boolean queryDirectories, boolean queryTrackers) {
         super(context);
 
+        this.profile = profile;
         this.queryTraffic = queryTraffic;
         this.queryDirectories = queryDirectories;
         this.queryTrackers = queryTrackers;
@@ -38,16 +40,16 @@ public class TorrentTrafficLoader
         dataSource.open();
         try {
             if (queryTraffic) {
-                long[] speed = dataSource.getTrafficSpeed();
+                long[] speed = dataSource.getTrafficSpeed(profile);
                 output.downloadSpeed = speed[0];
                 output.uploadSpeed = speed[1];
             }
 
             if (queryTrackers) {
-                output.trackers = dataSource.getTrackerAnnounceURLs();
+                output.trackers = dataSource.getTrackerAnnounceURLs(profile);
             }
             if (queryDirectories) {
-                output.directories = dataSource.getDownloadDirectories();
+                output.directories = dataSource.getDownloadDirectories(profile);
             }
         } catch (Exception ignored) {
             output = null;

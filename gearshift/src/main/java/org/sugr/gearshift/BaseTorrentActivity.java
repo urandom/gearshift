@@ -231,8 +231,9 @@ public abstract class BaseTorrentActivity extends FragmentActivity
             try {
                 readSource.open();
 
-                TransmissionSession session = readSource.getSession();
-                session.setDownloadDirectories(profile, readSource.getDownloadDirectories());
+                TransmissionSession session = readSource.getSession(profile.getId());
+                session.setDownloadDirectories(profile,
+                    readSource.getDownloadDirectories(profile.getId()));
 
                 return session;
             } finally {
@@ -299,7 +300,7 @@ public abstract class BaseTorrentActivity extends FragmentActivity
             try {
                 readSource.open();
 
-                return readSource.getTorrentCursor();
+                return readSource.getTorrentCursor(profile.getId());
             } finally {
                 if (readSource.isOpen()) {
                     readSource.close();

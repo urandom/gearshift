@@ -1367,7 +1367,7 @@ public class TransmissionSessionActivity extends FragmentActivity implements Dat
             try {
                 readSource.open();
 
-                return readSource.getSession();
+                return readSource.getSession(profile.getId());
             } finally {
                 if (readSource.isOpen()) {
                     readSource.close();

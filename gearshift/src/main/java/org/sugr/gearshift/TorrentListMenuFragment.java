@@ -91,11 +91,17 @@ public class TorrentListMenuFragment extends Fragment implements TorrentListNoti
 
         @Override public Loader<TorrentTrafficLoader.TorrentTrafficOutputData> onCreateLoader(int id, Bundle bundle) {
             if (id == G.TORRENT_MENU_TRAFFIC_LOADER_ID) {
+                TransmissionSessionInterface context = (TransmissionSessionInterface) getActivity();
+                if (context == null) {
+                    return null;
+                }
+
                 boolean showStatus = sharedPrefs.getBoolean(G.PREF_SHOW_STATUS, false);
                 boolean directoriesEnabled = sharedPrefs.getBoolean(G.PREF_FILTER_DIRECTORIES, true);
                 boolean trackersEnabled = sharedPrefs.getBoolean(G.PREF_FILTER_TRACKERS, false);
 
-                return new TorrentTrafficLoader(getActivity(), !showStatus, directoriesEnabled, trackersEnabled);
+                return new TorrentTrafficLoader(getActivity(), context.getProfile().getId(),
+                    !showStatus, directoriesEnabled, trackersEnabled);
             }
             return null;
         }

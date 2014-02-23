@@ -522,7 +522,7 @@ public class TransmissionSessionManager {
                     if (response.getClass() == SessionGetResponse.class) {
                         parser.nextValue();
 
-                        dataSource.updateSession(parser);
+                        dataSource.updateSession(profile.getId(), parser);
                     } else if (response.getClass() == TorrentGetResponse.class) {
                         int[] removed = null;
 
@@ -534,7 +534,8 @@ public class TransmissionSessionManager {
                             if (argname.equals("torrents")) {
                                 ((TorrentGetResponse) response).setTorrentStatus(
                                     dataSource.updateTorrents(
-                                        parser, ((TorrentGetResponse) response).getRemoveObsolete()
+                                        profile.getId(), parser,
+                                        ((TorrentGetResponse) response).getRemoveObsolete()
                                     )
                                 );
                             } else if (argname.equals("removed")) {
@@ -575,7 +576,7 @@ public class TransmissionSessionManager {
                                             break;
                                     }
                                 }
-                                dataSource.addTorrent(id, addedName, addedHash,
+                                dataSource.addTorrent(profile.getId(), id, addedName, addedHash,
                                     ((AddTorrentResponse) response).getLocation());
                             } else if (argname.equals("torrent-duplicate")) {
                                 while (parser.nextToken() != JsonToken.END_OBJECT) {

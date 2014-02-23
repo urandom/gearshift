@@ -139,13 +139,13 @@ public class DataService extends IntentService {
                         TorrentStatus status;
                         String[] fields = Torrent.Fields.STATS;
 
-                        if (!dataSource.hasCompleteMetadata()) {
+                        if (!dataSource.hasCompleteMetadata(profileId)) {
                             fields = G.concat(Torrent.Fields.METADATA, fields);
                         }
 
                         if (args.getBoolean(Args.DETAIL_FIELDS, false)) {
                             fields = G.concat(fields, Torrent.Fields.STATS_EXTRA);
-                            if (!dataSource.hasExtraInfo()) {
+                            if (!dataSource.hasExtraInfo(profileId)) {
                                 fields = G.concat(fields, Torrent.Fields.INFO_EXTRA);
                             }
                         }
@@ -161,7 +161,7 @@ public class DataService extends IntentService {
                                 args.getBoolean(Args.REMOVE_OBSOLETE, false));
                         }
 
-                        String[] unnamed = dataSource.getUnnamedTorrentHashStrings();
+                        String[] unnamed = dataSource.getUnnamedTorrentHashStrings(profileId);
                         if (unnamed != null && unnamed.length > 0) {
                             manager.getTorrents(
                                 G.concat(new String[]{Torrent.Fields.hashString}, Torrent.Fields.METADATA),

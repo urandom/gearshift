@@ -288,7 +288,11 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
 
         @Override public Loader<TorrentTrafficLoader.TorrentTrafficOutputData> onCreateLoader(int id, Bundle bundle) {
             if (id == G.TORRENT_LIST_TRAFFIC_LOADER_ID) {
-                return new TorrentTrafficLoader(getActivity(),
+                TransmissionSessionInterface context = (TransmissionSessionInterface) getActivity();
+                if (context == null) {
+                    return null;
+                }
+                return new TorrentTrafficLoader(getActivity(), context.getProfile().getId(),
                     sharedPrefs.getBoolean(G.PREF_SHOW_STATUS, false), false, false);
             }
             return null;
@@ -742,10 +746,15 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
                         if (resourcesCleared) {
                             return null;
                         }
+                        TransmissionSessionInterface context
+                            = (TransmissionSessionInterface) getActivity();
+                        if (context == null) {
+                            return null;
+                        }
 
                         readDataSource.open();
 
-                        return readDataSource.getTorrentCursor();
+                        return readDataSource.getTorrentCursor(context.getProfile().getId());
                     }
                 }
             });

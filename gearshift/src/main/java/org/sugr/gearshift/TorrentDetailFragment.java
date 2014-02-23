@@ -466,12 +466,18 @@ public class TorrentDetailFragment extends Fragment implements TorrentListNotifi
     private class QueryCurrentDataTask extends AsyncTask<String, Void, Boolean> {
         @Override protected Boolean doInBackground(String... hashStrings) {
             if (!isCancelled() && getActivity() != null) {
+                TransmissionSessionInterface context = (TransmissionSessionInterface) getActivity();
+                if (context == null) {
+                    return null;
+                }
+
                 DataSource readSource = new DataSource(getActivity());
 
                 readSource.open();
 
                 try {
-                    TorrentNameStatus tuple = readSource.getTorrentNameStatus(hashStrings[0]);
+                    TorrentNameStatus tuple = readSource.getTorrentNameStatus(
+                        context.getProfile().getId(), hashStrings[0]);
                     currentTorrentName = tuple.name;
                     currentTorrentStatus = tuple.status;
                 } finally {

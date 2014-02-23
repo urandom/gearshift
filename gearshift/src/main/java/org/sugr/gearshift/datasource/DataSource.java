@@ -21,7 +21,6 @@ import com.fasterxml.jackson.core.JsonToken;
 import org.sugr.gearshift.G;
 import org.sugr.gearshift.R;
 import org.sugr.gearshift.Torrent;
-import org.sugr.gearshift.TransmissionProfile;
 import org.sugr.gearshift.TransmissionSession;
 
 import java.io.IOException;
@@ -96,11 +95,11 @@ public class DataSource {
         this.dbHelper = new SQLiteHelper(context.getApplicationContext());
     }
 
-    public boolean updateSession(JsonParser parser) throws IOException {
+    public boolean updateSession(String profile, JsonParser parser) throws IOException {
         if (!isOpen())
             return false;
 
-        List<ContentValues> session = jsonToSessionValues(parser);
+        List<ContentValues> session = jsonToSessionValues(profile, parser);
 
         synchronized (DataSource.class) {
             database.beginTransactionNonExclusive();
@@ -121,7 +120,8 @@ public class DataSource {
         }
     }
 
-    public TorrentStatus updateTorrents(JsonParser parser, boolean removeObsolete) throws IOException {
+    public TorrentStatus updateTorrents(String profile, JsonParser parser, boolean removeObsolete)
+            throws IOException {
         if (!isOpen())
             return null;
 
@@ -132,7 +132,6 @@ public class DataSource {
             database.beginTransactionNonExclusive();
             try {
                 SparseBooleanArray trackers = new SparseBooleanArray();
-                String profile = TransmissionProfile.getCurrentProfileId(context);
 
                 List<String> validHashStrings = null;
                 if (removeObsolete) {
@@ -213,7 +212,7 @@ public class DataSource {
                 }
 
                 if (removeObsolete) {
-                    removeObsolete(validHashStrings);
+                    removeObsolete(profile, validHashStrings);
                 }
 
                 database.setTransactionSuccessful();
@@ -222,7 +221,7 @@ public class DataSource {
                 int[] updatedStatus = queryStatusCount();
 
                 boolean added = false, removed = false, statusChanged = false;
-                boolean incompleteMetadata = !hasCompleteMetadata();
+                boolean incompleteMetadata = !hasCompleteMetadata(profile);
 
                 if (idChanges != null && updatedIdChanges != null) {
                     added = idChanges[0] < updatedIdChanges[0];
@@ -299,11 +298,10 @@ public class DataSource {
 
 
     /* Transmission implementation */
-    public TransmissionSession getSession() {
+    public TransmissionSession getSession(String profile) {
         if (!isOpen())
             return null;
 
-        String profile = TransmissionProfile.getCurrentProfileId(context);
         Cursor cursor = null;
         try {
             cursor = database.query(Constants.T_SESSION, new String[] {
@@ -319,14 +317,12 @@ public class DataSource {
         }
     }
 
-    public boolean hasExtraInfo() {
+    public boolean hasExtraInfo(String profile) {
         if (!isOpen())
             return false;
 
         Cursor cursor = null;
         try {
-            String profile = TransmissionProfile.getCurrentProfileId(context);
-
             cursor = database.rawQuery(
                 "SELECT count(" + Constants.T_FILE + ".rowid), count(CASE "
                     + Constants.T_FILE + "." + Constants.C_NAME
@@ -352,14 +348,12 @@ public class DataSource {
         }
     }
 
-    public boolean hasCompleteMetadata() {
+    public boolean hasCompleteMetadata(String profile) {
         if (!isOpen())
             return false;
 
         Cursor cursor = null;
         try {
-            String profile = TransmissionProfile.getCurrentProfileId(context);
-
             cursor = database.rawQuery(
                 "SELECT count(" + Constants.T_TORRENT + ".rowid) FROM "
                     + Constants.T_TORRENT_PROFILE
@@ -388,13 +382,12 @@ public class DataSource {
         }
     }
 
-    public String[] getUnnamedTorrentHashStrings() {
+    public String[] getUnnamedTorrentHashStrings(String profile) {
         if (!isOpen())
             return null;
 
         Cursor cursor = null;
         try {
-            String profile = TransmissionProfile.getCurrentProfileId(context);
             cursor = database.rawQuery(
                 "SELECT " + Constants.T_TORRENT + "." + Constants.C_HASH_STRING
                     + " FROM " + Constants.T_TORRENT_PROFILE
@@ -423,7 +416,7 @@ public class DataSource {
         }
     }
 
-    public boolean addTorrent(int id, String name, String hash, String location) {
+    public boolean addTorrent(String profile, int id, String name, String hash, String location) {
         if (!isOpen())
             return false;
 
@@ -442,8 +435,6 @@ public class DataSource {
                 long result = database.insert(Constants.T_TORRENT, null, values);
 
                 if (result > -1) {
-                    String profile = TransmissionProfile.getCurrentProfileId(context);
-
                     values = new ContentValues();
                     values.put(Constants.C_HASH_STRING, hash);
                     values.put(Constants.C_PROFILE_ID, profile);
@@ -510,7 +501,7 @@ public class DataSource {
         }
     }
 
-    public Set<String> getTrackerAnnounceURLs() {
+    public Set<String> getTrackerAnnounceURLs(String profile) {
         if (!isOpen())
             return null;
 
@@ -518,7 +509,6 @@ public class DataSource {
 
         Cursor cursor = null;
         try {
-            String profile = TransmissionProfile.getCurrentProfileId(context);
             cursor = database.rawQuery(
                 "SELECT DISTINCT " + Constants.C_ANNOUNCE
                     + " FROM " + Constants.T_TORRENT_PROFILE
@@ -549,7 +539,7 @@ public class DataSource {
         }
     }
 
-    public Set<String> getDownloadDirectories() {
+    public Set<String> getDownloadDirectories(String profile) {
         if (!isOpen())
             return null;
 
@@ -557,7 +547,6 @@ public class DataSource {
 
         Cursor cursor = null;
         try {
-            String profile = TransmissionProfile.getCurrentProfileId(context);
             cursor = database.rawQuery(
                 "SELECT DISTINCT " + Constants.C_DOWNLOAD_DIR
                     + " FROM " + Constants.T_TORRENT_PROFILE
@@ -582,7 +571,7 @@ public class DataSource {
         }
     }
 
-    public long[] getTrafficSpeed() {
+    public long[] getTrafficSpeed(String profile) {
         if (!isOpen())
             return null;
 
@@ -590,7 +579,6 @@ public class DataSource {
 
         Cursor cursor = null;
         try {
-            String profile = TransmissionProfile.getCurrentProfileId(context);
             cursor = database.rawQuery(
                 "SELECT SUM(" + Constants.C_RATE_DOWNLOAD + "), SUM(" + Constants.C_RATE_UPLOAD + ")"
                     + " FROM " + Constants.T_TORRENT_PROFILE
@@ -614,13 +602,14 @@ public class DataSource {
         }
     }
 
-    public Cursor getTorrentCursor() {
+    public Cursor getTorrentCursor(String profile) {
         if (!isOpen())
             return null;
 
         TorrentCursorArgs args = getTorrentCursorArgs();
 
-        Cursor cursor = getTorrentCursor(args.selection, args.selectionArgs, args.orderBy, false);
+        Cursor cursor = getTorrentCursor(profile, args.selection, args.selectionArgs,
+            args.orderBy, false);
 
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
         String search = prefs.getString(G.PREF_LIST_SEARCH, null);
@@ -729,7 +718,8 @@ public class DataSource {
         return cursor;
     }
 
-    public Cursor getTorrentCursor(String selection, String[] selectionArgs, String orderBy, boolean details) {
+    public Cursor getTorrentCursor(String profile, String selection, String[] selectionArgs,
+                                   String orderBy, boolean details) {
         if (!isOpen())
             return null;
 
@@ -756,17 +746,15 @@ public class DataSource {
             query = query + " ORDER BY " + orderBy;
         }
 
-        String profile = TransmissionProfile.getCurrentProfileId(context);
         return database.rawQuery(query, G.concat(new String[] { profile }, selectionArgs));
     }
 
-    public TorrentNameStatus getTorrentNameStatus(String hash) {
+    public TorrentNameStatus getTorrentNameStatus(String profile, String hash) {
         if (!isOpen())
             return null;
 
         Cursor cursor = null;
         try {
-            String profile = TransmissionProfile.getCurrentProfileId(context);
             cursor = database.rawQuery(
                 "SELECT " + Constants.C_NAME + ", " + Constants.C_STATUS
                     + " FROM " + Constants.T_TORRENT_PROFILE
@@ -788,13 +776,13 @@ public class DataSource {
         }
     }
 
-    public TorrentDetails getTorrentDetails(String hash) {
+    public TorrentDetails getTorrentDetails(String profile, String hash) {
         if (!isOpen())
             return null;
 
          String[] selectionArgs = new String[] { hash };
 
-         Cursor torrent = getTorrentCursor(
+         Cursor torrent = getTorrentCursor(profile,
              Constants.T_TORRENT + "." + Constants.C_HASH_STRING + " = ?",
              selectionArgs, null, true);
 
@@ -976,9 +964,9 @@ public class DataSource {
         return session;
     }
 
-    protected List<ContentValues> jsonToSessionValues(JsonParser parser) throws IOException {
+    protected List<ContentValues> jsonToSessionValues(String profile, JsonParser parser)
+            throws IOException {
         List<ContentValues> values = new ArrayList<>();
-        String profile = TransmissionProfile.getCurrentProfileId(context);
 
         float seedRatioLimit = 0;
         boolean seedRatioLimitEnabled = false;
@@ -1871,8 +1859,7 @@ public class DataSource {
             new String[] { Integer.toString(id) } );
     }
 
-    protected void removeObsolete(List<String> validHashStrings) {
-        String profile = TransmissionProfile.getCurrentProfileId(context);
+    protected void removeObsolete(String profile, List<String> validHashStrings) {
         String[] args = new String[] { profile };
         List<String> where = new ArrayList<>();
 
