@@ -236,7 +236,8 @@ public class DataService extends IntentService {
                         }
 
                         manager.setTorrentProperty(hashStrings, field, value);
-                        response = createResponse(requestType, profileId);
+                        response = createResponse(requestType, profileId)
+                            .putExtra(G.ARG_TORRENT_FIELD, field);
                         break;
                     }
                     case Requests.SET_TORRENT_LOCATION: {

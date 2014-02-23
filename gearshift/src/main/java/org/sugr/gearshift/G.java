@@ -96,6 +96,7 @@ public final class G {
     public static final String ARG_STATUS_CHANGED = "status_changed";
     public static final String ARG_INCOMPLETE_METADATA = "incomplete_metadata";
     public static final String ARG_ADDED_HASH = "added_hash";
+    public static final String ARG_TORRENT_FIELD = "torrent_field";
     public static final String ARG_FREE_SPACE = "free_space";
     public static final String ARG_PORT_IS_OPEN = "port_is_open";
     public static final String ARG_BLOCKLIST_SIZE = "blocklist_size";
