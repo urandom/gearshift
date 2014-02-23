@@ -46,7 +46,14 @@ public abstract class BaseTorrentActivity extends FragmentActivity
 
     private static final String STATE_LAST_SERVER_ACTIVITY = "last_server_activity";
     private static final String STATE_FATAL_ERROR = "fatal_error";
+    private static final String STATE_ERROR_TYPE = "error_type";
+    private static final String STATE_ERROR_CODE = "error_Code";
+    private static final String STATE_ERROR_STRING = "error_string";
     private static final String STATE_REFRESHING = "refreshing";
+
+    private int errorType;
+    private int errorCode;
+    private String errorString;
 
     @Override protected void onCreate(Bundle savedInstanceState) {
         locationDialogHelper = new LocationDialogHelper(this);
@@ -58,6 +65,11 @@ public abstract class BaseTorrentActivity extends FragmentActivity
             }
             if (savedInstanceState.containsKey(STATE_FATAL_ERROR)) {
                 hasFatalError = savedInstanceState.getBoolean(STATE_FATAL_ERROR, false);
+                if (hasFatalError) {
+                    errorType = savedInstanceState.getInt(STATE_ERROR_TYPE, 0);
+                    errorCode = savedInstanceState.getInt(STATE_ERROR_CODE, 0);
+                    errorString = savedInstanceState.getString(STATE_ERROR_STRING);
+                }
             }
             if (savedInstanceState.containsKey(STATE_REFRESHING)) {
                 setRefreshing(true, null);
@@ -84,6 +96,10 @@ public abstract class BaseTorrentActivity extends FragmentActivity
             setRefreshing(true, DataService.Requests.GET_SESSION);
             manager.getSession();
         }
+
+        if (hasFatalError) {
+            showErrorMessage(errorType, errorCode, errorString);
+        }
     }
 
     @Override protected void onPause() {
@@ -104,6 +120,11 @@ public abstract class BaseTorrentActivity extends FragmentActivity
     @Override public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putBoolean(STATE_FATAL_ERROR, hasFatalError);
+        if (hasFatalError) {
+            outState.putInt(STATE_ERROR_TYPE, errorType);
+            outState.putInt(STATE_ERROR_CODE, errorCode);
+            outState.putString(STATE_ERROR_STRING, errorString);
+        }
         outState.putLong(STATE_LAST_SERVER_ACTIVITY, lastServerActivity);
         outState.putBoolean(STATE_REFRESHING, refreshing);
         if (manager != null) {
@@ -147,6 +168,38 @@ public abstract class BaseTorrentActivity extends FragmentActivity
 
     @Override public LocationDialogHelper getLocationDialogHelper() {
         return locationDialogHelper;
+    }
+
+    protected void showErrorMessage(int error, int code, String string) {
+        findViewById(R.id.fatal_error_layer).setVisibility(View.VISIBLE);
+        TextView text = (TextView) findViewById(R.id.transmission_error);
+
+        if (error == TransmissionData.Errors.NO_CONNECTIVITY) {
+            text.setText(Html.fromHtml(getString(R.string.no_connectivity_empty_list)));
+        } else if (error == TransmissionData.Errors.ACCESS_DENIED) {
+            text.setText(Html.fromHtml(getString(R.string.access_denied_empty_list)));
+        } else if (error == TransmissionData.Errors.NO_JSON) {
+            text.setText(Html.fromHtml(getString(R.string.no_json_empty_list)));
+        } else if (error == TransmissionData.Errors.NO_CONNECTION) {
+            text.setText(Html.fromHtml(getString(R.string.no_connection_empty_list)));
+        } else if (error == TransmissionData.Errors.THREAD_ERROR) {
+            text.setText(Html.fromHtml(getString(R.string.thread_error_empty_list)));
+        } else if (error == TransmissionData.Errors.RESPONSE_ERROR) {
+            text.setText(Html.fromHtml(getString(R.string.response_error_empty_list)));
+        } else if (error == TransmissionData.Errors.TIMEOUT) {
+            text.setText(Html.fromHtml(getString(R.string.timeout_empty_list)));
+        } else if (error == TransmissionData.Errors.OUT_OF_MEMORY) {
+            text.setText(Html.fromHtml(getString(R.string.out_of_memory_empty_list)));
+        } else if (error == TransmissionData.Errors.JSON_PARSE_ERROR) {
+            text.setText(Html.fromHtml(getString(R.string.json_parse_empty_list)));
+        } else if (error == TransmissionData.Errors.GENERIC_HTTP) {
+            text.setText(Html.fromHtml(String.format(getString(R.string.generic_http_empty_list),
+                code, string)));
+        }
+    }
+
+    protected void hideErrorMessage() {
+        findViewById(R.id.fatal_error_layer).setVisibility(View.GONE);
     }
 
     protected abstract void onSessionTaskPostExecute(TransmissionSession session);
@@ -293,7 +346,7 @@ public abstract class BaseTorrentActivity extends FragmentActivity
                         if (!handleSuccessServiceBroadcast(type, intent)) {
                             return;
                         }
-                        findViewById(R.id.fatal_error_layer).setVisibility(View.GONE);
+                        hideErrorMessage();
                     } else {
                         if (!handleErrorServiceBroadcast(type, error, intent)) {
                             return;
@@ -305,34 +358,13 @@ public abstract class BaseTorrentActivity extends FragmentActivity
                             Toast.makeText(BaseTorrentActivity.this,
                                 R.string.invalid_torrent, Toast.LENGTH_SHORT).show();
                         } else {
-                            findViewById(R.id.fatal_error_layer).setVisibility(View.VISIBLE);
-                            TextView text = (TextView) findViewById(R.id.transmission_error);
                             hasFatalError = true;
+                            errorType = error;
+                            errorCode = intent.getIntExtra(G.ARG_ERROR_CODE, 0);
+                            errorString = intent.getStringExtra(G.ARG_ERROR_STRING);
                             setRefreshing(false, refreshType);
 
-                            if (error == TransmissionData.Errors.NO_CONNECTIVITY) {
-                                text.setText(Html.fromHtml(getString(R.string.no_connectivity_empty_list)));
-                            } else if (error == TransmissionData.Errors.ACCESS_DENIED) {
-                                text.setText(Html.fromHtml(getString(R.string.access_denied_empty_list)));
-                            } else if (error == TransmissionData.Errors.NO_JSON) {
-                                text.setText(Html.fromHtml(getString(R.string.no_json_empty_list)));
-                            } else if (error == TransmissionData.Errors.NO_CONNECTION) {
-                                text.setText(Html.fromHtml(getString(R.string.no_connection_empty_list)));
-                            } else if (error == TransmissionData.Errors.THREAD_ERROR) {
-                                text.setText(Html.fromHtml(getString(R.string.thread_error_empty_list)));
-                            } else if (error == TransmissionData.Errors.RESPONSE_ERROR) {
-                                text.setText(Html.fromHtml(getString(R.string.response_error_empty_list)));
-                            } else if (error == TransmissionData.Errors.TIMEOUT) {
-                                text.setText(Html.fromHtml(getString(R.string.timeout_empty_list)));
-                            } else if (error == TransmissionData.Errors.OUT_OF_MEMORY) {
-                                text.setText(Html.fromHtml(getString(R.string.out_of_memory_empty_list)));
-                            } else if (error == TransmissionData.Errors.JSON_PARSE_ERROR) {
-                                text.setText(Html.fromHtml(getString(R.string.json_parse_empty_list)));
-                            } else if (error == TransmissionData.Errors.GENERIC_HTTP) {
-                                text.setText(Html.fromHtml(String.format(getString(R.string.generic_http_empty_list),
-                                    intent.getIntExtra(G.ARG_ERROR_CODE, 0),
-                                    intent.getStringExtra(G.ARG_ERROR_STRING))));
-                            }
+                            showErrorMessage(errorType, errorCode, errorString);
                         }
                     }
                     break;
