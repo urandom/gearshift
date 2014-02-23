@@ -40,6 +40,8 @@ public class TorrentDetailActivity extends BaseTorrentActivity {
         session = in.getParcelableExtra(G.ARG_SESSION);
         setSession(session);
 
+        lastServerActivity = in.getLongExtra(G.ARG_LAST_SERVER_ACTIVITY, 0);
+
         if (in.hasExtra(G.ARG_REFRESH_TYPE)) {
             setRefreshing(true, in.getStringExtra(G.ARG_REFRESH_TYPE));
         }

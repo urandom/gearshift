@@ -389,6 +389,7 @@ public class TorrentListActivity extends BaseTorrentActivity
             detailIntent.putExtra(G.ARG_PAGE_POSITION, position);
             detailIntent.putExtra(G.ARG_PROFILE, profile);
             detailIntent.putExtra(G.ARG_SESSION, session);
+            detailIntent.putExtra(G.ARG_LAST_SERVER_ACTIVITY, lastServerActivity);
             if (refreshing) {
                 detailIntent.putExtra(G.ARG_REFRESH_TYPE, refreshType);
             }
