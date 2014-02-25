@@ -575,8 +575,6 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
                     idTopMap.put(id, child.getTop());
                 }
 
-                listview.setEnabled(false);
-
                 torrentAdapter.changeCursor(cursor);
 
                 final ViewTreeObserver observer = listview.getViewTreeObserver();
@@ -601,15 +599,14 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
                             int delta = startTop - top;
 
                             if (delta != 0) {
-                                child.animate().setDuration(150);
+                                child.animate().setDuration(250);
                                 ObjectAnimator anim = ObjectAnimator.ofFloat(child, View.TRANSLATION_Y, delta, 0);
-                                anim.setDuration(150);
+                                anim.setDuration(250);
                                 anim.start();
 
                                 if (firstAnimation) {
                                     anim.addListener(new AnimatorListenerAdapter() {
                                         @Override public void onAnimationEnd(Animator animation) {
-                                            listview.setEnabled(true);
                                         }
                                     });
                                 }
