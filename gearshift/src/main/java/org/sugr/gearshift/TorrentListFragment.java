@@ -1,5 +1,11 @@
 package org.sugr.gearshift;
 
+import java.util.Map;
+import java.util.HashMap;
+
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
+import android.animation.ObjectAnimator;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
@@ -25,6 +31,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
 import android.widget.AbsListView.MultiChoiceModeListener;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemLongClickListener;
@@ -556,7 +563,68 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
                     null, torrentTrafficLoaderCallbacks);
             }
 
-            torrentAdapter.changeCursor(cursor);
+            if (removed) {
+                final Map<Long, Integer> idTopMap = new HashMap<>();
+                final ListView listview = getListView();
+
+                int firstVisible = listview.getFirstVisiblePosition();
+                for (int i = 0; i < listview.getChildCount(); ++i) {
+                    View child = listview.getChildAt(i);
+                    int position = firstVisible + i;
+                    long id = torrentAdapter.getItemId(position);
+                    idTopMap.put(id, child.getTop());
+                }
+
+                listview.setEnabled(false);
+
+                torrentAdapter.changeCursor(cursor);
+
+                final ViewTreeObserver observer = listview.getViewTreeObserver();
+                observer.addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener() {
+                    public boolean onPreDraw() {
+                        observer.removeOnPreDrawListener(this);
+
+                        boolean firstAnimation = true;
+                        int firstVisible = listview.getFirstVisiblePosition();
+                        for (int i = 0; i < listview.getChildCount(); ++i) {
+                            final View child = listview.getChildAt(i);
+                            int position = firstVisible + i;
+                            long id = torrentAdapter.getItemId(position);
+                            Integer startTop = idTopMap.get(id);
+                            int top = child.getTop();
+
+                            if (startTop == null) {
+                                int childHeight = child.getHeight() + listview.getDividerHeight();
+                                startTop = top + (i > 0 ? childHeight : -childHeight);
+                            }
+
+                            int delta = startTop - top;
+
+                            if (delta != 0) {
+                                child.animate().setDuration(150);
+                                ObjectAnimator anim = ObjectAnimator.ofFloat(child, View.TRANSLATION_Y, delta, 0);
+                                anim.setDuration(150);
+                                anim.start();
+
+                                if (firstAnimation) {
+                                    anim.addListener(new AnimatorListenerAdapter() {
+                                        @Override public void onAnimationEnd(Animator animation) {
+                                            listview.setEnabled(true);
+                                        }
+                                    });
+                                }
+
+                                firstAnimation = false;
+                            }
+                        }
+
+                        return true;
+                    }
+                });
+            } else {
+                torrentAdapter.changeCursor(cursor);
+            }
+
         }
     }
 
