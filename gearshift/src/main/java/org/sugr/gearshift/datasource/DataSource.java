@@ -55,8 +55,7 @@ public class DataSource {
     /* Transmission stuff */
     private static final int NEW_STATUS_RPC_VERSION = 14;
 
-    private int rpcVersion = -1;
-    private float seedRatioLimit = 0;
+    private TransmissionSession session;
 
     public DataSource(Context context) {
         setContext(context);
@@ -79,13 +78,6 @@ public class DataSource {
         return database != null && database.isOpen();
     }
 
-    public void setRPCVersion(int version) {
-        rpcVersion = version;
-    }
-
-    public void setSeedRatioLimit(float mode) {
-        seedRatioLimit = mode;
-    }
     public Context getContext() {
         return context;
     }
@@ -127,6 +119,10 @@ public class DataSource {
 
         int[] idChanges = queryTorrentIdChanges();
         int[] status = queryStatusCount();
+
+        if (session == null) {
+            session = getSession(profile);
+        }
 
         synchronized (DataSource.class) {
             database.beginTransactionNonExclusive();
@@ -811,7 +807,7 @@ public class DataSource {
     }
 
     protected TransmissionSession cursorToSession(Cursor cursor) {
-        TransmissionSession session = new TransmissionSession();
+        session = new TransmissionSession();
 
         cursor.moveToFirst();
 
@@ -968,9 +964,6 @@ public class DataSource {
             throws IOException {
         List<ContentValues> values = new ArrayList<>();
 
-        float seedRatioLimit = 0;
-        boolean seedRatioLimitEnabled = false;
-
         while (parser.nextToken() != JsonToken.END_OBJECT) {
             String name = parser.getCurrentName();
             ContentValues item = new ContentValues();
@@ -1125,11 +1118,9 @@ public class DataSource {
                     item.put(Constants.C_VALUE_INTEGER, parser.getBooleanValue());
                     break;
                 case "rpc-version":
-                    setRPCVersion(parser.getIntValue());
-
                     item.put(Constants.C_NAME, name);
                     item.put(Constants.C_VALUE_AFFINITY, Constants.TYPE_INT);
-                    item.put(Constants.C_VALUE_INTEGER, rpcVersion);
+                    item.put(Constants.C_VALUE_INTEGER, parser.getIntValue());
                     break;
                 case "rpc-version-minimum":
                     item.put(Constants.C_NAME, name);
@@ -1160,13 +1151,11 @@ public class DataSource {
                     item.put(Constants.C_NAME, name);
                     item.put(Constants.C_VALUE_AFFINITY, Constants.TYPE_FLOAT);
                     item.put(Constants.C_VALUE_REAL, parser.getFloatValue());
-                    seedRatioLimit = parser.getFloatValue();
                     break;
                 case TransmissionSession.SetterFields.SEED_RATIO_LIMIT_ENABLED:
                     item.put(Constants.C_NAME, name);
                     item.put(Constants.C_VALUE_AFFINITY, Constants.TYPE_BOOLEAN);
                     item.put(Constants.C_VALUE_INTEGER, parser.getBooleanValue());
-                    seedRatioLimitEnabled = parser.getBooleanValue();
                     break;
                 case TransmissionSession.SetterFields.DOWNLOAD_SPEED_LIMIT:
                     item.put(Constants.C_NAME, name);
@@ -1224,8 +1213,6 @@ public class DataSource {
             }
         }
 
-        setSeedRatioLimit(seedRatioLimitEnabled ? seedRatioLimit : 0);
-
         return values;
     }
 
@@ -1257,7 +1244,7 @@ public class DataSource {
                     break;
                 case "status":
                     status = parser.getIntValue();
-                    if (rpcVersion != -1 && rpcVersion < NEW_STATUS_RPC_VERSION) {
+                    if (session.getRPCVersion() < NEW_STATUS_RPC_VERSION) {
                         switch (status) {
                             case Torrent.OldStatus.CHECK_WAITING:
                                 status = Torrent.Status.CHECK_WAITING;
@@ -1680,7 +1667,7 @@ public class DataSource {
         if (seedRatioMode == Torrent.SeedRatioMode.NO_LIMIT) {
             seedLimit = 0;
         } else if (seedRatioMode == Torrent.SeedRatioMode.GLOBAL_LIMIT) {
-            seedLimit = seedRatioLimit;
+            seedLimit = session.isSeedRatioLimitEnabled() ? session.getSeedRatioLimit() : 0;
         }
 
         String trafficText = null;

@@ -563,7 +563,7 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
                     null, torrentTrafficLoaderCallbacks);
             }
 
-            if (removed) {
+            if (removed || added) {
                 final Map<Long, Integer> idTopMap = new HashMap<>();
                 final ListView listview = getListView();
 
