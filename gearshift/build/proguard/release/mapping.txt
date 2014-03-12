@@ -15004,23 +15004,23 @@ org.sugr.gearshift.TorrentListFragment -> org.sugr.gearshift.TorrentListFragment
     479:484:void onSaveInstanceState(android.os.Bundle) -> onSaveInstanceState
     490:490:android.view.View onCreateView(android.view.LayoutInflater,android.view.ViewGroup,android.os.Bundle) -> onCreateView
     495:542:void onCreateOptionsMenu(android.view.Menu,android.view.MenuInflater) -> onCreateOptionsMenu
-    548:626:void notifyTorrentListChanged(android.database.Cursor,int,boolean,boolean,boolean,boolean,boolean) -> notifyTorrentListChanged
-    630:633:void setEmptyText(int) -> setEmptyText
-    642:646:void setActivateOnItemClick(boolean) -> setActivateOnItemClick
-    649:651:void setListFilter(java.lang.String) -> setListFilter
-    654:656:void setListFilter(org.sugr.gearshift.G$FilterBy) -> setListFilter
-    659:661:void setListFilter(org.sugr.gearshift.G$SortBy) -> setListFilter
-    664:666:void setListFilter(org.sugr.gearshift.G$SortOrder) -> setListFilter
-    669:671:void setListDirectoryFilter(java.lang.String) -> setListDirectoryFilter
-    674:676:void setListTrackerFilter(java.lang.String) -> setListTrackerFilter
-    679:680:void showFind() -> showFind
-    683:683:boolean isFindShown() -> isFindShown
-    687:687:android.database.Cursor getCursor() -> getCursor
-    691:698:void setActivatedPosition(int) -> a
-    701:747:boolean showMoveDialog(java.lang.String[]) -> a
-    751:770:void setFindVisibility(boolean) -> a
-    773:775:void toggleStatusBar() -> l
-    778:786:void toggleStatusBar(android.view.View) -> a
+    548:629:void notifyTorrentListChanged(android.database.Cursor,int,boolean,boolean,boolean,boolean,boolean) -> notifyTorrentListChanged
+    633:636:void setEmptyText(int) -> setEmptyText
+    645:649:void setActivateOnItemClick(boolean) -> setActivateOnItemClick
+    652:654:void setListFilter(java.lang.String) -> setListFilter
+    657:659:void setListFilter(org.sugr.gearshift.G$FilterBy) -> setListFilter
+    662:664:void setListFilter(org.sugr.gearshift.G$SortBy) -> setListFilter
+    667:669:void setListFilter(org.sugr.gearshift.G$SortOrder) -> setListFilter
+    672:674:void setListDirectoryFilter(java.lang.String) -> setListDirectoryFilter
+    677:679:void setListTrackerFilter(java.lang.String) -> setListTrackerFilter
+    682:683:void showFind() -> showFind
+    686:686:boolean isFindShown() -> isFindShown
+    690:690:android.database.Cursor getCursor() -> getCursor
+    694:701:void setActivatedPosition(int) -> a
+    704:750:boolean showMoveDialog(java.lang.String[]) -> a
+    754:773:void setFindVisibility(boolean) -> a
+    776:778:void toggleStatusBar() -> l
+    781:789:void toggleStatusBar(android.view.View) -> a
     66:66:org.sugr.gearshift.TorrentListFragment$TorrentCursorAdapter access$000(org.sugr.gearshift.TorrentListFragment) -> a
     66:66:boolean access$100(org.sugr.gearshift.TorrentListFragment,java.lang.String[]) -> a
     66:66:android.view.ActionMode access$202(org.sugr.gearshift.TorrentListFragment,android.view.ActionMode) -> a
@@ -15046,7 +15046,7 @@ org.sugr.gearshift.TorrentListFragment$10 -> rr:
     org.sugr.gearshift.service.DataServiceManager val$manager -> b
     java.lang.String[] val$hashStrings -> c
     org.sugr.gearshift.TorrentListFragment this$0 -> d
-    717:739:void onClick(android.content.DialogInterface,int) -> onClick
+    720:742:void onClick(android.content.DialogInterface,int) -> onClick
 org.sugr.gearshift.TorrentListFragment$2 -> rs:
     android.util.SparseArray selectedTorrentIds -> b
     boolean hasQueued -> c
@@ -15092,10 +15092,10 @@ org.sugr.gearshift.TorrentListFragment$9 -> sa:
     android.widget.ListView val$listview -> b
     java.util.Map val$idTopMap -> c
     org.sugr.gearshift.TorrentListFragment this$0 -> d
-    583:618:boolean onPreDraw() -> onPreDraw
+    586:621:boolean onPreDraw() -> onPreDraw
 org.sugr.gearshift.TorrentListFragment$9$1 -> sb:
     org.sugr.gearshift.TorrentListFragment$9 this$1 -> a
-    610:610:void onAnimationEnd(android.animation.Animator) -> onAnimationEnd
+    613:613:void onAnimationEnd(android.animation.Animator) -> onAnimationEnd
 org.sugr.gearshift.TorrentListFragment$Callbacks -> org.sugr.gearshift.TorrentListFragment$Callbacks:
     void onItemSelected(int) -> onItemSelected
 org.sugr.gearshift.TorrentListFragment$TorrentCursorAdapter -> sc:
@@ -15104,25 +15104,25 @@ org.sugr.gearshift.TorrentListFragment$TorrentCursorAdapter -> sc:
     boolean resourcesCleared -> d
     java.lang.Object lock -> e
     org.sugr.gearshift.TorrentListFragment this$0 -> a
-    829:833:void clearResources() -> a
-    836:844:void onSaveInstanceState(android.os.Bundle) -> a
-    847:855:void onRestoreInstanceState(android.os.Bundle) -> b
-    858:873:void applyFilter(java.lang.String,java.lang.String,boolean) -> a
-    876:877:android.view.View newView(android.content.Context,android.database.Cursor,android.view.ViewGroup) -> newView
-    881:961:void bindView(android.view.View,android.content.Context,android.database.Cursor) -> bindView
-    964:996:android.database.Cursor swapCursor(android.database.Cursor) -> swapCursor
-    788:788:void access$1100(org.sugr.gearshift.TorrentListFragment$TorrentCursorAdapter,java.lang.String,java.lang.String,boolean) -> a
-    788:788:java.lang.Object access$1200(org.sugr.gearshift.TorrentListFragment$TorrentCursorAdapter) -> a
-    788:788:boolean access$1300(org.sugr.gearshift.TorrentListFragment$TorrentCursorAdapter) -> b
-    788:788:org.sugr.gearshift.datasource.DataSource access$1400(org.sugr.gearshift.TorrentListFragment$TorrentCursorAdapter) -> c
+    832:836:void clearResources() -> a
+    839:847:void onSaveInstanceState(android.os.Bundle) -> a
+    850:858:void onRestoreInstanceState(android.os.Bundle) -> b
+    861:876:void applyFilter(java.lang.String,java.lang.String,boolean) -> a
+    879:880:android.view.View newView(android.content.Context,android.database.Cursor,android.view.ViewGroup) -> newView
+    884:964:void bindView(android.view.View,android.content.Context,android.database.Cursor) -> bindView
+    967:999:android.database.Cursor swapCursor(android.database.Cursor) -> swapCursor
+    791:791:void access$1100(org.sugr.gearshift.TorrentListFragment$TorrentCursorAdapter,java.lang.String,java.lang.String,boolean) -> a
+    791:791:java.lang.Object access$1200(org.sugr.gearshift.TorrentListFragment$TorrentCursorAdapter) -> a
+    791:791:boolean access$1300(org.sugr.gearshift.TorrentListFragment$TorrentCursorAdapter) -> b
+    791:791:org.sugr.gearshift.datasource.DataSource access$1400(org.sugr.gearshift.TorrentListFragment$TorrentCursorAdapter) -> c
 org.sugr.gearshift.TorrentListFragment$TorrentCursorAdapter$1 -> sd:
     org.sugr.gearshift.TorrentListFragment val$this$0 -> a
     org.sugr.gearshift.TorrentListFragment$TorrentCursorAdapter this$1 -> b
-    810:823:android.database.Cursor runQuery(java.lang.CharSequence) -> runQuery
+    813:826:android.database.Cursor runQuery(java.lang.CharSequence) -> runQuery
 org.sugr.gearshift.TorrentListFragment$TorrentCursorAdapter$2 -> se:
     int val$position -> a
     org.sugr.gearshift.TorrentListFragment$TorrentCursorAdapter this$1 -> b
-    990:991:void run() -> run
+    993:994:void run() -> run
 org.sugr.gearshift.TorrentListMenuFragment -> org.sugr.gearshift.TorrentListMenuFragment:
     android.widget.ListView filterList -> a
     android.view.View footer -> b

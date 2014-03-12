@@ -563,7 +563,10 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
                     null, torrentTrafficLoaderCallbacks);
             }
 
-            if (removed || added) {
+            if (removed || added || (statusChanged && (
+                   sharedPrefs.getString(G.PREF_BASE_SORT, "").equals(SortBy.STATUS.name())
+                || sharedPrefs.getString(G.PREF_LIST_SORT_BY, "").equals(SortBy.STATUS.name())
+            ))) {
                 final Map<Long, Integer> idTopMap = new HashMap<>();
                 final ListView listview = getListView();
 
