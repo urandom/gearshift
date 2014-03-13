@@ -1349,6 +1349,83 @@ public class TorrentDetailPageFragment extends Fragment {
                     row.setVisibility(View.GONE);
                 } else {
                     row.setText(file.directory);
+                    row.setOnLongClickListener(new View.OnLongClickListener() {
+                        @Override
+                        public boolean onLongClick(View v) {
+                            if (fileActionMode != null) {
+                                return false;
+                            }
+                            List<View> files = filesAdapter.getViews();
+
+                            for (int i = position + 1; i < files.size(); ++i) {
+                                View view = files.get(i);
+                                TorrentFile child = getItem(i);
+
+                                if (!file.directory.equals(child.directory)) {
+                                    break;
+                                }
+                                if (view != null && !view.isActivated() && child != null) {
+                                    view.setActivated(true);
+                                    selectedFiles.add(view);
+                                }
+                            }
+                            fileActionMode = getActivity().startActionMode(actionModeFiles);
+                            invalidateFileActionMenu(fileActionMode.getMenu());
+                            return true;
+                        }
+                    });
+                    row.setOnClickListener(new View.OnClickListener() {
+                        @Override public void onClick(View v) {
+                            if (fileActionMode == null) {
+                                return;
+                            }
+
+                            List<View> files = filesAdapter.getViews();
+                            int activated = 0;
+                            int deactivated = 0;
+
+                            for (int i = position + 1; i < files.size(); ++i) {
+                                View view = files.get(i);
+                                TorrentFile child = getItem(i);
+
+                                if (!file.directory.equals(child.directory)) {
+                                    break;
+                                }
+                                if (view != null && child != null) {
+                                    if (view.isActivated()) {
+                                        ++activated;
+                                    } else {
+                                        ++deactivated;
+                                    }
+                                }
+                            }
+
+                            boolean activate = activated < deactivated;
+
+                            for (int i = position + 1; i < files.size(); ++i) {
+                                View view = files.get(i);
+                                TorrentFile child = getItem(i);
+
+                                if (!file.directory.equals(child.directory)) {
+                                    break;
+                                }
+                                if (view != null && child != null) {
+                                    view.setActivated(activate);
+                                    if (activate) {
+                                        selectedFiles.add(view);
+                                    } else {
+                                        selectedFiles.remove(view);
+                                    }
+                                }
+                            }
+
+                            if (selectedFiles.size() == 0) {
+                                fileActionMode.finish();
+                            } else {
+                                invalidateFileActionMenu(fileActionMode.getMenu());
+                            }
+                        }
+                    });
                 }
             } else {
                 final View container = rowView;
@@ -1390,7 +1467,7 @@ public class TorrentDetailPageFragment extends Fragment {
                             }
                             container.setActivated(true);
                             selectedFiles.add(container);
-                            fileActionMode= getActivity().startActionMode(actionModeFiles);
+                            fileActionMode = getActivity().startActionMode(actionModeFiles);
                             invalidateFileActionMenu(fileActionMode.getMenu());
                             return true;
                         }
