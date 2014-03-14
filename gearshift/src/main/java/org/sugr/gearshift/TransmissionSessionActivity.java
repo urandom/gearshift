@@ -213,7 +213,7 @@ public class TransmissionSessionActivity extends FragmentActivity implements Dat
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.menu_refresh:
-                new SessionTask(this).execute();
+                manager.update();
                 refreshing = !refreshing;
                 invalidateOptionsMenu();
                 return true;
