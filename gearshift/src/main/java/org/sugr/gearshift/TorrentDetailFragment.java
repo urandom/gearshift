@@ -322,7 +322,7 @@ public class TorrentDetailFragment extends Fragment implements TorrentListNotifi
     public void notifyTorrentListChanged(Cursor cursor, int error, boolean added, boolean removed,
                                          boolean status, boolean metadata, boolean connected) {
         TransmissionSessionInterface context = ((TransmissionSessionInterface) getActivity());
-        if (context == null || context.getSession() == null || cursor.isClosed()) {
+        if (context == null || context.getSession() == null || cursor == null || cursor.isClosed()) {
             setMenuTorrentState();
             return;
         }

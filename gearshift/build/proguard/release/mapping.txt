@@ -13852,6 +13852,8 @@ org.sugr.gearshift.R$id -> org.sugr.gearshift.R$id:
     int transmission_session_general_expander_image -> transmission_session_general_expander_image
     int transmission_session_global_peer_limit -> transmission_session_global_peer_limit
     int transmission_session_hash_table -> transmission_session_hash_table
+    int transmission_session_idle_seeding_limit -> transmission_session_idle_seeding_limit
+    int transmission_session_idle_seeding_limit_check -> transmission_session_idle_seeding_limit_check
     int transmission_session_incomplete_download_check -> transmission_session_incomplete_download_check
     int transmission_session_incomplete_download_directory -> transmission_session_incomplete_download_directory
     int transmission_session_limits_content -> transmission_session_limits_content
@@ -14094,11 +14096,13 @@ org.sugr.gearshift.R$string -> org.sugr.gearshift.R$string:
     int session_settings_download_directory -> session_settings_download_directory
     int session_settings_download_size -> session_settings_download_size
     int session_settings_enable_alt_limits -> session_settings_enable_alt_limits
+    int session_settings_enable_idle_seeding_limit -> session_settings_enable_idle_seeding_limit
     int session_settings_encryption -> session_settings_encryption
     int session_settings_environment -> session_settings_environment
     int session_settings_general -> session_settings_general
     int session_settings_general_limits -> session_settings_general_limits
     int session_settings_global_peer_limit -> session_settings_global_peer_limit
+    int session_settings_idle_seeding_limit -> session_settings_idle_seeding_limit
     int session_settings_ignore_stalled_minutes -> session_settings_ignore_stalled_minutes
     int session_settings_ignore_stalled_torrents -> session_settings_ignore_stalled_torrents
     int session_settings_incomplete_download_directory -> session_settings_incomplete_download_directory
@@ -15464,156 +15468,162 @@ org.sugr.gearshift.TransmissionProfileSupportLoader$2 -> tb:
     32:35:void onSharedPreferenceChanged(android.content.SharedPreferences,java.lang.String) -> onSharedPreferenceChanged
 org.sugr.gearshift.TransmissionSession -> org.sugr.gearshift.TransmissionSession:
     int FREE_SPACE_METHOD_RPC_VERSION -> FREE_SPACE_METHOD_RPC_VERSION
-    boolean mAltSpeedEnabled -> a
-    long mAltSpeedDown -> b
-    long mAltSpeedUp -> c
-    boolean mAltSpeedTimeEnabled -> d
-    int mAltSpeedTimeBegin -> e
-    int mAltSpeedTimeEnd -> f
-    int mAltSpeedTimeDay -> g
-    boolean mBlocklistEnabled -> h
-    long mBlocklistSize -> i
-    java.lang.String mBlocklistURL -> j
-    long mCacheSize -> k
-    java.lang.String mConfigDir -> l
-    boolean mDHTEnabled -> m
-    java.lang.String mDownloadDir -> n
-    long mDownloadDirFreeSpace -> o
-    int mDownloadQueueSize -> p
-    boolean mDownloadQueueEnabled -> q
-    long mSpeedLimitDown -> r
-    boolean mSpeedLimitDownEnabled -> s
-    java.lang.String mEncryption -> t
-    java.lang.String mIncompleteDir -> u
-    boolean mIncompleteDirEnabled -> v
-    boolean mLPDEnabled -> w
-    boolean mUTPEnabled -> x
-    int mGlobalPeerLimit -> y
-    int mTorrentPeerLimit -> z
-    boolean mPEXEnabled -> A
-    int mPeerPort -> B
-    boolean mPortForwardingEnabled -> C
-    boolean mPeerPortRandomOnStart -> D
-    boolean mRenamePartial -> E
-    int mRPCVersion -> F
-    int mRPCVersionMin -> G
-    java.lang.String mDoneScript -> H
-    boolean mDoneScriptEnabled -> I
-    int mSeedQueueSize -> J
-    boolean mSeedQueueEnabled -> K
-    float mSeedRatioLimit -> L
-    boolean mSeedRatioLimited -> M
-    long mSpeedLimitUp -> N
-    boolean mSpeedLimitUpEnabled -> O
-    int mStalledQueueSize -> P
-    boolean mStalledQueueEnabled -> Q
-    boolean mStartAdded -> R
-    boolean mTrashOriginal -> S
-    java.lang.String mVersion -> T
-    java.util.Set mDownloadDirectories -> U
+    boolean altSpeedEnabled -> a
+    long altSpeedDown -> b
+    long altSpeedUp -> c
+    boolean altSpeedTimeEnabled -> d
+    int altSpeedTimeBegin -> e
+    int altSpeedTimeEnd -> f
+    int altSpeedTimeDay -> g
+    boolean blocklistEnabled -> h
+    long blocklistSize -> i
+    java.lang.String blocklistURL -> j
+    long cacheSize -> k
+    java.lang.String configDir -> l
+    boolean dhtEnabled -> m
+    java.lang.String downloadDir -> n
+    long downloadDirFreeSpace -> o
+    int downloadQueueSize -> p
+    boolean downloadQueueEnabled -> q
+    long speedLimitDown -> r
+    boolean speedLimitDownEnabled -> s
+    java.lang.String encryption -> t
+    long idleSeedingLimig -> u
+    boolean idleSeedingLimitEnabled -> v
+    java.lang.String incompleteDir -> w
+    boolean incompleteDirEnabled -> x
+    boolean lpdEnabled -> y
+    boolean utpEnabled -> z
+    int globalPeerLimit -> A
+    int torrentPeerLimit -> B
+    boolean pexEnabled -> C
+    int peerPort -> D
+    boolean portForwardingEnabled -> E
+    boolean peerPortRandomOnStart -> F
+    boolean renamePartial -> G
+    int rpcVersion -> H
+    int rpcVersionMin -> I
+    java.lang.String doneScript -> J
+    boolean doneScriptEnabled -> K
+    int seedQueueSize -> L
+    boolean seedQueueEnabled -> M
+    float seedRatioLimit -> N
+    boolean seedRatioLimited -> O
+    long speedLimitUp -> P
+    boolean speedLimitUpEnabled -> Q
+    int stalledQueueSize -> R
+    boolean stalledQueueEnabled -> S
+    boolean startAdded -> T
+    boolean trashOriginal -> U
+    java.lang.String version -> V
+    java.util.Set downloadDirectories -> W
     android.os.Parcelable$Creator CREATOR -> CREATOR
-    164:164:boolean isAltSpeedLimitEnabled() -> isAltSpeedLimitEnabled
-    168:168:long getAltDownloadSpeedLimit() -> getAltDownloadSpeedLimit
-    172:172:long getAltUploadSpeedLimit() -> getAltUploadSpeedLimit
-    176:176:boolean isAltSpeedLimitTimeEnabled() -> isAltSpeedLimitTimeEnabled
-    180:180:int getAltSpeedTimeBegin() -> getAltSpeedTimeBegin
-    184:184:int getAltSpeedTimeEnd() -> getAltSpeedTimeEnd
-    188:188:int getAltSpeedTimeDay() -> getAltSpeedTimeDay
-    192:192:boolean isBlocklistEnabled() -> isBlocklistEnabled
-    196:196:long getBlocklistSize() -> getBlocklistSize
-    200:200:java.lang.String getBlocklistURL() -> getBlocklistURL
-    204:204:boolean isDHTEnabled() -> isDHTEnabled
-    208:208:java.lang.String getEncryption() -> getEncryption
-    212:212:long getCacheSize() -> getCacheSize
-    216:216:java.lang.String getConfigDir() -> getConfigDir
-    220:220:java.lang.String getDownloadDir() -> getDownloadDir
-    224:224:long getDownloadDirFreeSpace() -> getDownloadDirFreeSpace
-    228:228:int getDownloadQueueSize() -> getDownloadQueueSize
-    232:232:boolean isDownloadQueueEnabled() -> isDownloadQueueEnabled
-    236:236:java.lang.String getIncompleteDir() -> getIncompleteDir
-    240:240:boolean isIncompleteDirEnabled() -> isIncompleteDirEnabled
-    244:244:boolean isLocalDiscoveryEnabled() -> isLocalDiscoveryEnabled
-    248:248:boolean isUTPEnabled() -> isUTPEnabled
-    252:252:int getGlobalPeerLimit() -> getGlobalPeerLimit
-    256:256:int getTorrentPeerLimit() -> getTorrentPeerLimit
-    260:260:boolean isPeerExchangeEnabled() -> isPeerExchangeEnabled
-    264:264:int getPeerPort() -> getPeerPort
-    268:268:boolean isPeerPortRandomOnStart() -> isPeerPortRandomOnStart
-    272:272:boolean isPortForwardingEnabled() -> isPortForwardingEnabled
-    276:276:boolean isRenamePartialFilesEnabled() -> isRenamePartialFilesEnabled
-    280:280:int getRPCVersion() -> getRPCVersion
-    284:284:int getRPCVersionMin() -> getRPCVersionMin
-    288:288:java.lang.String getDoneScript() -> getDoneScript
-    292:292:boolean isDoneScriptEnabled() -> isDoneScriptEnabled
-    296:296:int getSeedQueueSize() -> getSeedQueueSize
-    300:300:boolean isSeedQueueEnabled() -> isSeedQueueEnabled
-    304:304:float getSeedRatioLimit() -> getSeedRatioLimit
-    308:308:boolean isSeedRatioLimitEnabled() -> isSeedRatioLimitEnabled
-    312:312:long getDownloadSpeedLimit() -> getDownloadSpeedLimit
-    316:316:boolean isDownloadSpeedLimitEnabled() -> isDownloadSpeedLimitEnabled
-    320:320:long getUploadSpeedLimit() -> getUploadSpeedLimit
-    324:324:boolean isUploadSpeedLimitEnabled() -> isUploadSpeedLimitEnabled
-    328:328:int getStalledQueueSize() -> getStalledQueueSize
-    332:332:boolean isStalledQueueEnabled() -> isStalledQueueEnabled
-    336:336:boolean isStartAddedTorrentsEnabled() -> isStartAddedTorrentsEnabled
-    340:340:boolean isTrashOriginalTorrentFilesEnabled() -> isTrashOriginalTorrentFilesEnabled
-    344:344:java.lang.String getVersion() -> getVersion
-    348:349:void setAltSpeedLimitEnabled(boolean) -> setAltSpeedLimitEnabled
-    352:353:void setAltDownloadSpeedLimit(long) -> setAltDownloadSpeedLimit
-    356:357:void setAltUploadSpeedLimit(long) -> setAltUploadSpeedLimit
-    360:361:void setAltSpeedLimitTimeEnabled(boolean) -> setAltSpeedLimitTimeEnabled
-    364:365:void setAltSpeedTimeBegin(int) -> setAltSpeedTimeBegin
-    368:369:void setAltSpeedTimeEnd(int) -> setAltSpeedTimeEnd
-    372:373:void setAltSpeedTimeDay(int) -> setAltSpeedTimeDay
-    376:377:void setBlocklistEnabled(boolean) -> setBlocklistEnabled
-    380:381:void setBlocklistSize(long) -> setBlocklistSize
-    384:385:void setBlocklistURL(java.lang.String) -> setBlocklistURL
-    388:389:void setDHTEnabled(boolean) -> setDHTEnabled
-    392:393:void setEncryption(java.lang.String) -> setEncryption
-    396:397:void setCacheSize(long) -> setCacheSize
-    400:401:void setConfigDir(java.lang.String) -> setConfigDir
-    404:405:void setDownloadDir(java.lang.String) -> setDownloadDir
-    408:409:void setDownloadDirFreeSpace(long) -> setDownloadDirFreeSpace
-    412:413:void setDownloadQueueSize(int) -> setDownloadQueueSize
-    416:417:void setDownloadQueueEnabled(boolean) -> setDownloadQueueEnabled
-    420:421:void setIncompleteDir(java.lang.String) -> setIncompleteDir
-    424:425:void setLocalDiscoveryEnabled(boolean) -> setLocalDiscoveryEnabled
-    428:429:void setUTPEnabled(boolean) -> setUTPEnabled
-    432:433:void setIncompleteDirEnabled(boolean) -> setIncompleteDirEnabled
-    436:437:void setGlobalPeerLimit(int) -> setGlobalPeerLimit
-    440:441:void setTorrentPeerLimit(int) -> setTorrentPeerLimit
-    444:445:void setPeerExchangeEnabled(boolean) -> setPeerExchangeEnabled
-    448:449:void setPeerPort(int) -> setPeerPort
-    452:453:void setPeerPortRandomOnStart(boolean) -> setPeerPortRandomOnStart
-    456:457:void setPortForwardingEnabled(boolean) -> setPortForwardingEnabled
-    460:461:void setRenamePartialFilesEnabled(boolean) -> setRenamePartialFilesEnabled
-    464:465:void setRPCVersion(int) -> setRPCVersion
-    468:469:void setRPCVersionMin(int) -> setRPCVersionMin
-    472:473:void setDoneScript(java.lang.String) -> setDoneScript
-    476:477:void setDoneScriptEnabled(boolean) -> setDoneScriptEnabled
-    480:481:void setSeedQueueSize(int) -> setSeedQueueSize
-    484:485:void setSeedQueueEnabled(boolean) -> setSeedQueueEnabled
-    488:489:void setSeedRatioLimit(float) -> setSeedRatioLimit
-    492:493:void setSeedRatioLimitEnabled(boolean) -> setSeedRatioLimitEnabled
-    496:497:void setDownloadSpeedLimit(long) -> setDownloadSpeedLimit
-    500:501:void setDownloadSpeedLimitEnabled(boolean) -> setDownloadSpeedLimitEnabled
-    504:505:void setUploadSpeedLimit(long) -> setUploadSpeedLimit
-    508:509:void setUploadSpeedLimitEnabled(boolean) -> setUploadSpeedLimitEnabled
-    512:513:void setStalledQueueSize(int) -> setStalledQueueSize
-    516:517:void setStalledQueueEnabled(boolean) -> setStalledQueueEnabled
-    520:521:void setStartAddedTorrentsEnabled(boolean) -> setStartAddedTorrentsEnabled
-    524:525:void setTrashOriginalTorrentFilesEnabled(boolean) -> setTrashOriginalTorrentFilesEnabled
-    528:529:void setVersion(java.lang.String) -> setVersion
-    532:538:void setDownloadDirectories(org.sugr.gearshift.TransmissionProfile,java.util.Set) -> setDownloadDirectories
-    541:542:void setDownloadDirectories(java.util.Collection) -> setDownloadDirectories
-    545:545:java.util.Set getDownloadDirectories() -> getDownloadDirectories
-    550:550:int describeContents() -> describeContents
-    555:600:void writeToParcel(android.os.Parcel,int) -> writeToParcel
+    168:168:boolean isAltSpeedLimitEnabled() -> isAltSpeedLimitEnabled
+    172:172:long getAltDownloadSpeedLimit() -> getAltDownloadSpeedLimit
+    176:176:long getAltUploadSpeedLimit() -> getAltUploadSpeedLimit
+    180:180:boolean isAltSpeedLimitTimeEnabled() -> isAltSpeedLimitTimeEnabled
+    184:184:int getAltSpeedTimeBegin() -> getAltSpeedTimeBegin
+    188:188:int getAltSpeedTimeEnd() -> getAltSpeedTimeEnd
+    192:192:int getAltSpeedTimeDay() -> getAltSpeedTimeDay
+    196:196:boolean isBlocklistEnabled() -> isBlocklistEnabled
+    200:200:long getBlocklistSize() -> getBlocklistSize
+    204:204:java.lang.String getBlocklistURL() -> getBlocklistURL
+    208:208:boolean isDhtEnabled() -> isDhtEnabled
+    212:212:java.lang.String getEncryption() -> getEncryption
+    216:216:long getCacheSize() -> getCacheSize
+    220:220:java.lang.String getConfigDir() -> getConfigDir
+    224:224:java.lang.String getDownloadDir() -> getDownloadDir
+    228:228:long getDownloadDirFreeSpace() -> getDownloadDirFreeSpace
+    232:232:int getDownloadQueueSize() -> getDownloadQueueSize
+    236:236:boolean isDownloadQueueEnabled() -> isDownloadQueueEnabled
+    240:240:long getIdleSeedingLimig() -> getIdleSeedingLimig
+    244:244:boolean isIdleSeedingLimitEnabled() -> isIdleSeedingLimitEnabled
+    247:247:java.lang.String getIncompleteDir() -> getIncompleteDir
+    251:251:boolean isIncompleteDirEnabled() -> isIncompleteDirEnabled
+    255:255:boolean isLocalDiscoveryEnabled() -> isLocalDiscoveryEnabled
+    259:259:boolean isUtpEnabled() -> isUtpEnabled
+    263:263:int getGlobalPeerLimit() -> getGlobalPeerLimit
+    267:267:int getTorrentPeerLimit() -> getTorrentPeerLimit
+    271:271:boolean isPeerExchangeEnabled() -> isPeerExchangeEnabled
+    275:275:int getPeerPort() -> getPeerPort
+    279:279:boolean isPeerPortRandomOnStart() -> isPeerPortRandomOnStart
+    283:283:boolean isPortForwardingEnabled() -> isPortForwardingEnabled
+    287:287:boolean isRenamePartialFilesEnabled() -> isRenamePartialFilesEnabled
+    291:291:int getRPCVersion() -> getRPCVersion
+    295:295:int getRPCVersionMin() -> getRPCVersionMin
+    299:299:java.lang.String getDoneScript() -> getDoneScript
+    303:303:boolean isDoneScriptEnabled() -> isDoneScriptEnabled
+    307:307:int getSeedQueueSize() -> getSeedQueueSize
+    311:311:boolean isSeedQueueEnabled() -> isSeedQueueEnabled
+    315:315:float getSeedRatioLimit() -> getSeedRatioLimit
+    319:319:boolean isSeedRatioLimitEnabled() -> isSeedRatioLimitEnabled
+    323:323:long getDownloadSpeedLimit() -> getDownloadSpeedLimit
+    327:327:boolean isDownloadSpeedLimitEnabled() -> isDownloadSpeedLimitEnabled
+    331:331:long getUploadSpeedLimit() -> getUploadSpeedLimit
+    335:335:boolean isUploadSpeedLimitEnabled() -> isUploadSpeedLimitEnabled
+    339:339:int getStalledQueueSize() -> getStalledQueueSize
+    343:343:boolean isStalledQueueEnabled() -> isStalledQueueEnabled
+    347:347:boolean isStartAddedTorrentsEnabled() -> isStartAddedTorrentsEnabled
+    351:351:boolean isTrashOriginalTorrentFilesEnabled() -> isTrashOriginalTorrentFilesEnabled
+    355:355:java.lang.String getVersion() -> getVersion
+    359:360:void setAltSpeedLimitEnabled(boolean) -> setAltSpeedLimitEnabled
+    363:364:void setAltDownloadSpeedLimit(long) -> setAltDownloadSpeedLimit
+    367:368:void setAltUploadSpeedLimit(long) -> setAltUploadSpeedLimit
+    371:372:void setAltSpeedLimitTimeEnabled(boolean) -> setAltSpeedLimitTimeEnabled
+    375:376:void setAltSpeedTimeBegin(int) -> setAltSpeedTimeBegin
+    379:380:void setAltSpeedTimeEnd(int) -> setAltSpeedTimeEnd
+    383:384:void setAltSpeedTimeDay(int) -> setAltSpeedTimeDay
+    387:388:void setBlocklistEnabled(boolean) -> setBlocklistEnabled
+    391:392:void setBlocklistSize(long) -> setBlocklistSize
+    395:396:void setBlocklistURL(java.lang.String) -> setBlocklistURL
+    399:400:void setDhtEnabled(boolean) -> setDhtEnabled
+    403:404:void setEncryption(java.lang.String) -> setEncryption
+    407:408:void setCacheSize(long) -> setCacheSize
+    411:412:void setConfigDir(java.lang.String) -> setConfigDir
+    415:416:void setDownloadDir(java.lang.String) -> setDownloadDir
+    419:420:void setDownloadDirFreeSpace(long) -> setDownloadDirFreeSpace
+    423:424:void setDownloadQueueSize(int) -> setDownloadQueueSize
+    427:428:void setDownloadQueueEnabled(boolean) -> setDownloadQueueEnabled
+    431:432:void setIdleSeedingLimig(long) -> setIdleSeedingLimig
+    435:436:void setIdleSeedingLimitEnabled(boolean) -> setIdleSeedingLimitEnabled
+    438:439:void setIncompleteDir(java.lang.String) -> setIncompleteDir
+    442:443:void setIncompleteDirEnabled(boolean) -> setIncompleteDirEnabled
+    446:447:void setLocalDiscoveryEnabled(boolean) -> setLocalDiscoveryEnabled
+    450:451:void setUtpEnabled(boolean) -> setUtpEnabled
+    454:455:void setGlobalPeerLimit(int) -> setGlobalPeerLimit
+    458:459:void setTorrentPeerLimit(int) -> setTorrentPeerLimit
+    462:463:void setPeerExchangeEnabled(boolean) -> setPeerExchangeEnabled
+    466:467:void setPeerPort(int) -> setPeerPort
+    470:471:void setPeerPortRandomOnStart(boolean) -> setPeerPortRandomOnStart
+    474:475:void setPortForwardingEnabled(boolean) -> setPortForwardingEnabled
+    478:479:void setRenamePartialFilesEnabled(boolean) -> setRenamePartialFilesEnabled
+    482:483:void setRPCVersion(int) -> setRPCVersion
+    486:487:void setRPCVersionMin(int) -> setRPCVersionMin
+    490:491:void setDoneScript(java.lang.String) -> setDoneScript
+    494:495:void setDoneScriptEnabled(boolean) -> setDoneScriptEnabled
+    498:499:void setSeedQueueSize(int) -> setSeedQueueSize
+    502:503:void setSeedQueueEnabled(boolean) -> setSeedQueueEnabled
+    506:507:void setSeedRatioLimit(float) -> setSeedRatioLimit
+    510:511:void setSeedRatioLimitEnabled(boolean) -> setSeedRatioLimitEnabled
+    514:515:void setDownloadSpeedLimit(long) -> setDownloadSpeedLimit
+    518:519:void setDownloadSpeedLimitEnabled(boolean) -> setDownloadSpeedLimitEnabled
+    522:523:void setUploadSpeedLimit(long) -> setUploadSpeedLimit
+    526:527:void setUploadSpeedLimitEnabled(boolean) -> setUploadSpeedLimitEnabled
+    530:531:void setStalledQueueSize(int) -> setStalledQueueSize
+    534:535:void setStalledQueueEnabled(boolean) -> setStalledQueueEnabled
+    538:539:void setStartAddedTorrentsEnabled(boolean) -> setStartAddedTorrentsEnabled
+    542:543:void setTrashOriginalTorrentFilesEnabled(boolean) -> setTrashOriginalTorrentFilesEnabled
+    546:547:void setVersion(java.lang.String) -> setVersion
+    550:556:void setDownloadDirectories(org.sugr.gearshift.TransmissionProfile,java.util.Set) -> setDownloadDirectories
+    559:560:void setDownloadDirectories(java.util.Collection) -> setDownloadDirectories
+    563:563:java.util.Set getDownloadDirectories() -> getDownloadDirectories
+    568:568:int describeContents() -> describeContents
+    573:620:void writeToParcel(android.os.Parcel,int) -> writeToParcel
 org.sugr.gearshift.TransmissionSession$1 -> tc:
-    654:654:org.sugr.gearshift.TransmissionSession createFromParcel(android.os.Parcel) -> a
-    659:659:org.sugr.gearshift.TransmissionSession[] newArray(int) -> a
-    651:651:java.lang.Object[] newArray(int) -> newArray
-    651:651:java.lang.Object createFromParcel(android.os.Parcel) -> createFromParcel
+    676:676:org.sugr.gearshift.TransmissionSession createFromParcel(android.os.Parcel) -> a
+    681:681:org.sugr.gearshift.TransmissionSession[] newArray(int) -> a
+    673:673:java.lang.Object[] newArray(int) -> newArray
+    673:673:java.lang.Object createFromParcel(android.os.Parcel) -> createFromParcel
 org.sugr.gearshift.TransmissionSession$AltSpeedDay -> org.sugr.gearshift.TransmissionSession$AltSpeedDay:
     int SUN -> SUN
     int MON -> MON
@@ -15648,6 +15658,8 @@ org.sugr.gearshift.TransmissionSession$SetterFields -> org.sugr.gearshift.Transm
     java.lang.String DOWNLOAD_SPEED_LIMIT_ENABLED -> DOWNLOAD_SPEED_LIMIT_ENABLED
     java.lang.String ENCRYPTION -> ENCRYPTION
     java.lang.String GLOBAL_PEER_LIMIT -> GLOBAL_PEER_LIMIT
+    java.lang.String IDLE_SEEDING_LIMIT -> IDLE_SEEDING_LIMIT
+    java.lang.String IDLE_SEEDING_LIMIT_ENABLED -> IDLE_SEEDING_LIMIT_ENABLED
     java.lang.String INCOMPLETE_DIR -> INCOMPLETE_DIR
     java.lang.String INCOMPLETE_DIR_ENABLED -> INCOMPLETE_DIR_ENABLED
     java.lang.String LOCAL_DISCOVERY -> LOCAL_DISCOVERY
@@ -15689,10 +15701,10 @@ org.sugr.gearshift.TransmissionSessionActivity -> org.sugr.gearshift.Transmissio
     225:225:org.sugr.gearshift.service.DataServiceManager getDataServiceManager() -> getDataServiceManager
     229:231:void setAltSpeedLimitTimeBegin(int) -> setAltSpeedLimitTimeBegin
     234:236:void setAltSpeedLimitTimeEnd(int) -> setAltSpeedLimitTimeEnd
-    239:558:void updateFields(org.sugr.gearshift.TransmissionSession,boolean) -> a
-    561:1269:void initListeners() -> b
-    1272:1273:void setSession(java.lang.String[]) -> a
-    1276:1283:void showTimePickerDialog(boolean,int,int) -> a
+    239:573:void updateFields(org.sugr.gearshift.TransmissionSession,boolean) -> a
+    576:1320:void initListeners() -> b
+    1323:1324:void setSession(java.lang.String[]) -> a
+    1327:1334:void showTimePickerDialog(boolean,int,int) -> a
     36:36:boolean[] access$000(org.sugr.gearshift.TransmissionSessionActivity) -> a
     36:36:boolean[] access$002(org.sugr.gearshift.TransmissionSessionActivity,boolean[]) -> a
     36:36:org.sugr.gearshift.TransmissionSession access$200(org.sugr.gearshift.TransmissionSessionActivity) -> b
@@ -15711,145 +15723,151 @@ org.sugr.gearshift.TransmissionSessionActivity$1 -> td:
     67:104:void onClick(android.view.View) -> onClick
 org.sugr.gearshift.TransmissionSessionActivity$10 -> te:
     org.sugr.gearshift.TransmissionSessionActivity this$0 -> a
-    677:684:void onCheckedChanged(android.widget.CompoundButton,boolean) -> onCheckedChanged
+    692:699:void onCheckedChanged(android.widget.CompoundButton,boolean) -> onCheckedChanged
 org.sugr.gearshift.TransmissionSessionActivity$11 -> tf:
     org.sugr.gearshift.TransmissionSessionActivity this$0 -> a
-    690:697:void onCheckedChanged(android.widget.CompoundButton,boolean) -> onCheckedChanged
+    705:712:void onCheckedChanged(android.widget.CompoundButton,boolean) -> onCheckedChanged
 org.sugr.gearshift.TransmissionSessionActivity$12 -> tg:
     org.sugr.gearshift.TransmissionSessionActivity this$0 -> a
-    703:710:void onCheckedChanged(android.widget.CompoundButton,boolean) -> onCheckedChanged
+    718:725:void onCheckedChanged(android.widget.CompoundButton,boolean) -> onCheckedChanged
 org.sugr.gearshift.TransmissionSessionActivity$13 -> th:
     org.sugr.gearshift.TransmissionSessionActivity this$0 -> a
-    716:738:boolean onEditorAction(android.widget.TextView,int,android.view.KeyEvent) -> onEditorAction
+    731:753:boolean onEditorAction(android.widget.TextView,int,android.view.KeyEvent) -> onEditorAction
 org.sugr.gearshift.TransmissionSessionActivity$14 -> ti:
     org.sugr.gearshift.TransmissionSessionActivity this$0 -> a
-    745:755:void onClick(android.view.View) -> onClick
+    760:770:void onClick(android.view.View) -> onClick
 org.sugr.gearshift.TransmissionSessionActivity$15 -> tj:
     org.sugr.gearshift.TransmissionSessionActivity this$0 -> a
-    761:769:void onItemSelected(android.widget.AdapterView,android.view.View,int,long) -> onItemSelected
-    771:771:void onNothingSelected(android.widget.AdapterView) -> onNothingSelected
+    776:784:void onItemSelected(android.widget.AdapterView,android.view.View,int,long) -> onItemSelected
+    786:786:void onNothingSelected(android.widget.AdapterView) -> onNothingSelected
 org.sugr.gearshift.TransmissionSessionActivity$16 -> tk:
     org.sugr.gearshift.TransmissionSessionActivity this$0 -> a
-    777:784:void onCheckedChanged(android.widget.CompoundButton,boolean) -> onCheckedChanged
+    792:799:void onCheckedChanged(android.widget.CompoundButton,boolean) -> onCheckedChanged
 org.sugr.gearshift.TransmissionSessionActivity$17 -> tl:
     org.sugr.gearshift.TransmissionSessionActivity this$0 -> a
-    790:797:void onCheckedChanged(android.widget.CompoundButton,boolean) -> onCheckedChanged
+    805:812:void onCheckedChanged(android.widget.CompoundButton,boolean) -> onCheckedChanged
 org.sugr.gearshift.TransmissionSessionActivity$18 -> tm:
     org.sugr.gearshift.TransmissionSessionActivity this$0 -> a
-    803:810:void onCheckedChanged(android.widget.CompoundButton,boolean) -> onCheckedChanged
+    818:825:void onCheckedChanged(android.widget.CompoundButton,boolean) -> onCheckedChanged
 org.sugr.gearshift.TransmissionSessionActivity$19 -> tn:
     org.sugr.gearshift.TransmissionSessionActivity this$0 -> a
-    816:823:void onCheckedChanged(android.widget.CompoundButton,boolean) -> onCheckedChanged
+    831:838:void onCheckedChanged(android.widget.CompoundButton,boolean) -> onCheckedChanged
 org.sugr.gearshift.TransmissionSessionActivity$2 -> to:
     org.sugr.gearshift.TransmissionSessionActivity this$0 -> a
     110:111:void run() -> run
 org.sugr.gearshift.TransmissionSessionActivity$20 -> tp:
     org.sugr.gearshift.TransmissionSessionActivity this$0 -> a
-    829:836:void onCheckedChanged(android.widget.CompoundButton,boolean) -> onCheckedChanged
+    844:851:void onCheckedChanged(android.widget.CompoundButton,boolean) -> onCheckedChanged
 org.sugr.gearshift.TransmissionSessionActivity$21 -> tq:
     org.sugr.gearshift.TransmissionSessionActivity this$0 -> a
-    842:849:void onCheckedChanged(android.widget.CompoundButton,boolean) -> onCheckedChanged
+    857:864:void onCheckedChanged(android.widget.CompoundButton,boolean) -> onCheckedChanged
 org.sugr.gearshift.TransmissionSessionActivity$22 -> tr:
     org.sugr.gearshift.TransmissionSessionActivity this$0 -> a
-    855:864:void onCheckedChanged(android.widget.CompoundButton,boolean) -> onCheckedChanged
+    870:879:void onCheckedChanged(android.widget.CompoundButton,boolean) -> onCheckedChanged
 org.sugr.gearshift.TransmissionSessionActivity$23 -> ts:
     org.sugr.gearshift.TransmissionSessionActivity this$0 -> a
-    870:881:boolean onEditorAction(android.widget.TextView,int,android.view.KeyEvent) -> onEditorAction
+    885:896:boolean onEditorAction(android.widget.TextView,int,android.view.KeyEvent) -> onEditorAction
 org.sugr.gearshift.TransmissionSessionActivity$24 -> tt:
     org.sugr.gearshift.TransmissionSessionActivity this$0 -> a
-    888:898:void onClick(android.view.View) -> onClick
+    903:913:void onClick(android.view.View) -> onClick
 org.sugr.gearshift.TransmissionSessionActivity$25 -> tu:
     org.sugr.gearshift.TransmissionSessionActivity this$0 -> a
-    904:912:void onCheckedChanged(android.widget.CompoundButton,boolean) -> onCheckedChanged
+    919:927:void onCheckedChanged(android.widget.CompoundButton,boolean) -> onCheckedChanged
 org.sugr.gearshift.TransmissionSessionActivity$26 -> tv:
     org.sugr.gearshift.TransmissionSessionActivity this$0 -> a
-    918:934:boolean onEditorAction(android.widget.TextView,int,android.view.KeyEvent) -> onEditorAction
+    933:949:boolean onEditorAction(android.widget.TextView,int,android.view.KeyEvent) -> onEditorAction
 org.sugr.gearshift.TransmissionSessionActivity$27 -> tw:
     org.sugr.gearshift.TransmissionSessionActivity this$0 -> a
-    941:949:void onCheckedChanged(android.widget.CompoundButton,boolean) -> onCheckedChanged
+    956:964:void onCheckedChanged(android.widget.CompoundButton,boolean) -> onCheckedChanged
 org.sugr.gearshift.TransmissionSessionActivity$28 -> tx:
     org.sugr.gearshift.TransmissionSessionActivity this$0 -> a
-    955:971:boolean onEditorAction(android.widget.TextView,int,android.view.KeyEvent) -> onEditorAction
+    970:986:boolean onEditorAction(android.widget.TextView,int,android.view.KeyEvent) -> onEditorAction
 org.sugr.gearshift.TransmissionSessionActivity$29 -> ty:
     org.sugr.gearshift.TransmissionSessionActivity this$0 -> a
-    978:987:void onCheckedChanged(android.widget.CompoundButton,boolean) -> onCheckedChanged
+    993:1002:void onCheckedChanged(android.widget.CompoundButton,boolean) -> onCheckedChanged
 org.sugr.gearshift.TransmissionSessionActivity$3 -> tz:
     android.os.Bundle val$savedInstanceState -> a
     org.sugr.gearshift.TransmissionSessionActivity this$0 -> b
     131:143:void run() -> run
 org.sugr.gearshift.TransmissionSessionActivity$30 -> ua:
     org.sugr.gearshift.TransmissionSessionActivity this$0 -> a
-    993:1009:boolean onEditorAction(android.widget.TextView,int,android.view.KeyEvent) -> onEditorAction
+    1008:1024:boolean onEditorAction(android.widget.TextView,int,android.view.KeyEvent) -> onEditorAction
 org.sugr.gearshift.TransmissionSessionActivity$31 -> ub:
     org.sugr.gearshift.TransmissionSessionActivity this$0 -> a
-    1016:1032:boolean onEditorAction(android.widget.TextView,int,android.view.KeyEvent) -> onEditorAction
+    1031:1047:boolean onEditorAction(android.widget.TextView,int,android.view.KeyEvent) -> onEditorAction
 org.sugr.gearshift.TransmissionSessionActivity$32 -> uc:
     org.sugr.gearshift.TransmissionSessionActivity this$0 -> a
-    1039:1048:void onCheckedChanged(android.widget.CompoundButton,boolean) -> onCheckedChanged
+    1054:1063:void onCheckedChanged(android.widget.CompoundButton,boolean) -> onCheckedChanged
 org.sugr.gearshift.TransmissionSessionActivity$33 -> ud:
     org.sugr.gearshift.TransmissionSessionActivity this$0 -> a
-    1054:1060:void onClick(android.view.View) -> onClick
+    1069:1075:void onClick(android.view.View) -> onClick
 org.sugr.gearshift.TransmissionSessionActivity$34 -> ue:
     org.sugr.gearshift.TransmissionSessionActivity this$0 -> a
-    1066:1072:void onClick(android.view.View) -> onClick
+    1081:1087:void onClick(android.view.View) -> onClick
 org.sugr.gearshift.TransmissionSessionActivity$35 -> uf:
     org.sugr.gearshift.TransmissionSessionActivity this$0 -> a
-    1078:1086:void onCheckedChanged(android.widget.CompoundButton,boolean) -> onCheckedChanged
+    1093:1101:void onCheckedChanged(android.widget.CompoundButton,boolean) -> onCheckedChanged
 org.sugr.gearshift.TransmissionSessionActivity$36 -> ug:
     org.sugr.gearshift.TransmissionSessionActivity this$0 -> a
-    1092:1108:boolean onEditorAction(android.widget.TextView,int,android.view.KeyEvent) -> onEditorAction
+    1107:1123:boolean onEditorAction(android.widget.TextView,int,android.view.KeyEvent) -> onEditorAction
 org.sugr.gearshift.TransmissionSessionActivity$37 -> uh:
     org.sugr.gearshift.TransmissionSessionActivity this$0 -> a
-    1115:1123:void onCheckedChanged(android.widget.CompoundButton,boolean) -> onCheckedChanged
+    1130:1138:void onCheckedChanged(android.widget.CompoundButton,boolean) -> onCheckedChanged
 org.sugr.gearshift.TransmissionSessionActivity$38 -> ui:
     org.sugr.gearshift.TransmissionSessionActivity this$0 -> a
-    1129:1145:boolean onEditorAction(android.widget.TextView,int,android.view.KeyEvent) -> onEditorAction
+    1144:1160:boolean onEditorAction(android.widget.TextView,int,android.view.KeyEvent) -> onEditorAction
 org.sugr.gearshift.TransmissionSessionActivity$39 -> uj:
     org.sugr.gearshift.TransmissionSessionActivity this$0 -> a
-    1152:1160:void onCheckedChanged(android.widget.CompoundButton,boolean) -> onCheckedChanged
+    1166:1174:void onCheckedChanged(android.widget.CompoundButton,boolean) -> onCheckedChanged
 org.sugr.gearshift.TransmissionSessionActivity$4 -> uk:
     org.sugr.gearshift.TransmissionSessionActivity this$0 -> a
-    572:583:boolean onEditorAction(android.widget.TextView,int,android.view.KeyEvent) -> onEditorAction
+    587:598:boolean onEditorAction(android.widget.TextView,int,android.view.KeyEvent) -> onEditorAction
 org.sugr.gearshift.TransmissionSessionActivity$40 -> ul:
     org.sugr.gearshift.TransmissionSessionActivity this$0 -> a
-    1166:1182:boolean onEditorAction(android.widget.TextView,int,android.view.KeyEvent) -> onEditorAction
+    1180:1196:boolean onEditorAction(android.widget.TextView,int,android.view.KeyEvent) -> onEditorAction
 org.sugr.gearshift.TransmissionSessionActivity$41 -> um:
     org.sugr.gearshift.TransmissionSessionActivity this$0 -> a
-    1189:1197:void onCheckedChanged(android.widget.CompoundButton,boolean) -> onCheckedChanged
+    1203:1211:void onCheckedChanged(android.widget.CompoundButton,boolean) -> onCheckedChanged
 org.sugr.gearshift.TransmissionSessionActivity$42 -> un:
     org.sugr.gearshift.TransmissionSessionActivity this$0 -> a
-    1203:1219:boolean onEditorAction(android.widget.TextView,int,android.view.KeyEvent) -> onEditorAction
+    1217:1233:boolean onEditorAction(android.widget.TextView,int,android.view.KeyEvent) -> onEditorAction
 org.sugr.gearshift.TransmissionSessionActivity$43 -> uo:
     org.sugr.gearshift.TransmissionSessionActivity this$0 -> a
-    1226:1242:boolean onEditorAction(android.widget.TextView,int,android.view.KeyEvent) -> onEditorAction
+    1240:1248:void onCheckedChanged(android.widget.CompoundButton,boolean) -> onCheckedChanged
 org.sugr.gearshift.TransmissionSessionActivity$44 -> up:
     org.sugr.gearshift.TransmissionSessionActivity this$0 -> a
-    1249:1265:boolean onEditorAction(android.widget.TextView,int,android.view.KeyEvent) -> onEditorAction
-org.sugr.gearshift.TransmissionSessionActivity$5 -> uq:
+    1254:1270:boolean onEditorAction(android.widget.TextView,int,android.view.KeyEvent) -> onEditorAction
+org.sugr.gearshift.TransmissionSessionActivity$45 -> uq:
     org.sugr.gearshift.TransmissionSessionActivity this$0 -> a
-    590:598:void onCheckedChanged(android.widget.CompoundButton,boolean) -> onCheckedChanged
-org.sugr.gearshift.TransmissionSessionActivity$6 -> ur:
+    1277:1293:boolean onEditorAction(android.widget.TextView,int,android.view.KeyEvent) -> onEditorAction
+org.sugr.gearshift.TransmissionSessionActivity$46 -> ur:
     org.sugr.gearshift.TransmissionSessionActivity this$0 -> a
-    604:615:boolean onEditorAction(android.widget.TextView,int,android.view.KeyEvent) -> onEditorAction
-org.sugr.gearshift.TransmissionSessionActivity$7 -> us:
+    1300:1316:boolean onEditorAction(android.widget.TextView,int,android.view.KeyEvent) -> onEditorAction
+org.sugr.gearshift.TransmissionSessionActivity$5 -> us:
     org.sugr.gearshift.TransmissionSessionActivity this$0 -> a
-    622:630:void onCheckedChanged(android.widget.CompoundButton,boolean) -> onCheckedChanged
-org.sugr.gearshift.TransmissionSessionActivity$8 -> ut:
+    605:613:void onCheckedChanged(android.widget.CompoundButton,boolean) -> onCheckedChanged
+org.sugr.gearshift.TransmissionSessionActivity$6 -> ut:
     org.sugr.gearshift.TransmissionSessionActivity this$0 -> a
-    636:647:boolean onEditorAction(android.widget.TextView,int,android.view.KeyEvent) -> onEditorAction
-org.sugr.gearshift.TransmissionSessionActivity$9 -> uu:
+    619:630:boolean onEditorAction(android.widget.TextView,int,android.view.KeyEvent) -> onEditorAction
+org.sugr.gearshift.TransmissionSessionActivity$7 -> uu:
     org.sugr.gearshift.TransmissionSessionActivity this$0 -> a
-    654:670:boolean onEditorAction(android.widget.TextView,int,android.view.KeyEvent) -> onEditorAction
-org.sugr.gearshift.TransmissionSessionActivity$ServiceReceiver -> uv:
+    637:645:void onCheckedChanged(android.widget.CompoundButton,boolean) -> onCheckedChanged
+org.sugr.gearshift.TransmissionSessionActivity$8 -> uv:
     org.sugr.gearshift.TransmissionSessionActivity this$0 -> a
-    1287:1355:void onReceive(android.content.Context,android.content.Intent) -> onReceive
-org.sugr.gearshift.TransmissionSessionActivity$SessionTask -> uw:
+    651:662:boolean onEditorAction(android.widget.TextView,int,android.view.KeyEvent) -> onEditorAction
+org.sugr.gearshift.TransmissionSessionActivity$9 -> uw:
+    org.sugr.gearshift.TransmissionSessionActivity this$0 -> a
+    669:685:boolean onEditorAction(android.widget.TextView,int,android.view.KeyEvent) -> onEditorAction
+org.sugr.gearshift.TransmissionSessionActivity$ServiceReceiver -> ux:
+    org.sugr.gearshift.TransmissionSessionActivity this$0 -> a
+    1338:1406:void onReceive(android.content.Context,android.content.Intent) -> onReceive
+org.sugr.gearshift.TransmissionSessionActivity$SessionTask -> uy:
     org.sugr.gearshift.datasource.DataSource readSource -> a
     org.sugr.gearshift.TransmissionSessionActivity this$0 -> b
-    1368:1373:org.sugr.gearshift.TransmissionSession doInBackground(java.lang.Void[]) -> a
-    1379:1386:void onPostExecute(org.sugr.gearshift.TransmissionSession) -> a
-    1358:1358:void onPostExecute(java.lang.Object) -> onPostExecute
-    1358:1358:java.lang.Object doInBackground(java.lang.Object[]) -> doInBackground
+    1419:1424:org.sugr.gearshift.TransmissionSession doInBackground(java.lang.Void[]) -> a
+    1430:1437:void onPostExecute(org.sugr.gearshift.TransmissionSession) -> a
+    1409:1409:void onPostExecute(java.lang.Object) -> onPostExecute
+    1409:1409:java.lang.Object doInBackground(java.lang.Object[]) -> doInBackground
 org.sugr.gearshift.TransmissionSessionInterface -> org.sugr.gearshift.TransmissionSessionInterface:
     org.sugr.gearshift.TransmissionProfile getProfile() -> getProfile
     void setSession(org.sugr.gearshift.TransmissionSession) -> setSession
@@ -15884,12 +15902,12 @@ org.sugr.gearshift.TransmissionSessionManager -> org.sugr.gearshift.Transmission
     503:643:void buildResponse(java.io.InputStream,org.sugr.gearshift.TransmissionSessionManager$Response) -> a
     756:762:int[] convertIntegerList(java.util.List) -> convertIntegerList
     766:771:java.lang.String[] convertStringList(java.util.List) -> convertStringList
-org.sugr.gearshift.TransmissionSessionManager$1 -> ux:
+org.sugr.gearshift.TransmissionSessionManager$1 -> uz:
     org.sugr.gearshift.TransmissionSessionManager this$0 -> a
     347:347:java.security.cert.X509Certificate[] getAcceptedIssuers() -> getAcceptedIssuers
     351:351:void checkClientTrusted(java.security.cert.X509Certificate[],java.lang.String) -> checkClientTrusted
     354:354:void checkServerTrusted(java.security.cert.X509Certificate[],java.lang.String) -> checkServerTrusted
-org.sugr.gearshift.TransmissionSessionManager$2 -> uy:
+org.sugr.gearshift.TransmissionSessionManager$2 -> va:
     org.sugr.gearshift.TransmissionSessionManager this$0 -> a
     360:360:boolean verify(java.lang.String,javax.net.ssl.SSLSession) -> verify
 org.sugr.gearshift.TransmissionSessionManager$AddTorrentResponse -> org.sugr.gearshift.TransmissionSessionManager$AddTorrentResponse:
@@ -16079,23 +16097,23 @@ org.sugr.gearshift.datasource.DataSource -> org.sugr.gearshift.datasource.DataSo
     719:745:android.database.Cursor getTorrentCursor(java.lang.String,java.lang.String,java.lang.String[],java.lang.String,boolean) -> getTorrentCursor
     749:770:org.sugr.gearshift.datasource.TorrentNameStatus getTorrentNameStatus(java.lang.String,java.lang.String) -> getTorrentNameStatus
     776:806:org.sugr.gearshift.datasource.TorrentDetails getTorrentDetails(java.lang.String,java.lang.String) -> getTorrentDetails
-    810:960:org.sugr.gearshift.TransmissionSession cursorToSession(android.database.Cursor) -> cursorToSession
-    965:1216:java.util.List jsonToSessionValues(java.lang.String,com.fasterxml.jackson.core.JsonParser) -> jsonToSessionValues
-    1220:1836:org.sugr.gearshift.datasource.TorrentValues jsonToTorrentValues(com.fasterxml.jackson.core.JsonParser) -> jsonToTorrentValues
-    1840:1842:void removeTorrent(java.lang.String) -> removeTorrent
-    1845:1847:void removeTorrent(int) -> removeTorrent
-    1850:1876:void removeObsolete(java.lang.String,java.util.List) -> removeObsolete
-    1879:1890:int[] queryTorrentIdChanges() -> queryTorrentIdChanges
-    1895:1928:int[] queryStatusCount() -> queryStatusCount
-    1933:2074:org.sugr.gearshift.datasource.TorrentCursorArgs getTorrentCursorArgs() -> getTorrentCursorArgs
-    2080:2145:java.lang.String sortToOrder(org.sugr.gearshift.G$SortBy,org.sugr.gearshift.G$SortOrder) -> sortToOrder
-org.sugr.gearshift.datasource.DataSource$1 -> uz:
+    810:966:org.sugr.gearshift.TransmissionSession cursorToSession(android.database.Cursor) -> cursorToSession
+    971:1232:java.util.List jsonToSessionValues(java.lang.String,com.fasterxml.jackson.core.JsonParser) -> jsonToSessionValues
+    1236:1852:org.sugr.gearshift.datasource.TorrentValues jsonToTorrentValues(com.fasterxml.jackson.core.JsonParser) -> jsonToTorrentValues
+    1856:1858:void removeTorrent(java.lang.String) -> removeTorrent
+    1861:1863:void removeTorrent(int) -> removeTorrent
+    1866:1892:void removeObsolete(java.lang.String,java.util.List) -> removeObsolete
+    1895:1906:int[] queryTorrentIdChanges() -> queryTorrentIdChanges
+    1911:1944:int[] queryStatusCount() -> queryStatusCount
+    1949:2090:org.sugr.gearshift.datasource.TorrentCursorArgs getTorrentCursorArgs() -> getTorrentCursorArgs
+    2096:2161:java.lang.String sortToOrder(org.sugr.gearshift.G$SortBy,org.sugr.gearshift.G$SortOrder) -> sortToOrder
+org.sugr.gearshift.datasource.DataSource$1 -> vb:
     int[] $SwitchMap$org$sugr$gearshift$G$SortBy -> a
 org.sugr.gearshift.datasource.SQLiteHelper -> org.sugr.gearshift.datasource.SQLiteHelper:
     19:26:void onCreate(android.database.sqlite.SQLiteDatabase) -> onCreate
     30:41:void onUpgrade(android.database.sqlite.SQLiteDatabase,int,int) -> onUpgrade
     45:50:void onOpen(android.database.sqlite.SQLiteDatabase) -> onOpen
-org.sugr.gearshift.datasource.TorrentCursorArgs -> va:
+org.sugr.gearshift.datasource.TorrentCursorArgs -> vc:
     java.lang.String selection -> a
     java.lang.String[] selectionArgs -> b
     java.lang.String orderBy -> c
@@ -16111,7 +16129,7 @@ org.sugr.gearshift.datasource.TorrentStatus -> org.sugr.gearshift.datasource.Tor
     boolean hasRemoved -> hasRemoved
     boolean hasStatusChanged -> hasStatusChanged
     boolean hasIncompleteMetadata -> hasIncompleteMetadata
-org.sugr.gearshift.datasource.TorrentValues -> vb:
+org.sugr.gearshift.datasource.TorrentValues -> vd:
     android.content.ContentValues torrent -> a
     java.util.List files -> b
     java.util.List trackers -> c
@@ -16198,10 +16216,10 @@ org.sugr.gearshift.service.DataServiceManager -> org.sugr.gearshift.service.Data
     21:21:boolean access$000(org.sugr.gearshift.service.DataServiceManager) -> a
     21:21:void access$200(org.sugr.gearshift.service.DataServiceManager) -> b
     21:21:boolean access$302(org.sugr.gearshift.service.DataServiceManager,boolean) -> a
-org.sugr.gearshift.service.DataServiceManager$1 -> vc:
+org.sugr.gearshift.service.DataServiceManager$1 -> ve:
     org.sugr.gearshift.service.DataServiceManager this$0 -> a
     37:42:void run() -> run
-org.sugr.gearshift.service.DataServiceManager$ServiceReceiver -> vd:
+org.sugr.gearshift.service.DataServiceManager$ServiceReceiver -> vf:
     org.sugr.gearshift.service.DataServiceManager this$0 -> a
     353:370:void onReceive(android.content.Context,android.content.Intent) -> onReceive
 org.sugr.gearshift.service.DataServiceManagerInterface -> org.sugr.gearshift.service.DataServiceManagerInterface:
@@ -16253,7 +16271,7 @@ org.sugr.gearshift.util.Base64 -> org.sugr.gearshift.util.Base64:
     149:149:byte[] access$100(byte[],int,int,byte[],int,int) -> a
     149:149:int access$200(byte[],int,byte[],int,int) -> a
     149:149:byte[] access$300(byte[],byte[],int,int) -> a
-org.sugr.gearshift.util.Base64$1 -> ve:
+org.sugr.gearshift.util.Base64$1 -> vg:
     java.lang.ClassLoader val$loader -> a
     1361:1365:java.lang.Class resolveClass(java.io.ObjectStreamClass) -> resolveClass
 org.sugr.gearshift.util.Base64$InputStream -> org.sugr.gearshift.util.Base64$InputStream:
