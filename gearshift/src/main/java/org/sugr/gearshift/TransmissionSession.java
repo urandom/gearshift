@@ -19,7 +19,6 @@ import java.util.Set;
     isGetterVisibility = JsonAutoDetect.Visibility.PUBLIC_ONLY,
     setterVisibility = JsonAutoDetect.Visibility.NONE)
 public class TransmissionSession implements Parcelable {
-    /* TODO: add "idle-seeding-limit" and "idle-seeding-limit-enabled" */
     public static final class SetterFields {
         public static final String ALT_SPEED_LIMIT_ENABLED = "alt-speed-enabled";
         public static final String ALT_DOWNLOAD_SPEED_LIMIT = "alt-speed-down";
@@ -39,6 +38,8 @@ public class TransmissionSession implements Parcelable {
         public static final String DOWNLOAD_SPEED_LIMIT_ENABLED = "speed-limit-down-enabled";
         public static final String ENCRYPTION = "encryption";
         public static final String GLOBAL_PEER_LIMIT = "peer-limit-global";
+        public static final String IDLE_SEEDING_LIMIT = "idle-seeding-limit";
+        public static final String IDLE_SEEDING_LIMIT_ENABLED = "idle-seeding-limit-enabled";
         public static final String INCOMPLETE_DIR = "incomplete-dir";
         public static final String INCOMPLETE_DIR_ENABLED = "incomplete-dir-enabled";
         public static final String LOCAL_DISCOVERY = "lpd-enabled";
@@ -65,78 +66,81 @@ public class TransmissionSession implements Parcelable {
 
     public static final int FREE_SPACE_METHOD_RPC_VERSION = 15;
 
-    private boolean mAltSpeedEnabled;
-    private long mAltSpeedDown;
-    private long mAltSpeedUp;
+    private boolean altSpeedEnabled;
+    private long altSpeedDown;
+    private long altSpeedUp;
 
-    private boolean mAltSpeedTimeEnabled;
-    private int mAltSpeedTimeBegin;
-    private int mAltSpeedTimeEnd;
-    private int mAltSpeedTimeDay;
+    private boolean altSpeedTimeEnabled;
+    private int altSpeedTimeBegin;
+    private int altSpeedTimeEnd;
+    private int altSpeedTimeDay;
 
-    private boolean mBlocklistEnabled;
-    private long mBlocklistSize;
-    private String mBlocklistURL;
+    private boolean blocklistEnabled;
+    private long blocklistSize;
+    private String blocklistURL;
 
-    private long mCacheSize;
-    private String mConfigDir;
+    private long cacheSize;
+    private String configDir;
 
-    private boolean mDHTEnabled;
+    private boolean dhtEnabled;
 
-    private String mDownloadDir;
-    private long mDownloadDirFreeSpace;
+    private String downloadDir;
+    private long downloadDirFreeSpace;
 
-    private int mDownloadQueueSize;
-    private boolean mDownloadQueueEnabled;
+    private int downloadQueueSize;
+    private boolean downloadQueueEnabled;
 
-    private long mSpeedLimitDown;
-    private boolean mSpeedLimitDownEnabled;
+    private long speedLimitDown;
+    private boolean speedLimitDownEnabled;
 
-    private String mEncryption;
+    private String encryption;
 
-    private String mIncompleteDir;
-    private boolean mIncompleteDirEnabled;
+    private long idleSeedingLimig;
+    private boolean idleSeedingLimitEnabled;
 
-    private boolean mLPDEnabled;
-    private boolean mUTPEnabled;
+    private String incompleteDir;
+    private boolean incompleteDirEnabled;
 
-    private int mGlobalPeerLimit;
-    private int mTorrentPeerLimit;
+    private boolean lpdEnabled;
+    private boolean utpEnabled;
 
-    private boolean mPEXEnabled;
+    private int globalPeerLimit;
+    private int torrentPeerLimit;
 
-    private int mPeerPort;
-    private boolean mPortForwardingEnabled;
-    private boolean mPeerPortRandomOnStart;
+    private boolean pexEnabled;
 
-    private boolean mRenamePartial;
+    private int peerPort;
+    private boolean portForwardingEnabled;
+    private boolean peerPortRandomOnStart;
 
-    private int mRPCVersion;
-    private int mRPCVersionMin;
+    private boolean renamePartial;
 
-    private String mDoneScript;
-    private boolean mDoneScriptEnabled;
+    private int rpcVersion;
+    private int rpcVersionMin;
 
-    private int mSeedQueueSize;
-    private boolean mSeedQueueEnabled;
+    private String doneScript;
+    private boolean doneScriptEnabled;
 
-    private float mSeedRatioLimit;
-    private boolean mSeedRatioLimited;
+    private int seedQueueSize;
+    private boolean seedQueueEnabled;
 
-    private long mSpeedLimitUp;
-    private boolean mSpeedLimitUpEnabled;
+    private float seedRatioLimit;
+    private boolean seedRatioLimited;
 
-    private int mStalledQueueSize;
-    private boolean mStalledQueueEnabled;
+    private long speedLimitUp;
+    private boolean speedLimitUpEnabled;
 
-    private boolean mStartAdded;
-    private boolean mTrashOriginal;
+    private int stalledQueueSize;
+    private boolean stalledQueueEnabled;
 
-    private String mVersion;
+    private boolean startAdded;
+    private boolean trashOriginal;
+
+    private String version;
 
     // https://trac.transmissionbt.com/browser/trunk/libtransmission/transmission.h - tr_sched_day
     public static class AltSpeedDay {
-        public static final int SUN = (1<<0);
+        public static final int SUN = (1);
         public static final int MON = (1<<1);
         public static final int TUE = (1<<2);
         public static final int WED = (1<<3);
@@ -154,395 +158,409 @@ public class TransmissionSession implements Parcelable {
         public static final String TOLERATED = "tolerated";
     }
 
-    private Set<String> mDownloadDirectories;
+    private Set<String> downloadDirectories;
 
     public TransmissionSession() {
-        mDownloadDirectories = new HashSet<String>();
+        downloadDirectories = new HashSet<>();
     }
 
     @JsonProperty(SetterFields.ALT_SPEED_LIMIT_ENABLED) public boolean isAltSpeedLimitEnabled() {
-        return mAltSpeedEnabled;
+        return altSpeedEnabled;
     }
 
     @JsonProperty(SetterFields.ALT_DOWNLOAD_SPEED_LIMIT) public long getAltDownloadSpeedLimit() {
-        return mAltSpeedDown;
+        return altSpeedDown;
     }
 
     @JsonProperty(SetterFields.ALT_UPLOAD_SPEED_LIMIT) public long getAltUploadSpeedLimit() {
-        return mAltSpeedUp;
+        return altSpeedUp;
     }
 
     @JsonProperty(SetterFields.ALT_SPEED_LIMIT_TIME_ENABLED) public boolean isAltSpeedLimitTimeEnabled() {
-        return mAltSpeedTimeEnabled;
+        return altSpeedTimeEnabled;
     }
 
     @JsonProperty(SetterFields.ALT_SPEED_LIMIT_TIME_BEGIN) public int getAltSpeedTimeBegin() {
-        return mAltSpeedTimeBegin;
+        return altSpeedTimeBegin;
     }
 
     @JsonProperty(SetterFields.ALT_SPEED_LIMIT_TIME_END) public int getAltSpeedTimeEnd() {
-        return mAltSpeedTimeEnd;
+        return altSpeedTimeEnd;
     }
 
     @JsonProperty(SetterFields.ALT_SPEED_LIMIT_TIME_DAY) public int getAltSpeedTimeDay() {
-        return mAltSpeedTimeDay;
+        return altSpeedTimeDay;
     }
 
     @JsonProperty(SetterFields.BLOCKLIST_ENABLED) public boolean isBlocklistEnabled() {
-        return mBlocklistEnabled;
+        return blocklistEnabled;
     }
 
     @JsonProperty("blocklist-size") public long getBlocklistSize() {
-        return mBlocklistSize;
+        return blocklistSize;
     }
 
     @JsonProperty(SetterFields.BLOCKLIST_URL) public String getBlocklistURL() {
-        return mBlocklistURL;
+        return blocklistURL;
     }
 
-    @JsonProperty(SetterFields.DHT) public boolean isDHTEnabled() {
-        return mDHTEnabled;
+    @JsonProperty(SetterFields.DHT) public boolean isDhtEnabled() {
+        return dhtEnabled;
     }
 
     @JsonProperty(SetterFields.ENCRYPTION) public String getEncryption() {
-        return mEncryption;
+        return encryption;
     }
 
     @JsonProperty(SetterFields.CACHE_SIZE) public long getCacheSize() {
-        return mCacheSize;
+        return cacheSize;
     }
 
     @JsonProperty("config-dir") public String getConfigDir() {
-        return mConfigDir;
+        return configDir;
     }
 
     @JsonProperty(SetterFields.DOWNLOAD_DIR) public String getDownloadDir() {
-        return mDownloadDir;
+        return downloadDir;
     }
 
     @JsonProperty("download-dir-free-space") public long getDownloadDirFreeSpace() {
-        return mDownloadDirFreeSpace;
+        return downloadDirFreeSpace;
     }
 
     @JsonProperty(SetterFields.DOWNLOAD_QUEUE_SIZE) public int getDownloadQueueSize() {
-        return mDownloadQueueSize;
+        return downloadQueueSize;
     }
 
     @JsonProperty(SetterFields.DOWNLOAD_QUEUE_ENABLED) public boolean isDownloadQueueEnabled() {
-        return mDownloadQueueEnabled;
+        return downloadQueueEnabled;
     }
 
+    @JsonProperty(SetterFields.IDLE_SEEDING_LIMIT) public long getIdleSeedingLimig() {
+        return idleSeedingLimig;
+    }
+
+    @JsonProperty(SetterFields.IDLE_SEEDING_LIMIT_ENABLED) public boolean isIdleSeedingLimitEnabled() {
+        return idleSeedingLimitEnabled;
+    }
     @JsonProperty(SetterFields.INCOMPLETE_DIR) public String getIncompleteDir() {
-        return mIncompleteDir;
+        return incompleteDir;
     }
 
     @JsonProperty(SetterFields.INCOMPLETE_DIR_ENABLED) public boolean isIncompleteDirEnabled() {
-        return mIncompleteDirEnabled;
+        return incompleteDirEnabled;
     }
 
     @JsonProperty(SetterFields.LOCAL_DISCOVERY) public boolean isLocalDiscoveryEnabled() {
-        return mLPDEnabled;
+        return lpdEnabled;
     }
 
-    @JsonProperty(SetterFields.UTP) public boolean isUTPEnabled() {
-        return mUTPEnabled;
+    @JsonProperty(SetterFields.UTP) public boolean isUtpEnabled() {
+        return utpEnabled;
     }
 
     @JsonProperty(SetterFields.GLOBAL_PEER_LIMIT) public int getGlobalPeerLimit() {
-        return mGlobalPeerLimit;
+        return globalPeerLimit;
     }
 
     @JsonProperty(SetterFields.TORRENT_PEER_LIMIT) public int getTorrentPeerLimit() {
-        return mTorrentPeerLimit;
+        return torrentPeerLimit;
     }
 
     @JsonProperty(SetterFields.PEER_EXCHANGE) public boolean isPeerExchangeEnabled() {
-        return mPEXEnabled;
+        return pexEnabled;
     }
 
     @JsonProperty(SetterFields.PEER_PORT) public int getPeerPort() {
-        return mPeerPort;
+        return peerPort;
     }
 
     @JsonProperty(SetterFields.RANDOM_PORT) public boolean isPeerPortRandomOnStart() {
-        return mPeerPortRandomOnStart;
+        return peerPortRandomOnStart;
     }
 
     @JsonProperty(SetterFields.PORT_FORWARDING) public boolean isPortForwardingEnabled() {
-        return mPortForwardingEnabled;
+        return portForwardingEnabled;
     }
 
     @JsonProperty(SetterFields.RENAME_PARTIAL) public boolean isRenamePartialFilesEnabled() {
-        return mRenamePartial;
+        return renamePartial;
     }
 
     @JsonProperty("rpc-version") public int getRPCVersion() {
-        return mRPCVersion;
+        return rpcVersion;
     }
 
     @JsonProperty("rpc-version-minimum") public int getRPCVersionMin() {
-        return mRPCVersionMin;
+        return rpcVersionMin;
     }
 
     @JsonProperty(SetterFields.DONE_SCRIPT) public String getDoneScript() {
-        return mDoneScript;
+        return doneScript;
     }
 
     @JsonProperty(SetterFields.DONE_SCRIPT_ENABLED) public boolean isDoneScriptEnabled() {
-        return mDoneScriptEnabled;
+        return doneScriptEnabled;
     }
 
     @JsonProperty(SetterFields.SEED_QUEUE_SIZE) public int getSeedQueueSize() {
-        return mSeedQueueSize;
+        return seedQueueSize;
     }
 
     @JsonProperty(SetterFields.SEED_QUEUE_ENABLED) public boolean isSeedQueueEnabled() {
-        return mSeedQueueEnabled;
+        return seedQueueEnabled;
     }
 
     @JsonProperty(SetterFields.SEED_RATIO_LIMIT) public float getSeedRatioLimit() {
-        return mSeedRatioLimit;
+        return seedRatioLimit;
     }
 
     @JsonProperty(SetterFields.SEED_RATIO_LIMIT_ENABLED) public boolean isSeedRatioLimitEnabled() {
-        return mSeedRatioLimited;
+        return seedRatioLimited;
     }
 
     @JsonProperty(SetterFields.DOWNLOAD_SPEED_LIMIT) public long getDownloadSpeedLimit() {
-        return mSpeedLimitDown;
+        return speedLimitDown;
     }
 
     @JsonProperty(SetterFields.DOWNLOAD_SPEED_LIMIT_ENABLED) public boolean isDownloadSpeedLimitEnabled() {
-        return mSpeedLimitDownEnabled;
+        return speedLimitDownEnabled;
     }
 
     @JsonProperty(SetterFields.UPLOAD_SPEED_LIMIT) public long getUploadSpeedLimit() {
-        return mSpeedLimitUp;
+        return speedLimitUp;
     }
 
     @JsonProperty(SetterFields.UPLOAD_SPEED_LIMIT_ENABLED) public boolean isUploadSpeedLimitEnabled() {
-        return mSpeedLimitUpEnabled;
+        return speedLimitUpEnabled;
     }
 
     @JsonProperty(SetterFields.STALLED_QUEUE_SIZE) public int getStalledQueueSize() {
-        return mStalledQueueSize;
+        return stalledQueueSize;
     }
 
     @JsonProperty(SetterFields.STALLED_QUEUE_ENABLED) public boolean isStalledQueueEnabled() {
-        return mStalledQueueEnabled;
+        return stalledQueueEnabled;
     }
 
     @JsonProperty(SetterFields.START_ADDED) public boolean isStartAddedTorrentsEnabled() {
-        return mStartAdded;
+        return startAdded;
     }
 
     @JsonProperty(SetterFields.TRASH_ORIGINAL) public boolean isTrashOriginalTorrentFilesEnabled() {
-        return mTrashOriginal;
+        return trashOriginal;
     }
 
     @JsonProperty("version") public String getVersion() {
-        return mVersion;
+        return version;
     }
 
     public void setAltSpeedLimitEnabled(boolean altSpeedEnabled) {
-        mAltSpeedEnabled = altSpeedEnabled;
+        this.altSpeedEnabled = altSpeedEnabled;
     }
 
     public void setAltDownloadSpeedLimit(long altSpeedDown) {
-        mAltSpeedDown = altSpeedDown;
+        this.altSpeedDown = altSpeedDown;
     }
 
     public void setAltUploadSpeedLimit(long altSpeedUp) {
-        mAltSpeedUp = altSpeedUp;
+        this.altSpeedUp = altSpeedUp;
     }
 
     public void setAltSpeedLimitTimeEnabled(boolean altSpeedTimeEnabled) {
-        mAltSpeedTimeEnabled = altSpeedTimeEnabled;
+        this.altSpeedTimeEnabled = altSpeedTimeEnabled;
     }
 
     public void setAltSpeedTimeBegin(int altSpeedTimeBegin) {
-        mAltSpeedTimeBegin = altSpeedTimeBegin;
+        this.altSpeedTimeBegin = altSpeedTimeBegin;
     }
 
     public void setAltSpeedTimeEnd(int altSpeedTimeEnd) {
-        mAltSpeedTimeEnd = altSpeedTimeEnd;
+        this.altSpeedTimeEnd = altSpeedTimeEnd;
     }
 
     public void setAltSpeedTimeDay(int days) {
-        mAltSpeedTimeDay = days;
+        altSpeedTimeDay = days;
     }
 
     public void setBlocklistEnabled(boolean blocklistEnabled) {
-        mBlocklistEnabled = blocklistEnabled;
+        this.blocklistEnabled = blocklistEnabled;
     }
 
     public void setBlocklistSize(long blocklistSize) {
-        mBlocklistSize = blocklistSize;
+        this.blocklistSize = blocklistSize;
     }
 
     public void setBlocklistURL(String url) {
-        mBlocklistURL = url;
+        blocklistURL = url;
     }
 
-    public void setDHTEnabled(boolean enable) {
-        mDHTEnabled = enable;
+    public void setDhtEnabled(boolean enable) {
+        dhtEnabled = enable;
     }
 
     public void setEncryption(String encryption) {
-        mEncryption = encryption;
+        this.encryption = encryption;
     }
 
     public void setCacheSize(long size) {
-        mCacheSize = size;
+        cacheSize = size;
     }
 
     public void setConfigDir(String dir) {
-        mConfigDir = dir;
+        configDir = dir;
     }
 
     public void setDownloadDir(String downloadDir) {
-        mDownloadDir = downloadDir;
+        this.downloadDir = downloadDir;
     }
 
     public void setDownloadDirFreeSpace(long freeSpace) {
-        mDownloadDirFreeSpace = freeSpace;
+        downloadDirFreeSpace = freeSpace;
     }
 
     public void setDownloadQueueSize(int size) {
-        mDownloadQueueSize = size;
+        downloadQueueSize = size;
     }
 
     public void setDownloadQueueEnabled(boolean enable) {
-        mDownloadQueueEnabled = enable;
+        downloadQueueEnabled = enable;
     }
 
+    public void setIdleSeedingLimig(long limit) {
+        idleSeedingLimig = limit;
+    }
+
+    public void setIdleSeedingLimitEnabled(boolean enable) {
+        idleSeedingLimitEnabled = enable;
+    }
     public void setIncompleteDir(String dir) {
-        mIncompleteDir = dir;
-    }
-
-    public void setLocalDiscoveryEnabled(boolean enable) {
-        mLPDEnabled = enable;
-    }
-
-    public void setUTPEnabled(boolean enable) {
-        mUTPEnabled = enable;
+        incompleteDir = dir;
     }
 
     public void setIncompleteDirEnabled(boolean enable) {
-        mIncompleteDirEnabled = enable;
+        incompleteDirEnabled = enable;
+    }
+
+    public void setLocalDiscoveryEnabled(boolean enable) {
+        lpdEnabled = enable;
+    }
+
+    public void setUtpEnabled(boolean enable) {
+        utpEnabled = enable;
     }
 
     public void setGlobalPeerLimit(int limit) {
-        mGlobalPeerLimit = limit;
+        globalPeerLimit = limit;
     }
 
     public void setTorrentPeerLimit(int limit) {
-        mTorrentPeerLimit = limit;
+        torrentPeerLimit = limit;
     }
 
     public void setPeerExchangeEnabled(boolean enable) {
-        mPEXEnabled = enable;
+        pexEnabled = enable;
     }
 
     public void setPeerPort(int peerPort) {
-        mPeerPort = peerPort;
+        this.peerPort = peerPort;
     }
 
     public void setPeerPortRandomOnStart(boolean peerPortRandomOnStart) {
-        mPeerPortRandomOnStart = peerPortRandomOnStart;
+        this.peerPortRandomOnStart = peerPortRandomOnStart;
     }
 
     public void setPortForwardingEnabled(boolean portForwardingEnabled) {
-        mPortForwardingEnabled = portForwardingEnabled;
+        this.portForwardingEnabled = portForwardingEnabled;
     }
 
     public void setRenamePartialFilesEnabled(boolean rename) {
-        mRenamePartial = rename;
+        renamePartial = rename;
     }
 
     public void setRPCVersion(int rPCVersion) {
-        mRPCVersion = rPCVersion;
+        rpcVersion = rPCVersion;
     }
 
     public void setRPCVersionMin(int rPCVersionMin) {
-        mRPCVersionMin = rPCVersionMin;
+        rpcVersionMin = rPCVersionMin;
     }
 
     public void setDoneScript(String script) {
-        mDoneScript = script;
+        doneScript = script;
     }
 
     public void setDoneScriptEnabled(boolean enabled) {
-        mDoneScriptEnabled = enabled;
+        doneScriptEnabled = enabled;
     }
 
     public void setSeedQueueSize(int size) {
-        mSeedQueueSize = size;
+        seedQueueSize = size;
     }
 
     public void setSeedQueueEnabled(boolean enable) {
-        mSeedQueueEnabled = enable;
+        seedQueueEnabled = enable;
     }
 
     public void setSeedRatioLimit(float seedRatioLimit) {
-        mSeedRatioLimit = seedRatioLimit;
+        this.seedRatioLimit = seedRatioLimit;
     }
 
     public void setSeedRatioLimitEnabled(boolean seedRatioLimited) {
-        mSeedRatioLimited = seedRatioLimited;
+        this.seedRatioLimited = seedRatioLimited;
     }
 
     public void setDownloadSpeedLimit(long speedLimitDown) {
-        mSpeedLimitDown = speedLimitDown;
+        this.speedLimitDown = speedLimitDown;
     }
 
     public void setDownloadSpeedLimitEnabled(boolean speedLimitDownEnabled) {
-        mSpeedLimitDownEnabled = speedLimitDownEnabled;
+        this.speedLimitDownEnabled = speedLimitDownEnabled;
     }
 
     public void setUploadSpeedLimit(long speedLimitUp) {
-        mSpeedLimitUp = speedLimitUp;
+        this.speedLimitUp = speedLimitUp;
     }
 
     public void setUploadSpeedLimitEnabled(boolean speedLimitUpEnabled) {
-        mSpeedLimitUpEnabled = speedLimitUpEnabled;
+        this.speedLimitUpEnabled = speedLimitUpEnabled;
     }
 
     public void setStalledQueueSize(int size) {
-        mStalledQueueSize = size;
+        stalledQueueSize = size;
     }
 
     public void setStalledQueueEnabled(boolean enable) {
-        mStalledQueueEnabled = enable;
+        stalledQueueEnabled = enable;
     }
 
     public void setStartAddedTorrentsEnabled(boolean enable) {
-        mStartAdded = enable;
+        startAdded = enable;
     }
 
     public void setTrashOriginalTorrentFilesEnabled(boolean enable) {
-        mTrashOriginal = enable;
+        trashOriginal = enable;
     }
 
     public void setVersion(String version) {
-        mVersion = version;
+        this.version = version;
     }
 
     public void setDownloadDirectories(TransmissionProfile profile, Set<String> directories) {
-        mDownloadDirectories.clear();
-        mDownloadDirectories.add(mDownloadDir);
-        mDownloadDirectories.addAll(profile.getDirectories());
-        mDownloadDirectories.addAll(directories);
+        downloadDirectories.clear();
+        downloadDirectories.add(downloadDir);
+        downloadDirectories.addAll(profile.getDirectories());
+        downloadDirectories.addAll(directories);
 
-        mDownloadDirectories.remove(null);
+        downloadDirectories.remove(null);
     }
 
     public void setDownloadDirectories(Collection<String> directories) {
-        mDownloadDirectories.addAll(directories);
+        downloadDirectories.addAll(directories);
     }
 
     @JsonIgnore public Set<String> getDownloadDirectories() {
-        return mDownloadDirectories;
+        return downloadDirectories;
     }
 
     @Override
@@ -552,99 +570,103 @@ public class TransmissionSession implements Parcelable {
 
     @Override
     public void writeToParcel(Parcel in, int flags) {
-        in.writeByte((byte) (mAltSpeedEnabled ? 1 : 0));
-        in.writeLong(mAltSpeedDown);
-        in.writeLong(mAltSpeedUp);
-        in.writeByte((byte) (mAltSpeedTimeEnabled ? 1 : 0));
-        in.writeInt(mAltSpeedTimeBegin);
-        in.writeInt(mAltSpeedTimeEnd);
-        in.writeByte((byte) (mBlocklistEnabled ? 1 : 0));
-        in.writeLong(mBlocklistSize);
-        in.writeString(mBlocklistURL);
-        in.writeByte((byte) (mDHTEnabled ? 1 : 0));
-        in.writeString(mEncryption);
-        in.writeLong(mCacheSize);
-        in.writeString(mDownloadDir);
-        in.writeLong(mDownloadDirFreeSpace);
-        in.writeInt(mDownloadQueueSize);
-        in.writeByte((byte) (mDownloadQueueEnabled ? 1 : 0));
-        in.writeString(mIncompleteDir);
-        in.writeByte((byte) (mIncompleteDirEnabled ? 1 : 0));
-        in.writeByte((byte) (mLPDEnabled ? 1 : 0));
-        in.writeByte((byte) (mUTPEnabled ? 1 : 0));
-        in.writeInt(mGlobalPeerLimit);
-        in.writeInt(mTorrentPeerLimit);
-        in.writeByte((byte) (mPEXEnabled ? 1 : 0));
-        in.writeInt(mPeerPort);
-        in.writeByte((byte) (mPeerPortRandomOnStart ? 1 : 0));
-        in.writeByte((byte) (mPortForwardingEnabled ? 1 : 0));
-        in.writeByte((byte) (mRenamePartial ? 1 : 0));
-        in.writeInt(mRPCVersion);
-        in.writeInt(mRPCVersionMin);
-        in.writeString(mDoneScript);
-        in.writeByte((byte) (mDoneScriptEnabled ? 1 : 0));
-        in.writeInt(mSeedQueueSize);
-        in.writeByte((byte) (mSeedQueueEnabled ? 1 : 0));
-        in.writeFloat(mSeedRatioLimit);
-        in.writeByte((byte) (mSeedRatioLimited ? 1 : 0));
-        in.writeLong(mSpeedLimitDown);
-        in.writeByte((byte) (mSpeedLimitDownEnabled ? 1 : 0));
-        in.writeLong(mSpeedLimitUp);
-        in.writeByte((byte) (mSpeedLimitUpEnabled ? 1 : 0));
-        in.writeInt(mStalledQueueSize);
-        in.writeByte((byte) (mStalledQueueEnabled ? 1 : 0));
-        in.writeByte((byte) (mStartAdded ? 1 : 0));
-        in.writeByte((byte) (mTrashOriginal ? 1 : 0));
-        in.writeString(mVersion);
-        in.writeStringList(new ArrayList<String>(mDownloadDirectories));
+        in.writeByte((byte) (altSpeedEnabled ? 1 : 0));
+        in.writeLong(altSpeedDown);
+        in.writeLong(altSpeedUp);
+        in.writeByte((byte) (altSpeedTimeEnabled ? 1 : 0));
+        in.writeInt(altSpeedTimeBegin);
+        in.writeInt(altSpeedTimeEnd);
+        in.writeByte((byte) (blocklistEnabled ? 1 : 0));
+        in.writeLong(blocklistSize);
+        in.writeString(blocklistURL);
+        in.writeByte((byte) (dhtEnabled ? 1 : 0));
+        in.writeString(encryption);
+        in.writeLong(cacheSize);
+        in.writeString(downloadDir);
+        in.writeLong(downloadDirFreeSpace);
+        in.writeInt(downloadQueueSize);
+        in.writeByte((byte) (downloadQueueEnabled ? 1 : 0));
+        in.writeLong(idleSeedingLimig);
+        in.writeByte((byte) (idleSeedingLimitEnabled ? 1 : 0));
+        in.writeString(incompleteDir);
+        in.writeByte((byte) (incompleteDirEnabled ? 1 : 0));
+        in.writeByte((byte) (lpdEnabled ? 1 : 0));
+        in.writeByte((byte) (utpEnabled ? 1 : 0));
+        in.writeInt(globalPeerLimit);
+        in.writeInt(torrentPeerLimit);
+        in.writeByte((byte) (pexEnabled ? 1 : 0));
+        in.writeInt(peerPort);
+        in.writeByte((byte) (peerPortRandomOnStart ? 1 : 0));
+        in.writeByte((byte) (portForwardingEnabled ? 1 : 0));
+        in.writeByte((byte) (renamePartial ? 1 : 0));
+        in.writeInt(rpcVersion);
+        in.writeInt(rpcVersionMin);
+        in.writeString(doneScript);
+        in.writeByte((byte) (doneScriptEnabled ? 1 : 0));
+        in.writeInt(seedQueueSize);
+        in.writeByte((byte) (seedQueueEnabled ? 1 : 0));
+        in.writeFloat(seedRatioLimit);
+        in.writeByte((byte) (seedRatioLimited ? 1 : 0));
+        in.writeLong(speedLimitDown);
+        in.writeByte((byte) (speedLimitDownEnabled ? 1 : 0));
+        in.writeLong(speedLimitUp);
+        in.writeByte((byte) (speedLimitUpEnabled ? 1 : 0));
+        in.writeInt(stalledQueueSize);
+        in.writeByte((byte) (stalledQueueEnabled ? 1 : 0));
+        in.writeByte((byte) (startAdded ? 1 : 0));
+        in.writeByte((byte) (trashOriginal ? 1 : 0));
+        in.writeString(version);
+        in.writeStringList(new ArrayList<>(downloadDirectories));
     }
 
     private TransmissionSession(Parcel in) {
-        mAltSpeedEnabled = in.readByte() == 1;
-        mAltSpeedDown = in.readLong();
-        mAltSpeedUp = in.readLong();
-        mAltSpeedTimeEnabled = in.readByte() == 1;
-        mAltSpeedTimeBegin = in.readInt();
-        mAltSpeedTimeEnd = in.readInt();
-        mBlocklistEnabled = in.readByte() == 1;
-        mBlocklistSize = in.readLong();
-        mBlocklistURL = in.readString();
-        mDHTEnabled = in.readByte() == 1;
-        mEncryption = in.readString();
-        mCacheSize = in.readLong();
-        mDownloadDir = in.readString();
-        mDownloadDirFreeSpace = in.readLong();
-        mDownloadQueueSize = in.readInt();
-        mDownloadQueueEnabled = in.readByte() == 1;
-        mIncompleteDir = in.readString();
-        mIncompleteDirEnabled = in.readByte() == 1;
-        mLPDEnabled = in.readByte() == 1;
-        mUTPEnabled = in.readByte() == 1;
-        mGlobalPeerLimit = in.readInt();
-        mTorrentPeerLimit = in.readInt();
-        mPEXEnabled = in.readByte() == 1;
-        mPeerPort = in.readInt();
-        mPeerPortRandomOnStart = in.readByte() == 1;
-        mPortForwardingEnabled = in.readByte() == 1;
-        mRenamePartial = in.readByte() == 1;
-        mRPCVersion = in.readInt();
-        mRPCVersionMin = in.readInt();
-        mDoneScript = in.readString();
-        mDoneScriptEnabled = in.readByte() == 1;
-        mSeedQueueSize = in.readInt();
-        mSeedQueueEnabled = in.readByte() == 1;
-        mSeedRatioLimit = in.readFloat();
-        mSeedRatioLimited = in.readByte() == 1;
-        mSpeedLimitDown = in.readLong();
-        mSpeedLimitDownEnabled = in.readByte() == 1;
-        mSpeedLimitUp = in.readLong();
-        mSpeedLimitUpEnabled = in.readByte() == 1;
-        mStalledQueueSize = in.readInt();
-        mStalledQueueEnabled = in.readByte() == 1;
-        mStartAdded = in.readByte() == 1;
-        mTrashOriginal = in.readByte() == 1;
-        mVersion = in.readString();
-        mDownloadDirectories = new HashSet<String>(in.createStringArrayList());
+        altSpeedEnabled = in.readByte() == 1;
+        altSpeedDown = in.readLong();
+        altSpeedUp = in.readLong();
+        altSpeedTimeEnabled = in.readByte() == 1;
+        altSpeedTimeBegin = in.readInt();
+        altSpeedTimeEnd = in.readInt();
+        blocklistEnabled = in.readByte() == 1;
+        blocklistSize = in.readLong();
+        blocklistURL = in.readString();
+        dhtEnabled = in.readByte() == 1;
+        encryption = in.readString();
+        cacheSize = in.readLong();
+        downloadDir = in.readString();
+        downloadDirFreeSpace = in.readLong();
+        downloadQueueSize = in.readInt();
+        downloadQueueEnabled = in.readByte() == 1;
+        idleSeedingLimig = in.readLong();
+        idleSeedingLimitEnabled = in.readByte() == 1;
+        incompleteDir = in.readString();
+        incompleteDirEnabled = in.readByte() == 1;
+        lpdEnabled = in.readByte() == 1;
+        utpEnabled = in.readByte() == 1;
+        globalPeerLimit = in.readInt();
+        torrentPeerLimit = in.readInt();
+        pexEnabled = in.readByte() == 1;
+        peerPort = in.readInt();
+        peerPortRandomOnStart = in.readByte() == 1;
+        portForwardingEnabled = in.readByte() == 1;
+        renamePartial = in.readByte() == 1;
+        rpcVersion = in.readInt();
+        rpcVersionMin = in.readInt();
+        doneScript = in.readString();
+        doneScriptEnabled = in.readByte() == 1;
+        seedQueueSize = in.readInt();
+        seedQueueEnabled = in.readByte() == 1;
+        seedRatioLimit = in.readFloat();
+        seedRatioLimited = in.readByte() == 1;
+        speedLimitDown = in.readLong();
+        speedLimitDownEnabled = in.readByte() == 1;
+        speedLimitUp = in.readLong();
+        speedLimitUpEnabled = in.readByte() == 1;
+        stalledQueueSize = in.readInt();
+        stalledQueueEnabled = in.readByte() == 1;
+        startAdded = in.readByte() == 1;
+        trashOriginal = in.readByte() == 1;
+        version = in.readString();
+        downloadDirectories = new HashSet<String>(in.createStringArrayList());
     }
 
     public static final Parcelable.Creator<TransmissionSession> CREATOR

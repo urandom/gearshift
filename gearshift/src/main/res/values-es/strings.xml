@@ -58,7 +58,7 @@
     <string name="torrent_queue_position">Posición en la cola:</string>
     <string name="torrent_limit_download">Máxima velocidad de bajada (KiB/s)</string>
     <string name="torrent_limit_upload">Máxima velocidad de subida (KiB/s)</string>
-    <string name="torrent_limit_speed_amount">Cantidad:</string>
+    <string name="torrent_limit_speed_amount">Cantidad</string>
     
     <string name="torrent_seeding"></string>
     <string name="torrent_seed_ratio_mode">Tipo de ratio de subida:</string>

@@ -338,11 +338,11 @@ public class TransmissionSessionActivity extends FragmentActivity implements Dat
                 .setChecked(this.session.isPeerExchangeEnabled());
         }
 
-        if (initial || this.session.isDHTEnabled() != session.isDHTEnabled()) {
+        if (initial || this.session.isDhtEnabled() != session.isDhtEnabled()) {
             if (!initial)
-                this.session.setDHTEnabled(session.isDHTEnabled());
+                this.session.setDhtEnabled(session.isDhtEnabled());
             ((CheckBox) findViewById(R.id.transmission_session_hash_table))
-                .setChecked(this.session.isDHTEnabled());
+                .setChecked(this.session.isDhtEnabled());
         }
 
         if (initial || this.session.isLocalDiscoveryEnabled() != session.isLocalDiscoveryEnabled()) {
@@ -352,11 +352,11 @@ public class TransmissionSessionActivity extends FragmentActivity implements Dat
                 .setChecked(this.session.isLocalDiscoveryEnabled());
         }
 
-        if (initial || this.session.isUTPEnabled() != session.isUTPEnabled()) {
+        if (initial || this.session.isUtpEnabled() != session.isUtpEnabled()) {
             if (!initial)
-                this.session.setUTPEnabled(session.isUTPEnabled());
+                this.session.setUtpEnabled(session.isUtpEnabled());
             ((CheckBox) findViewById(R.id.transmission_session_utp))
-                    .setChecked(this.session.isUTPEnabled());
+                    .setChecked(this.session.isUtpEnabled());
         }
 
         if (initial || this.session.isBlocklistEnabled() != session.isBlocklistEnabled()) {
@@ -494,6 +494,21 @@ public class TransmissionSessionActivity extends FragmentActivity implements Dat
                 this.session.setSeedRatioLimit(session.getSeedRatioLimit());
             ((EditText) findViewById(R.id.transmission_session_seed_ratio_limit))
                 .setText(Float.toString(this.session.getSeedRatioLimit()));
+        }
+
+        if (initial || this.session.isIdleSeedingLimitEnabled() != session.isIdleSeedingLimitEnabled()) {
+            if (!initial)
+                this.session.setIdleSeedingLimitEnabled(session.isIdleSeedingLimitEnabled());
+            ((CheckBox) findViewById(R.id.transmission_session_idle_seeding_limit_check))
+                .setChecked(this.session.isIdleSeedingLimitEnabled());
+            findViewById(R.id.transmission_session_idle_seeding_limit).setEnabled(this.session.isIdleSeedingLimitEnabled());
+        }
+
+        if (initial || this.session.getIdleSeedingLimig() != session.getIdleSeedingLimig()) {
+            if (!initial)
+                this.session.setIdleSeedingLimig(session.getIdleSeedingLimig());
+            ((EditText) findViewById(R.id.transmission_session_idle_seeding_limit))
+                .setText(Long.toString(this.session.getIdleSeedingLimig()));
         }
 
         if (initial || this.session.isDownloadQueueEnabled() != session.isDownloadQueueEnabled()) {
@@ -816,8 +831,8 @@ public class TransmissionSessionActivity extends FragmentActivity implements Dat
                 if (session == null) {
                     return;
                 }
-                if (session.isDHTEnabled() != isChecked) {
-                    session.setDHTEnabled(isChecked);
+                if (session.isDhtEnabled() != isChecked) {
+                    session.setDhtEnabled(isChecked);
                     setSession(TransmissionSession.SetterFields.DHT);
                 }
             }
@@ -842,8 +857,8 @@ public class TransmissionSessionActivity extends FragmentActivity implements Dat
                 if (session == null) {
                     return;
                 }
-                if (session.isUTPEnabled() != isChecked) {
-                    session.setUTPEnabled(isChecked);
+                if (session.isUtpEnabled() != isChecked) {
+                    session.setUtpEnabled(isChecked);
                     setSession(TransmissionSession.SetterFields.UTP);
                 }
             }
@@ -1109,6 +1124,42 @@ public class TransmissionSessionActivity extends FragmentActivity implements Dat
             }
         });
 
+        check = (CheckBox) findViewById(R.id.transmission_session_idle_seeding_limit_check);
+        check.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (session == null) {
+                    return;
+                }
+                findViewById(R.id.transmission_session_idle_seeding_limit).setEnabled(isChecked);
+                if (session.isIdleSeedingLimitEnabled() != isChecked) {
+                    session.setIdleSeedingLimitEnabled(isChecked);
+                    setSession(TransmissionSession.SetterFields.IDLE_SEEDING_LIMIT_ENABLED);
+                }
+            }
+        });
+
+        edit = (EditText) findViewById(R.id.transmission_session_idle_seeding_limit);
+        edit.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+            @Override public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                if (session == null) {
+                    return false;
+                }
+                if (actionId == EditorInfo.IME_ACTION_DONE) {
+                    long value;
+                    try {
+                        value = Long.parseLong(v.getText().toString().trim());
+                    } catch (NumberFormatException e) {
+                        return false;
+                    }
+                    if (session.getIdleSeedingLimig() != value) {
+                        session.setIdleSeedingLimig(value);
+                        setSession(TransmissionSession.SetterFields.IDLE_SEEDING_LIMIT);
+                    }
+                }
+                new Handler().post(loseFocusRunnable);
+                return false;
+            }
+        });
         check = (CheckBox) findViewById(R.id.transmission_session_download_queue_size_check);
         check.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {

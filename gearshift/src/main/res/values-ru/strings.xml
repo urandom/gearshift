@@ -249,7 +249,7 @@
     <string name="torrent_have_format">%1$s из %2$s (%3$s%%)</string>
     <string name="torrent_last_activity">Последняя активность:</string>
     <string name="torrent_limit_download">Лимит скорости загрузки</string>
-    <string name="torrent_limit_speed_amount">Кб/с:</string>
+    <string name="torrent_limit_speed_amount">Кб/с</string>
     <string name="torrent_limit_upload">Лимит скорости отдачи</string>
     <string name="torrent_limits">Ограничения</string>
     <string name="torrent_location">Каталог:</string>

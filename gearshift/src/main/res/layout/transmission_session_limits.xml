@@ -46,7 +46,36 @@
             </EditText>
 
         </TableRow>
-        
+
+        <TableRow
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" >
+
+            <CheckBox
+                android:id="@+id/transmission_session_idle_seeding_limit_check"
+                android:layout_span="2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/session_settings_enable_idle_seeding_limit" />
+
+        </TableRow>
+
+        <TableRow
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" >
+
+            <TextView
+                style="@style/CardTextColumn"
+                android:text="@string/session_settings_idle_seeding_limit" />
+
+            <EditText
+                android:id="@+id/transmission_session_idle_seeding_limit"
+                android:inputType="number"
+                style="@style/CardEntry" >
+            </EditText>
+
+        </TableRow>
+
         <TableRow
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" >

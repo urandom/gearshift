@@ -59,7 +59,7 @@
     <string name="torrent_queue_position">Queue position:</string>
     <string name="torrent_limit_download">Limit Download Speed (KiB/s)</string>
     <string name="torrent_limit_upload">Limit Upload Speed (KiB/s)</string>
-    <string name="torrent_limit_speed_amount">Amount:</string>
+    <string name="torrent_limit_speed_amount">Amount</string>
     
     <string name="torrent_seeding">Seeding</string>
     <string name="torrent_seed_ratio_mode">Seed ratio mode:</string>
@@ -439,6 +439,8 @@
     <string name="hint_download_directory">Download directory</string>
     <string name="spinner_custom_directory">Custom directory &#8230;</string>
     <string name="error_removing_profile">Error while removing profile!</string>
+    <string name="session_settings_enable_idle_seeding_limit">Enable idle seeding limit</string>
+    <string name="session_settings_idle_seeding_limit">Stop after being idle for (minutes)</string>
 
     <string-array name="torrent_priority">
         <item>Low</item>

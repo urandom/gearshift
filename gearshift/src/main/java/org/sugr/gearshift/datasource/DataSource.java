@@ -845,7 +845,7 @@ public class DataSource {
                     session.setBlocklistURL(cursor.getString(3));
                     break;
                 case TransmissionSession.SetterFields.DHT:
-                    session.setDHTEnabled(cursor.getInt(1) > 0);
+                    session.setDhtEnabled(cursor.getInt(1) > 0);
                     break;
                 case TransmissionSession.SetterFields.ENCRYPTION:
                     session.setEncryption(cursor.getString(3));
@@ -868,6 +868,12 @@ public class DataSource {
                 case TransmissionSession.SetterFields.DOWNLOAD_QUEUE_ENABLED:
                     session.setDownloadQueueEnabled(cursor.getInt(1) > 0);
                     break;
+                case TransmissionSession.SetterFields.IDLE_SEEDING_LIMIT:
+                    session.setIdleSeedingLimig(cursor.getLong(1));
+                    break;
+                case TransmissionSession.SetterFields.IDLE_SEEDING_LIMIT_ENABLED:
+                    session.setIdleSeedingLimitEnabled(cursor.getInt(1) > 0);
+                    break;
                 case TransmissionSession.SetterFields.INCOMPLETE_DIR:
                     session.setIncompleteDir(cursor.getString(3));
                     break;
@@ -878,7 +884,7 @@ public class DataSource {
                     session.setLocalDiscoveryEnabled(cursor.getInt(1) > 0);
                     break;
                 case TransmissionSession.SetterFields.UTP:
-                    session.setUTPEnabled(cursor.getInt(1) > 0);
+                    session.setUtpEnabled(cursor.getInt(1) > 0);
                     break;
                 case TransmissionSession.SetterFields.GLOBAL_PEER_LIMIT:
                     session.setGlobalPeerLimit(cursor.getInt(1));
@@ -1058,6 +1064,16 @@ public class DataSource {
                     item.put(Constants.C_VALUE_INTEGER, parser.getIntValue());
                     break;
                 case TransmissionSession.SetterFields.DOWNLOAD_QUEUE_ENABLED:
+                    item.put(Constants.C_NAME, name);
+                    item.put(Constants.C_VALUE_AFFINITY, Constants.TYPE_BOOLEAN);
+                    item.put(Constants.C_VALUE_INTEGER, parser.getBooleanValue());
+                    break;
+                case TransmissionSession.SetterFields.IDLE_SEEDING_LIMIT:
+                    item.put(Constants.C_NAME, name);
+                    item.put(Constants.C_VALUE_AFFINITY, Constants.TYPE_LONG);
+                    item.put(Constants.C_VALUE_INTEGER, parser.getLongValue());
+                    break;
+                case TransmissionSession.SetterFields.IDLE_SEEDING_LIMIT_ENABLED:
                     item.put(Constants.C_NAME, name);
                     item.put(Constants.C_VALUE_AFFINITY, Constants.TYPE_BOOLEAN);
                     item.put(Constants.C_VALUE_INTEGER, parser.getBooleanValue());
