@@ -309,6 +309,10 @@ public abstract class BaseTorrentActivity extends FragmentActivity
         }
 
         @Override protected void onPostExecute(Cursor cursor) {
+            if (connected) {
+                setRefreshing(false, DataService.Requests.GET_TORRENTS);
+            }
+
             if (update) {
                 update = false;
                 manager.update();
@@ -340,7 +344,10 @@ public abstract class BaseTorrentActivity extends FragmentActivity
                 case DataService.Requests.SET_TORRENT_ACTION:
                 case DataService.Requests.SET_TORRENT_LOCATION:
                 case DataService.Requests.GET_FREE_SPACE:
-                    setRefreshing(false, type);
+                    if (!type.equals(DataService.Requests.GET_TORRENTS)) {
+                        setRefreshing(false, type);
+                    }
+
                     lastServerActivity = new Date().getTime();
 
                     if (error == 0) {

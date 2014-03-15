@@ -13385,7 +13385,7 @@ org.sugr.gearshift.BaseTorrentActivity -> org.sugr.gearshift.BaseTorrentActivity
 org.sugr.gearshift.BaseTorrentActivity$1 -> oq:
 org.sugr.gearshift.BaseTorrentActivity$ServiceReceiver -> or:
     org.sugr.gearshift.BaseTorrentActivity this$0 -> a
-    323:373:void onReceive(android.content.Context,android.content.Intent) -> onReceive
+    325:378:void onReceive(android.content.Context,android.content.Intent) -> onReceive
 org.sugr.gearshift.BaseTorrentActivity$SessionTask -> org.sugr.gearshift.BaseTorrentActivity$SessionTask:
     org.sugr.gearshift.datasource.DataSource readSource -> a
     boolean startTorrentTask -> b
@@ -13407,7 +13407,7 @@ org.sugr.gearshift.BaseTorrentActivity$TorrentTask -> org.sugr.gearshift.BaseTor
     boolean connected -> g
     org.sugr.gearshift.BaseTorrentActivity this$0 -> h
     301:306:android.database.Cursor doInBackground(java.lang.Void[]) -> doInBackground
-    312:319:void onPostExecute(android.database.Cursor) -> onPostExecute
+    312:321:void onPostExecute(android.database.Cursor) -> onPostExecute
     262:262:void onPostExecute(java.lang.Object) -> onPostExecute
     262:262:java.lang.Object doInBackground(java.lang.Object[]) -> doInBackground
 org.sugr.gearshift.BaseTorrentActivity$TorrentTask$Flags -> org.sugr.gearshift.BaseTorrentActivity$TorrentTask$Flags:
