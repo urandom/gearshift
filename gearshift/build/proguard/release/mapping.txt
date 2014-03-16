@@ -13385,7 +13385,7 @@ org.sugr.gearshift.BaseTorrentActivity -> org.sugr.gearshift.BaseTorrentActivity
 org.sugr.gearshift.BaseTorrentActivity$1 -> oq:
 org.sugr.gearshift.BaseTorrentActivity$ServiceReceiver -> or:
     org.sugr.gearshift.BaseTorrentActivity this$0 -> a
-    325:378:void onReceive(android.content.Context,android.content.Intent) -> onReceive
+    327:380:void onReceive(android.content.Context,android.content.Intent) -> onReceive
 org.sugr.gearshift.BaseTorrentActivity$SessionTask -> org.sugr.gearshift.BaseTorrentActivity$SessionTask:
     org.sugr.gearshift.datasource.DataSource readSource -> a
     boolean startTorrentTask -> b
@@ -13407,7 +13407,7 @@ org.sugr.gearshift.BaseTorrentActivity$TorrentTask -> org.sugr.gearshift.BaseTor
     boolean connected -> g
     org.sugr.gearshift.BaseTorrentActivity this$0 -> h
     301:306:android.database.Cursor doInBackground(java.lang.Void[]) -> doInBackground
-    312:321:void onPostExecute(android.database.Cursor) -> onPostExecute
+    312:323:void onPostExecute(android.database.Cursor) -> onPostExecute
     262:262:void onPostExecute(java.lang.Object) -> onPostExecute
     262:262:java.lang.Object doInBackground(java.lang.Object[]) -> doInBackground
 org.sugr.gearshift.BaseTorrentActivity$TorrentTask$Flags -> org.sugr.gearshift.BaseTorrentActivity$TorrentTask$Flags:
@@ -14461,12 +14461,12 @@ org.sugr.gearshift.TorrentDetailActivity -> org.sugr.gearshift.TorrentDetailActi
     77:85:boolean onCreateOptionsMenu(android.view.Menu) -> onCreateOptionsMenu
     89:98:boolean onOptionsItemSelected(android.view.MenuItem) -> onOptionsItemSelected
     102:114:void onTrimMemory(int) -> onTrimMemory
-    117:120:void onPageSelected(int) -> onPageSelected
-    123:175:boolean handleSuccessServiceBroadcast(java.lang.String,android.content.Intent) -> handleSuccessServiceBroadcast
-    179:187:boolean handleErrorServiceBroadcast(java.lang.String,int,android.content.Intent) -> handleErrorServiceBroadcast
-    191:191:void onSessionTaskPostExecute(org.sugr.gearshift.TransmissionSession) -> onSessionTaskPostExecute
-    194:217:void onTorrentTaskPostExecute(android.database.Cursor,boolean,boolean,boolean,boolean,boolean) -> onTorrentTaskPostExecute
-    220:244:java.lang.String[] getCurrentTorrentHashStrings() -> b
+    117:122:void onPageSelected(int) -> onPageSelected
+    125:181:boolean handleSuccessServiceBroadcast(java.lang.String,android.content.Intent) -> handleSuccessServiceBroadcast
+    185:193:boolean handleErrorServiceBroadcast(java.lang.String,int,android.content.Intent) -> handleErrorServiceBroadcast
+    197:197:void onSessionTaskPostExecute(org.sugr.gearshift.TransmissionSession) -> onSessionTaskPostExecute
+    200:223:void onTorrentTaskPostExecute(android.database.Cursor,boolean,boolean,boolean,boolean,boolean) -> onTorrentTaskPostExecute
+    226:250:java.lang.String[] getCurrentTorrentHashStrings() -> b
 org.sugr.gearshift.TorrentDetailFragment -> org.sugr.gearshift.TorrentDetailFragment:
     java.lang.String ARG_SHOW_PAGER -> ARG_SHOW_PAGER
     org.sugr.gearshift.TorrentDetailFragment$PagerCallbacks pagerCallbacks -> a
@@ -14912,14 +14912,14 @@ org.sugr.gearshift.TorrentListActivity -> org.sugr.gearshift.TorrentListActivity
     549:580:boolean toggleRightPane(boolean) -> b
     584:604:void setProfile(org.sugr.gearshift.TransmissionProfile) -> setProfile
     607:642:void setSession(org.sugr.gearshift.TransmissionSession) -> setSession
-    645:704:boolean handleSuccessServiceBroadcast(java.lang.String,android.content.Intent) -> handleSuccessServiceBroadcast
-    708:717:boolean handleErrorServiceBroadcast(java.lang.String,int,android.content.Intent) -> handleErrorServiceBroadcast
-    721:727:void onSessionTaskPostExecute(org.sugr.gearshift.TransmissionSession) -> onSessionTaskPostExecute
-    732:769:void onTorrentTaskPostExecute(android.database.Cursor,boolean,boolean,boolean,boolean,boolean) -> onTorrentTaskPostExecute
-    772:793:void setAltSpeed(boolean) -> c
-    796:810:void consumeIntent() -> b
-    815:933:void showNewTorrentDialog(android.net.Uri,java.lang.String,java.lang.String,android.net.Uri) -> a
-    936:976:void showAddTorrentDialog() -> c
+    645:708:boolean handleSuccessServiceBroadcast(java.lang.String,android.content.Intent) -> handleSuccessServiceBroadcast
+    712:721:boolean handleErrorServiceBroadcast(java.lang.String,int,android.content.Intent) -> handleErrorServiceBroadcast
+    725:731:void onSessionTaskPostExecute(org.sugr.gearshift.TransmissionSession) -> onSessionTaskPostExecute
+    736:773:void onTorrentTaskPostExecute(android.database.Cursor,boolean,boolean,boolean,boolean,boolean) -> onTorrentTaskPostExecute
+    776:797:void setAltSpeed(boolean) -> c
+    800:814:void consumeIntent() -> b
+    819:937:void showNewTorrentDialog(android.net.Uri,java.lang.String,java.lang.String,android.net.Uri) -> a
+    940:980:void showAddTorrentDialog() -> c
     60:60:org.sugr.gearshift.TorrentListActivity$TransmissionProfileListAdapter access$000(org.sugr.gearshift.TorrentListActivity) -> a
     60:60:int access$100(org.sugr.gearshift.TorrentListActivity) -> b
     60:60:android.content.SharedPreferences$OnSharedPreferenceChangeListener access$200(org.sugr.gearshift.TorrentListActivity) -> c
@@ -14934,10 +14934,10 @@ org.sugr.gearshift.TorrentListActivity$1 -> re:
     102:102:void onLoadFinished(android.support.v4.content.Loader,java.lang.Object) -> onLoadFinished
 org.sugr.gearshift.TorrentListActivity$10 -> rf:
     org.sugr.gearshift.TorrentListActivity this$0 -> a
-    947:956:void onClick(android.content.DialogInterface,int) -> onClick
+    951:960:void onClick(android.content.DialogInterface,int) -> onClick
 org.sugr.gearshift.TorrentListActivity$11 -> rg:
     org.sugr.gearshift.TorrentListActivity this$0 -> a
-    963:969:void onClick(android.content.DialogInterface,int) -> onClick
+    967:973:void onClick(android.content.DialogInterface,int) -> onClick
 org.sugr.gearshift.TorrentListActivity$2 -> rh:
     org.sugr.gearshift.TorrentListActivity this$0 -> a
     165:173:void onSharedPreferenceChanged(android.content.SharedPreferences,java.lang.String) -> onSharedPreferenceChanged
@@ -14963,33 +14963,33 @@ org.sugr.gearshift.TorrentListActivity$6 -> rm:
 org.sugr.gearshift.TorrentListActivity$7 -> rn:
     android.net.Uri val$data -> a
     org.sugr.gearshift.TorrentListActivity this$0 -> b
-    829:848:void onClick(android.content.DialogInterface,int) -> onClick
+    833:852:void onClick(android.content.DialogInterface,int) -> onClick
 org.sugr.gearshift.TorrentListActivity$8 -> ro:
     java.lang.String val$fileURI -> a
     java.lang.String val$filePath -> b
     android.net.Uri val$documentUri -> c
     org.sugr.gearshift.TorrentListActivity this$0 -> d
-    855:909:void onClick(android.content.DialogInterface,int) -> onClick
+    859:913:void onClick(android.content.DialogInterface,int) -> onClick
 org.sugr.gearshift.TorrentListActivity$9 -> rp:
     org.sugr.gearshift.TorrentListActivity this$0 -> a
-    918:920:void onClick(android.content.DialogInterface,int) -> onClick
+    922:924:void onClick(android.content.DialogInterface,int) -> onClick
 org.sugr.gearshift.TorrentListActivity$Expecting -> rq:
     int ALT_SPEED_ON -> a
     int ALT_SPEED_OFF -> b
 org.sugr.gearshift.TorrentListActivity$ReadTorrentDataTask -> org.sugr.gearshift.TorrentListActivity$ReadTorrentDataTask:
     org.sugr.gearshift.TorrentListActivity this$0 -> a
-    1034:1085:org.sugr.gearshift.TorrentListActivity$ReadTorrentDataTask$TaskData doInBackground(android.net.Uri[]) -> a
-    1090:1096:void onPostExecute(org.sugr.gearshift.TorrentListActivity$ReadTorrentDataTask$TaskData) -> a
-    1027:1027:void onPostExecute(java.lang.Object) -> onPostExecute
-    1027:1027:java.lang.Object doInBackground(java.lang.Object[]) -> doInBackground
+    1038:1089:org.sugr.gearshift.TorrentListActivity$ReadTorrentDataTask$TaskData doInBackground(android.net.Uri[]) -> a
+    1094:1100:void onPostExecute(org.sugr.gearshift.TorrentListActivity$ReadTorrentDataTask$TaskData) -> a
+    1031:1031:void onPostExecute(java.lang.Object) -> onPostExecute
+    1031:1031:java.lang.Object doInBackground(java.lang.Object[]) -> doInBackground
 org.sugr.gearshift.TorrentListActivity$ReadTorrentDataTask$TaskData -> org.sugr.gearshift.TorrentListActivity$ReadTorrentDataTask$TaskData:
     java.io.File file -> file
     android.net.Uri uri -> uri
     org.sugr.gearshift.TorrentListActivity$ReadTorrentDataTask this$1 -> a
 org.sugr.gearshift.TorrentListActivity$TransmissionProfileListAdapter -> rr:
     org.sugr.gearshift.TransmissionProfile EMPTY_PROFILE -> a
-    989:1011:android.view.View getView(int,android.view.View,android.view.ViewGroup) -> getView
-    1016:1023:android.view.View getDropDownView(int,android.view.View,android.view.ViewGroup) -> getDropDownView
+    993:1015:android.view.View getView(int,android.view.View,android.view.ViewGroup) -> getView
+    1020:1027:android.view.View getDropDownView(int,android.view.View,android.view.ViewGroup) -> getDropDownView
 org.sugr.gearshift.TorrentListFragment -> org.sugr.gearshift.TorrentListFragment:
     org.sugr.gearshift.TorrentListFragment$Callbacks callbacks -> i
     int activatedPosition -> Y
