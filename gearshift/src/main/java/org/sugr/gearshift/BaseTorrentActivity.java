@@ -313,7 +313,7 @@ public abstract class BaseTorrentActivity extends FragmentActivity
                 setRefreshing(false, DataService.Requests.GET_TORRENTS);
             }
 
-            if (update) {
+            if (update && manager != null) {
                 update = false;
                 manager.update();
             }

@@ -642,6 +642,10 @@ public class TorrentListActivity extends BaseTorrentActivity
     }
 
     @Override protected boolean handleSuccessServiceBroadcast(String type, Intent intent) {
+        if (manager == null) {
+            return false;
+        }
+
         int flags = TorrentTask.Flags.CONNECTED;
         switch (type) {
             case DataService.Requests.GET_SESSION:

@@ -116,10 +116,16 @@ public class TorrentDetailActivity extends BaseTorrentActivity {
     @Override public void onPageSelected(int position) {
         currentTorrentPosition = position;
 
-        manager.setTorrentsToUpdate(getCurrentTorrentHashStrings());
+        if (manager != null) {
+            manager.setTorrentsToUpdate(getCurrentTorrentHashStrings());
+        }
     }
 
     @Override protected boolean handleSuccessServiceBroadcast(String type, Intent intent) {
+        if (manager == null) {
+            return false;
+        }
+
         int flags = TorrentTask.Flags.CONNECTED;
         switch (type) {
             case DataService.Requests.GET_SESSION:
@@ -176,9 +182,9 @@ public class TorrentDetailActivity extends BaseTorrentActivity {
     }
 
     @Override protected boolean handleErrorServiceBroadcast(String type, int error, Intent intent) {
-        FragmentManager manager = getSupportFragmentManager();
+        FragmentManager fm = getSupportFragmentManager();
         TorrentDetailFragment fragment =
-            (TorrentDetailFragment) manager.findFragmentByTag(G.DETAIL_FRAGMENT_TAG);
+            (TorrentDetailFragment) fm.findFragmentByTag(G.DETAIL_FRAGMENT_TAG);
 
         if (fragment != null) {
             fragment.notifyTorrentListChanged(null, error, false, false, false, false, false);
@@ -206,8 +212,8 @@ public class TorrentDetailActivity extends BaseTorrentActivity {
             Toast.makeText(TorrentDetailActivity.this, text, Toast.LENGTH_SHORT).show();
         }
 
-        FragmentManager manager = getSupportFragmentManager();
-        TorrentDetailFragment detail = (TorrentDetailFragment) manager.findFragmentByTag(
+        FragmentManager fm = getSupportFragmentManager();
+        TorrentDetailFragment detail = (TorrentDetailFragment) fm.findFragmentByTag(
             G.DETAIL_FRAGMENT_TAG);
         if (detail != null) {
             detail.notifyTorrentListChanged(cursor, 0, added, removed,
