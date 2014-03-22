@@ -1075,39 +1075,39 @@ public class TorrentDetailPageFragment extends Fragment {
 
             filesAdapter.setNotifyOnChange(false);
             if (filesAdapter.getCount() == 0) {
-                filesAdapter.clear();
                 ArrayList<TorrentFile> torrentFiles = new ArrayList<>();
 
                 details.filesCursor.moveToFirst();
+                if (!TextUtils.isEmpty(Torrent.File.getName(details.filesCursor))) {
+                    int index = 0;
+                    while (!details.filesCursor.isAfterLast()) {
+                        TorrentFile file = new TorrentFile(index, details.filesCursor);
+                        torrentFiles.add(file);
 
-                int index = 0;
-                while (!details.filesCursor.isAfterLast()) {
-                    TorrentFile file = new TorrentFile(index, details.filesCursor);
-                    torrentFiles.add(file);
-
-                    details.filesCursor.moveToNext();
-                    ++index;
-                }
-
-                Collections.sort(torrentFiles, new TorrentFileComparator());
-                String directory = "";
-
-                ArrayList<Integer> directories = new ArrayList<>();
-                for (int i = 0; i < torrentFiles.size(); i++) {
-                    TorrentFile file = torrentFiles.get(i);
-                    if (!directory.equals(file.directory)) {
-                        directory = file.directory;
-                        directories.add(i);
+                        details.filesCursor.moveToNext();
+                        ++index;
                     }
-                }
-                int offset = 0;
-                for (Integer i : directories) {
-                    TorrentFile file = torrentFiles.get(i + offset);
-                    torrentFiles.add(i + offset, new TorrentFile(file.directory));
-                    offset++;
-                }
 
-                filesAdapter.addAll(torrentFiles);
+                    Collections.sort(torrentFiles, new TorrentFileComparator());
+                    String directory = "";
+
+                    ArrayList<Integer> directories = new ArrayList<>();
+                    for (int i = 0; i < torrentFiles.size(); i++) {
+                        TorrentFile file = torrentFiles.get(i);
+                        if (!directory.equals(file.directory)) {
+                            directory = file.directory;
+                            directories.add(i);
+                        }
+                    }
+                    int offset = 0;
+                    for (Integer i : directories) {
+                        TorrentFile file = torrentFiles.get(i + offset);
+                        torrentFiles.add(i + offset, new TorrentFile(file.directory));
+                        offset++;
+                    }
+
+                    filesAdapter.addAll(torrentFiles);
+                }
             }
             filesAdapter.notifyDataSetChanged();
         }

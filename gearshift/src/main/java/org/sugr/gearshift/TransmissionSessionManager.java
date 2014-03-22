@@ -84,8 +84,12 @@ public class TransmissionSessionManager {
     }
 
     public void setProfile(TransmissionProfile profile) {
-        this.profile = profile;
-        sessionId = null;
+        if (this.profile == null && profile != null
+            || !this.profile.getId().equals(profile.getId())) {
+
+            this.profile = profile;
+            sessionId = null;
+        }
     }
 
     public void updateSession() throws ManagerException {

@@ -44,6 +44,7 @@ public class DataService extends IntentService {
     public static final class Args {
         public static final String SESSION = "session";
         public static final String SESSION_FIELDS = "session_fields";
+        public static final String ALL_TORRENT_FIELDS = "all_torrent_fields";
         public static final String DETAIL_FIELDS = "detail_fields";
         public static final String UPDATE_ACTIVE = "update_active";
         public static final String TORRENTS_TO_UPDATE = "torrents_to_update";
@@ -139,14 +140,20 @@ public class DataService extends IntentService {
                         TorrentStatus status;
                         String[] fields = Torrent.Fields.STATS;
 
-                        if (!dataSource.hasCompleteMetadata(profileId)) {
-                            fields = G.concat(Torrent.Fields.METADATA, fields);
-                        }
+                        if (args.getBoolean(Args.ALL_TORRENT_FIELDS, false)) {
+                            fields = G.concat(fields, Torrent.Fields.METADATA,
+                                Torrent.Fields.STATS_EXTRA,
+                                Torrent.Fields.INFO_EXTRA);
+                        } else {
+                            if (!dataSource.hasCompleteMetadata(profileId)) {
+                                fields = G.concat(Torrent.Fields.METADATA, fields);
+                            }
 
-                        if (args.getBoolean(Args.DETAIL_FIELDS, false)) {
-                            fields = G.concat(fields, Torrent.Fields.STATS_EXTRA);
-                            if (!dataSource.hasExtraInfo(profileId)) {
-                                fields = G.concat(fields, Torrent.Fields.INFO_EXTRA);
+                            if (args.getBoolean(Args.DETAIL_FIELDS, false)) {
+                                fields = G.concat(fields, Torrent.Fields.STATS_EXTRA);
+                                if (!dataSource.hasExtraInfo(profileId)) {
+                                    fields = G.concat(fields, Torrent.Fields.INFO_EXTRA);
+                                }
                             }
                         }
 

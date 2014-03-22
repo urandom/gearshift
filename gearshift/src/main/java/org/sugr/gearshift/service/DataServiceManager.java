@@ -117,6 +117,10 @@ public class DataServiceManager {
     }
 
     public void update() {
+        update(false);
+    }
+
+    public void update(boolean updateAllDetails) {
         updateHandler.removeCallbacks(updateRunnable);
 
         if (sessionOnly) {
@@ -135,6 +139,10 @@ public class DataServiceManager {
 
             if (details || iteration == 1) {
                 args.putBoolean(DataService.Args.DETAIL_FIELDS, true);
+            }
+
+            if (updateAllDetails) {
+                args.putBoolean(DataService.Args.ALL_TORRENT_FIELDS, true);
             }
 
             if (torrentsToUpdate != null) {
@@ -361,7 +369,7 @@ public class DataServiceManager {
                         repeatLoading();
                         break;
                     case DataService.Requests.ADD_TORRENT:
-                        update();
+                        update(true);
                         break;
                 }
             } else {
