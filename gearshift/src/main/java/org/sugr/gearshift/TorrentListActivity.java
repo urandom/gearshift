@@ -331,9 +331,11 @@ public class TorrentListActivity extends BaseTorrentActivity
         if (savedInstanceState != null) {
             if (savedInstanceState.containsKey(STATE_CURRENT_PROFILE)) {
                 profile = savedInstanceState.getParcelable(STATE_CURRENT_PROFILE);
-                manager = new DataServiceManager(this, profile.getId())
-                    .onRestoreInstanceState(savedInstanceState).startUpdating();
-                new SessionTask(this, SessionTask.Flags.START_TORRENT_TASK).execute();
+                if (profile != null) {
+                    manager = new DataServiceManager(this, profile.getId())
+                        .onRestoreInstanceState(savedInstanceState).startUpdating();
+                    new SessionTask(this, SessionTask.Flags.START_TORRENT_TASK).execute();
+                }
             }
         }
 
