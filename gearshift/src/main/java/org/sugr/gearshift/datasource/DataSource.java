@@ -602,6 +602,10 @@ public class DataSource {
         if (!isOpen())
             return null;
 
+        if (session == null) {
+            session = getSession(profile);
+        }
+
         TorrentCursorArgs args = getTorrentCursorArgs();
 
         Cursor cursor = getTorrentCursor(profile, args.selection, args.selectionArgs,
@@ -2104,6 +2108,12 @@ public class DataSource {
                 sort = "(CASE " + Constants.C_STATUS
                     + " WHEN " + Torrent.Status.STOPPED
                     + " THEN (CASE WHEN "
+                    + Constants.C_SEED_RATIO_MODE + " = " + Torrent.SeedRatioMode.NO_LIMIT
+                    + " OR ("
+                    + Constants.C_SEED_RATIO_MODE + " = " + Torrent.SeedRatioMode.GLOBAL_LIMIT
+                    + " AND "
+                    + Constants.C_UPLOAD_RATIO + " < " + Float.toString(session.getSeedRatioLimit())
+                    + ") OR "
                     + Constants.C_UPLOAD_RATIO + " < " + Constants.C_SEED_RATIO_LIMIT
                     + " THEN " + (Torrent.Status.STOPPED + 40)
                     + " ELSE " + (Torrent.Status.STOPPED + 50)

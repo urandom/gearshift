@@ -15882,77 +15882,77 @@ org.sugr.gearshift.TransmissionSessionManager -> org.sugr.gearshift.Transmission
     android.content.SharedPreferences defaultPrefs -> e
     org.sugr.gearshift.datasource.DataSource dataSource -> f
     82:83:boolean hasConnectivity() -> hasConnectivity
-    87:89:void setProfile(org.sugr.gearshift.TransmissionProfile) -> setProfile
-    92:99:void updateSession() -> updateSession
-    102:114:org.sugr.gearshift.datasource.TorrentStatus getActiveTorrents(java.lang.String[]) -> getActiveTorrents
-    119:134:org.sugr.gearshift.datasource.TorrentStatus getTorrents(java.lang.String[],java.lang.String[],boolean) -> getTorrents
-    138:150:void setSession(org.sugr.gearshift.TransmissionSession,java.lang.String[]) -> setSession
-    153:165:void removeTorrent(java.lang.String[],boolean) -> removeTorrent
-    168:178:void setTorrentAction(java.lang.String[],java.lang.String) -> setTorrentAction
-    181:193:void setTorrentLocation(java.lang.String[],java.lang.String,boolean) -> setTorrentLocation
-    197:256:void setTorrentProperty(java.lang.String[],java.lang.String,java.lang.Object) -> setTorrentProperty
-    260:279:java.lang.String addTorrent(java.lang.String,java.lang.String,java.lang.String,boolean) -> addTorrent
-    284:292:boolean testPort() -> testPort
-    296:304:long updateBlocklist() -> updateBlocklist
-    308:326:long getFreeSpace(java.lang.String) -> getFreeSpace
-    331:471:void requestData(com.fasterxml.jackson.databind.node.ObjectNode,org.sugr.gearshift.TransmissionSessionManager$Response) -> a
-    474:481:java.lang.String getSessionId(java.net.HttpURLConnection) -> a
-    485:495:com.fasterxml.jackson.databind.node.ObjectNode createRequest(java.lang.String,boolean) -> a
-    499:499:com.fasterxml.jackson.databind.node.ObjectNode createRequest(java.lang.String) -> a
-    503:643:void buildResponse(java.io.InputStream,org.sugr.gearshift.TransmissionSessionManager$Response) -> a
-    756:762:int[] convertIntegerList(java.util.List) -> convertIntegerList
-    766:771:java.lang.String[] convertStringList(java.util.List) -> convertStringList
+    87:93:void setProfile(org.sugr.gearshift.TransmissionProfile) -> setProfile
+    96:103:void updateSession() -> updateSession
+    106:118:org.sugr.gearshift.datasource.TorrentStatus getActiveTorrents(java.lang.String[]) -> getActiveTorrents
+    123:138:org.sugr.gearshift.datasource.TorrentStatus getTorrents(java.lang.String[],java.lang.String[],boolean) -> getTorrents
+    142:154:void setSession(org.sugr.gearshift.TransmissionSession,java.lang.String[]) -> setSession
+    157:169:void removeTorrent(java.lang.String[],boolean) -> removeTorrent
+    172:182:void setTorrentAction(java.lang.String[],java.lang.String) -> setTorrentAction
+    185:197:void setTorrentLocation(java.lang.String[],java.lang.String,boolean) -> setTorrentLocation
+    201:260:void setTorrentProperty(java.lang.String[],java.lang.String,java.lang.Object) -> setTorrentProperty
+    264:283:java.lang.String addTorrent(java.lang.String,java.lang.String,java.lang.String,boolean) -> addTorrent
+    288:296:boolean testPort() -> testPort
+    300:308:long updateBlocklist() -> updateBlocklist
+    312:330:long getFreeSpace(java.lang.String) -> getFreeSpace
+    335:475:void requestData(com.fasterxml.jackson.databind.node.ObjectNode,org.sugr.gearshift.TransmissionSessionManager$Response) -> a
+    478:485:java.lang.String getSessionId(java.net.HttpURLConnection) -> a
+    489:499:com.fasterxml.jackson.databind.node.ObjectNode createRequest(java.lang.String,boolean) -> a
+    503:503:com.fasterxml.jackson.databind.node.ObjectNode createRequest(java.lang.String) -> a
+    507:647:void buildResponse(java.io.InputStream,org.sugr.gearshift.TransmissionSessionManager$Response) -> a
+    760:766:int[] convertIntegerList(java.util.List) -> convertIntegerList
+    770:775:java.lang.String[] convertStringList(java.util.List) -> convertStringList
 org.sugr.gearshift.TransmissionSessionManager$1 -> uz:
     org.sugr.gearshift.TransmissionSessionManager this$0 -> a
-    347:347:java.security.cert.X509Certificate[] getAcceptedIssuers() -> getAcceptedIssuers
-    351:351:void checkClientTrusted(java.security.cert.X509Certificate[],java.lang.String) -> checkClientTrusted
-    354:354:void checkServerTrusted(java.security.cert.X509Certificate[],java.lang.String) -> checkServerTrusted
+    351:351:java.security.cert.X509Certificate[] getAcceptedIssuers() -> getAcceptedIssuers
+    355:355:void checkClientTrusted(java.security.cert.X509Certificate[],java.lang.String) -> checkClientTrusted
+    358:358:void checkServerTrusted(java.security.cert.X509Certificate[],java.lang.String) -> checkServerTrusted
 org.sugr.gearshift.TransmissionSessionManager$2 -> va:
     org.sugr.gearshift.TransmissionSessionManager this$0 -> a
-    360:360:boolean verify(java.lang.String,javax.net.ssl.SSLSession) -> verify
+    364:364:boolean verify(java.lang.String,javax.net.ssl.SSLSession) -> verify
 org.sugr.gearshift.TransmissionSessionManager$AddTorrentResponse -> org.sugr.gearshift.TransmissionSessionManager$AddTorrentResponse:
     int addedId -> a
     java.lang.String addedHash -> b
     int duplicateId -> c
     java.lang.String location -> d
-    687:687:int getAddedId() -> getAddedId
-    690:691:void setAddedId(int) -> setAddedId
-    694:694:java.lang.String getAddedHash() -> getAddedHash
-    698:699:void setAddedHash(java.lang.String) -> setAddedHash
-    702:702:boolean isDuplicate() -> isDuplicate
-    705:706:void setDuplicateId(int) -> setDuplicateId
-    709:709:java.lang.String getLocation() -> getLocation
-    713:714:void setLocation(java.lang.String) -> setLocation
+    691:691:int getAddedId() -> getAddedId
+    694:695:void setAddedId(int) -> setAddedId
+    698:698:java.lang.String getAddedHash() -> getAddedHash
+    702:703:void setAddedHash(java.lang.String) -> setAddedHash
+    706:706:boolean isDuplicate() -> isDuplicate
+    709:710:void setDuplicateId(int) -> setDuplicateId
+    713:713:java.lang.String getLocation() -> getLocation
+    717:718:void setLocation(java.lang.String) -> setLocation
 org.sugr.gearshift.TransmissionSessionManager$BlocklistUpdateResponse -> org.sugr.gearshift.TransmissionSessionManager$BlocklistUpdateResponse:
     long size -> size
-    732:732:long getBlocklistSize() -> getBlocklistSize
-    735:736:void setBlocklistSize(long) -> setBlocklistSize
+    736:736:long getBlocklistSize() -> getBlocklistSize
+    739:740:void setBlocklistSize(long) -> setBlocklistSize
 org.sugr.gearshift.TransmissionSessionManager$FreeSpaceResponse -> org.sugr.gearshift.TransmissionSessionManager$FreeSpaceResponse:
     long freeSpace -> freeSpace
     java.lang.String path -> path
-    744:744:long getFreeSpace() -> getFreeSpace
-    747:748:void setFreeSpace(long) -> setFreeSpace
-    751:752:void setPath(java.lang.String) -> setPath
+    748:748:long getFreeSpace() -> getFreeSpace
+    751:752:void setFreeSpace(long) -> setFreeSpace
+    755:756:void setPath(java.lang.String) -> setPath
 org.sugr.gearshift.TransmissionSessionManager$ManagerException -> org.sugr.gearshift.TransmissionSessionManager$ManagerException:
     int code -> b
     org.sugr.gearshift.TransmissionSessionManager this$0 -> a
     54:54:int getCode() -> getCode
 org.sugr.gearshift.TransmissionSessionManager$PortTestResponse -> org.sugr.gearshift.TransmissionSessionManager$PortTestResponse:
     boolean open -> open
-    721:721:boolean isPortOpen() -> isPortOpen
-    724:725:void setPortOpen(boolean) -> setPortOpen
+    725:725:boolean isPortOpen() -> isPortOpen
+    728:729:void setPortOpen(boolean) -> setPortOpen
 org.sugr.gearshift.TransmissionSessionManager$Response -> org.sugr.gearshift.TransmissionSessionManager$Response:
     java.lang.String mResult -> mResult
-    649:649:java.lang.String getResult() -> getResult
-    652:653:void setResult(java.lang.String) -> setResult
+    653:653:java.lang.String getResult() -> getResult
+    656:657:void setResult(java.lang.String) -> setResult
 org.sugr.gearshift.TransmissionSessionManager$SessionGetResponse -> org.sugr.gearshift.TransmissionSessionManager$SessionGetResponse:
 org.sugr.gearshift.TransmissionSessionManager$TorrentGetResponse -> org.sugr.gearshift.TransmissionSessionManager$TorrentGetResponse:
     org.sugr.gearshift.datasource.TorrentStatus status -> a
     boolean removeObsolete -> b
-    663:663:org.sugr.gearshift.datasource.TorrentStatus getTorrentStatus() -> getTorrentStatus
-    667:668:void setTorrentStatus(org.sugr.gearshift.datasource.TorrentStatus) -> setTorrentStatus
-    671:671:boolean getRemoveObsolete() -> getRemoveObsolete
-    675:676:void setRemoveObsolete(boolean) -> setRemoveObsolete
+    667:667:org.sugr.gearshift.datasource.TorrentStatus getTorrentStatus() -> getTorrentStatus
+    671:672:void setTorrentStatus(org.sugr.gearshift.datasource.TorrentStatus) -> setTorrentStatus
+    675:675:boolean getRemoveObsolete() -> getRemoveObsolete
+    679:680:void setRemoveObsolete(boolean) -> setRemoveObsolete
 org.sugr.gearshift.datasource.Constants -> org.sugr.gearshift.datasource.Constants:
     java.lang.String T_SESSION -> T_SESSION
     java.lang.String T_TORRENT -> T_TORRENT
@@ -16093,20 +16093,20 @@ org.sugr.gearshift.datasource.DataSource -> org.sugr.gearshift.datasource.DataSo
     501:533:java.util.Set getTrackerAnnounceURLs(java.lang.String) -> getTrackerAnnounceURLs
     539:565:java.util.Set getDownloadDirectories(java.lang.String) -> getDownloadDirectories
     571:596:long[] getTrafficSpeed(java.lang.String) -> getTrafficSpeed
-    602:714:android.database.Cursor getTorrentCursor(java.lang.String) -> getTorrentCursor
-    719:745:android.database.Cursor getTorrentCursor(java.lang.String,java.lang.String,java.lang.String[],java.lang.String,boolean) -> getTorrentCursor
-    749:770:org.sugr.gearshift.datasource.TorrentNameStatus getTorrentNameStatus(java.lang.String,java.lang.String) -> getTorrentNameStatus
-    776:806:org.sugr.gearshift.datasource.TorrentDetails getTorrentDetails(java.lang.String,java.lang.String) -> getTorrentDetails
-    810:966:org.sugr.gearshift.TransmissionSession cursorToSession(android.database.Cursor) -> cursorToSession
-    971:1232:java.util.List jsonToSessionValues(java.lang.String,com.fasterxml.jackson.core.JsonParser) -> jsonToSessionValues
-    1236:1852:org.sugr.gearshift.datasource.TorrentValues jsonToTorrentValues(com.fasterxml.jackson.core.JsonParser) -> jsonToTorrentValues
-    1856:1858:void removeTorrent(java.lang.String) -> removeTorrent
-    1861:1863:void removeTorrent(int) -> removeTorrent
-    1866:1892:void removeObsolete(java.lang.String,java.util.List) -> removeObsolete
-    1895:1906:int[] queryTorrentIdChanges() -> queryTorrentIdChanges
-    1911:1944:int[] queryStatusCount() -> queryStatusCount
-    1949:2090:org.sugr.gearshift.datasource.TorrentCursorArgs getTorrentCursorArgs() -> getTorrentCursorArgs
-    2096:2161:java.lang.String sortToOrder(org.sugr.gearshift.G$SortBy,org.sugr.gearshift.G$SortOrder) -> sortToOrder
+    602:718:android.database.Cursor getTorrentCursor(java.lang.String) -> getTorrentCursor
+    723:749:android.database.Cursor getTorrentCursor(java.lang.String,java.lang.String,java.lang.String[],java.lang.String,boolean) -> getTorrentCursor
+    753:774:org.sugr.gearshift.datasource.TorrentNameStatus getTorrentNameStatus(java.lang.String,java.lang.String) -> getTorrentNameStatus
+    780:810:org.sugr.gearshift.datasource.TorrentDetails getTorrentDetails(java.lang.String,java.lang.String) -> getTorrentDetails
+    814:970:org.sugr.gearshift.TransmissionSession cursorToSession(android.database.Cursor) -> cursorToSession
+    975:1236:java.util.List jsonToSessionValues(java.lang.String,com.fasterxml.jackson.core.JsonParser) -> jsonToSessionValues
+    1240:1856:org.sugr.gearshift.datasource.TorrentValues jsonToTorrentValues(com.fasterxml.jackson.core.JsonParser) -> jsonToTorrentValues
+    1860:1862:void removeTorrent(java.lang.String) -> removeTorrent
+    1865:1867:void removeTorrent(int) -> removeTorrent
+    1870:1896:void removeObsolete(java.lang.String,java.util.List) -> removeObsolete
+    1899:1910:int[] queryTorrentIdChanges() -> queryTorrentIdChanges
+    1915:1948:int[] queryStatusCount() -> queryStatusCount
+    1953:2094:org.sugr.gearshift.datasource.TorrentCursorArgs getTorrentCursorArgs() -> getTorrentCursorArgs
+    2100:2171:java.lang.String sortToOrder(org.sugr.gearshift.G$SortBy,org.sugr.gearshift.G$SortOrder) -> sortToOrder
 org.sugr.gearshift.datasource.DataSource$1 -> vb:
     int[] $SwitchMap$org$sugr$gearshift$G$SortBy -> a
 org.sugr.gearshift.datasource.SQLiteHelper -> org.sugr.gearshift.datasource.SQLiteHelper:
@@ -16138,12 +16138,13 @@ org.sugr.gearshift.service.DataService -> org.sugr.gearshift.service.DataService
     org.sugr.gearshift.datasource.DataSource dataSource -> a
     org.sugr.gearshift.TransmissionSessionManager manager -> b
     org.sugr.gearshift.TransmissionProfile profile -> c
-    76:321:void onHandleIntent(android.content.Intent) -> onHandleIntent
-    324:324:android.content.Intent createResponse(java.lang.String,java.lang.String) -> a
-    332:377:android.content.Intent handleError(org.sugr.gearshift.TransmissionSessionManager$ManagerException,java.lang.String,java.lang.String) -> a
+    77:328:void onHandleIntent(android.content.Intent) -> onHandleIntent
+    331:331:android.content.Intent createResponse(java.lang.String,java.lang.String) -> a
+    339:384:android.content.Intent handleError(org.sugr.gearshift.TransmissionSessionManager$ManagerException,java.lang.String,java.lang.String) -> a
 org.sugr.gearshift.service.DataService$Args -> org.sugr.gearshift.service.DataService$Args:
     java.lang.String SESSION -> SESSION
     java.lang.String SESSION_FIELDS -> SESSION_FIELDS
+    java.lang.String ALL_TORRENT_FIELDS -> ALL_TORRENT_FIELDS
     java.lang.String DETAIL_FIELDS -> DETAIL_FIELDS
     java.lang.String UPDATE_ACTIVE -> UPDATE_ACTIVE
     java.lang.String TORRENTS_TO_UPDATE -> TORRENTS_TO_UPDATE
@@ -16193,26 +16194,27 @@ org.sugr.gearshift.service.DataServiceManager -> org.sugr.gearshift.service.Data
     91:94:org.sugr.gearshift.service.DataServiceManager setTorrentsToUpdate(java.lang.String[]) -> setTorrentsToUpdate
     98:107:org.sugr.gearshift.service.DataServiceManager startUpdating() -> startUpdating
     111:116:org.sugr.gearshift.service.DataServiceManager stopUpdating() -> stopUpdating
-    120:159:void update() -> update
-    162:164:org.sugr.gearshift.service.DataServiceManager getSession() -> getSession
-    168:176:org.sugr.gearshift.service.DataServiceManager setSession(org.sugr.gearshift.TransmissionSession,java.lang.String[]) -> setSession
-    181:193:org.sugr.gearshift.service.DataServiceManager addTorrent(java.lang.String,java.lang.String,java.lang.String,boolean,java.lang.String,android.net.Uri) -> addTorrent
-    197:205:org.sugr.gearshift.service.DataServiceManager removeTorrent(java.lang.String[],boolean) -> removeTorrent
-    209:212:org.sugr.gearshift.service.DataServiceManager setTorrent(java.lang.String[],java.lang.String,int) -> setTorrent
-    216:219:org.sugr.gearshift.service.DataServiceManager setTorrent(java.lang.String[],java.lang.String,long) -> setTorrent
-    223:226:org.sugr.gearshift.service.DataServiceManager setTorrent(java.lang.String[],java.lang.String,boolean) -> setTorrent
-    230:233:org.sugr.gearshift.service.DataServiceManager setTorrent(java.lang.String[],java.lang.String,float) -> setTorrent
-    238:254:org.sugr.gearshift.service.DataServiceManager setTorrent(java.lang.String[],java.lang.String,java.util.ArrayList) -> setTorrent
-    258:267:org.sugr.gearshift.service.DataServiceManager setTorrentLocation(java.lang.String[],java.lang.String,boolean) -> setTorrentLocation
-    271:279:org.sugr.gearshift.service.DataServiceManager setTorrentAction(java.lang.String[],java.lang.String) -> setTorrentAction
-    283:287:org.sugr.gearshift.service.DataServiceManager removeProfile() -> removeProfile
-    291:298:org.sugr.gearshift.service.DataServiceManager getFreeSpace(java.lang.String) -> getFreeSpace
-    302:306:org.sugr.gearshift.service.DataServiceManager testPort() -> testPort
-    310:314:org.sugr.gearshift.service.DataServiceManager updateBlocklist() -> updateBlocklist
-    318:318:android.content.SharedPreferences getPreferences() -> a
-    322:327:android.content.Intent createIntent(java.lang.String,android.os.Bundle) -> a
-    331:339:void repeatLoading() -> b
-    342:348:org.sugr.gearshift.service.DataServiceManager setTorrent(java.lang.String[],java.lang.String,android.os.Bundle) -> a
+    120:121:void update() -> update
+    124:167:void update(boolean) -> update
+    170:172:org.sugr.gearshift.service.DataServiceManager getSession() -> getSession
+    176:184:org.sugr.gearshift.service.DataServiceManager setSession(org.sugr.gearshift.TransmissionSession,java.lang.String[]) -> setSession
+    189:201:org.sugr.gearshift.service.DataServiceManager addTorrent(java.lang.String,java.lang.String,java.lang.String,boolean,java.lang.String,android.net.Uri) -> addTorrent
+    205:213:org.sugr.gearshift.service.DataServiceManager removeTorrent(java.lang.String[],boolean) -> removeTorrent
+    217:220:org.sugr.gearshift.service.DataServiceManager setTorrent(java.lang.String[],java.lang.String,int) -> setTorrent
+    224:227:org.sugr.gearshift.service.DataServiceManager setTorrent(java.lang.String[],java.lang.String,long) -> setTorrent
+    231:234:org.sugr.gearshift.service.DataServiceManager setTorrent(java.lang.String[],java.lang.String,boolean) -> setTorrent
+    238:241:org.sugr.gearshift.service.DataServiceManager setTorrent(java.lang.String[],java.lang.String,float) -> setTorrent
+    246:262:org.sugr.gearshift.service.DataServiceManager setTorrent(java.lang.String[],java.lang.String,java.util.ArrayList) -> setTorrent
+    266:275:org.sugr.gearshift.service.DataServiceManager setTorrentLocation(java.lang.String[],java.lang.String,boolean) -> setTorrentLocation
+    279:287:org.sugr.gearshift.service.DataServiceManager setTorrentAction(java.lang.String[],java.lang.String) -> setTorrentAction
+    291:295:org.sugr.gearshift.service.DataServiceManager removeProfile() -> removeProfile
+    299:306:org.sugr.gearshift.service.DataServiceManager getFreeSpace(java.lang.String) -> getFreeSpace
+    310:314:org.sugr.gearshift.service.DataServiceManager testPort() -> testPort
+    318:322:org.sugr.gearshift.service.DataServiceManager updateBlocklist() -> updateBlocklist
+    326:326:android.content.SharedPreferences getPreferences() -> a
+    330:335:android.content.Intent createIntent(java.lang.String,android.os.Bundle) -> a
+    339:347:void repeatLoading() -> b
+    350:356:org.sugr.gearshift.service.DataServiceManager setTorrent(java.lang.String[],java.lang.String,android.os.Bundle) -> a
     21:21:boolean access$000(org.sugr.gearshift.service.DataServiceManager) -> a
     21:21:void access$200(org.sugr.gearshift.service.DataServiceManager) -> b
     21:21:boolean access$302(org.sugr.gearshift.service.DataServiceManager,boolean) -> a
@@ -16221,7 +16223,7 @@ org.sugr.gearshift.service.DataServiceManager$1 -> ve:
     37:42:void run() -> run
 org.sugr.gearshift.service.DataServiceManager$ServiceReceiver -> vf:
     org.sugr.gearshift.service.DataServiceManager this$0 -> a
-    353:370:void onReceive(android.content.Context,android.content.Intent) -> onReceive
+    361:378:void onReceive(android.content.Context,android.content.Intent) -> onReceive
 org.sugr.gearshift.service.DataServiceManagerInterface -> org.sugr.gearshift.service.DataServiceManagerInterface:
     org.sugr.gearshift.service.DataServiceManager getDataServiceManager() -> getDataServiceManager
 org.sugr.gearshift.util.Base64 -> org.sugr.gearshift.util.Base64:
