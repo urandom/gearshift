@@ -52,6 +52,26 @@ public class TransmissionProfileTest {
         assertEquals(G.PROFILES_PREF_NAME, TransmissionProfile.getPreferencesName());
     }
 
+    @Test public void cleanTemporaryPreferences() {
+        prefs.edit().putString(G.PREF_NAME, "name").commit();
+        prefs.edit().putString(G.PREF_HOST, "host").commit();
+        prefs.edit().putString(G.PREF_PORT, "9911").commit();
+        prefs.edit().putBoolean(G.PREF_SSL, true).commit();
+        prefs.edit().putString(G.PREF_RETRIES, "15").commit();
+
+        TransmissionProfile.cleanTemporaryPreferences(context);
+        assertFalse(prefs.contains(G.PREF_NAME));
+        assertFalse(prefs.contains(G.PREF_HOST));
+        assertFalse(prefs.contains(G.PREF_PORT));
+        assertFalse(prefs.contains(G.PREF_PATH));
+        assertFalse(prefs.contains(G.PREF_USER));
+        assertFalse(prefs.contains(G.PREF_PASS));
+        assertFalse(prefs.contains(G.PREF_SSL));
+        assertFalse(prefs.contains(G.PREF_TIMEOUT));
+        assertFalse(prefs.contains(G.PREF_RETRIES));
+        assertFalse(prefs.contains(G.PREF_DIRECTORIES));
+    }
+
     @Test public void setCurrentProfile() {
         TransmissionProfile.setCurrentProfile(null, defaultPrefs);
         assertTrue(defaultPrefs.contains(G.PREF_CURRENT_PROFILE));
@@ -59,7 +79,7 @@ public class TransmissionProfileTest {
     }
 
     @Test public void load() {
-        TransmissionProfile profile = new TransmissionProfile("nonexistent", context, defaultPrefs);
+        TransmissionProfile profile = new TransmissionProfile("nonexisting", context, defaultPrefs);
         assertEquals("", profile.getName());
         assertEquals("", profile.getHost());
         assertEquals(9091, profile.getPort());
@@ -69,6 +89,28 @@ public class TransmissionProfileTest {
         assertFalse(profile.isUseSSL());
         assertEquals(-1, profile.getTimeout());
         assertEquals(-1, profile.getRetries());
+        assertEquals(0, profile.getDirectories().size());
+        assertEquals("", profile.getLastDownloadDirectory());
+        assertTrue(profile.getMoveData());
+        assertFalse(profile.getDeleteLocal());
+        assertFalse(profile.getStartPaused());
+
+        String id = "existing";
+        prefs.edit().putString(G.PREF_NAME + id, "name").commit();
+        prefs.edit().putString(G.PREF_HOST + id, "host").commit();
+        prefs.edit().putString(G.PREF_PORT + id, "9911").commit();
+        prefs.edit().putBoolean(G.PREF_SSL + id, true).commit();
+        prefs.edit().putString(G.PREF_RETRIES + id, "15").commit();
+        profile = new TransmissionProfile("existing", context, defaultPrefs);
+        assertEquals("name", profile.getName());
+        assertEquals("host", profile.getHost());
+        assertEquals(9911, profile.getPort());
+        assertEquals("", profile.getPath());
+        assertEquals("", profile.getUsername());
+        assertEquals("", profile.getPassword());
+        assertTrue(profile.isUseSSL());
+        assertEquals(-1, profile.getTimeout());
+        assertEquals(15, profile.getRetries());
         assertEquals(0, profile.getDirectories().size());
         assertEquals("", profile.getLastDownloadDirectory());
         assertTrue(profile.getMoveData());
