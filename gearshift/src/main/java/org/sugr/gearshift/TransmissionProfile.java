@@ -54,11 +54,19 @@ public class TransmissionProfile implements Parcelable, Comparable<TransmissionP
 
     public static String getCurrentProfileId(Context context) {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+        return getCurrentProfileId(prefs);
+    }
+
+    public static String getCurrentProfileId(SharedPreferences prefs) {
         return prefs.getString(G.PREF_CURRENT_PROFILE, null);
     }
 
     public static void setCurrentProfile(TransmissionProfile profile, Context context) {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+        setCurrentProfile(profile, prefs);
+    }
+
+    public static void setCurrentProfile(TransmissionProfile profile, SharedPreferences prefs) {
         Editor e = prefs.edit();
 
         if (profile == null) {
@@ -73,13 +81,13 @@ public class TransmissionProfile implements Parcelable, Comparable<TransmissionP
         return UUID.randomUUID().toString();
     }
 
-    public static SharedPreferences getPreferences(Context context) {
-        return context.getSharedPreferences(
-                G.PROFILES_PREF_NAME, Activity.MODE_PRIVATE);
+    public static String getPreferencesName() {
+        return G.PROFILES_PREF_NAME;
     }
 
     public static void cleanTemporaryPreferences(Context context) {
-        SharedPreferences prefs = getPreferences(context);
+        SharedPreferences prefs = context.getSharedPreferences(getPreferencesName(),
+            Activity.MODE_PRIVATE);
         Editor e = prefs.edit();
 
         e.remove(G.PREF_NAME);
@@ -179,7 +187,7 @@ public class TransmissionProfile implements Parcelable, Comparable<TransmissionP
     }
 
     public void load(boolean fromPreferences) {
-        SharedPreferences pref = getPreferences(context);
+        SharedPreferences pref = getPreferences();
         boolean legacy = false;
         String dir = context.getFilesDir().getParent() + "/shared_prefs";
         File legacyFile = new File(dir, G.PREF_PREFIX + id + ".xml");
@@ -249,7 +257,7 @@ public class TransmissionProfile implements Parcelable, Comparable<TransmissionP
             load(true);
         }
 
-        SharedPreferences pref = getPreferences(context);
+        SharedPreferences pref = getPreferences();
         Editor e = pref.edit();
 
         e.putString(G.PREF_NAME + id, name);
@@ -289,7 +297,7 @@ public class TransmissionProfile implements Parcelable, Comparable<TransmissionP
     }
 
     public void delete() {
-        SharedPreferences pref = getPreferences(context);
+        SharedPreferences pref = getPreferences();
         Editor e = pref.edit();
 
         e.remove(G.PREF_NAME + id);
@@ -325,7 +333,7 @@ public class TransmissionProfile implements Parcelable, Comparable<TransmissionP
     }
 
     public void fillTemporatyPreferences() {
-        SharedPreferences pref = getPreferences(context);
+        SharedPreferences pref = getPreferences();
         Editor e = pref.edit();
 
         e.putString(G.PREF_NAME, name);
@@ -347,7 +355,7 @@ public class TransmissionProfile implements Parcelable, Comparable<TransmissionP
     }
 
     public void setLastDownloadDirectory(String directory) {
-        SharedPreferences pref = getPreferences(context);
+        SharedPreferences pref = getPreferences();
         Editor e = pref.edit();
 
         lastDirectory = directory;
@@ -361,7 +369,7 @@ public class TransmissionProfile implements Parcelable, Comparable<TransmissionP
     }
 
     public void setMoveData(boolean move) {
-        SharedPreferences pref = getPreferences(context);
+        SharedPreferences pref = getPreferences();
         Editor e = pref.edit();
 
         moveData = move;
@@ -375,7 +383,7 @@ public class TransmissionProfile implements Parcelable, Comparable<TransmissionP
     }
 
     public void setDeleteLocal(boolean delete) {
-        SharedPreferences pref = getPreferences(context);
+        SharedPreferences pref = getPreferences();
         Editor e = pref.edit();
 
         deleteLocal = delete;
@@ -389,7 +397,7 @@ public class TransmissionProfile implements Parcelable, Comparable<TransmissionP
     }
 
     public void setStartPaused(boolean paused) {
-        SharedPreferences pref = getPreferences(context);
+        SharedPreferences pref = getPreferences();
         Editor e = pref.edit();
 
         startPaused = paused;
@@ -485,4 +493,10 @@ public class TransmissionProfile implements Parcelable, Comparable<TransmissionP
             return  name + id;
         }
     }
+
+    private SharedPreferences getPreferences() {
+        return context.getSharedPreferences(
+            getPreferencesName(), Activity.MODE_PRIVATE);
+    }
+
 }

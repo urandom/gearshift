@@ -301,21 +301,22 @@ public class TorrentListActivity extends BaseTorrentActivity
                 public boolean onNavigationItemSelected(int pos, long id) {
                     TransmissionProfile profile = profileAdapter.getItem(pos);
                     if (profile != TransmissionProfileListAdapter.EMPTY_PROFILE) {
-                        if (getProfile() != null) {
+                        SharedPreferences prefs = getSharedPreferences(
+                            TransmissionProfile.getPreferencesName(),
+                            Activity.MODE_PRIVATE);
+
+                        boolean newProfile = getProfile() == null;
+
+                        if (!newProfile) {
                             if (getProfile().getId().equals(profile.getId())) {
                                 return false;
                             }
-
-                            SharedPreferences prefs = TransmissionProfile.getPreferences(TorrentListActivity.this);
-                            if (prefs != null)
-                                prefs.unregisterOnSharedPreferenceChangeListener(profileChangeListener);
                         }
 
                         TransmissionProfile.setCurrentProfile(profile, TorrentListActivity.this);
                         setProfile(profile);
 
-                        SharedPreferences prefs = TransmissionProfile.getPreferences(TorrentListActivity.this);
-                        if (prefs != null)
+                        if (prefs != null && newProfile)
                             prefs.registerOnSharedPreferenceChangeListener(profileChangeListener);
 
                         setRefreshing(true, DataService.Requests.GET_TORRENTS);

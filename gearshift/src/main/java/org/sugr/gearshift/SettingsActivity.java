@@ -1,5 +1,6 @@
 package org.sugr.gearshift;
 
+import android.app.Activity;
 import android.app.LoaderManager;
 import android.content.Context;
 import android.content.Intent;
@@ -105,7 +106,8 @@ public class SettingsActivity extends PreferenceActivity
             SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
             prefs.registerOnSharedPreferenceChangeListener(defaultPrefListener);
 
-            prefs = TransmissionProfile.getPreferences(this);
+            prefs = getSharedPreferences(TransmissionProfile.getPreferencesName(),
+                Activity.MODE_PRIVATE);
             prefs.registerOnSharedPreferenceChangeListener(profilesPrefListener);
         }
     }

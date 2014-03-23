@@ -1,5 +1,6 @@
 package org.sugr.gearshift;
 
+import android.app.Activity;
 import android.content.AsyncTaskLoader;
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -32,7 +33,8 @@ public class TransmissionProfileLoader extends AsyncTaskLoader<TransmissionProfi
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getContext().getApplicationContext());
         prefs.registerOnSharedPreferenceChangeListener(mDefaultListener);
 
-        prefs = TransmissionProfile.getPreferences(getContext());
+        prefs = getContext().getSharedPreferences(TransmissionProfile.getPreferencesName(),
+            Activity.MODE_PRIVATE);
         prefs.registerOnSharedPreferenceChangeListener(mListener);
     }
 
@@ -110,7 +112,8 @@ public class TransmissionProfileLoader extends AsyncTaskLoader<TransmissionProfi
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getContext().getApplicationContext());
         prefs.unregisterOnSharedPreferenceChangeListener(mDefaultListener);
 
-        prefs = TransmissionProfile.getPreferences(getContext());
+        prefs = getContext().getSharedPreferences(TransmissionProfile.getPreferencesName(),
+            Activity.MODE_PRIVATE);
         prefs.registerOnSharedPreferenceChangeListener(mListener);
     }
 }

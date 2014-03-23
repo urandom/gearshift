@@ -39,7 +39,8 @@ public class TransmissionProfileSettingsFragment extends BasePreferenceFragment 
             id = args.getString(G.ARG_PROFILE_ID);
         }
 
-        sharedPrefs = TransmissionProfile.getPreferences(getActivity());
+        sharedPrefs = getActivity().getSharedPreferences(TransmissionProfile.getPreferencesName(),
+            Activity.MODE_PRIVATE);
 
         if (id == null) {
             TransmissionProfile.cleanTemporaryPreferences(getActivity());
