@@ -39,6 +39,13 @@ public class TransmissionProfileTest {
         when(
             context.getSharedPreferences(TransmissionProfile.getPreferencesName(), Activity.MODE_PRIVATE)
         ).thenReturn(prefs);
+
+        String id = "existing";
+        prefs.edit().putString(G.PREF_NAME + id, "name").commit();
+        prefs.edit().putString(G.PREF_HOST + id, "host").commit();
+        prefs.edit().putString(G.PREF_PORT + id, "9911").commit();
+        prefs.edit().putBoolean(G.PREF_SSL + id, true).commit();
+        prefs.edit().putString(G.PREF_RETRIES + id, "15").commit();
     }
 
     @Test public void readProfiles() {
@@ -95,12 +102,6 @@ public class TransmissionProfileTest {
         assertFalse(profile.getDeleteLocal());
         assertFalse(profile.getStartPaused());
 
-        String id = "existing";
-        prefs.edit().putString(G.PREF_NAME + id, "name").commit();
-        prefs.edit().putString(G.PREF_HOST + id, "host").commit();
-        prefs.edit().putString(G.PREF_PORT + id, "9911").commit();
-        prefs.edit().putBoolean(G.PREF_SSL + id, true).commit();
-        prefs.edit().putString(G.PREF_RETRIES + id, "15").commit();
         profile = new TransmissionProfile("existing", context, defaultPrefs);
         assertEquals("name", profile.getName());
         assertEquals("host", profile.getHost());
@@ -116,6 +117,24 @@ public class TransmissionProfileTest {
         assertTrue(profile.getMoveData());
         assertFalse(profile.getDeleteLocal());
         assertFalse(profile.getStartPaused());
+    }
+
+    @Test public void save() {
+        TransmissionProfile profile = new TransmissionProfile("existing", context, defaultPrefs);
+        profile.setName("another name");
+        profile.setHost("some host");
+        profile.setTimeout(22);
+        profile.setUsername("example");
+        profile.setUseSSL(false);
+
+        profile.save();
+
+        String id = "existing";
+        assertEquals(prefs.getString(G.PREF_NAME + id, ""), "another name");
+        assertEquals(prefs.getString(G.PREF_HOST + id, ""), "some host");
+        assertEquals(prefs.getString(G.PREF_TIMEOUT + id, ""), "22");
+        assertEquals(prefs.getString(G.PREF_USER + id, ""), "example");
+        assertFalse(prefs.getBoolean(G.PREF_SSL + id, true));
     }
 }
 
