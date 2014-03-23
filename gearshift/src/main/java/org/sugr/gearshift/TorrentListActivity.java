@@ -118,11 +118,14 @@ public class TorrentListActivity extends BaseTorrentActivity
                 profileAdapter.addAll(profiles);
             } else {
                 profileAdapter.add(TransmissionProfileListAdapter.EMPTY_PROFILE);
-                TransmissionProfile.setCurrentProfile(null, TorrentListActivity.this);
+                TransmissionProfile.setCurrentProfile(null,
+                    PreferenceManager.getDefaultSharedPreferences(TorrentListActivity.this));
                 setRefreshing(false, DataService.Requests.GET_TORRENTS);
             }
 
-            String currentId = TransmissionProfile.getCurrentProfileId(TorrentListActivity.this);
+            String currentId = TransmissionProfile.getCurrentProfileId(
+                PreferenceManager.getDefaultSharedPreferences(TorrentListActivity.this));
+
             int index = 0;
             for (TransmissionProfile prof : profiles) {
                 if (prof.getId().equals(currentId)) {
@@ -143,7 +146,8 @@ public class TorrentListActivity extends BaseTorrentActivity
                     setProfile(null);
                     /* TODO: should display the message that the user hasn't created a profile yet */
                 }
-                TransmissionProfile.setCurrentProfile(profile, TorrentListActivity.this);
+                TransmissionProfile.setCurrentProfile(profile,
+                    PreferenceManager.getDefaultSharedPreferences(TorrentListActivity.this));
             }
 
             profileAdapter.notifyDataSetChanged();
@@ -168,7 +172,8 @@ public class TorrentListActivity extends BaseTorrentActivity
 
                 profile.load();
 
-                TransmissionProfile.setCurrentProfile(profile, TorrentListActivity.this);
+                TransmissionProfile.setCurrentProfile(profile,
+                    PreferenceManager.getDefaultSharedPreferences(TorrentListActivity.this));
                 setProfile(profile);
             }
         };
@@ -313,7 +318,8 @@ public class TorrentListActivity extends BaseTorrentActivity
                             }
                         }
 
-                        TransmissionProfile.setCurrentProfile(profile, TorrentListActivity.this);
+                        TransmissionProfile.setCurrentProfile(profile,
+                            PreferenceManager.getDefaultSharedPreferences(TorrentListActivity.this));
                         setProfile(profile);
 
                         if (prefs != null && newProfile)
@@ -983,7 +989,7 @@ public class TorrentListActivity extends BaseTorrentActivity
     }
 
     private static class TransmissionProfileListAdapter extends ArrayAdapter<TransmissionProfile> {
-        public static final TransmissionProfile EMPTY_PROFILE = new TransmissionProfile(null);
+        public static final TransmissionProfile EMPTY_PROFILE = new TransmissionProfile(null, null);
 
         public TransmissionProfileListAdapter(Context context) {
             super(context, 0);

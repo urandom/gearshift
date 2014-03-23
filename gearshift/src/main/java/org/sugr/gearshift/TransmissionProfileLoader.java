@@ -40,7 +40,10 @@ public class TransmissionProfileLoader extends AsyncTaskLoader<TransmissionProfi
 
     @Override
     public TransmissionProfile[] loadInBackground() {
-        TransmissionProfile[] profiles = TransmissionProfile.readProfiles(getContext().getApplicationContext());
+        Context context = getContext().getApplicationContext();
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+
+        TransmissionProfile[] profiles = TransmissionProfile.readProfiles(context, prefs);
 
         G.logD("TPLoader: Read %d profiles", new Object[] {profiles.length});
 

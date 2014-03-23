@@ -44,10 +44,12 @@ public class TransmissionProfileSettingsFragment extends BasePreferenceFragment 
 
         if (id == null) {
             TransmissionProfile.cleanTemporaryPreferences(getActivity());
-            profile = new TransmissionProfile(getActivity());
+            profile = new TransmissionProfile(getActivity(),
+                PreferenceManager.getDefaultSharedPreferences(getActivity()));
             isNew = true;
         } else {
-            profile = new TransmissionProfile(id, getActivity());
+            profile = new TransmissionProfile(id, getActivity(),
+                PreferenceManager.getDefaultSharedPreferences(getActivity()));
             profile.fillTemporatyPreferences();
         }
 

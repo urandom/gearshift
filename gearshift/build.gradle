@@ -53,7 +53,7 @@ dependencies {
     compile 'com.fasterxml.jackson.core:jackson-databind:2.3.0'
     compile 'com.fasterxml.jackson.core:jackson-annotations:2.3.0'
 
-    unitTestCompile files("$project.buildDir/classes/release")
+    unitTestCompile files("$project.buildDir/classes/debug")
     unitTestCompile 'junit:junit:4.8.2'
     unitTestCompile 'org.robolectric:robolectric:2.1'
     unitTestCompile 'com.google.android:android:4.1.1.4'

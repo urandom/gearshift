@@ -49,7 +49,10 @@ public class TransmissionProfileSupportLoader extends AsyncTaskLoader<Transmissi
 
     @Override
     public TransmissionProfile[] loadInBackground() {
-        TransmissionProfile[] profiles = TransmissionProfile.readProfiles(getContext().getApplicationContext());
+        Context context = getContext().getApplicationContext();
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+
+        TransmissionProfile[] profiles = TransmissionProfile.readProfiles(context, prefs);
         List<TransmissionProfile> profileList = new ArrayList<>();
         for (TransmissionProfile profile : profiles) {
             if (!TextUtils.isEmpty(profile.getHost())) {

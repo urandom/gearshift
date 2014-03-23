@@ -15815,64 +15815,64 @@ org.sugr.gearshift.TransmissionProfile -> org.sugr.gearshift.TransmissionProfile
     java.util.Set directories -> o
     android.content.Context context -> p
     android.os.Parcelable$Creator CREATOR -> CREATOR
-    42:52:org.sugr.gearshift.TransmissionProfile[] readProfiles(android.content.Context) -> readProfiles
-    56:57:java.lang.String getCurrentProfileId(android.content.Context) -> getCurrentProfileId
-    61:61:java.lang.String getCurrentProfileId(android.content.SharedPreferences) -> getCurrentProfileId
-    65:67:void setCurrentProfile(org.sugr.gearshift.TransmissionProfile,android.content.Context) -> setCurrentProfile
-    70:78:void setCurrentProfile(org.sugr.gearshift.TransmissionProfile,android.content.SharedPreferences) -> setCurrentProfile
-    81:81:java.lang.String generateId() -> generateId
-    85:85:java.lang.String getPreferencesName() -> getPreferencesName
-    89:105:void cleanTemporaryPreferences(android.content.Context) -> cleanTemporaryPreferences
-    121:121:java.lang.String getId() -> getId
-    125:125:java.lang.String getName() -> getName
-    128:128:java.lang.String getHost() -> getHost
-    131:131:int getPort() -> getPort
-    134:134:java.lang.String getPath() -> getPath
-    137:137:java.lang.String getUsername() -> getUsername
-    140:140:java.lang.String getPassword() -> getPassword
-    143:143:boolean isUseSSL() -> isUseSSL
-    146:146:int getTimeout() -> getTimeout
-    149:149:int getRetries() -> getRetries
-    152:152:java.util.Set getDirectories() -> getDirectories
-    155:156:void setName(java.lang.String) -> setName
-    158:159:void setHost(java.lang.String) -> setHost
-    161:162:void setPort(int) -> setPort
-    164:165:void setPath(java.lang.String) -> setPath
-    167:168:void setUsername(java.lang.String) -> setUsername
-    170:171:void setPassword(java.lang.String) -> setPassword
-    173:174:void setUseSSL(boolean) -> setUseSSL
-    176:177:void setTimeout(int) -> setTimeout
-    179:180:void setRetries(int) -> setRetries
-    182:183:void setDirectories(java.util.Set) -> setDirectories
-    186:187:void load() -> load
-    190:249:void load(boolean) -> load
-    252:253:void save() -> save
-    256:297:void save(boolean) -> save
-    300:333:void delete() -> delete
-    336:351:void fillTemporatyPreferences() -> fillTemporatyPreferences
-    354:354:java.lang.String getLastDownloadDirectory() -> getLastDownloadDirectory
-    358:365:void setLastDownloadDirectory(java.lang.String) -> setLastDownloadDirectory
-    368:368:boolean getMoveData() -> getMoveData
-    372:379:void setMoveData(boolean) -> setMoveData
-    382:382:boolean getDeleteLocal() -> getDeleteLocal
-    386:393:void setDeleteLocal(boolean) -> setDeleteLocal
-    396:396:boolean getStartPaused() -> getStartPaused
-    400:407:void setStartPaused(boolean) -> setStartPaused
-    410:410:android.content.Context getContext() -> getContext
-    414:415:void setContext(android.content.Context) -> setContext
-    418:418:int compareTo(org.sugr.gearshift.TransmissionProfile) -> compareTo
-    422:422:java.lang.String toString() -> toString
-    427:427:int describeContents() -> describeContents
-    432:446:void writeToParcel(android.os.Parcel,int) -> writeToParcel
-    483:483:android.content.SharedPreferences getLegacyPreferences(android.content.Context) -> a
-    488:493:java.lang.String getPrefName(java.lang.String,boolean,boolean) -> a
-    498:498:android.content.SharedPreferences getPreferences() -> a
+    42:51:org.sugr.gearshift.TransmissionProfile[] readProfiles(android.content.Context,android.content.SharedPreferences) -> readProfiles
+    55:56:java.lang.String getCurrentProfileId(android.content.Context) -> getCurrentProfileId
+    60:60:java.lang.String getCurrentProfileId(android.content.SharedPreferences) -> getCurrentProfileId
+    64:66:void setCurrentProfile(org.sugr.gearshift.TransmissionProfile,android.content.Context) -> setCurrentProfile
+    69:77:void setCurrentProfile(org.sugr.gearshift.TransmissionProfile,android.content.SharedPreferences) -> setCurrentProfile
+    80:80:java.lang.String generateId() -> generateId
+    84:84:java.lang.String getPreferencesName() -> getPreferencesName
+    88:104:void cleanTemporaryPreferences(android.content.Context) -> cleanTemporaryPreferences
+    120:120:java.lang.String getId() -> getId
+    124:124:java.lang.String getName() -> getName
+    127:127:java.lang.String getHost() -> getHost
+    130:130:int getPort() -> getPort
+    133:133:java.lang.String getPath() -> getPath
+    136:136:java.lang.String getUsername() -> getUsername
+    139:139:java.lang.String getPassword() -> getPassword
+    142:142:boolean isUseSSL() -> isUseSSL
+    145:145:int getTimeout() -> getTimeout
+    148:148:int getRetries() -> getRetries
+    151:151:java.util.Set getDirectories() -> getDirectories
+    154:155:void setName(java.lang.String) -> setName
+    157:158:void setHost(java.lang.String) -> setHost
+    160:161:void setPort(int) -> setPort
+    163:164:void setPath(java.lang.String) -> setPath
+    166:167:void setUsername(java.lang.String) -> setUsername
+    169:170:void setPassword(java.lang.String) -> setPassword
+    172:173:void setUseSSL(boolean) -> setUseSSL
+    175:176:void setTimeout(int) -> setTimeout
+    178:179:void setRetries(int) -> setRetries
+    181:182:void setDirectories(java.util.Set) -> setDirectories
+    185:186:void load() -> load
+    189:248:void load(boolean) -> load
+    251:252:void save() -> save
+    255:296:void save(boolean) -> save
+    299:332:void delete() -> delete
+    335:350:void fillTemporatyPreferences() -> fillTemporatyPreferences
+    353:353:java.lang.String getLastDownloadDirectory() -> getLastDownloadDirectory
+    357:364:void setLastDownloadDirectory(java.lang.String) -> setLastDownloadDirectory
+    367:367:boolean getMoveData() -> getMoveData
+    371:378:void setMoveData(boolean) -> setMoveData
+    381:381:boolean getDeleteLocal() -> getDeleteLocal
+    385:392:void setDeleteLocal(boolean) -> setDeleteLocal
+    395:395:boolean getStartPaused() -> getStartPaused
+    399:406:void setStartPaused(boolean) -> setStartPaused
+    409:409:android.content.Context getContext() -> getContext
+    413:414:void setContext(android.content.Context) -> setContext
+    417:417:int compareTo(org.sugr.gearshift.TransmissionProfile) -> compareTo
+    421:421:java.lang.String toString() -> toString
+    426:426:int describeContents() -> describeContents
+    431:445:void writeToParcel(android.os.Parcel,int) -> writeToParcel
+    482:482:android.content.SharedPreferences getLegacyPreferences(android.content.Context) -> a
+    487:492:java.lang.String getPrefName(java.lang.String,boolean,boolean) -> a
+    497:497:android.content.SharedPreferences getPreferences() -> a
     18:18:int compareTo(java.lang.Object) -> compareTo
 org.sugr.gearshift.TransmissionProfile$1 -> un:
-    452:452:org.sugr.gearshift.TransmissionProfile createFromParcel(android.os.Parcel) -> a
-    457:457:org.sugr.gearshift.TransmissionProfile[] newArray(int) -> a
-    449:449:java.lang.Object[] newArray(int) -> newArray
-    449:449:java.lang.Object createFromParcel(android.os.Parcel) -> createFromParcel
+    451:451:org.sugr.gearshift.TransmissionProfile createFromParcel(android.os.Parcel) -> a
+    456:456:org.sugr.gearshift.TransmissionProfile[] newArray(int) -> a
+    448:448:java.lang.Object[] newArray(int) -> newArray
+    448:448:java.lang.Object createFromParcel(android.os.Parcel) -> createFromParcel
 org.sugr.gearshift.TransmissionProfileDirectoriesSettingsFragment -> org.sugr.gearshift.TransmissionProfileDirectoriesSettingsFragment:
     android.content.SharedPreferences mSharedPrefs -> a
     java.util.Set mDirectories -> b
@@ -15933,13 +15933,13 @@ org.sugr.gearshift.TransmissionProfileLoader -> org.sugr.gearshift.TransmissionP
     org.sugr.gearshift.TransmissionProfile[] mProfiles -> a
     android.content.SharedPreferences$OnSharedPreferenceChangeListener mListener -> b
     android.content.SharedPreferences$OnSharedPreferenceChangeListener mDefaultListener -> c
-    43:47:org.sugr.gearshift.TransmissionProfile[] loadInBackground() -> loadInBackground
-    52:65:void deliverResult(org.sugr.gearshift.TransmissionProfile[]) -> deliverResult
-    69:72:void onCanceled(org.sugr.gearshift.TransmissionProfile[]) -> onCanceled
-    76:87:void onStartLoading() -> onStartLoading
-    91:95:void onStopLoading() -> onStopLoading
-    99:109:void onReset() -> onReset
-    112:118:void onReleaseResources() -> onReleaseResources
+    43:50:org.sugr.gearshift.TransmissionProfile[] loadInBackground() -> loadInBackground
+    55:68:void deliverResult(org.sugr.gearshift.TransmissionProfile[]) -> deliverResult
+    72:75:void onCanceled(org.sugr.gearshift.TransmissionProfile[]) -> onCanceled
+    79:90:void onStartLoading() -> onStartLoading
+    94:98:void onStopLoading() -> onStopLoading
+    102:112:void onReset() -> onReset
+    115:121:void onReleaseResources() -> onReleaseResources
     10:10:java.lang.Object loadInBackground() -> loadInBackground
     10:10:void onCanceled(java.lang.Object) -> onCanceled
     10:10:void deliverResult(java.lang.Object) -> deliverResult
@@ -15972,13 +15972,13 @@ org.sugr.gearshift.TransmissionProfileSupportLoader -> org.sugr.gearshift.Transm
     org.sugr.gearshift.TransmissionProfile[] mProfiles -> f
     android.content.SharedPreferences$OnSharedPreferenceChangeListener mListener -> g
     android.content.SharedPreferences$OnSharedPreferenceChangeListener mDefaultListener -> h
-    52:62:org.sugr.gearshift.TransmissionProfile[] loadInBackground() -> loadInBackground
-    67:80:void deliverResult(org.sugr.gearshift.TransmissionProfile[]) -> deliverResult
-    84:87:void onCanceled(org.sugr.gearshift.TransmissionProfile[]) -> onCanceled
-    91:102:void onStartLoading() -> onStartLoading
-    106:110:void onStopLoading() -> onStopLoading
-    114:124:void onReset() -> onReset
-    127:133:void onReleaseResources() -> onReleaseResources
+    52:65:org.sugr.gearshift.TransmissionProfile[] loadInBackground() -> loadInBackground
+    70:83:void deliverResult(org.sugr.gearshift.TransmissionProfile[]) -> deliverResult
+    87:90:void onCanceled(org.sugr.gearshift.TransmissionProfile[]) -> onCanceled
+    94:105:void onStartLoading() -> onStartLoading
+    109:113:void onStopLoading() -> onStopLoading
+    117:127:void onReset() -> onReset
+    130:136:void onReleaseResources() -> onReleaseResources
     16:16:java.lang.Object loadInBackground() -> loadInBackground
     16:16:void onCanceled(java.lang.Object) -> onCanceled
     16:16:void deliverResult(java.lang.Object) -> deliverResult

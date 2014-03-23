@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.provider.DocumentsContract;
 import android.support.v4.content.LocalBroadcastManager;
 import android.text.TextUtils;
@@ -95,7 +96,8 @@ public class DataService extends IntentService {
                 throw new IllegalArgumentException("No arguments bundle");
             }
             if (profile == null || !profile.getId().equals(profileId)) {
-                profile = new TransmissionProfile(profileId, this);
+                profile = new TransmissionProfile(profileId, this,
+                    PreferenceManager.getDefaultSharedPreferences(this));
             }
 
             if (requestType.equals(Requests.REMOVE_PROFILE)) {
