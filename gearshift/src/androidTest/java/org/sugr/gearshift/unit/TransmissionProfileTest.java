@@ -262,12 +262,99 @@ public class TransmissionProfileTest {
         assertEquals(14111, profile.getPort());
     }
 
+    @Test public void path() {
+        TransmissionProfile profile = new TransmissionProfile(existingId, context, defaultPrefs);
+        assertEquals("/transmission/rpc", profile.getPath());
+
+        profile.setPath("/foo/bar");
+        assertEquals("/foo/bar", profile.getPath());
+    }
+
+    @Test public void username() {
+        TransmissionProfile profile = new TransmissionProfile(existingId, context, defaultPrefs);
+        assertEquals("", profile.getUsername());
+
+        profile.setUsername("another");
+        assertEquals("another", profile.getUsername());
+    }
+
+    @Test public void password() {
+        TransmissionProfile profile = new TransmissionProfile(existingId, context, defaultPrefs);
+        assertEquals("", profile.getPassword());
+
+        profile.setPassword("pass");
+        assertEquals("pass", profile.getPassword());
+    }
+
     @Test public void ssl() {
         TransmissionProfile profile = new TransmissionProfile(existingId, context, defaultPrefs);
         assertTrue(profile.isUseSSL());
 
         profile.setUseSSL(false);
         assertFalse(profile.isUseSSL());
+    }
+
+    @Test public void timeout() {
+        TransmissionProfile profile = new TransmissionProfile(existingId, context, defaultPrefs);
+        assertEquals(2, profile.getTimeout());
+
+        profile.setTimeout(14);
+        assertEquals(14, profile.getTimeout());
+    }
+
+    @Test public void retries() {
+        TransmissionProfile profile = new TransmissionProfile(existingId, context, defaultPrefs);
+        assertEquals(15, profile.getRetries());
+
+        profile.setRetries(10);
+        assertEquals(10, profile.getRetries());
+    }
+
+    @Test public void directories() {
+        TransmissionProfile profile = new TransmissionProfile(existingId, context, defaultPrefs);
+        Set<String> dirs = profile.getDirectories();
+
+        Set<String> expected = new HashSet<>();
+        expected.add("/foo");
+        expected.add("/bar/baz");
+        assertEquals(expected, dirs);
+
+        dirs.add("/alpha/beta");
+        profile.setDirectories(dirs);
+        expected.add("/alpha/beta");
+        assertEquals(expected, profile.getDirectories());
+    }
+
+    @Test public void lastDownloadDirectory() {
+        TransmissionProfile profile = new TransmissionProfile(existingId, context, defaultPrefs);
+        assertEquals("/alpha", profile.getLastDownloadDirectory());
+
+        profile.setLastDownloadDirectory("/beta");
+        assertEquals("/beta", profile.getLastDownloadDirectory());
+    }
+
+    @Test public void moveData() {
+        TransmissionProfile profile = new TransmissionProfile(existingId, context, defaultPrefs);
+        assertTrue(profile.getMoveData());
+
+        profile.setMoveData(false);
+        assertFalse(profile.getMoveData());
+    }
+
+    @Test public void deleteLocal() {
+        TransmissionProfile profile = new TransmissionProfile(existingId, context, defaultPrefs);
+        assertFalse(profile.getDeleteLocal());
+
+        profile.setDeleteLocal(true);
+        assertTrue(profile.getDeleteLocal());
+    }
+
+    @Test public void startPaused() {
+        TransmissionProfile profile = new TransmissionProfile(existingId, context, defaultPrefs);
+        assertFalse(profile.getStartPaused());
+
+        profile.setStartPaused(true);
+        assertTrue(profile.getStartPaused());
     }
 
     @Test public void parceling() {
