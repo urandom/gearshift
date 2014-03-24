@@ -300,6 +300,10 @@ public class TransmissionProfile implements Parcelable, Comparable<TransmissionP
         e.remove(G.PREF_TIMEOUT + id);
         e.remove(G.PREF_RETRIES + id);
         e.remove(G.PREF_DIRECTORIES + id);
+        e.remove(G.PREF_LAST_DIRECTORY + id);
+        e.remove(G.PREF_MOVE_DATA + id);
+        e.remove(G.PREF_START_PAUSED + id);
+        e.remove(G.PREF_DELETE_LOCAL + id);
 
         e.commit();
 
@@ -422,6 +426,7 @@ public class TransmissionProfile implements Parcelable, Comparable<TransmissionP
         in.writeString(name);
         in.writeString(host);
         in.writeInt(port);
+        in.writeString(path);
         in.writeString(username);
         in.writeString(password);
         in.writeInt(useSSL ? 1 : 0);
@@ -451,7 +456,8 @@ public class TransmissionProfile implements Parcelable, Comparable<TransmissionP
         id = in.readString();
         name = in.readString();
         host = in.readString();
-         port = in.readInt();
+        port = in.readInt();
+        path = in.readString();
         username = in.readString();
         password = in.readString();
         useSSL = in.readInt() == 1;

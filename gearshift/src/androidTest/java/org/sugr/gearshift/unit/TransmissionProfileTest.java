@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.os.Parcel;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -141,6 +142,10 @@ public class TransmissionProfileTest {
         profile.setTimeout(22);
         profile.setUsername("example");
         profile.setUseSSL(false);
+        profile.setLastDownloadDirectory("/foo/bar");
+        profile.setDeleteLocal(true);
+        profile.setStartPaused(true);
+        profile.setMoveData(false);
 
         profile.save();
 
@@ -149,8 +154,10 @@ public class TransmissionProfileTest {
         assertEquals(prefs.getString(G.PREF_TIMEOUT + existingId, ""), "22");
         assertEquals(prefs.getString(G.PREF_USER + existingId, ""), "example");
         assertFalse(prefs.getBoolean(G.PREF_SSL + existingId, true));
-
-        /* TODO test saving the newer profile properties */
+        assertEquals("/foo/bar", prefs.getString(G.PREF_LAST_DIRECTORY + existingId, ""));
+        assertTrue(prefs.getBoolean(G.PREF_DELETE_LOCAL + existingId, true));
+        assertTrue(prefs.getBoolean(G.PREF_START_PAUSED + existingId, true));
+        assertFalse(prefs.getBoolean(G.PREF_MOVE_DATA + existingId, true));
     }
 
     @Test public void delete() {
@@ -159,7 +166,6 @@ public class TransmissionProfileTest {
         profile.delete();
         assertFalse(prefs.contains(G.PREF_NAME + "nonexisting"));
 
-        /* TODO test deleting the newer profile properties */
         assertTrue(prefs.contains(G.PREF_NAME + existingId));
         assertTrue(prefs.contains(G.PREF_HOST + existingId));
         assertTrue(prefs.contains(G.PREF_PORT + existingId));
@@ -170,6 +176,11 @@ public class TransmissionProfileTest {
         assertTrue(prefs.contains(G.PREF_TIMEOUT + existingId));
         assertTrue(prefs.contains(G.PREF_RETRIES + existingId));
         assertTrue(prefs.contains(G.PREF_DIRECTORIES + existingId));
+        assertTrue(prefs.contains(G.PREF_LAST_DIRECTORY + existingId));
+        assertTrue(prefs.contains(G.PREF_MOVE_DATA + existingId));
+        assertTrue(prefs.contains(G.PREF_DELETE_LOCAL + existingId));
+        assertTrue(prefs.contains(G.PREF_START_PAUSED + existingId));
+
         profile = new TransmissionProfile(existingId, context, defaultPrefs);
         profile.delete();
         assertFalse(prefs.contains(G.PREF_NAME + existingId));
@@ -182,6 +193,10 @@ public class TransmissionProfileTest {
         assertFalse(prefs.contains(G.PREF_TIMEOUT + existingId));
         assertFalse(prefs.contains(G.PREF_RETRIES + existingId));
         assertFalse(prefs.contains(G.PREF_DIRECTORIES + existingId));
+        assertFalse(prefs.contains(G.PREF_LAST_DIRECTORY + existingId));
+        assertFalse(prefs.contains(G.PREF_MOVE_DATA + existingId));
+        assertFalse(prefs.contains(G.PREF_DELETE_LOCAL + existingId));
+        assertFalse(prefs.contains(G.PREF_START_PAUSED + existingId));
     }
 
     @Test public void fillTemporaryPreferences() {
@@ -260,10 +275,12 @@ public class TransmissionProfileTest {
         profile.setMoveData(false);
         profile.setStartPaused(true);
         profile.setPath("/foo/bar");
-        Bundle bundle = new Bundle();
-        bundle.putParcelable("parcel", profile);
 
-        TransmissionProfile clone = bundle.getParcelable("parcel");
+        Parcel p = Parcel.obtain();
+        profile.writeToParcel(p, 0);
+
+        TransmissionProfile clone = TransmissionProfile.CREATOR.createFromParcel(p);
+
         assertEquals(clone.getId(), profile.getId());
         assertEquals(clone.getName(), profile.getName());
         assertEquals(clone.getHost(), profile.getHost());
