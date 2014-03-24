@@ -16,6 +16,7 @@ import java.io.File;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 import static org.junit.Assert.*;
 
@@ -26,6 +27,7 @@ public class TransmissionProfileTest {
     private TestSharedPreferences defaultPrefs;
     private TestSharedPreferences prefs;
     private Context context;
+    private static final String existingId = "existing";
 
     @Before public void setUp() {
         defaultPrefs = new TestSharedPreferences(new HashMap<String, Map<String, Object>>(),
@@ -40,12 +42,23 @@ public class TransmissionProfileTest {
             context.getSharedPreferences(TransmissionProfile.getPreferencesName(), Activity.MODE_PRIVATE)
         ).thenReturn(prefs);
 
-        String id = "existing";
-        prefs.edit().putString(G.PREF_NAME + id, "name").commit();
-        prefs.edit().putString(G.PREF_HOST + id, "host").commit();
-        prefs.edit().putString(G.PREF_PORT + id, "9911").commit();
-        prefs.edit().putBoolean(G.PREF_SSL + id, true).commit();
-        prefs.edit().putString(G.PREF_RETRIES + id, "15").commit();
+        prefs.edit().putString(G.PREF_NAME + existingId, "name").commit();
+        prefs.edit().putString(G.PREF_HOST + existingId, "host").commit();
+        prefs.edit().putString(G.PREF_PORT + existingId, "9911").commit();
+        prefs.edit().putString(G.PREF_PATH + existingId, "/transmission/rpc").commit();
+        prefs.edit().putString(G.PREF_USER + existingId, "").commit();
+        prefs.edit().putString(G.PREF_PASS + existingId, "").commit();
+        prefs.edit().putBoolean(G.PREF_SSL + existingId, true).commit();
+        prefs.edit().putString(G.PREF_TIMEOUT + existingId, "2").commit();
+        prefs.edit().putString(G.PREF_RETRIES + existingId, "15").commit();
+        Set<String> directories = new HashSet<>();
+        directories.add("/foo");
+        directories.add("/bar/baz");
+        prefs.edit().putStringSet(G.PREF_DIRECTORIES + existingId, directories).commit();
+        prefs.edit().putString(G.PREF_LAST_DIRECTORY + existingId, "/alpha").commit();
+        prefs.edit().putBoolean(G.PREF_MOVE_DATA + existingId, true).commit();
+        prefs.edit().putBoolean(G.PREF_DELETE_LOCAL + existingId, false).commit();
+        prefs.edit().putBoolean(G.PREF_START_PAUSED + existingId, false).commit();
     }
 
     @Test public void readProfiles() {
@@ -102,25 +115,25 @@ public class TransmissionProfileTest {
         assertFalse(profile.getDeleteLocal());
         assertFalse(profile.getStartPaused());
 
-        profile = new TransmissionProfile("existing", context, defaultPrefs);
+        profile = new TransmissionProfile(existingId, context, defaultPrefs);
         assertEquals("name", profile.getName());
         assertEquals("host", profile.getHost());
         assertEquals(9911, profile.getPort());
-        assertEquals("", profile.getPath());
+        assertEquals("/transmission/rpc", profile.getPath());
         assertEquals("", profile.getUsername());
         assertEquals("", profile.getPassword());
         assertTrue(profile.isUseSSL());
-        assertEquals(-1, profile.getTimeout());
+        assertEquals(2, profile.getTimeout());
         assertEquals(15, profile.getRetries());
-        assertEquals(0, profile.getDirectories().size());
-        assertEquals("", profile.getLastDownloadDirectory());
+        assertEquals(2, profile.getDirectories().size());
+        assertEquals("/alpha", profile.getLastDownloadDirectory());
         assertTrue(profile.getMoveData());
         assertFalse(profile.getDeleteLocal());
         assertFalse(profile.getStartPaused());
     }
 
     @Test public void save() {
-        TransmissionProfile profile = new TransmissionProfile("existing", context, defaultPrefs);
+        TransmissionProfile profile = new TransmissionProfile(existingId, context, defaultPrefs);
         profile.setName("another name");
         profile.setHost("some host");
         profile.setTimeout(22);
@@ -129,12 +142,43 @@ public class TransmissionProfileTest {
 
         profile.save();
 
-        String id = "existing";
-        assertEquals(prefs.getString(G.PREF_NAME + id, ""), "another name");
-        assertEquals(prefs.getString(G.PREF_HOST + id, ""), "some host");
-        assertEquals(prefs.getString(G.PREF_TIMEOUT + id, ""), "22");
-        assertEquals(prefs.getString(G.PREF_USER + id, ""), "example");
-        assertFalse(prefs.getBoolean(G.PREF_SSL + id, true));
+        assertEquals(prefs.getString(G.PREF_NAME + existingId, ""), "another name");
+        assertEquals(prefs.getString(G.PREF_HOST + existingId, ""), "some host");
+        assertEquals(prefs.getString(G.PREF_TIMEOUT + existingId, ""), "22");
+        assertEquals(prefs.getString(G.PREF_USER + existingId, ""), "example");
+        assertFalse(prefs.getBoolean(G.PREF_SSL + existingId, true));
+    }
+
+    @Test public void name() {
+        TransmissionProfile profile = new TransmissionProfile(existingId, context, defaultPrefs);
+        assertEquals("name", profile.getName());
+
+        profile.setName("test");
+        assertEquals("test", profile.getName());
+    }
+
+    @Test public void host() {
+        TransmissionProfile profile = new TransmissionProfile(existingId, context, defaultPrefs);
+        assertEquals("host", profile.getHost());
+
+        profile.setHost("test");
+        assertEquals("test", profile.getHost());
+    }
+
+    @Test public void port() {
+        TransmissionProfile profile = new TransmissionProfile(existingId, context, defaultPrefs);
+        assertEquals(9911, profile.getPort());
+
+        profile.setPort(14111);
+        assertEquals(14111, profile.getPort());
+    }
+
+    @Test public void ssl() {
+        TransmissionProfile profile = new TransmissionProfile(existingId, context, defaultPrefs);
+        assertTrue(profile.isUseSSL());
+
+        profile.setUseSSL(false);
+        assertFalse(profile.isUseSSL());
     }
 }
 
