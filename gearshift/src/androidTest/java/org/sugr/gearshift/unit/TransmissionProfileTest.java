@@ -3,6 +3,7 @@ package org.sugr.gearshift.unit;
 import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.os.Bundle;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -114,6 +115,7 @@ public class TransmissionProfileTest {
         assertTrue(profile.getMoveData());
         assertFalse(profile.getDeleteLocal());
         assertFalse(profile.getStartPaused());
+        assertFalse(prefs.contains(G.PREF_NAME + "nonexisting"));
 
         profile = new TransmissionProfile(existingId, context, defaultPrefs);
         assertEquals("name", profile.getName());
@@ -147,6 +149,78 @@ public class TransmissionProfileTest {
         assertEquals(prefs.getString(G.PREF_TIMEOUT + existingId, ""), "22");
         assertEquals(prefs.getString(G.PREF_USER + existingId, ""), "example");
         assertFalse(prefs.getBoolean(G.PREF_SSL + existingId, true));
+
+        /* TODO test saving the newer profile properties */
+    }
+
+    @Test public void delete() {
+        assertFalse(prefs.contains(G.PREF_NAME + "nonexisting"));
+        TransmissionProfile profile = new TransmissionProfile("nonexisting", context, defaultPrefs);
+        profile.delete();
+        assertFalse(prefs.contains(G.PREF_NAME + "nonexisting"));
+
+        /* TODO test deleting the newer profile properties */
+        assertTrue(prefs.contains(G.PREF_NAME + existingId));
+        assertTrue(prefs.contains(G.PREF_HOST + existingId));
+        assertTrue(prefs.contains(G.PREF_PORT + existingId));
+        assertTrue(prefs.contains(G.PREF_PATH + existingId));
+        assertTrue(prefs.contains(G.PREF_USER + existingId));
+        assertTrue(prefs.contains(G.PREF_PASS + existingId));
+        assertTrue(prefs.contains(G.PREF_SSL + existingId));
+        assertTrue(prefs.contains(G.PREF_TIMEOUT + existingId));
+        assertTrue(prefs.contains(G.PREF_RETRIES + existingId));
+        assertTrue(prefs.contains(G.PREF_DIRECTORIES + existingId));
+        profile = new TransmissionProfile(existingId, context, defaultPrefs);
+        profile.delete();
+        assertFalse(prefs.contains(G.PREF_NAME + existingId));
+        assertFalse(prefs.contains(G.PREF_HOST + existingId));
+        assertFalse(prefs.contains(G.PREF_PORT + existingId));
+        assertFalse(prefs.contains(G.PREF_PATH + existingId));
+        assertFalse(prefs.contains(G.PREF_USER + existingId));
+        assertFalse(prefs.contains(G.PREF_PASS + existingId));
+        assertFalse(prefs.contains(G.PREF_SSL + existingId));
+        assertFalse(prefs.contains(G.PREF_TIMEOUT + existingId));
+        assertFalse(prefs.contains(G.PREF_RETRIES + existingId));
+        assertFalse(prefs.contains(G.PREF_DIRECTORIES + existingId));
+    }
+
+    @Test public void fillTemporaryPreferences() {
+        assertFalse(prefs.contains(G.PREF_NAME));
+        assertFalse(prefs.contains(G.PREF_HOST));
+        assertFalse(prefs.contains(G.PREF_PORT));
+        assertFalse(prefs.contains(G.PREF_PATH));
+        assertFalse(prefs.contains(G.PREF_USER));
+        assertFalse(prefs.contains(G.PREF_PASS));
+        assertFalse(prefs.contains(G.PREF_SSL));
+        assertFalse(prefs.contains(G.PREF_TIMEOUT));
+        assertFalse(prefs.contains(G.PREF_RETRIES));
+        assertFalse(prefs.contains(G.PREF_DIRECTORIES));
+
+        TransmissionProfile profile = new TransmissionProfile(existingId, context, defaultPrefs);
+        profile.fillTemporatyPreferences();
+
+        assertTrue(prefs.contains(G.PREF_NAME));
+        assertTrue(prefs.contains(G.PREF_HOST));
+        assertTrue(prefs.contains(G.PREF_PORT));
+        assertTrue(prefs.contains(G.PREF_PATH));
+        assertTrue(prefs.contains(G.PREF_USER));
+        assertTrue(prefs.contains(G.PREF_PASS));
+        assertTrue(prefs.contains(G.PREF_SSL));
+        assertTrue(prefs.contains(G.PREF_TIMEOUT));
+        assertTrue(prefs.contains(G.PREF_RETRIES));
+        assertTrue(prefs.contains(G.PREF_DIRECTORIES));
+
+        TransmissionProfile.cleanTemporaryPreferences(context);
+        assertFalse(prefs.contains(G.PREF_NAME));
+        assertFalse(prefs.contains(G.PREF_HOST));
+        assertFalse(prefs.contains(G.PREF_PORT));
+        assertFalse(prefs.contains(G.PREF_PATH));
+        assertFalse(prefs.contains(G.PREF_USER));
+        assertFalse(prefs.contains(G.PREF_PASS));
+        assertFalse(prefs.contains(G.PREF_SSL));
+        assertFalse(prefs.contains(G.PREF_TIMEOUT));
+        assertFalse(prefs.contains(G.PREF_RETRIES));
+        assertFalse(prefs.contains(G.PREF_DIRECTORIES));
     }
 
     @Test public void name() {
@@ -179,6 +253,32 @@ public class TransmissionProfileTest {
 
         profile.setUseSSL(false);
         assertFalse(profile.isUseSSL());
+    }
+
+    @Test public void parceling() {
+        TransmissionProfile profile = new TransmissionProfile(existingId, context, defaultPrefs);
+        profile.setMoveData(false);
+        profile.setStartPaused(true);
+        profile.setPath("/foo/bar");
+        Bundle bundle = new Bundle();
+        bundle.putParcelable("parcel", profile);
+
+        TransmissionProfile clone = bundle.getParcelable("parcel");
+        assertEquals(clone.getId(), profile.getId());
+        assertEquals(clone.getName(), profile.getName());
+        assertEquals(clone.getHost(), profile.getHost());
+        assertEquals(clone.getPort(), profile.getPort());
+        assertEquals(clone.getPath(), profile.getPath());
+        assertEquals(clone.getUsername(), profile.getUsername());
+        assertEquals(clone.getPassword(), profile.getPassword());
+        assertEquals(clone.isUseSSL(), profile.isUseSSL());
+        assertEquals(clone.getTimeout(), profile.getTimeout());
+        assertEquals(clone.getRetries(), profile.getRetries());
+        assertEquals(clone.getDirectories(), profile.getDirectories());
+        assertEquals(clone.getLastDownloadDirectory(), profile.getLastDownloadDirectory());
+        assertEquals(clone.getMoveData(), profile.getMoveData());
+        assertEquals(clone.getDeleteLocal(), profile.getDeleteLocal());
+        assertEquals(clone.getStartPaused(), profile.getStartPaused());
     }
 }
 
