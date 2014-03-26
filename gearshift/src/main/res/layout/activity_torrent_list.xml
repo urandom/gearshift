@@ -17,7 +17,7 @@
 	
 	    <fragment
 	        android:id="@+id/torrent_list_menu"
-	        android:name="org.sugr.gearshift.TorrentListMenuFragment"
+	        android:name="org.sugr.gearshift.ui.TorrentListMenuFragment"
 	        android:layout_width="match_parent"
 	        android:layout_height="match_parent"
 	        tools:layout="@layout/fragment_torrent_list_menu" />

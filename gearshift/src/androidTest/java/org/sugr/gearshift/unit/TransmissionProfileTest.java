@@ -2,8 +2,6 @@ package org.sugr.gearshift.unit;
 
 import android.app.Activity;
 import android.content.Context;
-import android.content.SharedPreferences;
-import android.os.Bundle;
 import android.os.Parcel;
 
 import org.junit.Before;
@@ -11,7 +9,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.tester.android.content.TestSharedPreferences;
 import org.sugr.gearshift.G;
-import org.sugr.gearshift.TransmissionProfile;
+import org.sugr.gearshift.core.TransmissionProfile;
 import org.sugr.gearshift.unit.util.RobolectricGradleTestRunner;
 
 import java.io.File;

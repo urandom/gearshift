@@ -12,9 +12,8 @@ import android.preference.PreferenceManager;
 import android.support.v4.content.LocalBroadcastManager;
 
 import org.sugr.gearshift.G;
-import org.sugr.gearshift.Torrent;
-import org.sugr.gearshift.TransmissionData;
-import org.sugr.gearshift.TransmissionSession;
+import org.sugr.gearshift.core.Torrent;
+import org.sugr.gearshift.core.TransmissionSession;
 
 import java.util.ArrayList;
 
@@ -360,8 +359,8 @@ public class DataServiceManager {
         @Override public void onReceive(Context context, Intent intent) {
             int error = intent.getIntExtra(G.ARG_ERROR, 0);
 
-            if (error == 0 || error == TransmissionData.Errors.DUPLICATE_TORRENT
-                || error == TransmissionData.Errors.INVALID_TORRENT) {
+            if (error == 0 || error == DataService.Errors.DUPLICATE_TORRENT
+                || error == DataService.Errors.INVALID_TORRENT) {
 
                 String type = intent.getStringExtra(G.ARG_REQUEST_TYPE);
                 switch (type) {

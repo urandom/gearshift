@@ -59,7 +59,7 @@
 	</PreferenceCategory>
 	<Preference
 	    android:key="profile_directories"
-	    android:fragment="org.sugr.gearshift.TransmissionProfileDirectoriesSettingsFragment"
+	    android:fragment="org.sugr.gearshift.ui.TransmissionProfileDirectoriesSettingsFragment"
 	    android:title="@string/con_directories">
 	    
 	</Preference>    

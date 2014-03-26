@@ -16,14 +16,14 @@
     <application
         android:allowBackup="true"
         android:name=".GearShiftApplication"
-        android:backupAgent=".BackupAgent"
+        android:backupAgent=".misc.BackupAgent"
         android:restoreAnyVersion="true"
         android:icon="@drawable/ic_launcher"
         android:logo="@drawable/ic_home"
         android:label="@string/app_name"
         android:theme="@style/AppTheme" >
         <activity
-            android:name=".TorrentListActivity"
+            android:name=".ui.TorrentListActivity"
             android:label="@string/app_name"
             android:launchMode="singleTask" >
             <intent-filter>
@@ -38,7 +38,7 @@
             </intent-filter>         
         </activity>
         <activity
-            android:name=".TorrentFileReadActivity"
+            android:name=".ui.TorrentFileReadActivity"
             android:label="@string/title_torrent_file_read"
             android:theme="@style/AppTheme.DialogNoTitle">
             <intent-filter>
@@ -49,34 +49,34 @@
             </intent-filter>   
         </activity>
         <activity
-            android:name=".TorrentDetailActivity"
+            android:name=".ui.TorrentDetailActivity"
             android:label="@string/title_torrent_detail"
             android:theme="@style/AppTheme.NoBackground"
-            android:parentActivityName=".TorrentListActivity" >
+            android:parentActivityName=".ui.TorrentListActivity" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".TorrentListActivity" />
         </activity>
         <activity
-            android:name=".TransmissionSessionActivity"
+            android:name=".ui.TransmissionSessionActivity"
             android:label="@string/session_settings_item"
             android:theme="@style/AppTheme.CardsActivity"
-            android:parentActivityName="org.sugr.gearshift.TorrentListActivity">
+            android:parentActivityName=".ui.TorrentListActivity">
         </activity>
         <activity
-            android:name=".SettingsActivity"
+            android:name=".ui.SettingsActivity"
             android:label="@string/settings"
-            android:parentActivityName=".TorrentListActivity">
+            android:parentActivityName=".ui.TorrentListActivity">
             <intent-filter>
 		        <action android:name="android.intent.action.MANAGE_NETWORK_USAGE" />
 		        <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
         <activity
-            android:name=".AboutActivity"
+            android:name=".ui.AboutActivity"
             android:label="@string/about_item"
             android:theme="@android:style/Theme.Holo.Light.DialogWhenLarge.NoActionBar"
-            android:parentActivityName="org.sugr.gearshift.TorrentListActivity">
+            android:parentActivityName=".ui.TorrentListActivity">
         </activity>
 
         <meta-data android:name="com.google.android.backup.api_key"

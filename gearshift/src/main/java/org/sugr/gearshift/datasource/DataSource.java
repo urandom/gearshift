@@ -20,8 +20,8 @@ import com.fasterxml.jackson.core.JsonToken;
 
 import org.sugr.gearshift.G;
 import org.sugr.gearshift.R;
-import org.sugr.gearshift.Torrent;
-import org.sugr.gearshift.TransmissionSession;
+import org.sugr.gearshift.core.Torrent;
+import org.sugr.gearshift.core.TransmissionSession;
 
 import java.io.IOException;
 import java.util.ArrayList;

@@ -12,11 +12,9 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.text.TextUtils;
 
 import org.sugr.gearshift.G;
-import org.sugr.gearshift.Torrent;
-import org.sugr.gearshift.TransmissionData;
-import org.sugr.gearshift.TransmissionProfile;
-import org.sugr.gearshift.TransmissionSession;
-import org.sugr.gearshift.TransmissionSessionManager;
+import org.sugr.gearshift.core.Torrent;
+import org.sugr.gearshift.core.TransmissionProfile;
+import org.sugr.gearshift.core.TransmissionSession;
 import org.sugr.gearshift.datasource.DataSource;
 import org.sugr.gearshift.datasource.TorrentStatus;
 
@@ -319,7 +317,7 @@ public class DataService extends IntentService {
             response = handleError(e, requestType, profileId);
         } catch (ConnectException e) {
             response = createResponse(requestType, profileId)
-                .putExtra(G.ARG_ERROR, TransmissionData.Errors.NO_CONNECTIVITY);
+                .putExtra(G.ARG_ERROR, Errors.NO_CONNECTIVITY);
         } finally {
             dataSource.close();
 
@@ -345,46 +343,61 @@ public class DataService extends IntentService {
         switch(e.getCode()) {
             case 401:
             case 403:
-                error = TransmissionData.Errors.ACCESS_DENIED;
+                error = Errors.ACCESS_DENIED;
                 break;
             case 200:
                 if (e.getMessage().equals("no-json")) {
-                    error = TransmissionData.Errors.NO_JSON;
+                    error = Errors.NO_JSON;
                 } else {
                     return null;
                 }
                 break;
             case -1:
                 if (e.getMessage().equals("timeout")) {
-                    error = TransmissionData.Errors.TIMEOUT;
+                    error = Errors.TIMEOUT;
                 } else {
-                    error = TransmissionData.Errors.NO_CONNECTION;
+                    error = Errors.NO_CONNECTION;
                 }
                 break;
             case -2:
                 if (e.getMessage().equals("duplicate torrent")) {
-                    error = TransmissionData.Errors.DUPLICATE_TORRENT;
+                    error = Errors.DUPLICATE_TORRENT;
                 } else if (e.getMessage().equals("invalid or corrupt torrent file")) {
-                    error = TransmissionData.Errors.INVALID_TORRENT;
+                    error = Errors.INVALID_TORRENT;
                 } else {
-                    error = TransmissionData.Errors.RESPONSE_ERROR;
+                    error = Errors.RESPONSE_ERROR;
                     G.logE("Transmission Daemon Error!", e);
                 }
                 break;
             case -3:
-                error = TransmissionData.Errors.OUT_OF_MEMORY;
+                error = Errors.OUT_OF_MEMORY;
                 break;
             case -4:
-                error = TransmissionData.Errors.JSON_PARSE_ERROR;
+                error = Errors.JSON_PARSE_ERROR;
                 G.logE("JSON parse error!", e);
                 break;
             default:
-                error = TransmissionData.Errors.GENERIC_HTTP;
+                error = Errors.GENERIC_HTTP;
                 break;
         }
 
         return intent.putExtra(G.ARG_ERROR, error)
             .putExtra(G.ARG_ERROR_CODE, e.getCode())
             .putExtra(G.ARG_ERROR_STRING, e.getMessage());
+    }
+
+    public static class Errors {
+        public static final int NO_CONNECTIVITY = 1;
+        public static final int ACCESS_DENIED = 1 << 1;
+        public static final int NO_JSON = 1 << 2;
+        public static final int NO_CONNECTION = 1 << 3;
+        public static final int GENERIC_HTTP = 1 << 4;
+        public static final int THREAD_ERROR = 1 << 5;
+        public static final int RESPONSE_ERROR = 1 << 6;
+        public static final int DUPLICATE_TORRENT = 1 << 7;
+        public static final int INVALID_TORRENT = 1 << 8;
+        public static final int TIMEOUT = 1 << 9;
+        public static final int OUT_OF_MEMORY = 1 << 10;
+        public static final int JSON_PARSE_ERROR = 1 << 11;
     }
 }
