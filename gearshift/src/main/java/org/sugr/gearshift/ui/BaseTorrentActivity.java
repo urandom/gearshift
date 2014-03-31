@@ -30,7 +30,7 @@ import java.util.Date;
 
 public abstract class BaseTorrentActivity extends FragmentActivity
     implements TransmissionSessionInterface, DataServiceManagerInterface,
-    LocationDialogHelperInterface,
+    LocationDialogHelperInterface, TransmissionProfileInterface,
     TorrentDetailFragment.PagerCallbacks {
 
     protected TransmissionProfile profile;
@@ -137,10 +137,6 @@ public abstract class BaseTorrentActivity extends FragmentActivity
         }
     }
 
-    @Override public TransmissionProfile getProfile() {
-        return profile;
-    }
-
     @Override public TransmissionSession getSession() {
         return session;
     }
@@ -173,6 +169,10 @@ public abstract class BaseTorrentActivity extends FragmentActivity
 
     @Override public LocationDialogHelper getLocationDialogHelper() {
         return locationDialogHelper;
+    }
+
+    @Override public TransmissionProfile getProfile() {
+        return profile;
     }
 
     protected void showErrorMessage(int error, int code, String string) {

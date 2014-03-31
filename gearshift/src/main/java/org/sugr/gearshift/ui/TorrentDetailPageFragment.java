@@ -410,7 +410,7 @@ public class TorrentDetailPageFragment extends Fragment {
 
     private class ServiceReceiver extends BroadcastReceiver {
         @Override public void onReceive(Context unused, Intent intent) {
-            TransmissionSessionInterface context = (TransmissionSessionInterface) getActivity();
+            TransmissionProfileInterface context = (TransmissionProfileInterface) getActivity();
             if (context == null) {
                 return;
             }
@@ -2072,7 +2072,7 @@ public class TorrentDetailPageFragment extends Fragment {
     private class TorrentDetailTask extends AsyncTask<String, Void, TorrentDetails> {
         @Override protected TorrentDetails doInBackground(String... hashStrings) {
             if (!isCancelled() && getActivity() != null) {
-                TransmissionSessionInterface context = (TransmissionSessionInterface) getActivity();
+                TransmissionProfileInterface context = (TransmissionProfileInterface) getActivity();
                 if (context == null) {
                     return null;
                 }

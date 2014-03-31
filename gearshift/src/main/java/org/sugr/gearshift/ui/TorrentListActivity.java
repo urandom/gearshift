@@ -582,8 +582,8 @@ public class TorrentListActivity extends BaseTorrentActivity
                 }
                 manager.setDetails(false);
 
-                FragmentManager manager = getSupportFragmentManager();
-                TorrentDetailFragment fragment = (TorrentDetailFragment) manager.findFragmentByTag(G.DETAIL_FRAGMENT_TAG);
+                FragmentManager fm = getSupportFragmentManager();
+                TorrentDetailFragment fragment = (TorrentDetailFragment) fm.findFragmentByTag(G.DETAIL_FRAGMENT_TAG);
                 if (fragment != null) {
                     fragment.removeMenuEntries();
                 }

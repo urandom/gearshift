@@ -7,6 +7,7 @@ import android.database.Cursor;
 import android.database.DatabaseUtils;
 import android.database.MatrixCursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteOpenHelper;
 import android.preference.PreferenceManager;
 import android.text.Html;
 import android.text.SpannableString;
@@ -49,7 +50,7 @@ class TorrentCursorArgs {
 public class DataSource {
     private SQLiteDatabase database;
 
-    private SQLiteHelper dbHelper;
+    private SQLiteOpenHelper dbHelper;
     private Context context;
 
     /* Transmission stuff */
@@ -59,6 +60,12 @@ public class DataSource {
 
     public DataSource(Context context) {
         setContext(context);
+        setHelper(new SQLiteHelper(context.getApplicationContext()));
+    }
+
+    public DataSource(Context context, SQLiteOpenHelper helper) {
+        setContext(context);
+        setHelper(helper);
     }
 
     public void open() {
@@ -84,7 +91,10 @@ public class DataSource {
 
     public void setContext(Context context) {
         this.context = context;
-        this.dbHelper = new SQLiteHelper(context.getApplicationContext());
+    }
+
+    public void setHelper(SQLiteOpenHelper helper) {
+        this.dbHelper = helper;
     }
 
     public boolean updateSession(String profile, JsonParser parser) throws IOException {

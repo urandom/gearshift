@@ -462,7 +462,7 @@ public class TorrentDetailFragment extends Fragment implements TorrentListNotifi
                 }
         );
 
-        TransmissionProfile profile = ((TransmissionSessionInterface) getActivity()).getProfile();
+        TransmissionProfile profile = ((TransmissionProfileInterface) getActivity()).getProfile();
         ((CheckBox) dialog.findViewById(R.id.move)).setChecked(
             profile != null && profile.getMoveData());
 
@@ -472,7 +472,7 @@ public class TorrentDetailFragment extends Fragment implements TorrentListNotifi
     private class QueryCurrentDataTask extends AsyncTask<String, Void, Boolean> {
         @Override protected Boolean doInBackground(String... hashStrings) {
             if (!isCancelled() && getActivity() != null) {
-                TransmissionSessionInterface context = (TransmissionSessionInterface) getActivity();
+                TransmissionProfileInterface context = (TransmissionProfileInterface) getActivity();
                 if (context == null) {
                     return null;
                 }

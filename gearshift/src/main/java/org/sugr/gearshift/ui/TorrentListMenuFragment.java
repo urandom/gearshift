@@ -95,7 +95,7 @@ public class TorrentListMenuFragment extends Fragment implements TorrentListNoti
 
         @Override public Loader<TorrentTrafficLoader.TorrentTrafficOutputData> onCreateLoader(int id, Bundle bundle) {
             if (id == G.TORRENT_MENU_TRAFFIC_LOADER_ID) {
-                TransmissionSessionInterface context = (TransmissionSessionInterface) getActivity();
+                TransmissionProfileInterface context = (TransmissionProfileInterface) getActivity();
                 if (context == null) {
                     return null;
                 }

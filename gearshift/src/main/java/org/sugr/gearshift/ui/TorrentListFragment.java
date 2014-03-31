@@ -300,7 +300,7 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
 
         @Override public Loader<TorrentTrafficLoader.TorrentTrafficOutputData> onCreateLoader(int id, Bundle bundle) {
             if (id == G.TORRENT_LIST_TRAFFIC_LOADER_ID) {
-                TransmissionSessionInterface context = (TransmissionSessionInterface) getActivity();
+                TransmissionProfileInterface context = (TransmissionProfileInterface) getActivity();
                 if (context == null) {
                     return null;
                 }
@@ -748,7 +748,7 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
             }
         );
 
-        TransmissionProfile profile = ((TransmissionSessionInterface) getActivity()).getProfile();
+        TransmissionProfile profile = ((TransmissionProfileInterface) getActivity()).getProfile();
         ((CheckBox) dialog.findViewById(R.id.move)).setChecked(
             profile != null && profile.getMoveData());
 
@@ -819,8 +819,8 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
                         if (resourcesCleared) {
                             return null;
                         }
-                        TransmissionSessionInterface context
-                            = (TransmissionSessionInterface) getActivity();
+                        TransmissionProfileInterface context =
+                            (TransmissionProfileInterface) getActivity();
                         if (context == null) {
                             return null;
                         }
