@@ -1,4 +1,4 @@
-package org.sugr.gearshift.unit;
+package org.sugr.gearshift.unit.core;
 
 import android.app.Activity;
 import android.content.Context;

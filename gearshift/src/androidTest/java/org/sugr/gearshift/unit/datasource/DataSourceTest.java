@@ -2,24 +2,22 @@ package org.sugr.gearshift.unit.datasource;
 
 import android.app.Activity;
 import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.robolectric.shadows.ShadowActivity;
-import org.robolectric.shadows.ShadowSQLiteOpenHelper;
 import org.sugr.gearshift.datasource.Constants;
 import org.sugr.gearshift.datasource.DataSource;
 import org.sugr.gearshift.datasource.SQLiteHelper;
 import org.sugr.gearshift.unit.util.RobolectricGradleTestRunner;
 
-import java.io.File;
+import java.io.InputStream;
 import java.net.URL;
 
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 @RunWith(RobolectricGradleTestRunner.class)
 public class DataSourceTest {
@@ -35,7 +33,7 @@ public class DataSourceTest {
         assertNotNull(ds);
     }
 
-    @Test public void openAndClose() {
+    @Test public void openAndClose() throws Exception {
         ds.open();
 
         assertTrue(helper.getWritableDatabase().isOpen());
@@ -60,6 +58,8 @@ public class DataSourceTest {
         }
         cursor.close();
 
+        URL url = getClass().getResource("/json/session.json");
+        assertNotNull(url);
     }
 }
 
