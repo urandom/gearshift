@@ -6,6 +6,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -80,6 +81,7 @@ public class DataSourceTest {
             JsonFactory factory = mapper.getFactory();
             JsonParser parser = factory.createParser(is);
 
+            assertEquals(JsonToken.START_OBJECT, parser.nextToken());
             ds.open();
             ds.updateSession(profile, parser);
         } catch (IOException e) {
@@ -94,5 +96,9 @@ public class DataSourceTest {
             }
         }
     }
-}
 
+    static String convertStreamToString(java.io.InputStream is) {
+        java.util.Scanner s = new java.util.Scanner(is).useDelimiter("\\A");
+        return s.hasNext() ? s.next() : "";
+    }
+}
