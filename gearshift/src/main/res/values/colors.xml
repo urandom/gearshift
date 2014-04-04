@@ -1,5 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <color name="main_red">#b60000</color>
+    <color name="main_gray">#cacaca</color>
+    <color name="main_black">#1a1a1a</color>
+
     <color name="detail_background">#ddd</color>
     <color name="detail_background_edge">#bfbfbf</color>
     <color name="transparent">#00000000</color>

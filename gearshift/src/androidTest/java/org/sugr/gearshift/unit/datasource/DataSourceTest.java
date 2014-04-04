@@ -4,6 +4,11 @@ import android.app.Activity;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteOpenHelper;
 
+import com.fasterxml.jackson.core.JsonFactory;
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -12,6 +17,7 @@ import org.sugr.gearshift.datasource.DataSource;
 import org.sugr.gearshift.datasource.SQLiteHelper;
 import org.sugr.gearshift.unit.util.RobolectricGradleTestRunner;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 
@@ -57,9 +63,36 @@ public class DataSourceTest {
             cursor.moveToNext();
         }
         cursor.close();
+    }
+
+    @Test public void updateSession() {
+        String profile = "existing";
 
         URL url = getClass().getResource("/json/session.json");
         assertNotNull(url);
+
+        InputStream is = null;
+        try {
+            is = url.openStream();
+            ObjectMapper mapper = new ObjectMapper();
+            mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+
+            JsonFactory factory = mapper.getFactory();
+            JsonParser parser = factory.createParser(is);
+
+            ds.open();
+            ds.updateSession(profile, parser);
+        } catch (IOException e) {
+            assertTrue(e.toString(), false);
+        } finally {
+            if (is != null) {
+                try {
+                    is.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
     }
 }
 

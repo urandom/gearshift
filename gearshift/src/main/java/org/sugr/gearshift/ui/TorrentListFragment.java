@@ -8,8 +8,11 @@ import android.animation.AnimatorListenerAdapter;
 import android.animation.ObjectAnimator;
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.database.Cursor;
@@ -19,6 +22,8 @@ import android.preference.PreferenceManager;
 import android.support.v4.app.ListFragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
+import android.support.v4.content.LocalBroadcastManager;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.text.Html;
 import android.text.Spanned;
 import android.text.TextUtils;
@@ -414,6 +419,29 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
         TextView status = (TextView) view.findViewById(R.id.status_bar_text);
         /* Enable the marquee animation */
         status.setSelected(true);
+
+        final SwipeRefreshLayout swipeRefresh = (SwipeRefreshLayout) view.findViewById(R.id.swipe_container);
+        swipeRefresh.setColorScheme(R.color.main_red, android.R.color.holo_blue_dark,
+            R.color.main_black, R.color.main_red);
+        swipeRefresh.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override public void onRefresh() {
+                DataServiceManager manager =
+                    ((DataServiceManagerInterface) getActivity()).getDataServiceManager();
+                manager.update();
+
+                BroadcastReceiver receiver = new BroadcastReceiver() {
+                    @Override public void onReceive(Context context, Intent intent) {
+                        String type = intent.getStringExtra(G.ARG_REQUEST_TYPE);
+                        if (type.equals(DataService.Requests.GET_TORRENTS)) {
+                            LocalBroadcastManager.getInstance(getActivity()).unregisterReceiver(this);
+                            swipeRefresh.setRefreshing(false);
+                        }
+                    }
+                };
+                LocalBroadcastManager.getInstance(getActivity()).registerReceiver(
+                    receiver, new IntentFilter(G.INTENT_SERVICE_ACTION_COMPLETE));
+            }
+        });
 
         setHasOptionsMenu(true);
     }

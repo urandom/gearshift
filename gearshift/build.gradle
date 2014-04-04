@@ -14,7 +14,7 @@ configurations {
 
 android {
     compileSdkVersion 19
-    buildToolsVersion '19.0.1'
+    buildToolsVersion '19.0.3'
 
     defaultConfig {
         minSdkVersion 15
@@ -48,7 +48,7 @@ android {
 }
 
 dependencies {
-    compile 'com.android.support:support-v4:19.0.+'
+    compile 'com.android.support:support-v4:19.1.+'
     compile 'com.fasterxml.jackson.core:jackson-core:2.3.0'
     compile 'com.fasterxml.jackson.core:jackson-databind:2.3.0'
     compile 'com.fasterxml.jackson.core:jackson-annotations:2.3.0'
@@ -57,7 +57,7 @@ dependencies {
     unitTestCompile 'junit:junit:4.8.2'
     unitTestCompile 'org.robolectric:robolectric:2.1'
     unitTestCompile 'com.google.android:android:4.1.1.4'
-    unitTestCompile 'com.android.support:support-v4:19.0.+'
+    unitTestCompile 'com.android.support:support-v4:19.1.+'
     unitTestCompile 'org.mockito:mockito-all:1.9.5'
     unitTestCompile 'com.fasterxml.jackson.core:jackson-core:2.3.0'
     unitTestCompile 'com.fasterxml.jackson.core:jackson-databind:2.3.0'
@@ -66,7 +66,7 @@ dependencies {
     androidTestCompile 'junit:junit:4.8.2'
     androidTestCompile 'org.robolectric:robolectric:2.1'
     androidTestCompile 'com.google.android:android:4.1.1.4'
-    androidTestCompile 'com.android.support:support-v4:19.0.+'
+    androidTestCompile 'com.android.support:support-v4:19.1.+'
     androidTestCompile 'org.mockito:mockito-all:1.9.5'
     androidTestCompile 'com.fasterxml.jackson.core:jackson-core:2.3.0'
     androidTestCompile 'com.fasterxml.jackson.core:jackson-databind:2.3.0'
