@@ -113,7 +113,7 @@ public class DataSourceTest {
             assertEquals(20, session.getCacheSize());
             assertEquals("/var/lib/transmission-daemon/info", session.getConfigDir());
             assertTrue(session.isDhtEnabled());
-            assertEquals("/test/Downloads", session.getDownloadDir());
+            assertEquals("/test/Example", session.getDownloadDir());
             assertEquals(46269779968l, session.getDownloadDirFreeSpace());
             assertTrue(session.isDownloadQueueEnabled());
             assertEquals(2, session.getDownloadQueueSize());
