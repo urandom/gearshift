@@ -13,6 +13,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.robolectric.Robolectric;
 import org.robolectric.annotation.Config;
 import org.sugr.gearshift.core.TransmissionSession;
 import org.sugr.gearshift.datasource.Constants;
@@ -39,7 +40,7 @@ public class DataSourceTest {
     private SQLiteOpenHelper helper;
 
     @Before public void setUp() throws Exception {
-        Activity activity = new Activity();
+        Activity activity = Robolectric.buildActivity(Activity.class).create().get();
         helper = new SQLiteHelper(activity.getApplicationContext());
         assertNotNull(helper);
 
