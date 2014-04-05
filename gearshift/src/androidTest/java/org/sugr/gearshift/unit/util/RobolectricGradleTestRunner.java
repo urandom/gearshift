@@ -16,6 +16,6 @@ public class RobolectricGradleTestRunner extends RobolectricTestRunner {
         String manifestPath = myAppPath + "../../../src/main/AndroidManifest.xml";
         String resPath = myAppPath + "../../../src/main/res";
         String assetPath = myAppPath + "../../../src/main/assets";
-        return createAppManifest(Fs.fileFromPath(manifestPath));
+        return createAppManifest(Fs.fileFromPath(manifestPath), Fs.fileFromPath(resPath), Fs.fileFromPath(assetPath));
     }
 }
