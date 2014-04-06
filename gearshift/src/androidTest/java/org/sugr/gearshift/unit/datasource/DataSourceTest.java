@@ -241,7 +241,7 @@ public class DataSourceTest {
             cursor.moveToPosition(0);
             assertEquals(Torrent.Status.DOWNLOADING, Torrent.getStatus(cursor));
             assertTrue(Torrent.isActive(Torrent.getStatus(cursor)));
-            assertEquals("1.18 GB of 1.18 GB (100%) - Remaining time unknown", Torrent.getTrafficText(cursor));
+            assertEquals("1.12 GB of 1.18 GB (95%) - Remaining time unknown", Torrent.getTrafficText(cursor));
             assertEquals("<b>Downloading</b>  from 0 of 0 connected peers - <i>↓ 346.7 KB/s, ↑ 53.71 KB/s</i>", Torrent.getStatusText(cursor));
 
             cursor.moveToPosition(5);
@@ -350,7 +350,174 @@ public class DataSourceTest {
             cursor.moveToFirst();
             index = -1;
             while (!cursor.isAfterLast()) {
-//                System.out.println("\"" + Torrent.getName(cursor) + "\",");
+                assertEquals(expectedNames[++index], Torrent.getName(cursor));
+                cursor.moveToNext();
+            }
+            cursor.close();
+
+            defaultPrefs.edit().putString(G.PREF_LIST_FILTER, G.FilterBy.CHECKING.name()).commit();
+            cursor = ds.getTorrentCursor(profile, defaultPrefs);
+            assertEquals(0, cursor.getCount());
+            cursor.close();
+
+            defaultPrefs.edit().putString(G.PREF_LIST_FILTER, G.FilterBy.DOWNLOADING.name()).commit();
+            expectedNames = new String[] {
+                "startup.sh", "1 Complete ", "alpha...-test ",
+            };
+
+            cursor = ds.getTorrentCursor(profile, defaultPrefs);
+            assertEquals(3, cursor.getCount());
+            cursor.moveToFirst();
+
+            index = -1;
+            while (!cursor.isAfterLast()) {
+                assertEquals(expectedNames[++index], Torrent.getName(cursor));
+                cursor.moveToNext();
+            }
+            cursor.close();
+
+            defaultPrefs.edit().putString(G.PREF_LIST_FILTER, G.FilterBy.COMPLETE.name()).commit();
+            expectedNames = new String[] {
+                "Summer ", "Bla test-exa!", "fox", "ray of light 4", "grass",
+                "who.Who.foo.S06...-testtest", "Somewhere script", "clock.oiuwer...-aaa",
+                "texts..g.sh", "gc14.01.12.test....baba", "access", "preserve.sh", "8516-.sh",
+                "tele.sh.21.calen", "block", "water test (abc - fao)", "gamma rotk (foo) []",
+                "water fao - today test fire", "view.sh", "Monster.Test.....-", "foo Bar.abc...- ",
+            };
+
+            cursor = ds.getTorrentCursor(profile, defaultPrefs);
+            assertEquals(21, cursor.getCount());
+            cursor.moveToFirst();
+
+            index = -1;
+            while (!cursor.isAfterLast()) {
+                assertEquals(expectedNames[++index], Torrent.getName(cursor));
+                cursor.moveToNext();
+            }
+            cursor.close();
+
+            defaultPrefs.edit().putString(G.PREF_LIST_FILTER, G.FilterBy.INCOMPLETE.name()).commit();
+            expectedNames = new String[] {
+                "startup.sh", "1 Complete ", "alpha...-test ",
+            };
+
+            cursor = ds.getTorrentCursor(profile, defaultPrefs);
+            assertEquals(3, cursor.getCount());
+            cursor.moveToFirst();
+
+            index = -1;
+            while (!cursor.isAfterLast()) {
+                assertEquals(expectedNames[++index], Torrent.getName(cursor));
+                cursor.moveToNext();
+            }
+            cursor.close();
+
+            defaultPrefs.edit().putString(G.PREF_LIST_FILTER, G.FilterBy.PAUSED.name()).commit();
+            expectedNames = new String[] {
+                "Summer ", "Bla test-exa!", "fox", "ray of light 4", "grass",
+                "who.Who.foo.S06...-testtest", "Somewhere script", "texts..g.sh",
+                "gc14.01.12.test....baba", "access", "preserve.sh", "8516-.sh", "tele.sh.21.calen",
+                "block", "water test (abc - fao)", "gamma rotk (foo) []",
+                "water fao - today test fire", "view.sh",
+            };
+
+            cursor = ds.getTorrentCursor(profile, defaultPrefs);
+            assertEquals(18, cursor.getCount());
+            cursor.moveToFirst();
+
+            index = -1;
+            while (!cursor.isAfterLast()) {
+                assertEquals(expectedNames[++index], Torrent.getName(cursor));
+                cursor.moveToNext();
+            }
+            cursor.close();
+
+            defaultPrefs.edit().putString(G.PREF_LIST_FILTER, G.FilterBy.SEEDING.name()).commit();
+            expectedNames = new String[] {
+                "clock.oiuwer...-aaa", "Monster.Test.....-", "foo Bar.abc...- ",
+            };
+
+            cursor = ds.getTorrentCursor(profile, defaultPrefs);
+            assertEquals(3, cursor.getCount());
+            cursor.moveToFirst();
+
+            index = -1;
+            while (!cursor.isAfterLast()) {
+                assertEquals(expectedNames[++index], Torrent.getName(cursor));
+                cursor.moveToNext();
+            }
+            cursor.close();
+
+            defaultPrefs.edit().putString(G.PREF_LIST_SEARCH, "a").commit();
+            expectedNames = new String[] {
+                "clock.oiuwer...-<font", "foo B<font",
+            };
+
+            cursor = ds.getTorrentCursor(profile, defaultPrefs);
+            assertEquals(2, cursor.getCount());
+            cursor.moveToFirst();
+
+            index = -1;
+            while (!cursor.isAfterLast()) {
+                assertTrue(Torrent.getName(cursor).contains(expectedNames[++index]));
+                cursor.moveToNext();
+            }
+            cursor.close();
+
+            defaultPrefs.edit().putString(G.PREF_LIST_FILTER, G.FilterBy.ALL.name()).commit();
+            defaultPrefs.edit().putString(G.PREF_LIST_SEARCH, "es").commit();
+            expectedNames = new String[] {
+                "Bla t<font", "who.Who.foo.S06...-t<font", "Somewher<font", "t<font",
+                "gc14.01.12.t<font", "acc<font", "pr<font", "tel<font", "water t<font",
+                "water fao - today t<font", "vi<font", "alpha...-t<font", "Monster.T<font",
+            };
+
+            cursor = ds.getTorrentCursor(profile, defaultPrefs);
+            assertEquals(13, cursor.getCount());
+            cursor.moveToFirst();
+
+            index = -1;
+            while (!cursor.isAfterLast()) {
+                assertTrue(Torrent.getName(cursor).contains(expectedNames[++index]));
+                cursor.moveToNext();
+            }
+            cursor.close();
+
+            defaultPrefs.edit().putString(G.PREF_LIST_SEARCH, null).commit();
+            cursor = ds.getTorrentCursor(profile, defaultPrefs);
+            assertEquals(24, cursor.getCount());
+            cursor.close();
+
+            defaultPrefs.edit().putString(G.PREF_LIST_DIRECTORY, "/test/foo/gamma Ray").commit();
+            expectedNames = new String[] {
+                "ray of light 4", "who.Who.foo.S06...-testtest",
+            };
+
+            cursor = ds.getTorrentCursor(profile, defaultPrefs);
+            assertEquals(2, cursor.getCount());
+            cursor.moveToFirst();
+
+            index = -1;
+            while (!cursor.isAfterLast()) {
+                assertTrue(Torrent.getName(cursor).contains(expectedNames[++index]));
+                cursor.moveToNext();
+            }
+            cursor.close();
+
+            defaultPrefs.edit().remove(G.PREF_LIST_DIRECTORY).commit();
+            defaultPrefs.edit().putString(G.PREF_LIST_TRACKER, "udp://tracker.nsa.gov:80").commit();
+            expectedNames = new String[] {
+                "Summer ", "Bla test-exa!", "fox", "access", "preserve.sh", "startup.sh", "8516-.sh",
+                "water test (abc - fao)", "gamma rotk (foo) []", "water fao - today test fire",
+                "view.sh", "1 Complete ", "alpha...-test ", "Monster.Test.....-",
+            };
+
+            cursor = ds.getTorrentCursor(profile, defaultPrefs);
+            assertEquals(14, cursor.getCount());
+            cursor.moveToFirst();
+
+            index = -1;
+            while (!cursor.isAfterLast()) {
                 assertEquals(expectedNames[++index], Torrent.getName(cursor));
                 cursor.moveToNext();
             }
