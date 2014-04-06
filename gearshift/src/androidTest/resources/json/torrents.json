@@ -66,6 +66,8 @@
 	    0
 	],
 	"queuePosition": 1,
+	"rateDownload": 0,
+	"rateUpload": 0,
 	"recheckProgress": 0,
 	"secondsDownloading": 26144,
 	"secondsSeeding": 267,
@@ -450,6 +452,8 @@
 	    0
 	],
 	"queuePosition": 2,
+	"rateDownload": 0,
+	"rateUpload": 0,
 	"recheckProgress": 0,
 	"secondsDownloading": 43457,
 	"secondsSeeding": 232971,
@@ -724,6 +728,8 @@
 	    0
 	],
 	"queuePosition": 3,
+	"rateDownload": 0,
+	"rateUpload": 0,
 	"recheckProgress": 0,
 	"secondsDownloading": 1692,
 	"secondsSeeding": 49523,
@@ -1603,6 +1609,8 @@
 	    0
 	],
 	"queuePosition": 4,
+	"rateDownload": 0,
+	"rateUpload": 0,
 	"recheckProgress": 0,
 	"secondsDownloading": 9663,
 	"secondsSeeding": 2352444,
@@ -1887,6 +1895,8 @@
 	    0
 	],
 	"queuePosition": 5,
+	"rateDownload": 0,
+	"rateUpload": 0,
 	"recheckProgress": 0,
 	"secondsDownloading": 48584,
 	"secondsSeeding": 1215944,
@@ -2657,6 +2667,8 @@
 	    0
 	],
 	"queuePosition": 8,
+	"rateDownload": 0,
+	"rateUpload": 0,
 	"recheckProgress": 0,
 	"secondsDownloading": 128584,
 	"secondsSeeding": 179040,
@@ -2904,6 +2916,8 @@
 	    0
 	],
 	"queuePosition": 9,
+	"rateDownload": 0,
+	"rateUpload": 0,
 	"recheckProgress": 0,
 	"secondsDownloading": 108930,
 	"secondsSeeding": 517450,
@@ -3132,6 +3146,8 @@
 	    0
 	],
 	"queuePosition": 10,
+	"rateDownload": 0,
+	"rateUpload": 25000,
 	"recheckProgress": 0,
 	"secondsDownloading": 59661,
 	"secondsSeeding": 285361,
@@ -3141,7 +3157,7 @@
 	"seedRatioMode": 0,
 	"sizeWhenDone": 8532816431,
 	"startDate": 0,
-	"status": 0,
+	"status": 6,
 	"torrentFile": "/var/lib/transmission-daemon/info/torrents/clock.oiuwer...-aaa..torrent",
 	"totalSize": 8532816431,
 	"trackerStats": [
@@ -3330,6 +3346,8 @@
 	    0
 	],
 	"queuePosition": 14,
+	"rateDownload": 0,
+	"rateUpload": 0,
 	"recheckProgress": 0,
 	"secondsDownloading": 406,
 	"secondsSeeding": 1311958,
@@ -3558,6 +3576,8 @@
 	    0
 	],
 	"queuePosition": 16,
+	"rateDownload": 0,
+	"rateUpload": 0,
 	"recheckProgress": 0,
 	"secondsDownloading": 1155,
 	"secondsSeeding": 77164,
@@ -3756,6 +3776,8 @@
 	    0
 	],
 	"queuePosition": 18,
+	"rateDownload": 0,
+	"rateUpload": 0,
 	"recheckProgress": 0,
 	"secondsDownloading": 3368,
 	"secondsSeeding": 10430,
@@ -4019,6 +4041,8 @@
 	    0
 	],
 	"queuePosition": 23,
+	"rateDownload": 0,
+	"rateUpload": 0,
 	"recheckProgress": 0,
 	"secondsDownloading": 190291,
 	"secondsSeeding": 0,
@@ -4486,6 +4510,8 @@
 	    0
 	],
 	"queuePosition": 24,
+	"rateDownload": 355000,
+	"rateUpload": 55000,
 	"recheckProgress": 0,
 	"secondsDownloading": 5195,
 	"secondsSeeding": 98112,
@@ -4495,7 +4521,7 @@
 	"seedRatioMode": 0,
 	"sizeWhenDone": 1264377367,
 	"startDate": 0,
-	"status": 0,
+	"status": 4,
 	"torrentFile": "/var/lib/transmission-daemon/info/torrents/startup.sh..torrent",
 	"totalSize": 1264377367,
 	"trackerStats": [
@@ -4749,6 +4775,8 @@
 	    0
 	],
 	"queuePosition": 25,
+	"rateDownload": 0,
+	"rateUpload": 0,
 	"recheckProgress": 0,
 	"secondsDownloading": 1340,
 	"secondsSeeding": 470282,
@@ -5045,6 +5073,8 @@
 	    0
 	],
 	"queuePosition": 26,
+	"rateDownload": 0,
+	"rateUpload": 0,
 	"recheckProgress": 0,
 	"secondsDownloading": 1040,
 	"secondsSeeding": 318491,
@@ -5276,6 +5306,8 @@
 	    0
 	],
 	"queuePosition": 27,
+	"rateDownload": 0,
+	"rateUpload": 0,
 	"recheckProgress": 0,
 	"secondsDownloading": 1588,
 	"secondsSeeding": 542488,
@@ -6310,6 +6342,8 @@
 	    0
 	],
 	"queuePosition": 30,
+	"rateDownload": 0,
+	"rateUpload": 0,
 	"recheckProgress": 0,
 	"secondsDownloading": 2222,
 	"secondsSeeding": 588604,
@@ -6781,6 +6815,8 @@
 	    0
 	],
 	"queuePosition": 33,
+	"rateDownload": 0,
+	"rateUpload": 0,
 	"recheckProgress": 0,
 	"secondsDownloading": 8008,
 	"secondsSeeding": 272268,
@@ -7165,6 +7201,8 @@
 	    0
 	],
 	"queuePosition": 38,
+	"rateDownload": 0,
+	"rateUpload": 0,
 	"recheckProgress": 0,
 	"secondsDownloading": 546,
 	"secondsSeeding": 345885,
@@ -7441,6 +7479,8 @@
 	    0
 	],
 	"queuePosition": 42,
+	"rateDownload": 0,
+	"rateUpload": 0,
 	"recheckProgress": 0,
 	"secondsDownloading": 1591,
 	"secondsSeeding": 562480,
@@ -7858,6 +7898,8 @@
 	    0
 	],
 	"queuePosition": 62,
+	"rateDownload": 25000,
+	"rateUpload": 50000,
 	"recheckProgress": 0,
 	"secondsDownloading": 65010,
 	"secondsSeeding": 155694,
@@ -7867,7 +7909,7 @@
 	"seedRatioMode": 0,
 	"sizeWhenDone": 18050022603,
 	"startDate": 0,
-	"status": 0,
+	"status": 4,
 	"torrentFile": "/var/lib/transmission-daemon/info/torrents/1 Complete ..torrent",
 	"totalSize": 18050022603,
 	"trackerStats": [
@@ -8146,6 +8188,8 @@
 	    0
 	],
 	"queuePosition": 121,
+	"rateDownload": 150000,
+	"rateUpload": 20000,
 	"recheckProgress": 0,
 	"secondsDownloading": 13566,
 	"secondsSeeding": 34510,
@@ -8155,7 +8199,7 @@
 	"seedRatioMode": 0,
 	"sizeWhenDone": 3821350301,
 	"startDate": 0,
-	"status": 0,
+	"status": 4,
 	"torrentFile": "/var/lib/transmission-daemon/info/torrents/alpha...-test ..torrent",
 	"totalSize": 3821350301,
 	"trackerStats": [
@@ -8421,6 +8465,8 @@
 	    0
 	],
 	"queuePosition": 126,
+	"rateDownload": 0,
+	"rateUpload": 35000,
 	"recheckProgress": 0,
 	"secondsDownloading": 53031,
 	"secondsSeeding": 57159,
@@ -8430,7 +8476,7 @@
 	"seedRatioMode": 0,
 	"sizeWhenDone": 8552973309,
 	"startDate": 0,
-	"status": 0,
+	"status": 6,
 	"torrentFile": "/var/lib/transmission-daemon/info/torrents/Monster.Test.....-..torrent",
 	"totalSize": 8552973309,
 	"trackerStats": [
@@ -8744,6 +8790,8 @@
 	    0
 	],
 	"queuePosition": 154,
+	"rateDownload": 0,
+	"rateUpload": 12000,
 	"recheckProgress": 0,
 	"secondsDownloading": 257700,
 	"secondsSeeding": 3426673,
