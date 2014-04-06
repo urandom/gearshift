@@ -10,6 +10,7 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.content.LocalBroadcastManager;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.text.Html;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -158,10 +159,24 @@ public abstract class BaseTorrentActivity extends FragmentActivity
         }
 
         MenuItem item = menu.findItem(R.id.menu_refresh);
-        if (this.refreshing)
-            item.setActionView(R.layout.action_progress_bar);
-        else
-            item.setActionView(null);
+        SwipeRefreshLayout swipeRefresh = (SwipeRefreshLayout) findViewById(R.id.swipe_container);
+        if (this.refreshing) {
+            if (swipeRefresh != null) {
+                swipeRefresh.setRefreshing(true);
+                swipeRefresh.setEnabled(false);
+                item.setEnabled(false);
+            } else {
+                item.setActionView(R.layout.action_progress_bar);
+            }
+        } else {
+            if (swipeRefresh != null) {
+                swipeRefresh.setRefreshing(false);
+                swipeRefresh.setEnabled(true);
+                item.setEnabled(true);
+            } else {
+                item.setActionView(null);
+            }
+        }
     }
 
     @Override public DataServiceManager getDataServiceManager() {

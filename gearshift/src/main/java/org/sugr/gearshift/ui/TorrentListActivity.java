@@ -448,6 +448,10 @@ public class TorrentListActivity extends BaseTorrentActivity
             MenuItem item = menu.findItem(R.id.menu_refresh);
 
             item.setVisible(false);
+
+            if (findViewById(R.id.swipe_container) != null) {
+                findViewById(R.id.swipe_container).setEnabled(false);
+            }
         } else {
             setRefreshing(refreshing, refreshType);
         }
@@ -609,6 +613,10 @@ public class TorrentListActivity extends BaseTorrentActivity
         if (menu != null) {
             MenuItem item = menu.findItem(R.id.menu_refresh);
             item.setVisible(profile != null);
+
+            if (findViewById(R.id.swipe_container) != null) {
+                findViewById(R.id.swipe_container).setEnabled(false);
+            }
         }
 
         if (profile != null) {

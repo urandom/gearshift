@@ -428,18 +428,8 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
                 DataServiceManager manager =
                     ((DataServiceManagerInterface) getActivity()).getDataServiceManager();
                 manager.update();
-
-                BroadcastReceiver receiver = new BroadcastReceiver() {
-                    @Override public void onReceive(Context context, Intent intent) {
-                        String type = intent.getStringExtra(G.ARG_REQUEST_TYPE);
-                        if (type.equals(DataService.Requests.GET_TORRENTS)) {
-                            LocalBroadcastManager.getInstance(getActivity()).unregisterReceiver(this);
-                            swipeRefresh.setRefreshing(false);
-                        }
-                    }
-                };
-                LocalBroadcastManager.getInstance(getActivity()).registerReceiver(
-                    receiver, new IntentFilter(G.INTENT_SERVICE_ACTION_COMPLETE));
+                ((TransmissionSessionInterface) getActivity()).setRefreshing(true,
+                    DataService.Requests.GET_TORRENTS);
             }
         });
 
