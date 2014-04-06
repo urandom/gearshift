@@ -7,6 +7,7 @@ import android.content.IntentFilter;
 import android.database.Cursor;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.content.LocalBroadcastManager;
 import android.text.Html;
@@ -305,7 +306,8 @@ public abstract class BaseTorrentActivity extends FragmentActivity
             try {
                 readSource.open();
 
-                return readSource.getTorrentCursor(profile.getId());
+                return readSource.getTorrentCursor(profile.getId(),
+                    PreferenceManager.getDefaultSharedPreferences(readSource.getContext()));
             } finally {
                 if (readSource.isOpen()) {
                     readSource.close();

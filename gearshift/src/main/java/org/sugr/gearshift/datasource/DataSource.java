@@ -8,7 +8,6 @@ import android.database.DatabaseUtils;
 import android.database.MatrixCursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
-import android.preference.PreferenceManager;
 import android.text.Html;
 import android.text.SpannableString;
 import android.text.Spanned;
@@ -608,7 +607,7 @@ public class DataSource {
         }
     }
 
-    public Cursor getTorrentCursor(String profile) {
+    public Cursor getTorrentCursor(String profile, SharedPreferences prefs) {
         if (!isOpen())
             return null;
 
@@ -616,12 +615,11 @@ public class DataSource {
             session = getSession(profile);
         }
 
-        TorrentCursorArgs args = getTorrentCursorArgs();
+        TorrentCursorArgs args = getTorrentCursorArgs(prefs);
 
         Cursor cursor = getTorrentCursor(profile, args.selection, args.selectionArgs,
             args.orderBy, false);
 
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
         String search = prefs.getString(G.PREF_LIST_SEARCH, null);
 
         if (!TextUtils.isEmpty(search)) {
@@ -1959,10 +1957,9 @@ public class DataSource {
         }
     }
 
-    protected TorrentCursorArgs getTorrentCursorArgs() {
+    protected TorrentCursorArgs getTorrentCursorArgs(SharedPreferences prefs) {
         TorrentCursorArgs args = new TorrentCursorArgs();
 
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
         String query = prefs.getString(G.PREF_LIST_SEARCH, null);
         String directory = prefs.getString(G.PREF_LIST_DIRECTORY, null);
         String tracker = prefs.getString(G.PREF_LIST_TRACKER, null);

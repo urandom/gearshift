@@ -855,7 +855,8 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
 
                         readDataSource.open();
 
-                        return readDataSource.getTorrentCursor(context.getProfile().getId());
+                        return readDataSource.getTorrentCursor(context.getProfile().getId(),
+                            PreferenceManager.getDefaultSharedPreferences(getActivity()));
                     }
                 }
             });

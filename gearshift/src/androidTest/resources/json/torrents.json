@@ -1830,22 +1830,22 @@
 	    {
 		"bytesCompleted": 1228324067,
 		"length": 1228324067,
-		"name": "Veiki.."
+		"name": "grass.."
 	    },
 	    {
 		"bytesCompleted": 33,
 		"length": 33,
-		"name": "Veiki/.txt"
+		"name": "grass/.txt"
 	    },
 	    {
 		"bytesCompleted": 29001,
 		"length": 29001,
-		"name": "Veiki/picture.tiny"
+		"name": "grass/picture.tiny"
 	    },
 	    {
 		"bytesCompleted": 321768,
 		"length": 321768,
-		"name": "Veiki/log.tiny"
+		"name": "grass/log.tiny"
 	    }
 	],
 	"hashString": "5a1dae432e3a34b7424eb7196cec5fa4a1cb1c42",
@@ -1857,11 +1857,11 @@
 	"isPrivate": false,
 	"isStalled": false,
 	"leftUntilDone": 0,
-	"magnetLink": "magnet:?xt=urn:btih:5a1dae432e3a34b7424eb7196cec5fa4a1cb1c42&dn=Veiki&tr=http%3A%2F%2Fp2p.google.com%3A2710%2F45c8fa2244c08084280785fe891b6e85%2Fannounce&tr=http%3A%2F%2Fp2p.test.net%3A2710%2F45c8fa2244c08084280785fe891b6e85%2Fannounce&tr=udp%3A%2F%2Ftracker.example.com%3A80%2Fannounce",
+	"magnetLink": "magnet:?xt=urn:btih:5a1dae432e3a34b7424eb7196cec5fa4a1cb1c42&dn=grass&tr=http%3A%2F%2Fp2p.google.com%3A2710%2F45c8fa2244c08084280785fe891b6e85%2Fannounce&tr=http%3A%2F%2Fp2p.test.net%3A2710%2F45c8fa2244c08084280785fe891b6e85%2Fannounce&tr=udp%3A%2F%2Ftracker.example.com%3A80%2Fannounce",
 	"manualAnnounceTime": -1,
 	"maxConnectedPeers": 60,
 	"metadataPercentComplete": 1,
-	"name": "Veiki",
+	"name": "grass",
 	"peer-limit": 60,
 	"peers": [],
 	"peersConnected": 0,
@@ -1897,7 +1897,7 @@
 	"sizeWhenDone": 1228674869,
 	"startDate": 1396288710,
 	"status": 0,
-	"torrentFile": "/var/lib/transmission-daemon/info/torrents/Veiki..torrent",
+	"torrentFile": "/var/lib/transmission-daemon/info/torrents/grass..torrent",
 	"totalSize": 1228674869,
 	"trackerStats": [
 	    {
