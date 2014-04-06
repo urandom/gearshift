@@ -19,6 +19,7 @@ import org.sugr.gearshift.core.TransmissionSession;
 import org.sugr.gearshift.datasource.Constants;
 import org.sugr.gearshift.datasource.DataSource;
 import org.sugr.gearshift.datasource.SQLiteHelper;
+import org.sugr.gearshift.datasource.TorrentStatus;
 import org.sugr.gearshift.unit.util.RobolectricGradleTestRunner;
 
 import java.io.IOException;
@@ -148,6 +149,38 @@ public class DataSourceTest {
             assertFalse(session.isTrashOriginalTorrentFilesEnabled());
             assertTrue(session.isUtpEnabled());
             assertEquals("2.52 (13304)", session.getVersion());
+        } catch (IOException e) {
+            assertTrue(e.toString(), false);
+        } finally {
+            if (is != null) {
+                try {
+                    is.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+
+    @Test public void torrent() {
+        String profile = "existing";
+
+        URL url = getClass().getResource("/json/session.json");
+        assertNotNull(url);
+
+        InputStream is = null;
+        try {
+            is = url.openStream();
+            ObjectMapper mapper = new ObjectMapper();
+            mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+
+            JsonFactory factory = mapper.getFactory();
+            JsonParser parser = factory.createParser(is);
+
+            assertEquals(JsonToken.START_OBJECT, parser.nextToken());
+            ds.open();
+            TorrentStatus status = ds.updateTorrents(profile, parser, false);
+            assertNotNull(status);
         } catch (IOException e) {
             assertTrue(e.toString(), false);
         } finally {
