@@ -165,7 +165,7 @@ public class DataSourceTest {
     @Test public void torrent() {
         String profile = "existing";
 
-        URL url = getClass().getResource("/json/session.json");
+        URL url = getClass().getResource("/json/torrents.json");
         assertNotNull(url);
 
         InputStream is = null;
@@ -177,7 +177,7 @@ public class DataSourceTest {
             JsonFactory factory = mapper.getFactory();
             JsonParser parser = factory.createParser(is);
 
-            assertEquals(JsonToken.START_OBJECT, parser.nextToken());
+            assertEquals(JsonToken.START_ARRAY, parser.nextToken());
             ds.open();
             TorrentStatus status = ds.updateTorrents(profile, parser, false);
             assertNotNull(status);
