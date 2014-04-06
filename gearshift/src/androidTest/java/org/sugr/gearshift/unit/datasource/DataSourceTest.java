@@ -37,7 +37,6 @@ import java.util.Set;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
 @Config(emulateSdk = 16)
@@ -174,7 +173,7 @@ public class DataSourceTest {
 
     @Test public void torrent() {
         String profile = "existing";
-        Cursor cursor = null;
+        Cursor cursor;
 
         ds.open();
         cursor = ds.getTorrentCursor(profile, defaultPrefs);
@@ -337,6 +336,25 @@ public class DataSourceTest {
                 cursor.moveToNext();
             }
             cursor.close();
+
+            defaultPrefs.edit().putString(G.PREF_LIST_SORT_BY, G.SortBy.QUEUE.name()).commit();
+            defaultPrefs.edit().putString(G.PREF_LIST_FILTER, G.FilterBy.ACTIVE.name()).commit();
+            expectedNames = new String[] {
+                "clock.oiuwer...-aaa", "startup.sh", "1 Complete ", "alpha...-test ",
+                "Monster.Test.....-", "foo Bar.abc...- ",
+            };
+            cursor = ds.getTorrentCursor(profile, defaultPrefs);
+            cursor.moveToFirst();
+            assertEquals(6, cursor.getCount());
+
+            cursor.moveToFirst();
+            index = -1;
+            while (!cursor.isAfterLast()) {
+//                System.out.println("\"" + Torrent.getName(cursor) + "\",");
+                assertEquals(expectedNames[++index], Torrent.getName(cursor));
+                cursor.moveToNext();
+            }
+            cursor.close();
         } catch (IOException e) {
             assertTrue(e.toString(), false);
         } finally {
@@ -353,10 +371,5 @@ public class DataSourceTest {
                 } catch (Exception ignored) {}
             }
         }
-    }
-
-    static String convertStreamToString(java.io.InputStream is) {
-        java.util.Scanner s = new java.util.Scanner(is).useDelimiter("\\A");
-        return s.hasNext() ? s.next() : "";
     }
 }
