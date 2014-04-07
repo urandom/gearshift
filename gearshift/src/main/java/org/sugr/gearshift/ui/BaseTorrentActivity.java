@@ -160,6 +160,12 @@ public abstract class BaseTorrentActivity extends FragmentActivity
 
         MenuItem item = menu.findItem(R.id.menu_refresh);
         SwipeRefreshLayout swipeRefresh = (SwipeRefreshLayout) findViewById(R.id.swipe_container);
+
+        /* The swipe indicator is underneath the error layer */
+        if (refreshing && hasFatalError) {
+            swipeRefresh = null;
+        }
+
         if (this.refreshing) {
             if (swipeRefresh != null) {
                 swipeRefresh.setRefreshing(true);
