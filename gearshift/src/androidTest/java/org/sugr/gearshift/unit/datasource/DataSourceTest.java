@@ -23,6 +23,7 @@ import org.sugr.gearshift.core.TransmissionSession;
 import org.sugr.gearshift.datasource.Constants;
 import org.sugr.gearshift.datasource.DataSource;
 import org.sugr.gearshift.datasource.SQLiteHelper;
+import org.sugr.gearshift.datasource.TorrentDetails;
 import org.sugr.gearshift.datasource.TorrentStatus;
 import org.sugr.gearshift.unit.util.RobolectricGradleTestRunner;
 
@@ -56,6 +57,8 @@ public class DataSourceTest {
 
         defaultPrefs = new TestSharedPreferences(new HashMap<String, Map<String, Object>>(),
             "default", Activity.MODE_PRIVATE);
+
+        defaultPrefs.edit().putString(G.PREF_LIST_SORT_BY, G.SortBy.QUEUE.name()).commit();
     }
 
     @Test public void openAndClose() throws Exception {
@@ -198,10 +201,16 @@ public class DataSourceTest {
             TorrentStatus status = ds.updateTorrents(profile, parser, false);
             assertNotNull(status);
 
+            assertTrue(status.hasAdded);
+            assertTrue(status.hasRemoved);
+            assertTrue(status.hasStatusChanged);
+            assertFalse(status.hasIncompleteMetadata);
+
             /* defaults:
              * base - age:descending, status:ascending
              */
 
+            defaultPrefs.edit().putString(G.PREF_LIST_SORT_BY, G.SortBy.STATUS.name()).commit();
             String[] expectedNames = new String[] {
                 "startup.sh", "alpha...-test ", "1 Complete ", "Monster.Test.....-",
                 "clock.oiuwer...-aaa", "foo Bar.abc...- ", "grass", "texts..g.sh",
@@ -536,6 +545,222 @@ public class DataSourceTest {
                 try {
                     cursor.close();
                 } catch (Exception ignored) {}
+            }
+        }
+    }
+
+    @Test public void torrentDetails() {
+        String profile = "existing";
+        TorrentDetails details = null;
+        InputStream is = null;
+        URL url = getClass().getResource("/json/torrents.json");
+
+        ds.open();
+
+        try {
+            is = url.openStream();
+            ObjectMapper mapper = new ObjectMapper();
+            mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+
+            JsonFactory factory = mapper.getFactory();
+            JsonParser parser = factory.createParser(is);
+
+            parser.nextToken();
+            ds.updateTorrents(profile, parser, false);
+
+            // Summer
+            details = ds.getTorrentDetails(profile, "d4fdfe1cf9549035c7fb1cac28ff722c7bf5e808");
+
+            assertEquals(1, details.torrentCursor.getCount());
+            assertEquals(1, details.filesCursor.getCount());
+            assertEquals(6, details.trackersCursor.getCount());
+
+            details.torrentCursor.moveToFirst();
+            assertEquals("Summer ", Torrent.getName(details.torrentCursor));
+            assertEquals(924425644, Torrent.getSizeWhenDone(details.torrentCursor));
+
+            Object[][] expected = {
+                { "Summer " },
+                {924425644l},
+                {921425644l},
+                {0},
+                {true},
+            };
+
+            int index = -1;
+            details.filesCursor.moveToFirst();
+            while (!details.filesCursor.isAfterLast()) {
+                assertEquals(expected[0][++index], Torrent.File.getName(details.filesCursor));
+                assertEquals(expected[1][index], Torrent.File.getLength(details.filesCursor));
+                assertEquals(expected[2][index], Torrent.File.getBytesCompleted(details.filesCursor));
+                assertEquals(expected[3][index], Torrent.File.getPriority(details.filesCursor));
+                assertEquals(expected[4][index], Torrent.File.isWanted(details.filesCursor));
+                details.filesCursor.moveToNext();
+            }
+
+            expected = new Object[][] {
+                {
+                    "udp://tracker.example.com:80",
+                    "udp://tracker.yahoo:80",
+                    "udp://tracker.example.biz:6969",
+                    "udp://tracker.nsa.gov:80",
+                    "udp://open.org.net:1337",
+                    "https://server.domain/announce.php?passkey=mypasskey",
+                }, //announce
+                {0, 1, 2, 3, 4, 5}, //id
+                {
+                    "", "", "", "", "",
+                    "https://server.domain/scrape.php?passkey=mypasskey",
+                }, //scrape
+                {0, 1, 2, 3, 4, 5}, //tier
+                {-1, -1, -1, -1, -1, 91}, //seedercount
+                {-1, -1, -1, -1, -1, 2}, //leechercount
+                {false, false, false, false, false, true}, //hasannounced
+                {0l, 0l, 0l, 0l, 0l, 1395713150l}, //lastannouncetime
+                {false, false, false, false, false, true}, //lastannouncesucceeded
+                {0, 0, 0, 0, 0, 2}, //lastannouncepeercount
+                {
+                    "", "", "", "", "", "Success"
+                }, //lastannounceresult
+                {false, false, false, false, false, true}, //hasscraped
+                {0l, 0l, 0l, 0l, 0l, 1395713950l}, //lastscrapetime
+                {false, false, false, false, false, true}, //lastscrapesucceeded
+                {
+                    "", "", "", "", "", ""
+                }, //lastscraperesult
+            };
+
+            index = -1;
+            details.trackersCursor.moveToFirst();
+            while (!details.trackersCursor.isAfterLast()) {
+                assertEquals(expected[0][++index], Torrent.Tracker.getAnnounce(details.trackersCursor));
+                assertEquals(expected[1][index], Torrent.Tracker.getId(details.trackersCursor));
+                assertEquals(expected[2][index], Torrent.Tracker.getScrape(details.trackersCursor));
+                assertEquals(expected[3][index], Torrent.Tracker.getTier(details.trackersCursor));
+                assertEquals(expected[4][index], Torrent.Tracker.getSeederCount(details.trackersCursor));
+                assertEquals(expected[5][index], Torrent.Tracker.getLeecherCount(details.trackersCursor));
+                assertEquals(expected[6][index], Torrent.Tracker.hasAnnounced(details.trackersCursor));
+                assertEquals(expected[7][index], Torrent.Tracker.getLastAnnounceTime(details.trackersCursor));
+                assertEquals(expected[8][index], Torrent.Tracker.hasLastAnnounceSucceeded(details.trackersCursor));
+                assertEquals(expected[9][index], Torrent.Tracker.getLastAnnouncePeerCount(details.trackersCursor));
+                assertEquals(expected[10][index], Torrent.Tracker.getLastAnnounceResult(details.trackersCursor));
+                assertEquals(expected[11][index], Torrent.Tracker.hasScraped(details.trackersCursor));
+                assertEquals(expected[12][index], Torrent.Tracker.getLastScrapeTime(details.trackersCursor));
+                assertEquals(expected[13][index], Torrent.Tracker.hasLastScrapeSucceeded(details.trackersCursor));
+                assertEquals(expected[14][index], Torrent.Tracker.getLastScrapeResult(details.trackersCursor));
+
+                details.filesCursor.moveToNext();
+            }
+            details.torrentCursor.close();
+            details.filesCursor.close();
+            details.trackersCursor.close();
+
+            // gc14....
+            details = ds.getTorrentDetails(profile, "f0034cc5deafdfb589d0f48c2dd29a62ff52e120");
+
+            assertEquals(1, details.torrentCursor.getCount());
+            assertEquals(4, details.filesCursor.getCount());
+            assertEquals(4, details.trackersCursor.getCount());
+
+            details.torrentCursor.moveToFirst();
+            assertEquals("gc14.01.12.test....baba", Torrent.getName(details.torrentCursor));
+
+            expected = new Object[][] {
+                {
+                    "gc14.01.12.test....baba/.txt", "gc14.01.12.test....baba/chair.14.01.12.test.baba.",
+                    "gc14.01.12.test....baba/picture.tiny", "gc14.01.12.test....baba/log.tiny"
+                },
+                {33l, 743958774l, 28858l, 248955l},
+                {31l, 743958374l, 21858l, 248655l},
+                {0, 0, 2, 0},
+                {false, true, true, false},
+            };
+
+            index = -1;
+            details.filesCursor.moveToFirst();
+            while (!details.filesCursor.isAfterLast()) {
+                assertEquals(expected[0][++index], Torrent.File.getName(details.filesCursor));
+                assertEquals(expected[1][index], Torrent.File.getLength(details.filesCursor));
+                assertEquals(expected[2][index], Torrent.File.getBytesCompleted(details.filesCursor));
+                assertEquals(expected[3][index], Torrent.File.getPriority(details.filesCursor));
+                assertEquals(expected[4][index], Torrent.File.isWanted(details.filesCursor));
+                details.filesCursor.moveToNext();
+            }
+
+            expected = new Object[][] {
+                {
+                    "http://p2p.google.com:2710/45c8fa2244c08084280785fe891b6e85/announce",
+                    "http://p2p.test.net:2710/45c8fa2244c08084280785fe891b6e85/announce",
+                    "udp://tracker.example.com:80/announce",
+                    "https://server.domain/announce.php?passkey=mypasskey",
+                }, //announce
+                {0, 1, 2, 3}, //id
+                {
+                    "http://p2p.google.com:2710/45c8fa2244c08084280785fe891b6e85/scrape",
+                    "http://p2p.test.net:2710/45c8fa2244c08084280785fe891b6e85/scrape",
+                    "udp://tracker.example.com:80/scrape",
+                    "https://server.domain/scrape.php?passkey=mypasskey",
+                }, //scrape
+                {0, 1, 2, 3}, //tier
+                {1, 1, 0, 123}, //seedercount
+                {0, 0, 0, 7}, //leechercount
+                {false, false, false, true}, //hasannounced
+                {0l, 0l, 0l, 1395713941l}, //lastannouncetime
+                {false, false, false, true}, //lastannouncesucceeded
+                {0, 0, 0, 10}, //lastannouncepeercount
+                {
+                    "", "", "", "Success"
+                }, //lastannounceresult
+                {true, true, true, true}, //hasscraped
+                {1396699910l, 1396700500l, 1396700910l, 1395713830l}, //lastscrapetime
+                {true, true, true, true}, //lastscrapesucceeded
+                {
+                    "Could not connect to tracker", "Could not connect to tracker",
+                    "Connection failed", ""
+                }, //lastscraperesult
+            };
+
+            index = -1;
+            details.trackersCursor.moveToFirst();
+            while (!details.trackersCursor.isAfterLast()) {
+                assertEquals(expected[0][++index], Torrent.Tracker.getAnnounce(details.trackersCursor));
+                assertEquals(expected[1][index], Torrent.Tracker.getId(details.trackersCursor));
+                assertEquals(expected[2][index], Torrent.Tracker.getScrape(details.trackersCursor));
+                assertEquals(expected[3][index], Torrent.Tracker.getTier(details.trackersCursor));
+                assertEquals(expected[4][index], Torrent.Tracker.getSeederCount(details.trackersCursor));
+                assertEquals(expected[5][index], Torrent.Tracker.getLeecherCount(details.trackersCursor));
+                assertEquals(expected[6][index], Torrent.Tracker.hasAnnounced(details.trackersCursor));
+                assertEquals(expected[7][index], Torrent.Tracker.getLastAnnounceTime(details.trackersCursor));
+                assertEquals(expected[8][index], Torrent.Tracker.hasLastAnnounceSucceeded(details.trackersCursor));
+                assertEquals(expected[9][index], Torrent.Tracker.getLastAnnouncePeerCount(details.trackersCursor));
+                assertEquals(expected[10][index], Torrent.Tracker.getLastAnnounceResult(details.trackersCursor));
+                assertEquals(expected[11][index], Torrent.Tracker.hasScraped(details.trackersCursor));
+                assertEquals(expected[12][index], Torrent.Tracker.getLastScrapeTime(details.trackersCursor));
+                assertEquals(expected[13][index], Torrent.Tracker.hasLastScrapeSucceeded(details.trackersCursor));
+                assertEquals(expected[14][index], Torrent.Tracker.getLastScrapeResult(details.trackersCursor));
+
+                details.filesCursor.moveToNext();
+            }
+            details.torrentCursor.close();
+            details.filesCursor.close();
+            details.trackersCursor.close();
+        } catch (IOException e) {
+            assertTrue(e.toString(), false);
+        } finally {
+            if (is != null) {
+                try {
+                    is.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+            if (details != null) {
+                try {
+                    details.torrentCursor.close();
+                    details.filesCursor.close();
+                    details.trackersCursor.close();
+                } catch (Exception ignored) {
+                }
             }
         }
     }

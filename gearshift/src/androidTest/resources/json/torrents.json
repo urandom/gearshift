@@ -18,14 +18,14 @@
 	"eta": -1,
 	"fileStats": [
 	    {
-		"bytesCompleted": 924425644,
+		"bytesCompleted": 921425644,
 		"priority": 0,
 		"wanted": true
 	    }
 	],
 	"files": [
 	    {
-		"bytesCompleted": 924425644,
+		"bytesCompleted": 921425644,
 		"length": 924425644,
 		"name": "Summer "
 	    }
@@ -220,6 +220,34 @@
 		"scrapeState": 2,
 		"seederCount": -1,
 		"tier": 4
+	    },
+	    {
+		"announce": "https://server.domain/announce.php?passkey=mypasskey",
+		"announceState": 1,
+		"downloadCount": 405,
+		"hasAnnounced": true,
+		"hasScraped": true,
+		"host": "https://server.domain:443",
+		"id": 5,
+		"isBackup": false,
+		"lastAnnouncePeerCount": 2,
+		"lastAnnounceResult": "Success",
+		"lastAnnounceStartTime": 1395713150,
+		"lastAnnounceSucceeded": true,
+		"lastAnnounceTime": 1395713150,
+		"lastAnnounceTimedOut": false,
+		"lastScrapeResult": "",
+		"lastScrapeStartTime": 1395713950,
+		"lastScrapeSucceeded": true,
+		"lastScrapeTime": 1395713950,
+		"lastScrapeTimedOut": 0,
+		"leecherCount": 2,
+		"nextAnnounceTime": 1395715850,
+		"nextScrapeTime": 1395715750,
+		"scrape": "https://server.domain/scrape.php?passkey=mypasskey",
+		"scrapeState": 1,
+		"seederCount": 91,
+		"tier": 5
 	    }
 	],
 	"trackers": [
@@ -252,6 +280,12 @@
 		"id": 4,
 		"scrape": "",
 		"tier": 4
+	    },
+	    {
+		"announce": "https://server.domain/announce.php?passkey=mypasskey",
+		"id": 5,
+		"scrape": "https://server.domain/scrape.php?passkey=mypasskey",
+		"tier": 5
 	    }
 	],
 	"uploadLimit": 600,
@@ -882,6 +916,34 @@
 		"scrapeState": 2,
 		"seederCount": 15,
 		"tier": 4
+	    },
+	    {
+		"announce": "https://server.domain/announce.php?passkey=mypasskey",
+		"announceState": 1,
+		"downloadCount": 396,
+		"hasAnnounced": true,
+		"hasScraped": true,
+		"host": "https://server.domain:443",
+		"id": 5,
+		"isBackup": false,
+		"lastAnnouncePeerCount": 10,
+		"lastAnnounceResult": "Success",
+		"lastAnnounceStartTime": 1395713941,
+		"lastAnnounceSucceeded": true,
+		"lastAnnounceTime": 1395713941,
+		"lastAnnounceTimedOut": false,
+		"lastScrapeResult": "",
+		"lastScrapeStartTime": 1395713830,
+		"lastScrapeSucceeded": true,
+		"lastScrapeTime": 1395713830,
+		"lastScrapeTimedOut": 0,
+		"leecherCount": 7,
+		"nextAnnounceTime": 1395716641,
+		"nextScrapeTime": 1395715630,
+		"scrape": "https://server.domain/scrape.php?passkey=mypasskey",
+		"scrapeState": 1,
+		"seederCount": 123,
+		"tier": 5
 	    }
 	],
 	"trackers": [
@@ -914,6 +976,12 @@
 		"id": 4,
 		"scrape": "",
 		"tier": 4
+	    },
+	    {
+		"announce": "https://server.domain/announce.php?passkey=mypasskey",
+		"id": 5,
+		"scrape": "https://server.domain/scrape.php?passkey=mypasskey",
+		"tier": 5
 	    }
 	],
 	"uploadLimit": 600,
@@ -3495,44 +3563,44 @@
 	"eta": -1,
 	"fileStats": [
 	    {
-		"bytesCompleted": 33,
+		"bytesCompleted": 31,
+		"priority": 0,
+		"wanted": false
+	    },
+	    {
+		"bytesCompleted": 743958374,
 		"priority": 0,
 		"wanted": true
 	    },
 	    {
-		"bytesCompleted": 743958774,
-		"priority": 0,
+		"bytesCompleted": 21858,
+		"priority": 2,
 		"wanted": true
 	    },
 	    {
-		"bytesCompleted": 28858,
+		"bytesCompleted": 248655,
 		"priority": 0,
-		"wanted": true
-	    },
-	    {
-		"bytesCompleted": 248955,
-		"priority": 0,
-		"wanted": true
+		"wanted": false
 	    }
 	],
 	"files": [
 	    {
-		"bytesCompleted": 33,
+		"bytesCompleted": 31,
 		"length": 33,
 		"name": "gc14.01.12.test....baba/.txt"
 	    },
 	    {
-		"bytesCompleted": 743958774,
+		"bytesCompleted": 743958374,
 		"length": 743958774,
 		"name": "gc14.01.12.test....baba/chair.14.01.12.test.baba."
 	    },
 	    {
-		"bytesCompleted": 28858,
+		"bytesCompleted": 21858,
 		"length": 28858,
 		"name": "gc14.01.12.test....baba/picture.tiny"
 	    },
 	    {
-		"bytesCompleted": 248955,
+		"bytesCompleted": 248655,
 		"length": 248955,
 		"name": "gc14.01.12.test....baba/log.tiny"
 	    }
@@ -3674,6 +3742,34 @@
 		"scrapeState": 1,
 		"seederCount": 0,
 		"tier": 2
+	    },
+	    {
+		"announce": "https://server.domain/announce.php?passkey=mypasskey",
+		"announceState": 1,
+		"downloadCount": 396,
+		"hasAnnounced": true,
+		"hasScraped": true,
+		"host": "https://server.domain:443",
+		"id": 3,
+		"isBackup": false,
+		"lastAnnouncePeerCount": 10,
+		"lastAnnounceResult": "Success",
+		"lastAnnounceStartTime": 1395713941,
+		"lastAnnounceSucceeded": true,
+		"lastAnnounceTime": 1395713941,
+		"lastAnnounceTimedOut": false,
+		"lastScrapeResult": "",
+		"lastScrapeStartTime": 1395713830,
+		"lastScrapeSucceeded": true,
+		"lastScrapeTime": 1395713830,
+		"lastScrapeTimedOut": 0,
+		"leecherCount": 7,
+		"nextAnnounceTime": 1395716641,
+		"nextScrapeTime": 1395715630,
+		"scrape": "https://server.domain/scrape.php?passkey=mypasskey",
+		"scrapeState": 1,
+		"seederCount": 123,
+		"tier": 3
 	    }
 	],
 	"trackers": [
@@ -3694,6 +3790,12 @@
 		"id": 2,
 		"scrape": "udp://tracker.example.com:80/scrape",
 		"tier": 2
+	    },
+	    {
+		"announce": "https://server.domain/announce.php?passkey=mypasskey",
+		"id": 3,
+		"scrape": "https://server.domain/scrape.php?passkey=mypasskey",
+		"tier": 3
 	    }
 	],
 	"uploadLimit": 600,
@@ -3930,6 +4032,34 @@
 		"scrapeState": 2,
 		"seederCount": -1,
 		"tier": 4
+	    },
+	    {
+		"announce": "https://server.domain/announce.php?passkey=mypasskey",
+		"announceState": 1,
+		"downloadCount": 396,
+		"hasAnnounced": true,
+		"hasScraped": true,
+		"host": "https://server.domain:443",
+		"id": 5,
+		"isBackup": false,
+		"lastAnnouncePeerCount": 10,
+		"lastAnnounceResult": "Success",
+		"lastAnnounceStartTime": 1395713941,
+		"lastAnnounceSucceeded": true,
+		"lastAnnounceTime": 1395713941,
+		"lastAnnounceTimedOut": false,
+		"lastScrapeResult": "",
+		"lastScrapeStartTime": 1395713830,
+		"lastScrapeSucceeded": true,
+		"lastScrapeTime": 1395713830,
+		"lastScrapeTimedOut": 0,
+		"leecherCount": 7,
+		"nextAnnounceTime": 1395716641,
+		"nextScrapeTime": 1395715630,
+		"scrape": "https://server.domain/scrape.php?passkey=mypasskey",
+		"scrapeState": 1,
+		"seederCount": 123,
+		"tier": 5
 	    }
 	],
 	"trackers": [
@@ -3962,6 +4092,12 @@
 		"id": 4,
 		"scrape": "",
 		"tier": 4
+	    },
+	    {
+		"announce": "https://server.domain/announce.php?passkey=mypasskey",
+		"id": 5,
+		"scrape": "https://server.domain/scrape.php?passkey=mypasskey",
+		"tier": 5
 	    }
 	],
 	"uploadLimit": 600,
