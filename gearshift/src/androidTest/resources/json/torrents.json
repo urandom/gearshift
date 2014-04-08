@@ -4150,7 +4150,7 @@
 	"isPrivate": false,
 	"isStalled": false,
 	"leftUntilDone": 0,
-	"magnetLink": "magnet:?xt=urn:btih:f23d7efacc4c22daf6cefe528a697cf2f1c0276&dn=preserve&tr=http%3A%2F%2Ftracker.testgoogle.com%2Fannounce&tr=udp%3A%2F%2Ftracker.example.com%3A80&tr=udp%3A%2F%2Ftracker.yahoo%3A80&tr=udp%3A%2F%2Ftracker.nsa.gov%3A80&tr=udp%3A%2F%2Ftracker.example.biz%3A80&tr=http%3A%2F%2Fexodus.desync.com%3A6969%2Fannounce&tr=http%3A%2F%2Ftracker.ex.ua%2Fannounce&tr=http%3A%2F%2Ffr3om.h33t.com%3A3310%2Fannounce&tr=udp%3A%2F%2F9.%3A2710%2Fannounce&tr=udp%3A%2F%2Ftracker.1337x.org%3A80%2Fannounce&tr=udp%3A%2F%2Ffr3omtracker.h33t.com%3A3310%2Fannounce",
+	"magnetLink": "magnet:?xt=urn:btih:f23d7efacc4c22daf6cefe528a697cf2f1c0276&dn=preserve&tr=http%3A%2F%2Ftracker.testgoogle.com%2Fannounce&tr=udp%3A%2F%2Ftracker.example.com%3A80&tr=udp%3A%2F%2Ftracker.yahoo%3A80&tr=udp%3A%2F%2Ftracker.nsa.gov%3A80&tr=udp%3A%2F%2Ftracker.example.biz%3A80&tr=http%3A%2F%2Fexodus.desync.com%3A6969%2Fannounce&tr=http%3A%2F%2Ftracker.ex.ua%2Fannounce&tr=http%3A%2F%2Ffrom.cold.com%3A3310%2Fannounce&tr=udp%3A%2F%2F9.%3A2710%2Fannounce&tr=udp%3A%2F%2Ftracker.1337x.org%3A80%2Fannounce&tr=udp%3A%2F%2Ffromtracker.cold.com%3A3310%2Fannounce",
 	"manualAnnounceTime": -1,
 	"maxConnectedPeers": 60,
 	"metadataPercentComplete": 1,
@@ -4389,12 +4389,12 @@
 		"tier": 6
 	    },
 	    {
-		"announce": "http://fr3om.h33t.com:3310/announce",
+		"announce": "http://from.cold.com:3310/announce",
 		"announceState": 0,
 		"downloadCount": -1,
 		"hasAnnounced": false,
 		"hasScraped": true,
-		"host": "http://fr3om.h33t.com:3310",
+		"host": "http://from.cold.com:3310",
 		"id": 7,
 		"isBackup": false,
 		"lastAnnouncePeerCount": 0,
@@ -4411,18 +4411,18 @@
 		"leecherCount": -1,
 		"nextAnnounceTime": 0,
 		"nextScrapeTime": 1396707610,
-		"scrape": "http://fr3om.h33t.com:3310/scrape",
+		"scrape": "http://from.cold.com:3310/scrape",
 		"scrapeState": 1,
 		"seederCount": -1,
 		"tier": 7
 	    },
 	    {
-		"announce": "udp://9.:2710/announce",
+		"announce": "udp://9.trackerexample.biz:2710/announce",
 		"announceState": 0,
 		"downloadCount": 1,
 		"hasAnnounced": false,
 		"hasScraped": true,
-		"host": "udp://9.:2710",
+		"host": "udp://9.trackerexample.biz:2710",
 		"id": 8,
 		"isBackup": false,
 		"lastAnnouncePeerCount": 0,
@@ -4439,7 +4439,7 @@
 		"leecherCount": 0,
 		"nextAnnounceTime": 0,
 		"nextScrapeTime": 1396702570,
-		"scrape": "udp://9.:2710/scrape",
+		"scrape": "udp://9.trackerexample.biz:2710/scrape",
 		"scrapeState": 1,
 		"seederCount": 0,
 		"tier": 8
@@ -4473,12 +4473,12 @@
 		"tier": 9
 	    },
 	    {
-		"announce": "udp://fr3omtracker.h33t.com:3310/announce",
+		"announce": "udp://fromtracker.cold.com:3310/announce",
 		"announceState": 0,
 		"downloadCount": -1,
 		"hasAnnounced": false,
 		"hasScraped": true,
-		"host": "udp://fr3omtracker.h33t.com:3310",
+		"host": "udp://fromtracker.cold.com:3310",
 		"id": 10,
 		"isBackup": false,
 		"lastAnnouncePeerCount": 0,
@@ -4495,7 +4495,7 @@
 		"leecherCount": -1,
 		"nextAnnounceTime": 0,
 		"nextScrapeTime": 1396706660,
-		"scrape": "udp://fr3omtracker.h33t.com:3310/scrape",
+		"scrape": "udp://fromtracker.cold.com:3310/scrape",
 		"scrapeState": 1,
 		"seederCount": -1,
 		"tier": 10
@@ -4545,15 +4545,15 @@
 		"tier": 6
 	    },
 	    {
-		"announce": "http://fr3om.h33t.com:3310/announce",
+		"announce": "http://from.cold.com:3310/announce",
 		"id": 7,
-		"scrape": "http://fr3om.h33t.com:3310/scrape",
+		"scrape": "http://from.cold.com:3310/scrape",
 		"tier": 7
 	    },
 	    {
-		"announce": "udp://9.:2710/announce",
+		"announce": "udp://9.trackerexample.biz:2710/announce",
 		"id": 8,
-		"scrape": "udp://9.:2710/scrape",
+		"scrape": "udp://9.trackerexample.biz:2710/scrape",
 		"tier": 8
 	    },
 	    {
@@ -4563,9 +4563,9 @@
 		"tier": 9
 	    },
 	    {
-		"announce": "udp://fr3omtracker.h33t.com:3310/announce",
+		"announce": "udp://fromtracker.cold.com:3310/announce",
 		"id": 10,
-		"scrape": "udp://fr3omtracker.h33t.com:3310/scrape",
+		"scrape": "udp://fromtracker.cold.com:3310/scrape",
 		"tier": 10
 	    }
 	],

@@ -764,4 +764,123 @@ public class DataSourceTest {
             }
         }
     }
+
+    @Test public void downloadDirectories() {
+        String profile = "existing";
+        TorrentDetails details = null;
+        InputStream is = null;
+        URL url = getClass().getResource("/json/torrents.json");
+
+        ds.open();
+
+        try {
+            is = url.openStream();
+            ObjectMapper mapper = new ObjectMapper();
+            mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+
+            JsonFactory factory = mapper.getFactory();
+            JsonParser parser = factory.createParser(is);
+
+            parser.nextToken();
+            ds.updateTorrents(profile, parser, false);
+
+            String[] expected = {
+                "/test/foo/bar", "/test/foo/alpha", "/test/foo/gamma Ray", "/test/foo",
+                "/test/Example",
+            };
+
+            Set<String> dirs = ds.getDownloadDirectories(profile);
+            assertEquals(5, dirs.size());
+
+            for (String d : expected) {
+                assertTrue(d, dirs.contains(d));
+            }
+        } catch (IOException e) {
+            assertTrue(e.toString(), false);
+        } finally {
+            if (is != null) {
+                try {
+                    is.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+            if (details != null) {
+                try {
+                    details.torrentCursor.close();
+                    details.filesCursor.close();
+                    details.trackersCursor.close();
+                } catch (Exception ignored) {
+                }
+            }
+        }
+    }
+
+    @Test public void tracherAnnounceURLs() {
+        String profile = "existing";
+        TorrentDetails details = null;
+        InputStream is = null;
+        URL url = getClass().getResource("/json/torrents.json");
+
+        ds.open();
+
+        try {
+            is = url.openStream();
+            ObjectMapper mapper = new ObjectMapper();
+            mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+
+            JsonFactory factory = mapper.getFactory();
+            JsonParser parser = factory.createParser(is);
+
+            parser.nextToken();
+            ds.updateTorrents(profile, parser, false);
+
+            String[] expected = {
+                "http://exodus.desync.com:6969/announce",
+                "http://from.cold.com:3310/announce",
+                "http://p2p.google.com:2710/45c8fa2244c08084280785fe891b6e85/announce",
+                "http://p2p.test.net:2710/45c8fa2244c08084280785fe891b6e85/announce",
+                "https://server.domain/announce.php?passkey=mypasskey",
+                "http://test.net/announce.php",
+                "http://testtorrents.net:2710/announce",
+                "http://tracker.ex.ua/announce",
+                "http://tracker.testgoogle.com/announce",
+                "udp://9.trackerexample.biz:2710/announce",
+                "udp://fromtracker.cold.com:3310/announce",
+                "udp://open.org.net:1337",
+                "udp://tracker.1337x.org:80/announce",
+                "udp://tracker.example.biz:6969",
+                "udp://tracker.example.biz:80",
+                "udp://tracker.example.com:80",
+                "udp://tracker.example.com:80/announce",
+                "udp://tracker.nsa.gov:80",
+                "udp://tracker.yahoo:80",
+            };
+
+            Set<String> urls = ds.getTrackerAnnounceURLs(profile);
+            assertEquals(19, urls.size());
+
+            for (String u : expected) {
+                assertTrue(u, urls.contains(u));
+            }
+        } catch (IOException e) {
+            assertTrue(e.toString(), false);
+        } finally {
+            if (is != null) {
+                try {
+                    is.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+            if (details != null) {
+                try {
+                    details.torrentCursor.close();
+                    details.filesCursor.close();
+                    details.trackersCursor.close();
+                } catch (Exception ignored) {
+                }
+            }
+        }
+    }
 }
