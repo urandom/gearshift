@@ -7,7 +7,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 import org.sugr.gearshift.G;
 
 public class SQLiteHelper extends SQLiteOpenHelper {
-    private static final int DATABASE_VERSION = 1;
+    private static final int DATABASE_VERSION = 2;
     private static final String DATABASE_NAME = "gearshift.db";
 
     public SQLiteHelper(Context context) {
@@ -20,7 +20,6 @@ public class SQLiteHelper extends SQLiteOpenHelper {
         db.execSQL(Constants.T_TORRENT_CREATE);
         db.execSQL(Constants.T_TORRENT_PROFILE_CREATE);
         db.execSQL(Constants.T_TRACKER_CREATE);
-        db.execSQL(Constants.T_TORRENT_TRACKER_CREATE);
         db.execSQL(Constants.T_FILE_CREATE);
         db.execSQL(Constants.T_PEER_CREATE);
     }
@@ -33,7 +32,6 @@ public class SQLiteHelper extends SQLiteOpenHelper {
         db.execSQL("DROP TABLE IF EXISTS " + Constants.T_TORRENT);
         db.execSQL("DROP TABLE IF EXISTS " + Constants.T_TORRENT_PROFILE);
         db.execSQL("DROP TABLE IF EXISTS " + Constants.T_TRACKER);
-        db.execSQL("DROP TABLE IF EXISTS " + Constants.T_TORRENT_TRACKER);
         db.execSQL("DROP TABLE IF EXISTS " + Constants.T_FILE);
         db.execSQL("DROP TABLE IF EXISTS " + Constants.T_PEER);
 

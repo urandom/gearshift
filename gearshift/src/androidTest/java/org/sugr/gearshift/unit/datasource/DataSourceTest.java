@@ -78,11 +78,11 @@ public class DataSourceTest {
             tables.add(cursor.getString(0));
             cursor.moveToNext();
         }
-        assertTrue(cursor.getCount() > 6);
+        assertTrue(cursor.getCount() > 5);
 
         String[] expected = new String[] {
             Constants.T_FILE, Constants.T_PEER, Constants.T_SESSION, Constants.T_TORRENT,
-            Constants.T_TORRENT_PROFILE, Constants.T_TORRENT_TRACKER, Constants.T_TRACKER
+            Constants.T_TORRENT_PROFILE, Constants.T_TRACKER
         };
         for (String expect : expected) {
             assertTrue(tables.contains(expect));
@@ -612,7 +612,7 @@ public class DataSourceTest {
                 assertEquals(expected[13][index], Torrent.Tracker.hasLastScrapeSucceeded(details.trackersCursor));
                 assertEquals(expected[14][index], Torrent.Tracker.getLastScrapeResult(details.trackersCursor));
 
-                details.filesCursor.moveToNext();
+                details.trackersCursor.moveToNext();
             }
             details.torrentCursor.close();
             details.filesCursor.close();
@@ -702,7 +702,7 @@ public class DataSourceTest {
                 assertEquals(expected[13][index], Torrent.Tracker.hasLastScrapeSucceeded(details.trackersCursor));
                 assertEquals(expected[14][index], Torrent.Tracker.getLastScrapeResult(details.trackersCursor));
 
-                details.filesCursor.moveToNext();
+                details.trackersCursor.moveToNext();
             }
             details.torrentCursor.close();
             details.filesCursor.close();

@@ -5,7 +5,6 @@ public final class Constants {
     public static final String T_TORRENT = "torrent";
     public static final String T_TORRENT_PROFILE = "torrent_profile";
     public static final String T_TRACKER = "tracker";
-    public static final String T_TORRENT_TRACKER = "torrent_tracker";
     public static final String T_FILE = "file";
     public static final String T_PEER = "peer";
 
@@ -188,6 +187,7 @@ public final class Constants {
     /* The tracker is not associated with a torrent */
     public static final String T_TRACKER_CREATE = "CREATE TABLE "
         + T_TRACKER + "("
+        + C_HASH_STRING + " TEXT REFERENCES " + T_TORRENT + "(" + C_HASH_STRING + ") ON DELETE CASCADE, "
         + C_TRACKER_ID + " INTEGER, "
         + C_ANNOUNCE + " TEXT NOT NULL, "
         + C_SCRAPE + " TEXT NOT NULL DEFAULT '', "
@@ -203,14 +203,6 @@ public final class Constants {
         + C_LAST_SCRAPE_RESULT + " TEXT NOT NULL DEFAULT '', "
         + C_SEEDER_COUNT + " TEXT NOT NULL DEFAULT '', "
         + C_LEECHER_COUNT + " TEXT NOT NULL DEFAULT '', "
-
-        + "PRIMARY KEY (" + C_TRACKER_ID + ")"
-        + ");";
-
-    public static final String T_TORRENT_TRACKER_CREATE = "CREATE TABLE "
-        + T_TORRENT_TRACKER + "("
-        + C_HASH_STRING + " TEXT REFERENCES " + T_TORRENT + "(" + C_HASH_STRING + ") ON DELETE CASCADE, "
-        + C_TRACKER_ID + " INTEGER REFERENCES " + T_TRACKER + "(" + C_TRACKER_ID + ") ON DELETE CASCADE, "
 
         + "PRIMARY KEY (" + C_HASH_STRING + ", " + C_TRACKER_ID + ")"
         + ");";

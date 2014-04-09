@@ -13,7 +13,6 @@ import android.text.SpannableString;
 import android.text.Spanned;
 import android.text.TextUtils;
 import android.text.style.ForegroundColorSpan;
-import android.util.SparseBooleanArray;
 
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
@@ -136,8 +135,6 @@ public class DataSource {
         synchronized (DataSource.class) {
             database.beginTransactionNonExclusive();
             try {
-                SparseBooleanArray trackers = new SparseBooleanArray();
-
                 List<String> validHashStrings = null;
                 if (removeObsolete) {
                     validHashStrings = new ArrayList<>();
@@ -169,25 +166,17 @@ public class DataSource {
 
                     if (values.trackers != null) {
                         for (ContentValues tracker : values.trackers) {
-                            int trackerId = (Integer) tracker.get(Constants.C_TRACKER_ID);
-                            if (!trackers.get(trackerId, false)) {
-                                trackers.put(trackerId, true);
+                            Integer trackerId = (Integer) tracker.get(Constants.C_TRACKER_ID);
+                            tracker.put(Constants.C_HASH_STRING, hash);
 
-                                updated = database.update(Constants.T_TRACKER, tracker,
-                                    Constants.C_TRACKER_ID + " = ?",
-                                    new String[] { Integer.toString(trackerId) });
+                            updated = database.update(Constants.T_TRACKER, tracker,
+                                Constants.C_HASH_STRING + " = ? AND " + Constants.C_TRACKER_ID + " = ?",
+                                new String[] { hash, trackerId.toString() });
 
-                                if (updated < 1) {
-                                    database.insertWithOnConflict(Constants.T_TRACKER, null,
-                                        tracker, SQLiteDatabase.CONFLICT_REPLACE);
-                                }
+                            if (updated < 1) {
+                                database.insertWithOnConflict(Constants.T_TRACKER, null,
+                                    tracker, SQLiteDatabase.CONFLICT_REPLACE);
                             }
-
-                            ContentValues m2m = new ContentValues();
-                            m2m.put(Constants.C_HASH_STRING, hash);
-                            m2m.put(Constants.C_TRACKER_ID, trackerId);
-                            database.insertWithOnConflict(Constants.T_TORRENT_TRACKER, null,
-                                m2m, SQLiteDatabase.CONFLICT_REPLACE);
                         }
                     }
 
@@ -520,12 +509,9 @@ public class DataSource {
                     + " JOIN " + Constants.T_TORRENT
                     + " ON " + Constants.T_TORRENT_PROFILE + "." + Constants.C_HASH_STRING
                     + " = " + Constants.T_TORRENT + "." + Constants.C_HASH_STRING
-                    + " JOIN " + Constants.T_TORRENT_TRACKER
-                    + " ON " + Constants.T_TORRENT_TRACKER + "." + Constants.C_HASH_STRING
-                    + " = " + Constants.T_TORRENT + "." + Constants.C_HASH_STRING
                     + " JOIN " + Constants.T_TRACKER
-                    + " ON " + Constants.T_TRACKER + "." + Constants.C_TRACKER_ID
-                    + " = " + Constants.T_TORRENT_TRACKER + "." + Constants.C_TRACKER_ID
+                    + " ON " + Constants.T_TRACKER + "." + Constants.C_HASH_STRING
+                    + " = " + Constants.T_TORRENT + "." + Constants.C_HASH_STRING
                     + " WHERE " + Constants.C_PROFILE_ID + " = ?"
                     + " ORDER BY " + Constants.C_ANNOUNCE, new String[] { profile }
             );
@@ -794,26 +780,11 @@ public class DataSource {
              Constants.T_TORRENT + "." + Constants.C_HASH_STRING + " = ?",
              selectionArgs, null, true);
 
-         String select = Constants.T_TRACKER + "." + Constants.C_TRACKER_ID + ", "
-             + Constants.C_ANNOUNCE + ", " + Constants.C_SCRAPE + ", " + Constants.C_TIER + ", "
-             + Constants.C_HAS_ANNOUNCED + ", " + Constants.C_LAST_ANNOUNCE_TIME + ", "
-             + Constants.C_LAST_ANNOUNCE_SUCCEEDED + ", " + Constants.C_LAST_ANNOUNCE_PEER_COUNT+ ", "
-             + Constants.C_LAST_ANNOUNCE_RESULT + ", " + Constants.C_HAS_SCRAPED + ", "
-             + Constants.C_LAST_SCRAPE_TIME + ", " + Constants.C_LAST_SCRAPE_SUCCEEDED + ", "
-             + Constants.C_LAST_SCRAPE_RESULT + ", " + Constants.C_SEEDER_COUNT + ", "
-             + Constants.C_LEECHER_COUNT;
+        Cursor trackers = database.query(Constants.T_TRACKER, Constants.ColumnGroups.TRACKER,
+            Constants.C_HASH_STRING + " = ?", selectionArgs, null, null, null);
 
-         String from = Constants.T_TORRENT_TRACKER + " JOIN " + Constants.T_TRACKER
-             + " ON " + Constants.T_TRACKER + "." + Constants.C_TRACKER_ID
-             + " = " + Constants.T_TORRENT_TRACKER + "." + Constants.C_TRACKER_ID;
-
-         String query = "SELECT " + select + " FROM " + from
-             + " WHERE " + Constants.T_TORRENT_TRACKER + "." + Constants.C_HASH_STRING + " = ?";
-
-         Cursor trackers = database.rawQuery(query, selectionArgs);
-
-         Cursor files = database.query(Constants.T_FILE, Constants.ColumnGroups.FILE,
-             Constants.C_HASH_STRING + " = ?", selectionArgs, null, null, null);
+        Cursor files = database.query(Constants.T_FILE, Constants.ColumnGroups.FILE,
+            Constants.C_HASH_STRING + " = ?", selectionArgs, null, null, null);
 
          return new TorrentDetails(torrent, trackers, files);
     }
@@ -2065,11 +2036,8 @@ public class DataSource {
         if (tracker != null && tracker.length() > 0) {
             selection.add(Constants.T_TORRENT + "." + Constants.C_HASH_STRING + " IN ("
                 + "SELECT " + Constants.C_HASH_STRING
-                + " FROM " + Constants.T_TORRENT_TRACKER
-                + " JOIN " + Constants.T_TRACKER
-                + " ON " + Constants.T_TORRENT_TRACKER + "." + Constants.C_TRACKER_ID
-                + " = " + Constants.T_TRACKER + "." + Constants.C_TRACKER_ID
-                + " AND " + Constants.C_ANNOUNCE + " = ?"
+                + " FROM " + Constants.T_TRACKER
+                + " WHERE " + Constants.C_ANNOUNCE + " = ?"
                 + ")");
             selectionArgs.add(tracker);
         }
