@@ -6491,7 +6491,7 @@
 	"startDate": 0,
 	"status": 0,
 	"torrentFile": "/var/lib/transmission-daemon/info/torrents/water test (abc - fao)..torrent",
-	"totalSize": 811959940,
+	"totalSize": 0,
 	"trackerStats": [
 	    {
 		"announce": "udp://tracker.example.com:80",
@@ -8047,7 +8047,7 @@
 	"startDate": 0,
 	"status": 4,
 	"torrentFile": "/var/lib/transmission-daemon/info/torrents/1 Complete ..torrent",
-	"totalSize": 18050022603,
+	"totalSize": 0,
 	"trackerStats": [
 	    {
 		"announce": "udp://tracker.example.com:80",
@@ -9023,5 +9023,10 @@
 	],
 	"webseeds": [],
 	"webseedsSendingToUs": 0
+    },
+    {
+	"hashString": "35134a5bc91cf4eae1f27a813f275bc6fbf0b166",
+	"id": 271,
+    "status": 0
     }
 ]
