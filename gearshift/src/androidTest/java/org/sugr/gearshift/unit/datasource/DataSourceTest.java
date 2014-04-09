@@ -752,8 +752,18 @@ public class DataSourceTest {
 
     @Test public void checkers() {
         String profile = "existing";
-
         updateTorrents();
+
+        assertFalse(ds.hasCompleteMetadata(profile));
+        assertFalse(ds.hasExtraInfo(profile));
+
+        String[] hashStrings = ds.getUnnamedTorrentHashStrings(profile);
+        String[] expected = {"35134a5bc91cf4eae1f27a813f275bc6fbf0b166",};
+
+        int index = -1;
+        for (String h : hashStrings) {
+            assertEquals(expected[++index], h);
+        }
     }
 
     private TorrentStatus updateTorrents() {
