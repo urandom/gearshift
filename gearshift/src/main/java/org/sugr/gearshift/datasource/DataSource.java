@@ -138,7 +138,6 @@ public class DataSource {
                 List<String> validHashStrings = null;
                 if (removeObsolete) {
                     validHashStrings = new ArrayList<>();
-                    database.delete(Constants.T_TRACKER, null, null);
                 }
 
                 while (parser.nextToken() != JsonToken.END_ARRAY) {
