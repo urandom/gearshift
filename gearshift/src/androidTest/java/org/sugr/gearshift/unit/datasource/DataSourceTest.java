@@ -766,6 +766,90 @@ public class DataSourceTest {
         }
     }
 
+    @Test public void actions() {
+        String profile = "existing";
+        updateTorrents();
+
+        Cursor cursor = null;
+
+        try {
+            cursor = ds.getTorrentCursor(profile, defaultPrefs);
+            assertEquals(25, cursor.getCount());
+            cursor.close();
+
+            String[] removed = {
+                "cafe1c1591c5e548cbe542f9g5376b9ce250d3",
+                "a7ff11f3517cd8e4abb4d525b8a58155c80b8c9c",
+                "1af28f38397ff5ccf2326d4b7392a1f8233083"
+            };
+            assertTrue(ds.removeTorrents(removed));
+
+            cursor = ds.getTorrentCursor(profile, defaultPrefs);
+            assertEquals(22, cursor.getCount());
+
+            Set<String> hashStrings = new HashSet<>();
+            cursor.moveToFirst();
+            while (!cursor.isAfterLast()) {
+                hashStrings.add(Torrent.getHashString(cursor));
+                cursor.moveToNext();
+            }
+
+            for (String r : removed) {
+                assertFalse(hashStrings.contains(r));
+            }
+
+            cursor.close();
+
+            int[] ids = { 5, 14, 45, };
+            removed = new String[] {
+                "d4fdfe1cf9549035c7fb1cac28ff722c7bf5e808",
+                "12399a999792837b4461dafbcde0f3bc5a071702",
+                "2325f787f7801ca23367a94506e0e43e97aca5cf",
+            };
+
+            assertTrue(ds.removeTorrents(profile, ids));
+
+            cursor = ds.getTorrentCursor(profile, defaultPrefs);
+            assertEquals(19, cursor.getCount());
+
+            hashStrings.clear();
+            cursor.moveToFirst();
+            while (!cursor.isAfterLast()) {
+                hashStrings.add(Torrent.getHashString(cursor));
+                cursor.moveToNext();
+            }
+
+            for (String r : removed) {
+                assertFalse(hashStrings.contains(r));
+            }
+
+            cursor.close();
+
+            String newHashString = "c167a187f780fa823165a975c6b0ed344ea37f5a";
+            assertTrue(ds.addTorrent(profile, 312, "foo", newHashString, "/test/bar"));
+
+            cursor = ds.getTorrentCursor(profile, defaultPrefs);
+            assertEquals(20, cursor.getCount());
+
+            hashStrings.clear();
+            cursor.moveToFirst();
+            while (!cursor.isAfterLast()) {
+                hashStrings.add(Torrent.getHashString(cursor));
+                cursor.moveToNext();
+            }
+
+            assertTrue(hashStrings.contains(newHashString));
+
+            cursor.close();
+        } finally {
+            if (cursor != null) {
+                cursor.close();
+            }
+        }
+    }
+
+    /* TODO: test multiple profiles */
+
     private TorrentStatus updateTorrents() {
         String profile = "existing";
         TorrentDetails details = null;

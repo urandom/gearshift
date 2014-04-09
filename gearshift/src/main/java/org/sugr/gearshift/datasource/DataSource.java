@@ -279,7 +279,7 @@ public class DataSource {
         }
     }
 
-    public boolean removeTorrents(int... ids) {
+    public boolean removeTorrents(String profile, int... ids) {
         if (!isOpen())
             return false;
 
@@ -287,7 +287,7 @@ public class DataSource {
             database.beginTransactionNonExclusive();
             try {
                 for (int id : ids) {
-                    removeTorrent(id);
+                    removeTorrent(profile, id);
                 }
 
                 database.setTransactionSuccessful();
@@ -1869,9 +1869,26 @@ public class DataSource {
             new String[] { hash } );
     }
 
-    protected void removeTorrent(int id) {
-        database.delete(Constants.T_TORRENT, Constants.C_TORRENT_ID + " = ?",
-            new String[] { Integer.toString(id) } );
+    protected void removeTorrent(String profile, int id) {
+        /* Delete the torrent for a given profile and torrent id
+            DELETE FROM torrent
+            WHERE hash_string IN (
+                SELECT torrent.hash_string FROM torrent_profile JOIN torrent
+                ON torrent_profile.hash_string = torrent.hash_string
+                WHERE profile_id = ? AND torrent_id = ?
+            )
+        */
+        database.delete(Constants.T_TORRENT, Constants.C_HASH_STRING
+                + " IN ("
+                + " SELECT " + Constants.T_TORRENT + "." + Constants.C_HASH_STRING
+                + " FROM " + Constants.T_TORRENT_PROFILE
+                + " JOIN " + Constants.T_TORRENT
+                + " ON " + Constants.T_TORRENT_PROFILE + "." + Constants.C_HASH_STRING
+                + " = " + Constants.T_TORRENT + "." + Constants.C_HASH_STRING
+                + " WHERE " + Constants.C_PROFILE_ID + " = ?"
+                + " AND " + Constants.C_TORRENT_ID + " = ?"
+                + ")",
+            new String[] { profile, Integer.toString(id) });
     }
 
     protected void removeObsolete(String profile, List<String> validHashStrings) {

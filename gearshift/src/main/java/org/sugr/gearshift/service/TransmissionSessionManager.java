@@ -552,7 +552,7 @@ public class TransmissionSessionManager {
                         }
 
                         if (removed != null && removed.length > 0) {
-                            if (dataSource.removeTorrents(removed)) {
+                            if (dataSource.removeTorrents(profile.getId(), removed)) {
                                 ((TorrentGetResponse) response).getTorrentStatus().hasRemoved = true;
                             }
                         }
