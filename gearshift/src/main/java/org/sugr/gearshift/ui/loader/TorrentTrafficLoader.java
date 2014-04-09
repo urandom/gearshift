@@ -48,6 +48,7 @@ public class TorrentTrafficLoader
             if (queryTrackers) {
                 output.trackers = dataSource.getTrackerAnnounceURLs(profile);
             }
+
             if (queryDirectories) {
                 output.directories = dataSource.getDownloadDirectories(profile);
             }

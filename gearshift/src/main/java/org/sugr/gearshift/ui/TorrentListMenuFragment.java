@@ -12,6 +12,7 @@ import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
 import android.support.v4.widget.DrawerLayout;
 import android.text.Html;
+import android.text.TextUtils;
 import android.util.SparseBooleanArray;
 import android.view.ContextThemeWrapper;
 import android.view.LayoutInflater;
@@ -31,6 +32,8 @@ import org.sugr.gearshift.R;
 import org.sugr.gearshift.ui.loader.TorrentTrafficLoader;
 import org.sugr.gearshift.core.TransmissionSession;
 
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.TreeSet;
@@ -158,12 +161,18 @@ public class TorrentListMenuFragment extends Fragment implements TorrentListNoti
                         if (position == -1) {
                             filterAdapter.add(header);
                             for (String d : directories) {
-                                filterAdapter.add(getDirectoryItem(d));
+                                ListItem di = getDirectoryItem(d);
+                                if (di != null) {
+                                    filterAdapter.add(di);
+                                }
                             }
                         } else {
                             filterAdapter.insert(header, position++);
                             for (String d : directories) {
-                                filterAdapter.insert(getDirectoryItem(d), position++);
+                                ListItem di = getDirectoryItem(d);
+                                if (di != null) {
+                                    filterAdapter.insert(di, position++);
+                                }
                             }
                         }
                         updateDirectoryFilter = !currentDirectoryTorrents;
@@ -753,9 +762,15 @@ public class TorrentListMenuFragment extends Fragment implements TorrentListNoti
             item = listItemMap.get(directory);
         } else {
             String name = directory;
-            int lastSlash = directory.lastIndexOf('/');
+            if (name.charAt(directory.length() - 1) == '/') {
+                name = name.substring(0, name.length() - 2);
+            }
+            int lastSlash = name.lastIndexOf('/');
             if (lastSlash > -1) {
-                name = directory.substring(lastSlash + 1);
+                name = name.substring(lastSlash + 1);
+            }
+            if (TextUtils.isEmpty(name)) {
+                return null;
             }
             item = new ListItem(Type.DIRECTORY, directory, name, G.PREF_FILTER_DIRECTORIES);
         }
@@ -790,7 +805,12 @@ public class TorrentListMenuFragment extends Fragment implements TorrentListNoti
         if (listItemMap.containsKey(tracker)) {
             item = listItemMap.get(tracker);
         } else {
-            item = new ListItem(Type.TRACKER, tracker, tracker, G.PREF_FILTER_TRACKERS);
+            String name = tracker;
+            try {
+                URI uri = new URI(tracker);
+                name = uri.getAuthority();
+            } catch (URISyntaxException ignored) { }
+            item = new ListItem(Type.TRACKER, tracker, name, G.PREF_FILTER_TRACKERS);
         }
 
         return item;

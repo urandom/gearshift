@@ -188,7 +188,7 @@ public final class Constants {
     public static final String T_TRACKER_CREATE = "CREATE TABLE "
         + T_TRACKER + "("
         + C_HASH_STRING + " TEXT REFERENCES " + T_TORRENT + "(" + C_HASH_STRING + ") ON DELETE CASCADE, "
-        + C_TRACKER_ID + " INTEGER, "
+        + C_TRACKER_ID + " INTEGER NOT NULL, "
         + C_ANNOUNCE + " TEXT NOT NULL, "
         + C_SCRAPE + " TEXT NOT NULL DEFAULT '', "
         + C_TIER + " INTEGER, "
