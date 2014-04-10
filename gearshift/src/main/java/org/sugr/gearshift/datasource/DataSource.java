@@ -494,11 +494,11 @@ public class DataSource {
         }
     }
 
-    public Set<String> getTrackerAnnounceURLs(String profile) {
+    public List<String> getTrackerAnnounceURLs(String profile) {
         if (!isOpen())
             return null;
 
-        Set<String> urls = new HashSet<>();
+        List<String> urls = new ArrayList<>();
 
         Cursor cursor = null;
         try {
@@ -512,7 +512,8 @@ public class DataSource {
                     + " ON " + Constants.T_TRACKER + "." + Constants.C_HASH_STRING
                     + " = " + Constants.T_TORRENT + "." + Constants.C_HASH_STRING
                     + " WHERE " + Constants.C_PROFILE_ID + " = ?"
-                    + " ORDER BY " + Constants.C_ANNOUNCE, new String[] { profile }
+                    + " ORDER BY " + Constants.C_ANNOUNCE + " COLLATE NOCASE",
+                new String[] { profile }
             );
 
             cursor.moveToFirst();
@@ -529,11 +530,11 @@ public class DataSource {
         }
     }
 
-    public Set<String> getDownloadDirectories(String profile) {
+    public List<String> getDownloadDirectories(String profile) {
         if (!isOpen())
             return null;
 
-        Set<String> directories = new HashSet<>();
+        List<String> directories = new ArrayList<>();
 
         Cursor cursor = null;
         try {
@@ -543,7 +544,8 @@ public class DataSource {
                     + " JOIN " + Constants.T_TORRENT
                     + " ON " + Constants.T_TORRENT_PROFILE + "." + Constants.C_HASH_STRING
                     + " = " + Constants.T_TORRENT + "." + Constants.C_HASH_STRING
-                    + " WHERE " + Constants.C_PROFILE_ID + " = ?",
+                    + " WHERE " + Constants.C_PROFILE_ID + " = ?"
+                    + " ORDER BY " + Constants.C_DOWNLOAD_DIR + " COLLATE NOCASE",
                 new String[] { profile }
             );
 
