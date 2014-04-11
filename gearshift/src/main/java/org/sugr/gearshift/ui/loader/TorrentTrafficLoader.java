@@ -5,7 +5,7 @@ import android.support.v4.content.AsyncTaskLoader;
 
 import org.sugr.gearshift.datasource.DataSource;
 
-import java.util.Set;
+import java.util.List;
 
 public class TorrentTrafficLoader
     extends AsyncTaskLoader<TorrentTrafficLoader.TorrentTrafficOutputData> {
@@ -13,8 +13,8 @@ public class TorrentTrafficLoader
     public static class TorrentTrafficOutputData {
         public long downloadSpeed = -1;
         public long uploadSpeed = -1;
-        public Set<String> directories = null;
-        public Set<String> trackers = null;
+        public List<String> directories = null;
+        public List<String> trackers = null;
     }
 
     private String profile;

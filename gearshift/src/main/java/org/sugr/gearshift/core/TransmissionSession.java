@@ -10,6 +10,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 @JsonAutoDetect(
@@ -546,7 +547,7 @@ public class TransmissionSession implements Parcelable {
         this.version = version;
     }
 
-    public void setDownloadDirectories(TransmissionProfile profile, Set<String> directories) {
+    public void setDownloadDirectories(TransmissionProfile profile, List<String> directories) {
         downloadDirectories.clear();
         downloadDirectories.add(downloadDir);
         downloadDirectories.addAll(profile.getDirectories());

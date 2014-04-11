@@ -32,6 +32,7 @@ import java.io.InputStream;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -736,15 +737,20 @@ public class DataSourceTest {
         String profile = "existing";
         updateTorrents();
         String[] expected = {
-            "/test/foo/bar", "/test/foo/alpha", "/test/foo/gamma Ray", "/test/foo",
-            "/test/Example", "",
+            "",
+            "/test/Example",
+            "/test/foo",
+            "/test/foo/alpha",
+            "/test/foo/bar",
+            "/test/foo/gamma Ray",
         };
 
-        Set<String> dirs = ds.getDownloadDirectories(profile);
+        List<String> dirs = ds.getDownloadDirectories(profile);
         assertEquals(6, dirs.size());
 
-        for (String d : expected) {
-            assertTrue(d, dirs.contains(d));
+        int index = -1;
+        for (String d : dirs) {
+            assertEquals(expected[++index], d);
         }
     }
 
@@ -756,11 +762,11 @@ public class DataSourceTest {
             "http://from.cold.com:3310/announce",
             "http://p2p.google.com:2710/45c8fa2244c08084280785fe891b6e85/announce",
             "http://p2p.test.net:2710/45c8fa2244c08084280785fe891b6e85/announce",
-            "https://server.domain/announce.php?passkey=mypasskey",
             "http://test.net/announce.php",
             "http://testtorrents.net:2710/announce",
             "http://tracker.ex.ua/announce",
             "http://tracker.testgoogle.com/announce",
+            "https://server.domain/announce.php?passkey=mypasskey",
             "udp://9.trackerexample.biz:2710/announce",
             "udp://fromtracker.cold.com:3310/announce",
             "udp://open.org.net:1337",
@@ -773,11 +779,12 @@ public class DataSourceTest {
             "udp://tracker.yahoo:80",
         };
 
-        Set<String> urls = ds.getTrackerAnnounceURLs(profile);
+        List<String> urls = ds.getTrackerAnnounceURLs(profile);
         assertEquals(19, urls.size());
 
-        for (String u : expected) {
-            assertTrue(u, urls.contains(u));
+        int index = -1;
+        for (String u : urls) {
+            assertEquals(expected[++index], u);
         }
     }
 
