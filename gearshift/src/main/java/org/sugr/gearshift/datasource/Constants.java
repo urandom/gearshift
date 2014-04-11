@@ -125,7 +125,7 @@ public final class Constants {
         + C_TORRENT_ID + " INTEGER NOT NULL, "
         + C_STATUS + " INTEGER NOT NULL, "
         + C_NAME + " TEXT NOT NULL DEFAULT '', "
-        + C_ERROR + " INTEGER, "
+        + C_ERROR + " INTEGER NOT NULL DEFAULT 0, "
         + C_ERROR_STRING + " TEXT NOT NULL DEFAULT '', "
         + C_METADATA_PERCENT_COMPLETE + " REAL NOT NULL DEFAULT 0, "
         + C_PERCENT_DONE + " REAL NOT NULL DEFAULT 0, "

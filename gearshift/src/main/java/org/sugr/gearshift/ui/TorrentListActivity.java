@@ -193,6 +193,7 @@ public class TorrentListActivity extends BaseTorrentActivity
         setContentView(R.layout.activity_torrent_list);
 
         PreferenceManager.setDefaultValues(this, R.xml.general_preferences, false);
+        PreferenceManager.setDefaultValues(this, R.xml.filters_preferences, false);
         PreferenceManager.setDefaultValues(this, R.xml.sort_preferences, false);
 
         if (findViewById(R.id.torrent_detail_panel) != null) {

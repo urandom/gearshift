@@ -52,6 +52,7 @@ public final class G {
     public static final String PREF_FILTER_INCOMPLETE = "filter_incomplete";
     public static final String PREF_FILTER_ACTIVE = "filter_active";
     public static final String PREF_FILTER_CHECKING = "filter_checking";
+    public static final String PREF_FILTER_ERRORS = "filter_errors";
     public static final String PREF_FILTER_DIRECTORIES = "filter_directories";
     public static final String PREF_FILTER_TRACKERS = "filter_trackers";
 
@@ -114,7 +115,7 @@ public final class G {
 
     public static enum FilterBy {
         ALL, DOWNLOADING, SEEDING, PAUSED, COMPLETE, INCOMPLETE,
-        ACTIVE, CHECKING
+        ACTIVE, CHECKING, ERRORS
     }
 
     public static enum SortBy {

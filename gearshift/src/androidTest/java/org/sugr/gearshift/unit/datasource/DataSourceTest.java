@@ -428,8 +428,24 @@ public class DataSourceTest {
             }
             cursor.close();
 
+            defaultPrefs.edit().putString(G.PREF_LIST_FILTER, G.FilterBy.ERRORS.name()).commit();
+            expectedNames = new String[] {
+                "Bla test-exa!", "gamma rotk (foo) []", "water fao - today test fire",
+            };
+
+            cursor = ds.getTorrentCursor(profile, defaultPrefs);
+            assertEquals(3, cursor.getCount());
+            cursor.moveToFirst();
+
+            index = -1;
+            while (!cursor.isAfterLast()) {
+                assertEquals(expectedNames[++index], Torrent.getName(cursor));
+                cursor.moveToNext();
+            }
+            cursor.close();
+
             defaultPrefs.edit().putString(G.PREF_LIST_FILTER, G.FilterBy.SEEDING.name()).commit();
-            expectedNames = new String[]{
+            expectedNames = new String[] {
                 "clock.oiuwer...-aaa", "Monster.Test.....-", "foo Bar.abc...- ",
             };
 

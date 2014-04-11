@@ -178,10 +178,9 @@ public abstract class BaseTorrentActivity extends FragmentActivity
             if (swipeRefresh != null) {
                 swipeRefresh.setRefreshing(false);
                 swipeRefresh.setEnabled(true);
-                item.setEnabled(true);
-            } else {
-                item.setActionView(null);
             }
+            item.setEnabled(true);
+            item.setActionView(null);
         }
     }
 

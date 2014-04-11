@@ -34,6 +34,10 @@
             android:key="filter_checking"
             android:title="@string/menu_filters_checking"
             android:defaultValue="true" />
+        <CheckBoxPreference
+            android:key="filter_errors"
+            android:title="@string/menu_filters_errors"
+            android:defaultValue="true" />
     </PreferenceCategory>
     <PreferenceCategory android:title="@string/directory_filters" >
         <CheckBoxPreference

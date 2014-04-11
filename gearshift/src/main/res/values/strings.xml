@@ -231,6 +231,7 @@
     <string name="menu_filters_incomplete">Incomplete</string>
     <string name="menu_filters_active">Active</string>
     <string name="menu_filters_checking">Checking</string>
+    <string name="menu_filters_errors">Errors</string>
 
     <string name="menu_sort_header">Sort By</string>
     <string name="menu_sort_name">Name</string>

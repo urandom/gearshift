@@ -2042,33 +2042,44 @@ public class DataSource {
         }
 
         if (filter != G.FilterBy.ALL) {
-            if (filter == G.FilterBy.DOWNLOADING) {
-                selection.add(Constants.C_STATUS + " = ?");
-                selectionArgs.add(Integer.toString(Torrent.Status.DOWNLOADING));
-            } else if (filter == G.FilterBy.SEEDING) {
-                selection.add(Constants.C_STATUS + " = ?");
-                selectionArgs.add(Integer.toString(Torrent.Status.SEEDING));
-            } else if (filter == G.FilterBy.PAUSED) {
-                selection.add(Constants.C_STATUS + " = ?");
-                selectionArgs.add(Integer.toString(Torrent.Status.STOPPED));
-            } else if (filter == G.FilterBy.COMPLETE) {
-                selection.add(Constants.C_PERCENT_DONE + " = 1");
-            } else if (filter == G.FilterBy.INCOMPLETE) {
-                selection.add(Constants.C_PERCENT_DONE + " < 1");
-            } else if (filter == G.FilterBy.ACTIVE) {
-                selection.add(
-                    Constants.C_IS_STALLED + " != 1"
-                    + " AND " + Constants.C_IS_FINISHED + " != 1"
-                    + " AND ("
-                        + Constants.C_STATUS + " = ?"
-                        + " OR " + Constants.C_STATUS + " = ?"
-                    + ")"
-                );
-                selectionArgs.add(Integer.toString(Torrent.Status.DOWNLOADING));
-                selectionArgs.add(Integer.toString(Torrent.Status.SEEDING));
-            } else if (filter == G.FilterBy.CHECKING) {
-                selection.add(Constants.C_STATUS + " = ?");
-                selectionArgs.add(Integer.toString(Torrent.Status.CHECKING));
+            switch (filter) {
+                case DOWNLOADING:
+                    selection.add(Constants.C_STATUS + " = ?");
+                    selectionArgs.add(Integer.toString(Torrent.Status.DOWNLOADING));
+                    break;
+                case SEEDING:
+                    selection.add(Constants.C_STATUS + " = ?");
+                    selectionArgs.add(Integer.toString(Torrent.Status.SEEDING));
+                    break;
+                case PAUSED:
+                    selection.add(Constants.C_STATUS + " = ?");
+                    selectionArgs.add(Integer.toString(Torrent.Status.STOPPED));
+                    break;
+                case COMPLETE:
+                    selection.add(Constants.C_PERCENT_DONE + " = 1");
+                    break;
+                case INCOMPLETE:
+                    selection.add(Constants.C_PERCENT_DONE + " < 1");
+                    break;
+                case ACTIVE:
+                    selection.add(
+                        Constants.C_IS_STALLED + " != 1"
+                            + " AND " + Constants.C_IS_FINISHED + " != 1"
+                            + " AND ("
+                            + Constants.C_STATUS + " = ?"
+                            + " OR " + Constants.C_STATUS + " = ?"
+                            + ")"
+                    );
+                    selectionArgs.add(Integer.toString(Torrent.Status.DOWNLOADING));
+                    selectionArgs.add(Integer.toString(Torrent.Status.SEEDING));
+                    break;
+                case CHECKING:
+                    selection.add(Constants.C_STATUS + " = ?");
+                    selectionArgs.add(Integer.toString(Torrent.Status.CHECKING));
+                    break;
+                case ERRORS:
+                    selection.add(Constants.C_ERROR + " != 0");
+                    break;
             }
         }
 
