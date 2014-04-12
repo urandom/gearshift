@@ -505,12 +505,9 @@ public class DataSource {
             cursor = database.rawQuery(
                 "SELECT DISTINCT " + Constants.C_ANNOUNCE
                     + " FROM " + Constants.T_TORRENT_PROFILE
-                    + " JOIN " + Constants.T_TORRENT
-                    + " ON " + Constants.T_TORRENT_PROFILE + "." + Constants.C_HASH_STRING
-                    + " = " + Constants.T_TORRENT + "." + Constants.C_HASH_STRING
                     + " JOIN " + Constants.T_TRACKER
                     + " ON " + Constants.T_TRACKER + "." + Constants.C_HASH_STRING
-                    + " = " + Constants.T_TORRENT + "." + Constants.C_HASH_STRING
+                    + " = " + Constants.T_TORRENT_PROFILE + "." + Constants.C_HASH_STRING
                     + " WHERE " + Constants.C_PROFILE_ID + " = ?"
                     + " ORDER BY " + Constants.C_ANNOUNCE + " COLLATE NOCASE",
                 new String[] { profile }
