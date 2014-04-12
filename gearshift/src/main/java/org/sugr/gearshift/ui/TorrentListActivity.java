@@ -193,8 +193,8 @@ public class TorrentListActivity extends BaseTorrentActivity
         setContentView(R.layout.activity_torrent_list);
 
         PreferenceManager.setDefaultValues(this, R.xml.general_preferences, false);
-        PreferenceManager.setDefaultValues(this, R.xml.filters_preferences, false);
-        PreferenceManager.setDefaultValues(this, R.xml.sort_preferences, false);
+        PreferenceManager.setDefaultValues(this, R.xml.filters_preferences, true);
+        PreferenceManager.setDefaultValues(this, R.xml.sort_preferences, true);
 
         if (findViewById(R.id.torrent_detail_panel) != null) {
             // The detail container view will be present only in the

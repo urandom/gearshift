@@ -550,6 +550,10 @@ public class TorrentListMenuFragment extends Fragment implements TorrentListNoti
                         string = R.string.menu_filters_errors;
                         pref = G.PREF_FILTER_ERRORS;
                         break;
+                    case UNTRACKED:
+                        string = R.string.menu_filters_untracked;
+                        pref = G.PREF_FILTER_UNTRACKED;
+                        break;
                 }
                 item = new ListItem(Type.FILTER, filter, string, pref);
             }

@@ -55,6 +55,7 @@ public final class G {
     public static final String PREF_FILTER_ERRORS = "filter_errors";
     public static final String PREF_FILTER_DIRECTORIES = "filter_directories";
     public static final String PREF_FILTER_TRACKERS = "filter_trackers";
+    public static final String PREF_FILTER_UNTRACKED = "filter_untracked";
 
     public static final String PREF_SORT_NAME = "sort_name";
     public static final String PREF_SORT_SIZE = "sort_size";
@@ -115,7 +116,7 @@ public final class G {
 
     public static enum FilterBy {
         ALL, DOWNLOADING, SEEDING, PAUSED, COMPLETE, INCOMPLETE,
-        ACTIVE, CHECKING, ERRORS
+        ACTIVE, CHECKING, ERRORS, UNTRACKED,
     }
 
     public static enum SortBy {

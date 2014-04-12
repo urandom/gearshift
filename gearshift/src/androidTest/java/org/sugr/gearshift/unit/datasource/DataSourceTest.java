@@ -446,6 +446,15 @@ public class DataSourceTest {
             }
             cursor.close();
 
+            defaultPrefs.edit().putString(G.PREF_LIST_FILTER, G.FilterBy.UNTRACKED.name()).commit();
+
+            cursor = ds.getTorrentCursor(profile, defaultPrefs);
+            assertEquals(1, cursor.getCount());
+            cursor.moveToFirst();
+
+            assertEquals("", Torrent.getName(cursor));
+            cursor.close();
+
             defaultPrefs.edit().putString(G.PREF_LIST_FILTER, G.FilterBy.SEEDING.name()).commit();
             expectedNames = new String[] {
                 "clock.oiuwer...-aaa", "Monster.Test.....-", "foo Bar.abc...- ",

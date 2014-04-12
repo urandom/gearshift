@@ -2100,6 +2100,14 @@ public class DataSource {
                 case ERRORS:
                     selection.add(Constants.C_ERROR + " != 0");
                     break;
+                case UNTRACKED:
+                    selection.add("NOT EXISTS ("
+                    + "SELECT 1"
+                    + " FROM " + Constants.T_TRACKER
+                    + " WHERE " + Constants.T_TORRENT + "." + Constants.C_HASH_STRING
+                    + " = " + Constants.T_TRACKER + "." + Constants.C_HASH_STRING
+                    + ")");
+                    break;
             }
         }
 

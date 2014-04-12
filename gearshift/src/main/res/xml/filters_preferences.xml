@@ -37,7 +37,7 @@
         <CheckBoxPreference
             android:key="filter_errors"
             android:title="@string/menu_filters_errors"
-            android:defaultValue="true" />
+            android:defaultValue="false" />
     </PreferenceCategory>
     <PreferenceCategory android:title="@string/directory_filters" >
         <CheckBoxPreference
@@ -49,6 +49,10 @@
         <CheckBoxPreference
             android:key="filter_trackers"
             android:title="@string/show_tracker_filters"
+            android:defaultValue="false" />
+        <CheckBoxPreference
+            android:key="filter_untracked"
+            android:title="@string/show_untracked_filter"
             android:defaultValue="false" />
     </PreferenceCategory>
 </PreferenceScreen>

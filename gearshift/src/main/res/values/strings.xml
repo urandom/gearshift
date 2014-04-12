@@ -232,6 +232,7 @@
     <string name="menu_filters_active">Active</string>
     <string name="menu_filters_checking">Checking</string>
     <string name="menu_filters_errors">Errors</string>
+    <string name="menu_filters_untracked">Untracked</string>
 
     <string name="menu_sort_header">Sort By</string>
     <string name="menu_sort_name">Name</string>
@@ -262,6 +263,7 @@
     <string name="tracker_filters">Tracker filters</string>
 
     <string name="show_tracker_filters">Show tracker filters</string>
+    <string name="show_untracked_filter">Show untracked filter</string>
 
     <string name="sort_visibility">Sorting options visibility</string>
     
