@@ -41,7 +41,6 @@ public final class G {
     public static final String PREF_LIST_FILTER = "torrents_filter";
     public static final String PREF_LIST_DIRECTORY = "torrents_directory";
     public static final String PREF_LIST_TRACKER = "torrents_tracker";
-    public static final String PREF_LIST_TRACKER_AUTHORITY = "torrents_tracker_authority";
     public static final String PREF_LIST_SEARCH = "torrents_search";
 
     public static final String PREF_FILTER_ALL = "filter_all";

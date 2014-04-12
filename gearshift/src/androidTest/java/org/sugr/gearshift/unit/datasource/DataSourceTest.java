@@ -540,14 +540,16 @@ public class DataSourceTest {
 
             defaultPrefs.edit().putString(G.PREF_LIST_TRACKER, "udp://tracker.example.com:80").commit();
             expectedNames = new String[] {
-                "Summer ", "Bla test-exa!", "fox", "access", "preserve.sh", "startup.sh",
-                "8516-.sh", "water test (abc - fao)", "gamma rotk (foo) []",
-                "water fao - today test fire", "view.sh", "1 Complete ", "alpha...-test ",
-                "Monster.Test.....-",
+                "Summer ", "Bla test-exa!", "fox", "ray of light 4", "grass",
+                "who.Who.foo.S06...-testtest", "Somewhere script", "clock.oiuwer...-aaa",
+                "texts..g.sh", "gc14.01.12.test....baba", "access", "preserve.sh", "startup.sh",
+                "8516-.sh", "tele.sh.21.calen", "block", "water test (abc - fao)",
+                "gamma rotk (foo) []", "water fao - today test fire", "view.sh", "1 Complete ",
+                "alpha...-test ", "Monster.Test.....-", "foo Bar.abc...- ",
             };
 
             cursor = ds.getTorrentCursor(profile, defaultPrefs);
-            assertEquals(14, cursor.getCount());
+            assertEquals(24, cursor.getCount());
             cursor.moveToFirst();
 
             index = -1;
@@ -565,8 +567,7 @@ public class DataSourceTest {
             assertEquals("apache.sh", Torrent.getName(cursor));
             cursor.close();
 
-            defaultPrefs.edit().remove(G.PREF_LIST_TRACKER).commit();
-            defaultPrefs.edit().putString(G.PREF_LIST_TRACKER_AUTHORITY, "tracker.example.com:80").commit();
+            defaultPrefs.edit().putString(G.PREF_LIST_TRACKER, "tracker.example.com:80").commit();
             expectedNames = new String[] {
                 "Summer ", "Bla test-exa!", "fox", "ray of light 4", "grass",
                 "who.Who.foo.S06...-testtest", "Somewhere script", "clock.oiuwer...-aaa",

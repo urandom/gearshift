@@ -809,12 +809,7 @@ public class TorrentListMenuFragment extends Fragment implements TorrentListNoti
         if (listItemMap.containsKey(tracker)) {
             item = listItemMap.get(tracker);
         } else {
-            String name = tracker;
-            try {
-                URI uri = new URI(tracker);
-                name = uri.getAuthority();
-            } catch (URISyntaxException ignored) { }
-            item = new ListItem(Type.TRACKER, tracker, name, G.PREF_FILTER_TRACKERS);
+            item = new ListItem(Type.TRACKER, tracker, tracker, G.PREF_FILTER_TRACKERS);
         }
 
         return item;

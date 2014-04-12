@@ -46,7 +46,7 @@ public class TorrentTrafficLoader
             }
 
             if (queryTrackers) {
-                output.trackers = dataSource.getTrackerAnnounceURLs(profile);
+                output.trackers = dataSource.getTrackerAnnounceAuthorities(profile);
             }
 
             if (queryDirectories) {
