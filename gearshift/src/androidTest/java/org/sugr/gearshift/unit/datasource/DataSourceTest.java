@@ -204,12 +204,12 @@ public class DataSourceTest {
                 "clock.oiuwer...-aaa", "foo Bar.abc...- ", "grass", "texts..g.sh",
                 "", "gamma rotk (foo) []", "who.Who.foo.S06...-testtest", "ray of light 4", "access",
                 "Summer ", "block", "preserve.sh", "Somewhere script", "Bla test-exa!",
-                "gc14.01.12.test....baba", "8516-.sh", "water test (abc - fao)",
+                "gc14.01.12.test....baba", "8516-.sh", "apache.sh", "water test (abc - fao)",
                 "water fao - today test fire", "tele.sh.21.calen", "fox", "view.sh",
             };
 
             cursor = ds.getTorrentCursor(profile, defaultPrefs);
-            assertEquals(25, cursor.getCount());
+            assertEquals(26, cursor.getCount());
 
             cursor.moveToFirst();
             int index = -1;
@@ -251,7 +251,7 @@ public class DataSourceTest {
 
             defaultPrefs.edit().putString(G.PREF_LIST_SORT_BY, G.SortBy.NAME.name()).commit();
             expectedNames = new String[]{
-                "", "1 Complete ", "8516-.sh", "access", "alpha...-test ", "Bla test-exa!",
+                "", "1 Complete ", "8516-.sh", "access", "alpha...-test ", "apache.sh", "Bla test-exa!",
                 "block", "clock.oiuwer...-aaa", "foo Bar.abc...- ", "fox", "gamma rotk (foo) []",
                 "gc14.01.12.test....baba", "grass", "Monster.Test.....-", "preserve.sh",
                 "ray of light 4", "Somewhere script", "startup.sh", "Summer ",
@@ -261,7 +261,7 @@ public class DataSourceTest {
 
             cursor = ds.getTorrentCursor(profile, defaultPrefs);
             cursor.moveToFirst();
-            assertEquals(25, cursor.getCount());
+            assertEquals(26, cursor.getCount());
 
             cursor.moveToFirst();
             index = -1;
@@ -276,13 +276,13 @@ public class DataSourceTest {
                 "startup.sh", "alpha...-test ", "1 Complete ", "gamma rotk (foo) []",
                 "who.Who.foo.S06...-testtest", "ray of light 4", "Monster.Test.....-", "access",
                 "Summer ", "block", "clock.oiuwer...-aaa", "preserve.sh", "Somewhere script",
-                "Bla test-exa!", "gc14.01.12.test....baba", "8516-.sh", "water test (abc - fao)",
+                "Bla test-exa!", "gc14.01.12.test....baba", "8516-.sh", "apache.sh", "water test (abc - fao)",
                 "water fao - today test fire", "tele.sh.21.calen", "foo Bar.abc...- ", "fox",
                 "view.sh", "grass", "texts..g.sh", ""
             };
             cursor = ds.getTorrentCursor(profile, defaultPrefs);
             cursor.moveToFirst();
-            assertEquals(25, cursor.getCount());
+            assertEquals(26, cursor.getCount());
 
             cursor.moveToFirst();
             index = -1;
@@ -294,7 +294,7 @@ public class DataSourceTest {
 
             defaultPrefs.edit().putString(G.PREF_BASE_SORT, G.SortBy.QUEUE.name()).commit();
             expectedNames = new String[]{
-                "startup.sh", "alpha...-test ", "1 Complete ", "foo Bar.abc...- ",
+                "startup.sh", "alpha...-test ", "1 Complete ", "apache.sh", "foo Bar.abc...- ",
                 "Monster.Test.....-", "view.sh", "water fao - today test fire", "gamma rotk (foo) []",
                 "water test (abc - fao)", "block", "tele.sh.21.calen", "8516-.sh", "preserve.sh",
                 "access", "gc14.01.12.test....baba", "texts..g.sh", "clock.oiuwer...-aaa",
@@ -303,7 +303,7 @@ public class DataSourceTest {
             };
             cursor = ds.getTorrentCursor(profile, defaultPrefs);
             cursor.moveToFirst();
-            assertEquals(25, cursor.getCount());
+            assertEquals(26, cursor.getCount());
 
             cursor.moveToFirst();
             index = -1;
@@ -317,14 +317,14 @@ public class DataSourceTest {
             expectedNames = new String[]{
                 "", "water fao - today test fire", "water test (abc - fao)", "foo Bar.abc...- ",
                 "Monster.Test.....-", "alpha...-test ", "clock.oiuwer...-aaa", "1 Complete ",
-                "gamma rotk (foo) []", "Bla test-exa!", "view.sh", "block", "tele.sh.21.calen",
+                "gamma rotk (foo) []", "Bla test-exa!", "apache.sh", "view.sh", "block", "tele.sh.21.calen",
                 "8516-.sh", "startup.sh", "preserve.sh", "access", "gc14.01.12.test....baba",
                 "texts..g.sh", "Somewhere script", "grass", "fox", "Summer ",
                 "who.Who.foo.S06...-testtest", "ray of light 4",
             };
             cursor = ds.getTorrentCursor(profile, defaultPrefs);
             cursor.moveToFirst();
-            assertEquals(25, cursor.getCount());
+            assertEquals(26, cursor.getCount());
 
             cursor.moveToFirst();
             index = -1;
@@ -358,7 +358,7 @@ public class DataSourceTest {
             cursor.close();
 
             defaultPrefs.edit().putString(G.PREF_LIST_FILTER, G.FilterBy.DOWNLOADING.name()).commit();
-            expectedNames = new String[]{
+            expectedNames = new String[] {
                 "startup.sh", "1 Complete ", "alpha...-test ",
             };
 
@@ -374,16 +374,17 @@ public class DataSourceTest {
             cursor.close();
 
             defaultPrefs.edit().putString(G.PREF_LIST_FILTER, G.FilterBy.COMPLETE.name()).commit();
-            expectedNames = new String[]{
+            expectedNames = new String[] {
                 "Summer ", "Bla test-exa!", "fox", "ray of light 4", "grass",
                 "who.Who.foo.S06...-testtest", "Somewhere script", "clock.oiuwer...-aaa",
                 "texts..g.sh", "gc14.01.12.test....baba", "access", "preserve.sh", "8516-.sh",
                 "tele.sh.21.calen", "block", "water test (abc - fao)", "gamma rotk (foo) []",
                 "water fao - today test fire", "view.sh", "Monster.Test.....-", "foo Bar.abc...- ",
+                "apache.sh",
             };
 
             cursor = ds.getTorrentCursor(profile, defaultPrefs);
-            assertEquals(21, cursor.getCount());
+            assertEquals(22, cursor.getCount());
             cursor.moveToFirst();
 
             index = -1;
@@ -410,16 +411,16 @@ public class DataSourceTest {
             cursor.close();
 
             defaultPrefs.edit().putString(G.PREF_LIST_FILTER, G.FilterBy.PAUSED.name()).commit();
-            expectedNames = new String[]{
+            expectedNames = new String[] {
                 "", "Summer ", "Bla test-exa!", "fox", "ray of light 4", "grass",
                 "who.Who.foo.S06...-testtest", "Somewhere script", "texts..g.sh",
                 "gc14.01.12.test....baba", "access", "preserve.sh", "8516-.sh", "tele.sh.21.calen",
                 "block", "water test (abc - fao)", "gamma rotk (foo) []",
-                "water fao - today test fire", "view.sh",
+                "water fao - today test fire", "view.sh", "apache.sh"
             };
 
             cursor = ds.getTorrentCursor(profile, defaultPrefs);
-            assertEquals(19, cursor.getCount());
+            assertEquals(20, cursor.getCount());
             cursor.moveToFirst();
 
             index = -1;
@@ -483,10 +484,11 @@ public class DataSourceTest {
                 "Bla t<font", "who.Who.foo.S06...-t<font", "Somewher<font", "t<font",
                 "gc14.01.12.t<font", "acc<font", "pr<font", "tel<font", "water t<font",
                 "water fao - today t<font", "vi<font", "alpha...-t<font", "Monster.T<font",
+                "apach<font",
             };
 
             cursor = ds.getTorrentCursor(profile, defaultPrefs);
-            assertEquals(13, cursor.getCount());
+            assertEquals(14, cursor.getCount());
             cursor.moveToFirst();
 
             index = -1;
@@ -498,7 +500,7 @@ public class DataSourceTest {
 
             defaultPrefs.edit().putString(G.PREF_LIST_SEARCH, null).commit();
             cursor = ds.getTorrentCursor(profile, defaultPrefs);
-            assertEquals(25, cursor.getCount());
+            assertEquals(26, cursor.getCount());
             cursor.close();
 
             defaultPrefs.edit().putString(G.PREF_LIST_DIRECTORY, "/test/foo/gamma Ray").commit();
@@ -765,8 +767,11 @@ public class DataSourceTest {
             "http://test.net/announce.php",
             "http://testtorrents.net:2710/announce",
             "http://tracker.ex.ua/announce",
+            "http://tracker.example.biz:6969",
+            "http://tracker.example.com:80",
             "http://tracker.testgoogle.com/announce",
             "https://server.domain/announce.php?passkey=mypasskey",
+            "https://tracker.yahoo:80",
             "udp://9.trackerexample.biz:2710/announce",
             "udp://fromtracker.cold.com:3310/announce",
             "udp://open.org.net:1337",
@@ -780,7 +785,7 @@ public class DataSourceTest {
         };
 
         List<String> urls = ds.getTrackerAnnounceURLs(profile);
-        assertEquals(19, urls.size());
+        assertEquals(22, urls.size());
 
         int index = -1;
         for (String u : urls) {
@@ -812,7 +817,7 @@ public class DataSourceTest {
 
         try {
             cursor = ds.getTorrentCursor(profile, defaultPrefs);
-            assertEquals(25, cursor.getCount());
+            assertEquals(26, cursor.getCount());
             cursor.close();
 
             String[] removed = {
@@ -823,7 +828,7 @@ public class DataSourceTest {
             assertTrue(ds.removeTorrents(removed));
 
             cursor = ds.getTorrentCursor(profile, defaultPrefs);
-            assertEquals(22, cursor.getCount());
+            assertEquals(23, cursor.getCount());
 
             Set<String> hashStrings = new HashSet<>();
             cursor.moveToFirst();
@@ -848,7 +853,7 @@ public class DataSourceTest {
             assertTrue(ds.removeTorrents(profile, ids));
 
             cursor = ds.getTorrentCursor(profile, defaultPrefs);
-            assertEquals(19, cursor.getCount());
+            assertEquals(20, cursor.getCount());
 
             hashStrings.clear();
             cursor.moveToFirst();
@@ -867,7 +872,7 @@ public class DataSourceTest {
             assertTrue(ds.addTorrent(profile, 312, "foo", newHashString, "/test/bar"));
 
             cursor = ds.getTorrentCursor(profile, defaultPrefs);
-            assertEquals(20, cursor.getCount());
+            assertEquals(21, cursor.getCount());
 
             hashStrings.clear();
             cursor.moveToFirst();
