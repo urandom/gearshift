@@ -23,7 +23,10 @@ import org.sugr.gearshift.core.Torrent;
 import org.sugr.gearshift.core.TransmissionSession;
 
 import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
@@ -525,6 +528,24 @@ public class DataSource {
                 cursor.close();
             }
         }
+    }
+
+    public List<String> getTrackerAnnounceAuthorities(String profile) {
+        Set<String> authorities = new HashSet<>();
+
+        for (String url : getTrackerAnnounceURLs(profile)) {
+            try {
+                URI uri = new URI(url);
+
+                authorities.add(uri.getAuthority());
+            } catch (URISyntaxException ignored) {}
+        }
+
+        List<String> authorityList = new ArrayList<>(authorities);
+
+        Collections.sort(authorityList);
+
+        return authorityList;
     }
 
     public List<String> getDownloadDirectories(String profile) {

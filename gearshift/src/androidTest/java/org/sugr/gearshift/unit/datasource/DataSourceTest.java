@@ -793,6 +793,39 @@ public class DataSourceTest {
         }
     }
 
+    @Test public void trackerAnnounceAuthorities() {
+        String profile = "existing";
+        updateTorrents();
+        String[] expected = {
+            "9.trackerexample.biz:2710",
+            "exodus.desync.com:6969",
+            "from.cold.com:3310",
+            "fromtracker.cold.com:3310",
+            "open.org.net:1337",
+            "p2p.google.com:2710",
+            "p2p.test.net:2710",
+            "server.domain",
+            "test.net",
+            "testtorrents.net:2710",
+            "tracker.1337x.org:80",
+            "tracker.ex.ua",
+            "tracker.example.biz:6969",
+            "tracker.example.biz:80",
+            "tracker.example.com:80",
+            "tracker.nsa.gov:80",
+            "tracker.testgoogle.com",
+            "tracker.yahoo:80",
+        };
+
+        List<String> urls = ds.getTrackerAnnounceAuthorities(profile);
+        assertEquals(18, urls.size());
+
+        int index = -1;
+        for (String u : urls) {
+            assertEquals(expected[++index], u);
+        }
+    }
+
     @Test public void checkers() {
         String profile = "existing";
         updateTorrents();
