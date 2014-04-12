@@ -4,6 +4,8 @@
     <color name="main_gray">#cacaca</color>
     <color name="main_black">#1a1a1a</color>
 
+    <color name="success">#69e974</color>
+
     <color name="detail_background">#ddd</color>
     <color name="detail_background_edge">#bfbfbf</color>
     <color name="transparent">#00000000</color>

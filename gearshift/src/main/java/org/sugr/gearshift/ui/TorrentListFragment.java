@@ -421,7 +421,7 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
         status.setSelected(true);
 
         final SwipeRefreshLayout swipeRefresh = (SwipeRefreshLayout) view.findViewById(R.id.swipe_container);
-        swipeRefresh.setColorScheme(R.color.main_red, android.R.color.holo_blue_dark,
+        swipeRefresh.setColorScheme(R.color.main_red, R.color.main_gray,
             R.color.main_black, R.color.main_red);
         swipeRefresh.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override public void onRefresh() {
