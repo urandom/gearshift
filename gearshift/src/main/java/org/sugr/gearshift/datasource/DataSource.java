@@ -1970,6 +1970,7 @@ public class DataSource {
         String query = prefs.getString(G.PREF_LIST_SEARCH, null);
         String directory = prefs.getString(G.PREF_LIST_DIRECTORY, null);
         String tracker = prefs.getString(G.PREF_LIST_TRACKER, null);
+        String authority = prefs.getString(G.PREF_LIST_TRACKER_AUTHORITY, null);
 
         G.FilterBy filter = G.FilterBy.ALL;
         if (prefs.contains(G.PREF_LIST_FILTER)) {
@@ -2052,13 +2053,20 @@ public class DataSource {
             selectionArgs.add(directory);
         }
 
-        if (tracker != null && tracker.length() > 0) {
+        if (!TextUtils.isEmpty(tracker)) {
             selection.add(Constants.T_TORRENT + "." + Constants.C_HASH_STRING + " IN ("
                 + "SELECT " + Constants.C_HASH_STRING
                 + " FROM " + Constants.T_TRACKER
                 + " WHERE " + Constants.C_ANNOUNCE + " = ?"
                 + ")");
             selectionArgs.add(tracker);
+        } else if (!TextUtils.isEmpty(authority)) {
+            selection.add(Constants.T_TORRENT + "." + Constants.C_HASH_STRING + " IN ("
+                + "SELECT " + Constants.C_HASH_STRING
+                + " FROM " + Constants.T_TRACKER
+                + " WHERE " + Constants.C_ANNOUNCE + " LIKE "
+                + DatabaseUtils.sqlEscapeString("%" + authority + "%")
+                + ")");
         }
 
         if (filter != G.FilterBy.ALL) {

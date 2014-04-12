@@ -199,7 +199,7 @@ public class DataSourceTest {
              */
 
             defaultPrefs.edit().putString(G.PREF_LIST_SORT_BY, G.SortBy.STATUS.name()).commit();
-            String[] expectedNames = new String[]{
+            String[] expectedNames = new String[] {
                 "startup.sh", "alpha...-test ", "1 Complete ", "Monster.Test.....-",
                 "clock.oiuwer...-aaa", "foo Bar.abc...- ", "grass", "texts..g.sh",
                 "", "gamma rotk (foo) []", "who.Who.foo.S06...-testtest", "ray of light 4", "access",
@@ -250,7 +250,7 @@ public class DataSourceTest {
             cursor.close();
 
             defaultPrefs.edit().putString(G.PREF_LIST_SORT_BY, G.SortBy.NAME.name()).commit();
-            expectedNames = new String[]{
+            expectedNames = new String[] {
                 "", "1 Complete ", "8516-.sh", "access", "alpha...-test ", "apache.sh", "Bla test-exa!",
                 "block", "clock.oiuwer...-aaa", "foo Bar.abc...- ", "fox", "gamma rotk (foo) []",
                 "gc14.01.12.test....baba", "grass", "Monster.Test.....-", "preserve.sh",
@@ -272,7 +272,7 @@ public class DataSourceTest {
             cursor.close();
 
             defaultPrefs.edit().putString(G.PREF_LIST_SORT_BY, G.SortBy.RATE_DOWNLOAD.name()).commit();
-            expectedNames = new String[]{
+            expectedNames = new String[] {
                 "startup.sh", "alpha...-test ", "1 Complete ", "gamma rotk (foo) []",
                 "who.Who.foo.S06...-testtest", "ray of light 4", "Monster.Test.....-", "access",
                 "Summer ", "block", "clock.oiuwer...-aaa", "preserve.sh", "Somewhere script",
@@ -293,7 +293,7 @@ public class DataSourceTest {
             cursor.close();
 
             defaultPrefs.edit().putString(G.PREF_BASE_SORT, G.SortBy.QUEUE.name()).commit();
-            expectedNames = new String[]{
+            expectedNames = new String[] {
                 "startup.sh", "alpha...-test ", "1 Complete ", "apache.sh", "foo Bar.abc...- ",
                 "Monster.Test.....-", "view.sh", "water fao - today test fire", "gamma rotk (foo) []",
                 "water test (abc - fao)", "block", "tele.sh.21.calen", "8516-.sh", "preserve.sh",
@@ -314,7 +314,7 @@ public class DataSourceTest {
             cursor.close();
 
             defaultPrefs.edit().putString(G.PREF_LIST_SORT_BY, G.SortBy.LOCATION.name()).commit();
-            expectedNames = new String[]{
+            expectedNames = new String[] {
                 "", "water fao - today test fire", "water test (abc - fao)", "foo Bar.abc...- ",
                 "Monster.Test.....-", "alpha...-test ", "clock.oiuwer...-aaa", "1 Complete ",
                 "gamma rotk (foo) []", "Bla test-exa!", "apache.sh", "view.sh", "block", "tele.sh.21.calen",
@@ -336,7 +336,7 @@ public class DataSourceTest {
 
             defaultPrefs.edit().putString(G.PREF_LIST_SORT_BY, G.SortBy.QUEUE.name()).commit();
             defaultPrefs.edit().putString(G.PREF_LIST_FILTER, G.FilterBy.ACTIVE.name()).commit();
-            expectedNames = new String[]{
+            expectedNames = new String[] {
                 "clock.oiuwer...-aaa", "startup.sh", "1 Complete ", "alpha...-test ",
                 "Monster.Test.....-", "foo Bar.abc...- ",
             };
@@ -395,7 +395,7 @@ public class DataSourceTest {
             cursor.close();
 
             defaultPrefs.edit().putString(G.PREF_LIST_FILTER, G.FilterBy.INCOMPLETE.name()).commit();
-            expectedNames = new String[]{
+            expectedNames = new String[] {
                 "", "startup.sh", "1 Complete ", "alpha...-test ",
             };
 
@@ -463,7 +463,7 @@ public class DataSourceTest {
             cursor.close();
 
             defaultPrefs.edit().putString(G.PREF_LIST_SEARCH, "a").commit();
-            expectedNames = new String[]{
+            expectedNames = new String[] {
                 "clock.oiuwer...-<font", "foo B<font",
             };
 
@@ -480,7 +480,7 @@ public class DataSourceTest {
 
             defaultPrefs.edit().putString(G.PREF_LIST_FILTER, G.FilterBy.ALL.name()).commit();
             defaultPrefs.edit().putString(G.PREF_LIST_SEARCH, "es").commit();
-            expectedNames = new String[]{
+            expectedNames = new String[] {
                 "Bla t<font", "who.Who.foo.S06...-t<font", "Somewher<font", "t<font",
                 "gc14.01.12.t<font", "acc<font", "pr<font", "tel<font", "water t<font",
                 "water fao - today t<font", "vi<font", "alpha...-t<font", "Monster.T<font",
@@ -504,7 +504,7 @@ public class DataSourceTest {
             cursor.close();
 
             defaultPrefs.edit().putString(G.PREF_LIST_DIRECTORY, "/test/foo/gamma Ray").commit();
-            expectedNames = new String[]{
+            expectedNames = new String[] {
                 "ray of light 4", "who.Who.foo.S06...-testtest",
             };
 
@@ -521,7 +521,7 @@ public class DataSourceTest {
 
             defaultPrefs.edit().remove(G.PREF_LIST_DIRECTORY).commit();
             defaultPrefs.edit().putString(G.PREF_LIST_TRACKER, "udp://tracker.nsa.gov:80").commit();
-            expectedNames = new String[]{
+            expectedNames = new String[] {
                 "Summer ", "Bla test-exa!", "fox", "access", "preserve.sh", "startup.sh", "8516-.sh",
                 "water test (abc - fao)", "gamma rotk (foo) []", "water fao - today test fire",
                 "view.sh", "1 Complete ", "alpha...-test ", "Monster.Test.....-",
@@ -529,6 +529,55 @@ public class DataSourceTest {
 
             cursor = ds.getTorrentCursor(profile, defaultPrefs);
             assertEquals(14, cursor.getCount());
+            cursor.moveToFirst();
+
+            index = -1;
+            while (!cursor.isAfterLast()) {
+                assertEquals(expectedNames[++index], Torrent.getName(cursor));
+                cursor.moveToNext();
+            }
+            cursor.close();
+
+            defaultPrefs.edit().putString(G.PREF_LIST_TRACKER, "udp://tracker.example.com:80").commit();
+            expectedNames = new String[] {
+                "Summer ", "Bla test-exa!", "fox", "access", "preserve.sh", "startup.sh",
+                "8516-.sh", "water test (abc - fao)", "gamma rotk (foo) []",
+                "water fao - today test fire", "view.sh", "1 Complete ", "alpha...-test ",
+                "Monster.Test.....-",
+            };
+
+            cursor = ds.getTorrentCursor(profile, defaultPrefs);
+            assertEquals(14, cursor.getCount());
+            cursor.moveToFirst();
+
+            index = -1;
+            while (!cursor.isAfterLast()) {
+                assertEquals(expectedNames[++index], Torrent.getName(cursor));
+                cursor.moveToNext();
+            }
+            cursor.close();
+
+            defaultPrefs.edit().putString(G.PREF_LIST_TRACKER, "http://tracker.example.com:80").commit();
+            cursor = ds.getTorrentCursor(profile, defaultPrefs);
+            assertEquals(1, cursor.getCount());
+            cursor.moveToFirst();
+
+            assertEquals("apache.sh", Torrent.getName(cursor));
+            cursor.close();
+
+            defaultPrefs.edit().remove(G.PREF_LIST_TRACKER).commit();
+            defaultPrefs.edit().putString(G.PREF_LIST_TRACKER_AUTHORITY, "tracker.example.com:80").commit();
+            expectedNames = new String[] {
+                "Summer ", "Bla test-exa!", "fox", "ray of light 4", "grass",
+                "who.Who.foo.S06...-testtest", "Somewhere script", "clock.oiuwer...-aaa",
+                "texts..g.sh", "gc14.01.12.test....baba", "access", "preserve.sh", "startup.sh",
+                "8516-.sh", "tele.sh.21.calen", "block", "water test (abc - fao)",
+                "gamma rotk (foo) []", "water fao - today test fire", "view.sh", "1 Complete ",
+                "alpha...-test ", "Monster.Test.....-", "foo Bar.abc...- ", "apache.sh",
+            };
+
+            cursor = ds.getTorrentCursor(profile, defaultPrefs);
+            assertEquals(25, cursor.getCount());
             cursor.moveToFirst();
 
             index = -1;
@@ -580,7 +629,7 @@ public class DataSourceTest {
                 details.filesCursor.moveToNext();
             }
 
-            expected = new Object[][]{
+            expected = new Object[][] {
                 {
                     "udp://tracker.example.com:80",
                     "udp://tracker.yahoo:80",
@@ -647,7 +696,7 @@ public class DataSourceTest {
             details.torrentCursor.moveToFirst();
             assertEquals("gc14.01.12.test....baba", Torrent.getName(details.torrentCursor));
 
-            expected = new Object[][]{
+            expected = new Object[][] {
                 {
                     "gc14.01.12.test....baba/.txt", "gc14.01.12.test....baba/chair.14.01.12.test.baba.",
                     "gc14.01.12.test....baba/picture.tiny", "gc14.01.12.test....baba/log.tiny"
@@ -669,7 +718,7 @@ public class DataSourceTest {
                 details.filesCursor.moveToNext();
             }
 
-            expected = new Object[][]{
+            expected = new Object[][] {
                 {
                     "http://p2p.google.com:2710/45c8fa2244c08084280785fe891b6e85/announce",
                     "http://p2p.test.net:2710/45c8fa2244c08084280785fe891b6e85/announce",
