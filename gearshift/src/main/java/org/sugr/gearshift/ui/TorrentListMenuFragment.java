@@ -771,7 +771,7 @@ public class TorrentListMenuFragment extends Fragment implements TorrentListNoti
         } else {
             String name = directory;
             if (name.charAt(directory.length() - 1) == '/') {
-                name = name.substring(0, name.length() - 2);
+                name = name.substring(0, name.length() - 1);
             }
             int lastSlash = name.lastIndexOf('/');
             if (lastSlash > -1) {
