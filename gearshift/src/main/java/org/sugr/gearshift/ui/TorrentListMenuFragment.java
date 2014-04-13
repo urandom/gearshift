@@ -29,13 +29,14 @@ import org.sugr.gearshift.G.FilterBy;
 import org.sugr.gearshift.G.SortBy;
 import org.sugr.gearshift.G.SortOrder;
 import org.sugr.gearshift.R;
-import org.sugr.gearshift.ui.loader.TorrentTrafficLoader;
 import org.sugr.gearshift.core.TransmissionSession;
+import org.sugr.gearshift.ui.loader.TorrentTrafficLoader;
 
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import java.util.TreeSet;
 
 public class TorrentListMenuFragment extends Fragment implements TorrentListNotificationInterface {
@@ -130,12 +131,22 @@ public class TorrentListMenuFragment extends Fragment implements TorrentListNoti
             if (data.directories != null) {
                 String dir = sharedPrefs.getString(G.PREF_LIST_DIRECTORY, "");
                 boolean equalDirectories = true;
-                boolean currentDirectoryTorrents = dir.equals("") || data.directories.contains(dir);
 
-                if (data.directories.size() != directories.size()) {
+                List<String> normalizedDirs = new ArrayList<>();
+                for (String d : data.directories) {
+                    while (d.charAt(d.length() - 1) == '/') {
+                        d = d.substring(0, d.length() - 1);
+                    }
+                    if (!normalizedDirs.contains(d)) {
+                        normalizedDirs.add(d);
+                    }
+                }
+
+                boolean currentDirectoryTorrents = dir.equals("") || normalizedDirs.contains(dir);
+                if (normalizedDirs.size() != directories.size()) {
                     equalDirectories = false;
                 } else {
-                    for (String d : data.directories) {
+                    for (String d : normalizedDirs) {
                         if (!directories.contains(d)) {
                             equalDirectories = false;
                             break;
@@ -144,7 +155,7 @@ public class TorrentListMenuFragment extends Fragment implements TorrentListNoti
                 }
                 if (!equalDirectories) {
                     directories.clear();
-                    directories.addAll(data.directories);
+                    directories.addAll(normalizedDirs);
 
                     removeDirectoriesFilters();
 
@@ -770,9 +781,6 @@ public class TorrentListMenuFragment extends Fragment implements TorrentListNoti
             item = listItemMap.get(directory);
         } else {
             String name = directory;
-            if (name.charAt(directory.length() - 1) == '/') {
-                name = name.substring(0, name.length() - 1);
-            }
             int lastSlash = name.lastIndexOf('/');
             if (lastSlash > -1) {
                 name = name.substring(lastSlash + 1);
