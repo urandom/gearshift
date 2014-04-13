@@ -2073,7 +2073,7 @@ public class TorrentDetailPageFragment extends Fragment {
         @Override protected TorrentDetails doInBackground(String... hashStrings) {
             if (!isCancelled() && getActivity() != null) {
                 TransmissionProfileInterface context = (TransmissionProfileInterface) getActivity();
-                if (context == null) {
+                if (context == null || context.getProfile() == null) {
                     return null;
                 }
                 DataSource readSource = new DataSource(getActivity());

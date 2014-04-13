@@ -45,10 +45,10 @@ import android.widget.Toast;
 import org.sugr.gearshift.G;
 import org.sugr.gearshift.R;
 import org.sugr.gearshift.core.TransmissionProfile;
-import org.sugr.gearshift.ui.loader.TransmissionProfileSupportLoader;
 import org.sugr.gearshift.core.TransmissionSession;
 import org.sugr.gearshift.service.DataService;
 import org.sugr.gearshift.service.DataServiceManager;
+import org.sugr.gearshift.ui.loader.TransmissionProfileSupportLoader;
 import org.sugr.gearshift.util.Base64;
 
 import java.io.BufferedReader;

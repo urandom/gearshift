@@ -114,9 +114,11 @@ public final class G {
 
     private static final String LogTag = "GearShift";
 
+    public static final String FILTER_UNTRACKED = "|__untracked__|";
+
     public static enum FilterBy {
         ALL, DOWNLOADING, SEEDING, PAUSED, COMPLETE, INCOMPLETE,
-        ACTIVE, CHECKING, ERRORS, UNTRACKED,
+        ACTIVE, CHECKING, ERRORS,
     }
 
     public static enum SortBy {

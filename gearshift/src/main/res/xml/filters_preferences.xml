@@ -53,6 +53,7 @@
         <CheckBoxPreference
             android:key="filter_untracked"
             android:title="@string/show_untracked_filter"
-            android:defaultValue="false" />
+            android:defaultValue="false"
+            android:dependency="filter_trackers"/>
     </PreferenceCategory>
 </PreferenceScreen>

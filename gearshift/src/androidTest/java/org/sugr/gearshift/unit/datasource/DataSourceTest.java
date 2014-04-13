@@ -446,15 +446,6 @@ public class DataSourceTest {
             }
             cursor.close();
 
-            defaultPrefs.edit().putString(G.PREF_LIST_FILTER, G.FilterBy.UNTRACKED.name()).commit();
-
-            cursor = ds.getTorrentCursor(profile, defaultPrefs);
-            assertEquals(1, cursor.getCount());
-            cursor.moveToFirst();
-
-            assertEquals("", Torrent.getName(cursor));
-            cursor.close();
-
             defaultPrefs.edit().putString(G.PREF_LIST_FILTER, G.FilterBy.SEEDING.name()).commit();
             expectedNames = new String[] {
                 "clock.oiuwer...-aaa", "Monster.Test.....-", "foo Bar.abc...- ",
@@ -512,6 +503,7 @@ public class DataSourceTest {
             assertEquals(26, cursor.getCount());
             cursor.close();
 
+            defaultPrefs.edit().putBoolean(G.PREF_FILTER_DIRECTORIES, true).commit();
             defaultPrefs.edit().putString(G.PREF_LIST_DIRECTORY, "/test/foo/gamma Ray").commit();
             expectedNames = new String[] {
                 "ray of light 4", "who.Who.foo.S06...-testtest",
@@ -528,7 +520,14 @@ public class DataSourceTest {
             }
             cursor.close();
 
+            defaultPrefs.edit().putBoolean(G.PREF_FILTER_DIRECTORIES, false).commit();
+            cursor = ds.getTorrentCursor(profile, defaultPrefs);
+            assertEquals(26, cursor.getCount());
+            cursor.close();
+
+            defaultPrefs.edit().putBoolean(G.PREF_FILTER_DIRECTORIES, true).commit();
             defaultPrefs.edit().remove(G.PREF_LIST_DIRECTORY).commit();
+            defaultPrefs.edit().putBoolean(G.PREF_FILTER_TRACKERS, true).commit();
             defaultPrefs.edit().putString(G.PREF_LIST_TRACKER, "udp://tracker.nsa.gov:80").commit();
             expectedNames = new String[] {
                 "Summer ", "Bla test-exa!", "fox", "access", "preserve.sh", "startup.sh", "8516-.sh",
@@ -595,6 +594,39 @@ public class DataSourceTest {
                 assertEquals(expectedNames[++index], Torrent.getName(cursor));
                 cursor.moveToNext();
             }
+            cursor.close();
+
+            defaultPrefs.edit().putBoolean(G.PREF_FILTER_TRACKERS, false).commit();
+            defaultPrefs.edit().putString(G.PREF_LIST_TRACKER, "http://tracker.example.com:80").commit();
+
+            cursor = ds.getTorrentCursor(profile, defaultPrefs);
+            assertEquals(26, cursor.getCount());
+            cursor.close();
+
+            defaultPrefs.edit().putBoolean(G.PREF_FILTER_TRACKERS, true).commit();
+            defaultPrefs.edit().putBoolean(G.PREF_FILTER_UNTRACKED, true).commit();
+            defaultPrefs.edit().putString(G.PREF_LIST_TRACKER, G.FILTER_UNTRACKED).commit();
+
+            cursor = ds.getTorrentCursor(profile, defaultPrefs);
+            assertEquals(1, cursor.getCount());
+            cursor.moveToFirst();
+
+            assertEquals("", Torrent.getName(cursor));
+            cursor.close();
+
+            defaultPrefs.edit().putBoolean(G.PREF_FILTER_UNTRACKED, false).commit();
+            defaultPrefs.edit().putString(G.PREF_LIST_TRACKER, G.FILTER_UNTRACKED).commit();
+
+            cursor = ds.getTorrentCursor(profile, defaultPrefs);
+            assertEquals(26, cursor.getCount());
+            cursor.close();
+
+            defaultPrefs.edit().putBoolean(G.PREF_FILTER_TRACKERS, false).commit();
+            defaultPrefs.edit().putBoolean(G.PREF_FILTER_UNTRACKED, true).commit();
+            defaultPrefs.edit().putString(G.PREF_LIST_TRACKER, G.FILTER_UNTRACKED).commit();
+
+            cursor = ds.getTorrentCursor(profile, defaultPrefs);
+            assertEquals(26, cursor.getCount());
             cursor.close();
         } finally {
             if (cursor != null) {

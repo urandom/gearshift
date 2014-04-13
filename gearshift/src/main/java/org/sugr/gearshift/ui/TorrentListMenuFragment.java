@@ -206,7 +206,8 @@ public class TorrentListMenuFragment extends Fragment implements TorrentListNoti
             if (data.trackers != null) {
                 String track = sharedPrefs.getString(G.PREF_LIST_TRACKER, "");
                 boolean equalTrackers = true;
-                boolean currentTrackerTorrents = track.equals("") || data.trackers.contains(track);
+                boolean currentTrackerTorrents = track.equals("") || data.trackers.contains(track)
+                    || G.FILTER_UNTRACKED.equals(track);
 
                 if (data.trackers.size() != trackers.size()) {
                     equalTrackers = false;
@@ -224,7 +225,9 @@ public class TorrentListMenuFragment extends Fragment implements TorrentListNoti
 
                     removeTrackersFilters();
 
-                    if (trackers.size() > 1) {
+                    if (trackers.size() > 0 && sharedPrefs.getBoolean(G.PREF_FILTER_UNTRACKED, false)
+                        || trackers.size() > 1) {
+
                         ListItem pivot = listItemMap.get(SORT_BY_HEADER_KEY);
                         int position = filterAdapter.getPosition(pivot);
 
@@ -243,6 +246,16 @@ public class TorrentListMenuFragment extends Fragment implements TorrentListNoti
                             filterAdapter.insert(header, position++);
                             for (String t : trackers) {
                                 filterAdapter.insert(getTrackerItem(t), position++);
+                            }
+                        }
+                        if (sharedPrefs.getBoolean(G.PREF_FILTER_UNTRACKED, false)) {
+                            ListItem untracked = new ListItem(Type.TRACKER, G.FILTER_UNTRACKED,
+                                getString(R.string.menu_filters_untracked), G.PREF_FILTER_UNTRACKED);
+
+                            if (position == -1) {
+                                filterAdapter.add(untracked);
+                            } else {
+                                filterAdapter.insert(untracked, position++);
                             }
                         }
                         updateTrackerFilter = !currentTrackerTorrents;
@@ -561,10 +574,6 @@ public class TorrentListMenuFragment extends Fragment implements TorrentListNoti
                         string = R.string.menu_filters_errors;
                         pref = G.PREF_FILTER_ERRORS;
                         break;
-                    case UNTRACKED:
-                        string = R.string.menu_filters_untracked;
-                        pref = G.PREF_FILTER_UNTRACKED;
-                        break;
                 }
                 item = new ListItem(Type.FILTER, filter, string, pref);
             }
@@ -766,6 +775,11 @@ public class TorrentListMenuFragment extends Fragment implements TorrentListNoti
             String selectedTracker = null;
             if (sharedPrefs.contains(G.PREF_LIST_TRACKER)) {
                 selectedTracker = sharedPrefs.getString(G.PREF_LIST_TRACKER, null);
+            }
+            if (!sharedPrefs.getBoolean(G.PREF_FILTER_UNTRACKED, false)
+                && selectedFilter.equals(G.FILTER_UNTRACKED)) {
+
+                selectedTracker = null;
             }
             if (selectedTracker != null) {
                 trackerPosition = filterAdapter.getPosition(

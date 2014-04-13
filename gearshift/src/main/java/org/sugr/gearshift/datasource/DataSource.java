@@ -2047,18 +2047,38 @@ public class DataSource {
             selection.add("LOWER(" + Constants.C_NAME + ") LIKE '%" + queryPattern.toString() +"%'");
         }
 
-        if (directory != null && directory.length() > 0) {
+        if (!prefs.getBoolean(G.PREF_FILTER_DIRECTORIES, false)) {
+            directory = null;
+        }
+
+        if (!TextUtils.isEmpty(directory)) {
             selection.add(Constants.C_DOWNLOAD_DIR + " = ?");
             selectionArgs.add(directory);
         }
 
+        if (!prefs.getBoolean(G.PREF_FILTER_TRACKERS, false)
+            || (!prefs.getBoolean(G.PREF_FILTER_UNTRACKED, false)
+                && G.FILTER_UNTRACKED.equals(tracker))) {
+
+            tracker = null;
+        }
+
         if (!TextUtils.isEmpty(tracker)) {
-            selection.add(Constants.T_TORRENT + "." + Constants.C_HASH_STRING + " IN ("
-                + "SELECT " + Constants.C_HASH_STRING
-                + " FROM " + Constants.T_TRACKER
-                + " WHERE " + Constants.C_ANNOUNCE + " LIKE "
-                + DatabaseUtils.sqlEscapeString("%" + tracker + "%")
-                + ")");
+            if (G.FILTER_UNTRACKED.equals(tracker)) {
+                selection.add("NOT EXISTS ("
+                    + "SELECT 1"
+                    + " FROM " + Constants.T_TRACKER
+                    + " WHERE " + Constants.T_TORRENT + "." + Constants.C_HASH_STRING
+                    + " = " + Constants.T_TRACKER + "." + Constants.C_HASH_STRING
+                    + ")");
+            } else {
+                selection.add(Constants.T_TORRENT + "." + Constants.C_HASH_STRING + " IN ("
+                    + "SELECT " + Constants.C_HASH_STRING
+                    + " FROM " + Constants.T_TRACKER
+                    + " WHERE " + Constants.C_ANNOUNCE + " LIKE "
+                    + DatabaseUtils.sqlEscapeString("%" + tracker + "%")
+                    + ")");
+            }
         }
 
         if (filter != G.FilterBy.ALL) {
@@ -2099,14 +2119,6 @@ public class DataSource {
                     break;
                 case ERRORS:
                     selection.add(Constants.C_ERROR + " != 0");
-                    break;
-                case UNTRACKED:
-                    selection.add("NOT EXISTS ("
-                    + "SELECT 1"
-                    + " FROM " + Constants.T_TRACKER
-                    + " WHERE " + Constants.T_TORRENT + "." + Constants.C_HASH_STRING
-                    + " = " + Constants.T_TRACKER + "." + Constants.C_HASH_STRING
-                    + ")");
                     break;
             }
         }
