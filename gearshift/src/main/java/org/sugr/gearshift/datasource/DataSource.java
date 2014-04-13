@@ -2084,41 +2084,57 @@ public class DataSource {
         if (filter != G.FilterBy.ALL) {
             switch (filter) {
                 case DOWNLOADING:
-                    selection.add(Constants.C_STATUS + " = ?");
-                    selectionArgs.add(Integer.toString(Torrent.Status.DOWNLOADING));
+                    if (prefs.getBoolean(G.PREF_FILTER_DOWNLOADING, false)) {
+                        selection.add(Constants.C_STATUS + " = ?");
+                        selectionArgs.add(Integer.toString(Torrent.Status.DOWNLOADING));
+                    }
                     break;
                 case SEEDING:
-                    selection.add(Constants.C_STATUS + " = ?");
-                    selectionArgs.add(Integer.toString(Torrent.Status.SEEDING));
+                    if (prefs.getBoolean(G.PREF_FILTER_SEEDING, false)) {
+                        selection.add(Constants.C_STATUS + " = ?");
+                        selectionArgs.add(Integer.toString(Torrent.Status.SEEDING));
+                    }
                     break;
                 case PAUSED:
-                    selection.add(Constants.C_STATUS + " = ?");
-                    selectionArgs.add(Integer.toString(Torrent.Status.STOPPED));
+                    if (prefs.getBoolean(G.PREF_FILTER_PAUSED, false)) {
+                        selection.add(Constants.C_STATUS + " = ?");
+                        selectionArgs.add(Integer.toString(Torrent.Status.STOPPED));
+                    }
                     break;
                 case COMPLETE:
-                    selection.add(Constants.C_PERCENT_DONE + " = 1");
+                    if (prefs.getBoolean(G.PREF_FILTER_COMPLETE, false)) {
+                        selection.add(Constants.C_PERCENT_DONE + " = 1");
+                    }
                     break;
                 case INCOMPLETE:
-                    selection.add(Constants.C_PERCENT_DONE + " < 1");
+                    if (prefs.getBoolean(G.PREF_FILTER_INCOMPLETE, false)) {
+                        selection.add(Constants.C_PERCENT_DONE + " < 1");
+                    }
                     break;
                 case ACTIVE:
-                    selection.add(
-                        Constants.C_IS_STALLED + " != 1"
-                            + " AND " + Constants.C_IS_FINISHED + " != 1"
-                            + " AND ("
-                            + Constants.C_STATUS + " = ?"
-                            + " OR " + Constants.C_STATUS + " = ?"
-                            + ")"
-                    );
-                    selectionArgs.add(Integer.toString(Torrent.Status.DOWNLOADING));
-                    selectionArgs.add(Integer.toString(Torrent.Status.SEEDING));
+                    if (prefs.getBoolean(G.PREF_FILTER_ACTIVE, false)) {
+                        selection.add(
+                            Constants.C_IS_STALLED + " != 1"
+                                + " AND " + Constants.C_IS_FINISHED + " != 1"
+                                + " AND ("
+                                + Constants.C_STATUS + " = ?"
+                                + " OR " + Constants.C_STATUS + " = ?"
+                                + ")"
+                        );
+                        selectionArgs.add(Integer.toString(Torrent.Status.DOWNLOADING));
+                        selectionArgs.add(Integer.toString(Torrent.Status.SEEDING));
+                    }
                     break;
                 case CHECKING:
-                    selection.add(Constants.C_STATUS + " = ?");
-                    selectionArgs.add(Integer.toString(Torrent.Status.CHECKING));
+                    if (prefs.getBoolean(G.PREF_FILTER_CHECKING, false)) {
+                        selection.add(Constants.C_STATUS + " = ?");
+                        selectionArgs.add(Integer.toString(Torrent.Status.CHECKING));
+                    }
                     break;
                 case ERRORS:
-                    selection.add(Constants.C_ERROR + " != 0");
+                    if (prefs.getBoolean(G.PREF_FILTER_ERRORS, false)) {
+                        selection.add(Constants.C_ERROR + " != 0");
+                    }
                     break;
             }
         }

@@ -335,7 +335,13 @@ public class DataSourceTest {
             cursor.close();
 
             defaultPrefs.edit().putString(G.PREF_LIST_SORT_BY, G.SortBy.QUEUE.name()).commit();
+
             defaultPrefs.edit().putString(G.PREF_LIST_FILTER, G.FilterBy.ACTIVE.name()).commit();
+            cursor = ds.getTorrentCursor(profile, defaultPrefs);
+            assertEquals(26, cursor.getCount());
+            cursor.close();
+
+            defaultPrefs.edit().putBoolean(G.PREF_FILTER_ACTIVE, true).commit();
             expectedNames = new String[] {
                 "clock.oiuwer...-aaa", "startup.sh", "1 Complete ", "alpha...-test ",
                 "Monster.Test.....-", "foo Bar.abc...- ",
@@ -354,10 +360,20 @@ public class DataSourceTest {
 
             defaultPrefs.edit().putString(G.PREF_LIST_FILTER, G.FilterBy.CHECKING.name()).commit();
             cursor = ds.getTorrentCursor(profile, defaultPrefs);
+            assertEquals(26, cursor.getCount());
+            cursor.close();
+
+            defaultPrefs.edit().putBoolean(G.PREF_FILTER_CHECKING, true).commit();
+            cursor = ds.getTorrentCursor(profile, defaultPrefs);
             assertEquals(0, cursor.getCount());
             cursor.close();
 
             defaultPrefs.edit().putString(G.PREF_LIST_FILTER, G.FilterBy.DOWNLOADING.name()).commit();
+            cursor = ds.getTorrentCursor(profile, defaultPrefs);
+            assertEquals(26, cursor.getCount());
+            cursor.close();
+
+            defaultPrefs.edit().putBoolean(G.PREF_FILTER_DOWNLOADING, true).commit();
             expectedNames = new String[] {
                 "startup.sh", "1 Complete ", "alpha...-test ",
             };
@@ -374,6 +390,11 @@ public class DataSourceTest {
             cursor.close();
 
             defaultPrefs.edit().putString(G.PREF_LIST_FILTER, G.FilterBy.COMPLETE.name()).commit();
+            cursor = ds.getTorrentCursor(profile, defaultPrefs);
+            assertEquals(26, cursor.getCount());
+            cursor.close();
+
+            defaultPrefs.edit().putBoolean(G.PREF_FILTER_COMPLETE, true).commit();
             expectedNames = new String[] {
                 "Summer ", "Bla test-exa!", "fox", "ray of light 4", "grass",
                 "who.Who.foo.S06...-testtest", "Somewhere script", "clock.oiuwer...-aaa",
@@ -395,6 +416,11 @@ public class DataSourceTest {
             cursor.close();
 
             defaultPrefs.edit().putString(G.PREF_LIST_FILTER, G.FilterBy.INCOMPLETE.name()).commit();
+            cursor = ds.getTorrentCursor(profile, defaultPrefs);
+            assertEquals(26, cursor.getCount());
+            cursor.close();
+
+            defaultPrefs.edit().putBoolean(G.PREF_FILTER_INCOMPLETE, true).commit();
             expectedNames = new String[] {
                 "", "startup.sh", "1 Complete ", "alpha...-test ",
             };
@@ -411,6 +437,11 @@ public class DataSourceTest {
             cursor.close();
 
             defaultPrefs.edit().putString(G.PREF_LIST_FILTER, G.FilterBy.PAUSED.name()).commit();
+            cursor = ds.getTorrentCursor(profile, defaultPrefs);
+            assertEquals(26, cursor.getCount());
+            cursor.close();
+
+            defaultPrefs.edit().putBoolean(G.PREF_FILTER_PAUSED, true).commit();
             expectedNames = new String[] {
                 "", "Summer ", "Bla test-exa!", "fox", "ray of light 4", "grass",
                 "who.Who.foo.S06...-testtest", "Somewhere script", "texts..g.sh",
@@ -431,6 +462,11 @@ public class DataSourceTest {
             cursor.close();
 
             defaultPrefs.edit().putString(G.PREF_LIST_FILTER, G.FilterBy.ERRORS.name()).commit();
+            cursor = ds.getTorrentCursor(profile, defaultPrefs);
+            assertEquals(26, cursor.getCount());
+            cursor.close();
+
+            defaultPrefs.edit().putBoolean(G.PREF_FILTER_ERRORS, true).commit();
             expectedNames = new String[] {
                 "Bla test-exa!", "gamma rotk (foo) []", "water fao - today test fire",
             };
@@ -447,6 +483,11 @@ public class DataSourceTest {
             cursor.close();
 
             defaultPrefs.edit().putString(G.PREF_LIST_FILTER, G.FilterBy.SEEDING.name()).commit();
+            cursor = ds.getTorrentCursor(profile, defaultPrefs);
+            assertEquals(26, cursor.getCount());
+            cursor.close();
+
+            defaultPrefs.edit().putBoolean(G.PREF_FILTER_SEEDING, true).commit();
             expectedNames = new String[] {
                 "clock.oiuwer...-aaa", "Monster.Test.....-", "foo Bar.abc...- ",
             };
