@@ -594,7 +594,7 @@ public class TransmissionSessionActivity extends FragmentActivity implements Dat
                 }
                 if (actionId == EditorInfo.IME_ACTION_DONE) {
                     String value = v.getText().toString().trim();
-                    if (!session.getDownloadDir().equals(value)) {
+                    if (!value.equals(session.getDownloadDir())) {
                         session.setDownloadDir(value);
                         setSession(TransmissionSession.SetterFields.DOWNLOAD_DIR);
                     }
@@ -626,7 +626,7 @@ public class TransmissionSessionActivity extends FragmentActivity implements Dat
                 }
                 if (actionId == EditorInfo.IME_ACTION_DONE) {
                     String value = v.getText().toString().trim();
-                    if (!session.getIncompleteDir().equals(value)) {
+                    if (!value.equals(session.getIncompleteDir())) {
                         session.setIncompleteDir(value);
                         setSession(TransmissionSession.SetterFields.INCOMPLETE_DIR);
                     }
@@ -658,7 +658,7 @@ public class TransmissionSessionActivity extends FragmentActivity implements Dat
                 }
                 if (actionId == EditorInfo.IME_ACTION_DONE) {
                     String value = v.getText().toString().trim();
-                    if (!session.getDoneScript().equals(value)) {
+                    if (!value.equals(session.getDoneScript())) {
                         session.setDoneScript(value);
                         setSession(TransmissionSession.SetterFields.DONE_SCRIPT);
                     }
@@ -782,7 +782,7 @@ public class TransmissionSessionActivity extends FragmentActivity implements Dat
                     return;
                 }
                 String value = encryptionValues.get(pos);
-                if (!session.getEncryption().equals(value)) {
+                if (!value.equals(session.getEncryption())) {
                     session.setEncryption(value);
                     setSession(TransmissionSession.SetterFields.ENCRYPTION);
                 }
@@ -892,7 +892,7 @@ public class TransmissionSessionActivity extends FragmentActivity implements Dat
                 }
                 if (actionId == EditorInfo.IME_ACTION_DONE) {
                     String value = v.getText().toString().trim();
-                    if (!session.getBlocklistURL().equals(value)) {
+                    if (!value.equals(session.getBlocklistURL())) {
                         session.setBlocklistURL(value);
                         setSession(TransmissionSession.SetterFields.BLOCKLIST_URL);
                     }
