@@ -2,7 +2,9 @@ package org.sugr.gearshift.service;
 
 import android.annotation.TargetApi;
 import android.app.IntentService;
+import android.content.Context;
 import android.content.Intent;
+import android.net.ConnectivityManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -19,7 +21,7 @@ import org.sugr.gearshift.datasource.DataSource;
 import org.sugr.gearshift.datasource.TorrentStatus;
 
 import java.io.File;
-import java.net.ConnectException;
+import java.net.HttpURLConnection;
 
 public class DataService extends IntentService {
     public static final class Requests {
@@ -110,11 +112,10 @@ public class DataService extends IntentService {
                     manager.setProfile(profile);
                 }
                 if (manager == null) {
-                    manager = new TransmissionSessionManager(this, profile, dataSource);
-                }
-
-                if (!manager.hasConnectivity()) {
-                    throw new ConnectException();
+                    manager = new TransmissionSessionManager(
+                        (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE),
+                        PreferenceManager.getDefaultSharedPreferences(this),
+                        profile, dataSource, new ConnectionProvider());
                 }
 
                 switch (requestType) {
@@ -315,9 +316,6 @@ public class DataService extends IntentService {
         } catch (TransmissionSessionManager.ManagerException e) {
             G.logE("Error while processing service request!", e);
             response = handleError(e, requestType, profileId);
-        } catch (ConnectException e) {
-            response = createResponse(requestType, profileId)
-                .putExtra(G.ARG_ERROR, Errors.NO_CONNECTIVITY);
         } finally {
             dataSource.close();
 
@@ -341,11 +339,11 @@ public class DataService extends IntentService {
 
         int error;
         switch(e.getCode()) {
-            case 401:
-            case 403:
+            case HttpURLConnection.HTTP_UNAUTHORIZED:
+            case HttpURLConnection.HTTP_FORBIDDEN:
                 error = Errors.ACCESS_DENIED;
                 break;
-            case 200:
+            case HttpURLConnection.HTTP_OK:
                 if (e.getMessage().equals("no-json")) {
                     error = Errors.NO_JSON;
                 } else {
@@ -355,6 +353,8 @@ public class DataService extends IntentService {
             case -1:
                 if (e.getMessage().equals("timeout")) {
                     error = Errors.TIMEOUT;
+                } else if (e.getMessage().equals("connectivity")) {
+                    error = Errors.NO_CONNECTIVITY;
                 } else {
                     error = Errors.NO_CONNECTION;
                 }

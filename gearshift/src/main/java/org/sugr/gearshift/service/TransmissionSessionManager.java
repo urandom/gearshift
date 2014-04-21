@@ -1,11 +1,9 @@
 package org.sugr.gearshift.service;
 
-import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-import android.preference.PreferenceManager;
 import android.util.Base64;
 
 import com.fasterxml.jackson.core.JsonFactory;
@@ -71,13 +69,17 @@ public class TransmissionSessionManager {
     private SharedPreferences defaultPrefs;
 
     private DataSource dataSource;
+    private ConnectionProvider connProvider;
 
-    public TransmissionSessionManager(Context context, TransmissionProfile profile, DataSource dataSource) {
+    public TransmissionSessionManager(ConnectivityManager connManager, SharedPreferences prefs,
+                                      TransmissionProfile profile, DataSource dataSource,
+                                      ConnectionProvider connProvider) {
         this.profile = profile;
 
         this.dataSource = dataSource;
-        connManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
-        defaultPrefs = PreferenceManager.getDefaultSharedPreferences(context);
+        this.connManager = connManager;
+        this.defaultPrefs = prefs;
+        this.connProvider = connProvider;
 
         sessionId = defaultPrefs.getString(PREF_LAST_SESSION_ID, null);
     }
@@ -101,7 +103,7 @@ public class TransmissionSessionManager {
 
         SessionGetResponse response = new SessionGetResponse();
         requestData(request, response);
-        if (!response.getResult().equals("success")) {
+        if (!"success".equals(response.getResult())) {
             throw new ManagerException(response.getResult(), -2);
         }
     }
@@ -115,7 +117,7 @@ public class TransmissionSessionManager {
 
         TorrentGetResponse response = new TorrentGetResponse();
         requestData(request, response);
-        if (!response.getResult().equals("success")) {
+        if (!"success".equals(response.getResult())) {
             throw new ManagerException(response.getResult(), -2);
         }
 
@@ -135,7 +137,7 @@ public class TransmissionSessionManager {
         TorrentGetResponse response = new TorrentGetResponse();
         response.setRemoveObsolete(removeObsolete);
         requestData(request, response);
-        if (!response.getResult().equals("success")) {
+        if (!"success".equals(response.getResult())) {
             throw new ManagerException(response.getResult(), -2);
         }
 
@@ -152,7 +154,7 @@ public class TransmissionSessionManager {
 
         Response response = new Response();
         requestData(request, response);
-        if (!response.getResult().equals("success")) {
+        if (!"success".equals(response.getResult())) {
             throw new ManagerException(response.getResult(), -2);
         }
     }
@@ -166,7 +168,7 @@ public class TransmissionSessionManager {
 
         Response response = new Response();
         requestData(request, response);
-        if (!response.getResult().equals("success")) {
+        if (!"success".equals(response.getResult())) {
             throw new ManagerException(response.getResult(), -2);
         }
         dataSource.removeTorrents(hashStrings);
@@ -180,7 +182,7 @@ public class TransmissionSessionManager {
 
         Response response = new Response();
         requestData(request, response);
-        if (!response.getResult().equals("success")) {
+        if (!"success".equals(response.getResult())) {
             throw new ManagerException(response.getResult(), -2);
         }
     }
@@ -195,7 +197,7 @@ public class TransmissionSessionManager {
 
         Response response = new Response();
         requestData(request, response);
-        if (!response.getResult().equals("success")) {
+        if (!"success".equals(response.getResult())) {
             throw new ManagerException(response.getResult(), -2);
         }
     }
@@ -258,7 +260,7 @@ public class TransmissionSessionManager {
 
         Response response = new Response();
         requestData(request, response);
-        if (!response.getResult().equals("success")) {
+        if (!"success".equals(response.getResult())) {
             throw new ManagerException(response.getResult(), -2);
         }
     }
@@ -279,7 +281,7 @@ public class TransmissionSessionManager {
         AddTorrentResponse response = new AddTorrentResponse();
         response.setLocation(location);
         requestData(request, response);
-        if (response.getResult().equals("success")) {
+        if (!"success".equals(response.getResult())) {
             return response.getAddedHash();
         } else if (response.isDuplicate()) {
             throw new ManagerException("duplicate torrent", -2);
@@ -293,7 +295,7 @@ public class TransmissionSessionManager {
 
         PortTestResponse response = new PortTestResponse();
         requestData(request, response);
-        if (!response.getResult().equals("success")) {
+        if (!"success".equals(response.getResult())) {
             throw new ManagerException(response.getResult(), -2);
         }
 
@@ -305,7 +307,7 @@ public class TransmissionSessionManager {
 
         BlocklistUpdateResponse response = new BlocklistUpdateResponse();
         requestData(request, response);
-        if (!response.getResult().equals("success")) {
+        if (!"success".equals(response.getResult())) {
             throw new ManagerException(response.getResult(), -2);
         }
 
@@ -324,9 +326,9 @@ public class TransmissionSessionManager {
 
         FreeSpaceResponse response = new FreeSpaceResponse();
         requestData(request, response);
-        if (response.getResult().equals("success")) {
+        if (!"success".equals(response.getResult())) {
             return response.getFreeSpace();
-        } else if (response.getResult().equals("method name not recognized")) {
+        } else if ("method name not recognized".equals(response.getResult())) {
             return -1;
         } else {
             G.logE("Transmission Daemon Error!",
@@ -336,16 +338,16 @@ public class TransmissionSessionManager {
     }
 
     private void requestData(ObjectNode data, Response response) throws ManagerException {
+        if (!hasConnectivity()) {
+            throw new ManagerException("connectivity", -1);
+        }
+
         OutputStream os = null;
         InputStream is = null;
         HttpURLConnection conn = null;
         try {
-            URL url = new URL(
-                  (profile.isUseSSL() ? "https://" : "http://")
-                + profile.getHost() + ":" + profile.getPort()
-                + profile.getPath());
-            G.logD("Initializing a request to " + url);
-            conn = (HttpURLConnection) url.openConnection();
+            conn = connProvider.open(profile);
+
             if (profile.isUseSSL()) {
                 try {
                     SSLContext sc = SSLContext.getInstance("TLS");
@@ -417,7 +419,7 @@ public class TransmissionSessionManager {
             int code = conn.getResponseCode();
 
             // TorrentListActivity.logD("Got a response code " + code);
-            if (code == 409) {
+            if (code == HttpURLConnection.HTTP_CONFLICT) {
                 sessionId = getSessionId(conn);
                 if (invalidSessionRetries < 3 && sessionId != null) {
                     ++invalidSessionRetries;
@@ -431,8 +433,8 @@ public class TransmissionSessionManager {
             }
 
             switch(code) {
-                case 200:
-                case 201:
+                case HttpURLConnection.HTTP_OK:
+                case HttpURLConnection.HTTP_CREATED:
                     if (conn.getHeaderField("Content-Type").startsWith("text/html")) {
                         throw new ManagerException("no-json", code);
                     }
