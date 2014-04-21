@@ -6,6 +6,9 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.util.Base64;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import org.apache.http.protocol.HTTP;
 import org.junit.Before;
 import org.junit.Test;
@@ -45,6 +48,7 @@ import javax.net.ssl.SSLSocketFactory;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.contains;
 import static org.mockito.Mockito.mock;
@@ -205,7 +209,6 @@ public class TransmissionSessionManagerTest {
 
     @Test public void delayedNetwork() throws Exception {
         connection = new DelayedHttpsURLConnectionTest(new URL("http://example.com"));
-        connection.outputStream = new ByteArrayOutputStream();
         ((DelayedHttpsURLConnectionTest) connection).setDelay(2);
         when(connProvider.open(profile)).thenReturn(connection);
 
@@ -261,6 +264,19 @@ public class TransmissionSessionManagerTest {
         TransmissionSession session = dataSource.getSession(profile.getId());
         assertNotNull(session);
         assertEquals("2.52", session.getVersion());
+
+        assertNull(session.getDownloadDir());
+
+        session.setDownloadDir("/foo/bar");
+        setupConnection(HttpURLConnection.HTTP_OK, headers, "{\"result\": \"success\"}", null, "");
+
+        manager.setSession(session, TransmissionSession.SetterFields.DOWNLOAD_DIR);
+
+        ObjectMapper mapper = new ObjectMapper();
+        JsonNode node = mapper.readTree(connection.outputStream.toString());
+
+        assertEquals("session-set", node.path("method").asText());
+        assertEquals("/foo/bar", node.path("arguments").path("download-dir").asText());
     }
 
     private void setupConnection(int responseCode, Map<String, String> headerFields,
@@ -275,6 +291,8 @@ public class TransmissionSessionManagerTest {
         if (headerFields != null) {
             connection.headerFields.putAll(headerFields);
         }
+
+        connection.outputStream = new ByteArrayOutputStream();
     }
 
     private static class HttpsURLConnectionTest extends HttpsURLConnection {
