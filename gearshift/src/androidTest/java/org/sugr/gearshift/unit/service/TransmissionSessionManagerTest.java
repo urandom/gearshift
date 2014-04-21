@@ -27,7 +27,9 @@ import java.net.SocketTimeoutException;
 import java.net.URL;
 import java.nio.charset.Charset;
 import java.security.cert.Certificate;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.net.ssl.HostnameVerifier;
@@ -146,6 +148,28 @@ public class TransmissionSessionManagerTest {
         setupConnection(HttpURLConnection.HTTP_OK, headers, "{\"arguments\": \"{}\", \"result\": \"success\"}", null, "");
 
         manager.updateSession();
+
+        final List<Boolean> tries = new ArrayList<>();
+        connection.setConnectTest(new Runnable() {
+            @Override public void run() {
+                Map<String, String> headers = new HashMap<>();
+                if ("sessid".equals(connection.requestProperties.get("X-Transmission-Session-Id"))) {
+                    headers.put("Content-Type", "application/json");
+                    setupConnection(HttpURLConnection.HTTP_OK, headers, "{\"arguments\": \"{}\", \"result\": \"success\"}", null, "");
+                    tries.add(true);
+                } else {
+                    headers.put("X-Transmission-Session-Id", "sessid");
+                    headers.put("Content-Type", "text/html");
+                    setupConnection(HttpURLConnection.HTTP_CONFLICT, headers, "blabla", null, "");
+                    tries.add(false);
+                }
+            }
+        });
+        manager.updateSession();
+
+        assertEquals(2, tries.size());
+        assertFalse(tries.get(0));
+        assertTrue(tries.get(1));
     }
 
     @Test public void delayedNetwork() throws Exception {
@@ -202,8 +226,14 @@ public class TransmissionSessionManagerTest {
         public String contentEncoding;
         public String responseMessage;
 
+        public Runnable connectRunnable;
+
         public HttpsURLConnectionTest(URL url) {
             super(url);
+        }
+
+        public void setConnectTest(Runnable connectTest) {
+            this.connectRunnable = connectTest;
         }
 
         @Override public String getCipherSuite() {
@@ -223,6 +253,9 @@ public class TransmissionSessionManagerTest {
         @Override public boolean usingProxy() { return false; }
 
         @Override public void connect() throws IOException {
+            if (connectRunnable != null) {
+                connectRunnable.run();
+            }
             isConnected = true;
             connectCount++;
         }
