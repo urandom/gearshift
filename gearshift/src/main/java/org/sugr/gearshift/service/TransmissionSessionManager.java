@@ -516,8 +516,6 @@ public class TransmissionSessionManager {
         JsonFactory factory = mapper.getFactory();
         JsonParser parser = factory.createParser(stream);
 
-        String result = null;
-
         if (parser.nextToken() != JsonToken.START_OBJECT) {
             throw new IOException("The server data is expected to be an object");
         }
@@ -526,7 +524,7 @@ public class TransmissionSessionManager {
 
             switch (name) {
                 case "result":
-                    result = parser.nextTextValue();
+                    response.setResult(parser.nextTextValue());
                     break;
                 case "arguments":
                     if (response.getClass() == SessionGetResponse.class) {
@@ -648,8 +646,6 @@ public class TransmissionSessionManager {
                     break;
             }
         }
-
-        response.setResult(result);
     }
 
     public static class Response {

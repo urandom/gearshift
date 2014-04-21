@@ -1,6 +1,7 @@
 package org.sugr.gearshift.unit.service;
 
 import android.app.Activity;
+import android.database.sqlite.SQLiteOpenHelper;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.util.Base64;
@@ -9,10 +10,13 @@ import org.apache.http.protocol.HTTP;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.robolectric.Robolectric;
 import org.robolectric.annotation.Config;
 import org.robolectric.tester.android.content.TestSharedPreferences;
 import org.sugr.gearshift.core.TransmissionProfile;
+import org.sugr.gearshift.core.TransmissionSession;
 import org.sugr.gearshift.datasource.DataSource;
+import org.sugr.gearshift.datasource.SQLiteHelper;
 import org.sugr.gearshift.service.ConnectionProvider;
 import org.sugr.gearshift.service.TransmissionSessionManager;
 import org.sugr.gearshift.unit.util.RobolectricGradleTestRunner;
@@ -68,7 +72,10 @@ public class TransmissionSessionManagerTest {
         when(profile.getTimeout()).thenReturn(1);
         when(profile.getId()).thenReturn("existingId");
 
-        dataSource = mock(DataSource.class);
+        Activity activity = Robolectric.buildActivity(Activity.class).create().get();
+
+        dataSource = new DataSource(activity);
+        dataSource.open();
 
         connProvider = mock(ConnectionProvider.class);
         connection = new HttpsURLConnectionTest(new URL("http://example.com"));
@@ -146,7 +153,7 @@ public class TransmissionSessionManagerTest {
 
         headers = new HashMap<>();
         headers.put("Content-Type", "application/json");
-        setupConnection(HttpURLConnection.HTTP_OK, headers, "{\"arguments\": \"{}\", \"result\": \"success\"}", null, "");
+        setupConnection(HttpURLConnection.HTTP_OK, headers, "{\"arguments\": {}, \"result\": \"success\"}", null, "");
 
         manager.updateSession();
 
@@ -157,7 +164,7 @@ public class TransmissionSessionManagerTest {
                 Map<String, String> headers = new HashMap<>();
                 if ("sessid".equals(connection.requestProperties.get("X-Transmission-Session-Id"))) {
                     headers.put("Content-Type", "application/json");
-                    setupConnection(HttpURLConnection.HTTP_OK, headers, "{\"arguments\": \"{}\", \"result\": \"success\"}", null, "");
+                    setupConnection(HttpURLConnection.HTTP_OK, headers, "{\"arguments\": {}, \"result\": \"success\"}", null, "");
                     tries.add(true);
                 } else {
                     headers.put("X-Transmission-Session-Id", "sessid");
@@ -185,7 +192,7 @@ public class TransmissionSessionManagerTest {
 
         when(connMananager.getActiveNetworkInfo()).thenReturn(null);
         headers.put("Content-Type", "application/json");
-        setupConnection(HttpURLConnection.HTTP_OK, headers, "{\"arguments\": \"{}\", \"result\": \"success\"}", null, "");
+        setupConnection(HttpURLConnection.HTTP_OK, headers, "{\"arguments\": {}, \"result\": \"success\"}", null, "");
 
         try {
             manager.updateSession();
@@ -204,7 +211,7 @@ public class TransmissionSessionManagerTest {
 
         Map<String, String> headers = new HashMap<>();
         headers.put("Content-Type", "application/json");
-        setupConnection(HttpURLConnection.HTTP_OK, headers, "{\"arguments\": \"{}\", \"result\": \"success\"}", null, "");
+        setupConnection(HttpURLConnection.HTTP_OK, headers, "{\"arguments\": {}, \"result\": \"success\"}", null, "");
 
         boolean timeout = false;
         try {
@@ -222,7 +229,7 @@ public class TransmissionSessionManagerTest {
 
         Map<String, String> headers = new HashMap<>();
         headers.put("Content-Type", "application/json");
-        setupConnection(HttpURLConnection.HTTP_OK, headers, "{\"arguments\": \"{}\", \"result\": \"success\"}", null, "");
+        setupConnection(HttpURLConnection.HTTP_OK, headers, "{\"arguments\": {}, \"result\": \"success\"}", null, "");
 
         manager.updateSession();
 
@@ -234,13 +241,26 @@ public class TransmissionSessionManagerTest {
         when(profile.getUsername()).thenReturn("foo");
         when(profile.getPassword()).thenReturn("bar");
 
-        setupConnection(HttpURLConnection.HTTP_OK, headers, "{\"arguments\": \"{}\", \"result\": \"success\"}", null, "");
+        setupConnection(HttpURLConnection.HTTP_OK, headers, "{\"arguments\": {}, \"result\": \"success\"}", null, "");
 
         manager.updateSession();
 
         assertTrue(connection.requestProperties.containsKey("Authorization"));
         assertEquals("Basic " + Base64.encodeToString(("foo:bar").getBytes(), Base64.DEFAULT),
             connection.requestProperties.get("Authorization"));
+    }
+
+    @Test public void session() throws Exception {
+        Map<String, String> headers = new HashMap<>();
+        headers.put("Content-Type", "application/json");
+        setupConnection(HttpURLConnection.HTTP_OK, headers,
+            "{\"arguments\": {\"version\": \"2.52\"}, \"result\": \"success\"}", null, "");
+
+        manager.updateSession();
+
+        TransmissionSession session = dataSource.getSession(profile.getId());
+        assertNotNull(session);
+        assertEquals("2.52", session.getVersion());
     }
 
     private void setupConnection(int responseCode, Map<String, String> headerFields,
