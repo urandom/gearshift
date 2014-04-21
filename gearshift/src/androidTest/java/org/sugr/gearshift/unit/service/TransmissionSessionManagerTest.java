@@ -3,6 +3,7 @@ package org.sugr.gearshift.unit.service;
 import android.app.Activity;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.util.Base64;
 
 import org.apache.http.protocol.HTTP;
 import org.junit.Before;
@@ -151,7 +152,8 @@ public class TransmissionSessionManagerTest {
 
         final List<Boolean> tries = new ArrayList<>();
         connection.setConnectTest(new Runnable() {
-            @Override public void run() {
+            @Override
+            public void run() {
                 Map<String, String> headers = new HashMap<>();
                 if ("sessid".equals(connection.requestProperties.get("X-Transmission-Session-Id"))) {
                     headers.put("Content-Type", "application/json");
@@ -170,6 +172,28 @@ public class TransmissionSessionManagerTest {
         assertEquals(2, tries.size());
         assertFalse(tries.get(0));
         assertTrue(tries.get(1));
+
+        headers = new HashMap<>();
+        connection.setConnectTest(null);
+        setupConnection(HttpURLConnection.HTTP_OK, headers, "error", null, "");
+
+        try {
+            manager.updateSession();
+        } catch (TransmissionSessionManager.ManagerException e) {
+            assertEquals(-4, e.getCode());
+        }
+
+        when(connMananager.getActiveNetworkInfo()).thenReturn(null);
+        headers.put("Content-Type", "application/json");
+        setupConnection(HttpURLConnection.HTTP_OK, headers, "{\"arguments\": \"{}\", \"result\": \"success\"}", null, "");
+
+        try {
+            manager.updateSession();
+        } catch (TransmissionSessionManager.ManagerException e) {
+            assertEquals("connectivity", e.getMessage());
+            assertEquals(-1, e.getCode());
+        }
+        when(connMananager.getActiveNetworkInfo()).thenReturn(mock(NetworkInfo.class));
     }
 
     @Test public void delayedNetwork() throws Exception {
@@ -193,15 +217,44 @@ public class TransmissionSessionManagerTest {
         assertTrue(timeout);
     }
 
+    @Test public void sslNetwork() throws Exception {
+        when(profile.isUseSSL()).thenReturn(true);
+
+        Map<String, String> headers = new HashMap<>();
+        headers.put("Content-Type", "application/json");
+        setupConnection(HttpURLConnection.HTTP_OK, headers, "{\"arguments\": \"{}\", \"result\": \"success\"}", null, "");
+
+        manager.updateSession();
+
+        assertTrue(connection.socketFactory instanceof SSLSocketFactory);
+        assertTrue(connection.hostnameVerifier instanceof HostnameVerifier);
+
+        assertTrue(connection.hostnameVerifier.verify(null, null));
+
+        when(profile.getUsername()).thenReturn("foo");
+        when(profile.getPassword()).thenReturn("bar");
+
+        setupConnection(HttpURLConnection.HTTP_OK, headers, "{\"arguments\": \"{}\", \"result\": \"success\"}", null, "");
+
+        manager.updateSession();
+
+        assertTrue(connection.requestProperties.containsKey("Authorization"));
+        assertEquals("Basic " + Base64.encodeToString(("foo:bar").getBytes(), Base64.DEFAULT),
+            connection.requestProperties.get("Authorization"));
+    }
+
     private void setupConnection(int responseCode, Map<String, String> headerFields,
                                  String response, String contentEncoding, String responseMessage) {
         connection.responseCode = responseCode;
-        connection.headerFields.putAll(headerFields);
         connection.contentEncoding = contentEncoding;
         connection.responseMessage = responseMessage;
 
         InputStream is = new ByteArrayInputStream(Charset.forName("UTF-16").encode(response).array());
         connection.inputStream = is;
+
+        if (headerFields != null) {
+            connection.headerFields.putAll(headerFields);
+        }
     }
 
     private static class HttpsURLConnectionTest extends HttpsURLConnection {
