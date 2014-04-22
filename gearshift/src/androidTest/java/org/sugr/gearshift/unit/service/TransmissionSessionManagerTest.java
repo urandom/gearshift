@@ -297,6 +297,41 @@ public class TransmissionSessionManagerTest {
         Cursor cursor = dataSource.getTorrentCursor(profile.getId(), null, new String[0], null, false);
         assertEquals(2, cursor.getCount());
         cursor.close();
+
+        setupConnection(HttpURLConnection.HTTP_OK, headers,
+            "{\"arguments\": {\"torrents\": [{\"id\": 10, \"name\": \"fedora 1\", \"status\": 0, \"hashString\": \"foo\"}, {\"id\": 21, \"name\": \"ubuntu 7\", \"status\": 6, \"hashString\": \"bar\"}, {\"id\": 37, \"name\": \"mint 14\", \"status\": 4, \"hashString\": \"alpha\"}]}, \"result\": \"success\"}", null, "");
+
+        status = manager.getTorrents(new String[] {"id", "name", "status"}, null, false);
+        assertNotNull(status);
+
+        mapper = new ObjectMapper();
+        node = mapper.readTree(connection.outputStream.toString());
+
+        assertEquals("torrent-get", node.path("method").asText());
+        assertNull(node.path("arguments").get("ids"));
+        assertEquals("id", node.path("arguments").path("fields").get(0).asText());
+        assertEquals("name", node.path("arguments").path("fields").path(1).asText());
+        assertEquals("status", node.path("arguments").path("fields").path(2).asText());
+
+        cursor = dataSource.getTorrentCursor(profile.getId(), null, new String[0], null, false);
+        assertEquals(3, cursor.getCount());
+        cursor.close();
+
+        setupConnection(HttpURLConnection.HTTP_OK, headers,
+            "{\"arguments\": {\"torrents\": [{\"id\": 10, \"name\": \"fedora 1\", \"status\": 0, \"hashString\": \"foo\"}]}, \"result\": \"success\"}", null, "");
+
+        status = manager.getTorrents(new String[] {"id", "name", "status"}, new String[] {"foo"}, false);
+        assertNotNull(status);
+
+        mapper = new ObjectMapper();
+        node = mapper.readTree(connection.outputStream.toString());
+
+        assertEquals("torrent-get", node.path("method").asText());
+        assertEquals("foo", node.path("arguments").path("ids").path(0).asText());
+        assertNull(node.path("arguments").path("ids").get(1));
+        assertEquals("id", node.path("arguments").path("fields").get(0).asText());
+        assertEquals("name", node.path("arguments").path("fields").path(1).asText());
+        assertEquals("status", node.path("arguments").path("fields").path(2).asText());
     }
 
     private void setupConnection(int responseCode, Map<String, String> headerFields,
