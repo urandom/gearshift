@@ -15,6 +15,7 @@ import org.junit.runner.RunWith;
 import org.robolectric.Robolectric;
 import org.robolectric.annotation.Config;
 import org.robolectric.tester.android.content.TestSharedPreferences;
+import org.sugr.gearshift.core.Torrent;
 import org.sugr.gearshift.core.TransmissionProfile;
 import org.sugr.gearshift.core.TransmissionSession;
 import org.sugr.gearshift.datasource.DataSource;
@@ -332,6 +333,58 @@ public class TransmissionSessionManagerTest {
         assertEquals("id", node.path("arguments").path("fields").get(0).asText());
         assertEquals("name", node.path("arguments").path("fields").path(1).asText());
         assertEquals("status", node.path("arguments").path("fields").path(2).asText());
+
+        setupConnection(HttpURLConnection.HTTP_OK, headers,
+            "{\"arguments\": {}, \"result\": \"success\"}", null, "");
+
+        manager.removeTorrent(new String[] {"foo"}, false);
+
+        mapper = new ObjectMapper();
+        node = mapper.readTree(connection.outputStream.toString());
+
+        assertEquals("torrent-remove", node.path("method").asText());
+        assertEquals("foo", node.path("arguments").path("ids").path(0).asText());
+        assertNull(node.path("arguments").path("ids").get(1));
+        assertFalse(node.path("arguments").path("delete-local-data").asBoolean());
+
+        cursor = dataSource.getTorrentCursor(profile.getId(), null, new String[0], null, false);
+        assertEquals(2, cursor.getCount());
+        cursor.close();
+
+        setupConnection(HttpURLConnection.HTTP_OK, headers,
+            "{\"arguments\": {}, \"result\": \"error\"}", null, "");
+
+        try {
+            manager.removeTorrent(new String[]{"foo"}, false);
+        } catch (TransmissionSessionManager.ManagerException e) {
+            assertEquals("error", e.getMessage());
+        }
+
+        mapper = new ObjectMapper();
+        node = mapper.readTree(connection.outputStream.toString());
+
+        cursor = dataSource.getTorrentCursor(profile.getId(), null, new String[0], null, false);
+        assertEquals(2, cursor.getCount());
+        cursor.close();
+
+        setupConnection(HttpURLConnection.HTTP_OK, headers,
+            "{\"arguments\": {}, \"result\": \"success\"}", null, "");
+
+        manager.removeTorrent(new String[] {"bar"}, true);
+
+        mapper = new ObjectMapper();
+        node = mapper.readTree(connection.outputStream.toString());
+
+        assertEquals("torrent-remove", node.path("method").asText());
+        assertEquals("bar", node.path("arguments").path("ids").path(0).asText());
+        assertNull(node.path("arguments").path("ids").get(1));
+        assertTrue(node.path("arguments").path("delete-local-data").asBoolean());
+
+        cursor = dataSource.getTorrentCursor(profile.getId(), null, new String[0], null, false);
+        assertEquals(1, cursor.getCount());
+        cursor.moveToFirst();
+        assertEquals("mint 14", Torrent.getName(cursor));
+        cursor.close();
     }
 
     private void setupConnection(int responseCode, Map<String, String> headerFields,
