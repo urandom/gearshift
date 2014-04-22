@@ -1,7 +1,7 @@
 package org.sugr.gearshift.unit.service;
 
 import android.app.Activity;
-import android.database.sqlite.SQLiteOpenHelper;
+import android.database.Cursor;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.util.Base64;
@@ -9,7 +9,6 @@ import android.util.Base64;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import org.apache.http.protocol.HTTP;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -19,7 +18,7 @@ import org.robolectric.tester.android.content.TestSharedPreferences;
 import org.sugr.gearshift.core.TransmissionProfile;
 import org.sugr.gearshift.core.TransmissionSession;
 import org.sugr.gearshift.datasource.DataSource;
-import org.sugr.gearshift.datasource.SQLiteHelper;
+import org.sugr.gearshift.datasource.TorrentStatus;
 import org.sugr.gearshift.service.ConnectionProvider;
 import org.sugr.gearshift.service.TransmissionSessionManager;
 import org.sugr.gearshift.unit.util.RobolectricGradleTestRunner;
@@ -30,7 +29,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
 import java.net.SocketTimeoutException;
 import java.net.URL;
 import java.nio.charset.Charset;
@@ -50,7 +48,6 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.Matchers.contains;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -277,6 +274,29 @@ public class TransmissionSessionManagerTest {
 
         assertEquals("session-set", node.path("method").asText());
         assertEquals("/foo/bar", node.path("arguments").path("download-dir").asText());
+    }
+
+    @Test public void torrents() throws Exception {
+        Map<String, String> headers = new HashMap<>();
+        headers.put("Content-Type", "application/json");
+        setupConnection(HttpURLConnection.HTTP_OK, headers,
+            "{\"arguments\": {\"torrents\": [{\"id\": 10, \"name\": \"fedora 1\", \"status\": 0, \"hashString\": \"foo\"}, {\"id\": 21, \"name\": \"ubuntu 7\", \"status\": 6, \"hashString\": \"bar\"}]}, \"result\": \"success\"}", null, "");
+
+        TorrentStatus status = manager.getActiveTorrents(new String[] {"id", "name", "status"});
+        assertNotNull(status);
+
+        ObjectMapper mapper = new ObjectMapper();
+        JsonNode node = mapper.readTree(connection.outputStream.toString());
+
+        assertEquals("torrent-get", node.path("method").asText());
+        assertEquals("recently-active", node.path("arguments").path("ids").asText());
+        assertEquals("id", node.path("arguments").path("fields").path(0).asText());
+        assertEquals("name", node.path("arguments").path("fields").path(1).asText());
+        assertEquals("status", node.path("arguments").path("fields").path(2).asText());
+
+        Cursor cursor = dataSource.getTorrentCursor(profile.getId(), null, new String[0], null, false);
+        assertEquals(2, cursor.getCount());
+        cursor.close();
     }
 
     private void setupConnection(int responseCode, Map<String, String> headerFields,
