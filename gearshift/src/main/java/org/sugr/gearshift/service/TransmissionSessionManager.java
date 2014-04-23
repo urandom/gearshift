@@ -281,7 +281,7 @@ public class TransmissionSessionManager {
         AddTorrentResponse response = new AddTorrentResponse();
         response.setLocation(location);
         requestData(request, response);
-        if (!"success".equals(response.getResult())) {
+        if ("success".equals(response.getResult())) {
             return response.getAddedHash();
         } else if (response.isDuplicate()) {
             throw new ManagerException("duplicate torrent", -2);
@@ -326,7 +326,7 @@ public class TransmissionSessionManager {
 
         FreeSpaceResponse response = new FreeSpaceResponse();
         requestData(request, response);
-        if (!"success".equals(response.getResult())) {
+        if ("success".equals(response.getResult())) {
             return response.getFreeSpace();
         } else if ("method name not recognized".equals(response.getResult())) {
             return -1;

@@ -385,6 +385,60 @@ public class TransmissionSessionManagerTest {
         cursor.moveToFirst();
         assertEquals("mint 14", Torrent.getName(cursor));
         cursor.close();
+
+        setupConnection(HttpURLConnection.HTTP_OK, headers,
+            "{\"arguments\": {\"torrent-added\": {\"id\": 57, \"hashString\": \"beta\", \"name\": \"slackware 11\"}}, \"result\": \"success\"}", null, "");
+
+        String hash = manager.addTorrent("magnet:somemagnet", null, "/foo", false);
+
+        assertEquals("beta", hash);
+
+        mapper = new ObjectMapper();
+        node = mapper.readTree(connection.outputStream.toString());
+
+        assertEquals("torrent-add", node.path("method").asText());
+        assertEquals("magnet:somemagnet", node.path("arguments").path("filename").asText());
+        assertNull(node.path("arguments").get("metainfo"));
+        assertEquals("/foo", node.path("arguments").path("download-dir").asText());
+        assertFalse(node.path("arguments").path("paused").asBoolean());
+
+        cursor = dataSource.getTorrentCursor(profile.getId(), null, new String[0], null, false);
+        assertEquals(2, cursor.getCount());
+        cursor.moveToLast();
+        assertEquals("slackware 11", Torrent.getName(cursor));
+        cursor.close();
+
+        setupConnection(HttpURLConnection.HTTP_OK, headers,
+            "{\"arguments\": {\"torrent-duplicate\": {\"id\": 57, \"hashString\": \"beta\", \"name\": \"slackware 11\"}}, \"result\": \"duplicate torrent\"}", null, "");
+
+        try {
+            manager.addTorrent("magnet:somemagnet", null, "/foo", false);
+        } catch (TransmissionSessionManager.ManagerException e) {
+            assertEquals("duplicate torrent", e.getMessage());
+            assertEquals(-2, e.getCode());
+        }
+
+        setupConnection(HttpURLConnection.HTTP_OK, headers,
+            "{\"arguments\": {\"torrent-added\": {\"id\": 59, \"hashString\": \"gamma\", \"name\": \"debian 6\"}}, \"result\": \"success\"}", null, "");
+
+        hash = manager.addTorrent(null, "torrentfiledata", "/bar", true);
+
+        assertEquals("gamma", hash);
+
+        mapper = new ObjectMapper();
+        node = mapper.readTree(connection.outputStream.toString());
+
+        assertEquals("torrent-add", node.path("method").asText());
+        assertNull(node.path("arguments").get("filename"));
+        assertEquals("torrentfiledata", node.path("arguments").path("metainfo").asText());
+        assertEquals("/bar", node.path("arguments").path("download-dir").asText());
+        assertTrue(node.path("arguments").path("paused").asBoolean());
+
+        cursor = dataSource.getTorrentCursor(profile.getId(), null, new String[0], null, false);
+        assertEquals(3, cursor.getCount());
+        cursor.moveToLast();
+        assertEquals("debian 6", Torrent.getName(cursor));
+        cursor.close();
     }
 
     private void setupConnection(int responseCode, Map<String, String> headerFields,
