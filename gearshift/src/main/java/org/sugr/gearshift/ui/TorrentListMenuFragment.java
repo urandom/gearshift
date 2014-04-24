@@ -134,7 +134,14 @@ public class TorrentListMenuFragment extends Fragment implements TorrentListNoti
 
                 List<String> normalizedDirs = new ArrayList<>();
                 for (String d : data.directories) {
+                    if (d.length() == 0) {
+                        continue;
+                    }
+
                     while (d.charAt(d.length() - 1) == '/') {
+                        if (d.length() == 1) {
+                            break;
+                        }
                         d = d.substring(0, d.length() - 1);
                     }
                     if (!normalizedDirs.contains(d)) {

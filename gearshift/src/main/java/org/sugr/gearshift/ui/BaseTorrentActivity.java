@@ -354,7 +354,7 @@ public abstract class BaseTorrentActivity extends FragmentActivity
             int error = intent.getIntExtra(G.ARG_ERROR, 0);
             String profileId = intent.getStringExtra(G.ARG_PROFILE_ID);
 
-            if (profileId == null || !profileId.equals(profile.getId())) {
+            if (profileId == null || profile == null || !profileId.equals(profile.getId())) {
                 return;
             }
 

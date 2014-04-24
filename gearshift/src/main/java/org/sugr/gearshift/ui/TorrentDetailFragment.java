@@ -484,8 +484,11 @@ public class TorrentDetailFragment extends Fragment implements TorrentListNotifi
                 try {
                     TorrentNameStatus tuple = readSource.getTorrentNameStatus(
                         context.getProfile().getId(), hashStrings[0]);
-                    currentTorrentName = tuple.name;
-                    currentTorrentStatus = tuple.status;
+
+                    if (tuple != null) {
+                        currentTorrentName = tuple.name;
+                        currentTorrentStatus = tuple.status;
+                    }
                 } finally {
                     readSource.close();
                 }

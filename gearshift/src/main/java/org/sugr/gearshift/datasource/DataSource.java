@@ -782,6 +782,10 @@ public class DataSource {
                 new String[] { profile, hash }
             );
 
+            if (cursor.getCount() == 0) {
+                return null;
+            }
+
             cursor.moveToFirst();
 
             return new TorrentNameStatus(cursor.getString(0), cursor.getInt(1));
