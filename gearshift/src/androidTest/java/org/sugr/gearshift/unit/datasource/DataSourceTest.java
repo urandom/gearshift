@@ -858,6 +858,23 @@ public class DataSourceTest {
             details.torrentCursor.close();
             details.filesCursor.close();
             details.trackersCursor.close();
+
+            details = ds.getTorrentDetails(profile, "caf28f38387ff5ccf2326d4b7392a1f8233083");
+            assertEquals(2, details.trackersCursor.getCount());
+
+            details.trackersCursor.moveToFirst();
+            expected = new Object[][] {
+                {"https://tracker.yahoo:80"}, {"http://tracker.example.biz:6969"}
+            };
+            index = -1;
+            while (!details.trackersCursor.isAfterLast()) {
+                assertEquals(expected[0][++index], Torrent.Tracker.getAnnounce(details.trackersCursor));
+
+                details.trackersCursor.moveToNext();
+            }
+            details.torrentCursor.close();
+            details.filesCursor.close();
+            details.trackersCursor.close();
         } finally {
             if (details != null) {
                 details.torrentCursor.close();
@@ -1075,10 +1092,14 @@ public class DataSourceTest {
     /* TODO: test multiple profiles */
 
     private TorrentStatus updateTorrents() {
+        return updateTorrents("/json/torrents.json");
+    }
+
+    private TorrentStatus updateTorrents(String path) {
         String profile = "existing";
         TorrentDetails details = null;
         InputStream is = null;
-        URL url = getClass().getResource("/json/torrents.json");
+        URL url = getClass().getResource(path);
 
         ds.open();
 
