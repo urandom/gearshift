@@ -859,12 +859,14 @@ public class DataSourceTest {
             details.filesCursor.close();
             details.trackersCursor.close();
 
+            updateTorrents("/json/torrent.json");
+
             details = ds.getTorrentDetails(profile, "caf28f38387ff5ccf2326d4b7392a1f8233083");
             assertEquals(2, details.trackersCursor.getCount());
 
             details.trackersCursor.moveToFirst();
             expected = new Object[][] {
-                {"https://tracker.yahoo:80"}, {"http://tracker.example.biz:6969"}
+                {"https://tracker.yahoo:80", "http://tracker.example.biz:6969"}
             };
             index = -1;
             while (!details.trackersCursor.isAfterLast()) {

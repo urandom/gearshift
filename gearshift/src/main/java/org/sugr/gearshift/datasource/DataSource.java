@@ -143,6 +143,9 @@ public class DataSource {
                     validHashStrings = new ArrayList<>();
                 }
 
+                /* Remove all trackers for the current profile, since they can change relative to a torrent */
+                removeTrackers(profile);
+
                 while (parser.nextToken() != JsonToken.END_ARRAY) {
                     TorrentValues values = jsonToTorrentValues(parser);
 
@@ -1908,6 +1911,21 @@ public class DataSource {
         database.delete(Constants.T_TORRENT_PROFILE, Constants.C_HASH_STRING + " NOT IN ("
             + TextUtils.join(", ", where)
             + ") AND " + Constants.C_PROFILE_ID + " = ?", args);
+    }
+
+    protected void removeTrackers(String profile) {
+        database.delete(Constants.T_TRACKER, Constants.C_HASH_STRING + " IN ("
+                + " SELECT " + Constants.C_HASH_STRING
+                + " FROM " + Constants.T_TORRENT_PROFILE + " t1"
+                + " WHERE NOT EXISTS ("
+                + " SELECT 1"
+                + " FROM " + Constants.T_TORRENT_PROFILE + " t2"
+                + " WHERE t1." + Constants.C_HASH_STRING + " = t2." + Constants.C_HASH_STRING
+                + " AND t1." + Constants.C_PROFILE_ID + " != t2." + Constants.C_PROFILE_ID
+                + ")"
+                + " AND t1." + Constants.C_PROFILE_ID + " = ?"
+                + ")",
+            new String[] { profile });
     }
 
     protected int[] queryTorrentIdChanges() {
