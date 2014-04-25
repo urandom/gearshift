@@ -2024,17 +2024,32 @@ public class TorrentDetailPageFragment extends Fragment {
                 }
             }
 
-            int starting = trackersAdapter.getCount();
             List<View> trackerViews = trackersAdapter.getViews();
-            while (trackerViews.size() > starting) {
-                View v = trackerViews.get(starting);
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN)  {
-                    animateRemoveView(v);
-                } else {
-                    views.trackersContainer.removeView(v);
-                }
+            List<Integer> removal = new ArrayList<>();
+            Set<Integer> trackerIndices = new HashSet<>();
 
-                trackerViews.remove(starting);
+            for (int i = 0; i < trackersAdapter.getCount(); ++i) {
+                Tracker tracker = trackersAdapter.getItem(i);
+
+                trackerIndices.add(tracker.index);
+            }
+
+            int index = 0;
+            for (View v : trackerViews) {
+                if (!trackerIndices.contains(index)) {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN)  {
+                        animateRemoveView(v);
+                    } else {
+                        views.trackersContainer.removeView(v);
+                    }
+
+                    removal.add(index);
+                }
+                ++index;
+            }
+
+            for (int i : removal) {
+                trackerViews.remove(i);
             }
 
             details.trackersCursor.moveToPosition(position);
