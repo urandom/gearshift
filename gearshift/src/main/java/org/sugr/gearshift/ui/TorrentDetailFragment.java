@@ -9,6 +9,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.Fragment;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.view.ViewPager;
 import android.text.Html;
 import android.text.TextUtils;
@@ -107,7 +108,7 @@ public class TorrentDetailFragment extends Fragment implements TorrentListNotifi
                     Intent intent=new Intent(G.INTENT_PAGE_UNSELECTED);
                     intent.putExtra(G.ARG_TORRENT_HASH_STRING, currentTorrentPosition);
 
-                    getActivity().sendBroadcast(intent);
+                    LocalBroadcastManager.getInstance(getActivity()).sendBroadcast(intent);
                 }
 
                 currentTorrentPosition = position;
@@ -375,7 +376,7 @@ public class TorrentDetailFragment extends Fragment implements TorrentListNotifi
                 Intent intent = new Intent(G.INTENT_TORRENT_UPDATE);
                 intent.putExtra(G.ARG_TORRENT_HASH_STRING, getTorrentHashString(i));
 
-                getActivity().sendBroadcast(intent);
+                LocalBroadcastManager.getInstance(getActivity()).sendBroadcast(intent);
             }
 
         }

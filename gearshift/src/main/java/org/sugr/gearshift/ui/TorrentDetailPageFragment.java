@@ -21,6 +21,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.Fragment;
+import android.support.v4.content.LocalBroadcastManager;
 import android.text.Html;
 import android.text.TextUtils;
 import android.view.ActionMode;
@@ -794,18 +795,22 @@ public class TorrentDetailPageFragment extends Fragment {
     public void onResume() {
         super.onResume();
 
-        getActivity().registerReceiver(updateReceiver, new IntentFilter(G.INTENT_TORRENT_UPDATE));
-        getActivity().registerReceiver(pageUnselectedReceiver, new IntentFilter(G.INTENT_PAGE_UNSELECTED));
-        getActivity().registerReceiver(serviceReceiver, new IntentFilter(G.INTENT_SERVICE_ACTION_COMPLETE));
+        LocalBroadcastManager broadcastManager = LocalBroadcastManager.getInstance(getActivity());
+
+        broadcastManager.registerReceiver(updateReceiver, new IntentFilter(G.INTENT_TORRENT_UPDATE));
+        broadcastManager.registerReceiver(pageUnselectedReceiver, new IntentFilter(G.INTENT_PAGE_UNSELECTED));
+        broadcastManager.registerReceiver(serviceReceiver, new IntentFilter(G.INTENT_SERVICE_ACTION_COMPLETE));
     }
 
     @Override
     public void onPause() {
         super.onPause();
 
-        getActivity().unregisterReceiver(updateReceiver);
-        getActivity().unregisterReceiver(pageUnselectedReceiver);
-        getActivity().unregisterReceiver(serviceReceiver);
+        LocalBroadcastManager broadcastManager = LocalBroadcastManager.getInstance(getActivity());
+
+        broadcastManager.unregisterReceiver(updateReceiver);
+        broadcastManager.unregisterReceiver(pageUnselectedReceiver);
+        broadcastManager.unregisterReceiver(serviceReceiver);
     }
 
     private void setTorrentProperty(String key, int value) {
