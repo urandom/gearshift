@@ -1803,7 +1803,6 @@ public class TorrentDetailPageFragment extends Fragment {
                         }
 
                         stopAnimator();
-                        animateTrackerLayout(null, visibleButtons);
                     }
                 });
 
