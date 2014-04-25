@@ -877,6 +877,17 @@ public class DataSourceTest {
             details.torrentCursor.close();
             details.filesCursor.close();
             details.trackersCursor.close();
+
+            ds.removeTrackers("caf28f38387ff5ccf2326d4b7392a1f8233083", 0);
+
+            details = ds.getTorrentDetails(profile, "caf28f38387ff5ccf2326d4b7392a1f8233083");
+            assertEquals(1, details.trackersCursor.getCount());
+
+            details.trackersCursor.moveToFirst();
+            assertEquals("http://tracker.example.biz:6969", Torrent.Tracker.getAnnounce(details.trackersCursor));
+            details.torrentCursor.close();
+            details.filesCursor.close();
+            details.trackersCursor.close();
         } finally {
             if (details != null) {
                 details.torrentCursor.close();

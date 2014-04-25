@@ -144,7 +144,7 @@ public class DataSource {
                 }
 
                 /* Remove all trackers for the current profile, since they can change relative to a torrent */
-                removeTrackers(profile);
+                removeAllTrackers(profile);
 
                 while (parser.nextToken() != JsonToken.END_ARRAY) {
                     TorrentValues values = jsonToTorrentValues(parser);
@@ -282,6 +282,28 @@ public class DataSource {
             try {
                 for (int id : ids) {
                     removeTorrent(profile, id);
+                }
+
+                database.setTransactionSuccessful();
+
+                return true;
+            } finally {
+                if (database.inTransaction()) {
+                    database.endTransaction();
+                }
+            }
+        }
+    }
+
+    public boolean removeTrackers(String hashString, int... ids) {
+        if (!isOpen())
+            return false;
+
+        synchronized (DataSource.class) {
+            database.beginTransactionNonExclusive();
+            try {
+                for (int id : ids) {
+                    removeTracker(hashString, id);
                 }
 
                 database.setTransactionSuccessful();
@@ -1888,6 +1910,9 @@ public class DataSource {
             new String[] { profile, Integer.toString(id) });
     }
 
+    protected void removeTracker(String hash, int id) {
+    }
+
     protected void removeObsolete(String profile, List<String> validHashStrings) {
         String[] args = new String[] { profile };
         List<String> where = new ArrayList<>();
@@ -1917,7 +1942,7 @@ public class DataSource {
             + ") AND " + Constants.C_PROFILE_ID + " = ?", args);
     }
 
-    protected void removeTrackers(String profile) {
+    protected void removeAllTrackers(String profile) {
         database.delete(Constants.T_TRACKER, Constants.C_HASH_STRING + " IN ("
                 + " SELECT " + Constants.C_HASH_STRING
                 + " FROM " + Constants.T_TORRENT_PROFILE + " t1"

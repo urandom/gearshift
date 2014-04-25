@@ -249,7 +249,10 @@ public class TransmissionSessionManager {
                 case Torrent.SetterFields.FILES_HIGH:
                 case Torrent.SetterFields.FILES_NORMAL:
                 case Torrent.SetterFields.FILES_LOW:
+                    arguments.put(key, mapper.valueToTree(value));
+                    break;
                 case Torrent.SetterFields.TRACKER_REMOVE:
+                    /* FIXME: remove the tracker from the db */
                     arguments.put(key, mapper.valueToTree(value));
                     break;
                 case Torrent.SetterFields.TRACKER_ADD:
