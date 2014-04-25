@@ -190,6 +190,7 @@ public class TorrentDetailPageFragment extends Fragment {
     private FilesAdapter filesAdapter;
 
     private TrackersAdapter trackersAdapter;
+    private TrackersDataSetObserver trackersObserver;
 
     private ActionMode fileActionMode;
     private Set<View> selectedFiles = new HashSet<>();
@@ -355,6 +356,9 @@ public class TorrentDetailPageFragment extends Fragment {
                 ids.add(tracker.id);
                 trackersAdapter.remove(tracker);
             }
+            if (SetterFields.TRACKER_REMOVE.equals(key)) {
+                trackersObserver.setFrozen(true);
+            }
             if (ids.size() > 0) {
                 setTorrentProperty(key, ids);
                 mode.finish();
@@ -437,6 +441,11 @@ public class TorrentDetailPageFragment extends Fragment {
                             fieldModifiers.clear();
                         }
                     }
+
+                    if (SetterFields.TRACKER_REMOVE.equals(field)) {
+                        trackersObserver.setFrozen(false);
+                    }
+
                     break;
             }
         }
@@ -570,7 +579,7 @@ public class TorrentDetailPageFragment extends Fragment {
         filesAdapter.registerDataSetObserver(filesObserver);
 
         trackersAdapter = new TrackersAdapter();
-        TrackersDataSetObserver trackersObserver = new TrackersDataSetObserver();
+        trackersObserver = new TrackersDataSetObserver();
         trackersAdapter.registerDataSetObserver(trackersObserver);
 
         updateFields(root);
@@ -1678,6 +1687,8 @@ public class TorrentDetailPageFragment extends Fragment {
                 initial = true;
             }
 
+            rowView.setTag("announce".hashCode(), tracker.announce);
+
             TextView url = (TextView) rowView.findViewById(R.id.tracker_url);
             TextView tier = (TextView) rowView.findViewById(R.id.tracker_tier);
             TextView seeders = (TextView) rowView.findViewById(R.id.tracker_seeders);
@@ -1797,6 +1808,7 @@ public class TorrentDetailPageFragment extends Fragment {
                 buttons.findViewById(R.id.torrent_detail_tracker_remove).setOnClickListener(new View.OnClickListener() {
                     @Override public void onClick(View v) {
                         trackersAdapter.remove(tracker);
+                        trackersObserver.setFrozen(true);
                         ArrayList<Integer> ids = new ArrayList<>();
                         ids.add(tracker.id);
 
@@ -2002,9 +2014,15 @@ public class TorrentDetailPageFragment extends Fragment {
     }
 
     private class TrackersDataSetObserver extends DataSetObserver {
+        private boolean isFrozen = false;
+
         public TrackersDataSetObserver() { }
 
         @Override public void onChanged() {
+            if (isFrozen) {
+                return;
+            }
+
             int position = details.trackersCursor.getPosition();
 
             for (int i = 0; i < trackersAdapter.getCount(); i++) {
@@ -2030,17 +2048,17 @@ public class TorrentDetailPageFragment extends Fragment {
 
             List<View> trackerViews = trackersAdapter.getViews();
             List<Integer> removal = new ArrayList<>();
-            Set<Integer> trackerIndices = new HashSet<>();
+            Set<String> trackerIndices = new HashSet<>();
 
             for (int i = 0; i < trackersAdapter.getCount(); ++i) {
                 Tracker tracker = trackersAdapter.getItem(i);
 
-                trackerIndices.add(tracker.index);
+                trackerIndices.add(tracker.announce);
             }
 
             int index = 0;
             for (View v : trackerViews) {
-                if (!trackerIndices.contains(index)) {
+                if (!trackerIndices.contains(v.getTag("announce".hashCode()))) {
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN)  {
                         animateRemoveView(v);
                     } else {
@@ -2061,6 +2079,10 @@ public class TorrentDetailPageFragment extends Fragment {
 
         @Override public void onInvalidated() {
             views.trackersContainer.removeAllViews();
+        }
+
+        public void setFrozen(boolean isFrozen) {
+            this.isFrozen = isFrozen;
         }
 
         private boolean trackerChanged(Tracker tracker, Cursor cursor) {
