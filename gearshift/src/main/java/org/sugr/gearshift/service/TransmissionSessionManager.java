@@ -31,6 +31,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.zip.GZIPInputStream;
@@ -249,10 +250,7 @@ public class TransmissionSessionManager {
                 case Torrent.SetterFields.FILES_HIGH:
                 case Torrent.SetterFields.FILES_NORMAL:
                 case Torrent.SetterFields.FILES_LOW:
-                    arguments.put(key, mapper.valueToTree(value));
-                    break;
                 case Torrent.SetterFields.TRACKER_REMOVE:
-                    /* FIXME: remove the tracker from the db */
                     arguments.put(key, mapper.valueToTree(value));
                     break;
                 case Torrent.SetterFields.TRACKER_ADD:
@@ -265,6 +263,21 @@ public class TransmissionSessionManager {
         requestData(request, response);
         if (!"success".equals(response.getResult())) {
             throw new ManagerException(response.getResult(), -2);
+        }
+
+        switch (key) {
+            case Torrent.SetterFields.TRACKER_REMOVE:
+                List<Integer> idList = (List<Integer>) value;
+                int[] ids = new int[idList.size()];
+                Iterator<Integer> iterator = idList.iterator();
+                for (int i = 0; i < ids.length; ++i) {
+                    ids[i] = iterator.next().intValue();
+                }
+
+                for (String hash : hashStrings) {
+                    dataSource.removeTrackers(hash, ids);
+                }
+                break;
         }
     }
 
