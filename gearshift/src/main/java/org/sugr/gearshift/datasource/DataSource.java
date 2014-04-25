@@ -1911,6 +1911,9 @@ public class DataSource {
     }
 
     protected void removeTracker(String hash, int id) {
+        database.delete(Constants.T_TRACKER, Constants.C_HASH_STRING + " = ?"
+            + " AND " + Constants.C_TRACKER_ID + " = ?",
+            new String[] { hash, String.valueOf(id)});
     }
 
     protected void removeObsolete(String profile, List<String> validHashStrings) {
