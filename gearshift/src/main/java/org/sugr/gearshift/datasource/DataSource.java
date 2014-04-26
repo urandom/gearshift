@@ -1948,14 +1948,8 @@ public class DataSource {
     protected void removeAllTrackers(String profile) {
         database.delete(Constants.T_TRACKER, Constants.C_HASH_STRING + " IN ("
                 + " SELECT " + Constants.C_HASH_STRING
-                + " FROM " + Constants.T_TORRENT_PROFILE + " t1"
-                + " WHERE NOT EXISTS ("
-                + " SELECT 1"
-                + " FROM " + Constants.T_TORRENT_PROFILE + " t2"
-                + " WHERE t1." + Constants.C_HASH_STRING + " = t2." + Constants.C_HASH_STRING
-                + " AND t1." + Constants.C_PROFILE_ID + " != t2." + Constants.C_PROFILE_ID
-                + ")"
-                + " AND t1." + Constants.C_PROFILE_ID + " = ?"
+                + " FROM " + Constants.T_TORRENT_PROFILE
+                + " WHERE " + Constants.C_PROFILE_ID + " = ?"
                 + ")",
             new String[] { profile });
     }
