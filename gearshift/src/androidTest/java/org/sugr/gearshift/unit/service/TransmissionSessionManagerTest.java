@@ -15,6 +15,7 @@ import org.junit.runner.RunWith;
 import org.robolectric.Robolectric;
 import org.robolectric.annotation.Config;
 import org.robolectric.tester.android.content.TestSharedPreferences;
+import org.sugr.gearshift.G;
 import org.sugr.gearshift.core.Torrent;
 import org.sugr.gearshift.core.TransmissionProfile;
 import org.sugr.gearshift.core.TransmissionSession;
@@ -701,6 +702,69 @@ public class TransmissionSessionManagerTest {
         assertEquals(1, node.path("arguments").path(Torrent.SetterFields.TRACKER_REPLACE).path(0).asInt());
         assertEquals("bar", node.path("arguments").path(Torrent.SetterFields.TRACKER_REPLACE).path(1).asText());
         assertEquals(2, node.path("arguments").path(Torrent.SetterFields.TRACKER_REPLACE).size());
+    }
+
+    @Test public void misc() throws Exception {
+        Map<String, String> headers = new HashMap<>();
+        headers.put("Content-Type", "application/json");
+
+        setupConnection(HttpURLConnection.HTTP_OK, headers, "{\"result\": \"success\", \"arguments\": {\"port-is-open\": true}}", null, "");
+        boolean isPortOpen = manager.testPort();
+
+        assertTrue(isPortOpen);
+
+        ObjectMapper mapper = new ObjectMapper();
+        JsonNode node = mapper.readTree(connection.outputStream.toString());
+
+        assertEquals("port-test", node.path("method").asText());
+        assertNull(node.get("arguments"));
+
+        setupConnection(HttpURLConnection.HTTP_OK, headers, "{\"result\": \"success\", \"arguments\": {\"blocklist-size\": 1234567890}}", null, "");
+        long blocklistSize = manager.updateBlocklist();
+
+        assertEquals(1234567890l, blocklistSize);
+
+        mapper = new ObjectMapper();
+        node = mapper.readTree(connection.outputStream.toString());
+
+        assertEquals("blocklist-update", node.path("method").asText());
+        assertNull(node.get("arguments"));
+
+        defaultPrefs.edit().putString(G.PREF_LIST_DIRECTORY, "/test").commit();
+
+        setupConnection(HttpURLConnection.HTTP_OK, headers, "{\"result\": \"success\", \"arguments\": {\"path\": \"/test\", \"size-bytes\": 123123123}}", null, "");
+        long freeSpace = manager.getFreeSpace(null);
+
+        assertEquals(123123123l, freeSpace);
+
+        mapper = new ObjectMapper();
+        node = mapper.readTree(connection.outputStream.toString());
+
+        assertEquals("free-space", node.path("method").asText());
+        assertEquals("/test", node.path("arguments").path("path").asText());
+
+        setupConnection(HttpURLConnection.HTTP_OK, headers, "{\"result\": \"success\", \"arguments\": {\"path\": \"/test\", \"size-bytes\": 123123123}}", null, "");
+        freeSpace = manager.getFreeSpace("/default/path");
+
+        assertEquals(123123123l, freeSpace);
+
+        mapper = new ObjectMapper();
+        node = mapper.readTree(connection.outputStream.toString());
+
+        assertEquals("free-space", node.path("method").asText());
+        assertEquals("/test", node.path("arguments").path("path").asText());
+
+        defaultPrefs.edit().putString(G.PREF_LIST_DIRECTORY, null).commit();
+        setupConnection(HttpURLConnection.HTTP_OK, headers, "{\"result\": \"success\", \"arguments\": {\"path\": \"/test2\", \"size-bytes\": 123123123123}}", null, "");
+        freeSpace = manager.getFreeSpace("/test2");
+
+        assertEquals(123123123123l, freeSpace);
+
+        mapper = new ObjectMapper();
+        node = mapper.readTree(connection.outputStream.toString());
+
+        assertEquals("free-space", node.path("method").asText());
+        assertEquals("/test2", node.path("arguments").path("path").asText());
     }
 
     private void setupConnection(int responseCode, Map<String, String> headerFields,
