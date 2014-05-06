@@ -441,6 +441,268 @@ public class TransmissionSessionManagerTest {
         cursor.close();
     }
 
+    @Test public void torrentProperties() throws Exception {
+        Map<String, String> headers = new HashMap<>();
+        headers.put("Content-Type", "application/json");
+        setupConnection(HttpURLConnection.HTTP_OK, headers, "{\"result\": \"success\"}", null, "");
+
+        manager.setTorrentAction(new String[] {"foo", "bar"}, "torrent-start");
+
+        ObjectMapper mapper = new ObjectMapper();
+        JsonNode node = mapper.readTree(connection.outputStream.toString());
+
+        assertEquals("torrent-start", node.path("method").asText());
+        assertEquals("foo", node.path("arguments").path("ids").path(0).asText());
+        assertEquals("bar", node.path("arguments").path("ids").path(1).asText());
+
+        setupConnection(HttpURLConnection.HTTP_OK, headers, "{\"result\": \"success\"}", null, "");
+
+        manager.setTorrentLocation(new String[]{"foo", "bar"}, "/test/1", true);
+
+        mapper = new ObjectMapper();
+        node = mapper.readTree(connection.outputStream.toString());
+
+        assertEquals("torrent-set-location", node.path("method").asText());
+        assertEquals("foo", node.path("arguments").path("ids").path(0).asText());
+        assertEquals("bar", node.path("arguments").path("ids").path(1).asText());
+        assertEquals("/test/1", node.path("arguments").path("location").asText());
+        assertEquals(true, node.path("arguments").path("move").asBoolean());
+
+        setupConnection(HttpURLConnection.HTTP_OK, headers, "{\"result\": \"success\"}", null, "");
+        manager.setTorrentLocation(new String[] {"foo"}, "/test/2", false);
+
+        mapper = new ObjectMapper();
+        node = mapper.readTree(connection.outputStream.toString());
+
+        assertEquals("torrent-set-location", node.path("method").asText());
+        assertEquals("foo", node.path("arguments").path("ids").path(0).asText());
+        assertEquals("/test/2", node.path("arguments").path("location").asText());
+        assertEquals(false, node.path("arguments").path("move").asBoolean());
+
+        setupConnection(HttpURLConnection.HTTP_OK, headers, "{\"result\": \"success\"}", null, "");
+        boolean thrown = false;
+        try {
+            manager.setTorrentProperty(new String[]{"foo", "bar"}, "test", null);
+        } catch (IllegalArgumentException ignored) {
+            thrown = true;
+        }
+
+        assertTrue("Setting an invalid torrent property should throw an error", thrown);
+
+        setupConnection(HttpURLConnection.HTTP_OK, headers, "{\"result\": \"success\"}", null, "");
+
+        thrown = false;
+        try {
+            manager.setTorrentProperty(new String[]{"foo", "bar"}, Torrent.SetterFields.DOWNLOAD_LIMIT, "cast error");
+        } catch (ClassCastException ignored) {
+            thrown = true;
+        }
+
+        assertTrue("Properties expect certain value types", thrown);
+
+        setupConnection(HttpURLConnection.HTTP_OK, headers, "{\"result\": \"success\"}", null, "");
+        manager.setTorrentProperty(new String[]{"foo", "bar"}, Torrent.SetterFields.DOWNLOAD_LIMIT, 10l);
+
+        mapper = new ObjectMapper();
+        node = mapper.readTree(connection.outputStream.toString());
+
+        assertEquals("torrent-set", node.path("method").asText());
+        assertEquals("foo", node.path("arguments").path("ids").path(0).asText());
+        assertEquals("bar", node.path("arguments").path("ids").path(1).asText());
+        assertEquals(10l, node.path("arguments").path(Torrent.SetterFields.DOWNLOAD_LIMIT).asLong());
+
+        setupConnection(HttpURLConnection.HTTP_OK, headers, "{\"result\": \"success\"}", null, "");
+        manager.setTorrentProperty(new String[]{"foo"}, Torrent.SetterFields.DOWNLOAD_LIMITED, true);
+
+        mapper = new ObjectMapper();
+        node = mapper.readTree(connection.outputStream.toString());
+
+        assertEquals("torrent-set", node.path("method").asText());
+        assertEquals("foo", node.path("arguments").path("ids").path(0).asText());
+        assertEquals(true, node.path("arguments").path(Torrent.SetterFields.DOWNLOAD_LIMITED).asBoolean());
+
+        setupConnection(HttpURLConnection.HTTP_OK, headers, "{\"result\": \"success\"}", null, "");
+        manager.setTorrentProperty(new String[]{"foo"}, Torrent.SetterFields.PEER_LIMIT, 20);
+
+        mapper = new ObjectMapper();
+        node = mapper.readTree(connection.outputStream.toString());
+
+        assertEquals("torrent-set", node.path("method").asText());
+        assertEquals(20, node.path("arguments").path(Torrent.SetterFields.PEER_LIMIT).asInt());
+
+        setupConnection(HttpURLConnection.HTTP_OK, headers, "{\"result\": \"success\"}", null, "");
+        manager.setTorrentProperty(new String[]{"foo"}, Torrent.SetterFields.QUEUE_POSITION, 30);
+
+        mapper = new ObjectMapper();
+        node = mapper.readTree(connection.outputStream.toString());
+
+        assertEquals("torrent-set", node.path("method").asText());
+        assertEquals(30, node.path("arguments").path(Torrent.SetterFields.QUEUE_POSITION).asInt());
+
+        setupConnection(HttpURLConnection.HTTP_OK, headers, "{\"result\": \"success\"}", null, "");
+        manager.setTorrentProperty(new String[]{"foo"}, Torrent.SetterFields.SEED_RATIO_LIMIT, 1.5f);
+
+        mapper = new ObjectMapper();
+        node = mapper.readTree(connection.outputStream.toString());
+
+        assertEquals("torrent-set", node.path("method").asText());
+        assertEquals(1.5, node.path("arguments").path(Torrent.SetterFields.SEED_RATIO_LIMIT).asDouble(), 0);
+
+        setupConnection(HttpURLConnection.HTTP_OK, headers, "{\"result\": \"success\"}", null, "");
+        manager.setTorrentProperty(new String[]{"foo"}, Torrent.SetterFields.SEED_RATIO_MODE, Torrent.SeedRatioMode.NO_LIMIT);
+
+        mapper = new ObjectMapper();
+        node = mapper.readTree(connection.outputStream.toString());
+
+        assertEquals("torrent-set", node.path("method").asText());
+        assertEquals(Torrent.SeedRatioMode.NO_LIMIT, node.path("arguments").path(Torrent.SetterFields.SEED_RATIO_MODE).asInt());
+
+        setupConnection(HttpURLConnection.HTTP_OK, headers, "{\"result\": \"success\"}", null, "");
+        manager.setTorrentProperty(new String[]{"foo"}, Torrent.SetterFields.SESSION_LIMITS, true);
+
+        mapper = new ObjectMapper();
+        node = mapper.readTree(connection.outputStream.toString());
+
+        assertEquals("torrent-set", node.path("method").asText());
+        assertEquals(true, node.path("arguments").path(Torrent.SetterFields.SESSION_LIMITS).asBoolean());
+
+        setupConnection(HttpURLConnection.HTTP_OK, headers, "{\"result\": \"success\"}", null, "");
+        manager.setTorrentProperty(new String[]{"foo"}, Torrent.SetterFields.TORRENT_PRIORITY, 4);
+
+        mapper = new ObjectMapper();
+        node = mapper.readTree(connection.outputStream.toString());
+
+        assertEquals("torrent-set", node.path("method").asText());
+        assertEquals(4, node.path("arguments").path(Torrent.SetterFields.TORRENT_PRIORITY).asInt());
+
+        setupConnection(HttpURLConnection.HTTP_OK, headers, "{\"result\": \"success\"}", null, "");
+        manager.setTorrentProperty(new String[]{"foo"}, Torrent.SetterFields.UPLOAD_LIMIT, 40l);
+
+        mapper = new ObjectMapper();
+        node = mapper.readTree(connection.outputStream.toString());
+
+        assertEquals("torrent-set", node.path("method").asText());
+        assertEquals(40l, node.path("arguments").path(Torrent.SetterFields.UPLOAD_LIMIT).asLong());
+
+        setupConnection(HttpURLConnection.HTTP_OK, headers, "{\"result\": \"success\"}", null, "");
+        manager.setTorrentProperty(new String[]{"foo"}, Torrent.SetterFields.UPLOAD_LIMITED, true);
+
+        mapper = new ObjectMapper();
+        node = mapper.readTree(connection.outputStream.toString());
+
+        assertEquals("torrent-set", node.path("method").asText());
+        assertEquals(true, node.path("arguments").path(Torrent.SetterFields.UPLOAD_LIMITED).asBoolean());
+
+        setupConnection(HttpURLConnection.HTTP_OK, headers, "{\"result\": \"success\"}", null, "");
+        manager.setTorrentProperty(new String[]{"foo"}, Torrent.SetterFields.FILES_WANTED, 1);
+
+        mapper = new ObjectMapper();
+        node = mapper.readTree(connection.outputStream.toString());
+
+        assertEquals("torrent-set", node.path("method").asText());
+        assertEquals(1, node.path("arguments").path(Torrent.SetterFields.FILES_WANTED).path(0).asInt());
+
+        setupConnection(HttpURLConnection.HTTP_OK, headers, "{\"result\": \"success\"}", null, "");
+        manager.setTorrentProperty(new String[]{"foo"}, Torrent.SetterFields.FILES_WANTED, new Integer[] {2, 3});
+
+        mapper = new ObjectMapper();
+        node = mapper.readTree(connection.outputStream.toString());
+
+        assertEquals("torrent-set", node.path("method").asText());
+        assertEquals(2, node.path("arguments").path(Torrent.SetterFields.FILES_WANTED).path(0).asInt());
+        assertEquals(3, node.path("arguments").path(Torrent.SetterFields.FILES_WANTED).path(1).asInt());
+
+        setupConnection(HttpURLConnection.HTTP_OK, headers, "{\"result\": \"success\"}", null, "");
+        manager.setTorrentProperty(new String[]{"foo"}, Torrent.SetterFields.FILES_UNWANTED, 4);
+
+        mapper = new ObjectMapper();
+        node = mapper.readTree(connection.outputStream.toString());
+
+        assertEquals("torrent-set", node.path("method").asText());
+        assertEquals(4, node.path("arguments").path(Torrent.SetterFields.FILES_UNWANTED).path(0).asInt());
+
+        setupConnection(HttpURLConnection.HTTP_OK, headers, "{\"result\": \"success\"}", null, "");
+        manager.setTorrentProperty(new String[]{"foo"}, Torrent.SetterFields.FILES_UNWANTED, new Integer[] {5, 6});
+
+        mapper = new ObjectMapper();
+        node = mapper.readTree(connection.outputStream.toString());
+
+        assertEquals("torrent-set", node.path("method").asText());
+        assertEquals(5, node.path("arguments").path(Torrent.SetterFields.FILES_UNWANTED).path(0).asInt());
+        assertEquals(6, node.path("arguments").path(Torrent.SetterFields.FILES_UNWANTED).path(1).asInt());
+
+        ArrayList<Integer> list = new ArrayList<>();
+
+        list.add(1);
+        setupConnection(HttpURLConnection.HTTP_OK, headers, "{\"result\": \"success\"}", null, "");
+        manager.setTorrentProperty(new String[]{"foo"}, Torrent.SetterFields.FILES_LOW, list);
+
+        mapper = new ObjectMapper();
+        node = mapper.readTree(connection.outputStream.toString());
+
+        assertEquals("torrent-set", node.path("method").asText());
+        assertEquals(1, node.path("arguments").path(Torrent.SetterFields.FILES_LOW).path(0).asInt());
+        list.clear();
+
+        list.add(2);
+        setupConnection(HttpURLConnection.HTTP_OK, headers, "{\"result\": \"success\"}", null, "");
+        manager.setTorrentProperty(new String[]{"foo"}, Torrent.SetterFields.FILES_NORMAL, list);
+
+        mapper = new ObjectMapper();
+        node = mapper.readTree(connection.outputStream.toString());
+
+        assertEquals("torrent-set", node.path("method").asText());
+        assertEquals(2, node.path("arguments").path(Torrent.SetterFields.FILES_NORMAL).path(0).asInt());
+        list.clear();
+
+        list.add(3);
+        setupConnection(HttpURLConnection.HTTP_OK, headers, "{\"result\": \"success\"}", null, "");
+        manager.setTorrentProperty(new String[]{"foo"}, Torrent.SetterFields.FILES_HIGH, list);
+
+        mapper = new ObjectMapper();
+        node = mapper.readTree(connection.outputStream.toString());
+
+        assertEquals("torrent-set", node.path("method").asText());
+        assertEquals(3, node.path("arguments").path(Torrent.SetterFields.FILES_HIGH).path(0).asInt());
+        assertEquals(1, node.path("arguments").path(Torrent.SetterFields.FILES_HIGH).size());
+        list.clear();
+
+        setupConnection(HttpURLConnection.HTTP_OK, headers, "{\"result\": \"success\"}", null, "");
+        manager.setTorrentProperty(new String[]{"foo"}, Torrent.SetterFields.TRACKER_ADD, "test");
+
+        mapper = new ObjectMapper();
+        node = mapper.readTree(connection.outputStream.toString());
+
+        assertEquals("torrent-set", node.path("method").asText());
+        assertEquals("test", node.path("arguments").path(Torrent.SetterFields.TRACKER_ADD).asText());
+
+        list.add(5);
+        setupConnection(HttpURLConnection.HTTP_OK, headers, "{\"result\": \"success\"}", null, "");
+        manager.setTorrentProperty(new String[]{"foo"}, Torrent.SetterFields.TRACKER_REMOVE, list);
+
+        mapper = new ObjectMapper();
+        node = mapper.readTree(connection.outputStream.toString());
+
+        assertEquals("torrent-set", node.path("method").asText());
+        assertEquals(5, node.path("arguments").path(Torrent.SetterFields.TRACKER_REMOVE).path(0).asInt());
+        assertEquals(1, node.path("arguments").path(Torrent.SetterFields.TRACKER_REMOVE).size());
+
+        ArrayList<String> tuple = new ArrayList<>();
+
+        tuple.add("1");
+        tuple.add("bar");
+        setupConnection(HttpURLConnection.HTTP_OK, headers, "{\"result\": \"success\"}", null, "");
+        manager.setTorrentProperty(new String[]{"foo"}, Torrent.SetterFields.TRACKER_REPLACE, tuple);
+
+        mapper = new ObjectMapper();
+        node = mapper.readTree(connection.outputStream.toString());
+
+        assertEquals("torrent-set", node.path("method").asText());
+        assertEquals(1, node.path("arguments").path(Torrent.SetterFields.TRACKER_REPLACE).path(0).asInt());
+        assertEquals("bar", node.path("arguments").path(Torrent.SetterFields.TRACKER_REPLACE).path(1).asText());
+        assertEquals(2, node.path("arguments").path(Torrent.SetterFields.TRACKER_REPLACE).size());
+    }
+
     private void setupConnection(int responseCode, Map<String, String> headerFields,
                                  String response, String contentEncoding, String responseMessage) {
         connection.responseCode = responseCode;

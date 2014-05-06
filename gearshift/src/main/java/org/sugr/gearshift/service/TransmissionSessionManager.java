@@ -160,6 +160,31 @@ public class TransmissionSessionManager {
         }
     }
 
+    public String addTorrent(String uri, String meta, String location, boolean paused)
+        throws ManagerException {
+        ObjectNode request = createRequest("torrent-add", true);
+        ObjectNode arguments = (ObjectNode) request.path("arguments");
+
+        if (uri == null) {
+            arguments.put(Torrent.AddFields.META, meta);
+        } else {
+            arguments.put(Torrent.AddFields.URI, uri);
+        }
+        arguments.put(Torrent.AddFields.LOCATION, location);
+        arguments.put(Torrent.AddFields.PAUSED, paused);
+
+        AddTorrentResponse response = new AddTorrentResponse();
+        response.setLocation(location);
+        requestData(request, response);
+        if ("success".equals(response.getResult())) {
+            return response.getAddedHash();
+        } else if (response.isDuplicate()) {
+            throw new ManagerException("duplicate torrent", -2);
+        } else {
+            throw new ManagerException(response.getResult(), -2);
+        }
+    }
+
     public void removeTorrent(String[] hashStrings, boolean delete) throws ManagerException {
         ObjectMapper mapper = new ObjectMapper();
         ObjectNode request = createRequest("torrent-remove", true);
@@ -256,6 +281,8 @@ public class TransmissionSessionManager {
                 case Torrent.SetterFields.TRACKER_ADD:
                     arguments.put(key, mapper.valueToTree(value));
                     break;
+                default:
+                    throw new IllegalArgumentException("Invalid setter key");
             }
         }
 
@@ -278,31 +305,6 @@ public class TransmissionSessionManager {
                     dataSource.removeTrackers(hash, ids);
                 }
                 break;
-        }
-    }
-
-    public String addTorrent(String uri, String meta, String location, boolean paused)
-            throws ManagerException {
-        ObjectNode request = createRequest("torrent-add", true);
-        ObjectNode arguments = (ObjectNode) request.path("arguments");
-
-        if (uri == null) {
-            arguments.put(Torrent.AddFields.META, meta);
-        } else {
-            arguments.put(Torrent.AddFields.URI, uri);
-        }
-        arguments.put(Torrent.AddFields.LOCATION, location);
-        arguments.put(Torrent.AddFields.PAUSED, paused);
-
-        AddTorrentResponse response = new AddTorrentResponse();
-        response.setLocation(location);
-        requestData(request, response);
-        if ("success".equals(response.getResult())) {
-            return response.getAddedHash();
-        } else if (response.isDuplicate()) {
-            throw new ManagerException("duplicate torrent", -2);
-        } else {
-            throw new ManagerException(response.getResult(), -2);
         }
     }
 
