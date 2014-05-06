@@ -194,6 +194,8 @@ public class DataSourceTest {
             assertTrue(status.hasStatusChanged);
             assertTrue(status.hasIncompleteMetadata);
 
+            updateTorrents("/json/torrents2.json", "existing2");
+
             /* defaults:
              * base - age:descending, status:ascending
              */
@@ -669,6 +671,10 @@ public class DataSourceTest {
             cursor = ds.getTorrentCursor(profile, defaultPrefs);
             assertEquals(26, cursor.getCount());
             cursor.close();
+
+            cursor = ds.getTorrentCursor("existing2", defaultPrefs);
+            assertEquals(2, cursor.getCount());
+            cursor.close();
         } finally {
             if (cursor != null) {
                 cursor.close();
@@ -859,7 +865,9 @@ public class DataSourceTest {
             details.filesCursor.close();
             details.trackersCursor.close();
 
-            updateTorrents("/json/torrent.json");
+            updateTorrents("/json/torrents2.json", "existing2");
+
+            updateTorrents("/json/torrent.json", "existing");
 
             details = ds.getTorrentDetails(profile, "caf28f38387ff5ccf2326d4b7392a1f8233083");
             assertEquals(2, details.trackersCursor.getCount());
@@ -881,6 +889,16 @@ public class DataSourceTest {
             ds.removeTrackers("caf28f38387ff5ccf2326d4b7392a1f8233083", 0);
 
             details = ds.getTorrentDetails(profile, "caf28f38387ff5ccf2326d4b7392a1f8233083");
+            assertEquals(1, details.trackersCursor.getCount());
+
+            details.trackersCursor.moveToFirst();
+            assertEquals("http://tracker.example.biz:6969", Torrent.Tracker.getAnnounce(details.trackersCursor));
+
+            details.torrentCursor.close();
+            details.filesCursor.close();
+            details.trackersCursor.close();
+
+            details = ds.getTorrentDetails("existing2", "caf28f38387ff5ccf2326d4b7392a1f8233083");
             assertEquals(1, details.trackersCursor.getCount());
 
             details.trackersCursor.moveToFirst();
@@ -1131,14 +1149,11 @@ public class DataSourceTest {
         assertEquals(197000l, speed[1]);
     }
 
-    /* TODO: test multiple profiles */
-
     private TorrentStatus updateTorrents() {
-        return updateTorrents("/json/torrents.json");
+        return updateTorrents("/json/torrents.json", "existing");
     }
 
-    private TorrentStatus updateTorrents(String path) {
-        String profile = "existing";
+    private TorrentStatus updateTorrents(String path, String profile) {
         TorrentDetails details = null;
         InputStream is = null;
         URL url = getClass().getResource(path);
