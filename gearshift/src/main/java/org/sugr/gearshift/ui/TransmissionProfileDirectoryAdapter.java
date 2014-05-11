@@ -42,7 +42,7 @@ public class TransmissionProfileDirectoryAdapter extends ArrayAdapter<String> {
 
         TextView textView = (TextView) view.findViewById(android.R.id.text1);
         textView.setEllipsize(TextUtils.TruncateAt.MIDDLE);
-        String text = (String) textView.getText();
+        String text = textView.getText().toString();
 
         int lastSlash = text.lastIndexOf('/');
         if (lastSlash > -1) {
