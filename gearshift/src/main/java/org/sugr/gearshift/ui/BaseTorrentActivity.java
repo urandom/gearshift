@@ -255,6 +255,10 @@ public abstract class BaseTorrentActivity extends FragmentActivity
 
         @Override protected TransmissionSession doInBackground(Void... ignored) {
             try {
+                if (profile == null) {
+                    return null;
+                }
+
                 readSource.open();
 
                 TransmissionSession session = readSource.getSession(profile.getId());
@@ -270,6 +274,10 @@ public abstract class BaseTorrentActivity extends FragmentActivity
         }
 
         @Override protected void onPostExecute(TransmissionSession session) {
+            if (session == null) {
+                return;
+            }
+
             setSession(session);
 
             if (session.getRPCVersion() >= TransmissionSession.FREE_SPACE_METHOD_RPC_VERSION
@@ -324,6 +332,10 @@ public abstract class BaseTorrentActivity extends FragmentActivity
 
         @Override protected Cursor doInBackground(Void... unused) {
             try {
+                if (profile == null) {
+                    return null;
+                }
+
                 readSource.open();
 
                 return readSource.getTorrentCursor(profile.getId(),
@@ -338,6 +350,10 @@ public abstract class BaseTorrentActivity extends FragmentActivity
         @Override protected void onPostExecute(Cursor cursor) {
             if (connected) {
                 setRefreshing(false, DataService.Requests.GET_TORRENTS);
+            }
+
+            if (cursor == null) {
+                return;
             }
 
             if (update && manager != null) {
