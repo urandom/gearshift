@@ -799,10 +799,14 @@ public class TorrentListActivity extends BaseTorrentActivity
         if (menu == null) {
             return;
         }
-        altSpeed = alt;
-
         MenuItem altSpeed = menu.findItem(R.id.menu_alt_speed);
         MenuItem addTorrent = menu.findItem(R.id.menu_add_torrent);
+        if (altSpeed == null || addTorrent == null) {
+            return;
+        }
+
+        this.altSpeed = alt;
+
         if (session == null) {
             altSpeed.setVisible(false);
             addTorrent.setVisible(false);
