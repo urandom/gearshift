@@ -14,7 +14,7 @@ configurations {
 
 android {
     compileSdkVersion 19
-    buildToolsVersion '19.0.3'
+    buildToolsVersion '19.1'
 
     defaultConfig {
         minSdkVersion 15
@@ -55,7 +55,7 @@ dependencies {
 
     unitTestCompile files("$project.buildDir/classes/debug")
     unitTestCompile 'junit:junit:4.8.2'
-    unitTestCompile 'org.robolectric:robolectric:2.3-SNAPSHOT'
+    unitTestCompile 'org.robolectric:robolectric:2.3'
     unitTestCompile 'com.google.android:android:4.1.1.4'
     unitTestCompile 'com.android.support:support-v4:19.1.+'
     unitTestCompile 'org.mockito:mockito-all:1.9.5'
@@ -64,7 +64,7 @@ dependencies {
     unitTestCompile 'com.fasterxml.jackson.core:jackson-annotations:2.3.0'
 
     androidTestCompile 'junit:junit:4.8.2'
-    androidTestCompile 'org.robolectric:robolectric:2.3-SNAPSHOT'
+    androidTestCompile 'org.robolectric:robolectric:2.3'
     androidTestCompile 'com.google.android:android:4.1.1.4'
     androidTestCompile 'com.android.support:support-v4:19.1.+'
     androidTestCompile 'org.mockito:mockito-all:1.9.5'
