@@ -2163,7 +2163,8 @@ public class DataSource {
                                 + " AND ("
                                 + Constants.C_STATUS + " = ?"
                                 + " OR " + Constants.C_STATUS + " = ?"
-                                + ")"
+                                + ") AND " + Constants.C_RATE_DOWNLOAD + " != 0"
+                                + " AND " + Constants.C_RATE_UPLOAD + " != 0"
                         );
                         selectionArgs.add(Integer.toString(Torrent.Status.DOWNLOADING));
                         selectionArgs.add(Integer.toString(Torrent.Status.SEEDING));

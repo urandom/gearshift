@@ -990,6 +990,10 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
         @Override public Cursor swapCursor(Cursor newCursor) {
             Cursor oldCursor = super.swapCursor(newCursor);
 
+            if (!isAdded()) {
+                return oldCursor;
+            }
+
             if (newCursor.getCount() == 0) {
                 if (sharedPrefs.getString(G.PREF_LIST_SEARCH, "").equals("")
                     && sharedPrefs.getString(G.PREF_LIST_DIRECTORY, "").equals("")
