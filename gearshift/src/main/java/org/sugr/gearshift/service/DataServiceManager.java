@@ -71,6 +71,9 @@ public class DataServiceManager {
         iteration = 0;
         stopUpdating();
 
+        Intent intent = new Intent(context, DataService.class);
+        context.stopService(intent);
+
         return this;
     }
 
