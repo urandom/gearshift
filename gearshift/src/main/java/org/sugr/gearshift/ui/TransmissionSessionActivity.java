@@ -127,6 +127,8 @@ public class TransmissionSessionActivity extends FragmentActivity implements Dat
 
         super.onCreate(savedInstanceState);
 
+        encryptionValues = Arrays.asList(getResources().getStringArray(R.array.session_settings_encryption_values));
+
         setContentView(R.layout.activity_transmission_session);
 
         if (savedInstanceState != null) {
@@ -153,8 +155,6 @@ public class TransmissionSessionActivity extends FragmentActivity implements Dat
             expandedStates[Expanders.BANDWIDTH] = findViewById(R.id.transmission_session_bandwidth_content).getVisibility() != View.GONE;
             expandedStates[Expanders.LIMITS] = findViewById(R.id.transmission_session_limits_content).getVisibility() != View.GONE;
         }
-
-        encryptionValues = Arrays.asList(getResources().getStringArray(R.array.session_settings_encryption_values));
 
         updateFields(null, true);
 
