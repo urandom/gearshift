@@ -13,6 +13,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.Robolectric;
+import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
 import org.robolectric.tester.android.content.TestSharedPreferences;
 import org.sugr.gearshift.G;
@@ -23,7 +24,6 @@ import org.sugr.gearshift.datasource.DataSource;
 import org.sugr.gearshift.datasource.TorrentStatus;
 import org.sugr.gearshift.service.ConnectionProvider;
 import org.sugr.gearshift.service.TransmissionSessionManager;
-import org.sugr.gearshift.unit.util.RobolectricGradleTestRunner;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -54,7 +54,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 @Config(emulateSdk = 17)
-@RunWith(RobolectricGradleTestRunner.class)
+@RunWith(RobolectricTestRunner.class)
 public class TransmissionSessionManagerTest {
     private ConnectivityManager connMananager;
     private TestSharedPreferences defaultPrefs;

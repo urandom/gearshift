@@ -8,12 +8,12 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.Robolectric;
+import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
 import org.robolectric.shadows.ShadowParcel;
 import org.robolectric.tester.android.content.TestSharedPreferences;
 import org.sugr.gearshift.G;
 import org.sugr.gearshift.core.TransmissionProfile;
-import org.sugr.gearshift.unit.util.RobolectricGradleTestRunner;
 
 import java.io.File;
 import java.util.HashMap;
@@ -29,7 +29,7 @@ import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-@RunWith(RobolectricGradleTestRunner.class)
+@RunWith(RobolectricTestRunner.class)
 @Config(emulateSdk = 16)
 public class TransmissionProfileTest {
     private TestSharedPreferences defaultPrefs;

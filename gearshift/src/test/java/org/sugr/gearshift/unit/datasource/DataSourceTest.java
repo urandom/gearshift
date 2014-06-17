@@ -15,6 +15,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.Robolectric;
+import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
 import org.robolectric.tester.android.content.TestSharedPreferences;
 import org.sugr.gearshift.G;
@@ -25,7 +26,6 @@ import org.sugr.gearshift.datasource.DataSource;
 import org.sugr.gearshift.datasource.SQLiteHelper;
 import org.sugr.gearshift.datasource.TorrentDetails;
 import org.sugr.gearshift.datasource.TorrentStatus;
-import org.sugr.gearshift.unit.util.RobolectricGradleTestRunner;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -42,7 +42,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 @Config(emulateSdk = 16)
-@RunWith(RobolectricGradleTestRunner.class)
+@RunWith(RobolectricTestRunner.class)
 public class DataSourceTest {
     private DataSource ds;
     private SQLiteOpenHelper helper;
