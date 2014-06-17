@@ -5444,7 +5444,7 @@
 	"queuePosition": 27,
 	"rateDownload": 0,
 	"rateUpload": 0,
-	"recheckProgress": 0,
+	"recheckProgress": 0.53,
 	"secondsDownloading": 1588,
 	"secondsSeeding": 542488,
 	"seedIdleLimit": 4320,
@@ -5453,7 +5453,7 @@
 	"seedRatioMode": 0,
 	"sizeWhenDone": 729246780,
 	"startDate": 0,
-	"status": 0,
+	"status": 2,
 	"torrentFile": "/var/lib/transmission-daemon/info/torrents/block..torrent",
 	"totalSize": 729246780,
 	"trackerStats": [
@@ -8927,7 +8927,7 @@
 	],
 	"queuePosition": 154,
 	"rateDownload": 0,
-	"rateUpload": 12000,
+	"rateUpload": 0,
 	"recheckProgress": 0,
 	"secondsDownloading": 257700,
 	"secondsSeeding": 3426673,
@@ -9124,20 +9124,6 @@
 		"lastAnnouncePeerCount": 0,
 		"lastAnnounceResult": "",
 		"lastAnnounceStartTime": 0,
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 		"lastAnnounceSucceeded": false,
 		"lastAnnounceTime": 0,
 		"lastAnnounceTimedOut": false,

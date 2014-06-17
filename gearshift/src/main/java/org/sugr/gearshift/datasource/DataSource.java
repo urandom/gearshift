@@ -2161,13 +2161,16 @@ public class DataSource {
                             Constants.C_IS_STALLED + " != 1"
                                 + " AND " + Constants.C_IS_FINISHED + " != 1"
                                 + " AND ("
-                                + Constants.C_STATUS + " = ?"
+                                + "((" + Constants.C_STATUS + " = ?"
                                 + " OR " + Constants.C_STATUS + " = ?"
-                                + ") AND " + Constants.C_RATE_DOWNLOAD + " != 0"
-                                + " AND " + Constants.C_RATE_UPLOAD + " != 0"
+                                + ") AND (" + Constants.C_RATE_DOWNLOAD + " != 0"
+                                + " OR " + Constants.C_RATE_UPLOAD + " != 0"
+                                + ")) OR (" + Constants.C_STATUS + " = ?" + ")"
+                                + ")"
                         );
                         selectionArgs.add(Integer.toString(Torrent.Status.DOWNLOADING));
                         selectionArgs.add(Integer.toString(Torrent.Status.SEEDING));
+                        selectionArgs.add(Integer.toString(Torrent.Status.CHECKING));
                     }
                     break;
                 case CHECKING:

@@ -202,10 +202,10 @@ public class DataSourceTest {
 
             defaultPrefs.edit().putString(G.PREF_LIST_SORT_BY, G.SortBy.STATUS.name()).commit();
             String[] expectedNames = new String[] {
-                "startup.sh", "alpha...-test ", "1 Complete ", "Monster.Test.....-",
+                "block", "startup.sh", "alpha...-test ", "1 Complete ", "Monster.Test.....-",
                 "clock.oiuwer...-aaa", "foo Bar.abc...- ", "grass", "texts..g.sh",
                 "", "gamma rotk (foo) []", "who.Who.foo.S06...-testtest", "ray of light 4", "access",
-                "Summer ", "block", "preserve.sh", "Somewhere script", "Bla test-exa!",
+                "Summer ", "preserve.sh", "Somewhere script", "Bla test-exa!",
                 "gc14.01.12.test....baba", "8516-.sh", "apache.sh", "water test (abc - fao)",
                 "water fao - today test fire", "tele.sh.21.calen", "fox", "view.sh",
             };
@@ -220,7 +220,7 @@ public class DataSourceTest {
                 cursor.moveToNext();
             }
 
-            cursor.moveToPosition(10);
+            cursor.moveToPosition(11);
             assertEquals(1d, Torrent.getMetadataPercentDone(cursor), 0);
             assertEquals(1d, Torrent.getPercentDone(cursor), 0);
             assertEquals(Torrent.SeedRatioMode.GLOBAL_LIMIT, Torrent.getSeedRatioMode(cursor));
@@ -237,17 +237,23 @@ public class DataSourceTest {
             assertTrue(Torrent.getErrorString(cursor).contains("No data found!"));
             assertEquals(Torrent.Status.STOPPED, Torrent.getStatus(cursor));
 
-            cursor.moveToPosition(0);
+            cursor.moveToPosition(1);
             assertEquals(Torrent.Status.DOWNLOADING, Torrent.getStatus(cursor));
             assertTrue(Torrent.isActive(Torrent.getStatus(cursor)));
             assertEquals("1.12 GB of 1.18 GB (95%) - Remaining time unknown", Torrent.getTrafficText(cursor));
             assertEquals("<b>Downloading</b>  from 0 of 0 connected peers - <i>↓ 346.7 KB/s, ↑ 53.71 KB/s</i>", Torrent.getStatusText(cursor));
 
-            cursor.moveToPosition(5);
+            cursor.moveToPosition(6);
             assertEquals(Torrent.Status.SEEDING, Torrent.getStatus(cursor));
             assertTrue(Torrent.isActive(Torrent.getStatus(cursor)));
             assertEquals("10.96 GB, uploaded 243.6 GB (Ratio: 22.2)", Torrent.getTrafficText(cursor));
-            assertEquals("<b>Seeding</b>  to 2 of 2 connected peers - <i>↑ 11.72 KB/s</i>", Torrent.getStatusText(cursor));
+            assertEquals("<b>Seeding</b>  to 2 of 2 connected peers - <i>↑ 0 B/s</i>", Torrent.getStatusText(cursor));
+
+            cursor.moveToPosition(0);
+            assertEquals(Torrent.Status.CHECKING, Torrent.getStatus(cursor));
+            assertTrue(Torrent.isActive(Torrent.getStatus(cursor)));
+            assertEquals("", Torrent.getTrafficText(cursor));
+            assertEquals("<b>Checking</b> (53% tested)", Torrent.getStatusText(cursor));
 
             cursor.close();
 
@@ -346,7 +352,7 @@ public class DataSourceTest {
             defaultPrefs.edit().putBoolean(G.PREF_FILTER_ACTIVE, true).commit();
             expectedNames = new String[] {
                 "clock.oiuwer...-aaa", "startup.sh", "1 Complete ", "alpha...-test ",
-                "Monster.Test.....-", "foo Bar.abc...- ",
+                "Monster.Test.....-", "block", 
             };
             cursor = ds.getTorrentCursor(profile, defaultPrefs);
             cursor.moveToFirst();
@@ -367,7 +373,9 @@ public class DataSourceTest {
 
             defaultPrefs.edit().putBoolean(G.PREF_FILTER_CHECKING, true).commit();
             cursor = ds.getTorrentCursor(profile, defaultPrefs);
-            assertEquals(0, cursor.getCount());
+            assertEquals(1, cursor.getCount());
+            cursor.moveToFirst();
+            assertEquals("block", Torrent.getName(cursor));
             cursor.close();
 
             defaultPrefs.edit().putString(G.PREF_LIST_FILTER, G.FilterBy.DOWNLOADING.name()).commit();
@@ -870,6 +878,11 @@ public class DataSourceTest {
             updateTorrents("/json/torrent.json", "existing");
 
             details = ds.getTorrentDetails(profile, "caf28f38387ff5ccf2326d4b7392a1f8233083");
+            details.trackersCursor.moveToFirst();
+            while (!details.trackersCursor.isAfterLast()) {
+                System.out.println("### "+ Torrent.Tracker.getAnnounce(details.trackersCursor));
+                details.trackersCursor.moveToNext();
+            }
             assertEquals(2, details.trackersCursor.getCount());
 
             details.trackersCursor.moveToFirst();
@@ -1146,7 +1159,7 @@ public class DataSourceTest {
         long[] speed = ds.getTrafficSpeed(profile);
 
         assertEquals(530000l, speed[0]);
-        assertEquals(197000l, speed[1]);
+        assertEquals(185000l, speed[1]);
     }
 
     private TorrentStatus updateTorrents() {
