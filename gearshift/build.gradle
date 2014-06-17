@@ -9,7 +9,7 @@ android {
         targetSdkVersion 19
         versionCode 62
         versionName "0.9.62"
-        packageName "org.sugr.gearshift"
+        applicationId "org.sugr.gearshift"
     }
 
     compileOptions {
