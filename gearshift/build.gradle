@@ -7,8 +7,8 @@ android {
     defaultConfig {
         minSdkVersion 15
         targetSdkVersion 19
-        versionCode 62
-        versionName "0.9.62"
+        versionCode 63
+        versionName "0.9.63"
         applicationId "org.sugr.gearshift"
     }
 
