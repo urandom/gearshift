@@ -1,0 +1,12 @@
+* setup profile uris to open torrent destinations in a file browser
+* handle multiple open file requests
+* add an option to display a directory/mime icon on the left of each item
+* instead of changing the item color on multiselect, show a check mark on the left of every item
+
+
+on L:
+* raise the current torrent item in the list when selected in a dual-pane environment
+* handle an open directory request
+* send the list item as a hero element to the detail activity
+* investigate recyclerview as a replacement to the list view
+* investigate the cardview
