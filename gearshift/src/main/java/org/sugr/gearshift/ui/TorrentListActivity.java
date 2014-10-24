@@ -20,12 +20,13 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
-import android.support.v4.app.ActionBarDrawerToggle;
+import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
+import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -104,7 +105,7 @@ public class TorrentListActivity extends BaseTorrentActivity
         static int ALT_SPEED_OFF = 1 << 1;
     }
 
-    private LoaderManager.LoaderCallbacks<TransmissionProfile[]> profileLoaderCallbacks= new LoaderManager.LoaderCallbacks<TransmissionProfile[]>() {
+    private LoaderManager.LoaderCallbacks<TransmissionProfile[]> profileLoaderCallbacks = new LoaderManager.LoaderCallbacks<TransmissionProfile[]>() {
         @Override
         public android.support.v4.content.Loader<TransmissionProfile[]> onCreateLoader(
             int id, Bundle args) {
@@ -287,21 +288,24 @@ public class TorrentListActivity extends BaseTorrentActivity
             }
         }
 
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+
         getWindow().setBackgroundDrawable(null);
         drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawerLayout.setDrawerShadow(R.drawable.drawer_shadow, GravityCompat.START);
         drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED,
             findViewById(R.id.sliding_menu_frame));
-        drawerToggle = new ActionBarDrawerToggle(this, drawerLayout, R.drawable.ic_drawer,
-                R.string.open_drawer, R.string.close_drawer) { };
+        drawerToggle = new ActionBarDrawerToggle(this, drawerLayout, toolbar,
+            R.string.open_drawer, R.string.close_drawer) { };
+        drawerToggle.setDrawerIndicatorEnabled(false);
         drawerLayout.setDrawerListener(drawerToggle);
 
         if (twoPaneLayout) {
             toggleRightPane(false);
         }
 
-
-        ActionBar actionBar = getActionBar();
+        ActionBar actionBar = null;//getActionBar();
         if (actionBar != null) {
             actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_LIST);
 
@@ -352,7 +356,7 @@ public class TorrentListActivity extends BaseTorrentActivity
             }
         }
 
-        getSupportLoaderManager().initLoader(G.PROFILES_LOADER_ID, null, profileLoaderCallbacks);
+        //getSupportLoaderManager().initLoader(G.PROFILES_LOADER_ID, null, profileLoaderCallbacks);
     }
 
     @Override protected void onPostCreate(Bundle savedInstanceState) {
@@ -631,6 +635,7 @@ public class TorrentListActivity extends BaseTorrentActivity
             if (this.session != null) {
                 drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED,
                     findViewById(R.id.sliding_menu_frame));
+                drawerToggle.setDrawerIndicatorEnabled(false);
                 getActionBar().setDisplayHomeAsUpEnabled(false);
 
                 invalidateOptionsMenu();
@@ -645,6 +650,7 @@ public class TorrentListActivity extends BaseTorrentActivity
             if (this.session == null) {
                 drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED,
                     findViewById(R.id.sliding_menu_frame));
+                drawerToggle.setDrawerIndicatorEnabled(true);
                 getActionBar().setDisplayHomeAsUpEnabled(true);
 
                 invalidateOptionsMenu();

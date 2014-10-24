@@ -1,12 +1,12 @@
 apply plugin: 'android'
 
 android {
-    compileSdkVersion 19
-    buildToolsVersion '19.1'
+    compileSdkVersion 21
+    buildToolsVersion '21.0.1'
 
     defaultConfig {
         minSdkVersion 15
-        targetSdkVersion 19
+        targetSdkVersion 21
         versionCode 63
         versionName "0.9.63"
         applicationId "org.sugr.gearshift"
@@ -23,7 +23,8 @@ android {
         release {
             signingConfig signingConfigs.release
             runProguard true
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
+            // proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
+            proguardFiles 'proguard-rules.txt'
             zipAlign true
         }
     }
@@ -39,7 +40,8 @@ android {
 apply plugin: 'android-unit-test'
 
 dependencies {
-    compile 'com.android.support:support-v4:19.1.+'
+    compile 'com.android.support:support-v4:21.0.+'
+    compile "com.android.support:appcompat-v7:21.0.+"
     compile 'com.fasterxml.jackson.core:jackson-core:2.3.0'
     compile 'com.fasterxml.jackson.core:jackson-databind:2.3.0'
     compile 'com.fasterxml.jackson.core:jackson-annotations:2.3.0'
@@ -48,7 +50,8 @@ dependencies {
     testCompile 'junit:junit:4.8.2'
     testCompile 'org.robolectric:robolectric:2.3'
     testCompile 'com.google.android:android:4.1.1.4'
-    testCompile 'com.android.support:support-v4:19.1.+'
+    testCompile 'com.android.support:support-v4:21.0.+'
+    testCompile "com.android.support:appcompat-v7:21.0.+"
     testCompile 'org.mockito:mockito-all:1.9.5'
     testCompile 'com.fasterxml.jackson.core:jackson-core:2.3.0'
     testCompile 'com.fasterxml.jackson.core:jackson-databind:2.3.0'

@@ -11,6 +11,7 @@ import android.preference.PreferenceManager;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v7.app.ActionBarActivity;
 import android.text.Html;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -30,7 +31,7 @@ import org.sugr.gearshift.service.DataServiceManagerInterface;
 
 import java.util.Date;
 
-public abstract class BaseTorrentActivity extends FragmentActivity
+public abstract class BaseTorrentActivity extends ActionBarActivity
     implements TransmissionSessionInterface, DataServiceManagerInterface,
     LocationDialogHelperInterface, TransmissionProfileInterface,
     TorrentDetailFragment.PagerCallbacks {

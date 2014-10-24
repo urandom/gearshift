@@ -1,18 +1,12 @@
 package org.sugr.gearshift.ui;
 
-import java.util.Map;
-import java.util.HashMap;
-
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.animation.ObjectAnimator;
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.database.Cursor;
@@ -22,8 +16,9 @@ import android.preference.PreferenceManager;
 import android.support.v4.app.ListFragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
-import android.support.v4.content.LocalBroadcastManager;
+import android.support.v4.view.MenuItemCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v7.app.ActionBarActivity;
 import android.text.Html;
 import android.text.Spanned;
 import android.text.TextUtils;
@@ -55,14 +50,17 @@ import org.sugr.gearshift.G.FilterBy;
 import org.sugr.gearshift.G.SortBy;
 import org.sugr.gearshift.G.SortOrder;
 import org.sugr.gearshift.R;
-import org.sugr.gearshift.ui.loader.TorrentTrafficLoader;
+import org.sugr.gearshift.core.Torrent;
 import org.sugr.gearshift.core.TransmissionProfile;
 import org.sugr.gearshift.core.TransmissionSession;
-import org.sugr.gearshift.core.Torrent;
 import org.sugr.gearshift.datasource.DataSource;
 import org.sugr.gearshift.service.DataService;
 import org.sugr.gearshift.service.DataServiceManager;
 import org.sugr.gearshift.service.DataServiceManagerInterface;
+import org.sugr.gearshift.ui.loader.TorrentTrafficLoader;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * A list fragment representing a list of Torrents. This fragment
@@ -523,7 +521,7 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
         MenuItem item = menu.findItem(R.id.find);
 
         SearchView findView = new SearchView(
-            getActivity().getActionBar().getThemedContext());
+            ((ActionBarActivity) getActivity()).getSupportActionBar().getThemedContext());
         findView.setQueryHint(getActivity().getString(R.string.filter));
         findView.setIconifiedByDefault(true);
         findView.setIconified(true);
@@ -542,7 +540,7 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
             }
         });
 
-        item.setOnActionExpandListener(new MenuItem.OnActionExpandListener() {
+        MenuItemCompat.setOnActionExpandListener(item, new MenuItemCompat.OnActionExpandListener() {
             @Override public boolean onMenuItemActionExpand(MenuItem item) {
                 return true;
             }
@@ -839,7 +837,7 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
                         }
                         TransmissionProfileInterface context =
                             (TransmissionProfileInterface) getActivity();
-                        if (context == null) {
+                        if (context == null || context.getProfile() == null) {
                             return null;
                         }
 

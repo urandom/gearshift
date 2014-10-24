@@ -75,7 +75,7 @@
         <activity
             android:name=".ui.AboutActivity"
             android:label="@string/about_item"
-            android:theme="@android:style/Theme.Holo.Light.DialogWhenLarge.NoActionBar"
+            android:theme="@style/Theme.AppCompat.Light.DialogWhenLarge"
             android:parentActivityName=".ui.TorrentListActivity">
         </activity>
 
