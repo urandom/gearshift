@@ -10,6 +10,8 @@ import android.os.Handler;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.content.LocalBroadcastManager;
+import android.support.v7.app.ActionBarActivity;
+import android.support.v7.widget.Toolbar;
 import android.text.Html;
 import android.view.KeyEvent;
 import android.view.Menu;
@@ -38,7 +40,7 @@ import org.sugr.gearshift.service.DataServiceManagerInterface;
 import java.util.Arrays;
 import java.util.List;
 
-public class TransmissionSessionActivity extends FragmentActivity implements DataServiceManagerInterface {
+public class TransmissionSessionActivity extends ActionBarActivity implements DataServiceManagerInterface {
     private TransmissionProfile profile;
     private TransmissionSession session;
     private DataServiceManager manager;
@@ -131,6 +133,12 @@ public class TransmissionSessionActivity extends FragmentActivity implements Dat
 
         setContentView(R.layout.activity_transmission_session);
 
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        if (toolbar != null) {
+            setSupportActionBar(toolbar);
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        }
+
         if (savedInstanceState != null) {
             new Handler().post(new Runnable() {
                 @Override
@@ -161,6 +169,7 @@ public class TransmissionSessionActivity extends FragmentActivity implements Dat
         initListeners();
 
         serviceReceiver = new ServiceReceiver();
+
     }
 
     @Override protected void onResume() {

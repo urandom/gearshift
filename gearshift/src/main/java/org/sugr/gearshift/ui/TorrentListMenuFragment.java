@@ -1,5 +1,7 @@
 package org.sugr.gearshift.ui;
 
+import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
@@ -29,14 +31,16 @@ import org.sugr.gearshift.G.FilterBy;
 import org.sugr.gearshift.G.SortBy;
 import org.sugr.gearshift.G.SortOrder;
 import org.sugr.gearshift.R;
+import org.sugr.gearshift.core.TransmissionProfile;
 import org.sugr.gearshift.core.TransmissionSession;
+import org.sugr.gearshift.service.DataService;
 import org.sugr.gearshift.ui.loader.TorrentTrafficLoader;
+import org.sugr.gearshift.ui.loader.TransmissionProfileSupportLoader;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.TreeSet;
 
 public class TorrentListMenuFragment extends Fragment implements TorrentListNotificationInterface {
@@ -50,9 +54,10 @@ public class TorrentListMenuFragment extends Fragment implements TorrentListNoti
     private int trackerPosition = ListView.INVALID_POSITION;
 
     private enum Type {
-        FIND, FILTER, DIRECTORY, TRACKER, SORT_BY, SORT_ORDER, HEADER
+        PROFILE_SELECTOR, PROFILE, FIND, FILTER, DIRECTORY, TRACKER, SORT_BY, SORT_ORDER, HEADER
     }
 
+    private static final String PROFILE_SELECTOR_KEY = "profile_selector";
     private static final String FILTERS_HEADER_KEY = "filters_header";
     private static final String DIRECTORIES_HEADER_KEY = "directories_header";
     private static final String TRACKERS_HEADER_KEY = "trackers_header";
@@ -65,6 +70,7 @@ public class TorrentListMenuFragment extends Fragment implements TorrentListNoti
     private HashMap<String, ListItem> listItemMap = new HashMap<>();
 
     private SharedPreferences sharedPrefs;
+    private List<TransmissionProfile> profiles = new ArrayList<>();
 
     private Handler closeHandler = new Handler();
     private Runnable closeRunnable = new Runnable() {
@@ -92,6 +98,73 @@ public class TorrentListMenuFragment extends Fragment implements TorrentListNoti
                 }
             }
         }
+    };
+
+    private LoaderManager.LoaderCallbacks<TransmissionProfile[]> profileLoaderCallbacks = new LoaderManager.LoaderCallbacks<TransmissionProfile[]>() {
+        @Override
+        public android.support.v4.content.Loader<TransmissionProfile[]> onCreateLoader(
+            int id, Bundle args) {
+            return new TransmissionProfileSupportLoader(TorrentListMenuFragment.this.getActivity());
+        }
+
+        @Override
+        public void onLoadFinished(
+            android.support.v4.content.Loader<TransmissionProfile[]> loader,
+            TransmissionProfile[] profiles) {
+
+            filterAdapter.setNotifyOnChange(false);
+            removeProfiles();
+
+            TorrentListActivity context = (TorrentListActivity) TorrentListMenuFragment.this.getActivity();
+
+            TorrentListMenuFragment.this.profiles = Arrays.asList(profiles);
+
+            if (profiles.length > 0) {
+                context.setRefreshing(false, DataService.Requests.GET_TORRENTS);
+            } else {
+                TransmissionProfile.setCurrentProfile(null,
+                    PreferenceManager.getDefaultSharedPreferences(context));
+            }
+
+            String currentId = TransmissionProfile.getCurrentProfileId(
+                PreferenceManager.getDefaultSharedPreferences(context));
+
+            boolean isProfileSet = false;
+            for (TransmissionProfile prof : profiles) {
+                if (prof.getId().equals(currentId)) {
+                    context.setProfile(prof);
+                    isProfileSet = true;
+                    break;
+                }
+            }
+
+            if (!isProfileSet) {
+                if (profiles.length > 0) {
+                    context.setProfile(profiles[0]);
+                } else {
+                    context.setProfile(null);
+                    /* TODO: should display the message that the user hasn't created a profile yet */
+                }
+                TransmissionProfile.setCurrentProfile(context.getProfile(),
+                    PreferenceManager.getDefaultSharedPreferences(context));
+            }
+
+            if (profiles.length > 1) {
+                fillProfiles();
+            }
+
+            filterAdapter.notifyDataSetChanged();
+        }
+
+        @Override
+        public void onLoaderReset(
+            android.support.v4.content.Loader<TransmissionProfile[]> loader) {
+
+            filterAdapter.setNotifyOnChange(false);
+            removeProfiles();
+            filterAdapter.notifyDataSetChanged();
+        }
+
     };
 
     private LoaderManager.LoaderCallbacks<TorrentTrafficLoader.TorrentTrafficOutputData> torrentTrafficLoaderCallbacks
@@ -385,6 +458,9 @@ public class TorrentListMenuFragment extends Fragment implements TorrentListNoti
 
         fillMenuItems();
         checkSelectedItems();
+
+        getActivity().getSupportLoaderManager().initLoader(G.PROFILES_LOADER_ID, null, profileLoaderCallbacks);
+
         return root;
     }
 
@@ -398,6 +474,8 @@ public class TorrentListMenuFragment extends Fragment implements TorrentListNoti
             trackers.clear();
             fillMenuItems();
             checkSelectedItems();
+
+            getActivity().getSupportLoaderManager().restartLoader(G.PROFILES_LOADER_ID, null, profileLoaderCallbacks);
         }
         setStatus(null, null);
     }
@@ -410,6 +488,7 @@ public class TorrentListMenuFragment extends Fragment implements TorrentListNoti
             null, torrentTrafficLoaderCallbacks);
     }
 
+    @SuppressLint("StringFormatMatches")
     private void setStatus(Object[] speeds, String freeSpace) {
         TextView speed = (TextView) getView().findViewById(R.id.status_speed);
         TextView space = (TextView) getView().findViewById(R.id.status_free_space);
@@ -460,6 +539,29 @@ public class TorrentListMenuFragment extends Fragment implements TorrentListNoti
                     ((TorrentListFragment) getFragmentManager().findFragmentById(R.id.torrent_list));
 
             switch(item.getType()) {
+                case PROFILE_SELECTOR:
+                    filterAdapter.toggleProfileVisibility();
+                    filterAdapter.notifyDataSetChanged();
+                    break;
+                case PROFILE:
+                    TorrentListActivity context = (TorrentListActivity) getActivity();
+                    if (context.getProfile() != null && context.getProfile().getId().equals(item.getValueString())) {
+                        break;
+                    }
+
+                    for (TransmissionProfile profile : profiles) {
+                        if (profile.getId().equals(item.getValueString())) {
+                            TransmissionProfile.setCurrentProfile(profile,
+                                PreferenceManager.getDefaultSharedPreferences(context));
+
+                            context.setProfile(profile);
+
+                            context.setRefreshing(true, DataService.Requests.GET_TORRENTS);
+
+                            break;
+                        }
+                    }
+                    break;
                 case FIND:
                     if (!fragment.isFindShown()) {
                         fragment.showFind();
@@ -523,10 +625,36 @@ public class TorrentListMenuFragment extends Fragment implements TorrentListNoti
                 default:
                     return;
             }
+
+            if (item.getType() != Type.PROFILE_SELECTOR) {
+                closeHandler.removeCallbacks(closeRunnable);
+                closeHandler.post(closeRunnable);
+            }
+        }
+    }
+
+    private int fillProfiles() {
+        TransmissionProfileInterface context = (TransmissionProfileInterface) getActivity();
+        TransmissionProfile currentProfile = context.getProfile();
+
+        if (currentProfile == null) {
+            return 0;
         }
 
-        closeHandler.removeCallbacks(closeRunnable);
-        closeHandler.post(closeRunnable);
+        filterAdapter.insert(new ListItem(Type.PROFILE_SELECTOR,
+            currentProfile.getId(), currentProfile.getName(), null), 0);
+
+        int index = 1;
+        for (TransmissionProfile profile : profiles) {
+            if (profile.getId().equals(currentProfile.getId())) {
+                continue;
+            }
+
+            filterAdapter.insert(new ListItem(Type.PROFILE,
+                profile.getId(), profile.getName(), null), index);
+        }
+
+        return index;
     }
 
     private void fillMenuItems() {
@@ -535,7 +663,9 @@ public class TorrentListMenuFragment extends Fragment implements TorrentListNoti
         filterAdapter.setNotifyOnChange(false);
         filterAdapter.clear();
 
-        filterAdapter.add(new ListItem(Type.FIND, "", R.string.find));
+        fillProfiles();
+
+        list.add(new ListItem(Type.FIND, "", R.string.find));
 
         for (FilterBy filter : FilterBy.values()) {
             ListItem item;
@@ -796,6 +926,29 @@ public class TorrentListMenuFragment extends Fragment implements TorrentListNoti
         }
     }
 
+    private int removeProfiles() {
+        ListItem item = listItemMap.get(PROFILE_SELECTOR_KEY);
+        int position = filterAdapter.getPosition(item);
+
+        if (position != -1) {
+            ArrayList<ListItem> removal = new ArrayList<>();
+            removal.add(item);
+
+            for (int i = 0; i < filterAdapter.getCount(); i++) {
+                item = filterAdapter.getItem(i);
+                if (item.getType() == Type.PROFILE) {
+                    removal.add(item);
+                }
+            }
+
+            for (ListItem i : removal) {
+                filterAdapter.remove(i);
+            }
+        }
+
+        return position;
+    }
+
     private ListItem getDirectoryItem(String directory) {
         ListItem item;
         if (listItemMap.containsKey(directory)) {
@@ -880,11 +1033,18 @@ public class TorrentListMenuFragment extends Fragment implements TorrentListNoti
 
         private final static int headerLayout = R.layout.filter_list_header;
         private final static int itemLayout = R.layout.filter_list_item;
+        private final static int emptyLayout = R.layout.filter_hidden_item;
         private final static int viewId = android.R.id.text1;
+
+        private boolean profilesVisible;
 
         public FilterAdapter(Context context) {
             super(context, viewId);
             inflater = (LayoutInflater)context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        }
+
+        public void toggleProfileVisibility() {
+            profilesVisible = !profilesVisible;
         }
 
         @Override
@@ -923,12 +1083,17 @@ public class TorrentListMenuFragment extends Fragment implements TorrentListNoti
 
             TextView text;
 
+            if (item.getType() == Type.PROFILE) {
+                convertView = null;
+            }
+
             if (convertView == null) {
                 switch (item.getType()) {
                     case HEADER:
                         convertView = inflater.inflate(headerLayout, parent, false);
                         break;
-
+                    case PROFILE:
+                    case PROFILE_SELECTOR:
                     case FIND:
                     case FILTER:
                     case DIRECTORY:
@@ -942,6 +1107,16 @@ public class TorrentListMenuFragment extends Fragment implements TorrentListNoti
 
             text = (TextView) convertView.findViewById(viewId);
             text.setText(item.getLabel());
+
+            if (item.getType() == Type.PROFILE && !profilesVisible) {
+                convertView.setLayoutParams(new ViewGroup.LayoutParams(
+                    ViewGroup.LayoutParams.MATCH_PARENT,
+                    1));
+            } else {
+                convertView.setLayoutParams(new ViewGroup.LayoutParams(
+                    ViewGroup.LayoutParams.MATCH_PARENT,
+                    ViewGroup.LayoutParams.WRAP_CONTENT));
+            }
 
             return convertView;
         }

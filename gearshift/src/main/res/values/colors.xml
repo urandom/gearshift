@@ -3,7 +3,7 @@
     <color name="color_primary">#212121</color>
     <color name="color_primary_dark">#131313</color>
     <color name="text_color_primary">#cacaca</color>
-    <color name="accent">#b50000</color>
+    <color name="accent">#b60000</color>
 
     <color name="color_secondary">@color/material_deep_teal_200</color>
     <color name="color_secondary_dark">@color/material_deep_teal_500</color>
@@ -13,6 +13,7 @@
     <color name="main_black">#1a1a1a</color>
 
     <color name="success">#69e974</color>
+    <color name="white">#ffffff</color>
 
     <color name="detail_background">#ddd</color>
     <color name="detail_background_edge">#bfbfbf</color>

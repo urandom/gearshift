@@ -1,41 +1,33 @@
 <?xml version="1.0" encoding="utf-8"?>
-<menu xmlns:android="http://schemas.android.com/apk/res/android" >
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+      xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <item android:id="@+id/menu_refresh"
           android:icon="@drawable/ic_action_refresh"
           android:visible="true"
-          android:showAsAction="ifRoom"
+          app:showAsAction="ifRoom"
           android:menuCategory="system"
           android:orderInCategory="1"
           android:title="@string/refresh"
           android:titleCondensed="@string/refresh"/>
 
-    <item android:id="@+id/menu_alt_speed"
-          android:icon="@drawable/ic_action_data_usage"
-          android:visible="false"
-          android:showAsAction="ifRoom"
-          android:menuCategory="system"
-          android:orderInCategory="25"
-          android:title="@string/alt_speed_label_on"
-          android:titleCondensed="@string/alt_speed"/>
-
     <item android:id="@+id/menu_add_torrent"
           android:visible="false"
-          android:showAsAction="never"
+          app:showAsAction="never"
           android:menuCategory="system"
           android:orderInCategory="75"
           android:title="@string/add_torrent" />
 
     <item android:id="@+id/menu_session_settings"
         android:visible="false"
-        android:showAsAction="never"
+        app:showAsAction="never"
         android:menuCategory="system"
         android:orderInCategory="80"
         android:title="@string/session_settings_item" />
 
     <item android:id="@+id/menu_settings"
         android:visible="true"
-        android:showAsAction="never"
+        app:showAsAction="never"
         android:menuCategory="system"
         android:orderInCategory="90"
         android:title="@string/settings"
@@ -43,7 +35,7 @@
 
      <item android:id="@+id/menu_about"
         android:visible="true"
-        android:showAsAction="never"
+        app:showAsAction="never"
         android:menuCategory="system"
         android:orderInCategory="99"
         android:title="@string/about_item" />

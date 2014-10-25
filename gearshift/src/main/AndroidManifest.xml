@@ -66,6 +66,7 @@
         <activity
             android:name=".ui.SettingsActivity"
             android:label="@string/settings"
+            android:theme="@android:style/Theme.Holo.Light.DarkActionBar"
             android:parentActivityName=".ui.TorrentListActivity">
             <intent-filter>
 		        <action android:name="android.intent.action.MANAGE_NETWORK_USAGE" />

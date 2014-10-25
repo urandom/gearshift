@@ -1,53 +1,61 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout  xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent" >
+    android:layout_height="match_parent"
+    android:orientation="vertical">
 
-    <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
-        android:id="@+id/session_scroll"
+    <include layout="@layout/toolbar"/>
+
+    <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent" >
 
-        <LinearLayout
-            android:id="@+id/transmission_session_container"
+        <ScrollView
+            android:id="@+id/session_scroll"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:descendantFocusability="beforeDescendants"
-            android:focusableInTouchMode="true"
-            android:baselineAligned="false"
-            android:padding="8dp"
-            android:paddingBottom="16dp"
-            android:paddingTop="16dp" >
+            android:layout_height="match_parent" >
 
             <LinearLayout
-                android:layout_width="0dp"
+                android:id="@+id/transmission_session_container"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:orientation="vertical">
+                android:orientation="horizontal"
+                android:descendantFocusability="beforeDescendants"
+                android:focusableInTouchMode="true"
+                android:baselineAligned="false"
+                android:padding="8dp"
+                android:paddingBottom="16dp"
+                android:paddingTop="16dp" >
 
-                <include layout="@layout/transmission_session_general" />
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
 
-                <include layout="@layout/transmission_session_bandwidth" />
+                    <include layout="@layout/transmission_session_general" />
+
+                    <include layout="@layout/transmission_session_bandwidth" />
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+
+                    <include layout="@layout/transmission_session_connections" />
+
+                    <include layout="@layout/transmission_session_limits" />
+
+                </LinearLayout>
 
             </LinearLayout>
 
-            <LinearLayout
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:orientation="vertical">
+        </ScrollView>
 
-                <include layout="@layout/transmission_session_connections" />
+        <include layout="@layout/error_layer" />
 
-                <include layout="@layout/transmission_session_limits" />
-
-            </LinearLayout>
-
-        </LinearLayout>
-
-    </ScrollView>
-
-    <include layout="@layout/error_layer" />
-
-</FrameLayout>
+    </FrameLayout>
+</LinearLayout>

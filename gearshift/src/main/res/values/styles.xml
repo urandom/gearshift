@@ -8,6 +8,8 @@
         <item name="colorPrimary">@color/color_primary</item>
         <item name="colorPrimaryDark">@color/color_primary_dark</item>
         <item name="colorAccent">@color/accent</item>
+        <item name="colorControlNormal">@color/color_primary_dark</item>
+        <item name="actionBarStyle">@style/DefaultToolbar</item>
         <item name="windowActionBar">false</item>
     </style>
 
@@ -29,7 +31,7 @@
         <item name="android:windowBackground">@color/detail_background</item>
     </style>
 
-    <style name="DefaultToolbar" parent="Widget.AppCompat.Toolbar">
+    <style name="DefaultToolbar" parent="Widget.AppCompat.ActionBar">
         <item name="android:background">?attr/colorPrimary</item>
         <item name="popupTheme">@style/ThemeOverlay.AppCompat.Light</item>
         <item name="theme">@style/ThemeOverlay.AppCompat.Dark.ActionBar</item>
