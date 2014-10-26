@@ -40,18 +40,22 @@ android {
 apply plugin: 'android-unit-test'
 
 dependencies {
+    compile fileTree(dir: 'libs', include: ['*.jar'])
     compile 'com.android.support:support-v4:21.0.+'
     compile "com.android.support:appcompat-v7:21.0.+"
+    compile 'com.android.support:recyclerview-v7:+'
     compile 'com.fasterxml.jackson.core:jackson-core:2.3.0'
     compile 'com.fasterxml.jackson.core:jackson-databind:2.3.0'
     compile 'com.fasterxml.jackson.core:jackson-annotations:2.3.0'
 
+    testCompile fileTree(dir: 'libs', include: ['*.jar'])
     testCompile files("$project.buildDir/classes/debug")
     testCompile 'junit:junit:4.8.2'
     testCompile 'org.robolectric:robolectric:2.3'
     testCompile 'com.google.android:android:4.1.1.4'
     testCompile 'com.android.support:support-v4:21.0.+'
     testCompile "com.android.support:appcompat-v7:21.0.+"
+    testCompile 'com.android.support:recyclerview-v7:+'
     testCompile 'org.mockito:mockito-all:1.9.5'
     testCompile 'com.fasterxml.jackson.core:jackson-core:2.3.0'
     testCompile 'com.fasterxml.jackson.core:jackson-databind:2.3.0'

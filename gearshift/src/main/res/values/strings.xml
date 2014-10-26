@@ -19,10 +19,6 @@
     
     <string name="number_dialog_delete">Delete a digit</string>
     
-    <string name="status">Status</string>
-    <string name="speed_format">&lt;b&gt;Down&lt;/b&gt;: %1$s/s%2$s&lt;br/&gt;&lt;b&gt;Up&lt;/b&gt;: %3$s/s%4$s</string>
-    <string name="free_space_format">&lt;b&gt;Free Space&lt;/b&gt;: %1$s</string>
-    
     <string name="refresh">Refresh</string>
     <string name="alt_speed_label_on">Alternate speed limit on</string>
     <string name="alt_speed_label_off">Alternate speed limit off</string>

@@ -13,11 +13,15 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
 import android.support.v4.widget.DrawerLayout;
+import android.support.v7.widget.DefaultItemAnimator;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.text.Html;
 import android.text.TextUtils;
 import android.util.SparseBooleanArray;
 import android.view.ContextThemeWrapper;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -40,12 +44,12 @@ import org.sugr.gearshift.ui.loader.TransmissionProfileSupportLoader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.TreeSet;
 
 public class TorrentListMenuFragment extends Fragment implements TorrentListNotificationInterface {
-    private ListView filterList;
-    private View footer;
+    private RecyclerView filterList;
     private FilterAdapter filterAdapter;
     private int filterPosition = ListView.INVALID_POSITION;
     private int sortPosition = ListView.INVALID_POSITION;
@@ -90,12 +94,6 @@ public class TorrentListMenuFragment extends Fragment implements TorrentListNoti
         @Override public void onSharedPreferenceChanged(SharedPreferences prefs, String key) {
             if (key.matches(G.PREF_FILTER_MATCH_TEST)) {
                 filtersChanged = true;
-            } else if (key.matches(G.PREF_SHOW_STATUS) && filterList != null) {
-                if (prefs.getBoolean(G.PREF_SHOW_STATUS, false)) {
-                    filterList.removeFooterView(footer);
-                } else {
-                    filterList.addFooterView(footer);
-                }
             }
         }
     };
@@ -112,8 +110,10 @@ public class TorrentListMenuFragment extends Fragment implements TorrentListNoti
             android.support.v4.content.Loader<TransmissionProfile[]> loader,
             TransmissionProfile[] profiles) {
 
-            filterAdapter.setNotifyOnChange(false);
-            removeProfiles();
+            int start = removeProfileSelector();
+            int[] range = removeProfiles();
+
+            filterAdapter.notifyItemRangeRemoved(start, range[1] + 1);
 
             TorrentListActivity context = (TorrentListActivity) TorrentListMenuFragment.this.getActivity();
 
@@ -150,19 +150,19 @@ public class TorrentListMenuFragment extends Fragment implements TorrentListNoti
             }
 
             if (profiles.length > 1) {
-                fillProfiles();
+                start = fillProfileSelector();
             }
 
-            filterAdapter.notifyDataSetChanged();
+            filterAdapter.notifyItemInserted(start);
         }
 
         @Override
         public void onLoaderReset(
             android.support.v4.content.Loader<TransmissionProfile[]> loader) {
 
-            filterAdapter.setNotifyOnChange(false);
-            removeProfiles();
-            filterAdapter.notifyDataSetChanged();
+            int start = removeProfileSelector();
+            int[] range = removeProfiles();
+            filterAdapter.notifyItemRangeRemoved(start, range[1] + 1);
         }
 
     };
@@ -191,7 +191,6 @@ public class TorrentListMenuFragment extends Fragment implements TorrentListNoti
             boolean updateDirectoryFilter = false;
             boolean updateTrackerFilter = false;
             boolean checkSelected = false;
-            boolean dataChanged = false;
 
             TransmissionSessionInterface context = (TransmissionSessionInterface) getActivity();
 
@@ -199,7 +198,7 @@ public class TorrentListMenuFragment extends Fragment implements TorrentListNoti
                 return;
             }
 
-            filterAdapter.setNotifyOnChange(false);
+            int[][] insertRanges = new int[][]{new int[]{-1, 1}, new int[]{-1, 1}};
 
             if (data.directories != null) {
                 String dir = sharedPrefs.getString(G.PREF_LIST_DIRECTORY, "");
@@ -237,32 +236,39 @@ public class TorrentListMenuFragment extends Fragment implements TorrentListNoti
                     directories.clear();
                     directories.addAll(normalizedDirs);
 
-                    removeDirectoriesFilters();
+                    int[] range = removeDirectoriesFilters();
+                    filterAdapter.notifyItemRangeRemoved(range[0], range[1]);
 
                     if (directories.size() > 1) {
                         ListItem pivot = listItemMap.get(SORT_BY_HEADER_KEY);
-                        int position = filterAdapter.getPosition(pivot);
+                        int position = filterAdapter.itemData.indexOf(pivot);
 
                         if (position == -1) {
                             pivot = listItemMap.get(SORT_ORDER_HEADER_KEY);
-                            position = filterAdapter.getPosition(pivot);
+                            position = filterAdapter.itemData.indexOf(pivot);
                         }
 
                         ListItem header = listItemMap.get(DIRECTORIES_HEADER_KEY);
                         if (position == -1) {
-                            filterAdapter.add(header);
+                            insertRanges[0][0] = filterAdapter.itemData.size();
+
+                            filterAdapter.itemData.add(header);
                             for (String d : directories) {
                                 ListItem di = getDirectoryItem(d);
                                 if (di != null) {
-                                    filterAdapter.add(di);
+                                    filterAdapter.itemData.add(di);
+                                    insertRanges[0][1]++;
                                 }
                             }
                         } else {
-                            filterAdapter.insert(header, position++);
+                            insertRanges[0][0] = position;
+
+                            filterAdapter.itemData.add(position++, header);
                             for (String d : directories) {
                                 ListItem di = getDirectoryItem(d);
                                 if (di != null) {
-                                    filterAdapter.insert(di, position++);
+                                    filterAdapter.itemData.add(position++, di);
+                                    insertRanges[0][1]++;
                                 }
                             }
                         }
@@ -271,12 +277,11 @@ public class TorrentListMenuFragment extends Fragment implements TorrentListNoti
                         updateDirectoryFilter = true;
                     }
 
-                    dataChanged = true;
                     checkSelected = true;
                 }
             } else {
-                removeDirectoriesFilters();
-                dataChanged = true;
+                int[] range = removeDirectoriesFilters();
+                filterAdapter.notifyItemRangeRemoved(range[0], range[1]);
 
                 if (!sharedPrefs.getString(G.PREF_LIST_DIRECTORY, "").equals("")) {
                     updateDirectoryFilter = true;
@@ -303,39 +308,49 @@ public class TorrentListMenuFragment extends Fragment implements TorrentListNoti
                     trackers.clear();
                     trackers.addAll(data.trackers);
 
-                    removeTrackersFilters();
+                    int[] range = removeTrackersFilters();
+                    filterAdapter.notifyItemRangeRemoved(range[0], range[1]);
 
                     if (trackers.size() > 0 && sharedPrefs.getBoolean(G.PREF_FILTER_UNTRACKED, false)
                         || trackers.size() > 1) {
 
                         ListItem pivot = listItemMap.get(SORT_BY_HEADER_KEY);
-                        int position = filterAdapter.getPosition(pivot);
+                        int position = filterAdapter.itemData.indexOf(pivot);
 
                         if (position == -1) {
                             pivot = listItemMap.get(SORT_ORDER_HEADER_KEY);
-                            position = filterAdapter.getPosition(pivot);
+                            position = filterAdapter.itemData.indexOf(pivot);
                         }
 
                         ListItem header = listItemMap.get(TRACKERS_HEADER_KEY);
                         if (position == -1) {
-                            filterAdapter.add(header);
+                            insertRanges[1][0] = filterAdapter.itemData.size();
+
+                            filterAdapter.itemData.add(header);
                             for (String t : trackers) {
-                                filterAdapter.add(getTrackerItem(t));
+                                filterAdapter.itemData.add(getTrackerItem(t));
+                                insertRanges[1][1]++;
                             }
                         } else {
-                            filterAdapter.insert(header, position++);
+                            insertRanges[1][0] = position;
+
+                            filterAdapter.itemData.add(position++, header);
                             for (String t : trackers) {
-                                filterAdapter.insert(getTrackerItem(t), position++);
+                                filterAdapter.itemData.add(position++, getTrackerItem(t));
+                                insertRanges[1][1]++;
                             }
                         }
+
                         if (sharedPrefs.getBoolean(G.PREF_FILTER_UNTRACKED, false)) {
                             ListItem untracked = new ListItem(Type.TRACKER, G.FILTER_UNTRACKED,
                                 getString(R.string.menu_filters_untracked), G.PREF_FILTER_UNTRACKED);
 
                             if (position == -1) {
-                                filterAdapter.add(untracked);
+                                filterAdapter.itemData.add(untracked);
+                                insertRanges[1][1]++;
                             } else {
-                                filterAdapter.insert(untracked, position++);
+                                filterAdapter.itemData.add(position++, untracked);
+                                insertRanges[1][1]++;
                             }
                         }
                         updateTrackerFilter = !currentTrackerTorrents;
@@ -343,12 +358,11 @@ public class TorrentListMenuFragment extends Fragment implements TorrentListNoti
                         updateTrackerFilter = false;
                     }
 
-                    dataChanged = true;
                     checkSelected = true;
                 }
             } else {
-                removeTrackersFilters();
-                dataChanged = true;
+                int[] range = removeTrackersFilters();
+                filterAdapter.notifyItemRangeRemoved(range[0], range[1]);
 
                 if (!sharedPrefs.getString(G.PREF_LIST_TRACKER, "").equals("")) {
                     updateTrackerFilter = true;
@@ -375,41 +389,11 @@ public class TorrentListMenuFragment extends Fragment implements TorrentListNoti
                 closeHandler.post(closeRunnable);
             }
 
-            if (data.downloadSpeed != -1 && data.uploadSpeed != -1) {
-                TransmissionSession session = context.getSession();
-                Object[] speed = {
-                    G.readableFileSize(data.downloadSpeed), "",
-                    G.readableFileSize(data.uploadSpeed), ""
-                };
-
-                if (session == null) {
-                    setStatus(speed, null);
-                } else {
-                    if (session.isDownloadSpeedLimitEnabled() || session.isAltSpeedLimitEnabled()) {
-                        speed[1] = " (" + G.readableFileSize((
-                            session.isAltSpeedLimitEnabled()
-                                ? session.getAltDownloadSpeedLimit()
-                                : session.getDownloadSpeedLimit()) * 1024) + "/s)";
-                    }
-                    if (session.isUploadSpeedLimitEnabled() || session.isAltSpeedLimitEnabled()) {
-                        speed[3] = " (" + G.readableFileSize((
-                            session.isAltSpeedLimitEnabled()
-                                ? session.getAltUploadSpeedLimit()
-                                : session.getUploadSpeedLimit()) * 1024) + "/s)";
-                    }
-
-                    setStatus(speed,
-                        session.getDownloadDirFreeSpace() > 0
-                            ? G.readableFileSize(session.getDownloadDirFreeSpace())
-                            : null
-                    );
-                }
+            if (insertRanges[0][0] != -1) {
+                filterAdapter.notifyItemRangeInserted(insertRanges[0][0], insertRanges[0][1]);
             }
-
-            if (dataChanged) {
-                filterAdapter.notifyDataSetChanged();
-            } else {
-                filterAdapter.setNotifyOnChange(true);
+            if (insertRanges[1][0] != -1) {
+                filterAdapter.notifyItemRangeInserted(insertRanges[1][0], insertRanges[1][1]);
             }
         }
 
@@ -427,34 +411,17 @@ public class TorrentListMenuFragment extends Fragment implements TorrentListNoti
 
         View root = localInflater.inflate(R.layout.fragment_torrent_list_menu, container, false);
 
-        filterList = (ListView) root.findViewById(R.id.filter_list);
-
-        footer = localInflater.inflate(R.layout.menu_list_footer, filterList, false);
-        filterList.addFooterView(footer, null, false);
+        filterList = (RecyclerView) root.findViewById(R.id.filter_list);
 
         /* TODO: The list items should have a count that indicates
          *  how many torrents are matched by the filter */
-        filterAdapter = new FilterAdapter(context);
+        filterAdapter = new FilterAdapter(this);
         filterList.setAdapter(filterAdapter);
-
-        filterList.setDivider(null);
-        filterList.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
-
-        filterList.setOnItemClickListener(new OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view,
-                                    int position, long id) {
-                setActivatedPosition(position);
-            }
-
-        });
+        filterList.setLayoutManager(new LinearLayoutManager(getActivity()));
+        filterList.setItemAnimator(new DefaultItemAnimator());
 
         sharedPrefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
         sharedPrefs.registerOnSharedPreferenceChangeListener(sharedPrefListener);
-
-        if (sharedPrefs.getBoolean(G.PREF_SHOW_STATUS, false)) {
-            filterList.removeFooterView(footer);
-        }
 
         fillMenuItems();
         checkSelectedItems();
@@ -477,7 +444,6 @@ public class TorrentListMenuFragment extends Fragment implements TorrentListNoti
 
             getActivity().getSupportLoaderManager().restartLoader(G.PROFILES_LOADER_ID, null, profileLoaderCallbacks);
         }
-        setStatus(null, null);
     }
 
     public void notifyTorrentListChanged(Cursor cursor, int error, boolean added, boolean removed,
@@ -488,41 +454,14 @@ public class TorrentListMenuFragment extends Fragment implements TorrentListNoti
             null, torrentTrafficLoaderCallbacks);
     }
 
-    @SuppressLint("StringFormatMatches")
-    private void setStatus(Object[] speeds, String freeSpace) {
-        TextView speed = (TextView) getView().findViewById(R.id.status_speed);
-        TextView space = (TextView) getView().findViewById(R.id.status_free_space);
-
-        if (speed == null || space == null) {
-            return;
-        }
-
-        if (speeds == null) {
-            speeds = new Object[] {"0 KB", "", "0 KB", ""};
-        }
-
-        speed.setText(Html.fromHtml(String.format(getString(
-                            R.string.speed_format), speeds)));
-
-        space.setText(Html.fromHtml(String.format(getString(
-                            R.string.free_space_format),
-                            freeSpace == null ? getString(R.string.unknown) : freeSpace)));
-    }
-
-    private void setActivatedPosition(int position) {
+    private void setActivatedPosition(ListItem item, int position) {
         if (sharedPrefs.getBoolean(G.PREF_FILTER_ALL, true) && position == filterPosition
                 || position == sortPosition) {
-            filterList.setItemChecked(position, true);
+            filterAdapter.setItemSelected(position, true);
             return;
         }
         if (position == ListView.INVALID_POSITION) {
-            SparseBooleanArray checked = filterList.getCheckedItemPositions();
-            for (int i = 0; i < checked.size(); i++) {
-                int pos = checked.keyAt(i);
-                if (checked.get(pos)) {
-                    filterList.setItemChecked(pos, false);
-                }
-            }
+            filterAdapter.clearSelections();
 
             filterPosition = ListView.INVALID_POSITION;
             sortPosition = ListView.INVALID_POSITION;
@@ -530,17 +469,16 @@ public class TorrentListMenuFragment extends Fragment implements TorrentListNoti
             directoryPosition = ListView.INVALID_POSITION;
             trackerPosition = ListView.INVALID_POSITION;
         } else {
-            if (filterAdapter.getCount() <= position) {
+            if (filterAdapter.itemData.size() <= position) {
                 return;
             }
 
-            ListItem item = filterAdapter.getItem(position);
             TorrentListFragment fragment =
                     ((TorrentListFragment) getFragmentManager().findFragmentById(R.id.torrent_list));
 
             switch(item.getType()) {
                 case PROFILE_SELECTOR:
-                    filterAdapter.toggleProfileVisibility();
+                    filterAdapter.setProfilesVisible(!filterAdapter.areProfilesVisible());
                     filterAdapter.notifyDataSetChanged();
                     break;
                 case PROFILE:
@@ -566,17 +504,17 @@ public class TorrentListMenuFragment extends Fragment implements TorrentListNoti
                     if (!fragment.isFindShown()) {
                         fragment.showFind();
                     }
-                    filterList.setItemChecked(position, false);
+                    filterAdapter.setItemSelected(position, false);
                     break;
                 case FILTER:
                     FilterBy value;
                     if (position == filterPosition) {
                         value = FilterBy.ALL;
-                        filterList.setItemChecked(filterPosition, false);
+                        filterAdapter.setItemSelected(filterPosition, false);
                         filterPosition = ListView.INVALID_POSITION;
                     } else {
-                        filterList.setItemChecked(filterPosition, false);
-                        filterList.setItemChecked(position, true);
+                        filterAdapter.setItemSelected(filterPosition, false);
+                        filterAdapter.setItemSelected(position, true);
                         filterPosition = position;
                         value = (FilterBy) item.getValue();
                     }
@@ -584,41 +522,41 @@ public class TorrentListMenuFragment extends Fragment implements TorrentListNoti
                     fragment.setListFilter(value);
                     break;
                 case DIRECTORY:
-                    filterList.setItemChecked(directoryPosition, false);
+                    filterAdapter.setItemSelected(directoryPosition, false);
                     if (directoryPosition == position) {
                         directoryPosition = ListView.INVALID_POSITION;
                         fragment.setListDirectoryFilter(null);
                     } else {
-                        filterList.setItemChecked(position, true);
+                        filterAdapter.setItemSelected(position, true);
                         directoryPosition = position;
                         fragment.setListDirectoryFilter(item.getValueString());
                     }
                     break;
                 case TRACKER:
-                    filterList.setItemChecked(trackerPosition, false);
+                    filterAdapter.setItemSelected(trackerPosition, false);
                     if (trackerPosition == position) {
                         trackerPosition = ListView.INVALID_POSITION;
                         fragment.setListTrackerFilter(null);
                     } else {
-                        filterList.setItemChecked(position, true);
+                        filterAdapter.setItemSelected(position, true);
                         trackerPosition = position;
                         fragment.setListTrackerFilter(item.getValueString());
                     }
                     break;
                 case SORT_BY:
-                    filterList.setItemChecked(sortPosition, false);
-                    filterList.setItemChecked(position, true);
+                    filterAdapter.setItemSelected(sortPosition, false);
+                    filterAdapter.setItemSelected(position, true);
                     sortPosition = position;
                     fragment.setListFilter((SortBy) item.getValue());
                     break;
                 case SORT_ORDER:
                     if (orderPosition == position) {
                         orderPosition = ListView.INVALID_POSITION;
-                        filterList.setItemChecked(position, false);
+                        filterAdapter.setItemSelected(position, false);
                         fragment.setListFilter(SortOrder.ASCENDING);
                     } else {
                         orderPosition = position;
-                        filterList.setItemChecked(position, true);
+                        filterAdapter.setItemSelected(position, true);
                         fragment.setListFilter((SortOrder) item.getValue());
                     }
                     break;
@@ -633,37 +571,56 @@ public class TorrentListMenuFragment extends Fragment implements TorrentListNoti
         }
     }
 
-    private int fillProfiles() {
+    private int fillProfileSelector() {
         TransmissionProfileInterface context = (TransmissionProfileInterface) getActivity();
         TransmissionProfile currentProfile = context.getProfile();
 
         if (currentProfile == null) {
-            return 0;
+            return -1;
         }
 
-        filterAdapter.insert(new ListItem(Type.PROFILE_SELECTOR,
-            currentProfile.getId(), currentProfile.getName(), null), 0);
+        ListItem item = new ListItem(Type.PROFILE_SELECTOR,
+            currentProfile.getId(), currentProfile.getName(), null);
+        filterAdapter.itemData.add(0, item);
 
-        int index = 1;
+        listItemMap.put(PROFILE_SELECTOR_KEY, item);
+
+        return 0;
+    }
+
+    private int[] fillProfiles() {
+        TransmissionProfileInterface context = (TransmissionProfileInterface) getActivity();
+        TransmissionProfile currentProfile = context.getProfile();
+        ListItem selector = listItemMap.get(PROFILE_SELECTOR_KEY);
+
+        int index = filterAdapter.itemData.indexOf(selector);
+
+        if (currentProfile == null || index == -1) {
+            return new int[]{-1, 0};
+        }
+
+        int start = ++index;
+        int count = 0;
         for (TransmissionProfile profile : profiles) {
             if (profile.getId().equals(currentProfile.getId())) {
                 continue;
             }
 
-            filterAdapter.insert(new ListItem(Type.PROFILE,
-                profile.getId(), profile.getName(), null), index);
+            ListItem item = new ListItem(Type.PROFILE,
+                profile.getId(), profile.getName(), null);
+            filterAdapter.itemData.add(index++, item);
+            count++;
         }
 
-        return index;
+        return new int[]{start, count};
     }
 
     private void fillMenuItems() {
         ArrayList<ListItem> list = new ArrayList<>();
 
-        filterAdapter.setNotifyOnChange(false);
-        filterAdapter.clear();
+        filterAdapter.itemData.clear();
 
-        fillProfiles();
+        fillProfileSelector();
 
         list.add(new ListItem(Type.FIND, "", R.string.find));
 
@@ -726,8 +683,8 @@ public class TorrentListMenuFragment extends Fragment implements TorrentListNoti
         }
 
         if (sharedPrefs.getBoolean(G.PREF_FILTER_ALL, true) && list.size() > 1 || list.size() > 0) {
-            filterAdapter.add(header);
-            filterAdapter.addAll(list);
+            filterAdapter.itemData.add(header);
+            filterAdapter.itemData.addAll(list);
         }
         list.clear();
 
@@ -809,22 +766,22 @@ public class TorrentListMenuFragment extends Fragment implements TorrentListNoti
         }
 
         if (list.size() > 1) {
-            filterAdapter.add(header);
-            filterAdapter.addAll(list);
+            filterAdapter.itemData.add(header);
+            filterAdapter.itemData.addAll(list);
 
             if (listItemMap.containsKey(SORT_ORDER_HEADER_KEY)) {
                 header = listItemMap.get(SORT_ORDER_HEADER_KEY);
             } else {
                 header = new ListItem(Type.HEADER, SORT_ORDER_HEADER_KEY, R.string.menu_order_header);
             }
-            filterAdapter.add(header);
+            filterAdapter.itemData.add(header);
             ListItem item;
             if (listItemMap.containsKey(SortOrder.DESCENDING.name())) {
                 item = listItemMap.get(SortOrder.DESCENDING.name());
             } else {
                 item = new ListItem(Type.SORT_ORDER, SortOrder.DESCENDING, R.string.menu_order_descending, null);
             }
-            filterAdapter.add(item);
+            filterAdapter.itemData.add(item);
         }
         list.clear();
 
@@ -832,13 +789,7 @@ public class TorrentListMenuFragment extends Fragment implements TorrentListNoti
     }
 
     private void checkSelectedItems() {
-        SparseBooleanArray checked = filterList.getCheckedItemPositions();
-        for (int i = 0; i < checked.size(); i++) {
-            int position = checked.keyAt(i);
-            if (checked.get(position)) {
-                filterList.setItemChecked(position, false);
-            }
-        }
+        filterAdapter.clearSelections();
 
         FilterBy selectedFilter = FilterBy.ALL;
         if (sharedPrefs.contains(G.PREF_LIST_FILTER)) {
@@ -848,15 +799,15 @@ public class TorrentListMenuFragment extends Fragment implements TorrentListNoti
                 );
             } catch (Exception ignored) { }
         }
-        filterPosition = filterAdapter.getPosition(
+        filterPosition = filterAdapter.itemData.indexOf(
             listItemMap.get(selectedFilter.name()));
         if (filterPosition > -1) {
-            filterList.setItemChecked(filterPosition, true);
+            filterAdapter.setItemSelected(filterPosition, true);
         } else if (selectedFilter != FilterBy.ALL) {
-            filterPosition = filterAdapter.getPosition(
+            filterPosition = filterAdapter.itemData.indexOf(
                     listItemMap.get(selectedFilter.name()));
             if (filterPosition > -1) {
-                filterList.setItemChecked(0, true);
+                filterAdapter.setItemSelected(filterPosition, true);
                 TorrentListFragment fragment =
                         ((TorrentListFragment) getFragmentManager().findFragmentById(R.id.torrent_list));
                 filterPosition = ListView.INVALID_POSITION;
@@ -876,9 +827,9 @@ public class TorrentListMenuFragment extends Fragment implements TorrentListNoti
                 );
             } catch (Exception ignored) { }
         }
-        sortPosition = filterAdapter.getPosition(
+        sortPosition = filterAdapter.itemData.indexOf(
                 listItemMap.get(selectedSort.name()));
-        filterList.setItemChecked(sortPosition, true);
+        filterAdapter.setItemSelected(sortPosition, true);
 
         SortOrder selectedOrder = SortOrder.DESCENDING;
         if (sharedPrefs.contains(G.PREF_LIST_SORT_ORDER)) {
@@ -889,9 +840,9 @@ public class TorrentListMenuFragment extends Fragment implements TorrentListNoti
             } catch (Exception ignored) { }
         }
         if (selectedOrder == SortOrder.DESCENDING) {
-            orderPosition = filterAdapter.getPosition(
+            orderPosition = filterAdapter.itemData.indexOf(
                 listItemMap.get(selectedOrder.name()));
-            filterList.setItemChecked(orderPosition, true);
+            filterAdapter.setItemSelected(orderPosition, true);
         } else {
             orderPosition = ListView.INVALID_POSITION;
         }
@@ -902,9 +853,9 @@ public class TorrentListMenuFragment extends Fragment implements TorrentListNoti
                 selectedDirectory = sharedPrefs.getString(G.PREF_LIST_DIRECTORY, null);
             }
             if (selectedDirectory != null) {
-                directoryPosition = filterAdapter.getPosition(
+                directoryPosition = filterAdapter.itemData.indexOf(
                     listItemMap.get(selectedDirectory));
-                filterList.setItemChecked(directoryPosition, true);
+                filterAdapter.setItemSelected(directoryPosition, true);
             }
         }
 
@@ -919,34 +870,40 @@ public class TorrentListMenuFragment extends Fragment implements TorrentListNoti
                 selectedTracker = null;
             }
             if (selectedTracker != null) {
-                trackerPosition = filterAdapter.getPosition(
+                trackerPosition = filterAdapter.itemData.indexOf(
                     listItemMap.get(selectedTracker));
-                filterList.setItemChecked(trackerPosition, true);
+                filterAdapter.setItemSelected(trackerPosition, true);
             }
         }
     }
 
-    private int removeProfiles() {
-        ListItem item = listItemMap.get(PROFILE_SELECTOR_KEY);
-        int position = filterAdapter.getPosition(item);
-
-        if (position != -1) {
-            ArrayList<ListItem> removal = new ArrayList<>();
-            removal.add(item);
-
-            for (int i = 0; i < filterAdapter.getCount(); i++) {
-                item = filterAdapter.getItem(i);
-                if (item.getType() == Type.PROFILE) {
-                    removal.add(item);
-                }
-            }
-
-            for (ListItem i : removal) {
-                filterAdapter.remove(i);
-            }
-        }
+    private int removeProfileSelector() {
+        ListItem selector = listItemMap.get(PROFILE_SELECTOR_KEY);
+        int position = filterAdapter.itemData.indexOf(selector);
+        filterAdapter.itemData.remove(selector);
 
         return position;
+    }
+
+    private int[] removeProfiles() {
+        Iterator<ListItem> iter = filterAdapter.itemData.iterator();
+
+        int start = -1;
+        int count = 0;
+        int index = 0;
+        while (iter.hasNext()) {
+            ListItem item = iter.next();
+            if (item.getType() == Type.PROFILE) {
+                iter.remove();
+                if (start == -1) {
+                    start = index;
+                }
+                count++;
+            }
+            ++index;
+        }
+
+        return new int[]{start, count};
     }
 
     private ListItem getDirectoryItem(String directory) {
@@ -968,26 +925,23 @@ public class TorrentListMenuFragment extends Fragment implements TorrentListNoti
         return item;
     }
 
-    private int removeDirectoriesFilters() {
+    private int[] removeDirectoriesFilters() {
         ListItem item = listItemMap.get(DIRECTORIES_HEADER_KEY);
-        int position = filterAdapter.getPosition(item);
+        int start = filterAdapter.itemData.indexOf(item);
+        int count = 0;
 
-        if (position != -1) {
-            ArrayList<ListItem> removal = new ArrayList<>();
-            removal.add(item);
-            for (int i = 0; i < filterAdapter.getCount(); i++) {
-                item = filterAdapter.getItem(i);
-                if (item.getType() == Type.DIRECTORY) {
-                    removal.add(item);
-                }
-            }
+        filterAdapter.itemData.remove(item);
+        Iterator<ListItem> iter = filterAdapter.itemData.iterator();
 
-            for (ListItem i : removal) {
-                filterAdapter.remove(i);
+        while (iter.hasNext()) {
+            item = iter.next();
+            if (item.getType() == Type.DIRECTORY) {
+                iter.remove();
+                count++;
             }
         }
 
-        return position;
+        return new int[]{start, count};
     }
 
     private ListItem getTrackerItem(String tracker) {
@@ -1001,124 +955,123 @@ public class TorrentListMenuFragment extends Fragment implements TorrentListNoti
         return item;
     }
 
-    private int removeTrackersFilters() {
+    private int[] removeTrackersFilters() {
         ListItem item = listItemMap.get(TRACKERS_HEADER_KEY);
-        int position = filterAdapter.getPosition(item);
+        int start = filterAdapter.itemData.indexOf(item);
+        int count = 0;
 
-        if (position != -1) {
-            ArrayList<ListItem> removal = new ArrayList<>();
-            removal.add(item);
-            for (int i = 0; i < filterAdapter.getCount(); i++) {
-                item = filterAdapter.getItem(i);
-                if (item.getType() == Type.TRACKER) {
-                    removal.add(item);
-                }
-            }
+        filterAdapter.itemData.remove(item);
+        Iterator<ListItem> iter = filterAdapter.itemData.iterator();
 
-            for (ListItem i : removal) {
-                filterAdapter.remove(i);
+        while (iter.hasNext()) {
+            item = iter.next();
+            if (item.getType() == Type.TRACKER) {
+                iter.remove();
+                count++;
             }
         }
 
-        return position;
+        return new int[]{start, count};
     }
 
-    private static class FilterAdapter extends ArrayAdapter<ListItem> {
-        public static final int ITEM_TYPE_HEADER = 0;
-        public static final int ITEM_TYPE_NORMAL = 1;
-
-        private static final int ITEM_TYPE_COUNT = 2;
-
-        private LayoutInflater inflater;
-
-        private final static int headerLayout = R.layout.filter_list_header;
-        private final static int itemLayout = R.layout.filter_list_item;
-        private final static int emptyLayout = R.layout.filter_hidden_item;
-        private final static int viewId = android.R.id.text1;
-
+    private static class FilterAdapter extends SelectableRecyclerViewAdapter<FilterAdapter.ViewHolder, ListItem> {
+        private TorrentListMenuFragment context;
         private boolean profilesVisible;
 
-        public FilterAdapter(Context context) {
-            super(context, viewId);
-            inflater = (LayoutInflater)context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        public FilterAdapter(TorrentListMenuFragment context) {
+            this.context = context;
         }
 
-        public void toggleProfileVisibility() {
-            profilesVisible = !profilesVisible;
+        public boolean areProfilesVisible() {
+            return profilesVisible;
+        }
+
+        public void setProfilesVisible(boolean visible) {
+            this.profilesVisible = visible;
+            SparseBooleanArray selected = getSelectedItemPositions();
+            clearSelections();
+
+            if (visible) {
+                int[] range = context.fillProfiles();
+                notifyItemRangeInserted(range[0], range[1]);
+                setItemSelected(range[0] - 1, true);
+
+                for (int i = 0; i < selected.size(); ++i) {
+                    int index = selected.keyAt(i);
+
+                    if (index > range[0] + range[1]) {
+                        setItemSelected(index + range[1], true);
+                    }
+
+                }
+            } else {
+                int[] range = context.removeProfiles();
+                notifyItemRangeRemoved(range[0], range[1]);
+
+                for (int i = 0; i < selected.size(); ++i) {
+                    int index = selected.keyAt(i);
+
+                    if (index > range[0] + range[1]) {
+                        setItemSelected(index - range[1], true);
+                    }
+
+                }
+            }
+        }
+
+        @Override
+        public int getItemCount() {
+            return this.itemData.size();
+        }
+
+        @Override
+        public long getItemId(int position) {
+            return this.itemData.get(position).hashCode();
+        }
+
+        @Override
+        public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+            View itemLayoutView = LayoutInflater.from(parent.getContext()).inflate(viewType, parent, false);
+
+            ViewHolder holder = new ViewHolder(itemLayoutView, viewType);
+            return holder;
+        }
+
+        @Override
+        public void onBindViewHolder(ViewHolder holder, final int position) {
+            super.onBindViewHolder(holder, position);
+
+            final ListItem item = itemData.get(position);
+
+            holder.itemView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    context.setActivatedPosition(item, position);
+                }
+            });
+            holder.label.setText(item.getLabel());
         }
 
         @Override
         public int getItemViewType(int position) {
-            ListItem item = getItem(position);
+            ListItem item = itemData.get(position);
             if (item.getType() == Type.HEADER) {
-                return ITEM_TYPE_HEADER;
+                return R.layout.filter_list_header;
             } else {
-                return ITEM_TYPE_NORMAL;
+                return R.layout.filter_list_item;
             }
         }
 
-        @Override
-        public boolean areAllItemsEnabled() {
-            return false;
-        }
+        public static class ViewHolder extends RecyclerView.ViewHolder {
+            public TextView label;
+            public TextView sublabel;
 
-        @Override
-        public boolean isEnabled(int position) {
-            return getItemViewType(position) != ITEM_TYPE_HEADER;
-        }
+            public ViewHolder(View itemView, int type) {
+                super(itemView);
 
-        @Override
-        public int getViewTypeCount() {
-            return ITEM_TYPE_COUNT;
-        }
-
-        @Override
-        public boolean hasStableIds() {
-            return true;
-        }
-
-        @Override
-        public View getView(int position, View convertView, ViewGroup parent) {
-            ListItem item = getItem(position);
-
-            TextView text;
-
-            if (item.getType() == Type.PROFILE) {
-                convertView = null;
+                label = (TextView) itemView.findViewById(android.R.id.text1);
+                sublabel = (TextView) itemView.findViewById(android.R.id.text2);
             }
-
-            if (convertView == null) {
-                switch (item.getType()) {
-                    case HEADER:
-                        convertView = inflater.inflate(headerLayout, parent, false);
-                        break;
-                    case PROFILE:
-                    case PROFILE_SELECTOR:
-                    case FIND:
-                    case FILTER:
-                    case DIRECTORY:
-                    case TRACKER:
-                    case SORT_BY:
-                    case SORT_ORDER:
-                        convertView = inflater.inflate(itemLayout, parent, false);
-                        break;
-                }
-            }
-
-            text = (TextView) convertView.findViewById(viewId);
-            text.setText(item.getLabel());
-
-            if (item.getType() == Type.PROFILE && !profilesVisible) {
-                convertView.setLayoutParams(new ViewGroup.LayoutParams(
-                    ViewGroup.LayoutParams.MATCH_PARENT,
-                    1));
-            } else {
-                convertView.setLayoutParams(new ViewGroup.LayoutParams(
-                    ViewGroup.LayoutParams.MATCH_PARENT,
-                    ViewGroup.LayoutParams.WRAP_CONTENT));
-            }
-
-            return convertView;
         }
     }
 
@@ -1176,5 +1129,35 @@ public class TorrentListMenuFragment extends Fragment implements TorrentListNoti
         public String getPreferenceKey() {
             return pref;
         }
+
+        @Override
+        public int hashCode() {
+            int result = type.hashCode();
+            result = 31 * result + (value != null ? value.hashCode() : 0);
+            result = 31 * result + (valueString != null ? valueString.hashCode() : 0);
+            result = 31 * result + (label != null ? label.hashCode() : 0);
+            result = 31 * result + (pref != null ? pref.hashCode() : 0);
+            return result;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+
+            ListItem listItem = (ListItem) o;
+
+            if (label != null ? !label.equals(listItem.label) : listItem.label != null)
+                return false;
+            if (pref != null ? !pref.equals(listItem.pref) : listItem.pref != null) return false;
+            if (type != listItem.type) return false;
+            if (value != null ? !value.equals(listItem.value) : listItem.value != null)
+                return false;
+            if (valueString != null ? !valueString.equals(listItem.valueString) : listItem.valueString != null)
+                return false;
+
+            return true;
+        }
+
     }
 }

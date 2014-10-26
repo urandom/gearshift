@@ -8,34 +8,6 @@
       <root url="jar://$PROJECT_DIR$/gearshift/build/intermediates/exploded-aar/com.android.support/appcompat-v7/21.0.0/classes.jar!/" />
     </CLASSES>
     <JAVADOC />
-    <SOURCES>
-      <root url="file://$APPLICATION_HOME_DIR$/sdk/extras/support/v4/ics" />
-      <root url="file://$APPLICATION_HOME_DIR$/sdk/extras/support/v4/java" />
-      <root url="file://$APPLICATION_HOME_DIR$/sdk/extras/support/v4/froyo" />
-      <root url="file://$APPLICATION_HOME_DIR$/sdk/extras/support/v4/tests/java" />
-      <root url="file://$APPLICATION_HOME_DIR$/sdk/extras/support/v4/eclair" />
-      <root url="file://$APPLICATION_HOME_DIR$/sdk/extras/support/v4/kitkat" />
-      <root url="file://$APPLICATION_HOME_DIR$/sdk/extras/support/v4/ics-mr1" />
-      <root url="file://$APPLICATION_HOME_DIR$/sdk/extras/support/v4/honeycomb" />
-      <root url="file://$APPLICATION_HOME_DIR$/sdk/extras/support/v4/jellybean" />
-      <root url="file://$APPLICATION_HOME_DIR$/sdk/extras/support/v4/eclair-mr1" />
-      <root url="file://$APPLICATION_HOME_DIR$/sdk/extras/support/v4/gingerbread" />
-      <root url="file://$APPLICATION_HOME_DIR$/sdk/extras/support/v4/honeycomb_mr2" />
-      <root url="file://$APPLICATION_HOME_DIR$/sdk/extras/support/v4/jellybean-mr1" />
-      <root url="file://$APPLICATION_HOME_DIR$/sdk/extras/support/v4/jellybean-mr2" />
-      <root url="file://$APPLICATION_HOME_DIR$/sdk/extras/support/v7/appcompat/src" />
-      <root url="file://$APPLICATION_HOME_DIR$/sdk/extras/support/v7/gridlayout/src" />
-      <root url="file://$APPLICATION_HOME_DIR$/sdk/extras/support/v7/mediarouter/src" />
-      <root url="file://$APPLICATION_HOME_DIR$/sdk/extras/support/v7/mediarouter/jellybean" />
-      <root url="file://$APPLICATION_HOME_DIR$/sdk/extras/support/v7/mediarouter/jellybean-mr1" />
-      <root url="file://$APPLICATION_HOME_DIR$/sdk/extras/support/v7/mediarouter/jellybean-mr2" />
-      <root url="file://$APPLICATION_HOME_DIR$/sdk/extras/support/v8/renderscript/java/src" />
-      <root url="file://$APPLICATION_HOME_DIR$/sdk/extras/support/v13/ics" />
-      <root url="file://$APPLICATION_HOME_DIR$/sdk/extras/support/v13/java" />
-      <root url="file://$APPLICATION_HOME_DIR$/sdk/extras/support/v13/ics-mr1" />
-      <root url="file://$APPLICATION_HOME_DIR$/sdk/extras/support/tests/java" />
-      <root url="file://$APPLICATION_HOME_DIR$/sdk/extras/support/annotations/src" />
-      <root url="file://$APPLICATION_HOME_DIR$/sdk/extras/support/v7/appcompat/src" />
-    </SOURCES>
+    <SOURCES />
   </library>
 </component>
