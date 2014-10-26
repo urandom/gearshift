@@ -573,14 +573,16 @@ public class TorrentListMenuFragment extends Fragment implements TorrentListNoti
 
     private int fillProfileSelector() {
         TransmissionProfileInterface context = (TransmissionProfileInterface) getActivity();
-        TransmissionProfile currentProfile = context.getProfile();
+        TransmissionProfile profile = context.getProfile();
 
-        if (currentProfile == null) {
+        if (profile == null) {
             return -1;
         }
 
         ListItem item = new ListItem(Type.PROFILE_SELECTOR,
-            currentProfile.getId(), currentProfile.getName(), null);
+            profile.getId(), profile.getName(), null);
+        item.setSublabel((profile.getUsername().length() > 0 ? profile.getUsername() + "@" : "")
+            + profile.getHost() + ":" + profile.getPort());
         filterAdapter.itemData.add(0, item);
 
         listItemMap.put(PROFILE_SELECTOR_KEY, item);
@@ -608,6 +610,8 @@ public class TorrentListMenuFragment extends Fragment implements TorrentListNoti
 
             ListItem item = new ListItem(Type.PROFILE,
                 profile.getId(), profile.getName(), null);
+            item.setSublabel((profile.getUsername().length() > 0 ? profile.getUsername() + "@" : "")
+                + profile.getHost() + ":" + profile.getPort());
             filterAdapter.itemData.add(index++, item);
             count++;
         }
@@ -1050,15 +1054,22 @@ public class TorrentListMenuFragment extends Fragment implements TorrentListNoti
                 }
             });
             holder.label.setText(item.getLabel());
+            if (holder.sublabel != null) {
+                holder.sublabel.setText(item.getSublabel());
+            }
         }
 
         @Override
         public int getItemViewType(int position) {
             ListItem item = itemData.get(position);
-            if (item.getType() == Type.HEADER) {
-                return R.layout.filter_list_header;
-            } else {
-                return R.layout.filter_list_item;
+            switch (item.getType()) {
+                case HEADER:
+                    return R.layout.filter_list_header;
+                case PROFILE:
+                case PROFILE_SELECTOR:
+                    return R.layout.filter_list_profile_item;
+                default:
+                    return R.layout.filter_list_item;
             }
         }
 
@@ -1080,6 +1091,7 @@ public class TorrentListMenuFragment extends Fragment implements TorrentListNoti
         private Enum<?> value;
         private String valueString;
         private String label;
+        private String sublabel;
         private String pref;
 
         public ListItem(Type type, Enum<?> value, int stringId,
@@ -1124,6 +1136,14 @@ public class TorrentListMenuFragment extends Fragment implements TorrentListNoti
 
         public String getLabel() {
             return label;
+        }
+
+        public String getSublabel() {
+            return sublabel;
+        }
+
+        public void setSublabel(String sublabel) {
+            this.sublabel = sublabel;
         }
 
         public String getPreferenceKey() {
