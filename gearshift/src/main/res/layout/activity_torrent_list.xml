@@ -16,6 +16,7 @@
             android:id="@+id/menu_alt_speed"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
+            android:layout_marginRight="8dp"
             android:layout_gravity="end"
             android:thumb="@drawable/ic_arrow_drop_down_circle_white_24dp">
 

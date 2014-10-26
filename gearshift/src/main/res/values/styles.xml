@@ -11,6 +11,7 @@
         <item name="colorControlNormal">@color/color_primary_dark</item>
         <item name="actionBarStyle">@style/DefaultToolbar</item>
         <item name="windowActionBar">false</item>
+        <item name="windowActionModeOverlay">true</item>
     </style>
 
     <!-- Application theme. -->
