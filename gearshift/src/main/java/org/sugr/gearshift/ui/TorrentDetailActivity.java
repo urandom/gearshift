@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.NavUtils;
+import android.support.v7.widget.Toolbar;
 import android.text.Html;
 import android.text.Spanned;
 import android.view.Menu;
@@ -55,8 +56,11 @@ public class TorrentDetailActivity extends BaseTorrentActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_torrent_detail);
 
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+
         // Show the Up button in the action bar.
-        getActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         currentTorrentPosition = in.getIntExtra(G.ARG_PAGE_POSITION, 0);
         if (currentTorrentPosition < 0) {
