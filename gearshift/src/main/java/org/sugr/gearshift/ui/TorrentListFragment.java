@@ -19,6 +19,7 @@ import android.support.v4.content.Loader;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBarActivity;
+import android.support.v7.widget.Toolbar;
 import android.text.Html;
 import android.text.Spanned;
 import android.text.TextUtils;
@@ -321,7 +322,8 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
             }
 
             TransmissionSession session = context.getSession();
-            TextView status = (TextView) getView().findViewById(R.id.status_bar_text);
+            Toolbar status = (Toolbar) getView().findViewById(R.id.status_bar);
+            TextView statusBarText = (TextView) status.findViewById(R.id.status_bar_text);
 
             if (!sharedPrefs.getBoolean(G.PREF_SHOW_STATUS, false)) {
                 return;
@@ -357,7 +359,7 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
                 }
             }
 
-            status.setText(Html.fromHtml(String.format(
+            statusBarText.setText(Html.fromHtml(String.format(
                 getString(R.string.status_bar_format),
                 G.readableFileSize(data.downloadSpeed),
                 limitDown,
@@ -794,7 +796,7 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
     }
 
     private void toggleStatusBar() {
-        View status = getView().findViewById(R.id.status_bar_text);
+        View status = getView().findViewById(R.id.status_bar);
         toggleStatusBar(status);
     }
 
