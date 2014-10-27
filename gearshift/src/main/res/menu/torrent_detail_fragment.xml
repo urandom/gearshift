@@ -16,11 +16,6 @@
         android:icon="@drawable/ic_action_cancel"
         app:showAsAction="ifRoom" />
 
-    <item android:id="@+id/delete"
-        android:title="@string/remove_data"
-        android:icon="@drawable/ic_action_discard"
-        app:showAsAction="ifRoom" />
-
     <item android:id="@+id/move"
         android:title="@string/move"
         android:icon="@drawable/ic_action_forward"

@@ -175,23 +175,24 @@ public class TorrentDetailFragment extends Fragment implements TorrentListNotifi
         String action;
         switch (item.getItemId()) {
             case R.id.remove:
-            case R.id.delete:
                 AlertDialog.Builder builder = new AlertDialog.Builder(getActivity())
                     .setCancelable(false)
                     .setNegativeButton(android.R.string.no, null);
 
                 builder.setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
                     @Override public void onClick(DialogInterface dialog, int id) {
-                        manager.removeTorrent(hashStrings, item.getItemId() == R.id.delete);
+                        manager.removeTorrent(hashStrings, false);
                         context.setRefreshing(true, DataService.Requests.REMOVE_TORRENT);
                     }
-                })
-                    .setMessage(String.format(getString(
-                                    item.getItemId() == R.id.delete
-                            ? R.string.delete_current_confirmation
-                            : R.string.remove_current_confirmation),
-                                G.trimTrailingWhitespace(Html.fromHtml(currentTorrentName))))
-                    .show();
+                }).setNeutralButton(R.string.remove_with_data, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        manager.removeTorrent(hashStrings, true);
+                        context.setRefreshing(true, DataService.Requests.REMOVE_TORRENT);
+                    }
+                }).setMessage(String.format(getString(R.string.remove_current_confirmation),
+                    G.trimTrailingWhitespace(Html.fromHtml(currentTorrentName))))
+                .show();
                 return true;
             case R.id.resume:
                 switch(currentTorrentStatus) {
@@ -392,7 +393,6 @@ public class TorrentDetailFragment extends Fragment implements TorrentListNotifi
         }
         boolean visible = ((TransmissionSessionInterface) getActivity()).getSession() != null;
         menu.findItem(R.id.remove).setVisible(visible);
-        menu.findItem(R.id.delete).setVisible(visible);
         menu.findItem(R.id.move).setVisible(visible);
         menu.findItem(R.id.verify).setVisible(visible);
         menu.findItem(R.id.reannounce).setVisible(visible);

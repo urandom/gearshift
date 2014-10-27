@@ -158,7 +158,6 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
                     }
                     return true;
                 case R.id.remove:
-                case R.id.delete:
                     builder = new AlertDialog.Builder(getActivity())
                             .setCancelable(false)
                             .setNegativeButton(android.R.string.no, null);
@@ -167,17 +166,27 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
                             new DialogInterface.OnClickListener() {
                                 @Override
                                 public void onClick(DialogInterface dialog, int id) {
-                                    manager.removeTorrent(hashStrings, item.getItemId() == R.id.delete);
+                                    manager.removeTorrent(hashStrings, false);
                                     ((TransmissionSessionInterface) getActivity()).setRefreshing(true,
                                         DataService.Requests.REMOVE_TORRENT);
 
                                     mode.finish();
                                 }
                             })
-                            .setMessage(item.getItemId() == R.id.delete
-                                    ? R.string.delete_selected_confirmation
-                                    : R.string.remove_selected_confirmation)
-                            .show();
+                        .setNeutralButton(R.string.remove_with_data,
+                            new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    manager.removeTorrent(hashStrings, true);
+                                    ((TransmissionSessionInterface) getActivity()).setRefreshing(true,
+                                        DataService.Requests.REMOVE_TORRENT);
+
+                                    mode.finish();
+
+                                }
+                            })
+                        .setMessage(R.string.remove_selected_confirmation)
+                        .show();
                     return true;
                 case R.id.resume:
                     action = hasQueued ? "torrent-start-now" : "torrent-start";
