@@ -24,14 +24,14 @@
             android:minHeight="0dp"
             android:alpha="0.3"
             android:elevation="2dp"
+            android:paddingLeft="8dp"
+            android:paddingRight="8dp"
             android:visibility="gone">
 
             <TextView
                 android:id="@+id/status_bar_text"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:paddingLeft="8dp"
-                android:paddingRight="24dp"
                 android:paddingTop="4dp"
                 android:paddingBottom="4dp"
                 android:fontFamily="sans-serif-condensed"
