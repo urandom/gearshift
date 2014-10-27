@@ -418,7 +418,6 @@ public class TorrentListMenuFragment extends Fragment implements TorrentListNoti
         filterAdapter = new FilterAdapter(this);
         filterList.setAdapter(filterAdapter);
         filterList.setLayoutManager(new LinearLayoutManager(getActivity()));
-        filterList.setItemAnimator(new DefaultItemAnimator());
 
         sharedPrefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
         sharedPrefs.registerOnSharedPreferenceChangeListener(sharedPrefListener);
