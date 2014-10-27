@@ -3,22 +3,22 @@
       xmlns:app="http://schemas.android.com/apk/res-auto">
     <item android:id="@+id/resume"
         android:title="@string/resume"
-        android:icon="@drawable/ic_action_play"
+        android:icon="@drawable/ic_play_arrow_white_36dp"
         app:showAsAction="ifRoom" />
 
     <item android:id="@+id/pause"
         android:title="@string/pause"
-        android:icon="@drawable/ic_action_pause"
+        android:icon="@drawable/ic_pause_white_36dp"
         app:showAsAction="ifRoom" />
 
     <item android:id="@+id/remove"
         android:title="@string/remove"
-        android:icon="@drawable/ic_action_cancel"
+        android:icon="@drawable/ic_remove_white_36dp"
         app:showAsAction="ifRoom" />
 
     <item android:id="@+id/move"
         android:title="@string/move"
-        android:icon="@drawable/ic_action_forward"
+        android:icon="@drawable/ic_forward_white_36dp"
         android:menuCategory="system"
         android:orderInCategory="10"
         app:showAsAction="ifRoom" />
