@@ -10,6 +10,7 @@ import android.support.v4.app.NavUtils;
 import android.support.v7.widget.Toolbar;
 import android.text.Html;
 import android.text.Spanned;
+import android.transition.Explode;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
@@ -96,6 +97,7 @@ public class TorrentDetailActivity extends BaseTorrentActivity {
         switch (item.getItemId()) {
             case android.R.id.home:
                 NavUtils.navigateUpTo(this, new Intent(this, TorrentListActivity.class));
+                overridePendingTransition(android.R.anim.fade_in , R.anim.slide_out_right);
                 return true;
             case R.id.menu_refresh:
                 manager.update();
@@ -126,6 +128,12 @@ public class TorrentDetailActivity extends BaseTorrentActivity {
         if (manager != null) {
             manager.setTorrentsToUpdate(getCurrentTorrentHashStrings());
         }
+    }
+
+    @Override public void onBackPressed() {
+        super.onBackPressed();
+
+        overridePendingTransition(android.R.anim.fade_in , R.anim.slide_out_right);
     }
 
     @Override protected boolean handleSuccessServiceBroadcast(String type, Intent intent) {
