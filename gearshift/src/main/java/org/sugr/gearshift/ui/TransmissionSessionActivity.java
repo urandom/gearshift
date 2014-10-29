@@ -9,6 +9,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.NavUtils;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.widget.Toolbar;
@@ -226,6 +227,10 @@ public class TransmissionSessionActivity extends ActionBarActivity implements Da
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
+            case android.R.id.home:
+                NavUtils.navigateUpTo(this, new Intent(this, TorrentListActivity.class));
+                overridePendingTransition(android.R.anim.fade_in , R.anim.slide_out_top);
+                return true;
             case R.id.menu_refresh:
                 manager.update();
                 refreshing = !refreshing;
@@ -233,6 +238,12 @@ public class TransmissionSessionActivity extends ActionBarActivity implements Da
                 return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override public void onBackPressed() {
+        super.onBackPressed();
+
+        overridePendingTransition(android.R.anim.fade_in, R.anim.slide_out_top);
     }
 
     public DataServiceManager getDataServiceManager() {

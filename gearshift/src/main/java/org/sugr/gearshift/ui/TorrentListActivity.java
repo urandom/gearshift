@@ -418,6 +418,7 @@ public class TorrentListActivity extends BaseTorrentActivity
                 intent.putExtra(G.ARG_PROFILE, profile);
                 intent.putExtra(G.ARG_SESSION, session);
                 startActivity(intent);
+                overridePendingTransition(R.anim.slide_in_top, android.R.anim.fade_out);
                 return true;
             case R.id.menu_settings:
                 intent = new Intent(this, SettingsActivity.class);
@@ -430,6 +431,7 @@ public class TorrentListActivity extends BaseTorrentActivity
                     intent.putExtra(G.ARG_PROFILE_ID, profile.getId());
                 }
                 startActivity(intent);
+                overridePendingTransition(R.anim.slide_in_top, android.R.anim.fade_out);
                 return true;
             case R.id.menu_about:
                 intent = new Intent(this, AboutActivity.class);

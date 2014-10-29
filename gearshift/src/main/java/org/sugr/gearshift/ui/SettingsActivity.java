@@ -9,6 +9,7 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceManager;
+import android.support.v4.app.NavUtils;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -130,17 +131,27 @@ public class SettingsActivity extends PreferenceActivity
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch(item.getItemId()) {
-        case R.id.menu_add_profile:
-            String name = TransmissionProfileSettingsFragment.class.getCanonicalName();
-            Bundle args = new Bundle();
-            if (!onIsHidingHeaders() && onIsMultiPane())
-                switchToHeader(name, args);
-            else
-                startWithFragment(name, args, null, 0);
+            case android.R.id.home:
+                NavUtils.navigateUpTo(this, new Intent(this, TorrentListActivity.class));
+                overridePendingTransition(android.R.anim.fade_in , R.anim.slide_out_top);
+                return true;
+            case R.id.menu_add_profile:
+                String name = TransmissionProfileSettingsFragment.class.getCanonicalName();
+                Bundle args = new Bundle();
+                if (!onIsHidingHeaders() && onIsMultiPane())
+                    switchToHeader(name, args);
+                else
+                    startWithFragment(name, args, null, 0);
 
-            return true;
+                return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override public void onBackPressed() {
+        super.onBackPressed();
+
+        overridePendingTransition(android.R.anim.fade_in, R.anim.slide_out_top);
     }
 
     @Override protected void onResume() {
