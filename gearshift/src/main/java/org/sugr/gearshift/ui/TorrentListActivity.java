@@ -327,6 +327,8 @@ public class TorrentListActivity extends BaseTorrentActivity
                 detailIntent.putExtra(G.ARG_REFRESH_TYPE, refreshType);
             }
             startActivity(detailIntent);
+
+            overridePendingTransition(R.anim.slide_in_right, android.R.anim.fade_out);
         }
     }
 
