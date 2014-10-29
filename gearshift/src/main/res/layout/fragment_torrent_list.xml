@@ -23,7 +23,7 @@
             android:background="?attr/colorPrimary"
             android:minHeight="0dp"
             android:alpha="0.3"
-            android:elevation="2dp"
+            android:elevation="8dp"
             android:paddingLeft="8dp"
             android:paddingRight="@dimen/status_line_padding_right"
             android:visibility="gone">
