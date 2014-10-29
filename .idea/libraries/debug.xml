@@ -1,9 +1,0 @@
-<component name="libraryTable">
-  <library name="debug">
-    <CLASSES>
-      <root url="file://$PROJECT_DIR$/gearshift/build/classes/debug" />
-    </CLASSES>
-    <JAVADOC />
-    <SOURCES />
-  </library>
-</component>

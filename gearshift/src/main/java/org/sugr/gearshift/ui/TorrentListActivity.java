@@ -781,7 +781,8 @@ public class TorrentListActivity extends BaseTorrentActivity
                     if (TextUtils.isEmpty(dir)) {
                         dir = session.getDownloadDir();
                     }
-                    manager.addTorrent(data.toString(), null, dir, paused.isChecked(), null, null);
+                    manager.addTorrent(
+                        Uri.decode(data.toString()), null, dir, paused.isChecked(), null, null);
 
                     setRefreshing(true, DataService.Requests.ADD_TORRENT);
                     intentConsumed = true;
