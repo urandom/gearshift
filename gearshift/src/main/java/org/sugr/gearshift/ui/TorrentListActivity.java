@@ -483,6 +483,10 @@ public class TorrentListActivity extends BaseTorrentActivity
                 detailPanelVisible = true;
                 detailSlideAnimator.start();
 
+                LinearLayout.LayoutParams params = (LinearLayout.LayoutParams)
+                    findViewById(R.id.torrent_list).getLayoutParams();
+                params.rightMargin = 0;
+
                 return true;
             }
         } else {
@@ -495,6 +499,8 @@ public class TorrentListActivity extends BaseTorrentActivity
                     pager.setAlpha(0);
                     pager.setVisibility(View.GONE);
                 }
+                int panelMargin = params.leftMargin;
+
                 manager.setDetails(false);
 
                 FragmentManager fm = getSupportFragmentManager();
@@ -502,6 +508,9 @@ public class TorrentListActivity extends BaseTorrentActivity
                 if (fragment != null) {
                     fragment.removeMenuEntries();
                 }
+
+                params = (LinearLayout.LayoutParams) findViewById(R.id.torrent_list).getLayoutParams();
+                params.rightMargin = -1 * panelMargin;
 
                 return true;
             }

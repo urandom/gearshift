@@ -25,7 +25,7 @@
             android:alpha="0.3"
             android:elevation="8dp"
             android:paddingLeft="8dp"
-            android:paddingRight="@dimen/status_line_padding_right"
+            android:paddingRight="8dp"
             android:visibility="gone">
 
             <TextView
