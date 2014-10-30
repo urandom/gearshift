@@ -22,6 +22,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.LocalBroadcastManager;
+import android.support.v7.app.ActionBarActivity;
 import android.text.Html;
 import android.text.TextUtils;
 import android.view.ActionMode;
@@ -1386,7 +1387,7 @@ public class TorrentDetailPageFragment extends Fragment {
                                     selectedFiles.add(view);
                                 }
                             }
-                            fileActionMode = getActivity().startActionMode(actionModeFiles);
+                            fileActionMode = getActivity().findViewById(R.id.toolbar).startActionMode(actionModeFiles);
                             invalidateFileActionMenu(fileActionMode.getMenu());
                             return true;
                         }
@@ -1484,7 +1485,7 @@ public class TorrentDetailPageFragment extends Fragment {
                             }
                             container.setActivated(true);
                             selectedFiles.add(container);
-                            fileActionMode = getActivity().startActionMode(actionModeFiles);
+                            fileActionMode = getActivity().findViewById(R.id.toolbar).startActionMode(actionModeFiles);
                             invalidateFileActionMenu(fileActionMode.getMenu());
                             return true;
                         }
@@ -1767,7 +1768,7 @@ public class TorrentDetailPageFragment extends Fragment {
                         }
                         v.setActivated(true);
                         selectedTrackers.add(v);
-                        trackerActionMode = getActivity().startActionMode(actionModeTrackers);
+                        trackerActionMode = getActivity().findViewById(R.id.toolbar).startActionMode(actionModeTrackers);
                         stopAnimator();
                         animateTrackerLayout(null, visibleButtons);
 
