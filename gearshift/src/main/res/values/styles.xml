@@ -35,7 +35,7 @@
         <item name="android:windowBackground">@color/detail_background</item>
     </style>
 
-    <style name="DefaultToolbar" parent="Widget.AppCompat.ActionBar">
+    <style name="DefaultToolbar" parent="ThemeOverlay.AppCompat.ActionBar">
         <item name="android:background">?attr/colorPrimary</item>
         <item name="popupTheme">@style/ThemeOverlay.AppCompat.Light</item>
         <item name="theme">@style/ThemeOverlay.AppCompat.Dark.ActionBar</item>
