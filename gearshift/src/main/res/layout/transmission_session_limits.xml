@@ -1,204 +1,211 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.v7.widget.CardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
     style="@style/SessionCardContainer">
 
     <LinearLayout
-        android:id="@+id/transmission_session_limits_expander"
-        style="@style/CardHeaderExpander" >
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
 
-        <TextView
-            style="@style/CardHeaderExpanderText"
-            android:text="@string/torrent_limits" />
-
-        <View
-            android:id="@+id/transmission_session_limits_expander_image"
-            style="@style/CardHeaderExpanderImageCollapse" />
-    </LinearLayout>
-
-    <TableLayout
-        android:id="@+id/transmission_session_limits_content"
-        style="@style/CardContent" >
-        
-        <TableRow
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" >
-            
-	        <TextView
-	            style="@style/CardHeading"
-	            android:text="@string/session_settings_seeding"
-	            android:layout_span="2" />
-        </TableRow>
-
-        <TableRow
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" >
-
-            <CheckBox
-                android:id="@+id/transmission_session_seed_ratio_limit_check"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/session_settings_seed_ratio_limit" />
-            
-            <EditText
-                android:id="@+id/transmission_session_seed_ratio_limit"
-                android:inputType="numberDecimal"
-                style="@style/CardEntry" >
-            </EditText>
-
-        </TableRow>
-
-        <TableRow
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" >
-
-            <CheckBox
-                android:id="@+id/transmission_session_idle_seeding_limit_check"
-                android:layout_span="2"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/session_settings_enable_idle_seeding_limit" />
-
-        </TableRow>
-
-        <TableRow
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" >
+        <LinearLayout
+            android:id="@+id/transmission_session_limits_expander"
+            style="@style/CardHeaderExpander" >
 
             <TextView
-                style="@style/CardTextColumn"
-                android:text="@string/session_settings_idle_seeding_limit" />
+                style="@style/CardHeaderExpanderText"
+                android:text="@string/torrent_limits" />
 
-            <EditText
-                android:id="@+id/transmission_session_idle_seeding_limit"
-                android:inputType="number"
-                style="@style/CardEntry" >
-            </EditText>
+            <View
+                android:id="@+id/transmission_session_limits_expander_image"
+                style="@style/CardHeaderExpanderImageCollapse" />
+        </LinearLayout>
 
-        </TableRow>
+        <TableLayout
+            android:id="@+id/transmission_session_limits_content"
+            style="@style/CardContent" >
 
-        <TableRow
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" >
-            
-	        <TextView
-	            style="@style/CardHeading"
-	            android:text="@string/session_settings_queues"
-	            android:layout_span="2" />
-        </TableRow>
-        
-        <TableRow
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" >
+            <TableRow
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" >
 
-            <CheckBox
-                android:id="@+id/transmission_session_download_queue_size_check"
+                <TextView
+                    style="@style/CardHeading"
+                    android:text="@string/session_settings_seeding"
+                    android:layout_span="2" />
+            </TableRow>
+
+            <TableRow
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" >
+
+                <CheckBox
+                    android:id="@+id/transmission_session_seed_ratio_limit_check"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/session_settings_seed_ratio_limit" />
+
+                <EditText
+                    android:id="@+id/transmission_session_seed_ratio_limit"
+                    android:inputType="numberDecimal"
+                    style="@style/CardEntry" >
+                </EditText>
+
+            </TableRow>
+
+            <TableRow
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" >
+
+                <CheckBox
+                    android:id="@+id/transmission_session_idle_seeding_limit_check"
+                    android:layout_span="2"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/session_settings_enable_idle_seeding_limit" />
+
+            </TableRow>
+
+            <TableRow
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" >
+
+                <TextView
+                    style="@style/CardTextColumn"
+                    android:text="@string/session_settings_idle_seeding_limit" />
+
+                <EditText
+                    android:id="@+id/transmission_session_idle_seeding_limit"
+                    android:inputType="number"
+                    style="@style/CardEntry" >
+                </EditText>
+
+            </TableRow>
+
+            <TableRow
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" >
+
+                <TextView
+                    style="@style/CardHeading"
+                    android:text="@string/session_settings_queues"
+                    android:layout_span="2" />
+            </TableRow>
+
+            <TableRow
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" >
+
+                <CheckBox
+                    android:id="@+id/transmission_session_download_queue_size_check"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/session_settings_download_size" />
+
+                <EditText
+                    android:id="@+id/transmission_session_download_queue_size"
+                    android:inputType="number"
+                    style="@style/CardEntry" >
+                </EditText>
+
+            </TableRow>
+
+            <TableRow
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" >
+
+                <CheckBox
+                    android:id="@+id/transmission_session_seed_queue_size_check"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/session_settings_seed_size" />
+
+                <EditText
+                    android:id="@+id/transmission_session_seed_queue_size"
+                    android:inputType="number"
+                    style="@style/CardEntry" >
+                </EditText>
+
+            </TableRow>
+
+            <TableRow
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" >
+
+                <CheckBox
+                    android:id="@+id/transmission_session_stalled_queue_size_check"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_span="2"
+                    android:text="@string/session_settings_ignore_stalled_torrents" />
+
+            </TableRow>
+
+            <TableRow
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/session_settings_download_size" />
-            
-            <EditText
-                android:id="@+id/transmission_session_download_queue_size"
-                android:inputType="number"
-                style="@style/CardEntry" >
-            </EditText>
+                android:focusable="true"
+                android:focusableInTouchMode="true"
+                android:descendantFocusability="beforeDescendants" >
 
-        </TableRow>
-        
-        <TableRow
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" >
+                <TextView style="@style/CardTextColumn"
+                     android:text="@string/session_settings_ignore_stalled_minutes" />
 
-            <CheckBox
-                android:id="@+id/transmission_session_seed_queue_size_check"
+                <EditText
+                    android:id="@+id/transmission_session_stalled_queue_size"
+                    android:inputType="number"
+                    style="@style/CardEntry" >
+                </EditText>
+
+            </TableRow>
+
+            <TableRow
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" >
+
+                <TextView
+                    style="@style/CardHeading"
+                    android:text="@string/session_settings_peers"
+                    android:layout_span="2" />
+
+            </TableRow>
+
+            <TableRow
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/session_settings_seed_size" />
-            
-            <EditText
-                android:id="@+id/transmission_session_seed_queue_size"
-                android:inputType="number"
-                style="@style/CardEntry" >
-            </EditText>
+                android:focusable="true"
+                android:focusableInTouchMode="true"
+                android:descendantFocusability="beforeDescendants" >
 
-        </TableRow>
-        
-        <TableRow
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" >
+                <TextView style="@style/CardTextColumn"
+                     android:text="@string/session_settings_global_peer_limit" />
 
-            <CheckBox
-                android:id="@+id/transmission_session_stalled_queue_size_check"
+                <EditText
+                    android:id="@+id/transmission_session_global_peer_limit"
+                    android:inputType="number"
+                    style="@style/CardEntry" >
+                </EditText>
+
+            </TableRow>
+
+            <TableRow
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_span="2"
-                android:text="@string/session_settings_ignore_stalled_torrents" />
+                android:focusable="true"
+                android:focusableInTouchMode="true"
+                android:descendantFocusability="beforeDescendants" >
 
-        </TableRow>
-        
-        <TableRow
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:focusable="true"
-    		android:focusableInTouchMode="true"
-    		android:descendantFocusability="beforeDescendants" >
-            
-            <TextView style="@style/CardTextColumn"
-                 android:text="@string/session_settings_ignore_stalled_minutes" />
+                <TextView style="@style/CardTextColumn"
+                     android:text="@string/session_settings_torrent_peer_limit" />
 
-            <EditText
-                android:id="@+id/transmission_session_stalled_queue_size"
-                android:inputType="number"
-                style="@style/CardEntry" >
-            </EditText>
-            
-        </TableRow>
-               
-        <TableRow
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" >
-            
-	        <TextView
-	            style="@style/CardHeading"
-	            android:text="@string/session_settings_peers"
-	            android:layout_span="2" />
-	        
-	    </TableRow>
+                <EditText
+                    android:id="@+id/transmission_session_torrent_peer_limit"
+                    android:inputType="number"
+                    style="@style/CardEntry" >
+                </EditText>
 
-        <TableRow
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:focusable="true"
-    		android:focusableInTouchMode="true"
-    		android:descendantFocusability="beforeDescendants" >
-            
-            <TextView style="@style/CardTextColumn"
-                 android:text="@string/session_settings_global_peer_limit" />
+            </TableRow>
 
-            <EditText
-                android:id="@+id/transmission_session_global_peer_limit"
-                android:inputType="number"
-                style="@style/CardEntry" >
-            </EditText>
-            
-        </TableRow>
-
-        <TableRow
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:focusable="true"
-    		android:focusableInTouchMode="true"
-    		android:descendantFocusability="beforeDescendants" >
-            
-            <TextView style="@style/CardTextColumn"
-                 android:text="@string/session_settings_torrent_peer_limit" />
-
-            <EditText
-                android:id="@+id/transmission_session_torrent_peer_limit"
-                android:inputType="number"
-                style="@style/CardEntry" >
-            </EditText>
-            
-        </TableRow>
-        
-    </TableLayout>
-</LinearLayout>
+        </TableLayout>
+    </LinearLayout>
+</android.support.v7.widget.CardView>

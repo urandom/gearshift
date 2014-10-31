@@ -1,241 +1,248 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.v7.widget.CardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
     style="@style/SessionCardContainer">
 
     <LinearLayout
-        android:id="@+id/transmission_session_connections_expander"
-        style="@style/CardHeaderExpander" >
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
 
-        <TextView
-            style="@style/CardHeaderExpanderText"
-            android:text="@string/session_settings_connections" />
-
-        <View
-            android:id="@+id/transmission_session_connections_expander_image"
-            style="@style/CardHeaderExpanderImageCollapse" />
-    </LinearLayout>
-
-    <TableLayout
-        android:id="@+id/transmission_session_connections_content"
-        style="@style/CardContent" >
-        
-        <TableRow
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" >
-            
-	        <TextView
-	            style="@style/CardHeading"
-	            android:text="@string/session_settings_connections"
-	            android:layout_span="2" />
-        </TableRow>
-
-        <TableRow
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:descendantFocusability="beforeDescendants"
-            android:focusable="true"
-            android:focusableInTouchMode="true"
-            android:gravity="center" >
-            
-            <TextView
-                style="@style/CardTextColumn"
-                android:text="@string/session_settings_peer_port" />
-            
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_margin="4dp"
-                android:orientation="horizontal">
-
-	            <EditText
-	                android:id="@+id/transmission_session_peer_port"
-	                android:inputType="number"
-	                android:layout_width="0dp"
-	                android:layout_weight="1"
-	                style="@style/CardEntry" >
-	            </EditText>
-	            
-	            <Button
-                    style="@style/CardButton"
-	                android:id="@+id/transmission_session_port_test"
-	                android:layout_width="wrap_content"
-	                android:ellipsize="end"
-                    android:text="@string/session_settings_port_test"/>
-                
-            </LinearLayout>
-            
-        </TableRow>
-
-        <TableRow
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" >
-            
-            <TextView
-                 style="@style/CardTextColumn"
-                 android:text="@string/session_settings_encryption" />
-
-            <Spinner
-                android:id="@+id/transmission_session_encryption"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:entries="@array/session_settings_encryption" />
-            
-        </TableRow>
-
-        <TableRow
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" >
-
-            <CheckBox
-                android:id="@+id/transmission_session_random_port"
-                android:layout_span="2"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/session_settings_random_port" />
-
-        </TableRow>
-        
-        <TableRow
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" >
-
-            <CheckBox
-                android:id="@+id/transmission_session_port_forwarding"
-                android:layout_span="2"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/session_settings_port_forwarding" />
-
-        </TableRow>
-        
-        <TableRow
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" >
-            
-	        <TextView
-	            style="@style/CardHeading"
-	            android:text="@string/session_settings_protocol"
-	            android:layout_span="2" />
-	        
-	    </TableRow>
-                
-        <TableRow
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" >
-
-            <CheckBox
-                android:id="@+id/transmission_session_peer_exchange"
-                android:layout_span="2"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/session_settings_peer_exchange" />
-
-        </TableRow>
-                        
-        <TableRow
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" >
-
-            <CheckBox
-                android:id="@+id/transmission_session_hash_table"
-                android:layout_span="2"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/session_settings_distributed_hash_table" />
-
-        </TableRow>
-                                
-        <TableRow
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" >
-
-            <CheckBox
-                android:id="@+id/transmission_session_local_discovery"
-                android:layout_span="2"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/session_settings_local_discovery" />
-
-        </TableRow>
-
-        <TableRow
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" >
-
-            <CheckBox
-                android:id="@+id/transmission_session_utp"
-                android:layout_span="2"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/session_settings_utp" />
-
-        </TableRow>
-
-        <TableRow
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" >
-            
-	        <TextView
-	            style="@style/CardHeading"
-	            android:text="@string/session_settings_blocklist"
-	            android:layout_span="2" />
-	        
-	    </TableRow>
-	            
-        <TableRow
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" >
-               
-            <CheckBox
-                android:id="@+id/transmission_session_blocklist_check"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_span="2"
-                android:text="@string/session_settings_blocklist_enable" />	            
-
-        </TableRow>
-        
-        <TableRow
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:focusable="true"
-    		android:focusableInTouchMode="true"
-    		android:descendantFocusability="beforeDescendants" >
-            
-            <TextView style="@style/CardTextColumn"
-                android:text="@string/session_settings_blocklist_url" />
-            
-            <EditText
-                android:id="@+id/transmission_session_blocklist_url"
-                android:inputType="textNoSuggestions|textVisiblePassword"
-                style="@style/CardEntry" >
-            </EditText>
-            
-        </TableRow>
-            	            
-        <TableRow
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:gravity="bottom" >
+        <LinearLayout
+            android:id="@+id/transmission_session_connections_expander"
+            style="@style/CardHeaderExpander" >
 
             <TextView
-                 style="@style/CardTextColumn"
-                 android:id="@+id/transmission_session_blocklist_size"
-                 android:text="@string/session_settings_blocklist_count_format" />
+                style="@style/CardHeaderExpanderText"
+                android:text="@string/session_settings_connections" />
 
-            <FrameLayout
+            <View
+                android:id="@+id/transmission_session_connections_expander_image"
+                style="@style/CardHeaderExpanderImageCollapse" />
+        </LinearLayout>
+
+        <TableLayout
+            android:id="@+id/transmission_session_connections_content"
+            style="@style/CardContent" >
+
+            <TableRow
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content" >
 
-                <Button
-                    android:id="@+id/transmission_session_blocklist_update"
-                    style="@style/CardButton"
-                    android:ellipsize="end"
-                    android:text="@string/session_settings_blocklist_update" />
+                <TextView
+                    style="@style/CardHeading"
+                    android:text="@string/session_settings_connections"
+                    android:layout_span="2" />
+            </TableRow>
 
-            </FrameLayout>
+            <TableRow
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:descendantFocusability="beforeDescendants"
+                android:focusable="true"
+                android:focusableInTouchMode="true"
+                android:gravity="center" >
 
-        </TableRow>
+                <TextView
+                    style="@style/CardTextColumn"
+                    android:text="@string/session_settings_peer_port" />
 
-    </TableLayout>
-</LinearLayout>
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="4dp"
+                    android:orientation="horizontal">
+
+                    <EditText
+                        android:id="@+id/transmission_session_peer_port"
+                        android:inputType="number"
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        style="@style/CardEntry" >
+                    </EditText>
+
+                    <Button
+                        style="@style/CardButton"
+                        android:id="@+id/transmission_session_port_test"
+                        android:layout_width="wrap_content"
+                        android:ellipsize="end"
+                        android:text="@string/session_settings_port_test"/>
+
+                </LinearLayout>
+
+            </TableRow>
+
+            <TableRow
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" >
+
+                <TextView
+                     style="@style/CardTextColumn"
+                     android:text="@string/session_settings_encryption" />
+
+                <Spinner
+                    android:id="@+id/transmission_session_encryption"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:entries="@array/session_settings_encryption" />
+
+            </TableRow>
+
+            <TableRow
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" >
+
+                <CheckBox
+                    android:id="@+id/transmission_session_random_port"
+                    android:layout_span="2"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/session_settings_random_port" />
+
+            </TableRow>
+
+            <TableRow
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" >
+
+                <CheckBox
+                    android:id="@+id/transmission_session_port_forwarding"
+                    android:layout_span="2"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/session_settings_port_forwarding" />
+
+            </TableRow>
+
+            <TableRow
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" >
+
+                <TextView
+                    style="@style/CardHeading"
+                    android:text="@string/session_settings_protocol"
+                    android:layout_span="2" />
+
+            </TableRow>
+
+            <TableRow
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" >
+
+                <CheckBox
+                    android:id="@+id/transmission_session_peer_exchange"
+                    android:layout_span="2"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/session_settings_peer_exchange" />
+
+            </TableRow>
+
+            <TableRow
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" >
+
+                <CheckBox
+                    android:id="@+id/transmission_session_hash_table"
+                    android:layout_span="2"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/session_settings_distributed_hash_table" />
+
+            </TableRow>
+
+            <TableRow
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" >
+
+                <CheckBox
+                    android:id="@+id/transmission_session_local_discovery"
+                    android:layout_span="2"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/session_settings_local_discovery" />
+
+            </TableRow>
+
+            <TableRow
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" >
+
+                <CheckBox
+                    android:id="@+id/transmission_session_utp"
+                    android:layout_span="2"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/session_settings_utp" />
+
+            </TableRow>
+
+            <TableRow
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" >
+
+                <TextView
+                    style="@style/CardHeading"
+                    android:text="@string/session_settings_blocklist"
+                    android:layout_span="2" />
+
+            </TableRow>
+
+            <TableRow
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" >
+
+                <CheckBox
+                    android:id="@+id/transmission_session_blocklist_check"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_span="2"
+                    android:text="@string/session_settings_blocklist_enable" />
+
+            </TableRow>
+
+            <TableRow
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:focusable="true"
+                android:focusableInTouchMode="true"
+                android:descendantFocusability="beforeDescendants" >
+
+                <TextView style="@style/CardTextColumn"
+                    android:text="@string/session_settings_blocklist_url" />
+
+                <EditText
+                    android:id="@+id/transmission_session_blocklist_url"
+                    android:inputType="textNoSuggestions|textVisiblePassword"
+                    style="@style/CardEntry" >
+                </EditText>
+
+            </TableRow>
+
+            <TableRow
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="bottom" >
+
+                <TextView
+                     style="@style/CardTextColumn"
+                     android:id="@+id/transmission_session_blocklist_size"
+                     android:text="@string/session_settings_blocklist_count_format" />
+
+                <FrameLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" >
+
+                    <Button
+                        android:id="@+id/transmission_session_blocklist_update"
+                        style="@style/CardButton"
+                        android:ellipsize="end"
+                        android:text="@string/session_settings_blocklist_update" />
+
+                </FrameLayout>
+
+            </TableRow>
+
+        </TableLayout>
+    </LinearLayout>
+</android.support.v7.widget.CardView>

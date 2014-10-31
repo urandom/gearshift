@@ -1,187 +1,194 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.v7.widget.CardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
     style="@style/SessionCardContainer">
 
     <LinearLayout
-        android:id="@+id/transmission_session_general_expander"
-        style="@style/CardHeaderExpander" >
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
 
-        <TextView
-            style="@style/CardHeaderExpanderText"
-            android:text="@string/session_settings_general" />
+        <LinearLayout
+            android:id="@+id/transmission_session_general_expander"
+            style="@style/CardHeaderExpander" >
 
-        <View
-            android:id="@+id/transmission_session_general_expander_image"
-            style="@style/CardHeaderExpanderImageCollapse" />
+            <TextView
+                style="@style/CardHeaderExpanderText"
+                android:text="@string/session_settings_general" />
+
+            <View
+                android:id="@+id/transmission_session_general_expander_image"
+                style="@style/CardHeaderExpanderImageCollapse" />
+        </LinearLayout>
+
+        <TableLayout
+            android:id="@+id/transmission_session_general_content"
+            style="@style/CardContent" >
+
+            <TableRow
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" >
+
+                <TextView
+                    style="@style/CardHeading"
+                    android:text="@string/session_settings_environment"
+                    android:layout_span="2" />
+            </TableRow>
+
+            <TableRow
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:focusable="true"
+                android:focusableInTouchMode="true"
+                android:descendantFocusability="beforeDescendants" >
+
+                <TextView style="@style/CardTextColumn"
+                    android:layout_span="2"
+                    android:text="@string/session_settings_download_directory" />
+            </TableRow>
+
+            <TableRow
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:focusable="true"
+                android:focusableInTouchMode="true"
+                android:descendantFocusability="beforeDescendants" >
+
+                <EditText
+                    android:id="@+id/transmission_session_download_directory"
+                    android:layout_span="2"
+                    android:inputType="textNoSuggestions|textVisiblePassword"
+                    style="@style/CardEntry" >
+                </EditText>
+
+            </TableRow>
+
+            <TableRow
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" >
+
+                <CheckBox
+                    android:id="@+id/transmission_session_incomplete_download_check"
+                    android:layout_span="2"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/session_settings_incomplete_download_directory" />
+
+            </TableRow>
+
+            <TableRow
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:focusable="true"
+                android:focusableInTouchMode="true"
+                android:descendantFocusability="beforeDescendants" >
+
+                <EditText
+                    android:id="@+id/transmission_session_incomplete_download_directory"
+                    android:layout_span="2"
+                    android:inputType="textNoSuggestions|textVisiblePassword"
+                    style="@style/CardEntry" >
+                </EditText>
+
+            </TableRow>
+
+            <TableRow
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" >
+
+                <CheckBox
+                    android:id="@+id/transmission_session_done_script_check"
+                    android:layout_span="2"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/session_settings_script_to_run_when_torrent_finishes" />
+
+            </TableRow>
+
+            <TableRow
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:focusable="true"
+                android:focusableInTouchMode="true"
+                android:descendantFocusability="beforeDescendants" >
+
+                <EditText
+                    android:id="@+id/transmission_session_done_script"
+                    android:layout_span="2"
+                    android:inputType="textNoSuggestions|textVisiblePassword"
+                    style="@style/CardEntry" >
+                </EditText>
+
+            </TableRow>
+
+            <TableRow
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:focusable="true"
+                android:focusableInTouchMode="true"
+                android:descendantFocusability="beforeDescendants" >
+
+                <TextView style="@style/CardTextColumn"
+                     android:text="@string/session_settings_cache_size" />
+
+                <EditText
+                    android:id="@+id/transmission_session_cache_size"
+                    android:inputType="number"
+                    style="@style/CardEntry" >
+                </EditText>
+
+            </TableRow>
+
+            <TableRow
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" >
+
+                <TextView
+                    style="@style/CardHeading"
+                    android:text="@string/session_settings_behavior"
+                    android:layout_span="2" />
+
+            </TableRow>
+
+            <TableRow
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" >
+
+                <CheckBox
+                    android:id="@+id/transmission_session_rename_partial_check"
+                    android:layout_span="2"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/session_settings_rename_partial_files" />
+
+            </TableRow>
+
+            <TableRow
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" >
+
+                <CheckBox
+                    android:id="@+id/transmission_session_trash_original_check"
+                    android:layout_span="2"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/session_settings_trash_original" />
+
+            </TableRow>
+
+            <TableRow
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" >
+
+                <CheckBox
+                    android:id="@+id/transmission_session_start_added_check"
+                    android:layout_span="2"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/session_settings_start_added_torrents" />
+
+            </TableRow>
+
+        </TableLayout>
     </LinearLayout>
-
-    <TableLayout
-        android:id="@+id/transmission_session_general_content"
-        style="@style/CardContent" >
-        
-        <TableRow
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" >
-            
-	        <TextView
-	            style="@style/CardHeading"
-	            android:text="@string/session_settings_environment"
-	            android:layout_span="2" />
-        </TableRow>
-        
-        <TableRow
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:focusable="true"
-    		android:focusableInTouchMode="true"
-    		android:descendantFocusability="beforeDescendants" >
-            
-            <TextView style="@style/CardTextColumn"
-                android:layout_span="2"
-                android:text="@string/session_settings_download_directory" />
-        </TableRow>
-        
-        <TableRow
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:focusable="true"
-    		android:focusableInTouchMode="true"
-    		android:descendantFocusability="beforeDescendants" >
-
-            <EditText
-                android:id="@+id/transmission_session_download_directory"
-                android:layout_span="2"
-                android:inputType="textNoSuggestions|textVisiblePassword"
-                style="@style/CardEntry" >
-            </EditText>
-            
-        </TableRow>
-        
-        <TableRow
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" >
-
-            <CheckBox
-                android:id="@+id/transmission_session_incomplete_download_check"
-                android:layout_span="2"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/session_settings_incomplete_download_directory" />
-
-        </TableRow>
-        
-        <TableRow
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:focusable="true"
-    		android:focusableInTouchMode="true"
-    		android:descendantFocusability="beforeDescendants" >
-            
-            <EditText
-                android:id="@+id/transmission_session_incomplete_download_directory"
-                android:layout_span="2"
-                android:inputType="textNoSuggestions|textVisiblePassword"
-                style="@style/CardEntry" >
-            </EditText>
-            
-        </TableRow>
-
-        <TableRow
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" >
-
-            <CheckBox
-                android:id="@+id/transmission_session_done_script_check"
-                android:layout_span="2"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/session_settings_script_to_run_when_torrent_finishes" />
-
-        </TableRow>
-        
-        <TableRow
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:focusable="true"
-    		android:focusableInTouchMode="true"
-    		android:descendantFocusability="beforeDescendants" >
-            
-            <EditText
-                android:id="@+id/transmission_session_done_script"
-                android:layout_span="2"
-                android:inputType="textNoSuggestions|textVisiblePassword"
-                style="@style/CardEntry" >
-            </EditText>
-            
-        </TableRow>
-
-        <TableRow
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:focusable="true"
-    		android:focusableInTouchMode="true"
-    		android:descendantFocusability="beforeDescendants" >
-            
-            <TextView style="@style/CardTextColumn"
-                 android:text="@string/session_settings_cache_size" />
-
-            <EditText
-                android:id="@+id/transmission_session_cache_size"
-                android:inputType="number"
-                style="@style/CardEntry" >
-            </EditText>
-            
-        </TableRow>
-        
-        <TableRow
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" >
-            
-	        <TextView
-	            style="@style/CardHeading"
-	            android:text="@string/session_settings_behavior"
-	            android:layout_span="2" />
-	        
-	    </TableRow>
-        
-        <TableRow
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" >
-
-            <CheckBox
-                android:id="@+id/transmission_session_rename_partial_check"
-                android:layout_span="2"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/session_settings_rename_partial_files" />
-
-        </TableRow>
-        
-        <TableRow
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" >
-
-            <CheckBox
-                android:id="@+id/transmission_session_trash_original_check"
-                android:layout_span="2"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/session_settings_trash_original" />
-
-        </TableRow>
-        
-        <TableRow
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" >
-
-            <CheckBox
-                android:id="@+id/transmission_session_start_added_check"
-                android:layout_span="2"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/session_settings_start_added_torrents" />
-
-        </TableRow>
-        
-    </TableLayout>
-</LinearLayout>
+</android.support.v7.widget.CardView>
