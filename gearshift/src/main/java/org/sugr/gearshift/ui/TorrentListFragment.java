@@ -469,7 +469,7 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
         list.setOnItemLongClickListener(new OnItemLongClickListener() {
             @Override
             public boolean onItemLongClick(AdapterView<?> parent, View view,
-                    int position, long id) {
+                                           int position, long id) {
 
                 if (!((TorrentListActivity) getActivity()).isDetailPanelVisible()) {
                     list.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE_MODAL);
@@ -477,7 +477,8 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
                     return true;
                 }
                 return false;
-            }});
+            }
+        });
 
         list.setMultiChoiceModeListener(listChoiceListener);
     }
@@ -828,10 +829,10 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
         if (sharedPrefs.getBoolean(G.PREF_SHOW_STATUS, false)) {
             status.setVisibility(View.VISIBLE);
             status.setTranslationY(100);
-            status.animate().alpha((float) 1.0).translationY(0).setStartDelay(500);
+            status.animate().alpha(1f).translationY(0).setStartDelay(500);
         } else {
             status.setVisibility(View.GONE);
-            status.setAlpha((float) 0.3);
+            status.setAlpha(0.3f);
         }
     }
 
