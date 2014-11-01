@@ -7,17 +7,17 @@ source="./bower_components/material-design-icons"
 target="./gearshift/src/main/res/drawable"
 
 icons="
-navigation/ic_refresh
+action/ic_done
+av/ic_pause
+av/ic_play_arrow
+content/ic_forward
 content/ic_remove
 content/ic_select_all
-content/ic_forward
+file/ic_folder_open
+navigation/ic_refresh
 toggle/ic_star
 toggle/ic_star_half
 toggle/ic_star_outline
-av/ic_play_arrow
-av/ic_pause
-file/ic_folder_open
-editor/ic_insert_drive_file
 "
 
 for size in $sizes; do

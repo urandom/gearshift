@@ -278,6 +278,15 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
             item = menu.findItem(R.id.pause);
             if (item != null)
                 item.setVisible(hasRunning).setEnabled(hasRunning);
+
+            ListView list = getListView();
+            int firstVisible = list.getFirstVisiblePosition();
+            int virtual = position - firstVisible;
+            View child = list.getChildAt(virtual);
+
+            child.findViewById(R.id.type_checked).setVisibility(checked ? View.VISIBLE : View.GONE);
+            child.findViewById(R.id.type_indicator).setVisibility(checked ? View.GONE : View.VISIBLE);
+            child.findViewById(R.id.progress).setVisibility(checked ? View.GONE : View.VISIBLE);
         }
     };
 
@@ -930,6 +939,7 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
             TextView status = (TextView) view.findViewById(R.id.status);
             TextView errorText = (TextView) view.findViewById(R.id.error_text);
             View typeIndicator = view.findViewById(R.id.type_indicator);
+            View typeChecked = view.findViewById(R.id.type_checked);
 
             String search = sharedPrefs.getString(G.PREF_LIST_SEARCH, null);
             if (TextUtils.isEmpty(search)) {
@@ -1012,21 +1022,33 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
                 errorText.setText(Torrent.getErrorString(cursor));
             }
 
-            Drawable typeBackground = null;
-            if (Torrent.hasDirectory(cursor)) {
-                typeBackground = getResources().getDrawable(R.drawable.torrent_type_directory).getConstantState().newDrawable();
-                GradientDrawable circle = (GradientDrawable) ((LayerDrawable) typeBackground).findDrawableByLayerId(R.id.circle_background);
-                circle.setColor(Colors.colorResFromCharSequence(name.getText(), getResources()));
-            } else {
-                typeBackground = getResources().getDrawable(R.drawable.circle).getConstantState().newDrawable();
-                ((GradientDrawable) typeBackground).setColor(
-                    Colors.colorResFromCharSequence(name.getText(), getResources()));
-            }
+            SparseBooleanArray checkedItems = getListView().getCheckedItemPositions();
 
-            if (Build.VERSION.SDK_INT == Build.VERSION_CODES.ICE_CREAM_SANDWICH_MR1) {
-                typeIndicator.setBackgroundDrawable(typeBackground);
+            if (checkedItems != null && checkedItems.get(position)) {
+                progress.setVisibility(View.GONE);
+                typeIndicator.setVisibility(View.GONE);
+                typeChecked.setVisibility(View.VISIBLE);
             } else {
-                typeIndicator.setBackground(typeBackground);
+                progress.setVisibility(View.VISIBLE);
+                typeIndicator.setVisibility(View.VISIBLE);
+                typeChecked.setVisibility(View.GONE);
+
+                Drawable typeBackground = null;
+                if (Torrent.hasDirectory(cursor)) {
+                    typeBackground = getResources().getDrawable(R.drawable.torrent_type_directory).getConstantState().newDrawable();
+                    GradientDrawable circle = (GradientDrawable) ((LayerDrawable) typeBackground).findDrawableByLayerId(R.id.circle_background);
+                    circle.setColor(Colors.colorResFromCharSequence(name.getText(), getResources()));
+                } else {
+                    typeBackground = getResources().getDrawable(R.drawable.circle).getConstantState().newDrawable();
+                    ((GradientDrawable) typeBackground).setColor(
+                        Colors.colorResFromCharSequence(name.getText(), getResources()));
+                }
+
+                if (Build.VERSION.SDK_INT == Build.VERSION_CODES.ICE_CREAM_SANDWICH_MR1) {
+                    typeIndicator.setBackgroundDrawable(typeBackground);
+                } else {
+                    typeIndicator.setBackground(typeBackground);
+                }
             }
 
             if (!addedTorrents.get(id, false)) {

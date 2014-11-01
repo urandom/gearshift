@@ -40,6 +40,12 @@
             android:max="100"
             android:progress="0"/>
 
+        <View android:id="@+id/type_checked"
+              android:visibility="gone"
+              android:layout_width="64dp"
+              android:layout_height="64dp"
+              android:background="@drawable/torrent_type_checked"/>
+
     </FrameLayout>
 
     <LinearLayout
