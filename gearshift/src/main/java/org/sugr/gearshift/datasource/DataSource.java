@@ -22,6 +22,7 @@ import org.sugr.gearshift.R;
 import org.sugr.gearshift.core.Torrent;
 import org.sugr.gearshift.core.TransmissionSession;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -720,6 +721,7 @@ public class DataSource {
                             case Constants.C_STATUS:
                             case Constants.C_ERROR:
                             case Constants.C_SEED_RATIO_MODE:
+                            case Constants.C_HAS_DIRECTORY:
                                 row.add(cursor.getInt(index));
                                 break;
                             case Constants.C_HASH_STRING:
@@ -1573,6 +1575,7 @@ public class DataSource {
                         values.files = new ArrayList<>();
                     }
 
+                    String lastFileName = null;
                     int index = 0;
                     while (parser.nextToken() != JsonToken.END_ARRAY) {
                         ContentValues file;
@@ -1589,13 +1592,26 @@ public class DataSource {
                             parser.nextToken();
 
                             if (argname.equals("name")) {
-                                file.put(Constants.C_NAME, parser.getText());
+                                lastFileName = parser.getText();
+                                file.put(Constants.C_NAME, lastFileName);
                             } else if (argname.equals("length")) {
                                 file.put(Constants.C_LENGTH, parser.getLongValue());
                             }
                         }
 
+
                         ++index;
+                    }
+
+                    if (values.files.size() > 1) {
+                        torrent.put(Constants.C_HAS_DIRECTORY, 1);
+                    } else if (lastFileName != null) {
+                        File f = new File(lastFileName);
+                        String parent = f.getParent();
+
+                        if (parent != null && !parent.equals("")) {
+                            torrent.put(Constants.C_HAS_DIRECTORY, 1);
+                        }
                     }
                     break;
                 }

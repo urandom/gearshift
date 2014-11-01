@@ -290,6 +290,10 @@ public class Torrent {
         return cursor.getFloat(cursor.getColumnIndex(Constants.C_UPLOAD_RATIO));
     }
 
+    public static boolean hasDirectory(Cursor cursor) {
+        return cursor.getInt(cursor.getColumnIndex(Constants.C_HAS_DIRECTORY)) > 0;
+    }
+
     public static String getTrafficText(Cursor cursor) {
         return cursor.getString(cursor.getColumnIndex(Constants.C_TRAFFIC_TEXT));
     }
