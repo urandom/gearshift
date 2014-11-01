@@ -3,5 +3,5 @@
     <item android:id="@+id/circle_background" android:drawable="@drawable/circle" />
     <item android:id="@+id/type_icon"
           android:drawable="@drawable/ic_folder_open_white_36dp"
-          android:top="8dp" android:right="8dp" android:bottom="8dp" android:left="8dp"/>
+          android:top="12dp" android:right="12dp" android:bottom="12dp" android:left="12dp"/>
 </layer-list>
