@@ -7,7 +7,6 @@
     <string name="done">Done</string>
     <string name="delete">Delete</string>
     <string name="remove">Remove</string>
-    <string name="remove_data">Remove and delete the data</string>
     <string name="resume">Resume</string>
     <string name="pause">Pause</string>
     <string name="stop">Stop</string>
@@ -157,7 +156,7 @@
 
     <string name="remove_selected_confirmation">Are you sure you want to remove the selected torrents?</string>
     <string name="remove_current_confirmation">Are you sure you want to remove \'%s\'?</string>
-    <string name="remove_with_data">+ data</string>
+    <string name="remove_with_data">With the data</string>
 
     <string name="torrent_have_format">%1$s of %2$s (%3$s%%)</string>
     <string name="torrent_size_format">%1$s (%2$s pieces @ %3$s)</string>
