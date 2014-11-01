@@ -16,6 +16,8 @@ toggle/ic_star_half
 toggle/ic_star_outline
 av/ic_play_arrow
 av/ic_pause
+file/ic_folder_open
+editor/ic_insert_drive_file
 "
 
 for size in $sizes; do

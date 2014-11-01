@@ -24,4 +24,15 @@
 
     <color name="filter_highlight_primary">#E68305</color>
     <color name="filter_highlight_secondary">#C98733</color>
+
+    <color name="torrent_color_1">#01579b</color>
+    <color name="torrent_color_2">#006064</color>
+    <color name="torrent_color_3">#004d40</color>
+    <color name="torrent_color_4">#259b24</color>
+    <color name="torrent_color_5">#303f9f</color>
+    <color name="torrent_color_6">#512da8</color>
+    <color name="torrent_color_7">#b0120a</color>
+    <color name="torrent_color_8">#558b2f</color>
+    <color name="torrent_color_9">#ef6c00</color>
+    <color name="torrent_color_10">#4e342e</color>
 </resources>

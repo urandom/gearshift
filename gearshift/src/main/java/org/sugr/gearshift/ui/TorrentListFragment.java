@@ -3,6 +3,7 @@ package org.sugr.gearshift.ui;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.animation.ObjectAnimator;
+import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
@@ -10,6 +11,10 @@ import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.database.Cursor;
+import android.graphics.drawable.Drawable;
+import android.graphics.drawable.GradientDrawable;
+import android.graphics.drawable.LayerDrawable;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
@@ -59,6 +64,7 @@ import org.sugr.gearshift.service.DataService;
 import org.sugr.gearshift.service.DataServiceManager;
 import org.sugr.gearshift.service.DataServiceManagerInterface;
 import org.sugr.gearshift.ui.loader.TorrentTrafficLoader;
+import org.sugr.gearshift.util.Colors;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -913,6 +919,7 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
             return vi.inflate(R.layout.torrent_list_item, viewGroup, false);
         }
 
+        @TargetApi(Build.VERSION_CODES.LOLLIPOP)
         @Override public void bindView(View view, Context context, Cursor cursor) {
             int id = Torrent.getId(cursor);
 
@@ -922,6 +929,7 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
             ProgressBar progress = (ProgressBar) view.findViewById(R.id.progress);
             TextView status = (TextView) view.findViewById(R.id.status);
             TextView errorText = (TextView) view.findViewById(R.id.error_text);
+            View typeIndicator = view.findViewById(R.id.type_indicator);
 
             String search = sharedPrefs.getString(G.PREF_LIST_SEARCH, null);
             if (TextUtils.isEmpty(search)) {
@@ -985,6 +993,23 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
             } else {
                 errorText.setVisibility(View.VISIBLE);
                 errorText.setText(Torrent.getErrorString(cursor));
+            }
+
+            Drawable typeBackground = null;
+            if (Torrent.hasDirectory(cursor)) {
+                typeBackground = getResources().getDrawable(R.drawable.torrent_type_directory).getConstantState().newDrawable();
+                GradientDrawable circle = (GradientDrawable) ((LayerDrawable) typeBackground).findDrawableByLayerId(R.id.circle_background);
+                circle.setColor(Colors.colorResFromCharSequence(name.getText(), getResources()));
+            } else {
+                typeBackground = getResources().getDrawable(R.drawable.circle).getConstantState().newDrawable();
+                ((GradientDrawable) typeBackground).setColor(
+                    Colors.colorResFromCharSequence(name.getText(), getResources()));
+            }
+
+            if (Build.VERSION.SDK_INT == Build.VERSION_CODES.ICE_CREAM_SANDWICH_MR1) {
+                typeIndicator.setBackgroundDrawable(typeBackground);
+            } else {
+                typeIndicator.setBackground(typeBackground);
             }
 
             if (!addedTorrents.get(id, false)) {
