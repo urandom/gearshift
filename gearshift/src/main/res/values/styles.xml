@@ -11,7 +11,7 @@
         <item name="colorControlNormal">@color/material_blue_grey_800</item>
         <item name="colorControlHighlight">@color/control_highlight</item>
         <item name="colorControlActivated">@color/control_activated</item>
-        <item name="colorSwitchThumbNormal">@color/white</item>
+        <item name="colorSwitchThumbNormal">@android:color/white</item>
         <item name="actionBarStyle">@style/DefaultToolbar</item>
         <item name="windowActionBar">false</item>
         <item name="windowActionModeOverlay">true</item>

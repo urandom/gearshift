@@ -11,7 +11,10 @@
     <color name="main_black">#1a1a1a</color>
 
     <color name="success">#69e974</color>
-    <color name="white">#ffffff</color>
+
+    <color name="progress_background">#ccc</color>
+    <color name="progress_downloading">#5677fc</color>
+    <color name="progress_seeding">#aeea00</color>
 
     <color name="detail_background">#ddd</color>
     <color name="detail_background_edge">#bfbfbf</color>
