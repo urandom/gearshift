@@ -1035,14 +1035,16 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
                 typeChecked.setVisibility(View.GONE);
 
                 Drawable typeBackground = null;
-                if (Torrent.hasDirectory(cursor)) {
+                if ("inode/directory".equals(Torrent.getMimeType(cursor))) {
                     typeBackground = getResources().getDrawable(R.drawable.torrent_type_directory).getConstantState().newDrawable();
                     GradientDrawable circle = (GradientDrawable) ((LayerDrawable) typeBackground).findDrawableByLayerId(R.id.circle_background);
-                    circle.setColor(Colors.colorResFromCharSequence(name.getText(), getResources()));
+                    circle.setColor(Colors.colorFromCharSequence(name.getText(), getResources()));
+                    Drawable icon = ((LayerDrawable) typeBackground).findDrawableByLayerId(R.id.type_icon);
+                    icon.setAlpha(100);
                 } else {
                     typeBackground = getResources().getDrawable(R.drawable.circle).getConstantState().newDrawable();
                     ((GradientDrawable) typeBackground).setColor(
-                        Colors.colorResFromCharSequence(name.getText(), getResources()));
+                        Colors.colorFromCharSequence(name.getText(), getResources()));
                 }
 
                 if (Build.VERSION.SDK_INT == Build.VERSION_CODES.ICE_CREAM_SANDWICH_MR1) {

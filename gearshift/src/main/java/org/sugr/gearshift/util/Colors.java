@@ -7,11 +7,14 @@ import android.support.annotation.ColorRes;
 import org.sugr.gearshift.R;
 
 public class Colors {
-    @ColorRes public static int colorResFromCharSequence(CharSequence seq, Resources res) {
-        char c = Character.toLowerCase(seq.charAt(0));
+    @ColorRes public static int colorFromCharSequence(CharSequence seq, Resources res) {
+        int num = 0;
+        if (seq.length() > 0) {
+            char c = Character.toLowerCase(seq.charAt(0));
 
-        int cint = (int) c;
-        int num = cint % 10 + 1;
+            int cint = (int) c;
+            num = cint % 10 + 1;
+        }
         int resId;
 
         switch (num) {

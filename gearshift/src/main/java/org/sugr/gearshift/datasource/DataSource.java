@@ -13,6 +13,7 @@ import android.text.SpannableString;
 import android.text.Spanned;
 import android.text.TextUtils;
 import android.text.style.ForegroundColorSpan;
+import android.webkit.MimeTypeMap;
 
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
@@ -721,13 +722,13 @@ public class DataSource {
                             case Constants.C_STATUS:
                             case Constants.C_ERROR:
                             case Constants.C_SEED_RATIO_MODE:
-                            case Constants.C_HAS_DIRECTORY:
                                 row.add(cursor.getInt(index));
                                 break;
                             case Constants.C_HASH_STRING:
                             case Constants.C_TRAFFIC_TEXT:
                             case Constants.C_STATUS_TEXT:
                             case Constants.C_ERROR_STRING:
+                            case Constants.C_MIME_TYPE:
                                 row.add(cursor.getString(index));
                                 break;
                             case Constants.C_METADATA_PERCENT_COMPLETE:
@@ -1604,13 +1605,21 @@ public class DataSource {
                     }
 
                     if (values.files.size() > 1) {
-                        torrent.put(Constants.C_HAS_DIRECTORY, 1);
+                        torrent.put(Constants.C_MIME_TYPE, "inode/directory");
                     } else if (lastFileName != null) {
                         File f = new File(lastFileName);
                         String parent = f.getParent();
 
                         if (parent != null && !parent.equals("")) {
-                            torrent.put(Constants.C_HAS_DIRECTORY, 1);
+                            torrent.put(Constants.C_MIME_TYPE, "inode/directory");
+                        } else {
+                            int dotPos = lastFileName.lastIndexOf('.');
+                            String ext = dotPos >= 0 ? lastFileName.substring(dotPos + 1) : "";
+                            if (!ext.equals("")) {
+                                MimeTypeMap map = MimeTypeMap.getSingleton();
+                                String mime = map.getMimeTypeFromExtension(ext);
+                                torrent.put(Constants.C_MIME_TYPE, mime);
+                            }
                         }
                     }
                     break;
