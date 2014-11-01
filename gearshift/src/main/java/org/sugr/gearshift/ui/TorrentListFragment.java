@@ -920,8 +920,8 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
         }
 
         @TargetApi(Build.VERSION_CODES.LOLLIPOP)
-        @Override public void bindView(View view, Context context, Cursor cursor) {
-            int id = Torrent.getId(cursor);
+        @Override public void bindView(final View view, Context context, Cursor cursor) {
+            final int id = Torrent.getId(cursor);
 
             TextView name = (TextView) view.findViewById(R.id.name);
 
@@ -976,6 +976,23 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
                     }
                 }
             }
+
+            final int position = cursor.getPosition();
+            progress.setOnClickListener(new View.OnClickListener() {
+                @Override public void onClick(View v) {
+                    if (actionMode == null) {
+                        if (!((TorrentListActivity) getActivity()).isDetailPanelVisible()) {
+                            getListView().setChoiceMode(ListView.CHOICE_MODE_MULTIPLE_MODAL);
+                            setActivatedPosition(position);
+                        } else {
+                            onListItemClick(getListView(), view, position, id);
+                        }
+                    } else {
+                        SparseBooleanArray checkedItems = getListView().getCheckedItemPositions();
+                        getListView().setItemChecked(position, !checkedItems.get(position));
+                    }
+                }
+            });
 
             traffic.setText(Html.fromHtml(Torrent.getTrafficText(cursor)));
             status.setText(Html.fromHtml(Torrent.getStatusText(cursor)));
