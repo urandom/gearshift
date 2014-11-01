@@ -284,9 +284,9 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
             int virtual = position - firstVisible;
             View child = list.getChildAt(virtual);
 
-            child.findViewById(R.id.type_checked).setVisibility(checked ? View.VISIBLE : View.GONE);
-            child.findViewById(R.id.type_indicator).setVisibility(checked ? View.GONE : View.VISIBLE);
-            child.findViewById(R.id.progress).setVisibility(checked ? View.GONE : View.VISIBLE);
+            toggleListItemChecked(checked, child.findViewById(R.id.type_checked),
+                child.findViewById(R.id.type_indicator), child.findViewById(R.id.progress));
+
         }
     };
 
@@ -836,6 +836,39 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
         }
     }
 
+    private void toggleListItemChecked(boolean checked, final View typeChecked,
+                                       final View typeIndicator, final View progress) {
+
+        int duration = getActivity().getResources().getInteger(android.R.integer.config_shortAnimTime);
+        if (checked) {
+            if (typeChecked.getVisibility() != View.VISIBLE) {
+                typeChecked.setVisibility(View.VISIBLE);
+                typeChecked.setAlpha(0f);
+                typeChecked.animate().alpha(1).setDuration(duration).setListener(new AnimatorListenerAdapter() {
+                    @Override
+                    public void onAnimationEnd(Animator animation) {
+                        super.onAnimationEnd(animation);
+                        typeIndicator.setVisibility(View.GONE);
+                        progress.setVisibility(View.GONE);
+                    }
+                });
+            }
+        } else {
+            if (typeIndicator.getVisibility() != View.VISIBLE) {
+                typeIndicator.setVisibility(View.VISIBLE);
+                progress.setVisibility(View.VISIBLE);
+                typeChecked.animate().alpha(0f).setDuration(duration).setListener(new AnimatorListenerAdapter() {
+                    @Override
+                    public void onAnimationEnd(Animator animation) {
+                        super.onAnimationEnd(animation);
+                        typeChecked.setVisibility(View.GONE);
+                    }
+                });
+            }
+        }
+
+    }
+
     private class TorrentCursorAdapter extends CursorAdapter {
         private SparseBooleanArray addedTorrents = new SparseBooleanArray();
         private DataSource readDataSource;
@@ -1026,13 +1059,9 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
             SparseBooleanArray checkedItems = getListView().getCheckedItemPositions();
 
             if (checkedItems != null && checkedItems.get(position)) {
-                progress.setVisibility(View.GONE);
-                typeIndicator.setVisibility(View.GONE);
-                typeChecked.setVisibility(View.VISIBLE);
+                toggleListItemChecked(true, typeChecked, typeIndicator, progress);
             } else {
-                progress.setVisibility(View.VISIBLE);
-                typeIndicator.setVisibility(View.VISIBLE);
-                typeChecked.setVisibility(View.GONE);
+                toggleListItemChecked(false, typeChecked, typeIndicator, progress);
 
                 Drawable typeBackground = null;
                 if ("inode/directory".equals(Torrent.getMimeType(cursor))) {
@@ -1040,7 +1069,7 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
                     GradientDrawable circle = (GradientDrawable) ((LayerDrawable) typeBackground).findDrawableByLayerId(R.id.circle_background);
                     circle.setColor(Colors.colorFromCharSequence(name.getText(), getResources()));
                     Drawable icon = ((LayerDrawable) typeBackground).findDrawableByLayerId(R.id.type_icon);
-                    icon.setAlpha(100);
+                    icon.setAlpha(75);
                 } else {
                     typeBackground = getResources().getDrawable(R.drawable.circle).getConstantState().newDrawable();
                     ((GradientDrawable) typeBackground).setColor(
