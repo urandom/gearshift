@@ -860,36 +860,34 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
         }
 
         int duration = getActivity().getResources().getInteger(android.R.integer.config_shortAnimTime);
+
+        typeChecked.animate().cancel();
         if (checked) {
-            if (typeChecked.getVisibility() != View.VISIBLE) {
-                typeChecked.setVisibility(View.VISIBLE);
-                typeChecked.setScaleX(0f);
-                typeChecked.setScaleY(0f);
-                typeChecked.animate().scaleX(1f).scaleY(1f).setInterpolator(
-                    interpolator
-                ).setDuration(duration).setListener(new AnimatorListenerAdapter() {
-                    @Override
-                    public void onAnimationEnd(Animator animation) {
-                        super.onAnimationEnd(animation);
-                        typeIndicator.setVisibility(View.GONE);
-                        progress.setVisibility(View.GONE);
-                    }
-                });
-            }
+            typeChecked.setVisibility(View.VISIBLE);
+            typeChecked.setScaleX(0f);
+            typeChecked.setScaleY(0f);
+            typeChecked.animate().scaleX(1f).scaleY(1f).setInterpolator(
+                interpolator
+            ).setDuration(duration).setListener(new AnimatorListenerAdapter() {
+                @Override
+                public void onAnimationEnd(Animator animation) {
+                    super.onAnimationEnd(animation);
+                    typeIndicator.setVisibility(View.GONE);
+                    progress.setVisibility(View.GONE);
+                }
+            });
         } else {
-            if (typeIndicator.getVisibility() != View.VISIBLE) {
-                typeIndicator.setVisibility(View.VISIBLE);
-                progress.setVisibility(View.VISIBLE);
-                typeChecked.animate().scaleX(0f).scaleY(0f).setInterpolator(
-                    interpolator
-                ).setDuration(duration).setListener(new AnimatorListenerAdapter() {
-                    @Override
-                    public void onAnimationEnd(Animator animation) {
-                        super.onAnimationEnd(animation);
-                        typeChecked.setVisibility(View.GONE);
-                    }
-                });
-            }
+            typeIndicator.setVisibility(View.VISIBLE);
+            progress.setVisibility(View.VISIBLE);
+            typeChecked.animate().scaleX(0f).scaleY(0f).setInterpolator(
+                interpolator
+            ).setDuration(duration).setListener(new AnimatorListenerAdapter() {
+                @Override
+                public void onAnimationEnd(Animator animation) {
+                    super.onAnimationEnd(animation);
+                    typeChecked.setVisibility(View.GONE);
+                }
+            });
         }
 
     }
@@ -1086,9 +1084,13 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
             SparseBooleanArray checkedItems = getListView().getCheckedItemPositions();
 
             if (checkedItems != null && checkedItems.get(position)) {
-                toggleListItemChecked(true, typeChecked, typeDirectory, progress);
+                if (typeChecked.getVisibility() == View.GONE) {
+                    toggleListItemChecked(true, typeChecked, typeDirectory, progress);
+                }
             } else {
-                toggleListItemChecked(false, typeChecked, typeDirectory, progress);
+                if (typeDirectory.getVisibility() == View.GONE) {
+                    toggleListItemChecked(false, typeChecked, typeDirectory, progress);
+                }
 
                 if ("inode/directory".equals(Torrent.getMimeType(cursor))) {
                     typeDirectory.setVisibility(View.VISIBLE);
