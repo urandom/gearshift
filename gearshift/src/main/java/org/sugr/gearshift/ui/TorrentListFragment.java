@@ -835,6 +835,10 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
     private void toggleListItemChecked(boolean checked, final View typeChecked,
                                        final View typeIndicator, final View progress) {
 
+        if (checked && ((TorrentListActivity) getActivity()).isDetailPanelVisible())  {
+            checked = false;
+        }
+
         int duration = getActivity().getResources().getInteger(android.R.integer.config_shortAnimTime);
         if (checked) {
             if (typeChecked.getVisibility() != View.VISIBLE) {
