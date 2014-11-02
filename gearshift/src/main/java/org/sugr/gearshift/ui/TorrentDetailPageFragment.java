@@ -24,6 +24,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.ActionBarActivity;
 import android.text.Html;
+import android.text.Spanned;
 import android.text.TextUtils;
 import android.view.ActionMode;
 import android.view.KeyEvent;
@@ -109,6 +110,7 @@ public class TorrentDetailPageFragment extends Fragment {
         public LinearLayout trackersContainer;
 
         public TextView name;
+        public TextView statusText;
         public TextView have;
         public TextView downloaded;
         public TextView uploaded;
@@ -526,6 +528,7 @@ public class TorrentDetailPageFragment extends Fragment {
         views.trackersContainer = (LinearLayout) root.findViewById(R.id.torrent_detail_trackers_list);
 
         views.name = (TextView) root.findViewById(R.id.torrent_detail_title);
+        views.statusText = (TextView) root.findViewById(R.id.torrent_detail_subtitle);
         views.have = (TextView) root.findViewById(R.id.torrent_have);
         views.downloaded = (TextView) root.findViewById(R.id.torrent_downloaded);
         views.uploaded = (TextView) root.findViewById(R.id.torrent_uploaded);
@@ -896,13 +899,19 @@ public class TorrentDetailPageFragment extends Fragment {
              || details.torrentCursor.getCount() == 0) return;
 
         String name = Torrent.getName(details.torrentCursor);
+        Spanned statusText = Html.fromHtml(Torrent.getStatusText(details.torrentCursor));
         int status = Torrent.getStatus(details.torrentCursor);
         float uploadRatio = Torrent.getUploadRatio(details.torrentCursor);
         float seedRatioLimit = Torrent.getUploadRatio(details.torrentCursor);
         int queuePosition = Torrent.getQueuePosition(details.torrentCursor);
 
-        if (!name.equals(views.name.getText()))
+        if (!name.equals(views.name.getText())) {
             views.name.setText(name);
+        }
+
+        if (!statusText.equals(views.statusText.getText())) {
+            views.statusText.setText(statusText);
+        }
 
         /* Overview start */
         Cursor cursor = details.torrentCursor;
