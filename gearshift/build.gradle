@@ -2,7 +2,7 @@ apply plugin: 'android'
 
 android {
     compileSdkVersion 21
-    buildToolsVersion '21.0.1'
+    buildToolsVersion '21.1'
 
     defaultConfig {
         minSdkVersion 16
@@ -37,7 +37,7 @@ android {
     }
 }
 
-apply plugin: 'android-unit-test'
+//apply plugin: 'android-unit-test'
 
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
@@ -49,6 +49,7 @@ dependencies {
     compile 'com.fasterxml.jackson.core:jackson-databind:2.3.0'
     compile 'com.fasterxml.jackson.core:jackson-annotations:2.3.0'
 
+    /*
     testCompile fileTree(dir: 'libs', include: ['*.jar'])
     testCompile files("$project.buildDir/classes/debug")
     testCompile 'junit:junit:4.8.2'
@@ -62,6 +63,7 @@ dependencies {
     testCompile 'com.fasterxml.jackson.core:jackson-core:2.3.0'
     testCompile 'com.fasterxml.jackson.core:jackson-databind:2.3.0'
     testCompile 'com.fasterxml.jackson.core:jackson-annotations:2.3.0'
+    */
 }
 
 def runTasks = gradle.startParameter.taskNames
