@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
-    <item android:id="@+id/circle_background" android:drawable="@drawable/circle" />
-    <item android:id="@+id/type_icon"
-          android:drawable="@drawable/ic_folder_open_white_36dp"
-          android:top="12dp" android:right="12dp" android:bottom="12dp" android:left="12dp"/>
-</layer-list>

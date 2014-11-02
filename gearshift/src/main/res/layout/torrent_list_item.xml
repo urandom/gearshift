@@ -20,10 +20,13 @@
         android:layout_gravity="center">
 
         <View
-            android:id="@+id/type_indicator"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
-            android:layout_gravity="center"/>
+            android:id="@+id/type_directory"
+            android:alpha="0.6"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_gravity="center"
+            android:visibility="gone"
+            android:background="@drawable/ic_folder_open_grey600_36dp"/>
 
         <ProgressBar
             android:id="@+id/progress"

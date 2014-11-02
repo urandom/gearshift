@@ -11,9 +11,6 @@ import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.database.Cursor;
-import android.graphics.drawable.Drawable;
-import android.graphics.drawable.GradientDrawable;
-import android.graphics.drawable.LayerDrawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -64,7 +61,6 @@ import org.sugr.gearshift.service.DataService;
 import org.sugr.gearshift.service.DataServiceManager;
 import org.sugr.gearshift.service.DataServiceManagerInterface;
 import org.sugr.gearshift.ui.loader.TorrentTrafficLoader;
-import org.sugr.gearshift.util.Colors;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -285,7 +281,7 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
             View child = list.getChildAt(virtual);
 
             toggleListItemChecked(checked, child.findViewById(R.id.type_checked),
-                child.findViewById(R.id.type_indicator), child.findViewById(R.id.progress));
+                child.findViewById(R.id.type_directory), child.findViewById(R.id.progress));
 
         }
     };
@@ -972,7 +968,7 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
             ProgressBar progress = (ProgressBar) view.findViewById(R.id.progress);
             TextView status = (TextView) view.findViewById(R.id.status);
             TextView errorText = (TextView) view.findViewById(R.id.error_text);
-            View typeIndicator = view.findViewById(R.id.type_indicator);
+            View typeDirectory = view.findViewById(R.id.type_directory);
             View typeChecked = view.findViewById(R.id.type_checked);
 
             String search = sharedPrefs.getString(G.PREF_LIST_SEARCH, null);
@@ -1059,27 +1055,14 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
             SparseBooleanArray checkedItems = getListView().getCheckedItemPositions();
 
             if (checkedItems != null && checkedItems.get(position)) {
-                toggleListItemChecked(true, typeChecked, typeIndicator, progress);
+                toggleListItemChecked(true, typeChecked, typeDirectory, progress);
             } else {
-                toggleListItemChecked(false, typeChecked, typeIndicator, progress);
+                toggleListItemChecked(false, typeChecked, typeDirectory, progress);
 
-                Drawable typeBackground = null;
                 if ("inode/directory".equals(Torrent.getMimeType(cursor))) {
-                    typeBackground = getResources().getDrawable(R.drawable.torrent_type_directory).getConstantState().newDrawable();
-                    GradientDrawable circle = (GradientDrawable) ((LayerDrawable) typeBackground).findDrawableByLayerId(R.id.circle_background);
-                    circle.setColor(Colors.colorFromCharSequence(name.getText(), getResources()));
-                    Drawable icon = ((LayerDrawable) typeBackground).findDrawableByLayerId(R.id.type_icon);
-                    icon.setAlpha(75);
+                    typeDirectory.setVisibility(View.VISIBLE);
                 } else {
-                    typeBackground = getResources().getDrawable(R.drawable.circle).getConstantState().newDrawable();
-                    ((GradientDrawable) typeBackground).setColor(
-                        Colors.colorFromCharSequence(name.getText(), getResources()));
-                }
-
-                if (Build.VERSION.SDK_INT == Build.VERSION_CODES.ICE_CREAM_SANDWICH_MR1) {
-                    typeIndicator.setBackgroundDrawable(typeBackground);
-                } else {
-                    typeIndicator.setBackground(typeBackground);
+                    typeDirectory.setVisibility(View.GONE);
                 }
             }
 

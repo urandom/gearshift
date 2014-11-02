@@ -1279,6 +1279,7 @@ public class DataSource {
         float metadataPercentComplete = 0, percentDone = 0, uploadRatio = 0,
             recheckProgress = 0, seedLimit = 0;
         boolean isStalled = false;
+        String mimeType = null;
 
         while (parser.nextToken() != JsonToken.END_OBJECT) {
             String name = parser.getCurrentName();
@@ -1605,20 +1606,20 @@ public class DataSource {
                     }
 
                     if (values.files.size() > 1) {
-                        torrent.put(Constants.C_MIME_TYPE, "inode/directory");
+                        mimeType = "inode/directory";
                     } else if (lastFileName != null) {
                         File f = new File(lastFileName);
                         String parent = f.getParent();
 
                         if (parent != null && !parent.equals("")) {
-                            torrent.put(Constants.C_MIME_TYPE, "inode/directory");
+                            mimeType = "inode/directory";
                         } else {
                             int dotPos = lastFileName.lastIndexOf('.');
                             String ext = dotPos >= 0 ? lastFileName.substring(dotPos + 1) : "";
                             if (!ext.equals("")) {
                                 MimeTypeMap map = MimeTypeMap.getSingleton();
                                 String mime = map.getMimeTypeFromExtension(ext);
-                                torrent.put(Constants.C_MIME_TYPE, mime);
+                                mimeType = mime;
                             }
                         }
                     }
@@ -1903,6 +1904,10 @@ public class DataSource {
         }
         if (statusText != null) {
             torrent.put(Constants.C_STATUS_TEXT, statusText);
+        }
+
+        if (mimeType != null) {
+            torrent.put(Constants.C_MIME_TYPE, mimeType);
         }
 
         return values;
