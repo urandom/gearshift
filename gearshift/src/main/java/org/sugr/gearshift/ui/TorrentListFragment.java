@@ -1044,6 +1044,8 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
             traffic.setEnabled(enabled);
             status.setEnabled(enabled);
             errorText.setEnabled(enabled);
+            progress.setAlpha(enabled ? 1f : 0.5f);
+            typeDirectory.setAlpha(enabled ? 0.6f : 0.3f);
 
             if (Torrent.getError(cursor) == Torrent.Error.OK) {
                 errorText.setVisibility(View.GONE);
