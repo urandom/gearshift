@@ -3,6 +3,7 @@ package org.sugr.gearshift.ui;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.animation.ObjectAnimator;
+import android.animation.TimeInterpolator;
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -35,6 +36,10 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
+import android.view.animation.AccelerateDecelerateInterpolator;
+import android.view.animation.AccelerateInterpolator;
+import android.view.animation.DecelerateInterpolator;
+import android.view.animation.PathInterpolator;
 import android.widget.AbsListView.MultiChoiceModeListener;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemLongClickListener;
@@ -838,12 +843,31 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
             checked = false;
         }
 
+        TimeInterpolator interpolator;
+        if (Build.VERSION.SDK_INT == Build.VERSION_CODES.LOLLIPOP) {
+            if (checked) {
+                interpolator = new PathInterpolator(0f, 0f, 0.2f, 1f);
+            } else {
+                interpolator = new PathInterpolator(0.4f, 0f, 1f, 1f);
+
+            }
+        } else {
+            if (checked) {
+                interpolator = new DecelerateInterpolator();
+            } else {
+                interpolator = new AccelerateInterpolator();
+            }
+        }
+
         int duration = getActivity().getResources().getInteger(android.R.integer.config_shortAnimTime);
         if (checked) {
             if (typeChecked.getVisibility() != View.VISIBLE) {
                 typeChecked.setVisibility(View.VISIBLE);
-                typeChecked.setAlpha(0f);
-                typeChecked.animate().alpha(1).setDuration(duration).setListener(new AnimatorListenerAdapter() {
+                typeChecked.setScaleX(0f);
+                typeChecked.setScaleY(0f);
+                typeChecked.animate().scaleX(1f).scaleY(1f).setInterpolator(
+                    interpolator
+                ).setDuration(duration).setListener(new AnimatorListenerAdapter() {
                     @Override
                     public void onAnimationEnd(Animator animation) {
                         super.onAnimationEnd(animation);
@@ -856,7 +880,9 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
             if (typeIndicator.getVisibility() != View.VISIBLE) {
                 typeIndicator.setVisibility(View.VISIBLE);
                 progress.setVisibility(View.VISIBLE);
-                typeChecked.animate().alpha(0f).setDuration(duration).setListener(new AnimatorListenerAdapter() {
+                typeChecked.animate().scaleX(0f).scaleY(0f).setInterpolator(
+                    interpolator
+                ).setDuration(duration).setListener(new AnimatorListenerAdapter() {
                     @Override
                     public void onAnimationEnd(Animator animation) {
                         super.onAnimationEnd(animation);
