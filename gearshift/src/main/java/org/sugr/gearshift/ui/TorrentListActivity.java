@@ -26,6 +26,7 @@ import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.SwitchCompat;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
+import android.view.ContextThemeWrapper;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -220,6 +221,10 @@ public class TorrentListActivity extends BaseTorrentActivity
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
+        ContextThemeWrapper wrapper = new ContextThemeWrapper(
+            getSupportActionBar().getThemedContext(), R.style.DefaultToolbar);
+        View.inflate(wrapper, R.layout.alt_speed_switch, toolbar);
 
         getWindow().setBackgroundDrawable(null);
         drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
