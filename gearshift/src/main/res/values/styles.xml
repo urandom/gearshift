@@ -38,7 +38,7 @@
         <item name="android:background">?attr/colorPrimary</item>
         <item name="popupTheme">@style/ThemeOverlay.AppCompat.Light</item>
         <item name="theme">@style/ThemeOverlay.AppCompat.Dark.ActionBar</item>
-        <item name="colorAccent">@color/accent</item>
+        <item name="colorAccent">#e51c23</item>
     </style>
 
     <style name="TorrentTitle">
