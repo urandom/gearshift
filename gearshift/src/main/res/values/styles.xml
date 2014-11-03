@@ -38,6 +38,9 @@
         <item name="android:background">?attr/colorPrimary</item>
         <item name="popupTheme">@style/ThemeOverlay.AppCompat.Light</item>
         <item name="theme">@style/ThemeOverlay.AppCompat.Dark.ActionBar</item>
+    </style>
+
+    <style name="ToolbarControl" parent="AppBaseTheme">
         <item name="colorAccent">#e51c23</item>
     </style>
 

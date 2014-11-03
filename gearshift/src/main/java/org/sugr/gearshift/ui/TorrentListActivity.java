@@ -223,7 +223,7 @@ public class TorrentListActivity extends BaseTorrentActivity
         setSupportActionBar(toolbar);
 
         ContextThemeWrapper wrapper = new ContextThemeWrapper(
-            getSupportActionBar().getThemedContext(), R.style.DefaultToolbar);
+            getSupportActionBar().getThemedContext(), R.style.ToolbarControl);
         View.inflate(wrapper, R.layout.alt_speed_switch, toolbar);
 
         getWindow().setBackgroundDrawable(null);
