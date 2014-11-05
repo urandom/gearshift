@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="primary">#323232</color>
-    <color name="primary_dark">#212121</color>
+    <color name="primary">#252525</color>
+    <color name="primary_dark">#202020</color>
     <color name="control_highlight">#009887</color>
     <color name="control_activated">#00796b</color>
     <color name="accent">#b60000</color>
@@ -22,6 +22,7 @@
     <color name="transparent_white">#66ffffff</color>
     <color name="highlight_dark">#222222</color>
 
+    <color name="filter_list_header">#333333</color>
     <color name="filter_highlight_primary">#E68305</color>
     <color name="filter_highlight_secondary">#C98733</color>
 

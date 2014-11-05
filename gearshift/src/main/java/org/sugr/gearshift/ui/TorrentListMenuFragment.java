@@ -478,7 +478,6 @@ public class TorrentListMenuFragment extends Fragment implements TorrentListNoti
             switch(item.getType()) {
                 case PROFILE_SELECTOR:
                     filterAdapter.setProfilesVisible(!filterAdapter.areProfilesVisible());
-                    filterAdapter.notifyDataSetChanged();
                     break;
                 case PROFILE:
                     TorrentListActivity context = (TorrentListActivity) getActivity();
@@ -498,6 +497,14 @@ public class TorrentListMenuFragment extends Fragment implements TorrentListNoti
                             break;
                         }
                     }
+
+                    filterAdapter.setProfilesVisible(false);
+
+                    int pos = removeProfileSelector();
+                    filterAdapter.notifyItemRemoved(pos);
+
+                    pos = fillProfileSelector();
+                    filterAdapter.notifyItemInserted(pos);
                     break;
                 case FIND:
                     if (!fragment.isFindShown()) {
