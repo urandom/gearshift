@@ -40,7 +40,7 @@
         <item name="theme">@style/ThemeOverlay.AppCompat.Dark.ActionBar</item>
     </style>
 
-    <style name="ToolbarControl" parent="AppBaseTheme">
+    <style name="ToolbarControl" parent="DefaultToolbar">
         <item name="colorAccent">#e51c23</item>
     </style>
 
