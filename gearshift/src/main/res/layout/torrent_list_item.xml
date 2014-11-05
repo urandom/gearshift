@@ -18,7 +18,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginRight="16dp"
-        android:layout_gravity="center">
+        android:layout_gravity="center" >
 
         <View
             android:id="@+id/type_directory"
@@ -36,6 +36,7 @@
             android:layout_height="64dp"
             android:indeterminate="false"
             android:progressDrawable="@drawable/torrent_circular_progress_bar"
+            android:background="@drawable/torrent_item_progress_background"
             android:max="100"
             android:progress="0"/>
 
