@@ -4,6 +4,5 @@
     <item android:id="@+id/find"
           android:title="@string/find"
           app:showAsAction="collapseActionView"
-          app:actionViewClass="android.support.v7.widget.SearchView"
           android:visible="false"/>
 </menu>

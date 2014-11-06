@@ -11,9 +11,11 @@ import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.NavUtils;
 import android.support.v4.content.LocalBroadcastManager;
+import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.Html;
+import android.view.ContextThemeWrapper;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -216,10 +218,15 @@ public class TransmissionSessionActivity extends ActionBarActivity implements Da
         getMenuInflater().inflate(R.menu.transmission_session_activity, menu);
 
         MenuItem item = menu.findItem(R.id.menu_refresh);
-        if (refreshing)
-            item.setActionView(R.layout.action_progress_bar);
-        else
-            item.setActionView(null);
+        if (refreshing) {
+            ContextThemeWrapper wrapper = new ContextThemeWrapper(
+                getSupportActionBar().getThemedContext(),
+                R.style.ToolbarControl);
+            View actionView = View.inflate(wrapper, R.layout.action_progress_bar, null);
+            MenuItemCompat.setActionView(item, actionView);
+        } else {
+            MenuItemCompat.setActionView(item, null);
+        }
 
         return true;
     }

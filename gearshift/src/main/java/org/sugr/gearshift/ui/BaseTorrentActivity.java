@@ -10,9 +10,11 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.content.LocalBroadcastManager;
+import android.support.v4.view.MenuItemCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBarActivity;
 import android.text.Html;
+import android.view.ContextThemeWrapper;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -173,7 +175,11 @@ public abstract class BaseTorrentActivity extends ActionBarActivity
                 swipeRefresh.setEnabled(false);
                 item.setEnabled(false);
             } else {
-                item.setActionView(R.layout.action_progress_bar);
+                ContextThemeWrapper wrapper = new ContextThemeWrapper(
+                    getSupportActionBar().getThemedContext(),
+                    R.style.ToolbarControl);
+                View actionView = View.inflate(wrapper, R.layout.action_progress_bar, null);
+                MenuItemCompat.setActionView(item, actionView);
             }
         } else {
             if (swipeRefresh != null) {
@@ -181,7 +187,7 @@ public abstract class BaseTorrentActivity extends ActionBarActivity
                 swipeRefresh.setEnabled(true);
             }
             item.setEnabled(true);
-            item.setActionView(null);
+            MenuItemCompat.setActionView(item, null);
         }
     }
 
