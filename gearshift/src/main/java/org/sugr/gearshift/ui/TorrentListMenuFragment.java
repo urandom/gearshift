@@ -796,6 +796,7 @@ public class TorrentListMenuFragment extends Fragment implements TorrentListNoti
         list.clear();
 
         filterAdapter.notifyDataSetChanged();
+        filterList.scrollToPosition(0);
     }
 
     private void checkSelectedItems() {
