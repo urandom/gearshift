@@ -2,6 +2,7 @@ package org.sugr.gearshift.ui;
 
 import android.animation.Animator;
 import android.animation.AnimatorInflater;
+import android.animation.AnimatorListenerAdapter;
 import android.animation.ValueAnimator;
 import android.annotation.TargetApi;
 import android.app.Activity;
@@ -147,26 +148,19 @@ public class TorrentListActivity extends BaseTorrentActivity
             detailSlideAnimator = (ValueAnimator) AnimatorInflater.loadAnimator(this, R.anim.weight_animator);
             detailSlideAnimator.setDuration(getResources().getInteger(android.R.integer.config_shortAnimTime));
             detailSlideAnimator.setInterpolator(new DecelerateInterpolator());
-            detailSlideAnimator.addListener(new Animator.AnimatorListener() {
-                @Override
-                public void onAnimationStart(Animator animation) {
-                }
+            detailSlideAnimator.addListener(new AnimatorListenerAdapter() {
+                @Override public void onAnimationEnd(Animator animation) {
+                    super.onAnimationEnd(animation);
 
-                @Override
-                public void onAnimationRepeat(Animator animation) {
-                }
-
-                @Override
-                public void onAnimationEnd(Animator animation) {
                     final FragmentManager fm = getSupportFragmentManager();
                     TorrentDetailFragment fragment = (TorrentDetailFragment) fm.findFragmentByTag(
-                        G.DETAIL_FRAGMENT_TAG);
+                            G.DETAIL_FRAGMENT_TAG);
                     if (fragment == null) {
                         fragment = new TorrentDetailFragment();
                         fragment.setArguments(new Bundle());
                         fm.beginTransaction()
-                            .replace(R.id.torrent_detail_container, fragment, G.DETAIL_FRAGMENT_TAG)
-                            .commit();
+                                .replace(R.id.torrent_detail_container, fragment, G.DETAIL_FRAGMENT_TAG)
+                                .commit();
                         fm.executePendingTransactions();
                     }
 
@@ -191,10 +185,6 @@ public class TorrentListActivity extends BaseTorrentActivity
                             pager.animate().alpha((float) 1.0);
                         }
                     });
-                }
-
-                @Override
-                public void onAnimationCancel(Animator animation) {
                 }
             });
             detailSlideAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {

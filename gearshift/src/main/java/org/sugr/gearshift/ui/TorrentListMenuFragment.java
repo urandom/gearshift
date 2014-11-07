@@ -89,6 +89,7 @@ public class TorrentListMenuFragment extends Fragment implements TorrentListNoti
     };
 
     private boolean filtersChanged;
+    private boolean initialProfilesLoaded = false;
 
     private OnSharedPreferenceChangeListener sharedPrefListener = new OnSharedPreferenceChangeListener() {
         @Override public void onSharedPreferenceChanged(SharedPreferences prefs, String key) {
@@ -151,9 +152,13 @@ public class TorrentListMenuFragment extends Fragment implements TorrentListNoti
 
             if (profiles.length > 1) {
                 start = fillProfileSelector();
-            }
+                filterAdapter.notifyItemInserted(start);
 
-            filterAdapter.notifyItemInserted(start);
+                if (!initialProfilesLoaded) {
+                    filterList.scrollToPosition(0);
+                    initialProfilesLoaded = true;
+                }
+            }
         }
 
         @Override

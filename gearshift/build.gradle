@@ -22,10 +22,10 @@ android {
     buildTypes {
         release {
             signingConfig signingConfigs.release
-            runProguard true
+            minifyEnabled true
             // proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
             proguardFiles 'proguard-rules.txt'
-            zipAlign true
+            zipAlignEnabled true
         }
     }
     lintOptions {
