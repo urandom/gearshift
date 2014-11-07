@@ -156,7 +156,7 @@
 
     <string name="remove_selected_confirmation">Are you sure you want to remove the selected torrents?</string>
     <string name="remove_current_confirmation">Are you sure you want to remove \'%s\'?</string>
-    <string name="remove_with_data">With the data</string>
+    <string name="remove_with_data">Delete the data</string>
 
     <string name="torrent_have_format">%1$s of %2$s (%3$s%%)</string>
     <string name="torrent_size_format">%1$s (%2$s pieces @ %3$s)</string>
