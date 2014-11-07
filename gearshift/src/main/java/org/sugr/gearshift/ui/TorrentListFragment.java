@@ -1090,7 +1090,9 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
 
             if (checkedItems != null && checkedItems.get(position)) {
                 if (typeChecked.getVisibility() == View.GONE) {
-                    toggleListItemChecked(true, typeChecked, typeDirectory, progress);
+                    typeDirectory.setVisibility(View.GONE);
+                    progress.setVisibility(View.GONE);
+                    typeChecked.setVisibility(View.VISIBLE);
                 }
             } else {
                 if (typeDirectory.getVisibility() == View.GONE) {
