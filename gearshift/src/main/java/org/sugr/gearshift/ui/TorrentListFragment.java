@@ -1094,7 +1094,9 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
                 }
             } else {
                 if (typeDirectory.getVisibility() == View.GONE) {
-                    toggleListItemChecked(false, typeChecked, typeDirectory, progress);
+                    typeDirectory.setVisibility(View.VISIBLE);
+                    progress.setVisibility(View.VISIBLE);
+                    typeChecked.setVisibility(View.GONE);
                 }
 
                 if ("inode/directory".equals(Torrent.getMimeType(cursor))) {
