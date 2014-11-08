@@ -1347,7 +1347,7 @@ public class TorrentDetailPageFragment extends Fragment {
         private List<View> views = new ArrayList<>();
 
         public FilesAdapter() {
-            super(getActivity(), fieldId);
+            super(getActivity(), R.layout.torrent_detail_files_row);
         }
 
         public List<View> getViews() {
@@ -1656,7 +1656,6 @@ public class TorrentDetailPageFragment extends Fragment {
     }
 
     private class TrackersAdapter extends ArrayAdapter<Tracker> {
-        private static final int fieldId = R.id.torrent_detail_trackers_row;
         private List<View> views = new ArrayList<>();
         private ViewGroup visibleButtons;
         private List<ViewGroup> buttonsToHide = new ArrayList<>();
@@ -1664,7 +1663,7 @@ public class TorrentDetailPageFragment extends Fragment {
         private boolean animatorStopped = false;
 
         public TrackersAdapter() {
-            super(getActivity(), fieldId);
+            super(getActivity(), R.layout.torrent_detail_trackers_row);
         }
 
         public List<View> getViews() {
