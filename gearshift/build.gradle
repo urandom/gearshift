@@ -29,11 +29,11 @@ android {
         }
     }
     lintOptions {
-          checkReleaseBuilds true
-          // Or, if you prefer, you can continue to check for errors in release builds,
-          // but continue the build even when errors are found:
-          abortOnError false
-          disable 'MissingTranslation'
+        checkReleaseBuilds true
+        // Or, if you prefer, you can continue to check for errors in release builds,
+        // but continue the build even when errors are found:
+        abortOnError false
+        disable 'MissingTranslation'
     }
 }
 
@@ -41,13 +41,6 @@ android {
 
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
-    compile 'com.android.support:support-v4:21.0.+'
-    compile "com.android.support:appcompat-v7:21.0.+"
-    compile 'com.android.support:recyclerview-v7:+'
-    compile 'com.android.support:cardview-v7:+'
-    compile 'com.fasterxml.jackson.core:jackson-core:2.3.0'
-    compile 'com.fasterxml.jackson.core:jackson-databind:2.3.0'
-    compile 'com.fasterxml.jackson.core:jackson-annotations:2.3.0'
 
     /*
     testCompile fileTree(dir: 'libs', include: ['*.jar'])
@@ -64,6 +57,13 @@ dependencies {
     testCompile 'com.fasterxml.jackson.core:jackson-databind:2.3.0'
     testCompile 'com.fasterxml.jackson.core:jackson-annotations:2.3.0'
     */
+    compile 'com.android.support:support-v4:21.0.0'
+    compile 'com.android.support:appcompat-v7:21.0.0'
+    compile 'com.android.support:recyclerview-v7:21.0.0'
+    compile 'com.android.support:cardview-v7:21.0.0'
+    compile 'com.fasterxml.jackson.core:jackson-core:2.3.0'
+    compile 'com.fasterxml.jackson.core:jackson-databind:2.3.0'
+    compile 'com.fasterxml.jackson.core:jackson-annotations:2.3.0'
 }
 
 def runTasks = gradle.startParameter.taskNames

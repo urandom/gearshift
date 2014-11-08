@@ -1035,33 +1035,37 @@ public class TorrentListMenuFragment extends Fragment implements TorrentListNoti
             }
         }
 
-        @Override
-        public int getItemCount() {
-            return this.itemData.size();
-        }
-
-        @Override
-        public long getItemId(int position) {
+        @Override public long getItemId(int position) {
             return this.itemData.get(position).hashCode();
         }
 
-        @Override
-        public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        @Override public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
             View itemLayoutView = LayoutInflater.from(parent.getContext()).inflate(viewType, parent, false);
 
             ViewHolder holder = new ViewHolder(itemLayoutView, viewType);
             return holder;
         }
 
-        @Override
-        public void onBindViewHolder(ViewHolder holder, final int position) {
+        @Override public boolean isItemSelectable(int position) {
+            if (position == -1 || itemData.size() <= position) {
+                return false;
+            }
+
+            ListItem item = itemData.get(position);
+            if (item.getType() == Type.HEADER) {
+                return false;
+            }
+
+            return true;
+        }
+
+        @Override public void onBindViewHolder(ViewHolder holder, final int position) {
             super.onBindViewHolder(holder, position);
 
             final ListItem item = itemData.get(position);
 
             holder.itemView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
+                @Override public void onClick(View v) {
                     context.setActivatedPosition(item, position);
                 }
             });
@@ -1071,8 +1075,7 @@ public class TorrentListMenuFragment extends Fragment implements TorrentListNoti
             }
         }
 
-        @Override
-        public int getItemViewType(int position) {
+        @Override public int getItemViewType(int position) {
             ListItem item = itemData.get(position);
             switch (item.getType()) {
                 case HEADER:

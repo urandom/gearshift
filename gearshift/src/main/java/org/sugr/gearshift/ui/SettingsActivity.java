@@ -1,54 +1,48 @@
 package org.sugr.gearshift.ui;
 
 import android.app.Activity;
-import android.app.LoaderManager;
-import android.content.Context;
-import android.content.Intent;
-import android.content.Loader;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.preference.PreferenceActivity;
 import android.preference.PreferenceManager;
-import android.support.v4.app.NavUtils;
-import android.text.TextUtils;
+import android.support.v4.app.LoaderManager;
+import android.support.v4.content.Loader;
+import android.support.v4.widget.SlidingPaneLayout;
+import android.support.v7.app.ActionBarActivity;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
-import android.widget.ListAdapter;
 import android.widget.TextView;
 
 import org.sugr.gearshift.G;
-import org.sugr.gearshift.GearShiftApplication;
 import org.sugr.gearshift.R;
 import org.sugr.gearshift.core.TransmissionProfile;
-import org.sugr.gearshift.ui.loader.TransmissionProfileLoader;
+import org.sugr.gearshift.ui.loader.TransmissionProfileSupportLoader;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
-public class SettingsActivity extends PreferenceActivity
-        implements LoaderManager.LoaderCallbacks<TransmissionProfile[]> {
+public class SettingsActivity extends ActionBarActivity {
+    private SlidingPaneLayout slidingPane;
+    private RecyclerView profileList;
 
-    private Header appPreferencesHeader;
-    private Header filtersHeader;
-    private Header sortHeader;
-    private Header profileHeaderSeparatorHeader;
-    private Header[] profileHeaders = new Header[0];
+    private ProfileAdapter profileAdapter;
 
-    private List<Header> headers = new ArrayList<Header>();
-    private TransmissionProfile[] profiles;
+    private enum Type {
+        HEADER, PREFERENCES, PROFILE
+    }
 
-    private static final int LOADER_ID = 1;
+    private static final int PREFERENCE_GROUP_COUNT = 3;
 
     private SharedPreferences.OnSharedPreferenceChangeListener defaultPrefListener
             = new SharedPreferences.OnSharedPreferenceChangeListener() {
         @Override
         public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
             if (key.equals(G.PREF_PROFILES)) {
-                Loader loader = getLoaderManager().getLoader(LOADER_ID);
+                Loader loader = getSupportLoaderManager().getLoader(G.PROFILES_LOADER_ID);
 
                 if (loader != null) {
                     loader.onContentChanged();
@@ -61,7 +55,7 @@ public class SettingsActivity extends PreferenceActivity
             = new SharedPreferences.OnSharedPreferenceChangeListener() {
         @Override
         public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-            Loader loader = getLoaderManager().getLoader(LOADER_ID);
+            Loader loader = getSupportLoaderManager().getLoader(G.PROFILES_LOADER_ID);
 
             if (loader != null) {
                 loader.onContentChanged();
@@ -69,46 +63,113 @@ public class SettingsActivity extends PreferenceActivity
         }
     };
 
-    @Override
-    public void onBuildHeaders(List<Header> target) {
-        target.clear();
-        target.add(getAppPreferencesHeader());
-        target.add(getFiltersHeader());
-        target.add(getSortHeader());
 
-        if (profileHeaders.length > 0) {
-            if (profileHeaderSeparatorHeader == null) {
-                profileHeaderSeparatorHeader = new Header();
-                profileHeaderSeparatorHeader.title = getText(R.string.header_label_profiles);
-            }
-            target.add(profileHeaderSeparatorHeader);
-
-            for (Header profile : profileHeaders)
-                target.add(profile);
+    private LoaderManager.LoaderCallbacks<TransmissionProfile[]> profileLoaderCallbacks = new LoaderManager.LoaderCallbacks<TransmissionProfile[]>() {
+        @Override
+        public android.support.v4.content.Loader<TransmissionProfile[]> onCreateLoader(
+            int id, Bundle args) {
+            return new TransmissionProfileSupportLoader(SettingsActivity.this);
         }
 
-        headers = target;
-    }
+        @Override
+        public void onLoadFinished(
+            android.support.v4.content.Loader<TransmissionProfile[]> loader,
+            TransmissionProfile[] profiles) {
 
-    @Override
-    public void setListAdapter(ListAdapter adapter) {
-        if (adapter == null)
-            super.setListAdapter(null);
-        else
-            super.setListAdapter(new HeaderAdapter(this, headers));
-    }
+            SettingsActivity context = SettingsActivity.this;
+            List<ProfileItem> items = new ArrayList<>(profiles.length);
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
+            for (TransmissionProfile profile : profiles) {
+                items.add(createProfileItem(profile));
+            }
 
-        getActionBar().setDisplayHomeAsUpEnabled(true);
-        getActionBar().setHomeButtonEnabled(true);
+            if (items.size() == 0 && profileAdapter.itemData.size() > PREFERENCE_GROUP_COUNT) {
+                int count = profileAdapter.itemData.size() - PREFERENCE_GROUP_COUNT;
+                for (int i = 0; i < count; i++) {
+                    profileAdapter.itemData.remove(PREFERENCE_GROUP_COUNT + i);
+                }
+                profileAdapter.notifyItemRangeRemoved(PREFERENCE_GROUP_COUNT, count);
+            } else if (items.size() > 0 && profileAdapter.itemData.size() == PREFERENCE_GROUP_COUNT) {
+                ProfileItem header = new ProfileItem("profile-header", Type.HEADER,
+                    getString(R.string.header_label_profiles), null);
 
-        if (savedInstanceState == null) {
-            G.logD("Creating the profile loader");
+                profileAdapter.itemData.add(header);
+                profileAdapter.notifyItemInserted(PREFERENCE_GROUP_COUNT);
+            }
 
-            getLoaderManager().initLoader(LOADER_ID, null, this);
+            Iterator<ProfileItem> iter = profileAdapter.itemData.iterator();
+            int index = 0;
+            while (iter.hasNext()) {
+                ProfileItem item = iter.next();
+
+                if (item.getType() == Type.PROFILE) {
+                    if (items.contains(item)) {
+                        items.remove(item);
+                        index++;
+                    } else {
+                        iter.remove();
+                        profileAdapter.notifyItemRemoved(index);
+                    }
+                }
+            }
+
+            if (items.size() > 0) {
+                int start = profileAdapter.itemData.size();
+                for (ProfileItem item : items) {
+                    profileAdapter.itemData.add(item);
+                }
+                profileAdapter.notifyItemRangeInserted(start, items.size());
+            }
+        }
+
+        @Override
+        public void onLoaderReset(
+            android.support.v4.content.Loader<TransmissionProfile[]> loader) {
+
+            Iterator<ProfileItem> iter = profileAdapter.itemData.iterator();
+            int count = 0;
+            while (iter.hasNext()) {
+                ProfileItem item = iter.next();
+
+                if (item.getType() == Type.HEADER || item.getType() == Type.PROFILE) {
+                    iter.remove();
+                    count++;
+                }
+            }
+
+
+            profileAdapter.notifyItemRangeRemoved(PREFERENCE_GROUP_COUNT, count);
+        }
+
+    };
+
+    @Override protected void onCreate(Bundle state) {
+        super.onCreate(state);
+
+        setContentView(R.layout.activity_settings);
+
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        if (toolbar != null) {
+            setSupportActionBar(toolbar);
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        }
+
+        slidingPane = (SlidingPaneLayout) findViewById(R.id.sliding_pane);
+        slidingPane.openPane();
+        slidingPane.setSliderFadeColor(getResources().getColor(R.color.success));
+        slidingPane.setShadowResourceLeft(R.drawable.pane_shadow);
+
+        profileAdapter = new ProfileAdapter(this);
+
+        profileList = (RecyclerView) findViewById(R.id.profile_list);
+
+        profileList.setLayoutManager(new LinearLayoutManager(this));
+        profileList.setAdapter(profileAdapter);
+
+        fillPreferences();
+
+        if (state == null) {
+            getSupportLoaderManager().initLoader(G.PROFILES_LOADER_ID, null, profileLoaderCallbacks);
 
             SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
             prefs.registerOnSharedPreferenceChangeListener(defaultPrefListener);
@@ -116,266 +177,160 @@ public class SettingsActivity extends PreferenceActivity
             prefs = getSharedPreferences(TransmissionProfile.getPreferencesName(),
                 Activity.MODE_PRIVATE);
             prefs.registerOnSharedPreferenceChangeListener(profilesPrefListener);
+
         }
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        super.onCreateOptionsMenu(menu);
-        if (profiles != null)
-            getMenuInflater().inflate(R.menu.add_profile_option, menu);
-
-        return true;
+    private void setSelectedItem(ProfileItem item) {
     }
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch(item.getItemId()) {
-            case android.R.id.home:
-                NavUtils.navigateUpTo(this, new Intent(this, TorrentListActivity.class));
-                overridePendingTransition(android.R.anim.fade_in , R.anim.slide_out_top);
-                return true;
-            case R.id.menu_add_profile:
-                String name = TransmissionProfileSettingsFragment.class.getCanonicalName();
-                Bundle args = new Bundle();
-                if (!onIsHidingHeaders() && onIsMultiPane())
-                    switchToHeader(name, args);
-                else
-                    startWithFragment(name, args, null, 0);
+    private void fillPreferences() {
+        ProfileItem item = new ProfileItem("general-preferences", Type.PREFERENCES,
+            getString(R.string.header_label_general_preferences), null);
 
-                return true;
-        }
-        return super.onOptionsItemSelected(item);
+        profileAdapter.itemData.add(0, item);
+
+       item = new ProfileItem("filter-preferences", Type.PREFERENCES,
+            getString(R.string.header_label_filters), null);
+
+        profileAdapter.itemData.add(1, item);
+
+        item = new ProfileItem("sort-preferences", Type.PREFERENCES,
+            getString(R.string.header_label_sort), null);
+
+        profileAdapter.itemData.add(1, item);
+
+        profileAdapter.notifyItemRangeInserted(0, profileAdapter.itemData.size());
     }
 
-    @Override public void onBackPressed() {
-        super.onBackPressed();
-
-        overridePendingTransition(android.R.anim.fade_in, R.anim.slide_out_top);
-    }
-
-    @Override protected void onResume() {
-        super.onResume();
-
-        GearShiftApplication.setActivityVisible(true);
-    }
-
-    @Override protected void onPause() {
-        super.onPause();
-
-        GearShiftApplication.setActivityVisible(false);
-    }
-
-    @Override
-    public Loader<TransmissionProfile[]> onCreateLoader(int id, Bundle args) {
-        return new TransmissionProfileLoader(this);
-    }
-
-    @Override
-    public void onLoadFinished(Loader<TransmissionProfile[]> loader,
-            TransmissionProfile[] profiles) {
-        this.profiles = profiles;
-
-        G.logD("Finished loading %d profiles", new Object[] {profiles.length});
-
-        profileHeaders = new Header[profiles.length];
-        int index = 0;
-        for (TransmissionProfile profile : profiles) {
-            profileHeaders[index++] = getProfileHeader(profile);
-        }
-
-        invalidateOptionsMenu();
-        invalidateHeaders();
-    }
-
-    @Override
-    public void onLoaderReset(Loader<TransmissionProfile[]> loader) {/*
-        profileHeaders = new Header[0];
-        profiles = null;
-
-        TorrentListActivity.logD("Received profile loader reset");
-        */
-        invalidateHeaders();
-        invalidateOptionsMenu();
-    }
-
-    @Override protected boolean isValidFragment(String name) {
-        return GeneralSettingsFragment.class.getName().equals(name)
-            || FiltersSettingsFragment.class.getName().equals(name)
-            || SortSettingsFragment.class.getName().equals(name)
-            || TransmissionProfileSettingsFragment.class.getName().equals(name)
-            || TransmissionProfileDirectoriesSettingsFragment.class.getName().equals(name);
-
-    }
-
-    private Header getProfileHeader(TransmissionProfile profile) {
-        Header header = new Header();
-
-        header.id = profile.getId().hashCode();
-        header.title = profile.getName();
-        header.summary = (profile.getUsername().length() > 0 ? profile.getUsername() + "@" : "")
+    private ProfileItem createProfileItem(TransmissionProfile profile) {
+        String sublabel = (profile.getUsername().length() > 0 ? profile.getUsername() + "@" : "")
                 + profile.getHost() + ":" + profile.getPort();
 
-        header.fragment = TransmissionProfileSettingsFragment.class.getCanonicalName();
-        Bundle args = new Bundle();
-        args.putString(G.ARG_PROFILE_ID, profile.getId());
+        ProfileItem item = new ProfileItem(profile.getId(), Type.PROFILE,
+            profile.getName(), sublabel);
 
-        Intent intent = getIntent();
-        if (intent.hasExtra(G.ARG_PROFILE_ID) &&
-                profile.getId().equals(intent.getStringExtra(G.ARG_PROFILE_ID))) {
-            args.putStringArrayList(G.ARG_DIRECTORIES,
-                    intent.getStringArrayListExtra(G.ARG_DIRECTORIES));
-        }
-        header.fragmentArguments = args;
-
-        return header;
+        return item;
     }
 
-    private Header getAppPreferencesHeader() {
-        // Set up fixed header for general settings
-        if (appPreferencesHeader == null) {
-            appPreferencesHeader = new Header();
-            appPreferencesHeader.id = R.id.general_preferences;
-            appPreferencesHeader.title = getText(R.string.header_label_general_preferences);
-            appPreferencesHeader.summary = null;
-            appPreferencesHeader.iconRes = 0;
-            appPreferencesHeader.fragment = GeneralSettingsFragment.class.getCanonicalName();
-            appPreferencesHeader.fragmentArguments = null;
-        }
-        return appPreferencesHeader;
-    }
+    private static class ProfileAdapter extends SelectableRecyclerViewAdapter<ProfileAdapter.ViewHolder, ProfileItem> {
+        private SettingsActivity context;
 
-    private Header getFiltersHeader() {
-        if (filtersHeader == null) {
-            filtersHeader = new Header();
-            filtersHeader.id = R.id.filters_preferences;
-            filtersHeader.title = getText(R.string.header_label_filters);
-            filtersHeader.summary = null;
-            filtersHeader.iconRes = 0;
-            filtersHeader.fragment = FiltersSettingsFragment.class.getCanonicalName();
-            filtersHeader.fragmentArguments = null;
+        public ProfileAdapter(SettingsActivity context) {
+            this.context = context;
         }
 
-        return filtersHeader;
-    }
-
-    private Header getSortHeader() {
-        if (sortHeader == null) {
-            sortHeader = new Header();
-            sortHeader.id = R.id.sort_preferences;
-            sortHeader.title = getText(R.string.header_label_sort);
-            sortHeader.summary = null;
-            sortHeader.iconRes = 0;
-            sortHeader.fragment = SortSettingsFragment.class.getCanonicalName();
-            sortHeader.fragmentArguments = null;
-        }
-
-        return sortHeader;
-    }
-
-    private static class HeaderAdapter extends ArrayAdapter<Header> {
-        static final int HEADER_TYPE_CATEGORY = 0;
-        static final int HEADER_TYPE_NORMAL = 1;
-        private static final int HEADER_TYPE_COUNT = HEADER_TYPE_NORMAL + 1;
-
-        private static class HeaderViewHolder {
-            TextView title;
-            TextView summary;
-        }
-
-        private LayoutInflater inflater;
-
-        static int getHeaderType(Header header) {
-            if (header.fragment == null && header.intent == null) {
-                return HEADER_TYPE_CATEGORY;
-            } else {
-                return HEADER_TYPE_NORMAL;
+        @Override public boolean isItemSelectable(int position) {
+            if (position == -1 || itemData.size() <= position) {
+                return false;
             }
-        }
 
-        @Override
-        public int getItemViewType(int position) {
-            Header header = getItem(position);
-            return getHeaderType(header);
-        }
+            ProfileItem item = itemData.get(position);
+            if (item.getType() == Type.HEADER) {
+                return false;
+            }
 
-        @Override
-        public boolean areAllItemsEnabled() {
-            return false; // because of categories
-        }
-
-        @Override
-        public boolean isEnabled(int position) {
-            return getItemViewType(position) != HEADER_TYPE_CATEGORY;
-        }
-
-        @Override
-        public int getViewTypeCount() {
-            return HEADER_TYPE_COUNT;
-        }
-
-        @Override
-        public boolean hasStableIds() {
             return true;
         }
 
-        public HeaderAdapter(Context context, List<Header> objects) {
-            super(context, 0, objects);
+        @Override public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+            View itemLayoutView = LayoutInflater.from(parent.getContext()).inflate(viewType, parent, false);
 
-            inflater = (LayoutInflater)context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+            ViewHolder holder = new ViewHolder(itemLayoutView, viewType);
+            return holder;
+        }
+
+        @Override public void onBindViewHolder(ViewHolder holder, final int position) {
+            super.onBindViewHolder(holder, position);
+
+            final ProfileItem item = itemData.get(position);
+
+            holder.itemView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    context.setSelectedItem(item);
+                }
+            });
+
+            holder.label.setText(item.getLabel());
+            if (holder.sublabel != null) {
+                holder.sublabel.setText(item.getSublabel());
+            }
+        }
+
+        @Override public long getItemId(int position) {
+            return this.itemData.get(position).hashCode();
+        }
+
+        @Override public int getItemViewType(int position) {
+            ProfileItem item = itemData.get(position);
+            switch (item.getType()) {
+                case HEADER:
+                    return R.layout.settings_profile_header;
+                default:
+                    return R.layout.settings_profile_item;
+            }
+        }
+
+        public static class ViewHolder extends RecyclerView.ViewHolder {
+            public TextView label;
+            public TextView sublabel;
+
+            public ViewHolder(View itemView, int type) {
+                super(itemView);
+
+                label = (TextView) itemView.findViewById(android.R.id.text1);
+                sublabel = (TextView) itemView.findViewById(android.R.id.text2);
+            }
+        }
+    }
+
+    private class ProfileItem {
+        private String id;
+        private Type type;
+        private String label;
+        private String sublabel;
+
+        private ProfileItem(String id, Type type, String label, String sublabel) {
+            this.id = id;
+            this.type = type;
+            this.label = label;
+            this.sublabel = sublabel;
+        }
+
+        public String getId() {
+            return id;
+        }
+
+        public Type getType() {
+            return type;
+        }
+
+        public String getLabel() {
+            return label;
+        }
+
+        public String getSublabel() {
+            return sublabel;
         }
 
         @Override
-        public View getView(int position, View convertView, ViewGroup parent) {
-            HeaderViewHolder holder;
-            Header header = getItem(position);
-            int headerType = getHeaderType(header);
-            View view = null;
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
 
-            if (convertView == null) {
-                holder = new HeaderViewHolder();
-                switch (headerType) {
-                    case HEADER_TYPE_CATEGORY:
-                        view = new TextView(getContext(), null,
-                                android.R.attr.listSeparatorTextViewStyle);
-                        holder.title = (TextView) view;
-                        break;
-                    case HEADER_TYPE_NORMAL:
-                        view = inflater.inflate(
-                                R.layout.preference_header_item, parent,
-                                false);
-                        holder.title = (TextView)
-                                view.findViewById(android.R.id.title);
-                        holder.summary = (TextView)
-                                view.findViewById(android.R.id.summary);
-                        break;
-                }
-                view.setTag(holder);
-            } else {
-                view = convertView;
-                holder = (HeaderViewHolder) view.getTag();
-            }
+            ProfileItem that = (ProfileItem) o;
 
-            // All view fields must be updated every time, because the view may be recycled
-            switch (headerType) {
-                case HEADER_TYPE_CATEGORY:
-                    holder.title.setText(header.getTitle(getContext().getResources()));
-                    break;
+            return id.equals(that.id);
+        }
 
-
-                case HEADER_TYPE_NORMAL:
-                    holder.title.setText(header.getTitle(getContext().getResources()));
-                    CharSequence summary = header.getSummary(getContext().getResources());
-                    if (!TextUtils.isEmpty(summary)) {
-                        holder.summary.setVisibility(View.VISIBLE);
-                        holder.summary.setText(summary);
-                    } else {
-                        holder.summary.setVisibility(View.GONE);
-                    }
-                    break;
-            }
-
-            return view;
+        @Override
+        public int hashCode() {
+            int result = id.hashCode();
+            result = 31 * result + type.hashCode();
+            result = 31 * result + label.hashCode();
+            result = 31 * result + (sublabel != null ? sublabel.hashCode() : 0);
+            return result;
         }
     }
 }

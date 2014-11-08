@@ -16,6 +16,10 @@ public abstract class SelectableRecyclerViewAdapter<VH extends RecyclerView.View
     }
 
     public void setItemSelected(int position, boolean selected) {
+        if (!isItemSelectable(position)) {
+            return;
+        }
+
         if (selected) {
             selectedItems.put(position, true);
         } else {
@@ -50,7 +54,15 @@ public abstract class SelectableRecyclerViewAdapter<VH extends RecyclerView.View
         return items;
     }
 
+    public abstract boolean isItemSelectable(int position);
+
+
     @Override public void onBindViewHolder(VH holder, int position) {
         holder.itemView.setActivated(selectedItems.get(position, false));
     }
+
+    @Override public int getItemCount() {
+        return this.itemData.size();
+    }
+
 }
