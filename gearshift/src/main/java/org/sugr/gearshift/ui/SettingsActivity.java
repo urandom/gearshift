@@ -1,6 +1,9 @@
 package org.sugr.gearshift.ui;
 
 import android.app.Activity;
+import android.app.Fragment;
+import android.app.FragmentManager;
+import android.app.FragmentTransaction;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -36,6 +39,7 @@ public class SettingsActivity extends ActionBarActivity {
     }
 
     private static final int PREFERENCE_GROUP_COUNT = 3;
+    private static final String PREFERENCE_FRAGMENT_TAG = "preference-fragment";
 
     private SharedPreferences.OnSharedPreferenceChangeListener defaultPrefListener
             = new SharedPreferences.OnSharedPreferenceChangeListener() {
@@ -143,6 +147,28 @@ public class SettingsActivity extends ActionBarActivity {
 
     };
 
+    public boolean isPreferencesOpen() {
+        return getFragmentManager().findFragmentByTag(PREFERENCE_FRAGMENT_TAG) == null;
+    }
+
+    public boolean isPreferencesAlwaysVisible() {
+        return !slidingPane.isSlideable();
+    }
+
+    public void closePreferences() {
+        if (!isPreferencesOpen()) {
+            return;
+        }
+
+        findViewById(R.id.watermark).setVisibility(View.VISIBLE);
+
+        FragmentManager fm = getFragmentManager();
+        FragmentTransaction transaction = fm.beginTransaction();
+        transaction.remove(fm.findFragmentByTag(PREFERENCE_FRAGMENT_TAG));
+        transaction.commit();
+        fm.executePendingTransactions();
+    }
+
     @Override protected void onCreate(Bundle state) {
         super.onCreate(state);
 
@@ -156,7 +182,7 @@ public class SettingsActivity extends ActionBarActivity {
 
         slidingPane = (SlidingPaneLayout) findViewById(R.id.sliding_pane);
         slidingPane.openPane();
-        slidingPane.setSliderFadeColor(getResources().getColor(R.color.success));
+        slidingPane.setSliderFadeColor(getResources().getColor(R.color.preference_background));
         slidingPane.setShadowResourceLeft(R.drawable.pane_shadow);
 
         profileAdapter = new ProfileAdapter(this);
@@ -168,9 +194,8 @@ public class SettingsActivity extends ActionBarActivity {
 
         fillPreferences();
 
+        getSupportLoaderManager().initLoader(G.PROFILES_LOADER_ID, null, profileLoaderCallbacks);
         if (state == null) {
-            getSupportLoaderManager().initLoader(G.PROFILES_LOADER_ID, null, profileLoaderCallbacks);
-
             SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
             prefs.registerOnSharedPreferenceChangeListener(defaultPrefListener);
 
@@ -181,7 +206,46 @@ public class SettingsActivity extends ActionBarActivity {
         }
     }
 
+    @Override protected void onResume() {
+        super.onResume();
+
+        FragmentManager fm = getFragmentManager();
+        View watermark = findViewById(R.id.watermark);
+        watermark.setVisibility(fm.findFragmentByTag(PREFERENCE_FRAGMENT_TAG) == null
+            ? View.VISIBLE : View.GONE);
+    }
+
     private void setSelectedItem(ProfileItem item) {
+        if (item.getType() == Type.HEADER) {
+            return;
+        }
+
+        Fragment fragment = null;
+        switch (item.getId()) {
+            case "general-preferences":
+                fragment = new GeneralSettingsFragment();
+                break;
+            case "filter-preferences":
+                fragment = new FiltersSettingsFragment();
+                break;
+            case "sort-preferences":
+                fragment = new SortSettingsFragment();
+                break;
+        }
+
+        if (fragment == null) {
+            return;
+        }
+
+        findViewById(R.id.watermark).setVisibility(View.GONE);
+
+        FragmentManager fm = getFragmentManager();
+        fm.beginTransaction().replace(R.id.preference_panel, fragment, PREFERENCE_FRAGMENT_TAG)
+            .commit();
+
+        fm.executePendingTransactions();
+
+        slidingPane.closePane();
     }
 
     private void fillPreferences() {

@@ -170,21 +170,16 @@ public class TransmissionProfileSettingsFragment extends BasePreferenceFragment 
         TransmissionProfile.cleanTemporaryPreferences(getActivity());
 
         if (saved || deleted) {
-            PreferenceActivity context = (PreferenceActivity) getActivity();
-            G.requestBackup(context);
+            G.requestBackup(getActivity());
         }
 
         super.onDestroy();
     }
 
     private void close() {
-        PreferenceActivity context = (PreferenceActivity) getActivity();
+        SettingsActivity context = (SettingsActivity) getActivity();
 
-        if (context.onIsHidingHeaders() || !context.onIsMultiPane()) {
-            getActivity().finish();
-        } else {
-            ((PreferenceActivity) getActivity()).switchToHeader(GeneralSettingsFragment.class.getCanonicalName(), new Bundle());
-        }
+        context.closePreferences();
     }
 
     private class ServiceReceiver extends BroadcastReceiver {

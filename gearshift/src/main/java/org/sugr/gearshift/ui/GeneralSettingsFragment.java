@@ -37,9 +37,9 @@ public class GeneralSettingsFragment extends BasePreferenceFragment {
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         super.onCreateOptionsMenu(menu, inflater);
-        PreferenceActivity context = (PreferenceActivity) getActivity();
+        SettingsActivity context = (SettingsActivity) getActivity();
 
-        if (context.onIsHidingHeaders() || !context.onIsMultiPane()) {
+        if (!context.isPreferencesAlwaysVisible() && context.isPreferencesOpen()) {
             menu.clear();
         }
     }

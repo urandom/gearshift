@@ -9,7 +9,6 @@ import android.view.MenuInflater;
 
 import org.sugr.gearshift.G;
 import org.sugr.gearshift.R;
-import org.sugr.gearshift.ui.BasePreferenceFragment;
 
 public class SortSettingsFragment extends BasePreferenceFragment {
 
@@ -38,9 +37,9 @@ public class SortSettingsFragment extends BasePreferenceFragment {
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         super.onCreateOptionsMenu(menu, inflater);
-        PreferenceActivity context = (PreferenceActivity) getActivity();
+        SettingsActivity context = (SettingsActivity) getActivity();
 
-        if (context.onIsHidingHeaders() || !context.onIsMultiPane()) {
+        if (!context.isPreferencesAlwaysVisible() && context.isPreferencesOpen()) {
             menu.clear();
         }
     }

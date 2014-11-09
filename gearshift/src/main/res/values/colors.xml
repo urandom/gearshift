@@ -22,6 +22,8 @@
     <color name="transparent_white">#66ffffff</color>
     <color name="highlight_dark">#222222</color>
 
+    <color name="preference_background">#e3e3e3</color>
+
     <color name="filter_list_header">#333333</color>
     <color name="filter_highlight_primary">#E68305</color>
     <color name="filter_highlight_secondary">#C98733</color>

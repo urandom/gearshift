@@ -22,14 +22,18 @@
 
         <FrameLayout
             android:id="@+id/preference_panel"
-            android:layout_width="match_parent"
+            android:layout_width="320dp"
             android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:background="@color/preference_background"
             android:layout_gravity="right">
 
             <ImageView
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:src="@drawable/about_icon"/>
+                android:layout_width="280dp"
+                android:layout_height="280dp"
+                android:layout_gravity="center"
+                android:id="@+id/watermark"
+                android:src="@drawable/watermark"/>
 
         </FrameLayout>
 
