@@ -171,13 +171,7 @@ public class SettingsActivity extends ActionBarActivity {
             return;
         }
 
-        findViewById(R.id.watermark).setVisibility(View.VISIBLE);
-
-        FragmentManager fm = getFragmentManager();
-        FragmentTransaction transaction = fm.beginTransaction();
-        transaction.remove(fm.findFragmentByTag(PREFERENCE_FRAGMENT_TAG));
-        transaction.commit();
-        fm.executePendingTransactions();
+        resetPreferencePane();
 
         if (!isPreferencesAlwaysVisible()) {
             slidingPane.openPane();
@@ -207,9 +201,17 @@ public class SettingsActivity extends ActionBarActivity {
         }
 
         slidingPane = (SlidingPaneLayout) findViewById(R.id.sliding_pane);
-        slidingPane.openPane();
         slidingPane.setSliderFadeColor(getResources().getColor(R.color.preference_background));
         slidingPane.setShadowResourceLeft(R.drawable.pane_shadow);
+        slidingPane.setPanelSlideListener(new SlidingPaneLayout.SimplePanelSlideListener() {
+            @Override public void onPanelOpened(View panel) {
+                if (isPreferencesOpen()) {
+                    resetPreferencePane();
+                }
+            }
+        });
+
+        slidingPane.openPane();
 
         profileAdapter = new ProfileAdapter(this);
 
@@ -356,6 +358,17 @@ public class SettingsActivity extends ActionBarActivity {
             profile.getName(), sublabel);
 
         return item;
+    }
+
+    private void resetPreferencePane() {
+        findViewById(R.id.watermark).setVisibility(View.VISIBLE);
+
+        FragmentManager fm = getFragmentManager();
+        FragmentTransaction transaction = fm.beginTransaction();
+        transaction.remove(fm.findFragmentByTag(PREFERENCE_FRAGMENT_TAG));
+        transaction.commit();
+        fm.executePendingTransactions();
+
     }
 
     private static class ProfileAdapter extends SelectableRecyclerViewAdapter<ProfileAdapter.ViewHolder, ProfileItem> {
