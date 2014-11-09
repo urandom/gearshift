@@ -7,12 +7,10 @@ import android.app.FragmentTransaction;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.app.NavUtils;
 import android.support.v4.content.Loader;
-import android.support.v4.view.MenuItemCompat;
 import android.support.v4.widget.SlidingPaneLayout;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.widget.LinearLayoutManager;
@@ -204,7 +202,8 @@ public class SettingsActivity extends ActionBarActivity {
         slidingPane.setSliderFadeColor(getResources().getColor(R.color.preference_background));
         slidingPane.setShadowResourceLeft(R.drawable.pane_shadow);
         slidingPane.setPanelSlideListener(new SlidingPaneLayout.SimplePanelSlideListener() {
-            @Override public void onPanelOpened(View panel) {
+            @Override
+            public void onPanelOpened(View panel) {
                 if (isPreferencesOpen()) {
                     resetPreferencePane();
                 }
@@ -319,14 +318,13 @@ public class SettingsActivity extends ActionBarActivity {
         findViewById(R.id.watermark).setVisibility(View.GONE);
 
         FragmentManager fm = getFragmentManager();
+
         fm.beginTransaction().replace(R.id.preference_panel, fragment, PREFERENCE_FRAGMENT_TAG)
             .addToBackStack(null).commit();
 
         fm.executePendingTransactions();
 
-        if (item.getType() == Type.PROFILE) {
-            ((TransmissionProfileSettingsFragment) fragment).onAdd();
-        }
+        ((BasePreferenceFragment) fragment).onAdd();
 
         slidingPane.closePane();
     }

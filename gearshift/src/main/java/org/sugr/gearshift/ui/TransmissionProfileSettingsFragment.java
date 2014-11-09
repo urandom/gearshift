@@ -1,6 +1,5 @@
 package org.sugr.gearshift.ui;
 
-import android.app.ActionBar;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.BroadcastReceiver;
@@ -8,9 +7,10 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
-import android.preference.PreferenceActivity;
 import android.preference.PreferenceManager;
 import android.support.v4.content.LocalBroadcastManager;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.ActionBarActivity;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -60,8 +60,8 @@ public class TransmissionProfileSettingsFragment extends BasePreferenceFragment 
 
         addPreferencesFromResource(R.xml.torrent_profile_preferences);
         PreferenceManager.setDefaultValues(
-                getActivity(), G.PROFILES_PREF_NAME,
-                Activity.MODE_PRIVATE, R.xml.torrent_profile_preferences, true);
+            getActivity(), G.PROFILES_PREF_NAME,
+            Activity.MODE_PRIVATE, R.xml.torrent_profile_preferences, true);
 
         summaryPrefs = new Object[][] {
             {G.PREF_NAME, getString(R.string.profile_summary_format), -1, -1, ""},
@@ -82,7 +82,7 @@ public class TransmissionProfileSettingsFragment extends BasePreferenceFragment 
         }
     }
 
-    public void onAdd() {
+    @Override public void onAdd() {
         if (isNew) {
             TransmissionProfile.cleanTemporaryPreferences(getActivity());
             PreferenceManager.setDefaultValues(
@@ -93,10 +93,9 @@ public class TransmissionProfileSettingsFragment extends BasePreferenceFragment 
         }
     }
 
-    @Override
-    public void onResume() {
+    @Override public void onResume() {
         super.onResume();
-        ActionBar actionBar = getActivity().getActionBar();
+        ActionBar actionBar = ((ActionBarActivity) getActivity()).getSupportActionBar();
         if (actionBar != null) {
             LayoutInflater inflater = (LayoutInflater) getActivity().getSystemService
                     (Context.LAYOUT_INFLATER_SERVICE);
@@ -132,6 +131,15 @@ public class TransmissionProfileSettingsFragment extends BasePreferenceFragment 
                     ActionBar.DISPLAY_SHOW_CUSTOM | ActionBar.DISPLAY_SHOW_HOME |
                     ActionBar.DISPLAY_SHOW_TITLE | ActionBar.DISPLAY_HOME_AS_UP);
             actionBar.setCustomView(customActionBarView);
+        }
+    }
+
+    @Override public void onPause() {
+        super.onPause();
+        ActionBar actionBar = ((ActionBarActivity) getActivity()).getSupportActionBar();
+        if (actionBar != null) {
+            actionBar.setDisplayOptions(ActionBar.DISPLAY_SHOW_HOME
+                | ActionBar.DISPLAY_SHOW_TITLE | ActionBar.DISPLAY_HOME_AS_UP);
         }
     }
 

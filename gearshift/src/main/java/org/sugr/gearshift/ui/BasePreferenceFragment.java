@@ -16,6 +16,9 @@ public class BasePreferenceFragment extends PreferenceFragment implements OnShar
     protected Object[][] summaryPrefs = {
     };
 
+    public void onAdd() {
+    }
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
