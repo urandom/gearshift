@@ -4,10 +4,12 @@ import android.app.Activity;
 import android.app.Fragment;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.app.LoaderManager;
+import android.support.v4.app.NavUtils;
 import android.support.v4.content.Loader;
 import android.support.v4.widget.SlidingPaneLayout;
 import android.support.v7.app.ActionBarActivity;
@@ -15,6 +17,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
@@ -22,17 +25,22 @@ import android.widget.TextView;
 import org.sugr.gearshift.G;
 import org.sugr.gearshift.R;
 import org.sugr.gearshift.core.TransmissionProfile;
+import org.sugr.gearshift.service.DataService;
 import org.sugr.gearshift.ui.loader.TransmissionProfileSupportLoader;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 public class SettingsActivity extends ActionBarActivity {
     private SlidingPaneLayout slidingPane;
     private RecyclerView profileList;
 
     private ProfileAdapter profileAdapter;
+
+    private Map<String, Fragment> fragmentCache = new HashMap<>();
 
     private enum Type {
         HEADER, PREFERENCES, PROFILE
@@ -148,7 +156,8 @@ public class SettingsActivity extends ActionBarActivity {
     };
 
     public boolean isPreferencesOpen() {
-        return getFragmentManager().findFragmentByTag(PREFERENCE_FRAGMENT_TAG) == null;
+        Fragment f = getFragmentManager().findFragmentByTag(PREFERENCE_FRAGMENT_TAG);
+        return f != null && f.isAdded();
     }
 
     public boolean isPreferencesAlwaysVisible() {
@@ -167,6 +176,21 @@ public class SettingsActivity extends ActionBarActivity {
         transaction.remove(fm.findFragmentByTag(PREFERENCE_FRAGMENT_TAG));
         transaction.commit();
         fm.executePendingTransactions();
+
+        if (!isPreferencesAlwaysVisible()) {
+            slidingPane.openPane();
+        }
+    }
+
+    @Override public void onBackPressed() {
+        if (!isPreferencesAlwaysVisible() && isPreferencesOpen()) {
+            closePreferences();
+            return;
+        }
+
+        super.onBackPressed();
+
+        overridePendingTransition(android.R.anim.fade_in, R.anim.slide_out_top);
     }
 
     @Override protected void onCreate(Bundle state) {
@@ -215,22 +239,42 @@ public class SettingsActivity extends ActionBarActivity {
             ? View.VISIBLE : View.GONE);
     }
 
+    @Override public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                if (!isPreferencesAlwaysVisible() && isPreferencesOpen()) {
+                    closePreferences();
+                    return true;
+                }
+
+                NavUtils.navigateUpTo(this, new Intent(this, TorrentListActivity.class));
+                overridePendingTransition(android.R.anim.fade_in, R.anim.slide_out_right);
+                return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
     private void setSelectedItem(ProfileItem item) {
         if (item.getType() == Type.HEADER) {
             return;
         }
 
-        Fragment fragment = null;
-        switch (item.getId()) {
-            case "general-preferences":
-                fragment = new GeneralSettingsFragment();
-                break;
-            case "filter-preferences":
-                fragment = new FiltersSettingsFragment();
-                break;
-            case "sort-preferences":
-                fragment = new SortSettingsFragment();
-                break;
+        Fragment fragment = fragmentCache.get(item.getId());
+
+        if (fragment == null) {
+            switch (item.getId()) {
+                case "general-preferences":
+                    fragment = new GeneralSettingsFragment();
+                    break;
+                case "filter-preferences":
+                    fragment = new FiltersSettingsFragment();
+                    break;
+                case "sort-preferences":
+                    fragment = new SortSettingsFragment();
+                    break;
+            }
+
+            fragmentCache.put(item.getId(), fragment);
         }
 
         if (fragment == null) {
@@ -241,7 +285,7 @@ public class SettingsActivity extends ActionBarActivity {
 
         FragmentManager fm = getFragmentManager();
         fm.beginTransaction().replace(R.id.preference_panel, fragment, PREFERENCE_FRAGMENT_TAG)
-            .commit();
+            .addToBackStack(null).commit();
 
         fm.executePendingTransactions();
 
@@ -262,7 +306,7 @@ public class SettingsActivity extends ActionBarActivity {
         item = new ProfileItem("sort-preferences", Type.PREFERENCES,
             getString(R.string.header_label_sort), null);
 
-        profileAdapter.itemData.add(1, item);
+        profileAdapter.itemData.add(2, item);
 
         profileAdapter.notifyItemRangeInserted(0, profileAdapter.itemData.size());
     }
