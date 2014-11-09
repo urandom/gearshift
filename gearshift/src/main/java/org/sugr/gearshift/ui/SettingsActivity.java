@@ -7,16 +7,19 @@ import android.app.FragmentTransaction;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.app.NavUtils;
 import android.support.v4.content.Loader;
+import android.support.v4.view.MenuItemCompat;
 import android.support.v4.widget.SlidingPaneLayout;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
@@ -25,7 +28,6 @@ import android.widget.TextView;
 import org.sugr.gearshift.G;
 import org.sugr.gearshift.R;
 import org.sugr.gearshift.core.TransmissionProfile;
-import org.sugr.gearshift.service.DataService;
 import org.sugr.gearshift.ui.loader.TransmissionProfileSupportLoader;
 
 import java.util.ArrayList;
@@ -239,6 +241,12 @@ public class SettingsActivity extends ActionBarActivity {
             ? View.VISIBLE : View.GONE);
     }
 
+    @Override public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.add_profile_option, menu);
+
+        return super.onCreateOptionsMenu(menu);
+    }
+
     @Override public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case android.R.id.home:
@@ -249,6 +257,10 @@ public class SettingsActivity extends ActionBarActivity {
 
                 NavUtils.navigateUpTo(this, new Intent(this, TorrentListActivity.class));
                 overridePendingTransition(android.R.anim.fade_in, R.anim.slide_out_right);
+                return true;
+            case R.id.add_profile:
+                ProfileItem newProfile = new ProfileItem("new-profile", Type.PROFILE, null, null);
+                setSelectedItem(newProfile);
                 return true;
         }
         return super.onOptionsItemSelected(item);
@@ -272,6 +284,27 @@ public class SettingsActivity extends ActionBarActivity {
                 case "sort-preferences":
                     fragment = new SortSettingsFragment();
                     break;
+                case "new-profile":
+                    fragment = new TransmissionProfileSettingsFragment();
+                    fragment.setArguments(new Bundle());
+                    break;
+                default:
+                    if (item.getType() == Type.PROFILE) {
+                        fragment = new TransmissionProfileSettingsFragment();
+                        Bundle args = new Bundle();
+
+                        args.putString(G.ARG_PROFILE_ID, item.getId());
+
+                        Intent intent = getIntent();
+                        if (intent.hasExtra(G.ARG_PROFILE_ID)
+                            && item.getId().equals(intent.getStringExtra(G.ARG_PROFILE_ID))) {
+
+                            args.putStringArrayList(G.ARG_DIRECTORIES,
+                                intent.getStringArrayListExtra(G.ARG_DIRECTORIES));
+                        }
+
+                        fragment.setArguments(args);
+                    }
             }
 
             fragmentCache.put(item.getId(), fragment);
@@ -288,6 +321,10 @@ public class SettingsActivity extends ActionBarActivity {
             .addToBackStack(null).commit();
 
         fm.executePendingTransactions();
+
+        if (item.getType() == Type.PROFILE) {
+            ((TransmissionProfileSettingsFragment) fragment).onAdd();
+        }
 
         slidingPane.closePane();
     }
