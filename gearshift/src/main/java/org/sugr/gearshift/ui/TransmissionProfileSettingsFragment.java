@@ -164,9 +164,7 @@ public class TransmissionProfileSettingsFragment extends BasePreferenceFragment 
             case R.id.delete:
                 deleted = true;
 
-                if (isNew) {
-                    close();
-                } else {
+                if (!isNew) {
                     LocalBroadcastManager.getInstance(getActivity()).registerReceiver(
                         new ServiceReceiver(), new IntentFilter(G.INTENT_SERVICE_ACTION_COMPLETE));
 
@@ -174,14 +172,18 @@ public class TransmissionProfileSettingsFragment extends BasePreferenceFragment 
 
                     item.setActionView(R.layout.action_progress_bar);
                 }
+
+                close();
+
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
     }
 
-    @Override
-    public void onDestroy() {
+    private void close() {
+        SettingsActivity context = (SettingsActivity) getActivity();
+
         if (saved) {
             profile.save(true);
         }
@@ -191,12 +193,6 @@ public class TransmissionProfileSettingsFragment extends BasePreferenceFragment 
         if (saved || deleted) {
             G.requestBackup(getActivity());
         }
-
-        super.onDestroy();
-    }
-
-    private void close() {
-        SettingsActivity context = (SettingsActivity) getActivity();
 
         context.closePreferences();
     }

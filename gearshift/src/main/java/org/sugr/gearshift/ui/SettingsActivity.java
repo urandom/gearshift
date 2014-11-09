@@ -115,14 +115,20 @@ public class SettingsActivity extends ActionBarActivity {
                 ProfileItem item = iter.next();
 
                 if (item.getType() == Type.PROFILE) {
-                    if (items.contains(item)) {
+                    int idx = items.indexOf(item);
+
+                    if (idx != -1) {
+                        if (items.get(idx).differs(item)) {
+                            profileAdapter.itemData.set(index, items.get(idx));
+                            profileAdapter.notifyItemChanged(index);
+                        }
                         items.remove(item);
-                        index++;
                     } else {
                         iter.remove();
-                        profileAdapter.notifyItemRemoved(index);
+                        profileAdapter.notifyItemRemoved(index--);
                     }
                 }
+                index++;
             }
 
             if (items.size() > 0) {
@@ -470,18 +476,31 @@ public class SettingsActivity extends ActionBarActivity {
             return sublabel;
         }
 
-        @Override
-        public boolean equals(Object o) {
+        public boolean differs(ProfileItem o) {
+            if (!this.equals(o)) {
+                return false;
+            }
+
+            if (!label.equals(o.label) || !sublabel.equals(o.sublabel)) {
+                return true;
+            }
+
+            return false;
+        }
+
+        @Override public boolean equals(Object o) {
             if (this == o) return true;
             if (o == null || getClass() != o.getClass()) return false;
 
             ProfileItem that = (ProfileItem) o;
 
-            return id.equals(that.id);
+            if (!id.equals(that.id)) return false;
+            if (type != that.type) return false;
+
+            return true;
         }
 
-        @Override
-        public int hashCode() {
+        @Override public int hashCode() {
             int result = id.hashCode();
             result = 31 * result + type.hashCode();
             result = 31 * result + label.hashCode();
