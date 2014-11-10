@@ -192,18 +192,6 @@ public class TransmissionProfileDirectoriesSettingsFragment extends ListFragment
         });
     }
 
-    @Override public void onDestroy() {
-        if (mSharedPrefs != null) {
-            Editor e = mSharedPrefs.edit();
-            e.putStringSet(G.PREF_DIRECTORIES, mDirectories);
-            e.commit();
-        }
-
-        G.requestBackup(getActivity());
-
-        super.onDestroy();
-    }
-
     @Override public void onResume() {
         super.onResume();
 
@@ -218,6 +206,13 @@ public class TransmissionProfileDirectoriesSettingsFragment extends ListFragment
         Toolbar toolbar = (Toolbar) getActivity().findViewById(R.id.toolbar);
         toolbar.setNavigationIcon(R.drawable.ic_arrow_back_white_24dp);
         toolbar.setTitle(R.string.settings);
+
+        if (mSharedPrefs != null) {
+            Editor e = mSharedPrefs.edit();
+            e.putStringSet(G.PREF_DIRECTORIES, mDirectories);
+            e.commit();
+        }
+
     }
 
     @Override public void onSaveInstanceState(Bundle outState) {
