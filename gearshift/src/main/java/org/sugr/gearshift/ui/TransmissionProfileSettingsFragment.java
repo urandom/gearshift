@@ -109,6 +109,7 @@ public class TransmissionProfileSettingsFragment extends BasePreferenceFragment 
         if (isNew) {
             item.setTitle(android.R.string.cancel);
         }
+
         if (profile == null) {
             item.setVisible(false);
         }

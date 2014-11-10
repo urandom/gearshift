@@ -43,7 +43,7 @@ public class SettingsActivity extends ActionBarActivity {
     private Map<String, Fragment> fragmentCache = new HashMap<>();
 
     private enum Type {
-        HEADER, PREFERENCES, PROFILE
+        PROFILE_HEADER, PREFERENCES, PROFILE
     }
 
     private static final int PREFERENCE_GROUP_COUNT = 3;
@@ -96,13 +96,18 @@ public class SettingsActivity extends ActionBarActivity {
             }
 
             if (items.size() == 0 && profileAdapter.itemData.size() > PREFERENCE_GROUP_COUNT) {
-                int count = profileAdapter.itemData.size() - PREFERENCE_GROUP_COUNT;
-                for (int i = 0; i < count; i++) {
-                    profileAdapter.itemData.remove(PREFERENCE_GROUP_COUNT + i);
+                Iterator<ProfileItem> iter = profileAdapter.itemData.iterator();
+                int count = 0;
+                while (iter.hasNext()) {
+                    ProfileItem item = iter.next();
+                    if (item.getType() == Type.PROFILE_HEADER || item.getType() == Type.PROFILE) {
+                        iter.remove();
+                        count++;
+                    }
                 }
                 profileAdapter.notifyItemRangeRemoved(PREFERENCE_GROUP_COUNT, count);
             } else if (items.size() > 0 && profileAdapter.itemData.size() == PREFERENCE_GROUP_COUNT) {
-                ProfileItem header = new ProfileItem("profile-header", Type.HEADER,
+                ProfileItem header = new ProfileItem("profile-header", Type.PROFILE_HEADER,
                     getString(R.string.header_label_profiles), null);
 
                 profileAdapter.itemData.add(header);
@@ -149,7 +154,7 @@ public class SettingsActivity extends ActionBarActivity {
             while (iter.hasNext()) {
                 ProfileItem item = iter.next();
 
-                if (item.getType() == Type.HEADER || item.getType() == Type.PROFILE) {
+                if (item.getType() == Type.PROFILE_HEADER || item.getType() == Type.PROFILE) {
                     iter.remove();
                     count++;
                 }
@@ -164,6 +169,11 @@ public class SettingsActivity extends ActionBarActivity {
     public boolean isPreferencesOpen() {
         Fragment f = getFragmentManager().findFragmentByTag(PREFERENCE_FRAGMENT_TAG);
         return f != null && f.isAdded();
+    }
+
+    public boolean isProfileOpen() {
+        Fragment f = getFragmentManager().findFragmentByTag(PREFERENCE_FRAGMENT_TAG);
+        return f != null && f.isAdded() && f instanceof TransmissionProfileSettingsFragment;
     }
 
     public boolean isPreferencesAlwaysVisible() {
@@ -257,7 +267,11 @@ public class SettingsActivity extends ActionBarActivity {
     @Override public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case android.R.id.home:
-                if (!isPreferencesAlwaysVisible() && isPreferencesOpen()) {
+                if (isProfileOpen()) {
+                    return false;
+                }
+
+                if (isPreferencesOpen()) {
                     closePreferences();
                     return true;
                 }
@@ -274,7 +288,7 @@ public class SettingsActivity extends ActionBarActivity {
     }
 
     private void setSelectedItem(ProfileItem item) {
-        if (item.getType() == Type.HEADER) {
+        if (item.getType() == Type.PROFILE_HEADER) {
             return;
         }
 
@@ -388,7 +402,7 @@ public class SettingsActivity extends ActionBarActivity {
             }
 
             ProfileItem item = itemData.get(position);
-            if (item.getType() == Type.HEADER) {
+            if (item.getType() == Type.PROFILE_HEADER) {
                 return false;
             }
 
@@ -427,7 +441,7 @@ public class SettingsActivity extends ActionBarActivity {
         @Override public int getItemViewType(int position) {
             ProfileItem item = itemData.get(position);
             switch (item.getType()) {
-                case HEADER:
+                case PROFILE_HEADER:
                     return R.layout.settings_profile_header;
                 default:
                     return R.layout.settings_profile_item;
