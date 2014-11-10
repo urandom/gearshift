@@ -29,8 +29,8 @@
             android:layout_gravity="right">
 
             <ImageView
-                android:layout_width="280dp"
-                android:layout_height="280dp"
+                android:layout_width="128dp"
+                android:layout_height="128dp"
                 android:layout_gravity="center"
                 android:id="@+id/watermark"
                 android:src="@drawable/watermark"/>
