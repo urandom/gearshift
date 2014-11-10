@@ -26,6 +26,7 @@ import android.widget.TextView;
 import org.sugr.gearshift.G;
 import org.sugr.gearshift.R;
 import org.sugr.gearshift.core.TransmissionProfile;
+import org.sugr.gearshift.ui.DividerItemDecoration;
 import org.sugr.gearshift.ui.SelectableRecyclerViewAdapter;
 import org.sugr.gearshift.ui.TorrentListActivity;
 import org.sugr.gearshift.ui.loader.TransmissionProfileSupportLoader;
@@ -252,6 +253,8 @@ public class SettingsActivity extends ActionBarActivity {
 
         profileList = (RecyclerView) findViewById(R.id.profile_list);
 
+        profileList.addItemDecoration(new DividerItemDecoration(this,
+            DividerItemDecoration.VERTICAL_LIST));
         profileList.setLayoutManager(new LinearLayoutManager(this));
         profileList.setAdapter(profileAdapter);
 
