@@ -1,14 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical" >
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+             android:layout_width="match_parent"
+             android:layout_height="match_parent">
 
-    <include
-        layout="@layout/torrents_listview"
-        android:id="@+id/list_panel"
-        android:layout_width="match_parent"
-        android:layout_height="0dip"
-        android:layout_weight="1" />
+    <ListView android:id="@android:id/list"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              android:layout_marginLeft="@dimen/preference_list_padding"
+              android:layout_marginRight="@dimen/preference_list_padding"
+              android:drawSelectorOnTop="false" />
 
-</LinearLayout>
+    <TextView android:id="@android:id/empty"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              android:fontFamily="sans-serif-light"
+              android:paddingLeft="16dp"
+              android:paddingRight="16dp"
+              android:gravity="center"
+              android:layout_margin="16dp"
+              android:textAppearance="?android:attr/textAppearanceMedium" />
+</FrameLayout>

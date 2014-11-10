@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <dimen name="sliding_menu_offset">280dp</dimen>
-    <dimen name="list_padding">10dp</dimen>
+    <dimen name="preference_list_padding">16dp</dimen>
     <dimen name="shadow_width">15dp</dimen>
 
     <dimen name="torrent_list_name_text_size">16sp</dimen>

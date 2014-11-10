@@ -500,6 +500,8 @@ public class SettingsActivity extends ActionBarActivity {
             switch (item.getType()) {
                 case PROFILE_HEADER:
                     return R.layout.settings_profile_header;
+                case PREFERENCES:
+                    return R.layout.settings_preference_item;
                 default:
                     return R.layout.settings_profile_item;
             }
