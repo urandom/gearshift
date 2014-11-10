@@ -69,7 +69,7 @@
             android:theme="@style/AppTheme.CardsActivity" >
         </activity>
         <activity
-            android:name="org.sugr.gearshift.ui.SettingsActivity"
+            android:name=".ui.settings.SettingsActivity"
             android:label="@string/settings"
             android:parentActivityName="org.sugr.gearshift.ui.TorrentListActivity" >
             <intent-filter>

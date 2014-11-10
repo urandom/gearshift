@@ -1,11 +1,10 @@
-package org.sugr.gearshift.ui;
+package org.sugr.gearshift.ui.settings;
 
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.os.Bundle;
 import android.preference.Preference;
 import android.preference.PreferenceFragment;
-import android.support.v4.app.Fragment;
 import android.support.v7.widget.Toolbar;
 
 import org.sugr.gearshift.G;
@@ -13,7 +12,9 @@ import org.sugr.gearshift.R;
 
 import java.util.Arrays;
 
-public class BasePreferenceFragment extends PreferenceFragment implements OnSharedPreferenceChangeListener {
+public class BasePreferenceFragment extends PreferenceFragment
+        implements OnSharedPreferenceChangeListener, OnFragmentAddListener {
+
     protected SharedPreferences sharedPrefs;
     protected Object[][] summaryPrefs = {
     };
@@ -21,15 +22,13 @@ public class BasePreferenceFragment extends PreferenceFragment implements OnShar
     public void onAdd() {
     }
 
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
+    @Override public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         setHasOptionsMenu(true);
     }
 
-    @Override
-    public void onResume() {
+    @Override public void onResume() {
         super.onResume();
         updatePrefSummary(null);
         sharedPrefs.registerOnSharedPreferenceChangeListener(this);
@@ -38,17 +37,16 @@ public class BasePreferenceFragment extends PreferenceFragment implements OnShar
         toolbar.setNavigationIcon(R.drawable.ic_close_white_24dp);
     }
 
-    @Override
-    public void onPause() {
+    @Override public void onPause() {
         super.onPause();
         sharedPrefs.unregisterOnSharedPreferenceChangeListener(this);
 
         Toolbar toolbar = (Toolbar) getActivity().findViewById(R.id.toolbar);
         toolbar.setNavigationIcon(R.drawable.ic_arrow_back_white_24dp);
+        toolbar.setTitle(R.string.settings);
     }
 
-    @Override
-    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+    @Override public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
         if (key.equals(G.PREF_DEBUG)) {
             G.DEBUG = sharedPreferences.getBoolean(key, false);
         } else {

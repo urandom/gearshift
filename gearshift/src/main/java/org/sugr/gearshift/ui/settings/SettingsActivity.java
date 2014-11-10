@@ -1,4 +1,4 @@
-package org.sugr.gearshift.ui;
+package org.sugr.gearshift.ui.settings;
 
 import android.app.Activity;
 import android.app.Fragment;
@@ -26,6 +26,8 @@ import android.widget.TextView;
 import org.sugr.gearshift.G;
 import org.sugr.gearshift.R;
 import org.sugr.gearshift.core.TransmissionProfile;
+import org.sugr.gearshift.ui.SelectableRecyclerViewAdapter;
+import org.sugr.gearshift.ui.TorrentListActivity;
 import org.sugr.gearshift.ui.loader.TransmissionProfileSupportLoader;
 
 import java.util.ArrayList;
@@ -35,6 +37,10 @@ import java.util.List;
 import java.util.Map;
 
 public class SettingsActivity extends ActionBarActivity {
+    enum Type {
+        PROFILE_HEADER, PREFERENCES, PROFILE, PROFILE_DIRECTORIES
+    }
+
     private SlidingPaneLayout slidingPane;
     private RecyclerView profileList;
 
@@ -42,12 +48,9 @@ public class SettingsActivity extends ActionBarActivity {
 
     private Map<String, Fragment> fragmentCache = new HashMap<>();
 
-    private enum Type {
-        PROFILE_HEADER, PREFERENCES, PROFILE
-    }
-
     private static final int PREFERENCE_GROUP_COUNT = 3;
     private static final String PREFERENCE_FRAGMENT_TAG = "preference-fragment";
+    private static final String DIRECTORIES_FRAGMENT_TAG = "directories-fragment";
 
     private SharedPreferences.OnSharedPreferenceChangeListener defaultPrefListener
             = new SharedPreferences.OnSharedPreferenceChangeListener() {
@@ -167,13 +170,16 @@ public class SettingsActivity extends ActionBarActivity {
     };
 
     public boolean isPreferencesOpen() {
-        Fragment f = getFragmentManager().findFragmentByTag(PREFERENCE_FRAGMENT_TAG);
+        Fragment f = getFragmentManager().findFragmentById(R.id.preference_panel);
         return f != null && f.isAdded();
     }
 
     public boolean isProfileOpen() {
-        Fragment f = getFragmentManager().findFragmentByTag(PREFERENCE_FRAGMENT_TAG);
-        return f != null && f.isAdded() && f instanceof TransmissionProfileSettingsFragment;
+        Fragment f = getFragmentManager().findFragmentById(R.id.preference_panel);
+        return f != null && f.isAdded() && (
+            f instanceof TransmissionProfileSettingsFragment
+            || f instanceof  TransmissionProfileDirectoriesSettingsFragment
+        );
     }
 
     public boolean isPreferencesAlwaysVisible() {
@@ -193,9 +199,22 @@ public class SettingsActivity extends ActionBarActivity {
         }
     }
 
+    public void addFragment(String id, Type type, Bundle args) {
+        addFragment(id, type, args, true);
+    }
+
     @Override public void onBackPressed() {
+        Fragment f = getFragmentManager().findFragmentById(R.id.preference_panel);
+
         if (isPreferencesOpen()) {
-            closePreferences();
+            if (f instanceof TransmissionProfileDirectoriesSettingsFragment) {
+                String id = f.getArguments().getString(G.ARG_PROFILE_ID);
+
+                addFragment(id, Type.PROFILE, null, false);
+            } else {
+                closePreferences();
+            }
+
             return;
         }
 
@@ -255,7 +274,7 @@ public class SettingsActivity extends ActionBarActivity {
 
         FragmentManager fm = getFragmentManager();
         View watermark = findViewById(R.id.watermark);
-        watermark.setVisibility(fm.findFragmentByTag(PREFERENCE_FRAGMENT_TAG) == null
+        watermark.setVisibility(fm.findFragmentById(R.id.preference_panel) == null
             ? View.VISIBLE : View.GONE);
     }
 
@@ -269,6 +288,14 @@ public class SettingsActivity extends ActionBarActivity {
         switch (item.getItemId()) {
             case android.R.id.home:
                 if (isProfileOpen()) {
+                    Fragment f = getFragmentManager().findFragmentById(R.id.preference_panel);
+                    if (f instanceof TransmissionProfileDirectoriesSettingsFragment) {
+                        String id = f.getArguments().getString(G.ARG_PROFILE_ID);
+
+                        addFragment(id, Type.PROFILE, null, false);
+
+                        return true;
+                    }
                     return false;
                 }
 
@@ -281,22 +308,20 @@ public class SettingsActivity extends ActionBarActivity {
                 overridePendingTransition(android.R.anim.fade_in, R.anim.slide_out_right);
                 return true;
             case R.id.add_profile:
-                ProfileItem newProfile = new ProfileItem("new-profile", Type.PROFILE, null, null);
-                setSelectedItem(newProfile);
+                addFragment("new-profile", Type.PROFILE, null);
+
+                slidingPane.closePane();
+
                 return true;
         }
         return super.onOptionsItemSelected(item);
     }
 
-    private void setSelectedItem(ProfileItem item) {
-        if (item.getType() == Type.PROFILE_HEADER) {
-            return;
-        }
-
-        Fragment fragment = fragmentCache.get(item.getId());
+    private void addFragment(String id, Type type, Bundle args, boolean invokeAdd) {
+        Fragment fragment = fragmentCache.get(id);
 
         if (fragment == null) {
-            switch (item.getId()) {
+            switch (id) {
                 case "general-preferences":
                     fragment = new GeneralSettingsFragment();
                     break;
@@ -308,44 +333,73 @@ public class SettingsActivity extends ActionBarActivity {
                     break;
                 case "new-profile":
                     fragment = new TransmissionProfileSettingsFragment();
-                    fragment.setArguments(new Bundle());
+                    if (args == null) {
+                        args = new Bundle();
+                    }
                     break;
                 default:
-                    if (item.getType() == Type.PROFILE) {
-                        fragment = new TransmissionProfileSettingsFragment();
-                        Bundle args = new Bundle();
+                    switch (type) {
+                        case PROFILE:
+                            fragment = new TransmissionProfileSettingsFragment();
+                            if (args == null) {
+                                args = new Bundle();
+                            }
 
-                        args.putString(G.ARG_PROFILE_ID, item.getId());
+                            args.putString(G.ARG_PROFILE_ID, id);
 
-                        Intent intent = getIntent();
-                        if (intent.hasExtra(G.ARG_PROFILE_ID)
-                            && item.getId().equals(intent.getStringExtra(G.ARG_PROFILE_ID))) {
+                            Intent intent = getIntent();
+                            if (intent.hasExtra(G.ARG_PROFILE_ID)
+                                && id.equals(intent.getStringExtra(G.ARG_PROFILE_ID))) {
 
-                            args.putStringArrayList(G.ARG_DIRECTORIES,
-                                intent.getStringArrayListExtra(G.ARG_DIRECTORIES));
-                        }
-
-                        fragment.setArguments(args);
+                                args.putStringArrayList(G.ARG_DIRECTORIES,
+                                    intent.getStringArrayListExtra(G.ARG_DIRECTORIES));
+                            }
+                            break;
+                        case PROFILE_DIRECTORIES:
+                            fragment = new TransmissionProfileDirectoriesSettingsFragment();
+                            if (args == null) {
+                                args = new Bundle();
+                            }
+                            break;
                     }
             }
 
-            fragmentCache.put(item.getId(), fragment);
+            if (fragment != null) {
+                if (args != null) {
+                    fragment.setArguments(args);
+                }
+
+                fragmentCache.put(id, fragment);
+            }
         }
 
         if (fragment == null) {
             return;
         }
 
+        String tag = type == Type.PROFILE_DIRECTORIES
+            ? DIRECTORIES_FRAGMENT_TAG : PREFERENCE_FRAGMENT_TAG;
+
         findViewById(R.id.watermark).setVisibility(View.GONE);
 
         FragmentManager fm = getFragmentManager();
 
-        fm.beginTransaction().replace(R.id.preference_panel, fragment, PREFERENCE_FRAGMENT_TAG)
+        fm.beginTransaction().replace(R.id.preference_panel, fragment, tag)
             .addToBackStack(null).commit();
 
         fm.executePendingTransactions();
 
-        ((BasePreferenceFragment) fragment).onAdd();
+        if (invokeAdd && fragment instanceof OnFragmentAddListener) {
+            ((OnFragmentAddListener) fragment).onAdd();
+        }
+    }
+
+    private void setSelectedItem(ProfileItem item) {
+        if (item.getType() == Type.PROFILE_HEADER) {
+            return;
+        }
+
+        addFragment(item.getId(), item.getType(), null);
 
         slidingPane.closePane();
     }
@@ -384,7 +438,7 @@ public class SettingsActivity extends ActionBarActivity {
 
         FragmentManager fm = getFragmentManager();
         FragmentTransaction transaction = fm.beginTransaction();
-        transaction.remove(fm.findFragmentByTag(PREFERENCE_FRAGMENT_TAG));
+        transaction.remove(fm.findFragmentById(R.id.preference_panel));
         transaction.commit();
         fm.executePendingTransactions();
 

@@ -1,15 +1,13 @@
-package org.sugr.gearshift.ui;
+package org.sugr.gearshift.ui.settings;
 
 import android.app.ActionBar;
 import android.os.Bundle;
-import android.preference.PreferenceActivity;
 import android.preference.PreferenceManager;
 import android.view.Menu;
 import android.view.MenuInflater;
 
 import org.sugr.gearshift.G;
 import org.sugr.gearshift.R;
-import org.sugr.gearshift.ui.BasePreferenceFragment;
 
 public class GeneralSettingsFragment extends BasePreferenceFragment {
 

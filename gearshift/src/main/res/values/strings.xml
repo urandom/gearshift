@@ -62,13 +62,15 @@
     
     <string name="torrent_peers">Peers</string>
     <string name="torrent_peer_limit">Peer limit:</string>
-    
+
     <string name="add_profile_option">Add profile</string>
     <string name="header_label_general_preferences">General</string>
     <string name="header_label_filters">Filters</string>
     <string name="header_label_sort">Sorting options</string>
     <string name="header_label_profiles">Profiles</string>
-    
+    <string name="new_profile">New profile</string>
+    <string name="profile_directories">Profile directories</string>
+
     <string name="add_directory_option">Add directory</string>
     <string name="no_download_dirs">&lt;h2&gt;You have no extra download directories.&lt;/h2&gt;Adding some here will allow you to change the location of any torrent in this profile.</string>
     

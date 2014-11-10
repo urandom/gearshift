@@ -46,6 +46,7 @@ import org.sugr.gearshift.core.TransmissionProfile;
 import org.sugr.gearshift.core.TransmissionSession;
 import org.sugr.gearshift.service.DataService;
 import org.sugr.gearshift.service.DataServiceManager;
+import org.sugr.gearshift.ui.settings.SettingsActivity;
 import org.sugr.gearshift.util.Base64;
 
 import java.io.BufferedReader;

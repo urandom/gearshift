@@ -1,4 +1,4 @@
-package org.sugr.gearshift.ui;
+package org.sugr.gearshift.ui.settings;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -7,7 +7,7 @@ import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.os.Bundle;
-import android.preference.PreferenceActivity;
+import android.support.v7.widget.Toolbar;
 import android.text.Html;
 import android.text.Spanned;
 import android.view.ActionMode;
@@ -53,8 +53,7 @@ public class TransmissionProfileDirectoriesSettingsFragment extends ListFragment
 
     private static final String STATE_DIRECTORIES = "directories";
 
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
+    @Override public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
 
@@ -68,15 +67,13 @@ public class TransmissionProfileDirectoriesSettingsFragment extends ListFragment
         }
     }
 
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+    @Override public View onCreateView(LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState) {
         return inflater.inflate(R.layout.fragment_transmission_profile_directories_settings,
             container, false);
     }
 
-    @Override
-    public void onViewCreated(View view, Bundle savedInstanceState) {
+    @Override public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         Bundle args = getArguments();
 
@@ -195,22 +192,35 @@ public class TransmissionProfileDirectoriesSettingsFragment extends ListFragment
         });
     }
 
-    @Override
-    public void onDestroy() {
+    @Override public void onDestroy() {
         if (mSharedPrefs != null) {
             Editor e = mSharedPrefs.edit();
             e.putStringSet(G.PREF_DIRECTORIES, mDirectories);
             e.commit();
         }
 
-        PreferenceActivity context = (PreferenceActivity) getActivity();
-        G.requestBackup(context);
+        G.requestBackup(getActivity());
 
         super.onDestroy();
     }
 
-    @Override
-    public void onSaveInstanceState(Bundle outState) {
+    @Override public void onResume() {
+        super.onResume();
+
+        Toolbar toolbar = (Toolbar) getActivity().findViewById(R.id.toolbar);
+        toolbar.setNavigationIcon(R.drawable.ic_close_white_24dp);
+        toolbar.setTitle(R.string.profile_directories);
+    }
+
+    @Override public void onPause() {
+        super.onPause();
+
+        Toolbar toolbar = (Toolbar) getActivity().findViewById(R.id.toolbar);
+        toolbar.setNavigationIcon(R.drawable.ic_arrow_back_white_24dp);
+        toolbar.setTitle(R.string.settings);
+    }
+
+    @Override public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         ArrayList<String> directories = new ArrayList<String>();
         directories.addAll(mDirectories);
@@ -218,8 +228,7 @@ public class TransmissionProfileDirectoriesSettingsFragment extends ListFragment
         outState.putStringArrayList(STATE_DIRECTORIES, directories);
     }
 
-    @Override
-    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+    @Override public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         super.onCreateOptionsMenu(menu, inflater);
         menu.clear();
 
@@ -231,13 +240,11 @@ public class TransmissionProfileDirectoriesSettingsFragment extends ListFragment
         item.setVisible(mSessionDirectories.size() > 0);
     }
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
+    @Override public boolean onOptionsItemSelected(MenuItem item) {
         switch(item.getItemId()) {
             case R.id.menu_add_directory:
                 createEntryDialog(new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
+                    @Override public void onClick(DialogInterface dialog, int which) {
                         EditText text = (EditText) ((AlertDialog) dialog).findViewById(R.id.dialog_entry);
                         String dir = text.getText().toString().trim();
 
@@ -255,22 +262,11 @@ public class TransmissionProfileDirectoriesSettingsFragment extends ListFragment
                 mDirectories.addAll(mSessionDirectories);
                 setAdapterDirectories();
                 return true;
-            case android.R.id.home:
-                PreferenceActivity context = (PreferenceActivity) getActivity();
-
-                if (context.onIsHidingHeaders() || !context.onIsMultiPane()) {
-                    getActivity().finish();
-                } else {
-                    getActivity().onBackPressed();
-                }
-
-                return true;
         }
         return super.onOptionsItemSelected(item);
     }
 
-    @Override
-    public void onListItemClick(ListView listView, View view, int position, long id) {
+    @Override public void onListItemClick(ListView listView, View view, int position, long id) {
         super.onListItemClick(listView, view, position, id);
 
         if (mActionMode == null) {

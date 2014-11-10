@@ -1,4 +1,4 @@
-package org.sugr.gearshift.ui;
+package org.sugr.gearshift.ui.settings;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -7,17 +7,13 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
+import android.preference.Preference;
 import android.preference.PreferenceManager;
 import android.support.v4.content.LocalBroadcastManager;
-import android.support.v7.app.ActionBar;
-import android.support.v7.app.ActionBarActivity;
 import android.support.v7.widget.Toolbar;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.view.View;
-import android.view.View.OnClickListener;
 import android.widget.Toast;
 
 import org.sugr.gearshift.G;
@@ -36,10 +32,12 @@ public class TransmissionProfileSettingsFragment extends BasePreferenceFragment 
     @Override public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        String id = null;
+        final String id;
         Bundle args = getArguments();
         if (args.containsKey(G.ARG_PROFILE_ID)) {
             id = args.getString(G.ARG_PROFILE_ID);
+        } else {
+            id = null;
         }
 
         sharedPrefs = getActivity().getSharedPreferences(TransmissionProfile.getPreferencesName(),
@@ -74,12 +72,24 @@ public class TransmissionProfileSettingsFragment extends BasePreferenceFragment 
                 R.array.pref_con_retries_values, R.array.pref_con_retries_entries, ""}, */
         };
 
-        Bundle dirBundle = getPreferenceManager().findPreference(G.PREF_DIRECTORIES).getExtras();
-        dirBundle.putString(G.ARG_PROFILE_ID, id);
-        if (args.containsKey(G.ARG_DIRECTORIES)) {
-            dirBundle.putStringArrayList(G.ARG_DIRECTORIES,
-                    args.getStringArrayList(G.ARG_DIRECTORIES));
-        }
+        Preference directories = getPreferenceManager().findPreference(G.PREF_DIRECTORIES);
+        directories.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+            @Override public boolean onPreferenceClick(Preference preference) {
+                Bundle args = getArguments();
+                Bundle fragmentArgs = new Bundle();
+
+                fragmentArgs.putString(G.ARG_PROFILE_ID, id);
+                if (args.containsKey(G.ARG_DIRECTORIES)) {
+                    fragmentArgs.putStringArrayList(G.ARG_DIRECTORIES,
+                        args.getStringArrayList(G.ARG_DIRECTORIES));
+                }
+
+                ((SettingsActivity) getActivity()).addFragment(id + "-directories",
+                    SettingsActivity.Type.PROFILE_DIRECTORIES, fragmentArgs);
+
+                return true;
+            }
+        });
     }
 
     @Override public void onAdd() {
@@ -98,6 +108,11 @@ public class TransmissionProfileSettingsFragment extends BasePreferenceFragment 
 
         Toolbar toolbar = (Toolbar) getActivity().findViewById(R.id.toolbar);
         toolbar.setNavigationIcon(R.drawable.ic_done_white_24dp);
+        if (isNew) {
+            toolbar.setTitle(R.string.new_profile);
+        } else {
+            toolbar.setTitle(profile.getName());
+        }
     }
 
     @Override public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
