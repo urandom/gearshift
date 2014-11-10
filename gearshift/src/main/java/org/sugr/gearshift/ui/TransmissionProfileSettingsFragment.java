@@ -11,6 +11,7 @@ import android.preference.PreferenceManager;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
+import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -32,8 +33,7 @@ public class TransmissionProfileSettingsFragment extends BasePreferenceFragment 
     private boolean deleted = false;
     private boolean saved = false;
 
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
+    @Override public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         String id = null;
@@ -95,56 +95,12 @@ public class TransmissionProfileSettingsFragment extends BasePreferenceFragment 
 
     @Override public void onResume() {
         super.onResume();
-        ActionBar actionBar = ((ActionBarActivity) getActivity()).getSupportActionBar();
-        if (actionBar != null) {
-            LayoutInflater inflater = (LayoutInflater) getActivity().getSystemService
-                    (Context.LAYOUT_INFLATER_SERVICE);
 
-            View customActionBarView = inflater.inflate(R.layout.torrent_profile_settings_action_bar, null);
-            View saveMenuItem = customActionBarView.findViewById(R.id.save_menu_item);
-            saveMenuItem.setOnClickListener(new OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    int errorRes = -1;
-                    if (sharedPrefs.getString(G.PREF_NAME, "").trim().equals("")) {
-                        errorRes = R.string.con_name_cannot_be_empty;
-                    } else if (sharedPrefs.getString(G.PREF_HOST, "").trim().equals("")) {
-                        errorRes = R.string.con_host_cannot_be_empty;
-                    }
-
-                    if (errorRes != -1) {
-                        final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-                        builder.setTitle(R.string.invalid_input_title);
-                        builder.setMessage(errorRes);
-                        builder.setPositiveButton(android.R.string.ok, null);
-                        builder.show();
-
-                        return;
-                    }
-
-                    saved = true;
-
-                    close();
-                }
-            });
-            actionBar.setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM,
-                    ActionBar.DISPLAY_SHOW_CUSTOM | ActionBar.DISPLAY_SHOW_HOME |
-                    ActionBar.DISPLAY_SHOW_TITLE | ActionBar.DISPLAY_HOME_AS_UP);
-            actionBar.setCustomView(customActionBarView);
-        }
+        Toolbar toolbar = (Toolbar) getActivity().findViewById(R.id.toolbar);
+        toolbar.setNavigationIcon(R.drawable.ic_done_white_24dp);
     }
 
-    @Override public void onPause() {
-        super.onPause();
-        ActionBar actionBar = ((ActionBarActivity) getActivity()).getSupportActionBar();
-        if (actionBar != null) {
-            actionBar.setDisplayOptions(ActionBar.DISPLAY_SHOW_HOME
-                | ActionBar.DISPLAY_SHOW_TITLE | ActionBar.DISPLAY_HOME_AS_UP);
-        }
-    }
-
-    @Override
-    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+    @Override public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         super.onCreateOptionsMenu(menu, inflater);
         menu.clear();
 
@@ -158,9 +114,31 @@ public class TransmissionProfileSettingsFragment extends BasePreferenceFragment 
         }
     }
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
+    @Override public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
+            case android.R.id.home:
+                int errorRes = -1;
+                if (sharedPrefs.getString(G.PREF_NAME, "").trim().equals("")) {
+                    errorRes = R.string.con_name_cannot_be_empty;
+                } else if (sharedPrefs.getString(G.PREF_HOST, "").trim().equals("")) {
+                    errorRes = R.string.con_host_cannot_be_empty;
+                }
+
+                if (errorRes != -1) {
+                    final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+                    builder.setTitle(R.string.invalid_input_title);
+                    builder.setMessage(errorRes);
+                    builder.setPositiveButton(android.R.string.ok, null);
+                    builder.show();
+
+                    return true;
+                }
+
+                saved = true;
+
+                close();
+
+                return true;
             case R.id.delete:
                 deleted = true;
 

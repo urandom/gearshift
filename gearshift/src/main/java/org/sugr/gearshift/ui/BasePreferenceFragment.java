@@ -6,8 +6,10 @@ import android.os.Bundle;
 import android.preference.Preference;
 import android.preference.PreferenceFragment;
 import android.support.v4.app.Fragment;
+import android.support.v7.widget.Toolbar;
 
 import org.sugr.gearshift.G;
+import org.sugr.gearshift.R;
 
 import java.util.Arrays;
 
@@ -31,12 +33,18 @@ public class BasePreferenceFragment extends PreferenceFragment implements OnShar
         super.onResume();
         updatePrefSummary(null);
         sharedPrefs.registerOnSharedPreferenceChangeListener(this);
+
+        Toolbar toolbar = (Toolbar) getActivity().findViewById(R.id.toolbar);
+        toolbar.setNavigationIcon(R.drawable.ic_close_white_24dp);
     }
 
     @Override
     public void onPause() {
         super.onPause();
         sharedPrefs.unregisterOnSharedPreferenceChangeListener(this);
+
+        Toolbar toolbar = (Toolbar) getActivity().findViewById(R.id.toolbar);
+        toolbar.setNavigationIcon(R.drawable.ic_arrow_back_white_24dp);
     }
 
     @Override

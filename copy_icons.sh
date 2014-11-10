@@ -37,6 +37,14 @@ toggle/ic_star_outline
 copy_icons "$sizes" "$icons" $color $dims
 
 icons="
+action/ic_done
+navigation/ic_arrow_back
+navigation/ic_close
+"
+
+copy_icons "$sizes" "$icons" $color "24dp"
+
+icons="
 file/ic_folder_open
 "
 
