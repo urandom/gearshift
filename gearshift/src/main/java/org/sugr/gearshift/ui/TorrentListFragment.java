@@ -286,8 +286,10 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
             int virtual = position - firstVisible;
             View child = list.getChildAt(virtual);
 
-            toggleListItemChecked(checked, child.findViewById(R.id.type_checked),
-                child.findViewById(R.id.type_directory), child.findViewById(R.id.progress));
+            if (child != null) {
+                toggleListItemChecked(checked, child.findViewById(R.id.type_checked),
+                    child.findViewById(R.id.type_directory), child.findViewById(R.id.progress));
+            }
 
         }
     };
