@@ -1091,17 +1091,15 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
             SparseBooleanArray checkedItems = getListView().getCheckedItemPositions();
 
             if (checkedItems != null && checkedItems.get(position)) {
-                if (typeChecked.getVisibility() == View.GONE) {
-                    typeDirectory.setVisibility(View.GONE);
-                    progress.setVisibility(View.GONE);
-                    typeChecked.setVisibility(View.VISIBLE);
-                }
+                typeDirectory.setVisibility(View.GONE);
+                progress.setVisibility(View.GONE);
+                typeChecked.setVisibility(View.VISIBLE);
+                typeChecked.setScaleX(1f);
+                typeChecked.setScaleY(1f);
             } else {
-                if (typeDirectory.getVisibility() == View.GONE) {
-                    typeDirectory.setVisibility(View.VISIBLE);
-                    progress.setVisibility(View.VISIBLE);
-                    typeChecked.setVisibility(View.GONE);
-                }
+                typeDirectory.setVisibility(View.VISIBLE);
+                progress.setVisibility(View.VISIBLE);
+                typeChecked.setVisibility(View.GONE);
 
                 if ("inode/directory".equals(Torrent.getMimeType(cursor))) {
                     typeDirectory.setVisibility(View.VISIBLE);
