@@ -185,6 +185,7 @@ public class SettingsActivity extends ActionBarActivity {
             return;
         }
 
+        profileAdapter.clearSelections();
         resetPreferencePane();
 
         if (!isPreferencesAlwaysVisible()) {
@@ -193,7 +194,7 @@ public class SettingsActivity extends ActionBarActivity {
     }
 
     @Override public void onBackPressed() {
-        if (!isPreferencesAlwaysVisible() && isPreferencesOpen()) {
+        if (isPreferencesOpen()) {
             closePreferences();
             return;
         }
@@ -424,6 +425,8 @@ public class SettingsActivity extends ActionBarActivity {
             holder.itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
+                    clearSelections();
+                    setItemSelected(position, true);
                     context.setSelectedItem(item);
                 }
             });

@@ -3,13 +3,12 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
 	android:minHeight="48dp"
-    android:background="?android:attr/activatedBackgroundIndicator"
+    android:background="@drawable/list_selectable_activated_light"
     android:gravity="center_vertical"
-    android:paddingRight="?android:attr/scrollbarSize"
-    android:paddingEnd="?android:attr/scrollbarSize"
-    android:layout_marginTop="6dip"
-    android:layout_marginBottom="6dip"
-    android:layout_weight="1">
+    android:paddingLeft="16dp"
+    android:paddingRight="16dp"
+    android:paddingTop="4dp"
+    android:paddingBottom="4dp">
 
     <TextView android:id="@android:id/text1"
         android:layout_width="wrap_content"
