@@ -178,15 +178,16 @@ public class TorrentDetailPageFragment extends Fragment {
                 content.setVisibility(View.VISIBLE);
                 content.setAlpha(0);
                 content.animate().alpha(1);
-                image.setBackgroundResource(R.drawable.ic_section_collapse);
+                image.setRotation(0);
                 expandedStates[index] = true;
                 updateFields(getView());
             } else {
                 content.setVisibility(View.GONE);
-                image.setBackgroundResource(R.drawable.ic_section_expand);
+                image.setRotation(180);
                 expandedStates[index] = false;
             }
 
+            image.animate().rotationBy(180);
         }
     };
 

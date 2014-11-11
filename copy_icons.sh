@@ -46,6 +46,7 @@ copy_icons "$sizes" "$icons" $color "24dp"
 
 icons="
 file/ic_folder_open
+navigation/ic_expand_more
 "
 
 copy_icons "$sizes" "$icons" 'grey600' $dims
