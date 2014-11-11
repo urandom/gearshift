@@ -94,7 +94,7 @@ public class TransmissionProfileDirectoriesSettingsFragment extends ListFragment
         }
 
         adapter = new ArrayAdapter<String>(getActivity(),
-                android.R.layout.simple_list_item_activated_1,
+                R.layout.settings_preference_item,
                 android.R.id.text1
         );
         adapter.addAll(directories);
