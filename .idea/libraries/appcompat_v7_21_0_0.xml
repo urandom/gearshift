@@ -8,6 +8,8 @@
       <root url="jar://$PROJECT_DIR$/gearshift/build/intermediates/exploded-aar/com.android.support/appcompat-v7/21.0.0/classes.jar!/" />
     </CLASSES>
     <JAVADOC />
-    <SOURCES />
+    <SOURCES>
+      <root url="file://$USER_HOME$/.local/programs/android-sdk/sources/android-21" />
+    </SOURCES>
   </library>
 </component>

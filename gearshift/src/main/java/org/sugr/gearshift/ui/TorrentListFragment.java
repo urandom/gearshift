@@ -38,7 +38,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
-import android.view.animation.AccelerateDecelerateInterpolator;
 import android.view.animation.AccelerateInterpolator;
 import android.view.animation.DecelerateInterpolator;
 import android.view.animation.PathInterpolator;
@@ -851,7 +850,7 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
         }
 
         TimeInterpolator interpolator;
-        if (Build.VERSION.SDK_INT == Build.VERSION_CODES.LOLLIPOP) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             if (checked) {
                 interpolator = new PathInterpolator(0f, 0f, 0.2f, 1f);
             } else {
