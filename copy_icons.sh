@@ -24,6 +24,7 @@ icons="
 action/ic_done
 av/ic_pause
 av/ic_play_arrow
+av/ic_my_library_add
 content/ic_add
 content/ic_forward
 content/ic_remove
