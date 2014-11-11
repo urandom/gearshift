@@ -34,12 +34,12 @@ import java.util.HashSet;
 import java.util.Set;
 
 public class TransmissionProfileDirectoriesSettingsFragment extends ListFragment {
-    private SharedPreferences mSharedPrefs;
-    private Set<String> mDirectories = new HashSet<String>();
-    private ArrayAdapter<String> mAdapter;
-    private String mProfileId;
+    private SharedPreferences sharedPrefs;
+    private Set<String> directories = new HashSet<String>();
+    private ArrayAdapter<String> adapter;
+    private String profileId;
 
-    private ActionMode mActionMode;
+    private ActionMode actionMode;
 
     private Comparator<String> mDirComparator = new Comparator<String>() {
         @Override
@@ -78,28 +78,28 @@ public class TransmissionProfileDirectoriesSettingsFragment extends ListFragment
         Bundle args = getArguments();
 
         if (args != null && args.containsKey(G.ARG_PROFILE_ID)) {
-            mProfileId = args.getString(G.ARG_PROFILE_ID);
+            profileId = args.getString(G.ARG_PROFILE_ID);
         }
 
-        mSharedPrefs = getActivity().getSharedPreferences(
+        sharedPrefs = getActivity().getSharedPreferences(
                 G.PROFILES_PREF_NAME, Activity.MODE_PRIVATE);
 
         if (savedInstanceState != null && savedInstanceState.containsKey(STATE_DIRECTORIES)) {
-            mDirectories.clear();
-            mDirectories.addAll(savedInstanceState.getStringArrayList(STATE_DIRECTORIES));
-        } else if (mProfileId != null) {
-            mDirectories = new HashSet<String>(
-                    mSharedPrefs.getStringSet(G.PREF_DIRECTORIES + mProfileId,
+            directories.clear();
+            directories.addAll(savedInstanceState.getStringArrayList(STATE_DIRECTORIES));
+        } else if (profileId != null) {
+            directories = new HashSet<String>(
+                    sharedPrefs.getStringSet(G.PREF_DIRECTORIES + profileId,
                             new HashSet<String>()));
         }
 
-        mAdapter = new ArrayAdapter<String>(getActivity(),
+        adapter = new ArrayAdapter<String>(getActivity(),
                 android.R.layout.simple_list_item_activated_1,
                 android.R.id.text1
         );
-        mAdapter.addAll(mDirectories);
-        mAdapter.sort(mDirComparator);
-        setListAdapter(mAdapter);
+        adapter.addAll(directories);
+        adapter.sort(mDirComparator);
+        setListAdapter(adapter);
 
         setEmptyText(R.string.no_download_dirs);
 
@@ -124,7 +124,7 @@ public class TransmissionProfileDirectoriesSettingsFragment extends ListFragment
                 inflater.inflate(R.menu.download_directories_multiselect, menu);
 
                 mSelectedDirectories = new HashSet<String>();
-                mActionMode = mode;
+                actionMode = mode;
                 return true;
             }
 
@@ -140,7 +140,7 @@ public class TransmissionProfileDirectoriesSettingsFragment extends ListFragment
                 switch (item.getItemId()) {
                     case R.id.select_all:
                         ListView v = getListView();
-                        for (int i = 0; i < mAdapter.getCount(); i++) {
+                        for (int i = 0; i < adapter.getCount(); i++) {
                             if (!v.isItemChecked(i)) {
                                 v.setItemChecked(i, true);
                             }
@@ -156,7 +156,7 @@ public class TransmissionProfileDirectoriesSettingsFragment extends ListFragment
                             @Override
                             public void onClick(DialogInterface dialog, int id) {
                                 for (String directory : mSelectedDirectories) {
-                                    mDirectories.remove(directory);
+                                    directories.remove(directory);
                                 }
 
                                 mode.finish();
@@ -173,7 +173,7 @@ public class TransmissionProfileDirectoriesSettingsFragment extends ListFragment
 
             @Override
             public void onDestroyActionMode(ActionMode mode) {
-                mActionMode = null;
+                actionMode = null;
                 mSelectedDirectories = null;
             }
 
@@ -181,7 +181,7 @@ public class TransmissionProfileDirectoriesSettingsFragment extends ListFragment
             public void onItemCheckedStateChanged(ActionMode mode,
                     int position, long id, boolean checked) {
 
-                String directory = mAdapter.getItem(position);
+                String directory = adapter.getItem(position);
 
                 if (checked) {
                     mSelectedDirectories.add(directory);
@@ -207,18 +207,21 @@ public class TransmissionProfileDirectoriesSettingsFragment extends ListFragment
         toolbar.setNavigationIcon(R.drawable.ic_arrow_back_white_24dp);
         toolbar.setTitle(R.string.settings);
 
-        if (mSharedPrefs != null) {
-            Editor e = mSharedPrefs.edit();
-            e.putStringSet(G.PREF_DIRECTORIES, mDirectories);
+        if (sharedPrefs != null) {
+            Editor e = sharedPrefs.edit();
+            e.putStringSet(G.PREF_DIRECTORIES, directories);
             e.commit();
         }
 
+        if (actionMode != null) {
+            actionMode.finish();
+        }
     }
 
     @Override public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         ArrayList<String> directories = new ArrayList<String>();
-        directories.addAll(mDirectories);
+        directories.addAll(directories);
 
         outState.putStringArrayList(STATE_DIRECTORIES, directories);
     }
@@ -228,7 +231,7 @@ public class TransmissionProfileDirectoriesSettingsFragment extends ListFragment
         menu.clear();
 
         inflater.inflate(R.menu.add_directory_option, menu);
-        if (mProfileId == null)
+        if (profileId == null)
             menu.findItem(R.id.menu_add_directory).setVisible(false);
 
         MenuItem item = menu.findItem(R.id.import_directories);
@@ -247,14 +250,14 @@ public class TransmissionProfileDirectoriesSettingsFragment extends ListFragment
                             dir = dir.substring(0, dir.length() - 1);
                         }
 
-                        mDirectories.add(dir);
+                        directories.add(dir);
 
                         setAdapterDirectories();
                     }
                 });
                 return true;
             case R.id.import_directories:
-                mDirectories.addAll(mSessionDirectories);
+                directories.addAll(mSessionDirectories);
                 setAdapterDirectories();
                 return true;
         }
@@ -264,24 +267,24 @@ public class TransmissionProfileDirectoriesSettingsFragment extends ListFragment
     @Override public void onListItemClick(ListView listView, View view, int position, long id) {
         super.onListItemClick(listView, view, position, id);
 
-        if (mActionMode == null) {
+        if (actionMode == null) {
             listView.setChoiceMode(ListView.CHOICE_MODE_NONE);
 
-            final String directory = mAdapter.getItem(position);
+            final String directory = adapter.getItem(position);
 
             createEntryDialog(new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
                     EditText text = (EditText) ((AlertDialog) dialog).findViewById(R.id.dialog_entry);
 
-                    mDirectories.remove(directory);
+                    directories.remove(directory);
                     String dir = text.getText().toString().trim();
 
                     while (dir.endsWith("/")) {
                         dir = dir.substring(0, dir.length() - 1);
                     }
 
-                    mDirectories.add(dir);
+                    directories.add(dir);
 
                     setAdapterDirectories();
                 }
@@ -317,10 +320,10 @@ public class TransmissionProfileDirectoriesSettingsFragment extends ListFragment
     }
 
     private void setAdapterDirectories() {
-        mAdapter.setNotifyOnChange(false);
-        mAdapter.clear();
-        mAdapter.addAll(mDirectories);
-        mAdapter.sort(mDirComparator);
-        mAdapter.notifyDataSetChanged();
+        adapter.setNotifyOnChange(false);
+        adapter.clear();
+        adapter.addAll(directories);
+        adapter.sort(mDirComparator);
+        adapter.notifyDataSetChanged();
     }
 }
