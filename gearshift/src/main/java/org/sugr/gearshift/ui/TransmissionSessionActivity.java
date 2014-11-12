@@ -39,6 +39,7 @@ import org.sugr.gearshift.datasource.DataSource;
 import org.sugr.gearshift.service.DataService;
 import org.sugr.gearshift.service.DataServiceManager;
 import org.sugr.gearshift.service.DataServiceManagerInterface;
+import org.sugr.gearshift.ui.util.ExpandAnimation;
 
 import java.util.Arrays;
 import java.util.List;
@@ -100,13 +101,11 @@ public class TransmissionSessionActivity extends ActionBarActivity implements Da
             }
 
             if (content.getVisibility() == View.GONE) {
-                content.setVisibility(View.VISIBLE);
-                content.setAlpha(0);
-                content.animate().alpha(1);
+                new ExpandAnimation(content).expand();
                 image.setRotation(0);
                 expandedStates[index] = true;
             } else {
-                content.setVisibility(View.GONE);
+                new ExpandAnimation(content).collapse();
                 image.setRotation(180);
                 expandedStates[index] = false;
             }
