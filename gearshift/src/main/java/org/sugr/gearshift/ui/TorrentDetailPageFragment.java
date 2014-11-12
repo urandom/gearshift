@@ -22,7 +22,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.LocalBroadcastManager;
-import android.support.v7.app.ActionBarActivity;
 import android.text.Html;
 import android.text.Spanned;
 import android.text.TextUtils;
@@ -34,7 +33,10 @@ import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewGroup.LayoutParams;
 import android.view.ViewTreeObserver;
+import android.view.animation.Animation;
+import android.view.animation.Transformation;
 import android.view.inputmethod.EditorInfo;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -56,6 +58,7 @@ import org.sugr.gearshift.datasource.TorrentDetails;
 import org.sugr.gearshift.service.DataService;
 import org.sugr.gearshift.service.DataServiceManager;
 import org.sugr.gearshift.service.DataServiceManagerInterface;
+import org.sugr.gearshift.ui.util.ExpandAnimation;
 
 import java.io.File;
 import java.net.URI;
@@ -147,7 +150,7 @@ public class TorrentDetailPageFragment extends Fragment {
         @Override
         public void onClick(View v) {
             View image;
-            View content;
+            final View content;
             int index;
             switch(v.getId()) {
                 case R.id.torrent_detail_overview_expander:
@@ -174,15 +177,16 @@ public class TorrentDetailPageFragment extends Fragment {
                     return;
             }
 
-            if (content.getVisibility() == View.GONE) {
-                content.setVisibility(View.VISIBLE);
-                content.setAlpha(0);
-                content.animate().alpha(1);
+            final boolean expand = content.getVisibility() == View.GONE;
+
+            image.animate().cancel();
+            if (expand) {
+                new ExpandAnimation(content).expand();
                 image.setRotation(0);
                 expandedStates[index] = true;
                 updateFields(getView());
             } else {
-                content.setVisibility(View.GONE);
+                new ExpandAnimation(content).collapse();
                 image.setRotation(180);
                 expandedStates[index] = false;
             }
