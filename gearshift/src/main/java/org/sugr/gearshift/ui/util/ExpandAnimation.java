@@ -1,5 +1,6 @@
 package org.sugr.gearshift.ui.util;
 
+import android.content.res.Resources;
 import android.view.View;
 import android.view.ViewGroup.LayoutParams;
 import android.view.ViewTreeObserver;
@@ -71,7 +72,12 @@ public class ExpandAnimation {
                     }
                 };
 
-                a.setDuration((int)(height / target.getContext().getResources().getDisplayMetrics().density));
+                Resources resources = target.getContext().getResources();
+                int shortDuration = resources.getInteger(android.R.integer.config_shortAnimTime);
+                int sizeDuration = (int) (height / resources.getDisplayMetrics().density);
+                int duration = (int) Math.min(shortDuration, Math.max(sizeDuration, shortDuration * 1.5));
+
+                a.setDuration(duration);
 
                 if (expand) {
                     target.startAnimation(a);
