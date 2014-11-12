@@ -114,6 +114,8 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
 
     private Menu menu;
 
+    private SparseBooleanArray checkAnimations = new SparseBooleanArray();
+
     /**
      * A callback interface that all activities containing this fragment must
      * implement. This mechanism allows activities to be notified of item
@@ -286,7 +288,7 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
             View child = list.getChildAt(virtual);
 
             if (child != null) {
-                toggleListItemChecked(checked, child.findViewById(R.id.type_checked),
+                toggleListItemChecked(checked, position, child.findViewById(R.id.type_checked),
                     child.findViewById(R.id.type_directory), child.findViewById(R.id.progress));
             }
 
@@ -842,7 +844,7 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
         }
     }
 
-    private void toggleListItemChecked(boolean checked, final View typeChecked,
+    private void toggleListItemChecked(boolean checked, final int position, final View typeChecked,
                                        final View typeIndicator, final View progress) {
 
         if (checked && ((TorrentListActivity) getActivity()).isDetailPanelVisible())  {
@@ -868,16 +870,18 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
         int duration = getActivity().getResources().getInteger(android.R.integer.config_shortAnimTime);
 
         typeChecked.animate().cancel();
+        checkAnimations.put(position, true);
         if (checked) {
-            typeChecked.setVisibility(View.VISIBLE);
             typeChecked.setScaleX(0f);
             typeChecked.setScaleY(0f);
+            typeChecked.setVisibility(View.VISIBLE);
             typeChecked.animate().scaleX(1f).scaleY(1f).setInterpolator(
                 interpolator
             ).setDuration(duration).setListener(new AnimatorListenerAdapter() {
                 @Override
                 public void onAnimationEnd(Animator animation) {
                     super.onAnimationEnd(animation);
+                    checkAnimations.put(position, false);
                     typeIndicator.setVisibility(View.GONE);
                     progress.setVisibility(View.GONE);
                 }
@@ -885,12 +889,13 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
         } else {
             typeIndicator.setVisibility(View.VISIBLE);
             progress.setVisibility(View.VISIBLE);
-            typeChecked.animate().scaleX(0f).scaleY(0f).setInterpolator(
+            typeChecked.animate().scaleX(0.3f).scaleY(0.3f).setInterpolator(
                 interpolator
             ).setDuration(duration).setListener(new AnimatorListenerAdapter() {
                 @Override
                 public void onAnimationEnd(Animator animation) {
                     super.onAnimationEnd(animation);
+                    checkAnimations.put(position, false);
                     typeChecked.setVisibility(View.GONE);
                 }
             });
@@ -1090,15 +1095,19 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
             SparseBooleanArray checkedItems = getListView().getCheckedItemPositions();
 
             if (checkedItems != null && checkedItems.get(position)) {
-                typeDirectory.setVisibility(View.GONE);
-                progress.setVisibility(View.GONE);
-                typeChecked.setVisibility(View.VISIBLE);
-                typeChecked.setScaleX(1f);
-                typeChecked.setScaleY(1f);
+                if (!checkAnimations.get(position)) {
+                    typeDirectory.setVisibility(View.GONE);
+                    progress.setVisibility(View.GONE);
+                    typeChecked.setVisibility(View.VISIBLE);
+                    typeChecked.setScaleX(1f);
+                    typeChecked.setScaleY(1f);
+                }
             } else {
-                typeDirectory.setVisibility(View.VISIBLE);
-                progress.setVisibility(View.VISIBLE);
-                typeChecked.setVisibility(View.GONE);
+                if (!checkAnimations.get(position)) {
+                    typeDirectory.setVisibility(View.VISIBLE);
+                    progress.setVisibility(View.VISIBLE);
+                    typeChecked.setVisibility(View.GONE);
+                }
 
                 if ("inode/directory".equals(Torrent.getMimeType(cursor))) {
                     typeDirectory.setVisibility(View.VISIBLE);
