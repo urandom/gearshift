@@ -13,7 +13,7 @@
         android:paddingTop="8dp"
         android:paddingBottom="8dp"
         android:addStatesFromChildren="true"
-        android:background="@drawable/list_activated_holo_light">
+        android:background="@drawable/list_activated_light">
 
         <CheckBox
             android:id="@+id/torrent_detail_files_row"

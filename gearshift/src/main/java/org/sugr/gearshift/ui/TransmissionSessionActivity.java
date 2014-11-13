@@ -9,8 +9,13 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.NavUtils;
 import android.support.v4.content.LocalBroadcastManager;
+import android.support.v4.view.MenuItemCompat;
+import android.support.v7.app.ActionBarActivity;
+import android.support.v7.widget.Toolbar;
 import android.text.Html;
+import android.view.ContextThemeWrapper;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -34,11 +39,12 @@ import org.sugr.gearshift.datasource.DataSource;
 import org.sugr.gearshift.service.DataService;
 import org.sugr.gearshift.service.DataServiceManager;
 import org.sugr.gearshift.service.DataServiceManagerInterface;
+import org.sugr.gearshift.ui.util.ExpandAnimation;
 
 import java.util.Arrays;
 import java.util.List;
 
-public class TransmissionSessionActivity extends FragmentActivity implements DataServiceManagerInterface {
+public class TransmissionSessionActivity extends ActionBarActivity implements DataServiceManagerInterface {
     private TransmissionProfile profile;
     private TransmissionSession session;
     private DataServiceManager manager;
@@ -95,17 +101,16 @@ public class TransmissionSessionActivity extends FragmentActivity implements Dat
             }
 
             if (content.getVisibility() == View.GONE) {
-                content.setVisibility(View.VISIBLE);
-                content.setAlpha(0);
-                content.animate().alpha(1);
-                image.setBackgroundResource(R.drawable.ic_section_collapse);
+                new ExpandAnimation(content).expand();
+                image.setRotation(0);
                 expandedStates[index] = true;
             } else {
-                content.setVisibility(View.GONE);
-                image.setBackgroundResource(R.drawable.ic_section_expand);
+                new ExpandAnimation(content).collapse();
+                image.setRotation(180);
                 expandedStates[index] = false;
             }
 
+            image.animate().rotationBy(180);
         }
     };
 
@@ -130,6 +135,12 @@ public class TransmissionSessionActivity extends FragmentActivity implements Dat
         encryptionValues = Arrays.asList(getResources().getStringArray(R.array.session_settings_encryption_values));
 
         setContentView(R.layout.activity_transmission_session);
+
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        if (toolbar != null) {
+            setSupportActionBar(toolbar);
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        }
 
         if (savedInstanceState != null) {
             new Handler().post(new Runnable() {
@@ -161,6 +172,7 @@ public class TransmissionSessionActivity extends FragmentActivity implements Dat
         initListeners();
 
         serviceReceiver = new ServiceReceiver();
+
     }
 
     @Override protected void onResume() {
@@ -206,10 +218,15 @@ public class TransmissionSessionActivity extends FragmentActivity implements Dat
         getMenuInflater().inflate(R.menu.transmission_session_activity, menu);
 
         MenuItem item = menu.findItem(R.id.menu_refresh);
-        if (refreshing)
-            item.setActionView(R.layout.action_progress_bar);
-        else
-            item.setActionView(null);
+        if (refreshing) {
+            ContextThemeWrapper wrapper = new ContextThemeWrapper(
+                getSupportActionBar().getThemedContext(),
+                R.style.ToolbarControl);
+            View actionView = View.inflate(wrapper, R.layout.action_progress_bar, null);
+            MenuItemCompat.setActionView(item, actionView);
+        } else {
+            MenuItemCompat.setActionView(item, null);
+        }
 
         return true;
     }
@@ -217,6 +234,10 @@ public class TransmissionSessionActivity extends FragmentActivity implements Dat
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
+            case android.R.id.home:
+                NavUtils.navigateUpTo(this, new Intent(this, TorrentListActivity.class));
+                overridePendingTransition(android.R.anim.fade_in , R.anim.slide_out_top);
+                return true;
             case R.id.menu_refresh:
                 manager.update();
                 refreshing = !refreshing;
@@ -224,6 +245,12 @@ public class TransmissionSessionActivity extends FragmentActivity implements Dat
                 return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override public void onBackPressed() {
+        super.onBackPressed();
+
+        overridePendingTransition(android.R.anim.fade_in, R.anim.slide_out_top);
     }
 
     public DataServiceManager getDataServiceManager() {

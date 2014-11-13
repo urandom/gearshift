@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ripple xmlns:android="http://schemas.android.com/apk/res/android" android:color="#b50900">
+    <item>
+        <selector>
+            <item android:state_pressed="true" android:drawable="@color/highlight_dark" />
+
+            <item android:state_focused="true" android:drawable="@color/highlight_dark" />
+
+            <item android:state_activated="true" android:drawable="@drawable/filter_border_right"/>
+
+            <item android:drawable="@color/transparent" />
+
+        </selector>
+    </item>
+</ripple>

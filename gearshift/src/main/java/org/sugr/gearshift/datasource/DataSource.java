@@ -13,6 +13,7 @@ import android.text.SpannableString;
 import android.text.Spanned;
 import android.text.TextUtils;
 import android.text.style.ForegroundColorSpan;
+import android.webkit.MimeTypeMap;
 
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
@@ -22,6 +23,7 @@ import org.sugr.gearshift.R;
 import org.sugr.gearshift.core.Torrent;
 import org.sugr.gearshift.core.TransmissionSession;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -726,6 +728,7 @@ public class DataSource {
                             case Constants.C_TRAFFIC_TEXT:
                             case Constants.C_STATUS_TEXT:
                             case Constants.C_ERROR_STRING:
+                            case Constants.C_MIME_TYPE:
                                 row.add(cursor.getString(index));
                                 break;
                             case Constants.C_METADATA_PERCENT_COMPLETE:
@@ -1276,6 +1279,7 @@ public class DataSource {
         float metadataPercentComplete = 0, percentDone = 0, uploadRatio = 0,
             recheckProgress = 0, seedLimit = 0;
         boolean isStalled = false;
+        String mimeType = null;
 
         while (parser.nextToken() != JsonToken.END_OBJECT) {
             String name = parser.getCurrentName();
@@ -1573,6 +1577,7 @@ public class DataSource {
                         values.files = new ArrayList<>();
                     }
 
+                    String lastFileName = null;
                     int index = 0;
                     while (parser.nextToken() != JsonToken.END_ARRAY) {
                         ContentValues file;
@@ -1589,13 +1594,34 @@ public class DataSource {
                             parser.nextToken();
 
                             if (argname.equals("name")) {
-                                file.put(Constants.C_NAME, parser.getText());
+                                lastFileName = parser.getText();
+                                file.put(Constants.C_NAME, lastFileName);
                             } else if (argname.equals("length")) {
                                 file.put(Constants.C_LENGTH, parser.getLongValue());
                             }
                         }
 
+
                         ++index;
+                    }
+
+                    if (values.files.size() > 1) {
+                        mimeType = "inode/directory";
+                    } else if (lastFileName != null) {
+                        File f = new File(lastFileName);
+                        String parent = f.getParent();
+
+                        if (parent != null && !parent.equals("")) {
+                            mimeType = "inode/directory";
+                        } else {
+                            int dotPos = lastFileName.lastIndexOf('.');
+                            String ext = dotPos >= 0 ? lastFileName.substring(dotPos + 1) : "";
+                            if (!ext.equals("")) {
+                                MimeTypeMap map = MimeTypeMap.getSingleton();
+                                String mime = map.getMimeTypeFromExtension(ext);
+                                mimeType = mime;
+                            }
+                        }
                     }
                     break;
                 }
@@ -1878,6 +1904,10 @@ public class DataSource {
         }
         if (statusText != null) {
             torrent.put(Constants.C_STATUS_TEXT, statusText);
+        }
+
+        if (mimeType != null) {
+            torrent.put(Constants.C_MIME_TYPE, mimeType);
         }
 
         return values;

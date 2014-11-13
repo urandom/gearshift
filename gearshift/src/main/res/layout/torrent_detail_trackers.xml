@@ -1,46 +1,54 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.v7.widget.CardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
     style="@style/CardContainer"
     android:layout_width="match_parent"
     android:layout_height="wrap_content">
 
     <LinearLayout
-        android:id="@+id/torrent_detail_trackers_expander"
-        style="@style/CardHeaderExpander" >
-
-        <TextView
-            style="@style/CardHeaderExpanderText"
-            android:text="@string/torrent_trackers" />
-
-        <View
-            android:id="@+id/torrent_detail_trackers_expander_image"
-            style="@style/CardHeaderExpanderImage" />
-    </LinearLayout>
-
-    <LinearLayout
-        android:id="@+id/torrent_detail_trackers_content"
         android:orientation="vertical"
-        android:paddingLeft="8dp"
-        android:paddingRight="8dp"
-        style="@style/CardContentCollapsed">
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
 
         <LinearLayout
-            android:id="@+id/torrent_detail_trackers_list"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"/>
+            android:id="@+id/torrent_detail_trackers_expander"
+            style="@style/CardHeaderExpander" >
 
-        <Button
-                android:id="@+id/torrent_detail_add_tracker"
+            <TextView
+                style="@style/CardHeaderExpanderText"
+                android:text="@string/torrent_trackers" />
+
+            <View
+                android:id="@+id/torrent_detail_trackers_expander_image"
+                style="@style/CardHeaderExpanderImage" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/torrent_detail_trackers_content"
+            android:orientation="vertical"
+            android:paddingLeft="8dp"
+            android:paddingRight="8dp"
+            style="@style/CardContentCollapsed">
+
+            <LinearLayout
+                android:id="@+id/torrent_detail_trackers_list"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:paddingLeft="8dp"
-                android:paddingRight="8dp"
-                android:text="@string/tracker_add"
-                android:textSize="15sp"
-                android:fontFamily="sans-serif"
-                android:textStyle="bold"
-                android:background="?android:attr/selectableItemBackground"/>
+                android:orientation="vertical"/>
 
+            <Button
+                    android:id="@+id/torrent_detail_add_tracker"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:paddingLeft="8dp"
+                    android:paddingRight="8dp"
+                    android:text="@string/tracker_add"
+                    android:textSize="15sp"
+                    android:fontFamily="sans-serif"
+                    android:textStyle="bold"
+                    android:background="?android:attr/selectableItemBackground"/>
+
+        </LinearLayout>
     </LinearLayout>
-</LinearLayout>
+
+</android.support.v7.widget.CardView>

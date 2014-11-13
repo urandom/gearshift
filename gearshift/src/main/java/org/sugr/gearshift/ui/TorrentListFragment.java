@@ -1,35 +1,36 @@
 package org.sugr.gearshift.ui;
 
-import java.util.Map;
-import java.util.HashMap;
-
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.animation.ObjectAnimator;
+import android.animation.TimeInterpolator;
+import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.database.Cursor;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.support.v4.app.ListFragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
-import android.support.v4.content.LocalBroadcastManager;
+import android.support.v4.view.MenuItemCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v7.app.ActionBarActivity;
+import android.support.v7.widget.SearchView;
+import android.support.v7.widget.Toolbar;
 import android.text.Html;
 import android.text.Spanned;
 import android.text.TextUtils;
 import android.util.SparseArray;
 import android.util.SparseBooleanArray;
 import android.view.ActionMode;
+import android.view.ContextThemeWrapper;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -37,6 +38,9 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
+import android.view.animation.AccelerateInterpolator;
+import android.view.animation.DecelerateInterpolator;
+import android.view.animation.PathInterpolator;
 import android.widget.AbsListView.MultiChoiceModeListener;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemLongClickListener;
@@ -46,7 +50,6 @@ import android.widget.EditText;
 import android.widget.FilterQueryProvider;
 import android.widget.ListView;
 import android.widget.ProgressBar;
-import android.widget.SearchView;
 import android.widget.Spinner;
 import android.widget.TextView;
 
@@ -55,14 +58,17 @@ import org.sugr.gearshift.G.FilterBy;
 import org.sugr.gearshift.G.SortBy;
 import org.sugr.gearshift.G.SortOrder;
 import org.sugr.gearshift.R;
-import org.sugr.gearshift.ui.loader.TorrentTrafficLoader;
+import org.sugr.gearshift.core.Torrent;
 import org.sugr.gearshift.core.TransmissionProfile;
 import org.sugr.gearshift.core.TransmissionSession;
-import org.sugr.gearshift.core.Torrent;
 import org.sugr.gearshift.datasource.DataSource;
 import org.sugr.gearshift.service.DataService;
 import org.sugr.gearshift.service.DataServiceManager;
 import org.sugr.gearshift.service.DataServiceManagerInterface;
+import org.sugr.gearshift.ui.loader.TorrentTrafficLoader;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * A list fragment representing a list of Torrents. This fragment
@@ -107,6 +113,8 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
     private SharedPreferences sharedPrefs;
 
     private Menu menu;
+
+    private SparseBooleanArray checkAnimations = new SparseBooleanArray();
 
     /**
      * A callback interface that all activities containing this fragment must
@@ -159,7 +167,6 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
                     }
                     return true;
                 case R.id.remove:
-                case R.id.delete:
                     builder = new AlertDialog.Builder(getActivity())
                             .setCancelable(false)
                             .setNegativeButton(android.R.string.no, null);
@@ -168,17 +175,27 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
                             new DialogInterface.OnClickListener() {
                                 @Override
                                 public void onClick(DialogInterface dialog, int id) {
-                                    manager.removeTorrent(hashStrings, item.getItemId() == R.id.delete);
+                                    manager.removeTorrent(hashStrings, false);
                                     ((TransmissionSessionInterface) getActivity()).setRefreshing(true,
                                         DataService.Requests.REMOVE_TORRENT);
 
                                     mode.finish();
                                 }
                             })
-                            .setMessage(item.getItemId() == R.id.delete
-                                    ? R.string.delete_selected_confirmation
-                                    : R.string.remove_selected_confirmation)
-                            .show();
+                        .setNeutralButton(R.string.remove_with_data,
+                            new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    manager.removeTorrent(hashStrings, true);
+                                    ((TransmissionSessionInterface) getActivity()).setRefreshing(true,
+                                        DataService.Requests.REMOVE_TORRENT);
+
+                                    mode.finish();
+
+                                }
+                            })
+                        .setMessage(R.string.remove_selected_confirmation)
+                        .show();
                     return true;
                 case R.id.resume:
                     action = hasQueued ? "torrent-start-now" : "torrent-start";
@@ -264,6 +281,17 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
             item = menu.findItem(R.id.pause);
             if (item != null)
                 item.setVisible(hasRunning).setEnabled(hasRunning);
+
+            ListView list = getListView();
+            int firstVisible = list.getFirstVisiblePosition();
+            int virtual = position - firstVisible;
+            View child = list.getChildAt(virtual);
+
+            if (child != null) {
+                toggleListItemChecked(checked, position, child.findViewById(R.id.type_checked),
+                    child.findViewById(R.id.type_directory), child.findViewById(R.id.progress));
+            }
+
         }
     };
 
@@ -323,7 +351,8 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
             }
 
             TransmissionSession session = context.getSession();
-            TextView status = (TextView) getView().findViewById(R.id.status_bar_text);
+            Toolbar status = (Toolbar) getView().findViewById(R.id.status_bar);
+            TextView statusBarText = (TextView) status.findViewById(R.id.status_bar_text);
 
             if (!sharedPrefs.getBoolean(G.PREF_SHOW_STATUS, false)) {
                 return;
@@ -359,7 +388,7 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
                 }
             }
 
-            status.setText(Html.fromHtml(String.format(
+            statusBarText.setText(Html.fromHtml(String.format(
                 getString(R.string.status_bar_format),
                 G.readableFileSize(data.downloadSpeed),
                 limitDown,
@@ -445,7 +474,7 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
         list.setOnItemLongClickListener(new OnItemLongClickListener() {
             @Override
             public boolean onItemLongClick(AdapterView<?> parent, View view,
-                    int position, long id) {
+                                           int position, long id) {
 
                 if (!((TorrentListActivity) getActivity()).isDetailPanelVisible()) {
                     list.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE_MODAL);
@@ -453,7 +482,8 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
                     return true;
                 }
                 return false;
-            }});
+            }
+        });
 
         list.setMultiChoiceModeListener(listChoiceListener);
     }
@@ -522,8 +552,10 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
         inflater.inflate(R.menu.torrent_list_fragment, menu);
         MenuItem item = menu.findItem(R.id.find);
 
-        SearchView findView = new SearchView(
-            getActivity().getActionBar().getThemedContext());
+        ContextThemeWrapper wrapper = new ContextThemeWrapper(
+            ((ActionBarActivity) getActivity()).getSupportActionBar().getThemedContext(),
+            R.style.ToolbarControl);
+        SearchView findView = new SearchView(wrapper);
         findView.setQueryHint(getActivity().getString(R.string.filter));
         findView.setIconifiedByDefault(true);
         findView.setIconified(true);
@@ -542,7 +574,7 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
             }
         });
 
-        item.setOnActionExpandListener(new MenuItem.OnActionExpandListener() {
+        MenuItemCompat.setOnActionExpandListener(item, new MenuItemCompat.OnActionExpandListener() {
             @Override public boolean onMenuItemActionExpand(MenuItem item) {
                 return true;
             }
@@ -790,13 +822,14 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
             if (!findQuery.equals("")) {
                 findView.setQuery(findQuery, false);
             }
+
         } else {
             item.collapseActionView();
         }
     }
 
     private void toggleStatusBar() {
-        View status = getView().findViewById(R.id.status_bar_text);
+        View status = getView().findViewById(R.id.status_bar);
         toggleStatusBar(status);
     }
 
@@ -804,11 +837,70 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
         if (sharedPrefs.getBoolean(G.PREF_SHOW_STATUS, false)) {
             status.setVisibility(View.VISIBLE);
             status.setTranslationY(100);
-            status.animate().alpha((float) 1.0).translationY(0).setStartDelay(500);
+            status.animate().alpha(1f).translationY(0).setStartDelay(500);
         } else {
             status.setVisibility(View.GONE);
-            status.setAlpha((float) 0.3);
+            status.setAlpha(0.3f);
         }
+    }
+
+    private void toggleListItemChecked(boolean checked, final int position, final View typeChecked,
+                                       final View typeIndicator, final View progress) {
+
+        if (checked && ((TorrentListActivity) getActivity()).isDetailPanelVisible())  {
+            checked = false;
+        }
+
+        TimeInterpolator interpolator;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            if (checked) {
+                interpolator = new PathInterpolator(0f, 0f, 0.2f, 1f);
+            } else {
+                interpolator = new PathInterpolator(0.4f, 0f, 1f, 1f);
+
+            }
+        } else {
+            if (checked) {
+                interpolator = new DecelerateInterpolator();
+            } else {
+                interpolator = new AccelerateInterpolator();
+            }
+        }
+
+        int duration = getActivity().getResources().getInteger(android.R.integer.config_shortAnimTime);
+
+        typeChecked.animate().cancel();
+        checkAnimations.put(position, true);
+        if (checked) {
+            typeChecked.setScaleX(0f);
+            typeChecked.setScaleY(0f);
+            typeChecked.setVisibility(View.VISIBLE);
+            typeChecked.animate().scaleX(1f).scaleY(1f).setInterpolator(
+                interpolator
+            ).setDuration(duration).setListener(new AnimatorListenerAdapter() {
+                @Override
+                public void onAnimationEnd(Animator animation) {
+                    super.onAnimationEnd(animation);
+                    checkAnimations.put(position, false);
+                    typeIndicator.setVisibility(View.GONE);
+                    progress.setVisibility(View.GONE);
+                }
+            });
+        } else {
+            typeIndicator.setVisibility(View.VISIBLE);
+            progress.setVisibility(View.VISIBLE);
+            typeChecked.animate().scaleX(0.3f).scaleY(0.3f).setInterpolator(
+                interpolator
+            ).setDuration(duration).setListener(new AnimatorListenerAdapter() {
+                @Override
+                public void onAnimationEnd(Animator animation) {
+                    super.onAnimationEnd(animation);
+                    checkAnimations.put(position, false);
+                    typeChecked.setVisibility(View.GONE);
+                }
+            });
+        }
+
     }
 
     private class TorrentCursorAdapter extends CursorAdapter {
@@ -839,7 +931,7 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
                         }
                         TransmissionProfileInterface context =
                             (TransmissionProfileInterface) getActivity();
-                        if (context == null) {
+                        if (context == null || context.getProfile() == null) {
                             return null;
                         }
 
@@ -904,8 +996,9 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
             return vi.inflate(R.layout.torrent_list_item, viewGroup, false);
         }
 
-        @Override public void bindView(View view, Context context, Cursor cursor) {
-            int id = Torrent.getId(cursor);
+        @TargetApi(Build.VERSION_CODES.LOLLIPOP)
+        @Override public void bindView(final View view, Context context, Cursor cursor) {
+            final int id = Torrent.getId(cursor);
 
             TextView name = (TextView) view.findViewById(R.id.name);
 
@@ -913,6 +1006,8 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
             ProgressBar progress = (ProgressBar) view.findViewById(R.id.progress);
             TextView status = (TextView) view.findViewById(R.id.status);
             TextView errorText = (TextView) view.findViewById(R.id.error_text);
+            View typeDirectory = view.findViewById(R.id.type_directory);
+            View typeChecked = view.findViewById(R.id.type_checked);
 
             String search = sharedPrefs.getString(G.PREF_LIST_SEARCH, null);
             if (TextUtils.isEmpty(search)) {
@@ -960,6 +1055,23 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
                 }
             }
 
+            final int position = cursor.getPosition();
+            progress.setOnClickListener(new View.OnClickListener() {
+                @Override public void onClick(View v) {
+                    if (actionMode == null) {
+                        if (!((TorrentListActivity) getActivity()).isDetailPanelVisible()) {
+                            getListView().setChoiceMode(ListView.CHOICE_MODE_MULTIPLE_MODAL);
+                            setActivatedPosition(position);
+                        } else {
+                            onListItemClick(getListView(), view, position, id);
+                        }
+                    } else {
+                        SparseBooleanArray checkedItems = getListView().getCheckedItemPositions();
+                        getListView().setItemChecked(position, !checkedItems.get(position));
+                    }
+                }
+            });
+
             traffic.setText(Html.fromHtml(Torrent.getTrafficText(cursor)));
             status.setText(Html.fromHtml(Torrent.getStatusText(cursor)));
 
@@ -970,12 +1082,38 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
             traffic.setEnabled(enabled);
             status.setEnabled(enabled);
             errorText.setEnabled(enabled);
+            progress.setAlpha(enabled ? 1f : 0.5f);
+            typeDirectory.setAlpha(enabled ? 0.6f : 0.3f);
 
             if (Torrent.getError(cursor) == Torrent.Error.OK) {
                 errorText.setVisibility(View.GONE);
             } else {
                 errorText.setVisibility(View.VISIBLE);
                 errorText.setText(Torrent.getErrorString(cursor));
+            }
+
+            SparseBooleanArray checkedItems = getListView().getCheckedItemPositions();
+
+            if (checkedItems != null && checkedItems.get(position)) {
+                if (!checkAnimations.get(position) && !((TorrentListActivity) getActivity()).isDetailPanelVisible()) {
+                    typeDirectory.setVisibility(View.GONE);
+                    progress.setVisibility(View.GONE);
+                    typeChecked.setVisibility(View.VISIBLE);
+                    typeChecked.setScaleX(1f);
+                    typeChecked.setScaleY(1f);
+                }
+            } else {
+                if (!checkAnimations.get(position)) {
+                    typeDirectory.setVisibility(View.VISIBLE);
+                    progress.setVisibility(View.VISIBLE);
+                    typeChecked.setVisibility(View.GONE);
+                }
+
+                if ("inode/directory".equals(Torrent.getMimeType(cursor))) {
+                    typeDirectory.setVisibility(View.VISIBLE);
+                } else {
+                    typeDirectory.setVisibility(View.GONE);
+                }
             }
 
             if (!addedTorrents.get(id, false)) {

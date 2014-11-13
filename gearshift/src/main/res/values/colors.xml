@@ -1,10 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <color name="primary">#252525</color>
+    <color name="primary_dark">#202020</color>
+    <color name="control_highlight">#00bba6</color>
+    <color name="control_activated">#00796b</color>
+    <color name="accent">#b60000</color>
+
     <color name="main_red">#b60000</color>
     <color name="main_gray">#cacaca</color>
     <color name="main_black">#1a1a1a</color>
 
     <color name="success">#69e974</color>
+
+    <color name="progress_background">#ccc</color>
+    <color name="progress_downloading">#5677fc</color>
+    <color name="progress_seeding">#aeea00</color>
 
     <color name="detail_background">#ddd</color>
     <color name="detail_background_edge">#bfbfbf</color>
@@ -12,6 +22,11 @@
     <color name="transparent_white">#66ffffff</color>
     <color name="highlight_dark">#222222</color>
 
+    <color name="preference_background">#e3e3e3</color>
+
+    <color name="filter_list_header">#333333</color>
     <color name="filter_highlight_primary">#E68305</color>
     <color name="filter_highlight_secondary">#C98733</color>
+
+    <color name="check_indicator">#757575</color>
 </resources>

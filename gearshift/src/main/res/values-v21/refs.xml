@@ -1,0 +1,13 @@
+<resources>
+
+    <!--
+    Layout alias to replace the single-pane version of the layout with a
+    two-pane version on Large screens.
+
+    For more on layout aliases, see:
+    http://developer.android.com/training/multiscreen/screensizes.html#TaskUseAliasFilters
+    -->
+    <item name="default_in_interpolator" type="interpolator">@android:interpolator/linear_out_slow_in</item>
+    <item name="default_out_interpolator" type="interpolator">@android:interpolator/fast_out_linear_in</item>
+
+</resources>

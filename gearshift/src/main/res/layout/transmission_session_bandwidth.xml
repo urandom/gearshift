@@ -1,194 +1,201 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.v7.widget.CardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
     style="@style/SessionCardContainer">
 
     <LinearLayout
-        android:id="@+id/transmission_session_bandwidth_expander"
-        style="@style/CardHeaderExpander" >
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
 
-        <TextView
-            style="@style/CardHeaderExpanderText"
-            android:text="@string/session_settings_bandwidth" />
+        <LinearLayout
+            android:id="@+id/transmission_session_bandwidth_expander"
+            style="@style/CardHeaderExpander" >
 
-        <View
-            android:id="@+id/transmission_session_bandwidth_expander_image"
-            style="@style/CardHeaderExpanderImageCollapse" />
+            <TextView
+                style="@style/CardHeaderExpanderText"
+                android:text="@string/session_settings_bandwidth" />
+
+            <View
+                android:id="@+id/transmission_session_bandwidth_expander_image"
+                style="@style/CardHeaderExpanderImageCollapse" />
+        </LinearLayout>
+
+        <TableLayout
+            android:id="@+id/transmission_session_bandwidth_content"
+            style="@style/CardContent" >
+
+            <TableRow
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" >
+
+                <TextView
+                    style="@style/CardHeading"
+                    android:text="@string/session_settings_general_limits"
+                    android:layout_span="2" />
+            </TableRow>
+
+            <TableRow
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" >
+
+                <CheckBox
+                    android:id="@+id/transmission_session_down_limit_check"
+                    android:layout_span="2"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/session_settings_down_limit" />
+
+            </TableRow>
+
+            <TableRow
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" >
+
+                <TextView
+                     style="@style/CardTextColumn"
+                     android:text="@string/torrent_limit_speed_amount" />
+
+                <EditText
+                    android:id="@+id/transmission_session_down_limit"
+                    android:inputType="number"
+                    style="@style/CardEntry" >
+                </EditText>
+
+            </TableRow>
+
+            <TableRow
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" >
+
+                <CheckBox
+                    android:id="@+id/transmission_session_up_limit_check"
+                    android:layout_span="2"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/session_settings_upload_limit" />
+
+            </TableRow>
+
+            <TableRow
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" >
+
+                <TextView
+                     style="@style/CardTextColumn"
+                     android:text="@string/torrent_limit_speed_amount" />
+
+                <EditText
+                    android:id="@+id/transmission_session_up_limit"
+                    android:inputType="number"
+                    style="@style/CardEntry" >
+                </EditText>
+
+            </TableRow>
+
+            <TableRow
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" >
+
+                <TextView
+                    style="@style/CardHeading"
+                    android:text="@string/session_settings_alt_limits"
+                    android:layout_span="2" />
+
+            </TableRow>
+
+            <TableRow
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" >
+
+                <CheckBox
+                    android:id="@+id/transmission_session_alt_limits_check"
+                    android:layout_span="2"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/session_settings_enable_alt_limits" />
+
+            </TableRow>
+
+            <TableRow
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" >
+
+                <TextView
+                     style="@style/CardTextColumn"
+                     android:text="@string/session_settings_download" />
+
+                <EditText
+                    android:id="@+id/transmission_session_alt_down_limit"
+                    android:inputType="number"
+                    style="@style/CardEntry" >
+                </EditText>
+
+            </TableRow>
+
+            <TableRow
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" >
+
+                <TextView
+                     style="@style/CardTextColumn"
+                     android:text="@string/session_settings_upload" />
+
+                <EditText
+                    android:id="@+id/transmission_session_alt_up_limit"
+                    android:inputType="number"
+                    style="@style/CardEntry" >
+                </EditText>
+
+            </TableRow>
+
+            <TableRow
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" >
+
+                <CheckBox
+                    android:id="@+id/transmission_session_alt_limits_time_check"
+                    android:layout_span="2"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/session_settings_alt_time_range" />
+
+            </TableRow>
+
+            <TableRow
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="bottom" >
+
+                <TextView
+                     style="@style/CardTextColumn"
+                     android:text="@string/session_settings_alt_time" />
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical">
+
+                <Button
+                    style="@style/CardButton"
+                    android:id="@+id/transmission_session_alt_limit_time_from"
+                    android:text="@string/session_settings_alt_limit_time_format" />
+
+
+                <TextView
+                     style="@style/CardTextColumn"
+                     android:text=" - " />
+
+                <Button
+                    style="@style/CardButton"
+                    android:id="@+id/transmission_session_alt_limit_time_to"
+                    android:text="@string/session_settings_alt_limit_time_format"/>
+
+                </LinearLayout>
+
+            </TableRow>
+
+        </TableLayout>
     </LinearLayout>
-
-    <TableLayout
-        android:id="@+id/transmission_session_bandwidth_content"
-        style="@style/CardContent" >
-        
-        <TableRow
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" >
-            
-	        <TextView
-	            style="@style/CardHeading"
-	            android:text="@string/session_settings_general_limits"
-	            android:layout_span="2" />
-        </TableRow>
-
-        <TableRow
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" >
-
-            <CheckBox
-                android:id="@+id/transmission_session_down_limit_check"
-                android:layout_span="2"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/session_settings_down_limit" />
-
-        </TableRow>
-
-        <TableRow
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" >
-            
-            <TextView
-                 style="@style/CardTextColumn"
-                 android:text="@string/torrent_limit_speed_amount" />
-
-            <EditText
-                android:id="@+id/transmission_session_down_limit"
-                android:inputType="number"
-                style="@style/CardEntry" >
-            </EditText>
-            
-        </TableRow>
-
-        <TableRow
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" >
-
-            <CheckBox
-                android:id="@+id/transmission_session_up_limit_check"
-                android:layout_span="2"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/session_settings_upload_limit" />
-
-        </TableRow>
-
-        <TableRow
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" >
-            
-            <TextView
-                 style="@style/CardTextColumn"
-                 android:text="@string/torrent_limit_speed_amount" />
-
-            <EditText
-                android:id="@+id/transmission_session_up_limit"
-                android:inputType="number"
-                style="@style/CardEntry" >
-            </EditText>
-            
-        </TableRow>
-
-        <TableRow
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" >
-            
-	        <TextView
-	            style="@style/CardHeading"
-	            android:text="@string/session_settings_alt_limits"
-	            android:layout_span="2" />
-	        
-	    </TableRow>
-        
-        <TableRow
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" >
-
-            <CheckBox
-                android:id="@+id/transmission_session_alt_limits_check"
-                android:layout_span="2"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/session_settings_enable_alt_limits" />
-
-        </TableRow>
-                
-        <TableRow
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" >
-            
-            <TextView
-                 style="@style/CardTextColumn"
-                 android:text="@string/session_settings_download" />
-
-            <EditText
-                android:id="@+id/transmission_session_alt_down_limit"
-                android:inputType="number"
-                style="@style/CardEntry" >
-            </EditText>
-            
-        </TableRow>
-        
-        <TableRow
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" >
-            
-            <TextView
-                 style="@style/CardTextColumn"
-                 android:text="@string/session_settings_upload" />
-
-            <EditText
-                android:id="@+id/transmission_session_alt_up_limit"
-                android:inputType="number"
-                style="@style/CardEntry" >
-            </EditText>
-            
-        </TableRow>
-         
-        <TableRow
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" >
-
-            <CheckBox
-                android:id="@+id/transmission_session_alt_limits_time_check"
-                android:layout_span="2"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/session_settings_alt_time_range" />
-
-        </TableRow>
-        
-        <TableRow
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:gravity="bottom" >
-            
-            <TextView
-                 style="@style/CardTextColumn"
-                 android:text="@string/session_settings_alt_time" />
-
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="center_vertical">
-                
-            <Button
-                style="@style/CardButton"
-                android:id="@+id/transmission_session_alt_limit_time_from"
-                android:text="@string/session_settings_alt_limit_time_format" />
-
-                
-            <TextView
-                 style="@style/CardTextColumn"
-                 android:text=" - " />
-                                
-            <Button
-                style="@style/CardButton"
-                android:id="@+id/transmission_session_alt_limit_time_to"
-                android:text="@string/session_settings_alt_limit_time_format"/>
-                
-            </LinearLayout>
-            
-        </TableRow>
-
-    </TableLayout>
-</LinearLayout>
+</android.support.v7.widget.CardView>

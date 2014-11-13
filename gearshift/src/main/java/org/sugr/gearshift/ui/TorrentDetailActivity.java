@@ -7,8 +7,10 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.NavUtils;
+import android.support.v7.widget.Toolbar;
 import android.text.Html;
 import android.text.Spanned;
+import android.transition.Explode;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
@@ -55,8 +57,11 @@ public class TorrentDetailActivity extends BaseTorrentActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_torrent_detail);
 
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+
         // Show the Up button in the action bar.
-        getActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         currentTorrentPosition = in.getIntExtra(G.ARG_PAGE_POSITION, 0);
         if (currentTorrentPosition < 0) {
@@ -92,6 +97,7 @@ public class TorrentDetailActivity extends BaseTorrentActivity {
         switch (item.getItemId()) {
             case android.R.id.home:
                 NavUtils.navigateUpTo(this, new Intent(this, TorrentListActivity.class));
+                overridePendingTransition(android.R.anim.fade_in , R.anim.slide_out_right);
                 return true;
             case R.id.menu_refresh:
                 manager.update();
@@ -122,6 +128,12 @@ public class TorrentDetailActivity extends BaseTorrentActivity {
         if (manager != null) {
             manager.setTorrentsToUpdate(getCurrentTorrentHashStrings());
         }
+    }
+
+    @Override public void onBackPressed() {
+        super.onBackPressed();
+
+        overridePendingTransition(android.R.anim.fade_in , R.anim.slide_out_right);
     }
 
     @Override protected boolean handleSuccessServiceBroadcast(String type, Intent intent) {

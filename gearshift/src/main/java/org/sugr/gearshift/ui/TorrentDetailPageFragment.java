@@ -23,6 +23,7 @@ import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.LocalBroadcastManager;
 import android.text.Html;
+import android.text.Spanned;
 import android.text.TextUtils;
 import android.view.ActionMode;
 import android.view.KeyEvent;
@@ -32,7 +33,10 @@ import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewGroup.LayoutParams;
 import android.view.ViewTreeObserver;
+import android.view.animation.Animation;
+import android.view.animation.Transformation;
 import android.view.inputmethod.EditorInfo;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -54,6 +58,7 @@ import org.sugr.gearshift.datasource.TorrentDetails;
 import org.sugr.gearshift.service.DataService;
 import org.sugr.gearshift.service.DataServiceManager;
 import org.sugr.gearshift.service.DataServiceManagerInterface;
+import org.sugr.gearshift.ui.util.ExpandAnimation;
 
 import java.io.File;
 import java.net.URI;
@@ -108,6 +113,7 @@ public class TorrentDetailPageFragment extends Fragment {
         public LinearLayout trackersContainer;
 
         public TextView name;
+        public TextView statusText;
         public TextView have;
         public TextView downloaded;
         public TextView uploaded;
@@ -144,7 +150,7 @@ public class TorrentDetailPageFragment extends Fragment {
         @Override
         public void onClick(View v) {
             View image;
-            View content;
+            final View content;
             int index;
             switch(v.getId()) {
                 case R.id.torrent_detail_overview_expander:
@@ -171,19 +177,21 @@ public class TorrentDetailPageFragment extends Fragment {
                     return;
             }
 
-            if (content.getVisibility() == View.GONE) {
-                content.setVisibility(View.VISIBLE);
-                content.setAlpha(0);
-                content.animate().alpha(1);
-                image.setBackgroundResource(R.drawable.ic_section_collapse);
+            final boolean expand = content.getVisibility() == View.GONE;
+
+            image.animate().cancel();
+            if (expand) {
+                new ExpandAnimation(content).expand();
+                image.setRotation(0);
                 expandedStates[index] = true;
                 updateFields(getView());
             } else {
-                content.setVisibility(View.GONE);
-                image.setBackgroundResource(R.drawable.ic_section_expand);
+                new ExpandAnimation(content).collapse();
+                image.setRotation(180);
                 expandedStates[index] = false;
             }
 
+            image.animate().rotationBy(180);
         }
     };
 
@@ -525,6 +533,7 @@ public class TorrentDetailPageFragment extends Fragment {
         views.trackersContainer = (LinearLayout) root.findViewById(R.id.torrent_detail_trackers_list);
 
         views.name = (TextView) root.findViewById(R.id.torrent_detail_title);
+        views.statusText = (TextView) root.findViewById(R.id.torrent_detail_subtitle);
         views.have = (TextView) root.findViewById(R.id.torrent_have);
         views.downloaded = (TextView) root.findViewById(R.id.torrent_downloaded);
         views.uploaded = (TextView) root.findViewById(R.id.torrent_uploaded);
@@ -895,13 +904,19 @@ public class TorrentDetailPageFragment extends Fragment {
              || details.torrentCursor.getCount() == 0) return;
 
         String name = Torrent.getName(details.torrentCursor);
+        Spanned statusText = Html.fromHtml(Torrent.getStatusText(details.torrentCursor));
         int status = Torrent.getStatus(details.torrentCursor);
         float uploadRatio = Torrent.getUploadRatio(details.torrentCursor);
         float seedRatioLimit = Torrent.getUploadRatio(details.torrentCursor);
         int queuePosition = Torrent.getQueuePosition(details.torrentCursor);
 
-        if (!name.equals(views.name.getText()))
+        if (!name.equals(views.name.getText())) {
             views.name.setText(name);
+        }
+
+        if (!statusText.equals(views.statusText.getText())) {
+            views.statusText.setText(statusText);
+        }
 
         /* Overview start */
         Cursor cursor = details.torrentCursor;
@@ -1337,7 +1352,7 @@ public class TorrentDetailPageFragment extends Fragment {
         private List<View> views = new ArrayList<>();
 
         public FilesAdapter() {
-            super(getActivity(), fieldId);
+            super(getActivity(), R.layout.torrent_detail_files_row);
         }
 
         public List<View> getViews() {
@@ -1386,7 +1401,7 @@ public class TorrentDetailPageFragment extends Fragment {
                                     selectedFiles.add(view);
                                 }
                             }
-                            fileActionMode = getActivity().startActionMode(actionModeFiles);
+                            fileActionMode = getActivity().findViewById(R.id.toolbar).startActionMode(actionModeFiles);
                             invalidateFileActionMenu(fileActionMode.getMenu());
                             return true;
                         }
@@ -1484,7 +1499,7 @@ public class TorrentDetailPageFragment extends Fragment {
                             }
                             container.setActivated(true);
                             selectedFiles.add(container);
-                            fileActionMode = getActivity().startActionMode(actionModeFiles);
+                            fileActionMode = getActivity().findViewById(R.id.toolbar).startActionMode(actionModeFiles);
                             invalidateFileActionMenu(fileActionMode.getMenu());
                             return true;
                         }
@@ -1646,7 +1661,6 @@ public class TorrentDetailPageFragment extends Fragment {
     }
 
     private class TrackersAdapter extends ArrayAdapter<Tracker> {
-        private static final int fieldId = R.id.torrent_detail_trackers_row;
         private List<View> views = new ArrayList<>();
         private ViewGroup visibleButtons;
         private List<ViewGroup> buttonsToHide = new ArrayList<>();
@@ -1654,7 +1668,7 @@ public class TorrentDetailPageFragment extends Fragment {
         private boolean animatorStopped = false;
 
         public TrackersAdapter() {
-            super(getActivity(), fieldId);
+            super(getActivity(), R.layout.torrent_detail_trackers_row);
         }
 
         public List<View> getViews() {
@@ -1767,7 +1781,7 @@ public class TorrentDetailPageFragment extends Fragment {
                         }
                         v.setActivated(true);
                         selectedTrackers.add(v);
-                        trackerActionMode = getActivity().startActionMode(actionModeTrackers);
+                        trackerActionMode = getActivity().findViewById(R.id.toolbar).startActionMode(actionModeTrackers);
                         stopAnimator();
                         animateTrackerLayout(null, visibleButtons);
 

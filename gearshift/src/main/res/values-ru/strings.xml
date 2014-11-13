@@ -42,10 +42,7 @@
     <string name="debug">Отладка</string>
     <string name="debug_summary">Отображать отладочную информацию в logcat</string>
     <string name="delete">Delete</string>
-    <string name="delete_current_confirmation">"Вы действительно хотите удалить данные '%s'?"</string>
     <string name="delete_local_checkbox">Удалить .torrent после добавления</string>
-    <string name="delete_selected_confirmation">Вы действительно хотите удалить торрент и все данные, связанные с ним?</string>
-    <string name="developer_options">Опции разработчика</string>
     <string name="directory">Каталоги</string>
     <string name="directory_filters">Фильтр каталогов</string>
     <string name="done">Готово</string>
@@ -56,7 +53,6 @@
     <string name="filter">Что будем искать?</string>
     <string name="filter_visibility">Отображение фильтров</string>
     <string name="find">Поиск</string>
-    <string name="free_space_format">&lt;b>Места на диске&lt;/b>: %1$s</string>
     <string name="full_update">Полное обновление</string>
     <string name="full_update_summary_format">После каждых %1$d обновлений активных торрентов</string>
     <string name="generic_http_empty_list">&lt;h2>&lt;font color=#cc0000>Ошибка HTTP!&lt;/font>&lt;/h2>HTTP Status: \'%1$s %2$s\'.</string>
@@ -125,7 +121,6 @@
     <string name="refresh">Обновить</string>
     <string name="remove">Удалить торрент</string>
     <string name="remove_current_confirmation">"Вы уверены, что хотите удалить '%s'?"</string>
-    <string name="remove_data">Удалить торрент и файлы</string>
     <string name="remove_selected_confirmation">Вы действительно хотите удалить выделенные торренты?</string>
     <string name="remove_selected_directories_confirmation">Вы уверены, что хотите удалить выделенные папки?</string>
     <string name="replace">Изменить</string>
@@ -190,9 +185,7 @@
     <string name="show_tracker_filters">Показывать этот фильтр</string>
     <string name="sort_visibility">Использовать следующие методы сортировки в настройке фильтров</string>
     <string name="sorting_option">Настройка сортировки</string>
-    <string name="speed_format">&lt;b>Загрузка&lt;/b>: %1$s/s%2$s&lt;br/>&lt;b>Отдача&lt;/b>: %3$s/s%4$s</string>
     <string name="start_paused_checkbox">Не запускать торрент</string>
-    <string name="status">Состояние</string>
     <string name="status_bar_format">↓ %1$s%2$s, ↑ %3$s%4$s, ⊙ %5$s</string>
     <string name="status_bar_limit_format">(&lt;i>%1$s&lt;/i>)</string>
     <string name="status_check_waiting">Ожидает проверки</string>

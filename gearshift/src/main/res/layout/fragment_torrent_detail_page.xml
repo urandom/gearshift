@@ -13,8 +13,13 @@
 
         <TextView
             android:id="@+id/torrent_detail_title"
-            android:fontFamily="sans-serif-condensed"
+            tools:text="Torrent Name"
             style="@style/TorrentTitle" />
+
+        <TextView
+            android:id="@+id/torrent_detail_subtitle"
+            tools:text="Torrent status"
+            style="@style/TorrentSubtitle" />
 
         <include layout="@layout/torrent_detail_overview" />
 

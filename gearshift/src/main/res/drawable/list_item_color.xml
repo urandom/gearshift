@@ -27,5 +27,5 @@
         android:color="#484848" />
 
     <item
-        android:color="@android:color/primary_text_light" />
+        android:color="@color/primary_dark" />
 </selector>

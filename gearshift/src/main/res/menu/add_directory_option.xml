@@ -1,13 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
-<menu xmlns:android="http://schemas.android.com/apk/res/android" >
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+      xmlns:app="http://schemas.android.com/apk/res-auto">
     <item android:id="@+id/menu_add_directory"
         android:visible="true"
-        android:showAsAction="always"
+        android:icon="@drawable/ic_my_library_add_white_36dp"
+        app:showAsAction="always"
         android:title="@string/add_directory_option" />
 
 
     <item android:id="@+id/import_directories"
           android:visible="false"
-          android:showAsAction="never"
+          app:showAsAction="never"
           android:title="@string/import_session_directories" />
 </menu>

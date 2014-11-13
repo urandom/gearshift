@@ -12,7 +12,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:stretchColumns="0"
-        android:background="@drawable/list_activated_holo_light"
+        android:background="@drawable/list_activated_light"
         android:paddingLeft="8dp"
         android:paddingRight="8dp"
         android:shrinkColumns="0">

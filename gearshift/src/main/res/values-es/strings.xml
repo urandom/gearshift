@@ -7,7 +7,6 @@
     <string name="done">Hecho</string>
     <string name="delete">Eliminar</string>
     <string name="remove">Borrar</string>
-    <string name="remove_data">Eliminar y borrar los datos</string>
     <string name="resume">Reanudar</string>
     <string name="pause">Pausar</string>
     <string name="stop">Stop</string>
@@ -18,10 +17,6 @@
     <string name="copy">Copiar</string>
     
     <string name="number_dialog_delete">Eliminar un número</string>
-    
-    <string name="status">Estado</string>
-    <string name="speed_format">&lt;b&gt;Bajada&lt;/b&gt;: %1$s/s%2$s&lt;br/&gt;&lt;b&gt;Subida&lt;/b&gt;: %3$s/s%4$s</string>
-    <string name="free_space_format">&lt;b&gt;Espacio Libre&lt;/b&gt;: %1$s</string>
     
     <string name="refresh">Refresh</string>
     <string name="alt_speed_label_on">Velocidad alternativa ON</string>
@@ -152,10 +147,8 @@
     <string name="time_second">segundo</string>
 
     <string name="remove_selected_confirmation">¿Seguro que desea eliminar los torrents seleccionados??</string>
-    <string name="delete_selected_confirmation">¿Seguro que desea eliminar los datos de los torrents seleccionados?</string>
 
     <string name="remove_current_confirmation">¿Seguro que desea eliminar \'%s\'?</string>
-    <string name="delete_current_confirmation">¿Seguro que desea elminar los datos de \'%s\'?</string>
 
     <string name="torrent_have_format">%1$s of %2$s (%3$s%%)</string>
     <string name="torrent_size_format">%1$s (%2$s trozos @ %3$s)</string>

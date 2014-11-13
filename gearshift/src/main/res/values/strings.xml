@@ -7,7 +7,6 @@
     <string name="done">Done</string>
     <string name="delete">Delete</string>
     <string name="remove">Remove</string>
-    <string name="remove_data">Remove and delete the data</string>
     <string name="resume">Resume</string>
     <string name="pause">Pause</string>
     <string name="stop">Stop</string>
@@ -18,10 +17,6 @@
     <string name="copy">Copy</string>
     
     <string name="number_dialog_delete">Delete a digit</string>
-    
-    <string name="status">Status</string>
-    <string name="speed_format">&lt;b&gt;Down&lt;/b&gt;: %1$s/s%2$s&lt;br/&gt;&lt;b&gt;Up&lt;/b&gt;: %3$s/s%4$s</string>
-    <string name="free_space_format">&lt;b&gt;Free Space&lt;/b&gt;: %1$s</string>
     
     <string name="refresh">Refresh</string>
     <string name="alt_speed_label_on">Alternate speed limit on</string>
@@ -67,13 +62,15 @@
     
     <string name="torrent_peers">Peers</string>
     <string name="torrent_peer_limit">Peer limit:</string>
-    
+
     <string name="add_profile_option">Add profile</string>
     <string name="header_label_general_preferences">General</string>
     <string name="header_label_filters">Filters</string>
     <string name="header_label_sort">Sorting options</string>
     <string name="header_label_profiles">Profiles</string>
-    
+    <string name="new_profile">New profile</string>
+    <string name="profile_directories">Profile directories</string>
+
     <string name="add_directory_option">Add directory</string>
     <string name="no_download_dirs">&lt;h2&gt;You have no extra download directories.&lt;/h2&gt;Adding some here will allow you to change the location of any torrent in this profile.</string>
     
@@ -160,10 +157,8 @@
     <string name="time_second">second</string>
 
     <string name="remove_selected_confirmation">Are you sure you want to remove the selected torrents?</string>
-    <string name="delete_selected_confirmation">Are you sure you want to remove and delete the data of the selected torrents?</string>
-
     <string name="remove_current_confirmation">Are you sure you want to remove \'%s\'?</string>
-    <string name="delete_current_confirmation">Are you sure you want to remove and delete the data of \'%s\'?</string>
+    <string name="remove_with_data">Delete the data</string>
 
     <string name="torrent_have_format">%1$s of %2$s (%3$s%%)</string>
     <string name="torrent_size_format">%1$s (%2$s pieces @ %3$s)</string>

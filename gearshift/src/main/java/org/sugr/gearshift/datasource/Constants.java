@@ -65,6 +65,7 @@ public final class Constants {
     public static final String C_WEBSEEDS_SENDING_TO_US = "webseeds_sending_to_us";
     public static final String C_PEER_LIMIT = "peer_limit";
 
+    public static final String C_MIME_TYPE = "mime_type";
     public static final String C_TRAFFIC_TEXT = "traffic_text";
     public static final String C_STATUS_TEXT = "status_text";
 
@@ -170,6 +171,7 @@ public final class Constants {
         + C_HONORS_SESSION_LIMITS + " INTEGER, "
         + C_WEBSEEDS_SENDING_TO_US + " INTEGER, "
         + C_PEER_LIMIT + " INTEGER, "
+        + C_MIME_TYPE + " TEXT NOT NULL DEFAULT '', "
         + C_TRAFFIC_TEXT + " TEXT NOT NULL DEFAULT '', "
         + C_STATUS_TEXT + " TEXT NOT NULL DEFAULT '' "
 
@@ -250,8 +252,8 @@ public final class Constants {
     public static class ColumnGroups {
         public static final String[] TORRENT_OVERVIEW = {
             C_NAME, C_STATUS, C_METADATA_PERCENT_COMPLETE, C_PERCENT_DONE,
-            C_UPLOAD_RATIO, C_SEED_RATIO_LIMIT, C_SEED_RATIO_MODE, C_TRAFFIC_TEXT, C_STATUS_TEXT,
-            C_ERROR, C_ERROR_STRING
+            C_UPLOAD_RATIO, C_SEED_RATIO_LIMIT, C_SEED_RATIO_MODE, C_MIME_TYPE,
+            C_TRAFFIC_TEXT, C_STATUS_TEXT, C_ERROR, C_ERROR_STRING
         };
 
         public static final String[] TORRENT_DETAILS = {

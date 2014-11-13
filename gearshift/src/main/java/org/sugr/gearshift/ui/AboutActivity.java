@@ -3,6 +3,7 @@ package org.sugr.gearshift.ui;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
+import android.support.v7.app.ActionBarActivity;
 import android.text.Html;
 import android.text.method.LinkMovementMethod;
 import android.widget.TextView;
@@ -11,7 +12,7 @@ import org.sugr.gearshift.G;
 import org.sugr.gearshift.GearShiftApplication;
 import org.sugr.gearshift.R;
 
-public class AboutActivity extends FragmentActivity {
+public class AboutActivity extends ActionBarActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
