@@ -48,6 +48,7 @@ import org.sugr.gearshift.service.DataService;
 import org.sugr.gearshift.service.DataServiceManager;
 import org.sugr.gearshift.ui.settings.SettingsActivity;
 import org.sugr.gearshift.util.Base64;
+import org.sugr.gearshift.util.CheatSheet;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -245,6 +246,7 @@ public class TorrentListActivity extends BaseTorrentActivity
         SwitchCompat altSpeed = (SwitchCompat) findViewById(R.id.menu_alt_speed);
 
         if (altSpeed != null) {
+            CheatSheet.setup(altSpeed, this);
             altSpeed.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {

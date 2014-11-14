@@ -5,3 +5,5 @@
 .classpath
 bin/
 gen/
+.idea/
+gearshift/gearshift.iml
