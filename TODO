@@ -1,0 +1,2 @@
+Update notifications via github's json api, if possible (or parse https://github.com/urandom/gearshift/releases.atom)
+Catch uncaught exceptions and offer to send them via email
