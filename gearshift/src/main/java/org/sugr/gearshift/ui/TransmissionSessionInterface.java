@@ -1,6 +1,5 @@
 package org.sugr.gearshift.ui;
 
-import org.sugr.gearshift.core.TransmissionProfile;
 import org.sugr.gearshift.core.TransmissionSession;
 
 public interface TransmissionSessionInterface {

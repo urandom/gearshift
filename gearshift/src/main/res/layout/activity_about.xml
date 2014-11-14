@@ -66,6 +66,15 @@
             android:paddingLeft="8dp"
         	android:paddingRight="8dp"
             android:textSize="12sp" />
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            android:text="@string/about_updates"
+            android:id="@+id/about_check_for_updates"
+            android:layout_gravity="center_horizontal"/>
+
     </LinearLayout>
     
 

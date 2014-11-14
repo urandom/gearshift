@@ -273,6 +273,8 @@
     <string name="debug">Debug</string>
         
     <string name="debug_summary">Display debug information in the logcat</string>
+
+    <string name="auto_update_check">Check for updates at startup</string>
         
     <string name="open_drawer">open drawer</string>
         
@@ -439,6 +441,13 @@
     <string name="error_removing_profile">Error while removing profile!</string>
     <string name="session_settings_enable_idle_seeding_limit">Enable idle seeding limit</string>
     <string name="session_settings_idle_seeding_limit">Stop after being idle for (minutes)</string>
+    <string name="update_download">Download</string>
+    <string name="update_view">View</string>
+    <string name="update_available"><![CDATA[<h2><font color="#666666">A new version of Gear Shift is available</font><h2><small>The new version is \'%1$s\'</small>]]></string>
+    <string name="update_current">You are using the latest version of Gear Shift</string>
+    <string name="update_error"><![CDATA[<font color="#E73939">An error occured while checking for updates</font>]]></string>
+    <string name="about_updates">Check for updates</string>
+    <string name="update_checking">Checking …</string>
 
     <string-array name="torrent_priority">
         <item>Low</item>

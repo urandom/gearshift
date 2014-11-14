@@ -16,6 +16,7 @@ public final class G {
     public static final String PREF_FULL_UPDATE = "full_update";
     public static final String PREF_UPDATE_INTERVAL = "update_interval";
     public static final String PREF_SHOW_STATUS = "show_status";
+    public static final String PREF_AUTO_UPDATE_CHECK = "auto_update_check";
 
     public static final String PREF_PROFILES = "profiles";
     public static final String PREF_CURRENT_PROFILE = "default_profile";

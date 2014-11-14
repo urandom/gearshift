@@ -7,8 +7,6 @@ import android.view.ViewTreeObserver;
 import android.view.animation.Animation;
 import android.view.animation.Transformation;
 
-import org.sugr.gearshift.G;
-
 public class ExpandAnimation {
     private View target;
 

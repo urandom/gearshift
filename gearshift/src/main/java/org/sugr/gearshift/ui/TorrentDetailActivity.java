@@ -10,7 +10,6 @@ import android.support.v4.app.NavUtils;
 import android.support.v7.widget.Toolbar;
 import android.text.Html;
 import android.text.Spanned;
-import android.transition.Explode;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;

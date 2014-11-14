@@ -57,6 +57,7 @@ import org.sugr.gearshift.G;
 import org.sugr.gearshift.G.FilterBy;
 import org.sugr.gearshift.G.SortBy;
 import org.sugr.gearshift.G.SortOrder;
+import org.sugr.gearshift.GearShiftApplication;
 import org.sugr.gearshift.R;
 import org.sugr.gearshift.core.Torrent;
 import org.sugr.gearshift.core.TransmissionProfile;
@@ -66,6 +67,7 @@ import org.sugr.gearshift.service.DataService;
 import org.sugr.gearshift.service.DataServiceManager;
 import org.sugr.gearshift.service.DataServiceManagerInterface;
 import org.sugr.gearshift.ui.loader.TorrentTrafficLoader;
+import org.sugr.gearshift.ui.util.UpdateCheckDialog;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -421,6 +423,21 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
         if (savedInstanceState == null) {
             sharedPrefs.registerOnSharedPreferenceChangeListener(settingsChangeListener);
         }
+
+        if (!GearShiftApplication.isStartupInitialized() && sharedPrefs.getBoolean(G.PREF_AUTO_UPDATE_CHECK, true)) {
+            ((GearShiftApplication) getActivity().getApplication()).checkForUpdates(new GearShiftApplication.OnUpdateCheck() {
+                @Override public void onNewRelease(String title, String url, String downloadUrl) {
+                    new UpdateCheckDialog(getActivity(),
+                        G.trimTrailingWhitespace(Html.fromHtml(String.format(getString(R.string.update_available), title))),
+                        url, downloadUrl).show();
+                }
+
+                @Override public void onCurrentRelease(String title, String url, String downloadUrl) {  }
+                @Override public void onUpdateCheckError(Exception e) {  }
+            });
+        }
+
+        GearShiftApplication.setStartupInitialized(true);
     }
 
     @Override

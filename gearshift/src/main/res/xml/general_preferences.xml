@@ -21,6 +21,12 @@
 	        android:entries="@array/pref_update_interval_entries"
 	        android:entryValues="@array/pref_update_interval_values"
 	        android:defaultValue="1" />
+
+         <CheckBoxPreference
+             android:key="auto_update_check"
+             android:title="@string/auto_update_check"
+             android:defaultValue="true" />
+
     </PreferenceCategory>
 
     <PreferenceCategory
@@ -41,6 +47,7 @@
             android:title="@string/debug"
             android:summary="@string/debug_summary"
             android:defaultValue="false" />
+
     </PreferenceCategory>
 
 </PreferenceScreen>
