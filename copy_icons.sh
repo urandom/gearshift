@@ -18,7 +18,7 @@ copy_icons() {
 
 sizes="mdpi hdpi xhdpi xxhdpi xxxhdpi"
 color="white"
-dims="36dp"
+dims="24dp"
 
 icons="
 action/ic_done
@@ -29,6 +29,8 @@ content/ic_add
 content/ic_forward
 content/ic_remove
 content/ic_select_all
+navigation/ic_arrow_back
+navigation/ic_close
 navigation/ic_refresh
 toggle/ic_star
 toggle/ic_star_half
@@ -38,16 +40,8 @@ toggle/ic_star_outline
 copy_icons "$sizes" "$icons" $color $dims
 
 icons="
-action/ic_done
-navigation/ic_arrow_back
-navigation/ic_close
-"
-
-copy_icons "$sizes" "$icons" $color "24dp"
-
-icons="
 file/ic_folder_open
 navigation/ic_expand_more
 "
 
-copy_icons "$sizes" "$icons" 'grey600' $dims
+copy_icons "$sizes" "$icons" 'grey600' "36dp"

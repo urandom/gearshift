@@ -3,12 +3,12 @@
       xmlns:app="http://schemas.android.com/apk/res-auto">
     <item android:id="@+id/select_all"
 	    android:title="@string/ic_menu_select_all"
-	    android:icon="@drawable/ic_select_all_white_36dp"
+	    android:icon="@drawable/ic_select_all_white_24dp"
 	    app:showAsAction="ifRoom" />
     
     <item android:id="@+id/remove"
 	    android:title="@string/remove"
-	    android:icon="@drawable/ic_remove_white_36dp"
+	    android:icon="@drawable/ic_remove_white_24dp"
 	    app:showAsAction="always" />
 
 </menu>
