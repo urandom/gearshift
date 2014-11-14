@@ -53,9 +53,9 @@ public class AboutActivity extends ActionBarActivity {
                         button.setText(R.string.about_updates);
                     }
 
-                    @Override public void onCurrentRelease(String title, String url, String downloadUrl) {
+                    @Override public void onCurrentRelease() {
                         new UpdateCheckDialog(AboutActivity.this,
-                            G.trimTrailingWhitespace(Html.fromHtml(String.format(getString(R.string.update_current), title)))
+                            G.trimTrailingWhitespace(Html.fromHtml(getString(R.string.update_current)))
                         ).show();
 
                         button.setText(R.string.about_updates);

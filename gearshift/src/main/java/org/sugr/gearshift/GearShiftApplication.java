@@ -37,7 +37,7 @@ public class GearShiftApplication extends Application {
 
     public interface OnUpdateCheck {
         public void onNewRelease(String title, String url, String downloadUrl);
-        public void onCurrentRelease(String title, String url, String downloadUrl);
+        public void onCurrentRelease();
         public void onUpdateCheckError(Exception e);
     }
 
@@ -78,16 +78,15 @@ public class GearShiftApplication extends Application {
                     if (!entries.isEmpty()) {
                         FeedParser.Entry entry = entries.get(0);
                         String url = "https://github.com" + entry.link;
-                        String title = entry.title;
                         String tag = entry.link.substring(entry.link.lastIndexOf('/') + 1);
                         String downloadUrl = "https://github.com/urandom/gearshift/releases/download/" + tag + "/" + RELEASE_APK;
 
-                        if (versionCompare(version, tag) > 0) {
+                        if (versionCompare(version, tag) < 0) {
                             G.logD("New update available at " + url);
 
-                            onUpdateCheck.onNewRelease(title, url, downloadUrl);
+                            onUpdateCheck.onNewRelease(entry.title, url, downloadUrl);
                         } else {
-                            onUpdateCheck.onCurrentRelease(title, url, downloadUrl);
+                            onUpdateCheck.onCurrentRelease();
                         }
                     }
                 } catch (Exception e) {

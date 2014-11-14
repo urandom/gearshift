@@ -432,7 +432,7 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
                         url, downloadUrl).show();
                 }
 
-                @Override public void onCurrentRelease(String title, String url, String downloadUrl) {  }
+                @Override public void onCurrentRelease() {  }
                 @Override public void onUpdateCheckError(Exception e) {  }
             });
         }
