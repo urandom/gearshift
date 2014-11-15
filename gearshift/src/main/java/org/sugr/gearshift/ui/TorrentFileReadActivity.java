@@ -20,8 +20,7 @@ import java.io.IOException;
 import java.io.InputStream;
 
 public class TorrentFileReadActivity extends ActionBarActivity {
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    @Override protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         Intent intent = getIntent();

@@ -448,6 +448,8 @@
     <string name="update_error"><![CDATA[<font color="#E73939">An error occured while checking for updates</font>]]></string>
     <string name="about_updates">Check for updates</string>
     <string name="update_checking">Checking …</string>
+    <string name="crash_title">Unfortunately, Gear Shift has stopped. Would you like to email a crash report?</string>
+    <string name="crash_send">Send</string>
 
     <string-array name="torrent_priority">
         <item>Low</item>

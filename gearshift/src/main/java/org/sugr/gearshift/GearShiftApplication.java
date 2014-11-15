@@ -2,6 +2,7 @@ package org.sugr.gearshift;
 
 import android.app.Application;
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.AsyncTask;
 
@@ -45,7 +46,13 @@ public class GearShiftApplication extends Application {
         super.onCreate();
 
         requestQueue = Volley.newRequestQueue(this);
-  }
+
+        Thread.setDefaultUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
+            @Override public void uncaughtException(Thread thread, Throwable ex) {
+                handleUncaughtException(thread, ex);
+            }
+        });
+    }
 
     public static boolean isActivityVisible() {
         return activityVisible;
@@ -124,5 +131,16 @@ public class GearShiftApplication extends Application {
             // e.g. "1.2.3" = "1.2.3" or "1.2.3" < "1.2.3.4"
             return Integer.signum(vals1.length - vals2.length);
         }
+    }
+
+    private void handleUncaughtException(Thread thread, Throwable e) {
+        e.printStackTrace();
+
+        Intent intent = new Intent();
+        intent.setAction("org.sugr.gearshift.CRASH_REPORT");
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        startActivity(intent);
+
+        System.exit(1);
     }
 }
