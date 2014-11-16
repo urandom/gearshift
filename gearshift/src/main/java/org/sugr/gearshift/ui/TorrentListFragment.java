@@ -562,6 +562,10 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
 
     @Override
     public void onCreateOptionsMenu(final Menu menu, MenuInflater inflater) {
+        if (getActivity() == null) {
+            return;
+        }
+
         super.onCreateOptionsMenu(menu, inflater);
 
         this.menu = menu;

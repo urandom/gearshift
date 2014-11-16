@@ -295,11 +295,14 @@ public class SettingsActivity extends ActionBarActivity {
                     if (f instanceof TransmissionProfileDirectoriesSettingsFragment) {
                         String id = f.getArguments().getString(G.ARG_PROFILE_ID);
 
-                        addFragment(id, Type.PROFILE, null, false);
+                        if (id != null) {
+                            addFragment(id, Type.PROFILE, null, false);
 
-                        return true;
+                            return true;
+                        }
+                    } else {
+                        return false;
                     }
-                    return false;
                 }
 
                 if (isPreferencesOpen()) {
