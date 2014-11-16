@@ -8,7 +8,9 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.support.v7.app.ActionBarActivity;
+import android.text.Html;
 import android.view.View;
+import android.widget.TextView;
 
 import org.sugr.gearshift.R;
 
@@ -23,9 +25,14 @@ public class CrashReport extends ActionBarActivity {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.activity_crash_report);
+
+        ((TextView) findViewById(R.id.crash_title)).setText(
+            Html.fromHtml(getString(R.string.crash_title))
+        );
+
         findViewById(R.id.cancel).setOnClickListener(new View.OnClickListener() {
             @Override public void onClick(View v) {
-                finish();
+                System.exit(1);
             }
         });
 
@@ -33,7 +40,7 @@ public class CrashReport extends ActionBarActivity {
             @Override
             public void onClick(View v) {
                 sendLogFile();
-                finish();
+                System.exit(1);
             }
         });
     }

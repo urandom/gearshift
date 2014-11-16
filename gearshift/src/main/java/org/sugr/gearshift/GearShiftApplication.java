@@ -76,7 +76,7 @@ public class GearShiftApplication extends Application {
                         String description = latest.getString("body");
                         String downloadUrl = latest.getJSONArray("assets").getJSONObject(0).getString("browser_download_url");
 
-                        if (versionCompare(version, tag) < 0 || true) {
+                        if (versionCompare(version, tag) < 0) {
                             G.logD("New update available at " + url);
 
                             onUpdateCheck.onNewRelease(name, description, url, downloadUrl);

@@ -1,18 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="320dp"
     android:layout_height="wrap_content"
-    android:padding="16dp"
+    android:padding="24dp"
     android:gravity="center"
-    android:orientation="vertical" >
+    android:orientation="vertical">
 
     <TextView
         android:id="@+id/crash_title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        style="@style/CardHeaderExpanderText"
-        android:text="@string/crash_title" />
+        android:paddingBottom="16dp"
+        android:textAppearance="@style/TextAppearance.AppCompat.Title"
+        tools:text="@string/crash_title" />
 
     <Button
         android:id="@+id/send"
@@ -24,7 +26,7 @@
         android:layout_alignParentEnd="true"
         android:background="?android:attr/selectableItemBackground"
         android:fontFamily="sans-serif-condensed"
-        android:textColor="@color/material_blue_grey_800"
+        android:textColor="@color/control_activated"
         android:text="@string/crash_send"/>
 
     <Button
@@ -36,7 +38,7 @@
         android:layout_toLeftOf="@id/send"
         android:background="?android:attr/selectableItemBackground"
         android:fontFamily="sans-serif-condensed"
-        android:textColor="@color/material_blue_grey_800"
+        android:textColor="@color/control_activated"
         android:text="@android:string/cancel"/>
 
 
