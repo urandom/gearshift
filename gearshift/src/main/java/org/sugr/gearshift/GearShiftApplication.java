@@ -1,43 +1,30 @@
 package org.sugr.gearshift;
 
 import android.app.Application;
-import android.content.Context;
 import android.content.Intent;
-import android.content.pm.PackageManager;
-import android.os.AsyncTask;
 
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonArrayRequest;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 
-import org.sugr.gearshift.util.FeedParser;
-import org.w3c.dom.Document;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 import java.io.ByteArrayInputStream;
-import java.nio.charset.StandardCharsets;
 import java.util.List;
-
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.xpath.XPath;
-import javax.xml.xpath.XPathConstants;
-import javax.xml.xpath.XPathFactory;
 
 public class GearShiftApplication extends Application {
     private static boolean activityVisible;
     private static boolean startupInitialized;
-    private static final String UPDATE_URL = "https://github.com/urandom/gearshift/releases.atom";
-    private static final String RELEASE_APK = "gearshift-release.apk";
+    private static final String UPDATE_URL = "https://api.github.com/repos/urandom/gearshift/releases";
 
     private RequestQueue requestQueue;
 
     public interface OnUpdateCheck {
-        public void onNewRelease(String title, String url, String downloadUrl);
+        public void onNewRelease(String title, String description, String url, String downloadUrl);
         public void onCurrentRelease();
         public void onUpdateCheckError(Exception e);
     }
@@ -75,23 +62,24 @@ public class GearShiftApplication extends Application {
     }
 
     public void checkForUpdates(final OnUpdateCheck onUpdateCheck) {
-        StringRequest request = new StringRequest(UPDATE_URL, new Response.Listener<String>() {
-            @Override public void onResponse(String response) {
+        JsonArrayRequest request = new JsonArrayRequest(UPDATE_URL, new Response.Listener<JSONArray>() {
+            @Override public void onResponse(JSONArray response) {
                 try {
                     String version = getPackageManager().getPackageInfo(getPackageName(), 0).versionName;
 
-                    List<FeedParser.Entry> entries = new FeedParser().parse(new ByteArrayInputStream(response.getBytes()));
+                    if (response.length() > 0) {
+                        JSONObject latest = response.getJSONObject(0);
 
-                    if (!entries.isEmpty()) {
-                        FeedParser.Entry entry = entries.get(0);
-                        String url = "https://github.com" + entry.link;
-                        String tag = entry.link.substring(entry.link.lastIndexOf('/') + 1);
-                        String downloadUrl = "https://github.com/urandom/gearshift/releases/download/" + tag + "/" + RELEASE_APK;
+                        String url = latest.getString("html_url");
+                        String tag = latest.getString("tag_name");
+                        String name = latest.getString("name");
+                        String description = latest.getString("body");
+                        String downloadUrl = latest.getJSONArray("assets").getJSONObject(0).getString("browser_download_url");
 
-                        if (versionCompare(version, tag) < 0) {
+                        if (versionCompare(version, tag) < 0 || true) {
                             G.logD("New update available at " + url);
 
-                            onUpdateCheck.onNewRelease(entry.title, url, downloadUrl);
+                            onUpdateCheck.onNewRelease(name, description, url, downloadUrl);
                         } else {
                             onUpdateCheck.onCurrentRelease();
                         }

@@ -45,7 +45,7 @@ public class AboutActivity extends ActionBarActivity {
                 button.setText(R.string.update_checking);
 
                 ((GearShiftApplication) getApplication()).checkForUpdates(new GearShiftApplication.OnUpdateCheck() {
-                    @Override public void onNewRelease(String title, String url, String downloadUrl) {
+                    @Override public void onNewRelease(String title, String description, String url, String downloadUrl) {
                         new UpdateCheckDialog(AboutActivity.this,
                             G.trimTrailingWhitespace(Html.fromHtml(String.format(getString(R.string.update_available), title))),
                             url, downloadUrl).show();

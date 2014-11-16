@@ -64,6 +64,7 @@ public class CrashReport extends ActionBarActivity {
             stringBuffer.append("Android version: " + Build.VERSION.SDK_INT + "\n");
             stringBuffer.append("Device: " + model + "\n");
             stringBuffer.append("App version: " + (info == null ? "(null)" : info.versionCode) + "\n");
+            stringBuffer.append("App version name: " + (info == null ? "(null)" : info.versionName) + "\n");
 
             char[] buffer = new char[10000];
             do {

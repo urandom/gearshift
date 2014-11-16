@@ -426,7 +426,7 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
 
         if (!GearShiftApplication.isStartupInitialized() && sharedPrefs.getBoolean(G.PREF_AUTO_UPDATE_CHECK, true)) {
             ((GearShiftApplication) getActivity().getApplication()).checkForUpdates(new GearShiftApplication.OnUpdateCheck() {
-                @Override public void onNewRelease(String title, String url, String downloadUrl) {
+                @Override public void onNewRelease(String title, String description, String url, String downloadUrl) {
                     new UpdateCheckDialog(getActivity(),
                         G.trimTrailingWhitespace(Html.fromHtml(String.format(getString(R.string.update_available), title))),
                         url, downloadUrl).show();
