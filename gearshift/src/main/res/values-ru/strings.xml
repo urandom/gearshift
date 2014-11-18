@@ -73,7 +73,7 @@
     <string name="header_label_filters">Фильтры</string>
     <string name="header_label_sort">Методы сортировки</string>
     <string name="header_label_profiles">Профили</string>
-	<string name="new_profile">Новый профиль</string>
+    <string name="new_profile">Новый профиль</string>
     <string name="profile_directories">Папки для загрузки</string>
     
     <string name="add_directory_option">Добавить папку</string>
@@ -233,7 +233,7 @@
     <string name="menu_filters_incomplete">Незавершенные</string>
     <string name="menu_filters_active">Активные</string>
     <string name="menu_filters_checking">Проверяется</string>
-	<string name="menu_filters_errors">С ошибками</string>
+    <string name="menu_filters_errors">С ошибками</string>
     <string name="menu_filters_untracked">Без трекеров</string>
 
     <string name="menu_sort_header">Методы сортировки</string>
@@ -447,9 +447,9 @@
     <string name="hint_download_directory">Папка для загрузки</string>
     <string name="spinner_custom_directory">Альтернативная папка &#8230;</string>
     <string name="error_removing_profile">При удалении профиля произошла ошибка!</string>
-	<string name="session_settings_enable_idle_seeding_limit">Прекратить раздачу если не активен</string>
+    <string name="session_settings_enable_idle_seeding_limit">Прекратить раздачу если не активен</string>
     <string name="session_settings_idle_seeding_limit">Минут</string>
-	<string name="update_download">Загрузка</string>
+    <string name="update_download">Загрузка</string>
     <string name="update_view">Просмотр</string>
     <string name="update_available"><![CDATA[<h2><font color="#666666">Доступна новая версия Gear Shift</font><h2><small>The new version is \'%1$s\'</small>]]></string>
     <string name="update_current">У вас уже установлена самая последняя версия Gear Shift</string>
