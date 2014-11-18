@@ -1,305 +1,505 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="about_description">Gear Shift is a Transmission remote client, created to provide a great experience when dealing with all aspects of torrent management.</string>
-    <string name="about_contact">If you find any bugs, please write a post in the <![CDATA[<a href="%1$s">Gear Shift G+ community</a>]]>, filed under bugs. Doing so will also show other people whether the bug has been reported already. Be sure to turn on the \'Debug\' options under \'General Settings\', and include the logcat related to the app.</string>
-    <string name="about_donation">This app is provided for free, without any annoying ads. If you find it useful, consider <![CDATA[<a href="%1$s">sending a beer or two this way</a>]]>.</string>
-    <string name="about_item">О программе</string>
-    <string name="about_name">Gear Shift</string>
-    <string name="access_denied_empty_list">&lt;h2>&lt;font color=#cc0000>Доступ запрещен!&lt;/font>&lt;/h2>Неверные данные учетной записи, или ваш IP-адрес не занесен в белый список.</string>
-    <string name="add_directory_option">Добавить папку</string>
-    <string name="add_new_magnet">Новая magnet-ссылка</string>
-    <string name="add_profile_option">Добавить профиль</string>
-    <string name="add_torrent">Новый торрент</string>
-    <string name="alt_speed">Альтернативные скорости</string>
-    <string name="alt_speed_label_off">Выключить альтерн. скорости</string>
-    <string name="alt_speed_label_on">Включить альтерн. скорости</string>
-    <string name="app_icon">App icon</string>
+
     <string name="app_name">Gear Shift</string>
-    <string name="base_sort">Вторичный метод сортировки</string>
-    <string name="base_sort_method">Основные методы сортировки</string>
-    <string name="base_sort_order">Очередь</string>
-    <string name="blocklist_update_error">&lt;font color=#CC0000>Ошибка&lt;/font></string>
-    <string name="blocklist_updating">Обновление</string>
-    <string name="close_drawer">close drawer</string>
-    <string name="con_directories">Папки для загрузки</string>
+    <string name="title_torrent_detail">Торрент-инфо</string>
+    
+    <string name="done">Готово</string>
+    <string name="delete">Удалить</string>
+    <string name="remove">Удалить торрент</string>
+    <string name="remove_data">Удалить торрент и файлы</string>
+    <string name="resume">Возобновить</string>
+    <string name="pause">Приостановить</string>
+    <string name="stop">Остановить</string>
+    <string name="move">Переместить</string>
+    <string name="verify">Проверить локальные данные</string>
+    <string name="reannounce">Получить больше пиров</string>
+    <string name="replace">Изменить</string>
+    <string name="copy">Копировать</string>
+    
+    <string name="number_dialog_delete">Delete a digit</string>
+    
+    <string name="status">Состояние</string>
+    <string name="speed_format">&lt;b>Загрузка&lt;/b>: %1$s/s%2$s&lt;br/>&lt;b>Отдача&lt;/b>: %3$s/s%4$s</string>
+    <string name="free_space_format">&lt;b>Места на диске&lt;/b>: %1$s</string>
+    
+    <string name="refresh">Обновить</string>
+    <string name="alt_speed_label_on">Включить альтерн. скорости</string>
+    <string name="alt_speed_label_off">Выключить альтерн. скорости</string>
+    <string name="alt_speed">Альтернативные скорости</string>
+    <string name="add_torrent">Добавить торрент</string>
+    <string name="settings">Настройки</string>
+
+    <string name="torrent_overview">Обзор</string>
+    <string name="torrent_files">Файлы</string>
+    <string name="torrent_limits">Ограничения</string>
+    <string name="torrent_trackers">Трекеры</string>
+    
+    <string name="torrent_activity">Активность</string>
+    <string name="torrent_have">В наличии:</string>
+    <string name="torrent_downloaded">Загружено:</string>
+    <string name="torrent_uploaded">Отдано:</string>
+    <string name="torrent_state">Состояние:</string>
+    <string name="torrent_running_time">Время работы:</string>
+    <string name="torrent_remaining_time">Осталось времени:</string>
+    <string name="torrent_last_activity">Последняя активность:</string>
+    <string name="torrent_error">Ошибки торрента:</string>
+    
+    <string name="torrent_details">Дополнительная информация</string>
+    <string name="torrent_size">Размер:</string>
+    <string name="torrent_hash">Хэш:</string>
+    <string name="torrent_location">Каталог:</string>
+    <string name="torrent_privacy">Конфиденциальность:</string>
+    <string name="torrent_origin">Создан:</string>
+    <string name="torrent_comment">Комментарий:</string>
+    
+    <string name="torrent_bandwidth">Настройки скорости</string>
+    <string name="torrent_global_limits">Пренебрегать глобальными настройками скорости</string>
+    <string name="torrent_priority">Приоритет:</string>
+    <string name="torrent_queue_position">Очередность:</string>
+    <string name="torrent_limit_download">Лимит скорости загрузки</string>
+    <string name="torrent_limit_upload">Лимит скорости отдачи</string>
+    <string name="torrent_limit_speed_amount">Кб/с:</string>
+    
+    <string name="torrent_seeding">Отдача</string>
+    <string name="torrent_seed_ratio_mode">Режим отдачи:</string>
+    <string name="torrent_seed_ratio_limit">Коэффициент отдачи:</string>
+    
+    <string name="torrent_peers">Пиры</string>
+    <string name="torrent_peer_limit">Лимит пиров:</string>
+    
+    <string name="add_profile_option">Добавить профиль</string>
+    <string name="header_label_general_preferences">Основные настройки</string>
+    <string name="header_label_filters">Фильтры</string>
+    <string name="header_label_sort">Методы сортировки</string>
+    <string name="header_label_profiles">Профили</string>
+    <string name="new_profile">Новый профиль</string>
+    <string name="profile_directories">Папки для загрузки</string>
+    
+    <string name="add_directory_option">Добавить папку</string>
+    <string name="no_download_dirs">&lt;h2>У вас не настроен список папок для загрузки торрентов.&lt;/h2>Добавление папок позволит вам перемещать данные торрентов из текущего места в новое.</string>
+    
+    <string name="updates">Обновление</string>
+    <string name="update_active_torrents">Обновлять только активные торренты</string>
+    <string name="full_update">Полное обновление</string>
+    <string name="full_update_summary_format">После каждых %1$d обновлений активных торрентов</string>
+    <string name="update_interval_dialog_title">Интервал обновления</string>
+    <string name="update_interval">Интервал обновления</string>
+    <string name="update_interval_summary_format">%1$s</string>
+    <string name="session_update_interval">Период обновления</string>
+
+    <string name="profile">Профиль</string>
+    <string name="profile_summary_format">%1$s</string>
+    <string name="profile_name">Название</string>
+    <string name="profile_name_default">Default</string>
+    <string name="connection">Подключение</string>
     <string name="con_host">Узел</string>
-    <string name="con_host_cannot_be_empty">Имя узла не может быть пустым</string>
-    <string name="con_name_cannot_be_empty">Название профиля не может быть пустым</string>
+    <string name="con_port">Порт</string>
+    <string name="con_port_default">9091</string>
+    <string name="con_username">Пользователь</string>
     <string name="con_password">Пароль</string>
     <string name="con_path">Путь</string>
     <string name="con_path_default">/transmission/rpc</string>
-    <string name="con_port">Порт</string>
-    <string name="con_port_default">9091</string>
-    <string name="con_retries">Повтор</string>
+    <string name="con_use_ssl">Использовать SSL</string>
     <string name="con_timeout">Таймаут</string>
     <string name="con_timeout_default">40</string>
-    <string name="con_use_ssl">Использовать SSL</string>
-    <string name="con_username">Пользователь</string>
-    <string name="connecting_empty_list">&lt;h2>&lt;font color=#666666>Подключение&lt;/font>&lt;/h2></string>
-    <string name="connection">Подключение</string>
-    <string name="copy">Копировать</string>
-    <string name="create_profile_in_settings">Создайте новый профиль в настройках</string>
-    <string name="debug">Отладка</string>
-    <string name="debug_summary">Отображать отладочную информацию в logcat</string>
-    <string name="delete">Delete</string>
-    <string name="delete_local_checkbox">Удалить .torrent после добавления</string>
-    <string name="directory">Каталоги</string>
-    <string name="directory_filters">Фильтр каталогов</string>
-    <string name="done">Готово</string>
-    <string name="duplicate_torrent">Этот торрент уже есть в списке.</string>
-    <string name="error_deleting_torrent_file">Ошибка удаления торрент-файла</string>
-    <string name="error_reading_torrent_file">Ошибка чтения торрент-файла</string>
-    <string name="error_title">Ошибка!</string>
-    <string name="filter">Что будем искать?</string>
-    <string name="filter_visibility">Отображение фильтров</string>
-    <string name="find">Поиск</string>
-    <string name="full_update">Полное обновление</string>
-    <string name="full_update_summary_format">После каждых %1$d обновлений активных торрентов</string>
-    <string name="generic_http_empty_list">&lt;h2>&lt;font color=#cc0000>Ошибка HTTP!&lt;/font>&lt;/h2>HTTP Status: \'%1$s %2$s\'.</string>
-    <string name="header_label_filters">Фильтры</string>
-    <string name="header_label_general_preferences">Основные настройки</string>
-    <string name="header_label_profiles">Профили</string>
-    <string name="header_label_sort">Методы сортировки</string>
-    <string name="ic_menu_select_all">Выделить все</string>
-    <string name="import_session_directories">Импорт списка папок</string>
+    <string name="con_retries">Повтор</string>
+    <string name="con_directories">Папки для загрузки</string>
+    
     <string name="invalid_input_title">Неверный ввод</string>
-    <string name="invalid_torrent">Торрент поврежден или имеет неизвестный формат.</string>
-    <string name="menu_directories_header">Каталоги</string>
-    <string name="menu_filters_active">Активные</string>
-    <string name="menu_filters_all">Все</string>
-    <string name="menu_filters_checking">Проверяется</string>
-    <string name="menu_filters_complete">Завершенные</string>
-    <string name="menu_filters_downloading">Загружается</string>
-    <string name="menu_filters_header">Фильтры</string>
-    <string name="menu_filters_incomplete">Незавершенные</string>
-    <string name="menu_filters_paused">На паузе</string>
-    <string name="menu_filters_seeding">Раздается</string>
-    <string name="menu_high_priority">Высокий приоритет</string>
-    <string name="menu_low_priority">Низкий приоритет</string>
-    <string name="menu_normal_priority">Нормальный приоритет</string>
-    <string name="menu_order_descending">По возрастанию</string>
-    <string name="menu_order_header">Упорядочить</string>
-    <string name="menu_sort_activity">Активность</string>
-    <string name="menu_sort_age">Дата добавления</string>
-    <string name="menu_sort_download_speed">Скорость загрузки</string>
-    <string name="menu_sort_header">Методы сортировки</string>
-    <string name="menu_sort_location">Расположение</string>
-    <string name="menu_sort_name">Название</string>
-    <string name="menu_sort_peers">Пиры</string>
-    <string name="menu_sort_progress">Значимость</string>
-    <string name="menu_sort_queue">Очередность</string>
-    <string name="menu_sort_ratio">Коэффициент</string>
-    <string name="menu_sort_size">Размер</string>
-    <string name="menu_sort_status">Состояние</string>
-    <string name="menu_sort_upload_speed">Скорость отдачи</string>
-    <string name="menu_trackers_header">Трекеры</string>
-    <string name="move">Переместить</string>
-    <string name="move_checkbox">Переместить данные торрента из текущего места в новое</string>
-    <string name="no_connection_empty_list">&lt;h2>&lt;font color=#cc0000>Невозможно подключиться!&lt;/font>&lt;/h2>Пожалуйста, проверьте правильность заданного адреса сервера и порта в текущем профиле.</string>
-    <string name="no_connectivity_empty_list">&lt;h2>&lt;font color=#cc0000>Необходимо активное подключение к сети!&lt;/font>&lt;/h2></string>
-    <string name="no_download_dirs">&lt;h2>У вас не настроен список папок для загрузки торрентов.&lt;/h2>Добавление папок позволит вам перемещать данные торрентов из текущего места в новое.</string>
-    <string name="no_filtered_torrents_empty_list">Нет торрентов, соответствующих текущему фильтру</string>
-    <string name="no_json_empty_list">&lt;h2>&lt;font color=#cc0000>Неожиданный ответ!&lt;/font>&lt;/h2>Пожалуйста, проверьте верность настройки пути RPC в текущем профиле.</string>
+    <string name="con_name_cannot_be_empty">Название профиля не может быть пустым</string>
+    <string name="con_host_cannot_be_empty">Имя узла не может быть пустым</string>
+    
     <string name="no_profiles">Пусто</string>
+    <string name="create_profile_in_settings">Создайте новый профиль в настройках</string>
+    
     <string name="no_profiles_empty_list">&lt;h2>Ещё не было создано ни одного профиля.&lt;/h2>Вы должны создать хотя бы один профиль в меню &lt;i>Настройки&lt;/i>.</string>
+    <string name="connecting_empty_list"><![CDATA[<h2><font color="#666666">Подключение</font></h2>]]></string>
     <string name="no_torrents_empty_list">&lt;h2>Подключение прошло успешно!&lt;/h2>В данный момент демон не управляет ни одним торрентом.</string>
-    <string name="no_tracker_errors">Ошибок нет</string>
-    <string name="none">None</string>
-    <string name="number_dialog_delete">Delete a digit</string>
-    <string name="open_drawer">open drawer</string>
-    <string name="out_of_memory_empty_list">&lt;h2>&lt;font color=#cc0000>Недостаточно памяти!&lt;/font>&lt;/h2></string>
-    <string name="pause">Pause</string>
-    <string name="port_test_closed">&lt;font color=#E73939>Закрыт&lt;/font></string>
-    <string name="port_test_open">&lt;font color=#7CAF00>Открыт&lt;/font></string>
-    <string name="port_test_testing">Тестирование …</string>
-    <string name="profile">Профиль</string>
-    <string name="profile_name">Название</string>
-    <string name="profile_name_default">Default</string>
-    <string name="profile_summary_format">%1$s</string>
-    <string name="reading_torrent_file">Чтение торрент-файла…</string>
-    <string name="reannounce">Получить больше пиров</string>
-    <string name="refresh">Обновить</string>
-    <string name="remove">Удалить торрент</string>
-    <string name="remove_current_confirmation">"Вы уверены, что хотите удалить '%s'?"</string>
+    <string name="no_filtered_torrents_empty_list">Нет торрентов, соответствующих текущему фильтру</string>
+    <string name="no_connectivity_empty_list">&lt;h2&gt;&lt;font color="#cc0000"&gt;Необходимо активное подключение к сети!&lt;/font&gt;&lt;/h2&gt;</string>
+    <string name="access_denied_empty_list">&lt;h2&gt;&lt;font color="#cc0000"&gt;Доступ запрещен!&lt;/font&gt;&lt;/h2&gt;Неверные данные учетной записи, или ваш IP-адрес не занесен в белый список.</string>
+    <string name="no_json_empty_list">&lt;h2>&lt;font color=#cc0000>Неожиданный ответ!&lt;/font>&lt;/h2>Пожалуйста, проверьте верность настройки пути RPC в текущем профиле.</string>
+    <string name="no_connection_empty_list">&lt;h2>&lt;font color=#cc0000>Невозможно подключиться!&lt;/font>&lt;/h2>Пожалуйста, проверьте правильность заданного адреса сервера и порта в текущем профиле.</string>
+    <string name="generic_http_empty_list"><![CDATA[<h2><font color="#cc0000>Ошибка HTTP!</font></h2>Возможно сервер ожидает подключение через SSL.]]></string>
+    <string name="thread_error_empty_list">&lt;h2&gt;&lt;font color="#cc0000"&gt;Внутренняя ошибка!&lt;/font&gt;&lt;/h2&gt;</string>
+    <string name="response_error_empty_list">&lt;h2&gt;&lt;font color="#cc0000"&gt;Ошибка демона Transmission!&lt;/font&gt;&lt;/h2&gt;Запрос к демону не выполнен. Для более подробной информации смотрите лог.</string>
+    <string name="timeout_empty_list"><![CDATA[<h2><font color="#cc0000>Время ожидания соединения истекло!</font></h2>]]></string>
+    <string name="out_of_memory_empty_list"><![CDATA[<h2><font color="#cc0000>Недостаточно памяти!</font></h2>]]></string>
+    <string name="json_parse_empty_list"><![CDATA[<h2><font color="#cc0000>Неожиданный ответ сервера!</font></h2>]]>Это не ответ, который мы ожидали.</string>
+    
+    <string name="traffic_downloading_format">%1$s из %2$s (%3$s)%4$s</string>
+    <string name="traffic_downloading_percentage_format">%1$s%%</string>
+    <string name="traffic_seeding_format">>%1$s, отдано %2$s (%3$s)%4$s</string>
+    <string name="traffic_seeding_ratio_format">Коэффициент: %1$s%2$s</string>
+    <string name="traffic_seeding_ratio_goal_format">, Цель: %1$s</string>
+    <string name="traffic_remaining_time_format">- &lt;i>%1$s осталось&lt;/i></string>
+    <string name="traffic_remaining_time_unknown">- Оставшееся время неизвестно</string>
+    
+    <string name="status_format">%1$s %2$s</string>
+    <string name="status_state_downloading">&lt;b&gt;Загружается&lt;/b&gt;</string>
+    <string name="status_state_downloading_metadata">&lt;b&gt;Загружаются метаданные&lt;/b&gt;</string>
+    <string name="status_state_seeding">&lt;b&gt;Отдача&lt;/b&gt;</string>
+    <string name="status_state_download_waiting">&lt;b&gt;Ожидает загрузки&lt;/b&gt;</string>
+    <string name="status_state_seed_waiting">&lt;b&gt;Ожидает отдачи&lt;/b&gt;</string>
+    <string name="status_state_paused"><![CDATA[<b>Приостановлен</b>]]></string>
+    <string name="status_state_finished"><![CDATA[<b>Завершен</b>]]></string>
+    <string name="status_state_check_waiting">&lt;b&gt;Ожидает проверки&lt;/b&gt;</string>
+    <string name="status_state_checking">&lt;b&gt;Проверяется&lt;/b&gt; (%1$s%% tested)</string>
+    <string name="status_more_downloading_format">- подключено %1$d из %2$d пиров - &lt;i&gt;%3$s&lt;/i&gt;</string>
+    <string name="status_more_downloading_speed_format">&#x2193; %1$s/s, &#x2191; %2$s/s</string>
+    <string name="status_more_seeding_format">- подключено %1$d из %2$d пиров - &lt;i&gt;%3$s&lt;/i&gt;</string>
+    <string name="status_more_seeding_speed_format">&#x2191; %1$s/s</string>
+    <string name="status_more_idle" />
+
+    <string name="time_days">дней</string>
+    <string name="time_day">день</string>
+    <string name="time_hours">часов</string>
+    <string name="time_hour">час</string>
+    <string name="time_minutes">минут</string>
+    <string name="time_minute">минута</string>
+    <string name="time_seconds">секунд</string>
+    <string name="time_second">секунда</string>
+
     <string name="remove_selected_confirmation">Вы действительно хотите удалить выделенные торренты?</string>
-    <string name="remove_selected_directories_confirmation">Вы уверены, что хотите удалить выделенные папки?</string>
-    <string name="replace">Изменить</string>
-    <string name="response_error_empty_list">&lt;h2>&lt;font color=#cc0000>Ошибка демона Transmission!&lt;/font>&lt;/h2>Запрос к демону не выполнен. Для более подробной информации смотрите лог.</string>
-    <string name="resume">Resume</string>
-    <string name="session_settings_alt_down_limit">Альтернативный лимит скорости загрузки (Кб/с)</string>
-    <string name="session_settings_alt_limit_time_format">%1$02d:%2$02d</string>
-    <string name="session_settings_alt_limits">Альтернативные настройки скорости</string>
-    <string name="session_settings_alt_time">Время</string>
-    <string name="session_settings_alt_time_range">Установка альтернативных скоростей по времени</string>
-    <string name="session_settings_alt_upload_limit">Альтернативный лимит скорости отдачи (Кб/с)</string>
-    <string name="session_settings_bandwidth">Скорость</string>
-    <string name="session_settings_behavior">Поведение</string>
-    <string name="session_settings_blocklist">Список блокировок</string>
-    <string name="session_settings_blocklist_count_format">%1$d записей</string>
-    <string name="session_settings_blocklist_enable">Разрешить список блокировок</string>
-    <string name="session_settings_blocklist_update">Обновить</string>
-    <string name="session_settings_blocklist_url">Адрес:</string>
-    <string name="session_settings_cache_size">Размер кэша (Мб)</string>
-    <string name="session_settings_connections">Сеть</string>
-    <string name="session_settings_distributed_hash_table">Разрешить DHT</string>
-    <string name="session_settings_down_limit">Лимит скорости загрузки</string>
-    <string name="session_settings_download">Лимит скорости загрузки (Кб/с)</string>
-    <string name="session_settings_download_directory">Папка для загрузки</string>
-    <string name="session_settings_download_size">Размер очереди загрузки</string>
-    <string name="session_settings_enable_alt_limits">Использовать альтернативные скорости</string>
-    <string name="session_settings_encryption">Шифрование</string>
-    <string name="session_settings_environment">Загрузка</string>
-    <string name="session_settings_general">Основные</string>
-    <string name="session_settings_general_limits">Глобальные настройки скорости</string>
-    <string name="session_settings_global_peer_limit">Глобальные настройки скорости</string>
-    <string name="session_settings_ignore_stalled_minutes">Минут</string>
-    <string name="session_settings_ignore_stalled_torrents">Считать активные торренты зависшими, если нет активности</string>
-    <string name="session_settings_incomplete_download_directory">Папка для не полностью загруженных файлов</string>
-    <string name="session_settings_item">Настройки сессии</string>
-    <string name="session_settings_local_discovery">Разрешить Local Peer Discovery</string>
-    <string name="session_settings_peer_exchange">Разрешить обмен пирами</string>
-    <string name="session_settings_peer_port">Входящий порт</string>
-    <string name="session_settings_peers">Пиры</string>
-    <string name="session_settings_port_forwarding">Разрешить проброску порта</string>
-    <string name="session_settings_port_test">Тест порта</string>
-    <string name="session_settings_protocol">Протокол</string>
-    <string name="session_settings_queues">Очередь</string>
-    <string name="session_settings_random_port">Каждый раз выбирать случайный порт</string>
-    <string name="session_settings_rename_partial_files">Добавлять расширение .part к не полностью загруженным файлам</string>
-    <string name="session_settings_script_to_run_when_torrent_finishes">Выполнять скрипт когда торрент загружен</string>
-    <string name="session_settings_seed_ratio_limit">Коэффициент отдачи</string>
-    <string name="session_settings_seed_size">Размер очереди отдачи</string>
-    <string name="session_settings_seeding">Отдача</string>
-    <string name="session_settings_start_added_torrents">Запускать добавленный торрент</string>
-    <string name="session_settings_torrent_peer_limit">Лимит пиров</string>
-    <string name="session_settings_trash_original">Удалять .torrent файл после успешного добавления</string>
-    <string name="session_settings_upload">Лимит скорости отдачи (Кб/с)</string>
-    <string name="session_settings_upload_limit">Лимит скорости отдачи</string>
-    <string name="session_settings_utp">Разрешить µTP</string>
-    <string name="session_update_interval">Период обновления</string>
-    <string name="set_location">Задать расположение...</string>
-    <string name="settings">Настройки</string>
-    <string name="show_all_filter_summary">If hidden, clicking on a selected filter will unselect it</string>
-    <string name="show_directory_filters">Показывать этот фильтр</string>
-    <string name="show_status_bar">Строка состояния</string>
-    <string name="show_tracker_filters">Показывать этот фильтр</string>
-    <string name="sort_visibility">Использовать следующие методы сортировки в настройке фильтров</string>
-    <string name="sorting_option">Настройка сортировки</string>
-    <string name="start_paused_checkbox">Не запускать торрент</string>
-    <string name="status_bar_format">↓ %1$s%2$s, ↑ %3$s%4$s, ⊙ %5$s</string>
-    <string name="status_bar_limit_format">(&lt;i>%1$s&lt;/i>)</string>
+    <string name="delete_selected_confirmation">Вы действительно хотите удалить торрент и все данные, связанные с ним?</string>
+
+    <string name="remove_current_confirmation">Вы уверены, что хотите удалить \'%s\'?</string>
+    <string name="delete_current_confirmation">Вы действительно хотите удалить данные \'%s\'?</string>
+
+    <string name="torrent_have_format">%1$s из %2$s (%3$s%%)</string>
+    <string name="torrent_size_format">%1$s (%2$s частей @ %3$s)</string>
+    <string name="torrent_added_format">%1$s назад</string>
+
+    <string name="none">None</string>
+    <string name="unknown">Неизвестно</string>
+
+    <string name="status_paused">Приостановлен</string>
+    <string name="status_finished">Завершен</string>
     <string name="status_check_waiting">Ожидает проверки</string>
     <string name="status_checking">Проверка</string>
     <string name="status_download_waiting">Ожидает загрузки</string>
     <string name="status_downloading">Загрузка</string>
     <string name="status_downloading_metadata">Загрузка метаданных</string>
-    <string name="status_finished">Завершен</string>
-    <string name="status_format">%1$s %2$s</string>
-    <string name="status_more_downloading_format">- подключено %1$d из %2$d пиров - &lt;i>%3$s&lt;/i></string>
-    <string name="status_more_downloading_speed_format">↓ %1$s/s, ↑ %2$s/s</string>
-    <string name="status_more_idle" />
-    <string name="status_more_seeding_format">- подключено %1$d из %2$d пиров - &lt;i>%3$s&lt;/i></string>
-    <string name="status_more_seeding_speed_format">↑ %1$s/s</string>
-    <string name="status_paused">На паузе</string>
     <string name="status_seed_waiting">Ожидает отдачи</string>
     <string name="status_seeding">Отдача</string>
-    <string name="status_state_check_waiting">&lt;b>Ожидает проверки&lt;/b></string>
-    <string name="status_state_checking">&lt;b>Проверяется&lt;/b> (%1$s%% проверено)</string>
-    <string name="status_state_download_waiting">&lt;b>Ожидает загрузки&lt;/b></string>
-    <string name="status_state_downloading">&lt;b>Загружается&lt;/b></string>
-    <string name="status_state_downloading_metadata">&lt;b>Загружаются метаданные&lt;/b></string>
-    <string name="status_state_finished">&lt;b>Завершен&lt;/b></string>
-    <string name="status_state_paused">&lt;b>На паузе&lt;/b></string>
-    <string name="status_state_seed_waiting">&lt;b>Ожидает отдачи&lt;/b></string>
-    <string name="status_state_seeding">&lt;b>Отдача&lt;/b></string>
-    <string name="stop">Stop</string>
-    <string name="thread_error_empty_list">&lt;h2>&lt;font color=#cc0000>Внутренняя ошибка!&lt;/font>&lt;/h2></string>
-    <string name="time_day">день</string>
-    <string name="time_days">дней</string>
-    <string name="time_hour">час</string>
-    <string name="time_hours">часов</string>
-    <string name="time_minute">минута</string>
-    <string name="time_minutes">минут</string>
-    <string name="time_second">секунда</string>
-    <string name="time_seconds">секунд</string>
-    <string name="timeout_empty_list">&lt;h2>&lt;font color=#cc0000>Время ожидания соединения истекло!&lt;/font>&lt;/h2></string>
-    <string name="title_torrent_detail">Торрент-инфо</string>
-    <string name="title_torrent_file_read">Gear Shift</string>
+
     <string name="torrent_active_now">Активен сейчас</string>
-    <string name="torrent_activity">Активность</string>
-    <string name="torrent_added">Добавлен:</string>
-    <string name="torrent_added_format">%1$s назад</string>
-    <string name="torrent_bandwidth">Настройки скорости</string>
-    <string name="torrent_comment">Комментарий:</string>
-    <string name="torrent_detail_file_format">%1$s&lt;br />&lt;small>%2$s из %3$s - %4$s&lt;/small></string>
-    <string name="torrent_details">Дополнительная информация</string>
-    <string name="torrent_downloaded">Загружено:</string>
-    <string name="torrent_error">Ошибки торрента:</string>
-    <string name="torrent_files">Файлы</string>
-    <string name="torrent_global_limits">Пренебрегать глобальными лимитами скорости</string>
-    <string name="torrent_hash">Хэш:</string>
-    <string name="torrent_have">В наличии:</string>
-    <string name="torrent_have_format">%1$s из %2$s (%3$s%%)</string>
-    <string name="torrent_last_activity">Последняя активность:</string>
-    <string name="torrent_limit_download">Лимит скорости загрузки</string>
-    <string name="torrent_limit_speed_amount">Кб/с</string>
-    <string name="torrent_limit_upload">Лимит скорости отдачи</string>
-    <string name="torrent_limits">Ограничения</string>
-    <string name="torrent_location">Каталог:</string>
-    <string name="torrent_origin">Создан:</string>
-    <string name="torrent_origin_creator_format">%1$s %2$s</string>
-    <string name="torrent_origin_format">%1$s</string>
-    <string name="torrent_overview">Обзор</string>
-    <string name="torrent_peer_limit">Лимит пиров:</string>
-    <string name="torrent_peers">Пиры</string>
-    <string name="torrent_priority">Приоритет:</string>
-    <string name="torrent_privacy">Конфиденциальность:</string>
+
+    <string name="directory">Каталоги</string>
+    <string name="remove_selected_directories_confirmation">Вы уверены, что хотите удалить выделенные папки?</string>
+    <string name="move_checkbox">Переместить данные торрента из текущего места в новое</string>
+    <string name="set_location">Задать расположение</string>
+    
+    <string name="browse">Просмотр</string>
+    <string name="invalid_magnet_link">Неверная magnet-ссылка</string>
+    <string name="add_new_magnet">Новая magnet-ссылка</string>
+    <string name="add_new_torrent">Новый торрент</string>
+    <string name="start_paused_checkbox">Не запускать торрент</string>
+    <string name="delete_local_checkbox">Удалить .torrent после добавления</string>
+    
+    <string name="no_tracker_errors">Ошибок нет</string>
+    
     <string name="torrent_private">Частный торрент</string>
+    
     <string name="torrent_public">Публичный торрент</string>
-    <string name="torrent_queue_position">Очередность:</string>
-    <string name="torrent_remaining_time">Осталось времени:</string>
-    <string name="torrent_running_time">Время работы:</string>
-    <string name="torrent_seed_ratio_limit">Коэффициент отдачи:</string>
-    <string name="torrent_seed_ratio_mode">Режим отдачи:</string>
-    <string name="torrent_seeding">Отдача</string>
-    <string name="torrent_size">Размер:</string>
-    <string name="torrent_size_format">%1$s (%2$s частей @ %3$s)</string>
-    <string name="torrent_state">Состояние:</string>
-    <string name="torrent_trackers">Трекеры</string>
-    <string name="torrent_uploaded">Отдано:</string>
-    <string name="tracker_add">Добавить трекер</string>
-    <string name="tracker_announce_error">Ошибка announce-запроса: %1$s%2$s</string>
-    <string name="tracker_announce_never">Последний announce-запрос: N/A</string>
-    <string name="tracker_announce_success">Последний announce-запрос: %1$s (получено %2$s)</string>
-    <string name="tracker_announce_url">Адрес трекера</string>
+    <string name="torrent_origin_format">%1$s</string>
+    <string name="torrent_origin_creator_format">%1$s %2$s</string>
+
+    <string name="torrent_detail_file_format"><![CDATA[%1$s<br /><small>%2$s из %3$s - %4$s</small>]]></string>
+    
+    <string name="about_item">О программе</string>
+    <string name="about_name">Gear Shift</string>
+    <string name="app_icon">App icon</string>
+    <string name="about_description">Gear Shift - многофункциональный клиент, предназначенный для удалённого управления демоном Transmission.</string>
+    <string name="about_contact">If you find any bugs, please write a post in the <![CDATA[<a href="https://plus.google.com/communities/115768021623513120266">Gear Shift G+ community</a>]]>, filed under bugs. Doing so will also show other people whether the bug has been reported already. Be sure to turn on the \'Debug\' options under \'General Settings\', and include the logcat related to the app.</string>
+    <string name="about_donation">This app is provided for free, without any annoying ads. If you find it useful, consider <![CDATA[<a href="https://www.paypal.com/bg/cgi-bin/webscr?cmd=_donations&business=support@sugr.org&lc=US&item_name=Gear Shift&no_note=1&no_shipping=1&currency_code=EUR">sending a beer or two this way</a>]]>.</string>
+    
+    <string name="ic_menu_select_all">Выделить все</string>
+    
+    <string name="duplicate_torrent">Этот торрент уже есть в списке.</string>
+    <string name="invalid_torrent">Торрент поврежден или имеет неизвестный формат.</string>
+    <string name="error_title">Ошибка!</string>
+    <string name="menu_high_priority">Высокий приоритет</string>
+    <string name="menu_normal_priority">Нормальный приоритет</string>
+    <string name="menu_low_priority">Низкий приоритет</string>
+
+    <string name="menu_filters_header">Фильтры</string>
+    <string name="menu_filters_all">Все</string>
+    <string name="menu_filters_downloading">Загружается</string>
+    <string name="menu_filters_seeding">Раздается</string>
+    <string name="menu_filters_paused">Приостановленные</string>
+    <string name="menu_filters_complete">Завершенные</string>
+    <string name="menu_filters_incomplete">Незавершенные</string>
+    <string name="menu_filters_active">Активные</string>
+    <string name="menu_filters_checking">Проверяется</string>
+    <string name="menu_filters_errors">С ошибками</string>
+    <string name="menu_filters_untracked">Без трекеров</string>
+
+    <string name="menu_sort_header">Методы сортировки</string>
+    <string name="menu_sort_name">Название</string>
+    <string name="menu_sort_size">Размер</string>
+    <string name="menu_sort_status">Состояние</string>
+    <string name="menu_sort_activity">Активность</string>
+    <string name="menu_sort_age">Дата добавления</string>
+    <string name="menu_sort_progress">Популярность</string>
+    <string name="menu_sort_ratio">Коэффициент</string>
+    <string name="menu_sort_location">Расположение</string>
+    <string name="menu_sort_peers">Пиры</string>
+    <string name="menu_sort_download_speed">Скорость загрузки</string>
+    <string name="menu_sort_upload_speed">Скорость отдачи</string>
+    <string name="menu_sort_queue">Очередность</string>
+
+    <string name="menu_order_header">Упорядочить</string>
+    <string name="menu_order_descending">По возрастанию</string>
+
+    <string name="menu_directories_header">Каталоги</string>
+    <string name="menu_trackers_header">Трекеры</string>
+
+    <string name="filter_visibility">Отображение фильтров</string>
+
+    <string name="directory_filters">Фильтр каталогов</string>
+
+    <string name="show_directory_filters">Показывать фильтр каталогов</string>
+
     <string name="tracker_filters">Фильтр по трекерам</string>
-    <string name="tracker_leechers">Личеров: %1$d</string>
-    <string name="tracker_new_announce_url">Новый адрес трекера</string>
-    <string name="tracker_replace">Изменить адрес трекера</string>
-    <string name="tracker_scrape_error">Ошибка scrape-запроса: %1$s%2$s</string>
-    <string name="tracker_scrape_never">Последний scrape-запрос: N/A</string>
-    <string name="tracker_scrape_success">Последний scrape-запрос: %1$s</string>
-    <string name="tracker_seeders">Сидов: %1$d</string>
-    <string name="tracker_tier">%1$d</string>
-    <string name="tracker_unknown_host">Неизвестный хост</string>
-    <string name="tracker_url_copy">Адрес трекера скопирован в буфер обмена</string>
-    <string name="traffic_downloading_format">%1$s из %2$s (%3$s)%4$s</string>
-    <string name="traffic_downloading_percentage_format">%1$s%%</string>
-    <string name="traffic_remaining_time_format"> - &lt;i>%1$s осталось&lt;/i></string>
-    <string name="traffic_remaining_time_unknown"> - Оставшееся время неизвестно</string>
-    <string name="traffic_seeding_format">%1$s, отдано %2$s (%3$s)%4$s</string>
-    <string name="traffic_seeding_ratio_format">Коэффициент: %1$s%2$s</string>
-    <string name="traffic_seeding_ratio_goal_format">, Цель: %1$s</string>
-    <string name="unknown">Неизвестно</string>
+
+    <string name="show_tracker_filters">Показывать фильтр по трекерам</string>
+	
+    <string name="show_untracked_filter">Показывать торренты без трекеров</string>
+
+    <string name="sort_visibility">Использовать следующие методы сортировки в настройке фильтров</string>
+    
+    <string name="base_sort_method">Основные методы сортировки</string>
+    
+    <string name="sorting_option">Настройка сортировки</string>
+        
+    <string name="show_all_filter_summary">Установите флажок, чтобы нужный фильтр отображался в панели.</string>
+        
+    <string name="developer_options">Опции разработчика</string>
+        
+    <string name="debug">Отладка</string>
+        
+    <string name="debug_summary">Отображать отладочную информацию в logcat</string>
+	
+    <string name="auto_update_check">Проверять обновления при запуске</string>
+        
+    <string name="open_drawer">open drawer</string>
+        
+    <string name="close_drawer">close drawer</string>
+        
     <string name="unwant_file">Пропустить</string>
-    <string name="update_active_torrents">Обновление торрентов</string>
-    <string name="update_interval">Интервал обновления</string>
-    <string name="update_interval_dialog_title">Интервал обновления</string>
-    <string name="update_interval_summary_format">%1$s</string>
-    <string name="updates">Обновление</string>
-    <string name="user_interface_header">Интерфейс пользователя</string>
-    <string name="verify">Проверить локальные данные</string>
+        
     <string name="want_file">Загрузка</string>
+        
+    <string name="session_settings_item">Настройки сессии</string>
+        
+    <string name="session_settings_general">Основные</string>
+        
+    <string name="session_settings_environment">Загрузка</string>
+        
+    <string name="session_settings_download_directory">Папка для загрузки</string>
+        
+    <string name="session_settings_incomplete_download_directory">Папка для не полностью загруженных файлов</string>
+        
+    <string name="session_settings_script_to_run_when_torrent_finishes">Выполнять скрипт когда торрент загружен</string>
+        
+    <string name="session_settings_cache_size">Размер кэша (Мб)</string>
+        
+    <string name="session_settings_behavior">Поведение</string>
+        
+    <string name="session_settings_rename_partial_files">Добавлять расширение .part к не полностью загруженным файлам</string>
+        
+    <string name="session_settings_trash_original">Удалять .torrent файл после успешного добавления</string>
+        
+    <string name="session_settings_start_added_torrents">Запускать добавленный торрент</string>
+        
+    <string name="session_settings_connections">Сеть</string>
+        
+    <string name="session_settings_peer_port">Входящий порт</string>
+        
+    <string name="session_settings_port_test">Тест порта</string>
+        
+    <string name="session_settings_encryption">Шифрование</string>
+        
+    <string name="session_settings_random_port">Каждый раз выбирать случайный порт</string>
+        
+    <string name="session_settings_port_forwarding">Разрешить проброску порта</string>
+        
+    <string name="session_settings_protocol">Протокол</string>
+        
+    <string name="session_settings_peer_exchange">Разрешить обмен пирами</string>
+        
+    <string name="session_settings_distributed_hash_table">Разрешить DHT</string>
+        
+    <string name="session_settings_local_discovery">Разрешить Local Peer Discovery</string>
+
+    <string name="session_settings_utp">Разрешить µTP</string>
+        
+    <string name="session_settings_blocklist">Список блокировок</string>
+        
+    <string name="session_settings_blocklist_url">Адрес:</string>
+        
+    <string name="session_settings_blocklist_enable">Разрешить список блокировок</string>
+
+    <string name="session_settings_blocklist_count_format">%1$d записей</string>
+        
+    <string name="session_settings_blocklist_update">Обновить</string>
+        
+    <string name="session_settings_bandwidth">Скорость</string>
+        
+    <string name="session_settings_general_limits">Глобальные настройки скорости</string>
+        
+    <string name="session_settings_down_limit">Лимит скорости загрузки</string>
+        
+    <string name="session_settings_upload_limit">Лимит скорости отдачи</string>
+        
+    <string name="session_settings_alt_limits">Альтернативные настройки скорости</string>
+        
+    <string name="session_settings_enable_alt_limits">Использовать альтернативные скорости</string>
+        
+    <string name="session_settings_alt_time_range">Установка альтернативных скоростей по времени</string>
+        
+    <string name="session_settings_alt_time">Время</string>
+
+    <string name="session_settings_alt_limit_time_format">%1$02d:%2$02d</string>
+
+    <string name="session_settings_alt_down_limit">Альтернативный лимит скорости загрузки (Кб/с)</string>
+        
+    <string name="session_settings_alt_upload_limit">Альтернативный лимит скорости отдачи (Кб/с)</string>
+        
+    <string name="session_settings_seeding">Отдача</string>
+        
+    <string name="session_settings_seed_ratio_limit">Коэффициент отдачи</string>
+        
+    <string name="session_settings_queues">Очередь</string>
+        
+    <string name="session_settings_download_size">Размер очереди загрузки</string>
+        
+    <string name="session_settings_seed_size">Размер очереди отдачи</string>
+        
+    <string name="session_settings_ignore_stalled_torrents">Считать активные торренты зависшими, если нет активности</string>
+        
+    <string name="session_settings_ignore_stalled_minutes">Минут</string>
+        
+    <string name="session_settings_peers">Пиры</string>
+        
+    <string name="session_settings_global_peer_limit">Глобальные настройки скорости</string>
+        
+    <string name="session_settings_torrent_peer_limit">Лимит пиров</string>
+        
+    <string name="session_settings_upload">Лимит скорости отдачи (Кб/с)</string>
+        
+    <string name="session_settings_download">Лимит скорости загрузки (Кб/с)</string>
+        
+    <string name="port_test_testing">Тестирование …</string>
+        
+    <string name="port_test_closed"><![CDATA[<font color="#E73939">Закрыт</font>]]></string>
+        
+    <string name="port_test_open"><![CDATA[<font color="#7CAF00">Открыт</font>]]></string>
+
+    <string name="blocklist_update_error"><![CDATA[<font color="#CC0000">Ошибка</font>]]></string>
+
+    <string name="blocklist_updating">Обновление</string>
+
+    <string name="title_torrent_file_read">Gear Shift</string>
+
+    <string name="reading_torrent_file">Чтение торрент-файла…</string>
+
+    <string name="error_reading_torrent_file">Ошибка чтения торрент-файла</string>
+
+    <string name="find">Поиск</string>
+
+    <string name="filter">Что будем искать?</string>
+    <string name="import_session_directories">Импорт списка папок</string>
+
+    <string name="tracker_unknown_host">Неизвестный хост</string>
+    <string name="tracker_tier"><![CDATA[%1$d]]></string>
+    <string name="tracker_announce_success"><![CDATA[Последний announce-запрос: %1$s (получено %2$s)]]></string>
+    <string name="tracker_announce_never">Последний announce-запрос: никогда</string>
+    <string name="tracker_announce_error"><![CDATA[Ошибка announce-запроса: %1$s%2$s]]></string>
+
+    <string name="tracker_scrape_success"><![CDATA[Последний scrape-запрос: %1$s]]></string>
+    <string name="tracker_scrape_never">Последний scrape-запрос: никогда</string>
+    <string name="tracker_scrape_error"><![CDATA[Ошибка scrape-запроса: %1$s%2$s]]></string>
+
+    <string name="tracker_seeders"><![CDATA[Сидов: %1$d]]></string>
+    <string name="tracker_leechers"><![CDATA[Личеров: %1$d]]></string>
+    <string name="tracker_add">Добавить трекер</string>
+    <string name="tracker_announce_url">Адрес трекера</string>
+    <string name="tracker_url_copy">Адрес трекера скопирован в буфер обмена</string>
+    <string name="tracker_replace">Изменить адрес трекера</string>
+    <string name="tracker_new_announce_url">Новый адрес трекера</string>
+    <string name="base_sort">Вторичный метод сортировки</string>
+    <string name="base_sort_order">Очередь</string>
+    <string name="torrent_added">Добавлен:</string>
+
+    <plurals name="tracker_peers">
+        <item quantity="one">1 пир</item>
+        <item quantity="other">%1$d пиров</item>
+    </plurals>
+
+    <string name="status_bar_format"><![CDATA[v %1$s%2$s, ^ %3$s%4$s, ? %5$s]]></string>
+    <string name="status_bar_limit_format"><![CDATA[ (<i>%1$s</i>)]]></string>
+    <string name="user_interface_header">Интерфейс пользователя</string>
+    <string name="show_status_bar">Отображать строку состояния под списком торрентов</string>
+    <string name="error_deleting_torrent_file">Ошибка удаления торрент-файла</string>
+    <string name="hint_download_directory">Папка для загрузки</string>
+    <string name="spinner_custom_directory">Альтернативная папка &#8230;</string>
+    <string name="error_removing_profile">При удалении профиля произошла ошибка!</string>
+    <string name="session_settings_enable_idle_seeding_limit">Прекратить раздачу если не активен</string>
+    <string name="session_settings_idle_seeding_limit">Минут</string>
+    <string name="update_download">Загрузка</string>
+    <string name="update_view">Просмотр</string>
+    <string name="update_available"><![CDATA[<h2><font color="#666666">Доступна новая версия Gear Shift</font><h2><small>The new version is \'%1$s\'</small>]]></string>
+    <string name="update_current">У вас уже установлена самая последняя версия Gear Shift</string>
+    <string name="update_error"><![CDATA[<font color="#E73939">При проверке обновлений возникла ошибка</font>]]></string>
+    <string name="about_updates">Проверка обновлений</string>
+    <string name="update_checking">Проверка …</string>
+    <string name="crash_title"><![CDATA[<h2>К сожалению, Gear Shift перестал работать.</h2><small>Хотите отправить по почте отчет об ошибке?</small>]]></string>
+    <string name="crash_send">Отправить</string>
+
+    <string-array name="torrent_priority">
+        <item>Низкий</item>
+        <item>Нормальный</item>
+        <item>Высокий</item>
+    </string-array>
+
+    <string-array name="torrent_seed_ratio_mode">
+        <item>Использовать глобальные настройки</item>
+        <item>Остановить раздачу, если коэффициент равен</item>
+        <item>Раздавать независимо от коэффициента</item>
+    </string-array>
+
+    <string-array name="pref_full_update_entries">
+        <item>2 обновления</item>
+        <item>3 обновления</item>
+        <item>5 обновлений</item>
+        <item>10 обновлений</item>
+        <item>30 обновлений</item>
+        <item>60 обновлений</item>
+        <item>100 обновлений</item>
+    </string-array>
+
+    <string-array name="pref_update_interval_entries">
+        <item>Каждую секунду</item>
+        <item>2 секунды</item>
+        <item>5 секунд</item>
+        <item>10 секунд</item>
+        <item>30 секунд</item>
+        <item>Каждую минуту</item>
+        <item>2 минуты</item>
+        <item>Никогда</item>
+    </string-array>
+
+    <string-array name="pref_con_retries_entries">
+        <item>Один раз</item>
+        <item>Дважды</item>
+        <item>3 раза</item>
+        <item>5 раз</item>
+        <item>10 раз</item>
+        <item>15 раз</item>
+    </string-array>
 
     <string-array name="pref_base_sort_method_entries">
         <item>Имя</item>
@@ -315,52 +515,18 @@
         <item>Количество пиров</item>
         <item>Очередность</item>
     </string-array>
+
     <string-array name="pref_base_sort_order_entries">
         <item>Сдвинуть вверх</item>
         <item>Сдвинуть вниз</item>
         <item>Сдвинуть в начало</item>
         <item>Сдвинуть в конец</item>
     </string-array>
-    <string-array name="pref_con_retries_entries">
-        <item>Один раз</item>
-        <item>Дважды</item>
-        <item>3 раза</item>
-        <item>5 раз</item>
-        <item>10 раз</item>
-        <item>15 раз</item>
-    </string-array>
-    <string-array name="pref_full_update_entries">
-        <item>2 обновления</item>
-        <item>3 обновления</item>
-        <item>5 обновлений</item>
-        <item>10 обновлений</item>
-        <item>30 обновлений</item>
-        <item>60 обновлений</item>
-        <item>100 обновлений</item>
-    </string-array>
-    <string-array name="pref_update_interval_entries">
-        <item>Каждую секунду</item>
-        <item>2 секунды</item>
-        <item>5 секунд</item>
-        <item>10 секунд</item>
-        <item>30 секунд</item>
-        <item>Каждую минуту</item>
-        <item>2 минуты</item>
-        <item>Никогда</item>
-    </string-array>
+
     <string-array name="session_settings_encryption">
         <item>Всегда требуется</item>
         <item>Включено</item>
         <item>Отключено</item>
     </string-array>
-    <string-array name="torrent_priority">
-        <item>Низкий</item>
-        <item>Нормальный</item>
-        <item>Высокий</item>
-    </string-array>
-    <string-array name="torrent_seed_ratio_mode">
-        <item>Использовать глобальные настройки</item>
-        <item>Остановить раздачу, если коэфф. равен</item>
-        <item>Раздавать независимо от коэффициента</item>
-    </string-array>
+
 </resources>
