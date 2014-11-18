@@ -253,8 +253,6 @@ public class SettingsActivity extends ActionBarActivity {
 
         profileList = (RecyclerView) findViewById(R.id.profile_list);
 
-        profileList.addItemDecoration(new DividerItemDecoration(this,
-            DividerItemDecoration.VERTICAL_LIST));
         profileList.setLayoutManager(new LinearLayoutManager(this));
         profileList.setAdapter(profileAdapter);
 
