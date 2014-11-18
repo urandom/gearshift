@@ -608,11 +608,11 @@ public class TorrentListMenuFragment extends Fragment implements TorrentListNoti
                     closeHandler.removeCallbacks(closeRunnable);
                     closeHandler.post(closeRunnable);
                     if (intent != null) {
-                        closeHandler.post(new Runnable() {
+                        closeHandler.postDelayed(new Runnable() {
                             @Override public void run() {
                                 startActivity(intent);
                             }
-                        });
+                        }, getResources().getInteger(android.R.integer.config_shortAnimTime));
                     }
                 default:
                     return;
