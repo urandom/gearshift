@@ -5,6 +5,7 @@
     <color name="control_highlight">#00bba6</color>
     <color name="control_activated">#00796b</color>
     <color name="accent">#b60000</color>
+    <color name="accent_light">#f44336</color>
 
     <color name="main_red">#b60000</color>
     <color name="main_gray">#cacaca</color>
@@ -16,15 +17,15 @@
     <color name="progress_downloading">#5677fc</color>
     <color name="progress_seeding">#aeea00</color>
 
+    <color name="torrent_list_background">#e8e8e8</color>
+
     <color name="detail_background">#ddd</color>
     <color name="detail_background_edge">#bfbfbf</color>
-    <color name="transparent">#00000000</color>
-    <color name="transparent_white">#66ffffff</color>
     <color name="highlight_dark">#222222</color>
 
     <color name="preference_background">#e3e3e3</color>
 
-    <color name="filter_list_header">#333333</color>
+    <color name="list_menu_background">#e3e3e3</color>
     <color name="filter_highlight_primary">#E68305</color>
     <color name="filter_highlight_secondary">#C98733</color>
 

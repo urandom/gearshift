@@ -13,7 +13,7 @@
         android:layout_height="wrap_content"
 	    android:padding="4dp"
         android:fontFamily="sans-serif-condensed"
-        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:textAppearance="?android:attr/textAppearanceSmallInverse"
         android:gravity="center_vertical"
         android:background="@drawable/border_bottom_inverted"
     />

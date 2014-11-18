@@ -22,7 +22,7 @@
         android:layout_width="@dimen/sliding_menu_offset"
         android:layout_height="match_parent"
         android:layout_gravity="start"
-        android:background="@color/filter_list_header"
+        android:background="@color/list_menu_background"
         android:orientation="horizontal" >
 
         <fragment

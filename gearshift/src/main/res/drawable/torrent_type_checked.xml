@@ -7,6 +7,6 @@
     </item>
 
     <item android:id="@+id/type_icon"
-          android:drawable="@drawable/ic_done_white_36dp"
+          android:drawable="@drawable/ic_done_white_24dp"
           android:top="12dp" android:right="12dp" android:bottom="12dp" android:left="12dp"/>
 </layer-list>
