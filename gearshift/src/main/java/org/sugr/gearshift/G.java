@@ -2,6 +2,7 @@ package org.sugr.gearshift;
 
 import android.app.backup.BackupManager;
 import android.content.Context;
+import android.content.Intent;
 import android.util.Log;
 
 import java.io.PrintWriter;
@@ -104,6 +105,9 @@ public final class G {
     public static final String ARG_FREE_SPACE = "free_space";
     public static final String ARG_PORT_IS_OPEN = "port_is_open";
     public static final String ARG_BLOCKLIST_SIZE = "blocklist_size";
+
+    public static final String INTENT_SESSION_INVALIDATED = "org.sugr.gearshift.SESSION_INVALIDATED";
+    public static final String ARG_SESSION_VALID = "session_valid";
 
     public static final String ARG_ERROR = "error";
     public static final String ARG_ERROR_CODE = "error_code";

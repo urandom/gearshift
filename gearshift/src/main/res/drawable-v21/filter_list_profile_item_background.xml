@@ -2,9 +2,9 @@
 <ripple xmlns:android="http://schemas.android.com/apk/res/android" android:color="#b50900">
     <item>
         <selector>
-            <item android:state_focused="true" android:drawable="@color/accent" />
+            <item android:state_focused="true" android:drawable="@color/accent_dull" />
 
-            <item android:state_pressed="true" android:drawable="@color/accent" />
+            <item android:state_pressed="true" android:drawable="@color/accent_dull" />
 
             <item android:state_activated="true" android:drawable="@drawable/filter_profile_border_right"/>
 

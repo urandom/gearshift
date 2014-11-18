@@ -7,7 +7,6 @@
     <string name="done">Готово</string>
     <string name="delete">Удалить</string>
     <string name="remove">Удалить торрент</string>
-    <string name="remove_data">Удалить торрент и файлы</string>
     <string name="resume">Возобновить</string>
     <string name="pause">Приостановить</string>
     <string name="stop">Остановить</string>
@@ -18,10 +17,6 @@
     <string name="copy">Копировать</string>
     
     <string name="number_dialog_delete">Delete a digit</string>
-    
-    <string name="status">Состояние</string>
-    <string name="speed_format">&lt;b>Загрузка&lt;/b>: %1$s/s%2$s&lt;br/>&lt;b>Отдача&lt;/b>: %3$s/s%4$s</string>
-    <string name="free_space_format">&lt;b>Места на диске&lt;/b>: %1$s</string>
     
     <string name="refresh">Обновить</string>
     <string name="alt_speed_label_on">Включить альтерн. скорости</string>
@@ -162,10 +157,8 @@
     <string name="time_second">секунда</string>
 
     <string name="remove_selected_confirmation">Вы действительно хотите удалить выделенные торренты?</string>
-    <string name="delete_selected_confirmation">Вы действительно хотите удалить торрент и все данные, связанные с ним?</string>
 
     <string name="remove_current_confirmation">Вы уверены, что хотите удалить \'%s\'?</string>
-    <string name="delete_current_confirmation">Вы действительно хотите удалить данные \'%s\'?</string>
 
     <string name="torrent_have_format">%1$s из %2$s (%3$s%%)</string>
     <string name="torrent_size_format">%1$s (%2$s частей @ %3$s)</string>

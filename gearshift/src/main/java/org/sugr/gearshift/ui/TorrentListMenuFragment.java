@@ -1,6 +1,9 @@
 package org.sugr.gearshift.ui;
 
+import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.database.Cursor;
@@ -10,6 +13,7 @@ import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -28,9 +32,11 @@ import org.sugr.gearshift.G.SortBy;
 import org.sugr.gearshift.G.SortOrder;
 import org.sugr.gearshift.R;
 import org.sugr.gearshift.core.TransmissionProfile;
+import org.sugr.gearshift.core.TransmissionSession;
 import org.sugr.gearshift.service.DataService;
 import org.sugr.gearshift.ui.loader.TorrentTrafficLoader;
 import org.sugr.gearshift.ui.loader.TransmissionProfileSupportLoader;
+import org.sugr.gearshift.ui.settings.SettingsActivity;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -49,7 +55,8 @@ public class TorrentListMenuFragment extends Fragment implements TorrentListNoti
     private int trackerPosition = ListView.INVALID_POSITION;
 
     private enum Type {
-        PROFILE_SELECTOR, PROFILE, FIND, FILTER, DIRECTORY, TRACKER, SORT_BY, SORT_ORDER, HEADER
+        PROFILE_SELECTOR, PROFILE, FIND, FILTER, DIRECTORY, TRACKER,
+        SORT_BY, SORT_ORDER, HEADER, OPTION_HEADER, OPTION
     }
 
     private static final String PROFILE_SELECTOR_KEY = "profile_selector";
@@ -58,6 +65,11 @@ public class TorrentListMenuFragment extends Fragment implements TorrentListNoti
     private static final String TRACKERS_HEADER_KEY = "trackers_header";
     private static final String SORT_BY_HEADER_KEY = "sort_by_header";
     private static final String SORT_ORDER_HEADER_KEY = "sort_order_header";
+    private static final String OPTIONS_HEADER_KEY = "options_header";
+
+    private static final String SESSION_SETTINGS_VALUE = "session_settings";
+    private static final String SETTINGS_VALUE = "settings";
+    private static final String ABOUT_VALUE = "about";
 
     private TreeSet<String> directories = new TreeSet<>(G.SIMPLE_STRING_COMPARATOR);
     private TreeSet<String> trackers = new TreeSet<>(G.SIMPLE_STRING_COMPARATOR);
@@ -244,28 +256,20 @@ public class TorrentListMenuFragment extends Fragment implements TorrentListNoti
                             position = filterAdapter.itemData.indexOf(pivot);
                         }
 
-                        ListItem header = listItemMap.get(DIRECTORIES_HEADER_KEY);
                         if (position == -1) {
-                            insertRanges[0][0] = filterAdapter.itemData.size();
+                            pivot = listItemMap.get(OPTIONS_HEADER_KEY);
+                            position = filterAdapter.itemData.indexOf(pivot);
+                        }
 
-                            filterAdapter.itemData.add(header);
-                            for (String d : directories) {
-                                ListItem di = getDirectoryItem(d);
-                                if (di != null) {
-                                    filterAdapter.itemData.add(di);
-                                    insertRanges[0][1]++;
-                                }
-                            }
-                        } else {
-                            insertRanges[0][0] = position;
+                        ListItem header = listItemMap.get(DIRECTORIES_HEADER_KEY);
+                        insertRanges[0][0] = position;
 
-                            filterAdapter.itemData.add(position++, header);
-                            for (String d : directories) {
-                                ListItem di = getDirectoryItem(d);
-                                if (di != null) {
-                                    filterAdapter.itemData.add(position++, di);
-                                    insertRanges[0][1]++;
-                                }
+                        filterAdapter.itemData.add(position++, header);
+                        for (String d : directories) {
+                            ListItem di = getDirectoryItem(d);
+                            if (di != null) {
+                                filterAdapter.itemData.add(position++, di);
+                                insertRanges[0][1]++;
                             }
                         }
                         updateDirectoryFilter = !currentDirectoryTorrents;
@@ -318,36 +322,26 @@ public class TorrentListMenuFragment extends Fragment implements TorrentListNoti
                             position = filterAdapter.itemData.indexOf(pivot);
                         }
 
-                        ListItem header = listItemMap.get(TRACKERS_HEADER_KEY);
                         if (position == -1) {
-                            insertRanges[1][0] = filterAdapter.itemData.size();
+                            pivot = listItemMap.get(OPTIONS_HEADER_KEY);
+                            position = filterAdapter.itemData.indexOf(pivot);
+                        }
 
-                            filterAdapter.itemData.add(header);
-                            for (String t : trackers) {
-                                filterAdapter.itemData.add(getTrackerItem(t));
-                                insertRanges[1][1]++;
-                            }
-                        } else {
-                            insertRanges[1][0] = position;
+                        ListItem header = listItemMap.get(TRACKERS_HEADER_KEY);
+                        insertRanges[1][0] = position;
 
-                            filterAdapter.itemData.add(position++, header);
-                            for (String t : trackers) {
-                                filterAdapter.itemData.add(position++, getTrackerItem(t));
-                                insertRanges[1][1]++;
-                            }
+                        filterAdapter.itemData.add(position++, header);
+                        for (String t : trackers) {
+                            filterAdapter.itemData.add(position++, getTrackerItem(t));
+                            insertRanges[1][1]++;
                         }
 
                         if (sharedPrefs.getBoolean(G.PREF_FILTER_UNTRACKED, false)) {
                             ListItem untracked = new ListItem(Type.TRACKER, G.FILTER_UNTRACKED,
                                 getString(R.string.menu_filters_untracked), G.PREF_FILTER_UNTRACKED);
 
-                            if (position == -1) {
-                                filterAdapter.itemData.add(untracked);
-                                insertRanges[1][1]++;
-                            } else {
-                                filterAdapter.itemData.add(position++, untracked);
-                                insertRanges[1][1]++;
-                            }
+                            filterAdapter.itemData.add(position++, untracked);
+                            insertRanges[1][1]++;
                         }
                         updateTrackerFilter = !currentTrackerTorrents;
                     } else {
@@ -398,9 +392,13 @@ public class TorrentListMenuFragment extends Fragment implements TorrentListNoti
         }
     };
 
+    private BroadcastReceiver sessionReceiver;
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState) {
+
+        sessionReceiver = new SessionReceiver();
 
         Context context = new ContextThemeWrapper(getActivity(), android.R.style.Theme_Holo);
         LayoutInflater localInflater = inflater.cloneInContext(context);
@@ -426,8 +424,7 @@ public class TorrentListMenuFragment extends Fragment implements TorrentListNoti
         return root;
     }
 
-    @Override
-    public void onResume() {
+    @Override public void onResume() {
         super.onResume();
 
         if (filtersChanged) {
@@ -439,6 +436,15 @@ public class TorrentListMenuFragment extends Fragment implements TorrentListNoti
 
             getActivity().getSupportLoaderManager().restartLoader(G.PROFILES_LOADER_ID, null, profileLoaderCallbacks);
         }
+
+        LocalBroadcastManager.getInstance(getActivity()).registerReceiver(
+            sessionReceiver, new IntentFilter(G.INTENT_SESSION_INVALIDATED));
+    }
+
+    @Override public void onPause() {
+        super.onPause();
+
+        LocalBroadcastManager.getInstance(getActivity()).unregisterReceiver(sessionReceiver);
     }
 
     public void notifyTorrentListChanged(Cursor cursor, int error, boolean added, boolean removed,
@@ -471,22 +477,24 @@ public class TorrentListMenuFragment extends Fragment implements TorrentListNoti
             TorrentListFragment fragment =
                     ((TorrentListFragment) getFragmentManager().findFragmentById(R.id.torrent_list));
 
+            TorrentListActivity context = (TorrentListActivity) getActivity();
+            TransmissionProfile profile = context.getProfile();
+
             switch(item.getType()) {
                 case PROFILE_SELECTOR:
                     filterAdapter.setProfilesVisible(!filterAdapter.areProfilesVisible());
                     break;
                 case PROFILE:
-                    TorrentListActivity context = (TorrentListActivity) getActivity();
-                    if (context.getProfile() != null && context.getProfile().getId().equals(item.getValueString())) {
+                    if (profile != null && profile.getId().equals(item.getValueString())) {
                         break;
                     }
 
-                    for (TransmissionProfile profile : profiles) {
-                        if (profile.getId().equals(item.getValueString())) {
-                            TransmissionProfile.setCurrentProfile(profile,
+                    for (TransmissionProfile prof : profiles) {
+                        if (prof.getId().equals(item.getValueString())) {
+                            TransmissionProfile.setCurrentProfile(prof,
                                 PreferenceManager.getDefaultSharedPreferences(context));
 
-                            context.setProfile(profile);
+                            context.setProfile(prof);
 
                             context.setRefreshing(true, DataService.Requests.GET_TORRENTS);
 
@@ -562,6 +570,50 @@ public class TorrentListMenuFragment extends Fragment implements TorrentListNoti
                         fragment.setListFilter((SortOrder) item.getValue());
                     }
                     break;
+                case OPTION:
+                    TransmissionSession session = context.getSession();
+                    final Intent intent;
+
+                    switch (item.getValueString()) {
+                        case SESSION_SETTINGS_VALUE:
+                            if (session == null) {
+                                return;
+                            }
+
+                            intent = new Intent(context, TransmissionSessionActivity.class);
+                            intent.putExtra(G.ARG_PROFILE, profile);
+                            intent.putExtra(G.ARG_SESSION, session);
+                            context.overridePendingTransition(R.anim.slide_in_top, android.R.anim.fade_out);
+                            break;
+                        case SETTINGS_VALUE:
+                            intent = new Intent(context, SettingsActivity.class);
+
+                            if (session != null) {
+                                ArrayList<String> directories = new ArrayList<>(session.getDownloadDirectories());
+                                directories.remove(session.getDownloadDir());
+                                intent.putExtra(G.ARG_DIRECTORIES, directories);
+                            }
+                            if (profile != null) {
+                                intent.putExtra(G.ARG_PROFILE_ID, profile.getId());
+                            }
+                            context.overridePendingTransition(R.anim.slide_in_top, android.R.anim.fade_out);
+                            break;
+                        case ABOUT_VALUE:
+                            intent = new Intent(context, AboutActivity.class);
+                            break;
+                        default:
+                            return;
+                    }
+
+                    closeHandler.removeCallbacks(closeRunnable);
+                    closeHandler.post(closeRunnable);
+                    if (intent != null) {
+                        closeHandler.post(new Runnable() {
+                            @Override public void run() {
+                                startActivity(intent);
+                            }
+                        });
+                    }
                 default:
                     return;
             }
@@ -790,6 +842,28 @@ public class TorrentListMenuFragment extends Fragment implements TorrentListNoti
             filterAdapter.itemData.add(item);
         }
         list.clear();
+
+        ListItem item;
+        if (listItemMap.containsKey(OPTIONS_HEADER_KEY)) {
+            item = listItemMap.get(OPTIONS_HEADER_KEY);
+        } else {
+            item = new ListItem(Type.OPTION_HEADER, null, null, null);
+        }
+        listItemMap.put(OPTIONS_HEADER_KEY, item);
+        filterAdapter.itemData.add(item);
+
+        if (((TransmissionSessionInterface) getActivity()).getSession() != null) {
+            item = new ListItem(Type.OPTION, SESSION_SETTINGS_VALUE, R.string.session_settings_item,
+                R.drawable.ic_settings_remote_black_18dp);
+            filterAdapter.itemData.add(item);
+        }
+
+        item = new ListItem(Type.OPTION, SETTINGS_VALUE, R.string.settings,
+            R.drawable.ic_settings_black_18dp);
+        filterAdapter.itemData.add(item);
+        item = new ListItem(Type.OPTION, ABOUT_VALUE, R.string.about_item,
+            R.drawable.ic_info_black_18dp);
+        filterAdapter.itemData.add(item);
 
         filterAdapter.notifyDataSetChanged();
         filterList.scrollToPosition(0);
@@ -1033,8 +1107,7 @@ public class TorrentListMenuFragment extends Fragment implements TorrentListNoti
         @Override public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
             View itemLayoutView = LayoutInflater.from(parent.getContext()).inflate(viewType, parent, false);
 
-            ViewHolder holder = new ViewHolder(itemLayoutView, viewType);
-            return holder;
+            return new ViewHolder(itemLayoutView, viewType);
         }
 
         @Override public boolean isItemSelectable(int position) {
@@ -1043,8 +1116,11 @@ public class TorrentListMenuFragment extends Fragment implements TorrentListNoti
             }
 
             ListItem item = itemData.get(position);
-            if (item.getType() == Type.HEADER) {
-                return false;
+            switch (item.getType()) {
+                case HEADER:
+                case OPTION_HEADER:
+                case OPTION:
+                    return false;
             }
 
             return true;
@@ -1060,9 +1136,15 @@ public class TorrentListMenuFragment extends Fragment implements TorrentListNoti
                     context.setActivatedPosition(item, position);
                 }
             });
-            holder.label.setText(item.getLabel());
+
+            if (holder.label != null) {
+                holder.label.setText(item.getLabel());
+            }
             if (holder.sublabel != null) {
                 holder.sublabel.setText(item.getSublabel());
+            }
+            if (holder.icon != null) {
+                holder.icon.setBackgroundResource(item.getIconId());
             }
         }
 
@@ -1074,6 +1156,10 @@ public class TorrentListMenuFragment extends Fragment implements TorrentListNoti
                 case PROFILE:
                 case PROFILE_SELECTOR:
                     return R.layout.filter_list_profile_item;
+                case OPTION_HEADER:
+                    return R.layout.filter_list_option_header;
+                case OPTION:
+                    return R.layout.filter_list_option_item;
                 default:
                     return R.layout.filter_list_item;
             }
@@ -1082,12 +1168,14 @@ public class TorrentListMenuFragment extends Fragment implements TorrentListNoti
         public static class ViewHolder extends RecyclerView.ViewHolder {
             public TextView label;
             public TextView sublabel;
+            public View icon;
 
             public ViewHolder(View itemView, int type) {
                 super(itemView);
 
                 label = (TextView) itemView.findViewById(android.R.id.text1);
                 sublabel = (TextView) itemView.findViewById(android.R.id.text2);
+                icon = itemView.findViewById(android.R.id.icon);
             }
         }
     }
@@ -1095,6 +1183,7 @@ public class TorrentListMenuFragment extends Fragment implements TorrentListNoti
     private class ListItem {
         private Type type;
         private Enum<?> value;
+        private int iconId;
         private String valueString;
         private String label;
         private String sublabel;
@@ -1128,6 +1217,15 @@ public class TorrentListMenuFragment extends Fragment implements TorrentListNoti
             listItemMap.put(value, this);
         }
 
+        public ListItem(Type type, String value, int stringId, int iconId) {
+            this.type = type;
+            this.iconId = iconId;
+            label = getString(stringId);
+            valueString = value;
+
+            listItemMap.put(value, this);
+        }
+
         public Type getType() {
             return type;
         }
@@ -1142,6 +1240,10 @@ public class TorrentListMenuFragment extends Fragment implements TorrentListNoti
 
         public String getLabel() {
             return label;
+        }
+
+        public int getIconId() {
+            return iconId;
         }
 
         public String getSublabel() {
@@ -1185,5 +1287,28 @@ public class TorrentListMenuFragment extends Fragment implements TorrentListNoti
             return true;
         }
 
+    }
+
+    private class SessionReceiver extends BroadcastReceiver {
+        @Override public void onReceive(Context context, Intent intent) {
+            if (intent.getBooleanExtra(G.ARG_SESSION_VALID, false)) {
+                ListItem item = new ListItem(Type.OPTION, SESSION_SETTINGS_VALUE, R.string.session_settings_item,
+                    R.drawable.ic_settings_remote_black_18dp);
+                ListItem pivot = listItemMap.get(OPTIONS_HEADER_KEY);
+                int position = filterAdapter.itemData.indexOf(pivot);
+
+                filterAdapter.itemData.add(++position, item);
+                filterAdapter.notifyItemInserted(position);
+            } else {
+                ListItem item = listItemMap.get(SESSION_SETTINGS_VALUE);
+                if (item != null) {
+                    int position = filterAdapter.itemData.indexOf(item);
+                    if (position != -1) {
+                        filterAdapter.itemData.remove(position);
+                        filterAdapter.notifyItemRemoved(position);
+                    }
+                }
+            }
+        }
     }
 }

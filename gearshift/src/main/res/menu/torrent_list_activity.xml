@@ -17,26 +17,4 @@
           android:menuCategory="system"
           android:orderInCategory="75"
           android:title="@string/add_torrent" />
-
-    <item android:id="@+id/menu_session_settings"
-        android:visible="false"
-        app:showAsAction="never"
-        android:menuCategory="system"
-        android:orderInCategory="80"
-        android:title="@string/session_settings_item" />
-
-    <item android:id="@+id/menu_settings"
-        android:visible="true"
-        app:showAsAction="never"
-        android:menuCategory="system"
-        android:orderInCategory="90"
-        android:title="@string/settings"
-        android:titleCondensed="@string/settings" />
-
-     <item android:id="@+id/menu_about"
-        android:visible="true"
-        app:showAsAction="never"
-        android:menuCategory="system"
-        android:orderInCategory="99"
-        android:title="@string/about_item" />
 </menu>

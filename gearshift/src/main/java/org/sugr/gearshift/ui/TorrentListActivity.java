@@ -21,6 +21,7 @@ import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -221,12 +222,13 @@ public class TorrentListActivity extends BaseTorrentActivity
         getWindow().setBackgroundDrawable(null);
         drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawerLayout.setDrawerShadow(R.drawable.drawer_shadow, GravityCompat.START);
-        drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED,
-            findViewById(R.id.sliding_menu_frame));
         drawerToggle = new ActionBarDrawerToggle(this, drawerLayout, toolbar,
             R.string.open_drawer, R.string.close_drawer) { };
-        drawerToggle.setDrawerIndicatorEnabled(false);
         drawerLayout.setDrawerListener(drawerToggle);
+        drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED,
+            findViewById(R.id.sliding_menu_frame));
+        drawerToggle.setDrawerIndicatorEnabled(true);
+
 
         if (twoPaneLayout) {
             toggleRightPane(false);
@@ -406,30 +408,6 @@ public class TorrentListActivity extends BaseTorrentActivity
             case R.id.menu_add_torrent:
                 showAddTorrentDialog();
                 break;
-            case R.id.menu_session_settings:
-                intent = new Intent(this, TransmissionSessionActivity.class);
-                intent.putExtra(G.ARG_PROFILE, profile);
-                intent.putExtra(G.ARG_SESSION, session);
-                startActivity(intent);
-                overridePendingTransition(R.anim.slide_in_top, android.R.anim.fade_out);
-                return true;
-            case R.id.menu_settings:
-                intent = new Intent(this, SettingsActivity.class);
-                if (session != null) {
-                    ArrayList<String> directories = new ArrayList<>(session.getDownloadDirectories());
-                    directories.remove(session.getDownloadDir());
-                    intent.putExtra(G.ARG_DIRECTORIES, directories);
-                }
-                if (profile != null) {
-                    intent.putExtra(G.ARG_PROFILE_ID, profile.getId());
-                }
-                startActivity(intent);
-                overridePendingTransition(R.anim.slide_in_top, android.R.anim.fade_out);
-                return true;
-            case R.id.menu_about:
-                intent = new Intent(this, AboutActivity.class);
-                startActivity(intent);
-                return true;
         }
         if (twoPaneLayout) {
             Fragment fragment = getSupportFragmentManager().findFragmentByTag(G.DETAIL_FRAGMENT_TAG);
@@ -551,34 +529,24 @@ public class TorrentListActivity extends BaseTorrentActivity
     @Override public void setSession(TransmissionSession session) {
         if (session == null) {
             if (this.session != null) {
-                drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED,
-                    findViewById(R.id.sliding_menu_frame));
-                drawerToggle.setDrawerIndicatorEnabled(false);
-
                 invalidateOptionsMenu();
+                LocalBroadcastManager.getInstance(this).sendBroadcast(
+                    new Intent(G.INTENT_SESSION_INVALIDATED).putExtra(G.ARG_SESSION_VALID, false));
             }
 
             this.session = null;
-            if (menu != null) {
-                menu.findItem(R.id.menu_session_settings).setVisible(false);
-            }
         } else {
             boolean initial = false;
             if (this.session == null) {
-                drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED,
-                    findViewById(R.id.sliding_menu_frame));
-                drawerToggle.setDrawerIndicatorEnabled(true);
-
                 invalidateOptionsMenu();
                 initial = true;
+                LocalBroadcastManager.getInstance(this).sendBroadcast(
+                    new Intent(G.INTENT_SESSION_INVALIDATED).putExtra(G.ARG_SESSION_VALID, true));
             } else if (session.getRPCVersion() >= TransmissionSession.FREE_SPACE_METHOD_RPC_VERSION) {
                 session.setDownloadDirFreeSpace(this.session.getDownloadDirFreeSpace());
             }
 
             this.session = session;
-            if (menu != null) {
-                menu.findItem(R.id.menu_session_settings).setVisible(true);
-            }
 
             if (initial && !intentConsumed && !newTorrentDialogVisible) {
                 consumeIntent();

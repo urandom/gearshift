@@ -5,6 +5,7 @@
     <color name="control_highlight">#00bba6</color>
     <color name="control_activated">#00796b</color>
     <color name="accent">#b60000</color>
+    <color name="accent_dull">#6e0000</color>
     <color name="accent_light">#f44336</color>
 
     <color name="main_red">#b60000</color>

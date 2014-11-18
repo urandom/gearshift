@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:paddingLeft="20dp"
+    android:paddingRight="20dp"
+    android:paddingTop="12dp"
+    android:paddingBottom="12dp"
+    android:minHeight="?android:attr/listPreferredItemHeightSmall"
+    android:background="@drawable/filter_list_item_background"
+    android:orientation="horizontal">
+
+    <View
+        android:id="@android:id/icon"
+        android:layout_width="18dp"
+        android:layout_height="18dp"
+        android:layout_gravity="center_vertical" />
+
+    <TextView
+        android:id="@android:id/text1"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:paddingLeft="8dp"
+        android:paddingStart="8dp"
+        android:fontFamily="sans-serif-condensed"
+        android:textAppearance="?android:attr/textAppearanceInverse"
+        tools:text="@string/session_settings_item"/>
+
+</LinearLayout>
+

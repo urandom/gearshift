@@ -17,11 +17,11 @@ copy_icons() {
 }
 
 sizes="mdpi hdpi xhdpi xxhdpi xxxhdpi"
-color="white"
-dims="24dp"
 
+# Toolbar
 icons="
 action/ic_done
+action/ic_search
 av/ic_pause
 av/ic_play_arrow
 av/ic_my_library_add
@@ -37,7 +37,7 @@ toggle/ic_star_half
 toggle/ic_star_outline
 "
 
-copy_icons "$sizes" "$icons" $color $dims
+copy_icons "$sizes" "$icons" "white" "24dp"
 
 icons="
 file/ic_folder_open
@@ -45,3 +45,11 @@ navigation/ic_expand_more
 "
 
 copy_icons "$sizes" "$icons" 'grey600' "36dp"
+
+icons="
+action/ic_info
+action/ic_settings
+action/ic_settings_remote
+"
+
+copy_icons "$sizes" "$icons" 'black' "18dp"
