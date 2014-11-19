@@ -82,6 +82,7 @@ public class LocationDialogHelper {
             }
         };
         location.setAdapter(adapter);
+        location.setLongClickable(true);
         location.setOnLongClickListener(new View.OnLongClickListener() {
             @Override public boolean onLongClick(final View v) {
                 swapLocationSpinner.run();

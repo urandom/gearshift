@@ -450,6 +450,7 @@
     <string name="update_checking">Checking …</string>
     <string name="crash_title"><![CDATA[<h2>Unfortunately, Gear Shift has stopped.</h2><small>Would you like to email a crash report?</small>]]></string>
     <string name="crash_send">Send</string>
+    <string name="sort">Sort</string>
 
     <string-array name="torrent_priority">
         <item>Low</item>

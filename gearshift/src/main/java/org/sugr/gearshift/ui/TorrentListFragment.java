@@ -7,8 +7,11 @@ import android.animation.TimeInterpolator;
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.database.Cursor;
@@ -19,6 +22,7 @@ import android.preference.PreferenceManager;
 import android.support.v4.app.ListFragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBarActivity;
@@ -117,6 +121,8 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
     private Menu menu;
 
     private SparseBooleanArray checkAnimations = new SparseBooleanArray();
+
+    private BroadcastReceiver sessionReceiver;
 
     /**
      * A callback interface that all activities containing this fragment must
@@ -302,7 +308,7 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
             new SharedPreferences.OnSharedPreferenceChangeListener() {
                 @Override
                 public void onSharedPreferenceChanged(SharedPreferences prefs, String key) {
-                    if (key.equals(G.PREF_BASE_SORT_ORDER) || key.equals(G.PREF_BASE_SORT_ORDER)) {
+                    if (key.equals(G.PREF_BASE_SORT_ORDER)) {
                         torrentAdapter.getFilter().filter("");
                     } else if (key.equals(G.PREF_PROFILES)) {
                         if (getActivity() != null) {
@@ -315,6 +321,11 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
                         }
                     } else if (key.equals(G.PREF_SHOW_STATUS) && getView() != null) {
                         toggleStatusBar();
+                    } else if (key.startsWith(G.PREF_SORT_PREFIX)
+                        || key.equals(G.PREF_LIST_SORT_BY)
+                        || key.equals(G.PREF_LIST_SORT_ORDER)) {
+                        int visibleCount = setupSortMenu();
+                        menu.findItem(R.id.sort).setVisible(visibleCount > 0);
                     }
                 }
             };
@@ -415,6 +426,8 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        sessionReceiver = new SessionReceiver();
 
         sharedPrefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
         getActivity().setProgressBarIndeterminateVisibility(true);
@@ -526,6 +539,19 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
 
     }
 
+    @Override public void onResume() {
+        super.onResume();
+
+        LocalBroadcastManager.getInstance(getActivity()).registerReceiver(
+            sessionReceiver, new IntentFilter(G.INTENT_SESSION_INVALIDATED));
+    }
+
+    @Override public void onPause() {
+        super.onPause();
+
+        LocalBroadcastManager.getInstance(getActivity()).unregisterReceiver(sessionReceiver);
+    }
+
     @Override public void onDestroyView() {
         torrentAdapter.clearResources();
 
@@ -560,8 +586,7 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
         return inflater.inflate(R.layout.fragment_torrent_list, container, false);
     }
 
-    @Override
-    public void onCreateOptionsMenu(final Menu menu, MenuInflater inflater) {
+    @Override public void onCreateOptionsMenu(final Menu menu, MenuInflater inflater) {
         if (getActivity() == null) {
             return;
         }
@@ -614,6 +639,57 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
 
         if (findVisible) {
             setFindVisibility(findVisible);
+        }
+
+        int visibleCount = setupSortMenu();
+        item = menu.findItem(R.id.sort);
+        item.setVisible(visibleCount > 0);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(final MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.sort_name:
+                setListFilter(SortBy.NAME);
+                return true;
+            case R.id.sort_size:
+                setListFilter(SortBy.SIZE);
+                return true;
+            case R.id.sort_status:
+                setListFilter(SortBy.STATUS);
+                return true;
+            case R.id.sort_activity:
+                setListFilter(SortBy.ACTIVITY);
+                return true;
+            case R.id.sort_age:
+                setListFilter(SortBy.AGE);
+                return true;
+            case R.id.sort_progress:
+                setListFilter(SortBy.PROGRESS);
+                return true;
+            case R.id.sort_ratio:
+                setListFilter(SortBy.RATIO);
+                return true;
+            case R.id.sort_location:
+                setListFilter(SortBy.LOCATION);
+                return true;
+            case R.id.sort_peers:
+                setListFilter(SortBy.PEERS);
+                return true;
+            case R.id.sort_download_speed:
+                setListFilter(SortBy.RATE_DOWNLOAD);
+                return true;
+            case R.id.sort_upload_speed:
+                setListFilter(SortBy.RATE_UPLOAD);
+                return true;
+            case R.id.sort_queue:
+                setListFilter(SortBy.QUEUE);
+                return true;
+            case R.id.sort_order:
+                setListFilter(item.isChecked() ? SortOrder.ASCENDING : SortOrder.DESCENDING);
+                return true;
+            default:
+                return false;
         }
     }
 
@@ -924,6 +1000,165 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
 
     }
 
+    private int setupSortMenu() {
+        int visibleOptions = 0;
+        SortBy selectedSort = SortBy.STATUS;
+        if (sharedPrefs.contains(G.PREF_LIST_SORT_BY)) {
+            try {
+                selectedSort = SortBy.valueOf(
+                    sharedPrefs.getString(G.PREF_LIST_SORT_BY, "")
+                );
+            } catch (Exception ignored) { }
+        }
+
+        for (SortBy sort : SortBy.values()) {
+            boolean visible;
+            MenuItem item;
+            switch (sort) {
+                case NAME:
+                    visible = sharedPrefs.getBoolean(G.PREF_SORT_NAME, true);
+                    item = menu.findItem(R.id.sort_name);
+                    item.setVisible(visible);
+                    item.setChecked(sort == selectedSort);
+
+                    if (visible) {
+                        ++visibleOptions;
+                    }
+                    break;
+                case SIZE:
+                    visible = sharedPrefs.getBoolean(G.PREF_SORT_SIZE, true);
+                    item = menu.findItem(R.id.sort_name);
+                    item.setVisible(visible);
+                    item.setChecked(sort == selectedSort);
+
+                    if (visible) {
+                        ++visibleOptions;
+                    }
+                    break;
+                case STATUS:
+                    visible = sharedPrefs.getBoolean(G.PREF_SORT_STATUS, true);
+                    item = menu.findItem(R.id.sort_status);
+                    item.setVisible(visible);
+                    item.setChecked(sort == selectedSort);
+
+                    if (visible) {
+                        ++visibleOptions;
+                    }
+                    break;
+                case ACTIVITY:
+                    visible = sharedPrefs.getBoolean(G.PREF_SORT_ACTIVITY, true);
+                    item = menu.findItem(R.id.sort_activity);
+                    item.setVisible(visible);
+                    item.setChecked(sort == selectedSort);
+
+                    if (visible) {
+                        ++visibleOptions;
+                    }
+                    break;
+                case AGE:
+                    visible = sharedPrefs.getBoolean(G.PREF_SORT_AGE, true);
+                    item = menu.findItem(R.id.sort_age);
+                    item.setVisible(visible);
+                    item.setChecked(sort == selectedSort);
+
+                    if (visible) {
+                        ++visibleOptions;
+                    }
+                    break;
+                case PROGRESS:
+                    visible = sharedPrefs.getBoolean(G.PREF_SORT_PROGRESS, true);
+                    item = menu.findItem(R.id.sort_progress);
+                    item.setVisible(visible);
+                    item.setChecked(sort == selectedSort);
+
+                    if (visible) {
+                        ++visibleOptions;
+                    }
+                    break;
+                case RATIO:
+                    visible = sharedPrefs.getBoolean(G.PREF_SORT_RATIO, true);
+                    item = menu.findItem(R.id.sort_ratio);
+                    item.setVisible(visible);
+                    item.setChecked(sort == selectedSort);
+
+                    if (visible) {
+                        ++visibleOptions;
+                    }
+                    break;
+                case LOCATION:
+                    visible = sharedPrefs.getBoolean(G.PREF_SORT_LOCATION, true);
+                    item = menu.findItem(R.id.sort_location);
+                    item.setVisible(visible);
+                    item.setChecked(sort == selectedSort);
+
+                    if (visible) {
+                        ++visibleOptions;
+                    }
+                    break;
+                case PEERS:
+                    visible = sharedPrefs.getBoolean(G.PREF_SORT_PEERS, true);
+                    item = menu.findItem(R.id.sort_peers);
+                    item.setVisible(visible);
+                    item.setChecked(sort == selectedSort);
+
+                    if (visible) {
+                        ++visibleOptions;
+                    }
+                    break;
+                case RATE_DOWNLOAD:
+                    visible = sharedPrefs.getBoolean(G.PREF_SORT_RATE_DOWNLOAD, true);
+                    item = menu.findItem(R.id.sort_download_speed);
+                    item.setVisible(visible);
+                    item.setChecked(sort == selectedSort);
+
+                    if (visible) {
+                        ++visibleOptions;
+                    }
+                    break;
+                case RATE_UPLOAD:
+                    visible = sharedPrefs.getBoolean(G.PREF_SORT_RATE_UPLOAD, true);
+                    item = menu.findItem(R.id.sort_upload_speed);
+                    item.setVisible(visible);
+                    item.setChecked(sort == selectedSort);
+
+                    if (visible) {
+                        ++visibleOptions;
+                    }
+                    break;
+                case QUEUE:
+                    visible = sharedPrefs.getBoolean(G.PREF_SORT_QUEUE, true);
+                    item = menu.findItem(R.id.sort_queue);
+                    item.setVisible(visible);
+                    item.setChecked(sort == selectedSort);
+
+                    if (visible) {
+                        ++visibleOptions;
+                    }
+                    break;
+            }
+        }
+
+        MenuItem order = menu.findItem(R.id.sort_order);
+        if (visibleOptions > 0) {
+            order.setVisible(true);
+
+            SortOrder selectedOrder = SortOrder.DESCENDING;
+            if (sharedPrefs.contains(G.PREF_LIST_SORT_ORDER)) {
+                try {
+                    selectedOrder = SortOrder.valueOf(
+                        sharedPrefs.getString(G.PREF_LIST_SORT_ORDER, "")
+                    );
+                } catch (Exception ignored) { }
+            }
+
+            order.setChecked(selectedOrder == SortOrder.DESCENDING);
+        } else {
+            order.setVisible(false);
+        }
+
+        return visibleOptions;
+    }
+
     private class TorrentCursorAdapter extends CursorAdapter {
         private SparseBooleanArray addedTorrents = new SparseBooleanArray();
         private DataSource readDataSource;
@@ -1184,6 +1419,16 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
             }
 
             return oldCursor;
+        }
+    }
+
+    private class SessionReceiver extends BroadcastReceiver {
+        @Override public void onReceive(Context context, Intent intent) {
+            if (intent.getBooleanExtra(G.ARG_SESSION_VALID, false)) {
+                menu.findItem(R.id.sort).setVisible(true);
+            } else {
+                menu.findItem(R.id.sort).setVisible(false);
+            }
         }
     }
 }

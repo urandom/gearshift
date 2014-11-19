@@ -29,6 +29,7 @@ content/ic_add
 content/ic_forward
 content/ic_remove
 content/ic_select_all
+content/ic_sort
 navigation/ic_arrow_back
 navigation/ic_close
 navigation/ic_refresh

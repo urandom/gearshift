@@ -56,15 +56,13 @@ public class TorrentListMenuFragment extends Fragment implements TorrentListNoti
 
     private enum Type {
         PROFILE_SELECTOR, PROFILE, FIND, FILTER, DIRECTORY, TRACKER,
-        SORT_BY, SORT_ORDER, HEADER, OPTION_HEADER, OPTION
+        HEADER, OPTION_HEADER, OPTION
     }
 
     private static final String PROFILE_SELECTOR_KEY = "profile_selector";
     private static final String FILTERS_HEADER_KEY = "filters_header";
     private static final String DIRECTORIES_HEADER_KEY = "directories_header";
     private static final String TRACKERS_HEADER_KEY = "trackers_header";
-    private static final String SORT_BY_HEADER_KEY = "sort_by_header";
-    private static final String SORT_ORDER_HEADER_KEY = "sort_order_header";
     private static final String OPTIONS_HEADER_KEY = "options_header";
 
     private static final String SESSION_SETTINGS_VALUE = "session_settings";
@@ -78,6 +76,8 @@ public class TorrentListMenuFragment extends Fragment implements TorrentListNoti
 
     private SharedPreferences sharedPrefs;
     private List<TransmissionProfile> profiles = new ArrayList<>();
+
+    private BroadcastReceiver sessionReceiver;
 
     private Handler closeHandler = new Handler();
     private Runnable closeRunnable = new Runnable() {
@@ -248,18 +248,8 @@ public class TorrentListMenuFragment extends Fragment implements TorrentListNoti
                     filterAdapter.notifyItemRangeRemoved(range[0], range[1]);
 
                     if (directories.size() > 1) {
-                        ListItem pivot = listItemMap.get(SORT_BY_HEADER_KEY);
+                        ListItem pivot = listItemMap.get(OPTIONS_HEADER_KEY);
                         int position = filterAdapter.itemData.indexOf(pivot);
-
-                        if (position == -1) {
-                            pivot = listItemMap.get(SORT_ORDER_HEADER_KEY);
-                            position = filterAdapter.itemData.indexOf(pivot);
-                        }
-
-                        if (position == -1) {
-                            pivot = listItemMap.get(OPTIONS_HEADER_KEY);
-                            position = filterAdapter.itemData.indexOf(pivot);
-                        }
 
                         ListItem header = listItemMap.get(DIRECTORIES_HEADER_KEY);
                         insertRanges[0][0] = position;
@@ -314,18 +304,8 @@ public class TorrentListMenuFragment extends Fragment implements TorrentListNoti
                     if (trackers.size() > 0 && sharedPrefs.getBoolean(G.PREF_FILTER_UNTRACKED, false)
                         || trackers.size() > 1) {
 
-                        ListItem pivot = listItemMap.get(SORT_BY_HEADER_KEY);
+                        ListItem pivot = listItemMap.get(OPTIONS_HEADER_KEY);
                         int position = filterAdapter.itemData.indexOf(pivot);
-
-                        if (position == -1) {
-                            pivot = listItemMap.get(SORT_ORDER_HEADER_KEY);
-                            position = filterAdapter.itemData.indexOf(pivot);
-                        }
-
-                        if (position == -1) {
-                            pivot = listItemMap.get(OPTIONS_HEADER_KEY);
-                            position = filterAdapter.itemData.indexOf(pivot);
-                        }
 
                         ListItem header = listItemMap.get(TRACKERS_HEADER_KEY);
                         insertRanges[1][0] = position;
@@ -391,8 +371,6 @@ public class TorrentListMenuFragment extends Fragment implements TorrentListNoti
         public void onLoaderReset(Loader<TorrentTrafficLoader.TorrentTrafficOutputData> loader) {
         }
     };
-
-    private BroadcastReceiver sessionReceiver;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -553,23 +531,6 @@ public class TorrentListMenuFragment extends Fragment implements TorrentListNoti
                         fragment.setListTrackerFilter(item.getValueString());
                     }
                     break;
-                case SORT_BY:
-                    filterAdapter.setItemSelected(sortPosition, false);
-                    filterAdapter.setItemSelected(position, true);
-                    sortPosition = position;
-                    fragment.setListFilter((SortBy) item.getValue());
-                    break;
-                case SORT_ORDER:
-                    if (orderPosition == position) {
-                        orderPosition = ListView.INVALID_POSITION;
-                        filterAdapter.setItemSelected(position, false);
-                        fragment.setListFilter(SortOrder.ASCENDING);
-                    } else {
-                        orderPosition = position;
-                        filterAdapter.setItemSelected(position, true);
-                        fragment.setListFilter((SortOrder) item.getValue());
-                    }
-                    break;
                 case OPTION:
                     TransmissionSession session = context.getSession();
                     final Intent intent;
@@ -612,7 +573,7 @@ public class TorrentListMenuFragment extends Fragment implements TorrentListNoti
                             @Override public void run() {
                                 startActivity(intent);
                             }
-                        }, getResources().getInteger(android.R.integer.config_shortAnimTime));
+                        }, getResources().getInteger(android.R.integer.config_shortAnimTime) + 100);
                     }
                 default:
                     return;
@@ -753,95 +714,6 @@ public class TorrentListMenuFragment extends Fragment implements TorrentListNoti
         if (!listItemMap.containsKey(TRACKERS_HEADER_KEY)) {
             new ListItem(Type.HEADER, TRACKERS_HEADER_KEY, R.string.menu_trackers_header);
         }
-
-        for (SortBy sort : SortBy.values()) {
-            ListItem item;
-            if (listItemMap.containsKey(sort.name())) {
-                item = listItemMap.get(sort.name());
-            } else {
-                int string = -1;
-                String pref = null;
-                switch(sort) {
-                    case NAME:
-                        string = R.string.menu_sort_name;
-                        pref = G.PREF_SORT_NAME;
-                        break;
-                    case SIZE:
-                        string = R.string.menu_sort_size;
-                        pref = G.PREF_SORT_SIZE;
-                        break;
-                    case STATUS:
-                        string = R.string.menu_sort_status;
-                        pref = G.PREF_SORT_STATUS;
-                        break;
-                    case ACTIVITY:
-                        string = R.string.menu_sort_activity;
-                        pref = G.PREF_SORT_ACTIVITY;
-                        break;
-                    case AGE:
-                        string = R.string.menu_sort_age;
-                        pref = G.PREF_SORT_AGE;
-                        break;
-                    case PROGRESS:
-                        string = R.string.menu_sort_progress;
-                        pref = G.PREF_SORT_PROGRESS;
-                        break;
-                    case RATIO:
-                        string = R.string.menu_sort_ratio;
-                        pref = G.PREF_SORT_RATIO;
-                        break;
-                    case LOCATION:
-                        string = R.string.menu_sort_location;
-                        pref = G.PREF_SORT_LOCATION;
-                        break;
-                    case PEERS:
-                        string = R.string.menu_sort_peers;
-                        pref = G.PREF_SORT_PEERS;
-                        break;
-                    case RATE_DOWNLOAD:
-                        string = R.string.menu_sort_download_speed;
-                        pref = G.PREF_SORT_RATE_DOWNLOAD;
-                        break;
-                    case RATE_UPLOAD:
-                        string = R.string.menu_sort_upload_speed;
-                        pref = G.PREF_SORT_RATE_UPLOAD;
-                        break;
-                    case QUEUE:
-                        string = R.string.menu_sort_queue;
-                        pref = G.PREF_SORT_QUEUE;
-                        break;
-                }
-                item = new ListItem(Type.SORT_BY, sort, string, pref);
-            }
-            if (sharedPrefs.getBoolean(item.getPreferenceKey(), true)) {
-                list.add(item);
-            }
-        }
-        if (listItemMap.containsKey(SORT_BY_HEADER_KEY)) {
-            header = listItemMap.get(SORT_BY_HEADER_KEY);
-        } else {
-            header = new ListItem(Type.HEADER, SORT_BY_HEADER_KEY, R.string.menu_sort_header);
-        }
-
-        if (list.size() > 1) {
-            filterAdapter.itemData.add(header);
-            filterAdapter.itemData.addAll(list);
-
-            if (listItemMap.containsKey(SORT_ORDER_HEADER_KEY)) {
-                header = listItemMap.get(SORT_ORDER_HEADER_KEY);
-            } else {
-                header = new ListItem(Type.HEADER, SORT_ORDER_HEADER_KEY, R.string.menu_order_header);
-            }
-            filterAdapter.itemData.add(header);
-            ListItem item;
-            if (listItemMap.containsKey(SortOrder.DESCENDING.name())) {
-                item = listItemMap.get(SortOrder.DESCENDING.name());
-            } else {
-                item = new ListItem(Type.SORT_ORDER, SortOrder.DESCENDING, R.string.menu_order_descending, null);
-            }
-            filterAdapter.itemData.add(item);
-        }
-        list.clear();
 
         ListItem item;
         if (listItemMap.containsKey(OPTIONS_HEADER_KEY)) {

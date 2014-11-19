@@ -59,6 +59,7 @@ public final class G {
     public static final String PREF_FILTER_TRACKERS = "filter_trackers";
     public static final String PREF_FILTER_UNTRACKED = "filter_untracked";
 
+    public static final String PREF_SORT_PREFIX = "sort_";
     public static final String PREF_SORT_NAME = "sort_name";
     public static final String PREF_SORT_SIZE = "sort_size";
     public static final String PREF_SORT_STATUS = "sort_status";
