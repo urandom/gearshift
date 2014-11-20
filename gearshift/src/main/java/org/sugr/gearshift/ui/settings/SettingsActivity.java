@@ -456,7 +456,7 @@ public class SettingsActivity extends ActionBarActivity {
         }
 
         @Override public boolean isItemSelectable(int position) {
-            if (position == -1 || itemData.size() <= position) {
+            if (itemData.size() <= position) {
                 return false;
             }
 

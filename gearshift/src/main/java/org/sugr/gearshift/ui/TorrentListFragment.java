@@ -324,8 +324,10 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
                     } else if (key.startsWith(G.PREF_SORT_PREFIX)
                         || key.equals(G.PREF_LIST_SORT_BY)
                         || key.equals(G.PREF_LIST_SORT_ORDER)) {
-                        int visibleCount = setupSortMenu();
-                        menu.findItem(R.id.sort).setVisible(visibleCount > 0);
+                        if (((TransmissionSessionInterface) getActivity()).getSession() != null) {
+                            int visibleCount = setupSortMenu();
+                            menu.findItem(R.id.sort).setVisible(visibleCount > 0);
+                        }
                     }
                 }
             };
@@ -480,7 +482,7 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
         status.setSelected(true);
 
         final SwipeRefreshLayout swipeRefresh = (SwipeRefreshLayout) view.findViewById(R.id.swipe_container);
-        swipeRefresh.setColorScheme(R.color.main_red, R.color.main_gray,
+        swipeRefresh.setColorSchemeResources(R.color.main_red, R.color.main_gray,
             R.color.main_black, R.color.main_red);
         swipeRefresh.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override public void onRefresh() {
@@ -640,9 +642,11 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
             setFindVisibility(findVisible);
         }
 
-        int visibleCount = setupSortMenu();
-        item = menu.findItem(R.id.sort);
-        item.setVisible(visibleCount > 0);
+        if (((TransmissionSessionInterface) getActivity()).getSession() != null) {
+            int visibleCount = setupSortMenu();
+            item = menu.findItem(R.id.sort);
+            item.setVisible(visibleCount > 0);
+        }
     }
 
     @Override

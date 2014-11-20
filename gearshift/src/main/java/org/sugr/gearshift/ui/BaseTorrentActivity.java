@@ -227,6 +227,8 @@ public abstract class BaseTorrentActivity extends ActionBarActivity
             text.setText(Html.fromHtml(String.format(getString(R.string.generic_http_empty_list),
                 code, string)));
         }
+
+        setSession(null);
     }
 
     protected void hideErrorMessage() {

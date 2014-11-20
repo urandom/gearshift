@@ -653,14 +653,18 @@ public class TorrentListActivity extends BaseTorrentActivity
     @Override protected void onTorrentTaskPostExecute(Cursor cursor, boolean added,
                                                       boolean removed, boolean statusChanged,
                                                       boolean incompleteMetadata, boolean connected) {
-        if (altSpeed == session.isAltSpeedLimitEnabled()) {
-            expecting &= ~(Expecting.ALT_SPEED_ON | Expecting.ALT_SPEED_OFF);
+        if (session == null) {
+            expecting = 0;
         } else {
-            if (expecting == 0
-                || (expecting & Expecting.ALT_SPEED_ON) > 0 && session.isAltSpeedLimitEnabled()
-                || (expecting & Expecting.ALT_SPEED_OFF) > 0 && !session.isAltSpeedLimitEnabled()) {
-                setAltSpeed(session.isAltSpeedLimitEnabled());
+            if (altSpeed == session.isAltSpeedLimitEnabled()) {
                 expecting &= ~(Expecting.ALT_SPEED_ON | Expecting.ALT_SPEED_OFF);
+            } else {
+                if (expecting == 0
+                    || (expecting & Expecting.ALT_SPEED_ON) > 0 && session.isAltSpeedLimitEnabled()
+                    || (expecting & Expecting.ALT_SPEED_OFF) > 0 && !session.isAltSpeedLimitEnabled()) {
+                    setAltSpeed(session.isAltSpeedLimitEnabled());
+                    expecting &= ~(Expecting.ALT_SPEED_ON | Expecting.ALT_SPEED_OFF);
+                }
             }
         }
 

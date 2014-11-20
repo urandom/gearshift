@@ -16,7 +16,7 @@ public abstract class SelectableRecyclerViewAdapter<VH extends RecyclerView.View
     }
 
     public void setItemSelected(int position, boolean selected) {
-        if (!isItemSelectable(position)) {
+        if (position == -1 || !isItemSelectable(position)) {
             return;
         }
 
