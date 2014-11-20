@@ -528,25 +528,32 @@ public class TorrentListActivity extends BaseTorrentActivity
 
     @Override public void setSession(TransmissionSession session) {
         if (session == null) {
+            boolean sessionRemoved = false;
             if (this.session != null) {
                 invalidateOptionsMenu();
-                LocalBroadcastManager.getInstance(this).sendBroadcast(
-                    new Intent(G.INTENT_SESSION_INVALIDATED).putExtra(G.ARG_SESSION_VALID, false));
+                sessionRemoved = true;
             }
 
             this.session = null;
+            if (sessionRemoved) {
+                LocalBroadcastManager.getInstance(this).sendBroadcast(
+                    new Intent(G.INTENT_SESSION_INVALIDATED).putExtra(G.ARG_SESSION_VALID, false));
+            }
         } else {
             boolean initial = false;
             if (this.session == null) {
                 invalidateOptionsMenu();
                 initial = true;
-                LocalBroadcastManager.getInstance(this).sendBroadcast(
-                    new Intent(G.INTENT_SESSION_INVALIDATED).putExtra(G.ARG_SESSION_VALID, true));
             } else if (session.getRPCVersion() >= TransmissionSession.FREE_SPACE_METHOD_RPC_VERSION) {
                 session.setDownloadDirFreeSpace(this.session.getDownloadDirFreeSpace());
             }
 
             this.session = session;
+
+            if (initial) {
+                LocalBroadcastManager.getInstance(this).sendBroadcast(
+                    new Intent(G.INTENT_SESSION_INVALIDATED).putExtra(G.ARG_SESSION_VALID, true));
+            }
 
             if (initial && !intentConsumed && !newTorrentDialogVisible) {
                 consumeIntent();

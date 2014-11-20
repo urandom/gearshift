@@ -628,12 +628,16 @@ public class TorrentListMenuFragment extends Fragment implements TorrentListNoti
         return new int[]{start, count};
     }
 
-    private void fillMenuItems() {
+    private int[] fillSessionItems() {
+        int[] range = new int[]{-1, 0};
+        TransmissionSessionInterface context = (TransmissionSessionInterface) getActivity();
+        TransmissionSession session = context.getSession();
+
+        if (session == null) {
+            return range;
+        }
+
         ArrayList<ListItem> list = new ArrayList<>();
-
-        filterAdapter.itemData.clear();
-
-        fillProfileSelector();
 
         for (FilterBy filter : FilterBy.values()) {
             ListItem item;
@@ -694,8 +698,17 @@ public class TorrentListMenuFragment extends Fragment implements TorrentListNoti
         }
 
         if (sharedPrefs.getBoolean(G.PREF_FILTER_ALL, true) && list.size() > 1 || list.size() > 0) {
-            filterAdapter.itemData.add(header);
-            filterAdapter.itemData.addAll(list);
+            ListItem pivot = listItemMap.get(OPTIONS_HEADER_KEY);
+            int position = filterAdapter.itemData.indexOf(pivot);
+
+            range[0] = position;
+
+            filterAdapter.itemData.add(position++, header);
+            for (ListItem item : list) {
+                filterAdapter.itemData.add(position++, item);
+            }
+
+            range[1] = position;
         }
         list.clear();
 
@@ -706,6 +719,18 @@ public class TorrentListMenuFragment extends Fragment implements TorrentListNoti
         if (!listItemMap.containsKey(TRACKERS_HEADER_KEY)) {
             new ListItem(Type.HEADER, TRACKERS_HEADER_KEY, R.string.menu_trackers_header);
         }
+
+        return range;
+    }
+
+    private void fillMenuItems() {
+        ArrayList<ListItem> list = new ArrayList<>();
+
+        filterAdapter.itemData.clear();
+
+        fillProfileSelector();
+
+        fillSessionItems();
 
         ListItem item;
         if (listItemMap.containsKey(OPTIONS_HEADER_KEY)) {
@@ -844,6 +869,32 @@ public class TorrentListMenuFragment extends Fragment implements TorrentListNoti
                     start = index;
                 }
                 count++;
+            }
+            ++index;
+        }
+
+        return new int[]{start, count};
+    }
+
+    private int[] removeSessionItems() {
+        Iterator<ListItem> iter = filterAdapter.itemData.iterator();
+
+        int start = -1;
+        int count = 0;
+        int index = 0;
+        while (iter.hasNext()) {
+            ListItem item = iter.next();
+            switch (item.getType()) {
+                case HEADER:
+                case FILTER:
+                case DIRECTORY:
+                case TRACKER:
+                    iter.remove();
+                    if (start == -1) {
+                        start = index;
+                    }
+                    count++;
+                    break;
             }
             ++index;
         }
@@ -1163,7 +1214,17 @@ public class TorrentListMenuFragment extends Fragment implements TorrentListNoti
 
                 filterAdapter.itemData.add(++position, item);
                 filterAdapter.notifyItemInserted(position);
+
+                int[] range = fillSessionItems();
+                if (range[0] != -1) {
+                    filterAdapter.notifyItemRangeInserted(range[0], range[1]);
+                }
             } else {
+                int[] range = removeSessionItems();
+                if (range[0] != -1) {
+                    filterAdapter.notifyItemRangeRemoved(range[0], range[1]);
+                }
+
                 ListItem item = listItemMap.get(SESSION_SETTINGS_VALUE);
                 if (item != null) {
                     int position = filterAdapter.itemData.indexOf(item);
