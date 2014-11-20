@@ -44,9 +44,6 @@
 
         </android.support.v7.widget.Toolbar>
 
-
     </LinearLayout>
-
-    <include layout="@layout/error_layer" />
 
 </FrameLayout>
