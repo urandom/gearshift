@@ -55,7 +55,7 @@ public class TorrentListMenuFragment extends Fragment implements TorrentListNoti
     private int trackerPosition = ListView.INVALID_POSITION;
 
     private enum Type {
-        PROFILE_SELECTOR, PROFILE, FIND, FILTER, DIRECTORY, TRACKER,
+        PROFILE_SELECTOR, PROFILE, FILTER, DIRECTORY, TRACKER,
         HEADER, OPTION_HEADER, OPTION
     }
 
@@ -488,12 +488,6 @@ public class TorrentListMenuFragment extends Fragment implements TorrentListNoti
                     pos = fillProfileSelector();
                     filterAdapter.notifyItemInserted(pos);
                     break;
-                case FIND:
-                    if (!fragment.isFindShown()) {
-                        fragment.showFind();
-                    }
-                    filterAdapter.setItemSelected(position, false);
-                    break;
                 case FILTER:
                     FilterBy value;
                     if (position == filterPosition) {
@@ -640,8 +634,6 @@ public class TorrentListMenuFragment extends Fragment implements TorrentListNoti
         filterAdapter.itemData.clear();
 
         fillProfileSelector();
-
-        list.add(new ListItem(Type.FIND, "", R.string.find));
 
         for (FilterBy filter : FilterBy.values()) {
             ListItem item;

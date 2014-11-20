@@ -2,8 +2,9 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
       xmlns:app="http://schemas.android.com/apk/res-auto">
     <item android:id="@+id/find"
+          android:icon="@drawable/ic_search_white_24dp"
           android:title="@string/find"
-          app:showAsAction="collapseActionView"
+          app:showAsAction="ifRoom|collapseActionView"
           android:visible="false"/>
 
     <item android:id="@+id/sort"

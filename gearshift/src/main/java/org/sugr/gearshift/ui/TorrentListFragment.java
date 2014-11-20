@@ -626,7 +626,6 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
             }
 
             @Override public boolean onMenuItemActionCollapse(MenuItem item) {
-                item.setVisible(false);
                 findQuery = "";
                 findVisible = false;
                 setListFilter((String) null);
@@ -830,10 +829,6 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
         scrollToTop = true;
     }
 
-    public void showFind() {
-        setFindVisibility(true);
-    }
-
     public boolean isFindShown() {
         return findVisible;
     }
@@ -914,7 +909,7 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
             item.setVisible(true);
             item.expandActionView();
 
-            SearchView findView = (SearchView) item.getActionView();
+            SearchView findView = (SearchView) MenuItemCompat.getActionView(item);
 
             if (!findQuery.equals("")) {
                 findView.setQuery(findQuery, false);
@@ -1426,8 +1421,10 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
         @Override public void onReceive(Context context, Intent intent) {
             if (intent.getBooleanExtra(G.ARG_SESSION_VALID, false)) {
                 menu.findItem(R.id.sort).setVisible(true);
+                menu.findItem(R.id.find).setVisible(true);
             } else {
                 menu.findItem(R.id.sort).setVisible(false);
+                menu.findItem(R.id.find).setVisible(false);
             }
         }
     }
