@@ -437,7 +437,7 @@ public class TorrentListMenuFragment extends Fragment implements TorrentListNoti
             TorrentListFragment fragment =
                     ((TorrentListFragment) getFragmentManager().findFragmentById(R.id.torrent_list));
 
-            TorrentListActivity context = (TorrentListActivity) getActivity();
+            final TorrentListActivity context = (TorrentListActivity) getActivity();
             TransmissionProfile profile = context.getProfile();
             boolean allFilterEnabled = sharedPrefs.getBoolean(G.PREF_FILTER_ALL, true);
             ListItem selectedFilter = null;
@@ -458,6 +458,7 @@ public class TorrentListMenuFragment extends Fragment implements TorrentListNoti
                 }
             }
 
+            boolean overrideTransition = false;
             switch(item.getType()) {
                 case PROFILE_SELECTOR:
                     filterAdapter.setProfilesVisible(!filterAdapter.areProfilesVisible());
@@ -546,7 +547,7 @@ public class TorrentListMenuFragment extends Fragment implements TorrentListNoti
                             intent = new Intent(context, TransmissionSessionActivity.class);
                             intent.putExtra(G.ARG_PROFILE, profile);
                             intent.putExtra(G.ARG_SESSION, session);
-                            context.overridePendingTransition(R.anim.slide_in_top, android.R.anim.fade_out);
+                            overrideTransition = true;
                             break;
                         case SETTINGS_VALUE:
                             intent = new Intent(context, SettingsActivity.class);
@@ -559,7 +560,7 @@ public class TorrentListMenuFragment extends Fragment implements TorrentListNoti
                             if (profile != null) {
                                 intent.putExtra(G.ARG_PROFILE_ID, profile.getId());
                             }
-                            context.overridePendingTransition(R.anim.slide_in_top, android.R.anim.fade_out);
+                            overrideTransition = true;
                             break;
                         case ABOUT_VALUE:
                             intent = new Intent(context, AboutActivity.class);
@@ -571,9 +572,15 @@ public class TorrentListMenuFragment extends Fragment implements TorrentListNoti
                     closeHandler.removeCallbacks(closeRunnable);
                     closeHandler.post(closeRunnable);
                     if (intent != null) {
+                        final boolean oT = overrideTransition;
+
                         closeHandler.postDelayed(new Runnable() {
                             @Override public void run() {
                                 startActivity(intent);
+                                if (oT) {
+                                    context.overridePendingTransition(
+                                        R.anim.slide_in_top, android.R.anim.fade_out);
+                                }
                             }
                         }, getResources().getInteger(android.R.integer.config_shortAnimTime) + 100);
                     }

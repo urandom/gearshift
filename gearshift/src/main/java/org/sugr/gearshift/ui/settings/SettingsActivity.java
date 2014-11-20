@@ -309,7 +309,7 @@ public class SettingsActivity extends ActionBarActivity {
                 }
 
                 NavUtils.navigateUpTo(this, new Intent(this, TorrentListActivity.class));
-                overridePendingTransition(android.R.anim.fade_in, R.anim.slide_out_right);
+                overridePendingTransition(android.R.anim.fade_in, R.anim.slide_out_top);
                 return true;
             case R.id.add_profile:
                 addFragment("new-profile", Type.PROFILE, null);
