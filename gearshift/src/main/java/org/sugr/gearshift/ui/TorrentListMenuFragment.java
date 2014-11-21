@@ -246,6 +246,7 @@ public class TorrentListMenuFragment extends Fragment implements TorrentListNoti
                 }
                 */
                 if (insertRanges[0][0] != -1 || insertRanges[1][0] != -1) {
+                    checkSelectedItems();
                     filterAdapter.notifyDataSetChanged();
                 }
 
@@ -824,6 +825,7 @@ public class TorrentListMenuFragment extends Fragment implements TorrentListNoti
             R.drawable.ic_info_black_18dp);
         filterAdapter.itemData.add(item);
 
+        checkSelectedItems();
         filterAdapter.notifyDataSetChanged();
         filterList.scrollToPosition(0);
     }
@@ -1269,6 +1271,7 @@ public class TorrentListMenuFragment extends Fragment implements TorrentListNoti
                 filterAdapter.itemData.add(++position, item);
 
                 // filterAdapter.notifyItemInserted(position);
+                checkSelectedItems();
                 filterAdapter.notifyDataSetChanged();
             } else {
                 ListItem item = listItemMap.get(SESSION_SETTINGS_VALUE);
@@ -1284,6 +1287,7 @@ public class TorrentListMenuFragment extends Fragment implements TorrentListNoti
                 if (range[0] != -1) {
                     // filterAdapter.notifyItemRangeRemoved(range[0], range[1]);
                 }
+                checkSelectedItems();
                 filterAdapter.notifyDataSetChanged();
             }
         }
