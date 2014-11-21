@@ -240,7 +240,8 @@ public class TorrentListMenuFragment extends Fragment implements TorrentListNoti
                     directories.addAll(normalizedDirs);
 
                     int[] range = removeDirectoriesFilters();
-                    filterAdapter.notifyItemRangeRemoved(range[0], range[1]);
+                    // FIXME:RecyclerView 21.0.2 throws an expeption with two position notifications
+                    // filterAdapter.notifyItemRangeRemoved(range[0], range[1]);
 
                     if (directories.size() > 1) {
                         ListItem pivot = listItemMap.get(OPTIONS_HEADER_KEY);
@@ -266,7 +267,7 @@ public class TorrentListMenuFragment extends Fragment implements TorrentListNoti
                 }
             } else {
                 int[] range = removeDirectoriesFilters();
-                filterAdapter.notifyItemRangeRemoved(range[0], range[1]);
+                // filterAdapter.notifyItemRangeRemoved(range[0], range[1]);
 
                 if (!sharedPrefs.getString(G.PREF_LIST_DIRECTORY, "").equals("")) {
                     updateDirectoryFilter = true;
@@ -294,7 +295,7 @@ public class TorrentListMenuFragment extends Fragment implements TorrentListNoti
                     trackers.addAll(data.trackers);
 
                     int[] range = removeTrackersFilters();
-                    filterAdapter.notifyItemRangeRemoved(range[0], range[1]);
+                    // filterAdapter.notifyItemRangeRemoved(range[0], range[1]);
 
                     if (trackers.size() > 0 && sharedPrefs.getBoolean(G.PREF_FILTER_UNTRACKED, false)
                         || trackers.size() > 1) {
@@ -327,7 +328,7 @@ public class TorrentListMenuFragment extends Fragment implements TorrentListNoti
                 }
             } else {
                 int[] range = removeTrackersFilters();
-                filterAdapter.notifyItemRangeRemoved(range[0], range[1]);
+                // filterAdapter.notifyItemRangeRemoved(range[0], range[1]);
 
                 if (!sharedPrefs.getString(G.PREF_LIST_TRACKER, "").equals("")) {
                     updateTrackerFilter = true;
@@ -352,12 +353,15 @@ public class TorrentListMenuFragment extends Fragment implements TorrentListNoti
                 closeHandler.post(closeRunnable);
             }
 
+            /*
             if (insertRanges[0][0] != -1) {
                 filterAdapter.notifyItemRangeInserted(insertRanges[0][0], insertRanges[0][1]);
             }
             if (insertRanges[1][0] != -1) {
                 filterAdapter.notifyItemRangeInserted(insertRanges[1][0], insertRanges[1][1]);
             }
+            */
+            filterAdapter.notifyDataSetChanged();
         }
 
         @Override
@@ -769,7 +773,7 @@ public class TorrentListMenuFragment extends Fragment implements TorrentListNoti
             R.drawable.ic_info_black_18dp);
         filterAdapter.itemData.add(item);
 
-        filterAdapter.notifyItemRangeInserted(0, filterAdapter.itemData.size());
+        filterAdapter.notifyDataSetChanged();
         filterList.scrollToPosition(0);
     }
 
