@@ -103,7 +103,7 @@
     
     <string name="invalid_input_title">Dati errati</string>
     <string name="con_name_cannot_be_empty">Il nome del profilo non può essere vuoto</string>
-    <string name="con_host_cannot_be_empty">L'indirizzo non può essere vuoto</string>
+    <string name="con_host_cannot_be_empty">L\'indirizzo non può essere vuoto</string>
     
     <string name="no_profiles">Nessun profilo</string>
     <string name="create_profile_in_settings">Crea un profilo dalle impostazioni</string>
@@ -115,7 +115,7 @@
     <string name="no_connectivity_empty_list">&lt;h2&gt;&lt;font color="#cc0000"&gt;Devi essere connesso a una rete!&lt;/font&gt;&lt;/h2&gt;</string>
     <string name="access_denied_empty_list">&lt;h2&gt;&lt;font color="#cc0000"&gt;Accesso negato!&lt;/font&gt;&lt;/h2&gt;Le credenziali potrebbero non essere corrette, o il tuo indirizzo IP potrebbe non essere tra quelli consentiti dal server.</string>
     <string name="no_json_empty_list">&lt;h2&gt;&lt;font color="#cc0000"&gt;Risposta inaspettata!&lt;/font&gt;&lt;/h2&gt;Controlla che il percorso RPC nel tuo profilo sia corretto.</string>
-    <string name="no_connection_empty_list">&lt;h2&gt;&lt;font color="#cc0000"&gt;Impossibile connettersi!&lt;/font&gt;&lt;/h2&gt;Controlla che l'indirizzo del server e la porta nel tuo profilo siano corretti.</string>
+    <string name="no_connection_empty_list">&lt;h2&gt;&lt;font color="#cc0000"&gt;Impossibile connettersi!&lt;/font&gt;&lt;/h2&gt;Controlla che l\'indirizzo del server e la porta nel tuo profilo siano corretti.</string>
     <string name="generic_http_empty_list"><![CDATA[<h2><font color="#cc0000>HTTP errore client!</font></h2>Lo stato HTTP è '%1$s %2$s'.]]></string>
     <string name="thread_error_empty_list">&lt;h2&gt;&lt;font color="#cc0000"&gt;Errore interno!&lt;/font&gt;&lt;/h2&gt;</string>
     <string name="response_error_empty_list">&lt;h2&gt;&lt;font color="#cc0000"&gt;Errore demone Transmission!&lt;/font&gt;&lt;/h2&gt;Una richiesta al demone non ha avuto successo. Controlla il logcat per maggiori dettagli.</string>
@@ -205,7 +205,7 @@
     <string name="about_name">Gear Shift</string>
     <string name="app_icon">Icona app</string>
     <string name="about_description">Gear Shift è un client remoto per Transmission, creato per fornire una grande esperienza utente nel gestire i torrent di un server Transmission.</string>
-    <string name="about_contact">Se riscontri dei problemi, per favore scrivi un post in <![CDATA[<a href="%1$s">Gear Shift G+ community</a>]]>, nella categoria bugs. In questo modo anche gli altri vedranno che è stato segnalato il bug. Assicurati di aver attivato l'opzione \'Debug\' in \'Impostazioni generali\', e includere il logcat relativo all'applicazione.</string>
+    <string name="about_contact">Se riscontri dei problemi, per favore scrivi un post in <![CDATA[<a href="%1$s">Gear Shift G+ community</a>]]>, nella categoria bugs. In questo modo anche gli altri vedranno che è stato segnalato il bug. Assicurati di aver attivato l\'opzione \'Debug\' in \'Impostazioni generali\', e includere il logcat relativo all\'applicazione.</string>
     <string name="about_donation">Questa app è distribuita gratuitamente e senza fastidiose pubblicità. Se la trovi utile, considera di <![CDATA[<a href="%1$s">offrirmi una birra o due</a>]]>.</string>
     
     <string name="ic_menu_select_all">Selziona tutto</string>
@@ -274,7 +274,7 @@
         
     <string name="debug_summary">Mostra informazioni debug nel logcat</string>
 
-    <string name="auto_update_check">Controlla aggiornamenti all'avvio</string>
+    <string name="auto_update_check">Controlla aggiornamenti all\'avvio</string>
         
     <string name="open_drawer">apri drawer</string>
         
@@ -314,7 +314,7 @@
         
     <string name="session_settings_encryption">Crittografia</string>
         
-    <string name="session_settings_random_port">Porta casuale all'avvio</string>
+    <string name="session_settings_random_port">Porta casuale all\'avvio</string>
         
     <string name="session_settings_port_forwarding">Inoltro porta</string>
         
@@ -419,7 +419,7 @@
     <string name="tracker_leechers"><![CDATA[Leechers: %1$d]]></string>
     <string name="tracker_add">Aggiungi tracker</string>
     <string name="tracker_announce_url">URL Tracker</string>
-    <string name="tracker_url_copy">L'URL del tracker è stato copiato negli appunti</string>
+    <string name="tracker_url_copy">L\'URL del tracker è stato copiato negli appunti</string>
     <string name="tracker_replace">Cambia tracker</string>
     <string name="tracker_new_announce_url">Nuovo URL</string>
     <string name="base_sort">Ordinamento secondario</string>
@@ -444,7 +444,7 @@
     <string name="update_download">Download</string>
     <string name="update_view">Vista</string>
     <string name="update_available"><![CDATA[<h2><font color="#666666">Una nuova versione di Gear Shift è disponibile</font><h2><small>La nuova versione è \'%1$s\'</small>]]></string>
-    <string name="update_current">Stai usando l'ultima versione di Gear Shift</string>
+    <string name="update_current">Stai usando l\'ultima versione di Gear Shift</string>
     <string name="update_error"><![CDATA[<font color="#E73939">Si è riscontrato un errore nel controllare per aggiornamenti</font>]]></string>
     <string name="about_updates">Controlla aggiornamenti</string>
     <string name="update_checking">Controllo …</string>
