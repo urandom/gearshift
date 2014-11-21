@@ -163,6 +163,11 @@ public abstract class BaseTorrentActivity extends ActionBarActivity
         MenuItem item = menu.findItem(R.id.menu_refresh);
         SwipeRefreshLayout swipeRefresh = (SwipeRefreshLayout) findViewById(R.id.swipe_container);
 
+        /* The swipe indicator is underneath the error layer */
+        if (refreshing && hasFatalError) {
+            swipeRefresh = null;
+        }
+
         if (this.refreshing) {
             if (swipeRefresh != null) {
                 swipeRefresh.setRefreshing(true);
@@ -201,10 +206,6 @@ public abstract class BaseTorrentActivity extends ActionBarActivity
         findViewById(R.id.fatal_error_layer).setVisibility(View.VISIBLE);
         TextView text = (TextView) findViewById(R.id.transmission_error);
 
-        if (findViewById(R.id.swipe_container) != null) {
-            findViewById(R.id.swipe_container).setEnabled(false);
-        }
-
         if (error == DataService.Errors.NO_CONNECTIVITY) {
             text.setText(Html.fromHtml(getString(R.string.no_connectivity_empty_list)));
         } else if (error == DataService.Errors.ACCESS_DENIED) {
@@ -232,10 +233,6 @@ public abstract class BaseTorrentActivity extends ActionBarActivity
     }
 
     protected void hideErrorMessage() {
-        if (findViewById(R.id.swipe_container) != null) {
-            findViewById(R.id.swipe_container).setEnabled(true);
-        }
-
         findViewById(R.id.fatal_error_layer).setVisibility(View.GONE);
     }
 

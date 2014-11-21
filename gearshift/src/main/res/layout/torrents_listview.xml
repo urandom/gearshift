@@ -8,19 +8,10 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <LinearLayout
-            android:orientation="vertical"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent">
-
-            <include layout="@layout/error_layer" />
-
-            <ListView android:id="@android:id/list"
-                      android:layout_width="match_parent"
-                      android:layout_height="match_parent"
-                      android:drawSelectorOnTop="false" />
-        </LinearLayout>
-
+        <ListView android:id="@android:id/list"
+                  android:layout_width="match_parent"
+                  android:layout_height="match_parent"
+                  android:drawSelectorOnTop="false" />
     </android.support.v4.widget.SwipeRefreshLayout>
 
     <TextView android:id="@android:id/empty"
