@@ -452,6 +452,7 @@ public class SettingsActivity extends ActionBarActivity {
         private SettingsActivity context;
 
         public ProfileAdapter(SettingsActivity context) {
+            super();
             this.context = context;
         }
 

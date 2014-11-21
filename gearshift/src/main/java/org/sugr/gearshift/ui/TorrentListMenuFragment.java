@@ -1038,6 +1038,7 @@ public class TorrentListMenuFragment extends Fragment implements TorrentListNoti
         private boolean profilesVisible;
 
         public FilterAdapter(TorrentListMenuFragment context) {
+            super();
             this.context = context;
         }
 
@@ -1047,34 +1048,14 @@ public class TorrentListMenuFragment extends Fragment implements TorrentListNoti
 
         public void setProfilesVisible(boolean visible) {
             this.profilesVisible = visible;
-            SparseBooleanArray selected = getSelectedItemPositions();
-            clearSelections();
-
             if (visible) {
                 int[] range = context.fillProfiles();
                 notifyItemRangeInserted(range[0], range[1]);
                 setItemSelected(range[0] - 1, true);
-
-                for (int i = 0; i < selected.size(); ++i) {
-                    int index = selected.keyAt(i);
-
-                    if (index > range[0]) {
-                        setItemSelected(index + range[1], true);
-                    }
-
-                }
             } else {
                 int[] range = context.removeProfiles();
                 notifyItemRangeRemoved(range[0], range[1]);
-
-                for (int i = 0; i < selected.size(); ++i) {
-                    int index = selected.keyAt(i);
-
-                    if (index > range[0] + range[1]) {
-                        setItemSelected(index - range[1], true);
-                    }
-
-                }
+                setItemSelected(range[0] - 1, false);
             }
         }
 
