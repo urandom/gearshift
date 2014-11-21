@@ -204,6 +204,10 @@ public class TorrentListMenuFragment extends Fragment implements TorrentListNoti
             if (context.getSession() == null) {
                 int[][] insertRanges = new int[][]{new int[]{-1, 1}, new int[]{-1, 1}};
                 Iterator<ListItem> iter = filterAdapter.itemData.iterator();
+
+                directories.clear();
+                trackers.clear();
+
                 int index = 0;
                 while (iter.hasNext()) {
                     ListItem item = iter.next();
