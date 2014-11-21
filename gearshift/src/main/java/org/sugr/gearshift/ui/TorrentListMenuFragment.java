@@ -201,6 +201,57 @@ public class TorrentListMenuFragment extends Fragment implements TorrentListNoti
                 return;
             }
 
+            if (context.getSession() == null) {
+                int[][] insertRanges = new int[][]{new int[]{-1, 1}, new int[]{-1, 1}};
+                Iterator<ListItem> iter = filterAdapter.itemData.iterator();
+                int index = 0;
+                while (iter.hasNext()) {
+                    ListItem item = iter.next();
+
+                    if (DIRECTORIES_HEADER_KEY.equals(item.getValueString())
+                        || TRACKERS_HEADER_KEY.equals(item.getValueString())
+                        || item.getType() == Type.DIRECTORY
+                        || item.getType() == Type.TRACKER) {
+
+                        if (insertRanges[0][0] == -1 && DIRECTORIES_HEADER_KEY.equals(item.getValueString())) {
+                            insertRanges[0][0] = index;
+                            insertRanges[0][1]++;
+                        }
+
+                        if (insertRanges[1][0] == -1 && TRACKERS_HEADER_KEY.equals(item.getValueString())) {
+                            insertRanges[1][0] = index;
+                            insertRanges[1][1]++;
+                        }
+
+                        if (item.getType() == Type.DIRECTORY) {
+                            insertRanges[0][1]++;
+                        }
+
+                        if (item.getType() == Type.TRACKER) {
+                            insertRanges[1][1]++;
+                        }
+
+                        iter.remove();
+                    }
+
+                    index++;
+                }
+
+                /*
+                if (insertRanges[0][0] != -1) {
+                    filterAdapter.notifyItemRangeInserted(insertRanges[0][0], insertRanges[0][1]);
+                }
+                if (insertRanges[1][0] != -1) {
+                    filterAdapter.notifyItemRangeInserted(insertRanges[1][0], insertRanges[1][1]);
+                }
+                */
+                if (insertRanges[0][0] != -1 || insertRanges[1][0] != -1) {
+                    filterAdapter.notifyDataSetChanged();
+                }
+
+                return;
+            }
+
             int[][] insertRanges = new int[][]{new int[]{-1, 1}, new int[]{-1, 1}};
 
             if (data.directories != null) {
