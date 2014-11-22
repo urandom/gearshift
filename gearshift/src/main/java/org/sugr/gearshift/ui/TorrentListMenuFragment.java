@@ -18,7 +18,6 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
-import android.util.SparseBooleanArray;
 import android.view.ContextThemeWrapper;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -51,7 +50,7 @@ public class TorrentListMenuFragment extends Fragment implements TorrentListNoti
 
     private enum Type {
         PROFILE_SELECTOR, PROFILE, FILTER, DIRECTORY, TRACKER,
-        HEADER, OPTION_HEADER, OPTION
+        SESSION_DATA_HEADER, OPTION_HEADER, OPTION
     }
 
     private static final String PROFILE_SELECTOR_KEY = "profile_selector";
@@ -112,7 +111,9 @@ public class TorrentListMenuFragment extends Fragment implements TorrentListNoti
             int start = removeProfileSelector();
             int[] range = removeProfiles();
 
-            filterAdapter.notifyItemRangeRemoved(start, range[1] + 1);
+            if (start != -1) {
+                filterAdapter.notifyItemRangeRemoved(start, range[1] + 1);
+            }
 
             TorrentListActivity context = (TorrentListActivity) TorrentListMenuFragment.this.getActivity();
 
@@ -165,7 +166,9 @@ public class TorrentListMenuFragment extends Fragment implements TorrentListNoti
 
             int start = removeProfileSelector();
             int[] range = removeProfiles();
-            filterAdapter.notifyItemRangeRemoved(start, range[1] + 1);
+            if (start != -1) {
+                filterAdapter.notifyItemRangeRemoved(start, range[1] + 1);
+            }
         }
 
     };
@@ -241,23 +244,17 @@ public class TorrentListMenuFragment extends Fragment implements TorrentListNoti
                     index++;
                 }
 
-                /*
                 if (insertRanges[0][0] != -1) {
                     filterAdapter.notifyItemRangeInserted(insertRanges[0][0], insertRanges[0][1]);
                 }
                 if (insertRanges[1][0] != -1) {
                     filterAdapter.notifyItemRangeInserted(insertRanges[1][0], insertRanges[1][1]);
                 }
-                */
-                if (insertRanges[0][0] != -1 || insertRanges[1][0] != -1) {
-                    checkSelectedItems();
-                    filterAdapter.notifyDataSetChanged();
-                }
 
                 return;
             }
 
-            int[][] insertRanges = new int[][]{new int[]{-1, 1}, new int[]{-1, 1}};
+            int[][] insertRanges = new int[][]{new int[]{-1, 0}, new int[]{-1, 0}};
 
             if (data.directories != null) {
                 String dir = sharedPrefs.getString(G.PREF_LIST_DIRECTORY, "");
@@ -296,8 +293,9 @@ public class TorrentListMenuFragment extends Fragment implements TorrentListNoti
                     directories.addAll(normalizedDirs);
 
                     int[] range = removeDirectoriesFilters();
-                    // FIXME:RecyclerView 21.0.2 throws an expeption with two position notifications
-                    // filterAdapter.notifyItemRangeRemoved(range[0], range[1]);
+                    if (range[0] != -1) {
+                        filterAdapter.notifyItemRangeRemoved(range[0], range[1]);
+                    }
 
                     if (directories.size() > 1) {
                         ListItem pivot = listItemMap.get(OPTIONS_HEADER_KEY);
@@ -307,6 +305,8 @@ public class TorrentListMenuFragment extends Fragment implements TorrentListNoti
                         insertRanges[0][0] = position;
 
                         filterAdapter.itemData.add(position++, header);
+                        insertRanges[0][1]++;
+
                         for (String d : directories) {
                             ListItem di = getDirectoryItem(d);
                             if (di != null) {
@@ -323,7 +323,9 @@ public class TorrentListMenuFragment extends Fragment implements TorrentListNoti
                 }
             } else {
                 int[] range = removeDirectoriesFilters();
-                // filterAdapter.notifyItemRangeRemoved(range[0], range[1]);
+                if (range[0] != -1) {
+                    filterAdapter.notifyItemRangeRemoved(range[0], range[1]);
+                }
 
                 if (!sharedPrefs.getString(G.PREF_LIST_DIRECTORY, "").equals("")) {
                     updateDirectoryFilter = true;
@@ -351,7 +353,9 @@ public class TorrentListMenuFragment extends Fragment implements TorrentListNoti
                     trackers.addAll(data.trackers);
 
                     int[] range = removeTrackersFilters();
-                    // filterAdapter.notifyItemRangeRemoved(range[0], range[1]);
+                    if (range[0] != -1) {
+                        filterAdapter.notifyItemRangeRemoved(range[0], range[1]);
+                    }
 
                     if (trackers.size() > 0 && sharedPrefs.getBoolean(G.PREF_FILTER_UNTRACKED, false)
                         || trackers.size() > 1) {
@@ -363,6 +367,8 @@ public class TorrentListMenuFragment extends Fragment implements TorrentListNoti
                         insertRanges[1][0] = position;
 
                         filterAdapter.itemData.add(position++, header);
+                        insertRanges[1][1]++;
+
                         for (String t : trackers) {
                             filterAdapter.itemData.add(position++, getTrackerItem(t));
                             insertRanges[1][1]++;
@@ -384,7 +390,9 @@ public class TorrentListMenuFragment extends Fragment implements TorrentListNoti
                 }
             } else {
                 int[] range = removeTrackersFilters();
-                // filterAdapter.notifyItemRangeRemoved(range[0], range[1]);
+                if (range[0] != -1) {
+                    filterAdapter.notifyItemRangeRemoved(range[0], range[1]);
+                }
 
                 if (!sharedPrefs.getString(G.PREF_LIST_TRACKER, "").equals("")) {
                     updateTrackerFilter = true;
@@ -409,15 +417,12 @@ public class TorrentListMenuFragment extends Fragment implements TorrentListNoti
                 closeHandler.post(closeRunnable);
             }
 
-            /*
             if (insertRanges[0][0] != -1) {
                 filterAdapter.notifyItemRangeInserted(insertRanges[0][0], insertRanges[0][1]);
             }
             if (insertRanges[1][0] != -1) {
                 filterAdapter.notifyItemRangeInserted(insertRanges[1][0], insertRanges[1][1]);
             }
-            */
-            filterAdapter.notifyDataSetChanged();
         }
 
         @Override
@@ -769,7 +774,7 @@ public class TorrentListMenuFragment extends Fragment implements TorrentListNoti
         if (listItemMap.containsKey(FILTERS_HEADER_KEY)) {
             header = listItemMap.get(FILTERS_HEADER_KEY);
         } else {
-            header = new ListItem(Type.HEADER, FILTERS_HEADER_KEY, R.string.menu_filters_header);
+            header = new ListItem(Type.SESSION_DATA_HEADER, FILTERS_HEADER_KEY, R.string.menu_filters_header);
         }
 
         if (sharedPrefs.getBoolean(G.PREF_FILTER_ALL, true) && list.size() > 1 || list.size() > 0) {
@@ -787,16 +792,16 @@ public class TorrentListMenuFragment extends Fragment implements TorrentListNoti
                 filterAdapter.itemData.add(position++, item);
             }
 
-            range[1] = position;
+            range[1] = list.size() + 1;
         }
         list.clear();
 
         if (!listItemMap.containsKey(DIRECTORIES_HEADER_KEY)) {
-            new ListItem(Type.HEADER, DIRECTORIES_HEADER_KEY, R.string.menu_directories_header);
+            new ListItem(Type.SESSION_DATA_HEADER, DIRECTORIES_HEADER_KEY, R.string.menu_directories_header);
         }
 
         if (!listItemMap.containsKey(TRACKERS_HEADER_KEY)) {
-            new ListItem(Type.HEADER, TRACKERS_HEADER_KEY, R.string.menu_trackers_header);
+            new ListItem(Type.SESSION_DATA_HEADER, TRACKERS_HEADER_KEY, R.string.menu_trackers_header);
         }
 
         return range;
@@ -958,7 +963,7 @@ public class TorrentListMenuFragment extends Fragment implements TorrentListNoti
         while (iter.hasNext()) {
             ListItem item = iter.next();
             switch (item.getType()) {
-                case HEADER:
+                case SESSION_DATA_HEADER:
                 case FILTER:
                 case DIRECTORY:
                 case TRACKER:
@@ -997,7 +1002,7 @@ public class TorrentListMenuFragment extends Fragment implements TorrentListNoti
     private int[] removeDirectoriesFilters() {
         ListItem item = listItemMap.get(DIRECTORIES_HEADER_KEY);
         int start = filterAdapter.itemData.indexOf(item);
-        int count = 0;
+        int count = 1;
 
         filterAdapter.itemData.remove(item);
         Iterator<ListItem> iter = filterAdapter.itemData.iterator();
@@ -1027,7 +1032,7 @@ public class TorrentListMenuFragment extends Fragment implements TorrentListNoti
     private int[] removeTrackersFilters() {
         ListItem item = listItemMap.get(TRACKERS_HEADER_KEY);
         int start = filterAdapter.itemData.indexOf(item);
-        int count = 0;
+        int count = 1;
 
         filterAdapter.itemData.remove(item);
         Iterator<ListItem> iter = filterAdapter.itemData.iterator();
@@ -1064,8 +1069,10 @@ public class TorrentListMenuFragment extends Fragment implements TorrentListNoti
                 setItemSelected(range[0] - 1, true);
             } else {
                 int[] range = context.removeProfiles();
-                notifyItemRangeRemoved(range[0], range[1]);
-                setItemSelected(range[0] - 1, false);
+                if (range[0] != -1) {
+                    notifyItemRangeRemoved(range[0], range[1]);
+                    setItemSelected(range[0] - 1, false);
+                }
             }
         }
 
@@ -1086,7 +1093,7 @@ public class TorrentListMenuFragment extends Fragment implements TorrentListNoti
 
             ListItem item = itemData.get(position);
             switch (item.getType()) {
-                case HEADER:
+                case SESSION_DATA_HEADER:
                 case OPTION_HEADER:
                 case OPTION:
                     return false;
@@ -1120,7 +1127,7 @@ public class TorrentListMenuFragment extends Fragment implements TorrentListNoti
         @Override public int getItemViewType(int position) {
             ListItem item = itemData.get(position);
             switch (item.getType()) {
-                case HEADER:
+                case SESSION_DATA_HEADER:
                     return R.layout.filter_list_header;
                 case PROFILE:
                 case PROFILE_SELECTOR:
@@ -1267,8 +1274,7 @@ public class TorrentListMenuFragment extends Fragment implements TorrentListNoti
             if (intent.getBooleanExtra(G.ARG_SESSION_VALID, false)) {
                 int[] range = fillSessionItems();
                 if (range[0] != -1) {
-                    // FIXME:RecyclerView 21.0.2 throws an expeption with two position notifications
-                    // filterAdapter.notifyItemRangeInserted(range[0], range[1]);
+                    filterAdapter.notifyItemRangeInserted(range[0], range[1]);
                 }
 
                 ListItem item = new ListItem(Type.OPTION, SESSION_SETTINGS_VALUE, R.string.session_settings_item,
@@ -1278,25 +1284,21 @@ public class TorrentListMenuFragment extends Fragment implements TorrentListNoti
 
                 filterAdapter.itemData.add(++position, item);
 
-                // filterAdapter.notifyItemInserted(position);
-                checkSelectedItems();
-                filterAdapter.notifyDataSetChanged();
+                filterAdapter.notifyItemInserted(position);
             } else {
                 ListItem item = listItemMap.get(SESSION_SETTINGS_VALUE);
                 if (item != null) {
                     int position = filterAdapter.itemData.indexOf(item);
                     if (position != -1) {
                         filterAdapter.itemData.remove(position);
-                        // filterAdapter.notifyItemRemoved(position);
+                        filterAdapter.notifyItemRemoved(position);
                     }
                 }
 
                 int[] range = removeSessionItems();
                 if (range[0] != -1) {
-                    // filterAdapter.notifyItemRangeRemoved(range[0], range[1]);
+                    filterAdapter.notifyItemRangeRemoved(range[0], range[1]);
                 }
-                checkSelectedItems();
-                filterAdapter.notifyDataSetChanged();
             }
         }
     }
