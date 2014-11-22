@@ -118,7 +118,8 @@ public abstract class SelectableRecyclerViewAdapter<VH extends RecyclerView.View
 
 
     @Override public void onBindViewHolder(VH holder, int position) {
-        holder.itemView.setActivated(selectedItems.get(position, false));
+        holder.itemView.setActivated(
+            isItemSelectable(position) && selectedItems.get(position, false));
     }
 
     @Override public int getItemCount() {

@@ -399,10 +399,6 @@ public class TorrentListMenuFragment extends Fragment implements TorrentListNoti
                 }
             }
 
-            if (checkSelected) {
-                checkSelectedItems();
-            }
-
             if (updateDirectoryFilter || updateTrackerFilter) {
                 TorrentListFragment fragment =
                     ((TorrentListFragment) getFragmentManager().findFragmentById(R.id.torrent_list));
@@ -422,6 +418,10 @@ public class TorrentListMenuFragment extends Fragment implements TorrentListNoti
             }
             if (insertRanges[1][0] != -1) {
                 filterAdapter.notifyItemRangeInserted(insertRanges[1][0], insertRanges[1][1]);
+            }
+
+            if (checkSelected) {
+                checkSelectedItems();
             }
         }
 
@@ -867,32 +867,6 @@ public class TorrentListMenuFragment extends Fragment implements TorrentListNoti
                         ((TorrentListFragment) getFragmentManager().findFragmentById(R.id.torrent_list));
                 fragment.setListFilter(FilterBy.ALL);
             }
-        }
-
-        SortBy selectedSort = SortBy.STATUS;
-        if (sharedPrefs.contains(G.PREF_LIST_SORT_BY)) {
-            try {
-                selectedSort = SortBy.valueOf(
-                    sharedPrefs.getString(G.PREF_LIST_SORT_BY, "")
-                );
-            } catch (Exception ignored) { }
-        }
-        position = filterAdapter.itemData.indexOf(
-                listItemMap.get(selectedSort.name()));
-        filterAdapter.setItemSelected(position, true);
-
-        SortOrder selectedOrder = SortOrder.DESCENDING;
-        if (sharedPrefs.contains(G.PREF_LIST_SORT_ORDER)) {
-            try {
-                selectedOrder = SortOrder.valueOf(
-                    sharedPrefs.getString(G.PREF_LIST_SORT_ORDER, "")
-                );
-            } catch (Exception ignored) { }
-        }
-        if (selectedOrder == SortOrder.DESCENDING) {
-            position = filterAdapter.itemData.indexOf(
-                listItemMap.get(selectedOrder.name()));
-            filterAdapter.setItemSelected(position, true);
         }
 
         if (sharedPrefs.getBoolean(G.PREF_FILTER_DIRECTORIES, true)) {
