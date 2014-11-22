@@ -776,6 +776,10 @@ public class TorrentListMenuFragment extends Fragment implements TorrentListNoti
             ListItem pivot = listItemMap.get(OPTIONS_HEADER_KEY);
             int position = filterAdapter.itemData.indexOf(pivot);
 
+            if (position == -1) {
+                position = filterAdapter.itemData.size();
+            }
+
             range[0] = position;
 
             filterAdapter.itemData.add(position++, header);

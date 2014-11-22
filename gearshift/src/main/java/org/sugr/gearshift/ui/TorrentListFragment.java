@@ -324,7 +324,9 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
                     } else if (key.startsWith(G.PREF_SORT_PREFIX)
                         || key.equals(G.PREF_LIST_SORT_BY)
                         || key.equals(G.PREF_LIST_SORT_ORDER)) {
-                        if (((TransmissionSessionInterface) getActivity()).getSession() != null) {
+                        if (getActivity() != null
+                            && ((TransmissionSessionInterface) getActivity()).getSession() != null) {
+
                             int visibleCount = setupSortMenu();
                             menu.findItem(R.id.sort).setVisible(visibleCount > 0);
                         }
