@@ -12,6 +12,7 @@ import android.widget.AutoCompleteTextView;
 import android.widget.LinearLayout;
 import android.widget.Spinner;
 
+import org.sugr.gearshift.G;
 import org.sugr.gearshift.R;
 import org.sugr.gearshift.core.TransmissionProfile;
 import org.sugr.gearshift.core.TransmissionSession;
@@ -19,6 +20,8 @@ import org.sugr.gearshift.service.DataServiceManager;
 import org.sugr.gearshift.service.DataServiceManagerInterface;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 public class LocationDialogHelper {
     private BaseTorrentActivity activity;
@@ -103,8 +106,10 @@ public class LocationDialogHelper {
         });
 
         ArrayAdapter<String> entryAdapter = new ArrayAdapter<String>(view.getContext(),
-            android.R.layout.simple_spinner_dropdown_item,
-            new ArrayList<String>(session.getDownloadDirectories()));
+            android.R.layout.simple_spinner_dropdown_item);
+        List<String> directories = new ArrayList<>(session.getDownloadDirectories());
+        Collections.sort(directories, G.SIMPLE_STRING_COMPARATOR);
+        entryAdapter.addAll(directories);
         entry.setAdapter(entryAdapter);
 
         final Runnable setInitialLocation = new Runnable() {
