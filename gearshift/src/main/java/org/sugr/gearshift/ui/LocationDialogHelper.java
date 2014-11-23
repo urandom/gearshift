@@ -7,7 +7,8 @@ import android.content.DialogInterface;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.AdapterView;
-import android.widget.EditText;
+import android.widget.ArrayAdapter;
+import android.widget.AutoCompleteTextView;
 import android.widget.LinearLayout;
 import android.widget.Spinner;
 
@@ -16,6 +17,8 @@ import org.sugr.gearshift.core.TransmissionProfile;
 import org.sugr.gearshift.core.TransmissionSession;
 import org.sugr.gearshift.service.DataServiceManager;
 import org.sugr.gearshift.service.DataServiceManagerInterface;
+
+import java.util.ArrayList;
 
 public class LocationDialogHelper {
     private BaseTorrentActivity activity;
@@ -60,6 +63,7 @@ public class LocationDialogHelper {
         adapter.add(activity.getString(R.string.spinner_custom_directory));
 
         final Spinner location = (Spinner) view.findViewById(R.id.location_choice);
+        final AutoCompleteTextView entry = (AutoCompleteTextView) view.findViewById(R.id.location_entry);
         final LinearLayout container = (LinearLayout) view.findViewById(R.id.location_container);
         final int duration = activity.getResources().getInteger(android.R.integer.config_shortAnimTime);
         final Runnable swapLocationSpinner = new Runnable() {
@@ -74,7 +78,7 @@ public class LocationDialogHelper {
                         location.setVisibility(View.GONE);
                         location.animate().setListener(null).cancel();
                         if (location.getSelectedItemPosition() != adapter.getCount() - 1) {
-                            ((EditText) view.findViewById(R.id.location_entry)).setText((String) location.getSelectedItem());
+                            entry.setText((String) location.getSelectedItem());
                         }
                         container.requestFocus();
                     }
@@ -82,9 +86,9 @@ public class LocationDialogHelper {
             }
         };
         location.setAdapter(adapter);
-        location.setLongClickable(true);
         location.setOnLongClickListener(new View.OnLongClickListener() {
-            @Override public boolean onLongClick(final View v) {
+            @Override
+            public boolean onLongClick(final View v) {
                 swapLocationSpinner.run();
                 return true;
             }
@@ -97,6 +101,11 @@ public class LocationDialogHelper {
             }
             @Override public void onNothingSelected(AdapterView<?> adapterView) {}
         });
+
+        ArrayAdapter<String> entryAdapter = new ArrayAdapter<String>(view.getContext(),
+            android.R.layout.simple_spinner_dropdown_item,
+            new ArrayList<String>(session.getDownloadDirectories()));
+        entry.setAdapter(entryAdapter);
 
         final Runnable setInitialLocation = new Runnable() {
             @Override public void run() {

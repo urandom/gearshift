@@ -23,7 +23,7 @@
             android:orientation="horizontal"
             android:visibility="gone" >
 
-            <EditText
+            <AutoCompleteTextView
                 android:id="@+id/location_entry"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -31,6 +31,7 @@
                 android:hint="@string/hint_download_directory"
                 android:inputType="textNoSuggestions"
                 android:fontFamily="sans-serif"
+                android:completionThreshold="1"
                 android:textSize="16sp" />
 
             <ImageView

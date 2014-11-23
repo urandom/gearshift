@@ -23,12 +23,13 @@
             android:orientation="horizontal"
             android:visibility="gone" >
 
-            <EditText
+            <AutoCompleteTextView
                 android:id="@+id/location_entry"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:hint="@string/hint_download_directory"
+                android:completionThreshold="1"
                 android:inputType="textNoSuggestions"
                 android:fontFamily="sans-serif"
                 android:textSize="16sp" />
