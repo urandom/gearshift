@@ -30,6 +30,7 @@
                 android:layout_weight="1"
                 android:hint="@string/hint_download_directory"
                 android:inputType="textNoSuggestions"
+                android:dropDownHeight="@dimen/location_popup_height"
                 android:fontFamily="sans-serif"
                 android:completionThreshold="1"
                 android:textSize="16sp" />

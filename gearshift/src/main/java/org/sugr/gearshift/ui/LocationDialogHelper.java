@@ -1,11 +1,11 @@
 package org.sugr.gearshift.ui;
 
-import android.animation.Animator;
-import android.animation.AnimatorListenerAdapter;
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
@@ -75,23 +75,24 @@ public class LocationDialogHelper {
                 container.setVisibility(View.VISIBLE);
                 container.animate().alpha(1f).setDuration(duration);
 
-                location.animate().alpha(0f).setDuration(duration).setListener(new AnimatorListenerAdapter() {
-                    @Override public void onAnimationEnd(Animator animation) {
-                        super.onAnimationEnd(animation);
+                location.animate().alpha(0f).setDuration(duration).withEndAction(new Runnable() {
+                    @Override public void run() {
                         location.setVisibility(View.GONE);
                         location.animate().setListener(null).cancel();
                         if (location.getSelectedItemPosition() != adapter.getCount() - 1) {
                             entry.setText((String) location.getSelectedItem());
                         }
-                        container.requestFocus();
+                        entry.requestFocusFromTouch();
+                        InputMethodManager imm =
+                            (InputMethodManager) entry.getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
+                        imm.showSoftInput(entry, InputMethodManager.SHOW_IMPLICIT);
                     }
                 });
             }
         };
         location.setAdapter(adapter);
         location.setOnLongClickListener(new View.OnLongClickListener() {
-            @Override
-            public boolean onLongClick(final View v) {
+            @Override public boolean onLongClick(final View v) {
                 swapLocationSpinner.run();
                 return true;
             }
@@ -135,9 +136,8 @@ public class LocationDialogHelper {
                     setInitialLocation.run();
                 }
 
-                container.animate().alpha(0f).setDuration(duration).setListener(new AnimatorListenerAdapter() {
-                    @Override public void onAnimationEnd(Animator animation) {
-                        super.onAnimationEnd(animation);
+                container.animate().alpha(0f).setDuration(duration).withEndAction(new Runnable() {
+                    @Override public void run() {
                         container.setVisibility(View.GONE);
                         container.animate().setListener(null).cancel();
                     }
