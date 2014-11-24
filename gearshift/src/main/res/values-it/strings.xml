@@ -109,7 +109,7 @@
     <string name="create_profile_in_settings">Crea un profilo dalle impostazioni</string>
     
     <string name="no_profiles_empty_list">&lt;h2&gt;Nessun profilo è stato creato.&lt;/h2&gt;Dovresti crearne uno andando nelle &lt;i&gt;impostazioni&lt;/i&gt;.</string>
-    <string name="connecting_empty_list"><![CDATA[<h2><font color="#666666">Connecting</font></h2>]]></string>
+    <string name="connecting_empty_list"><![CDATA[<h2><font color="#666666">Connessione</font></h2>]]></string>
     <string name="no_torrents_empty_list">&lt;h2&gt;Sei connesso!&lt;/h2&gt;Dovresti aggiungere almeno un torrent.</string>
     <string name="no_filtered_torrents_empty_list">Nessun torrent rispetta il filtro impostato</string>
     <string name="no_connectivity_empty_list">&lt;h2&gt;&lt;font color="#cc0000"&gt;Devi essere connesso a una rete!&lt;/font&gt;&lt;/h2&gt;</string>
@@ -121,9 +121,9 @@
     <string name="response_error_empty_list">&lt;h2&gt;&lt;font color="#cc0000"&gt;Errore demone Transmission!&lt;/font&gt;&lt;/h2&gt;Una richiesta al demone non ha avuto successo. Controlla il logcat per maggiori dettagli.</string>
     <string name="timeout_empty_list"><![CDATA[<h2><font color="#cc0000>Connessione scaduta!</font></h2>]]></string>
     <string name="out_of_memory_empty_list"><![CDATA[<h2><font color="#cc0000>Memoria esaurita!</font></h2>]]></string>
-    <string name="json_parse_empty_list"><![CDATA[<h2><font color="#cc0000>Risposta inaspettata del server!</font></h2>]]>Questa non è la risposta che ci aspettiamo.</string>
+    <string name="json_parse_empty_list"><![CDATA[<h2><font color="#cc0000>Risposta inaspettata del server!</font></h2>]]>Questa non è la risposta che ci aspettavamo.</string>
     
-    <string name="traffic_downloading_format">%1$s of %2$s (%3$s)%4$s</string>
+    <string name="traffic_downloading_format">%1$s di %2$s (%3$s)%4$s</string>
     <string name="traffic_downloading_percentage_format">%1$s%%</string>
     <string name="traffic_seeding_format">%1$s, inviati %2$s (%3$s)%4$s</string>
     <string name="traffic_seeding_ratio_format">Rapporto: %1$s%2$s</string>
@@ -134,16 +134,16 @@
     <string name="status_format">%1$s %2$s</string>
     <string name="status_state_downloading">&lt;b&gt;Download&lt;/b&gt;</string>
     <string name="status_state_downloading_metadata">&lt;b&gt;Download metadata&lt;/b&gt;</string>
-    <string name="status_state_seeding">&lt;b&gt;Seeding&lt;/b&gt;</string>
+    <string name="status_state_seeding">&lt;b&gt;Distribuzione&lt;/b&gt;</string>
     <string name="status_state_download_waiting">&lt;b&gt;In coda per il download&lt;/b&gt;</string>
     <string name="status_state_seed_waiting">&lt;b&gt;In coda per la distribuzione&lt;/b&gt;</string>
     <string name="status_state_paused"><![CDATA[<b>In pausa</b>]]></string>
     <string name="status_state_finished"><![CDATA[<b>Finito</b>]]></string>
     <string name="status_state_check_waiting">&lt;b&gt;In coda per la verifica&lt;/b&gt;</string>
     <string name="status_state_checking">&lt;b&gt;Verifica in corso&lt;/b&gt; (%1$s%% tested)</string>
-    <string name="status_more_downloading_format"> da %1$d of %2$d nodi connessi - &lt;i&gt;%3$s&lt;/i&gt;</string>
+    <string name="status_more_downloading_format"> da %1$d di %2$d nodi connessi - &lt;i&gt;%3$s&lt;/i&gt;</string>
     <string name="status_more_downloading_speed_format">&#x2193; %1$s/s, &#x2191; %2$s/s</string>
-    <string name="status_more_seeding_format"> a %1$d of %2$d nodi connessi - &lt;i&gt;%3$s&lt;/i&gt;</string>
+    <string name="status_more_seeding_format"> a %1$d di %2$d nodi connessi - &lt;i&gt;%3$s&lt;/i&gt;</string>
     <string name="status_more_seeding_speed_format">&#x2191; %1$s/s</string>
     <string name="status_more_idle">Inattivo</string>
 
@@ -205,8 +205,8 @@
     <string name="about_name">Gear Shift</string>
     <string name="app_icon">Icona app</string>
     <string name="about_description">Gear Shift è un client remoto per Transmission, creato per fornire una grande esperienza utente nel gestire i torrent di un server Transmission.</string>
-    <string name="about_contact">Se riscontri dei problemi, per favore scrivi un post in <![CDATA[<a href="%1$s">Gear Shift G+ community</a>]]>, nella categoria bugs. In questo modo anche gli altri vedranno che è stato segnalato il bug. Assicurati di aver attivato l\'opzione \'Debug\' in \'Impostazioni generali\', e includere il logcat relativo all\'applicazione.</string>
-    <string name="about_donation">Questa app è distribuita gratuitamente e senza fastidiose pubblicità. Se la trovi utile, considera di <![CDATA[<a href="%1$s">offrirmi una birra o due</a>]]>.</string>
+    <string name="about_contact">Se riscontri dei problemi, per favore riportalo nella <![CDATA[<a href="%1$s">Community G+ Gear Shift</a>]]>, sotto la categoria bugs. In questo modo anche gli altri vedranno che è stato segnalato il problema. Assicurati di aver attivato l\'opzione \'Debug\' in \'Impostazioni generali\', e includere il logcat relativo all\'applicazione. Traduzione italiana a cura di Giorgio Lovato.</string>
+    <string name="about_donation">Questa app è distribuita gratuitamente e priva di pubblicità. Se la trovi utile, considera di <![CDATA[<a href="%1$s">offrirmi una birra o due</a>]]>.</string>
     
     <string name="ic_menu_select_all">Selziona tutto</string>
     
@@ -384,7 +384,7 @@
         
     <string name="session_settings_download">Download (KiB/s)</string>
         
-    <string name="port_test_testing">Testing …</string>
+    <string name="port_test_testing">Prova …</string>
         
     <string name="port_test_closed"><![CDATA[<font color="#E73939">Chiusa</font>]]></string>
         
@@ -445,7 +445,7 @@
     <string name="update_view">Vista</string>
     <string name="update_available"><![CDATA[<h2><font color="#666666">Una nuova versione di Gear Shift è disponibile</font><h2><small>La nuova versione è \'%1$s\'</small>]]></string>
     <string name="update_current">Stai usando l\'ultima versione di Gear Shift</string>
-    <string name="update_error"><![CDATA[<font color="#E73939">Si è riscontrato un errore nel controllare per aggiornamenti</font>]]></string>
+    <string name="update_error"><![CDATA[<font color="#E73939">Si è riscontrato un errore nel controllare gli aggiornamenti</font>]]></string>
     <string name="about_updates">Controlla aggiornamenti</string>
     <string name="update_checking">Controllo …</string>
     <string name="crash_title"><![CDATA[<h2>Sfortunatamente, Gear Shift si è bloccato.</h2><small>Vuoi inviare un rapporto per email?</small>]]></string>
@@ -480,7 +480,7 @@
         <item>10 secondi</item>
         <item>30 secondi</item>
         <item>Ogni minuto</item>
-        <item>2 minutt</item>
+        <item>2 minuti</item>
         <item>Mai</item>
     </string-array>
 
@@ -498,7 +498,7 @@
         <item>Dimensioni</item>
         <item>Stato</item>
         <item>Velocità download</item>
-        <item>Velocità uload</item>
+        <item>Velocità upload</item>
         <item>Età</item>
         <item>Avanzamento</item>
         <item>Rapporto</item>
@@ -509,16 +509,16 @@
     </string-array>
 
     <string-array name="pref_base_sort_order_entries">
-        <item>Ascendente</item>
-        <item>Discendente</item>
+        <item>Crescente</item>
+        <item>Decrescente</item>
         <item>Ordine primario</item>
-        <item>RInverti ordine primario</item>
+        <item>Rinverti ordine primario</item>
     </string-array>
 
     <string-array name="session_settings_encryption">
-        <item>Richiesto</item>
-        <item>Preferito</item>
-        <item>Consentito</item>
+        <item>Richiesta</item>
+        <item>Preferita</item>
+        <item>Consentita</item>
     </string-array>
 
 </resources>
