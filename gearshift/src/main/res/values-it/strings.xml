@@ -512,7 +512,7 @@
         <item>Crescente</item>
         <item>Decrescente</item>
         <item>Ordine primario</item>
-        <item>Rinverti ordine primario</item>
+        <item>Inverti ordine primario</item>
     </string-array>
 
     <string-array name="session_settings_encryption">
