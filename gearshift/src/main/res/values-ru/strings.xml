@@ -125,7 +125,7 @@
     
     <string name="traffic_downloading_format">%1$s из %2$s (%3$s)%4$s</string>
     <string name="traffic_downloading_percentage_format">%1$s%%</string>
-    <string name="traffic_seeding_format">>%1$s, отдано %2$s (%3$s)%4$s</string>
+    <string name="traffic_seeding_format">%1$s, отдано %2$s (%3$s)%4$s</string>
     <string name="traffic_seeding_ratio_format">Коэффициент: %1$s%2$s</string>
     <string name="traffic_seeding_ratio_goal_format">, Цель: %1$s</string>
     <string name="traffic_remaining_time_format">- &lt;i>%1$s осталось&lt;/i></string>
@@ -432,7 +432,7 @@
         <item quantity="other">%1$d пиров</item>
     </plurals>
 
-    <string name="status_bar_format"><![CDATA[v %1$s%2$s, ^ %3$s%4$s, ? %5$s]]></string>
+    <string name="status_bar_format"><![CDATA[↓ %1$s%2$s, ↑ %3$s%4$s, ⊙ %5$s]]></string>
     <string name="status_bar_limit_format"><![CDATA[ (<i>%1$s</i>)]]></string>
     <string name="user_interface_header">Интерфейс пользователя</string>
     <string name="show_status_bar">Отображать строку состояния под списком торрентов</string>
