@@ -1425,6 +1425,10 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
 
     private class SessionReceiver extends BroadcastReceiver {
         @Override public void onReceive(Context context, Intent intent) {
+            if (getActivity() == null || menu == null) {
+                return;
+            }
+
             if (intent.getBooleanExtra(G.ARG_SESSION_VALID, false)) {
                 menu.findItem(R.id.sort).setVisible(true);
                 menu.findItem(R.id.find).setVisible(true);

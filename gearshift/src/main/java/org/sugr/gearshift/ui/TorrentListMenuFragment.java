@@ -1245,6 +1245,10 @@ public class TorrentListMenuFragment extends Fragment implements TorrentListNoti
 
     private class SessionReceiver extends BroadcastReceiver {
         @Override public void onReceive(Context context, Intent intent) {
+            if (getActivity() == null) {
+                return;
+            }
+
             if (intent.getBooleanExtra(G.ARG_SESSION_VALID, false)) {
                 int[] range = fillSessionItems();
                 if (range[0] != -1) {
