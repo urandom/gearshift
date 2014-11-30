@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
+             xmlns:tools="http://schemas.android.com/tools"
+             android:layout_width="match_parent"
+             android:layout_height="match_parent">
 
     <android.support.v4.widget.SwipeRefreshLayout
         android:id="@+id/swipe_container"
@@ -14,13 +15,37 @@
                   android:drawSelectorOnTop="false" />
     </android.support.v4.widget.SwipeRefreshLayout>
 
-    <TextView android:id="@android:id/empty"
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <TextView
+            android:id="@+id/empty_message"
+            android:visibility="gone"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
             android:fontFamily="sans-serif-light"
             android:paddingLeft="16dp"
             android:paddingRight="16dp"
             android:gravity="center"
             android:layout_margin="16dp"
-            android:textAppearance="?android:attr/textAppearanceMedium" />        
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            tools:text="Helper text displaying some meaningful message"/>
+
+        <Button
+            android:id="@+id/empty_button"
+            android:visibility="gone"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_centerHorizontal="true"
+            android:layout_below="@+id/empty_message"
+            android:padding="16dp"
+            android:fontFamily="sans-serif-condensed"
+            android:textColor="@color/control_activated"
+            android:background="?android:attr/selectableItemBackground"
+            tools:text="Button action"/>
+
+    </RelativeLayout>
 </FrameLayout>

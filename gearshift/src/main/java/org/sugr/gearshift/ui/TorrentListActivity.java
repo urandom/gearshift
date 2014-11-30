@@ -47,7 +47,6 @@ import org.sugr.gearshift.core.TransmissionProfile;
 import org.sugr.gearshift.core.TransmissionSession;
 import org.sugr.gearshift.service.DataService;
 import org.sugr.gearshift.service.DataServiceManager;
-import org.sugr.gearshift.ui.settings.SettingsActivity;
 import org.sugr.gearshift.util.Base64;
 import org.sugr.gearshift.util.CheatSheet;
 
@@ -59,7 +58,6 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
-import java.util.ArrayList;
 import java.util.Date;
 
 public class TorrentListActivity extends BaseTorrentActivity

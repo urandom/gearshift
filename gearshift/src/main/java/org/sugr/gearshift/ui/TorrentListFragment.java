@@ -48,6 +48,7 @@ import android.view.animation.PathInterpolator;
 import android.widget.AbsListView.MultiChoiceModeListener;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemLongClickListener;
+import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CursorAdapter;
 import android.widget.EditText;
@@ -71,8 +72,10 @@ import org.sugr.gearshift.service.DataService;
 import org.sugr.gearshift.service.DataServiceManager;
 import org.sugr.gearshift.service.DataServiceManagerInterface;
 import org.sugr.gearshift.ui.loader.TorrentTrafficLoader;
+import org.sugr.gearshift.ui.settings.SettingsActivity;
 import org.sugr.gearshift.ui.util.UpdateCheckDialog;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -317,7 +320,7 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
                         }
                     } else if (key.equals(G.PREF_CURRENT_PROFILE)) {
                         if (prefs.getString(key, null) == null && getActivity() != null) {
-                            setEmptyText(R.string.no_profiles_empty_list);
+                            setEmptyMessage(R.string.no_profiles_empty_list);
                         }
                     } else if (key.equals(G.PREF_SHOW_STATUS) && getView() != null) {
                         toggleStatusBar();
@@ -786,10 +789,36 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
     }
 
 
-    public void setEmptyText(int stringId) {
-        Spanned text = Html.fromHtml(getString(stringId));
+    public void setEmptyMessage(int stringId) {
+        if (stringId == -1) {
+            getView().findViewById(R.id.swipe_container).setVisibility(View.VISIBLE);
+            getView().findViewById(R.id.empty_message).setVisibility(View.GONE);
+            getView().findViewById(R.id.empty_button).setVisibility(View.GONE);
+        } else {
+            getView().findViewById(R.id.swipe_container).setVisibility(View.GONE);
 
-        ((TextView) getListView().getEmptyView()).setText(text);
+            TextView message = (TextView) getView().findViewById(R.id.empty_message);
+            message.setVisibility(View.VISIBLE);
+            message.setText(Html.fromHtml(getString(stringId)));
+
+            Button button = (Button) getView().findViewById(R.id.empty_button);
+            if (stringId == R.string.no_profiles_empty_list) {
+                button.setText(R.string.add_profile_option);
+                button.setOnClickListener(new View.OnClickListener() {
+                    @Override public void onClick(View v) {
+                        Intent intent = new Intent(getActivity(), SettingsActivity.class);
+
+                        intent.putExtra(G.ARG_NEW_PROFILE, true);
+                        startActivity(intent);
+                        getActivity().overridePendingTransition(
+                            R.anim.slide_in_top, android.R.anim.fade_out);
+                    }
+                });
+                button.setVisibility(View.VISIBLE);
+            } else {
+                button.setVisibility(View.GONE);
+            }
+        }
     }
 
     /**
@@ -1394,10 +1423,13 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
                     && sharedPrefs.getString(G.PREF_LIST_DIRECTORY, "").equals("")
                     && sharedPrefs.getString(G.PREF_LIST_TRACKER, "").equals("")
                     && sharedPrefs.getString(G.PREF_LIST_FILTER, FilterBy.ALL.name()).equals(FilterBy.ALL.name())) {
-                    setEmptyText(R.string.no_torrents_empty_list);
+                    setEmptyMessage(R.string.no_torrents_empty_list);
                 } else {
-                    setEmptyText(R.string.no_filtered_torrents_empty_list);
+                    setEmptyMessage(R.string.no_filtered_torrents_empty_list);
                 }
+            } else {
+                setEmptyMessage(-1);
+
             }
 
             if (scrollToTop) {

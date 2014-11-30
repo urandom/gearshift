@@ -262,6 +262,9 @@ public class SettingsActivity extends ActionBarActivity {
         fillPreferences();
 
         getSupportLoaderManager().initLoader(G.PROFILES_LOADER_ID, null, profileLoaderCallbacks);
+
+        boolean showNewProfile = getIntent().getBooleanExtra(G.ARG_NEW_PROFILE, false);
+
         if (state == null) {
             SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
             prefs.registerOnSharedPreferenceChangeListener(defaultPrefListener);
@@ -269,7 +272,14 @@ public class SettingsActivity extends ActionBarActivity {
             prefs = getSharedPreferences(TransmissionProfile.getPreferencesName(),
                 Activity.MODE_PRIVATE);
             prefs.registerOnSharedPreferenceChangeListener(profilesPrefListener);
+        } else {
+            showNewProfile = false;
+        }
 
+        if (showNewProfile) {
+            addFragment("new-profile", Type.PROFILE, null);
+
+            slidingPane.closePane();
         }
     }
 
