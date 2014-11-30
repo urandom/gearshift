@@ -211,6 +211,9 @@ public class SettingsActivity extends ActionBarActivity {
             if (f instanceof TransmissionProfileDirectoriesSettingsFragment) {
                 String id = f.getArguments().getString(G.ARG_PROFILE_ID);
 
+                if (id == null) {
+                    id = "new-profile";
+                }
                 addFragment(id, Type.PROFILE, null, false);
             } else {
                 closePreferences();
