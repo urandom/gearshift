@@ -11,6 +11,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
 import android.support.v4.content.LocalBroadcastManager;
@@ -143,7 +144,12 @@ public class TorrentListMenuFragment extends Fragment implements TorrentListNoti
                     context.setProfile(profiles[0]);
                 } else {
                     context.setProfile(null);
-                    /* TODO: should display the message that the user hasn't created a profile yet */
+
+                    FragmentManager fm = context.getSupportFragmentManager();
+                    TorrentListFragment fragment = (TorrentListFragment) fm.findFragmentById(R.id.torrent_list);
+                    if (fragment != null) {
+                        fragment.setEmptyMessage(R.string.no_profiles_empty_list);
+                    }
                 }
                 TransmissionProfile.setCurrentProfile(context.getProfile(),
                     PreferenceManager.getDefaultSharedPreferences(context));
