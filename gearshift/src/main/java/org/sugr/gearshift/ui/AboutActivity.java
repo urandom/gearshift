@@ -30,6 +30,7 @@ public class AboutActivity extends ActionBarActivity {
 
         TextView contact = (TextView) findViewById(R.id.about_contact);
         contact.setText(Html.fromHtml(String.format(getString(R.string.about_contact),
+            "https://github.com/urandom/gearshift/issues",
             "https://plus.google.com/communities/115768021623513120266")));
         contact.setMovementMethod(LinkMovementMethod.getInstance());
 

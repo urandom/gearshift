@@ -205,7 +205,6 @@
     <string name="about_name">Gear Shift</string>
     <string name="app_icon">App icon</string>
     <string name="about_description">Gear Shift ist ein Transmission-Remote Client, geschaffen um eine großartige Nutzererfahrung beim Arbeiten mit Torrents zu bieten.</string>
-    <string name="about_contact">Solltest du etwaige Bugs finden, bitte schreibe einen Post in der <![CDATA[<a href="%1$s">Gear Shift G+ community</a>]]>, unter bugs. Dies zeigt auch Anderen, dass ein Bug schon gefunden wurde. Bitte aktiviere die \'Debug\'-Option unter \'Allgemeine Einstellungen\', und schicke auch das logcat diese App mit.</string>
     <string name="about_donation">Diese App wird gratis zur Verfügung gestellt, ohne nervende Werbung. Falls du sie nützlich findest, könntest du <![CDATA[<a href="%1$s">mir ein oder zwei Bier schicken</a>]]>.</string>
     
     <string name="ic_menu_select_all">Alles markieren</string>

@@ -192,7 +192,6 @@
     <string name="about_name">Gear Shift</string>
     <string name="app_icon">App icon</string>
     <string name="about_description">Gear Shift es un cliente remto de Transmission creado para aportar la mejor experiencia a la hora de gestionar torrents.</string>
-    <string name="about_contact">Si encuentras algún bug, pro favor escribe un post en <![CDATA[<a href="%1$s">Gear Shift G+ community</a>]]>, en la sección de bugs. De esta forma otra gente podrá ver si el bug se ha reportado ya. Asegúrate de activar \'Debug\' en \'Preferencias Generales\', e incluir el logcat relacionado.</string>
     <string name="about_donation">Esta app se provee gratuidamente, sin ningun molesto anuncio. Si la encuentrasd e utilidad considera <![CDATA[<a href="%1$s">sending a beer or two this way</a>]]>.</string>
     
     <string name="ic_menu_select_all">Seleccionar todos</string>
