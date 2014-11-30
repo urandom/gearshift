@@ -1066,6 +1066,10 @@ public class TorrentListMenuFragment extends Fragment implements TorrentListNoti
             }
 
             ListItem item = itemData.get(position);
+            if (item == null) {
+                return false;
+            }
+
             switch (item.getType()) {
                 case SESSION_DATA_HEADER:
                 case OPTION_HEADER:
