@@ -34,17 +34,12 @@
             tools:text="Helper text displaying some meaningful message"/>
 
         <Button
+            style="@style/BorderlessButton"
             android:id="@+id/empty_button"
             android:visibility="gone"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:layout_centerHorizontal="true"
             android:layout_below="@+id/empty_message"
-            android:padding="16dp"
-            android:fontFamily="sans-serif-condensed"
-            android:textColor="@color/control_activated"
-            android:background="?android:attr/selectableItemBackground"
             tools:text="Button action"/>
 
     </RelativeLayout>

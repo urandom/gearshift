@@ -7,4 +7,13 @@
         <item name="android:layout_marginBottom">8dp</item>
         <item name="cardCornerRadius">2dp</item>
     </style>
+
+    <style name="BorderlessButton">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:fontFamily">sans-serif-condensed</item>
+        <item name="android:textColor">@color/control_activated</item>
+        <item name="android:background">?android:attr/selectableItemBackgroundBorderless</item>
+        <item name="android:padding">8dp</item>
+    </style>
 </resources>

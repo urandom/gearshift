@@ -9,5 +9,6 @@
     -->
     <item name="default_in_interpolator" type="interpolator">@android:interpolator/linear_out_slow_in</item>
     <item name="default_out_interpolator" type="interpolator">@android:interpolator/fast_out_linear_in</item>
+    <item name="borderless_buttton_background" type="drawable">?android:attr/selectableItemBackgroundBorderless</item>
 
 </resources>
