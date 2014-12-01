@@ -145,7 +145,7 @@
     <string name="status_more_downloading_speed_format">&#x2193; %1$s/s, &#x2191; %2$s/s</string>
     <string name="status_more_seeding_format">- подключено %1$d из %2$d пиров - &lt;i&gt;%3$s&lt;/i&gt;</string>
     <string name="status_more_seeding_speed_format">&#x2191; %1$s/s</string>
-    <string name="status_more_idle" />
+    <string name="status_more_idle">Ожидание</string>
 
     <string name="time_days">дней</string>
     <string name="time_day">день</string>
@@ -157,8 +157,8 @@
     <string name="time_second">секунда</string>
 
     <string name="remove_selected_confirmation">Вы действительно хотите удалить выделенные торренты?</string>
-
     <string name="remove_current_confirmation">Вы уверены, что хотите удалить \'%s\'?</string>
+    <string name="remove_with_data">Удалить с данными</string>
 
     <string name="torrent_have_format">%1$s из %2$s (%3$s%%)</string>
     <string name="torrent_size_format">%1$s (%2$s частей @ %3$s)</string>
@@ -205,6 +205,7 @@
     <string name="about_name">Gear Shift</string>
     <string name="app_icon">App icon</string>
     <string name="about_description">Gear Shift - многофункциональный клиент, предназначенный для удалённого управления демоном Transmission.</string>
+    <string name="about_contact">If you find any bugs, please write a post in the <![CDATA[<a href="https://plus.google.com/communities/115768021623513120266">Gear Shift G+ community</a>]]>, filed under bugs. Doing so will also show other people whether the bug has been reported already. Be sure to turn on the \'Debug\' options under \'General Settings\', and include the logcat related to the app.</string>
     <string name="about_donation">This app is provided for free, without any annoying ads. If you find it useful, consider <![CDATA[<a href="https://www.paypal.com/bg/cgi-bin/webscr?cmd=_donations&business=support@sugr.org&lc=US&item_name=Gear Shift&no_note=1&no_shipping=1&currency_code=EUR">sending a beer or two this way</a>]]>.</string>
     
     <string name="ic_menu_select_all">Выделить все</string>
@@ -257,7 +258,6 @@
     <string name="tracker_filters">Фильтр по трекерам</string>
 
     <string name="show_tracker_filters">Показывать фильтр по трекерам</string>
-	
     <string name="show_untracked_filter">Показывать торренты без трекеров</string>
 
     <string name="sort_visibility">Использовать следующие методы сортировки в настройке фильтров</string>
@@ -450,6 +450,7 @@
     <string name="update_checking">Проверка …</string>
     <string name="crash_title"><![CDATA[<h2>К сожалению, Gear Shift перестал работать.</h2><small>Хотите отправить по почте отчет об ошибке?</small>]]></string>
     <string name="crash_send">Отправить</string>
+    <string name="sort">Сортировка</string>
 
     <string-array name="torrent_priority">
         <item>Низкий</item>
