@@ -324,9 +324,7 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
                         }
                     } else if (key.equals(G.PREF_SHOW_STATUS) && getView() != null) {
                         toggleStatusBar();
-                    } else if (key.startsWith(G.PREF_SORT_PREFIX)
-                        || key.equals(G.PREF_LIST_SORT_BY)
-                        || key.equals(G.PREF_LIST_SORT_ORDER)) {
+                    } else if (key.startsWith(G.PREF_SORT_PREFIX)) {
                         if (getActivity() != null
                             && ((TransmissionSessionInterface) getActivity()).getSession() != null) {
 
@@ -658,43 +656,92 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
     public boolean onOptionsItemSelected(final MenuItem item) {
         switch (item.getItemId()) {
             case R.id.sort_name:
+                if (item.isChecked()) {
+                    return false;
+                }
+                item.setChecked(true);
                 setListFilter(SortBy.NAME);
                 return true;
             case R.id.sort_size:
+                if (item.isChecked()) {
+                    return false;
+                }
+                item.setChecked(true);
                 setListFilter(SortBy.SIZE);
                 return true;
             case R.id.sort_status:
+                if (item.isChecked()) {
+                    return false;
+                }
+                item.setChecked(true);
                 setListFilter(SortBy.STATUS);
                 return true;
             case R.id.sort_activity:
+                if (item.isChecked()) {
+                    return false;
+                }
+                item.setChecked(true);
                 setListFilter(SortBy.ACTIVITY);
                 return true;
             case R.id.sort_age:
+                if (item.isChecked()) {
+                    return false;
+                }
+                item.setChecked(true);
                 setListFilter(SortBy.AGE);
                 return true;
             case R.id.sort_progress:
+                if (item.isChecked()) {
+                    return false;
+                }
+                item.setChecked(true);
                 setListFilter(SortBy.PROGRESS);
                 return true;
             case R.id.sort_ratio:
+                if (item.isChecked()) {
+                    return false;
+                }
+                item.setChecked(true);
                 setListFilter(SortBy.RATIO);
                 return true;
             case R.id.sort_location:
+                if (item.isChecked()) {
+                    return false;
+                }
+                item.setChecked(true);
                 setListFilter(SortBy.LOCATION);
                 return true;
             case R.id.sort_peers:
+                if (item.isChecked()) {
+                    return false;
+                }
+                item.setChecked(true);
                 setListFilter(SortBy.PEERS);
                 return true;
             case R.id.sort_download_speed:
+                if (item.isChecked()) {
+                    return false;
+                }
+                item.setChecked(true);
                 setListFilter(SortBy.RATE_DOWNLOAD);
                 return true;
             case R.id.sort_upload_speed:
+                if (item.isChecked()) {
+                    return false;
+                }
+                item.setChecked(true);
                 setListFilter(SortBy.RATE_UPLOAD);
                 return true;
             case R.id.sort_queue:
+                if (item.isChecked()) {
+                    return false;
+                }
+                item.setChecked(true);
                 setListFilter(SortBy.QUEUE);
                 return true;
             case R.id.sort_order:
                 setListFilter(item.isChecked() ? SortOrder.ASCENDING : SortOrder.DESCENDING);
+                item.setChecked(!item.isChecked());
                 return true;
             default:
                 return false;
@@ -1049,7 +1096,9 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
                     visible = sharedPrefs.getBoolean(G.PREF_SORT_NAME, true);
                     item = menu.findItem(R.id.sort_name);
                     item.setVisible(visible);
-                    item.setChecked(sort == selectedSort);
+                    if (sort == selectedSort) {
+                        item.setChecked(true);
+                    }
 
                     if (visible) {
                         ++visibleOptions;
@@ -1059,7 +1108,9 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
                     visible = sharedPrefs.getBoolean(G.PREF_SORT_SIZE, true);
                     item = menu.findItem(R.id.sort_size);
                     item.setVisible(visible);
-                    item.setChecked(sort == selectedSort);
+                    if (sort == selectedSort) {
+                        item.setChecked(true);
+                    }
 
                     if (visible) {
                         ++visibleOptions;
@@ -1069,7 +1120,9 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
                     visible = sharedPrefs.getBoolean(G.PREF_SORT_STATUS, true);
                     item = menu.findItem(R.id.sort_status);
                     item.setVisible(visible);
-                    item.setChecked(sort == selectedSort);
+                    if (sort == selectedSort) {
+                        item.setChecked(true);
+                    }
 
                     if (visible) {
                         ++visibleOptions;
@@ -1079,7 +1132,9 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
                     visible = sharedPrefs.getBoolean(G.PREF_SORT_ACTIVITY, true);
                     item = menu.findItem(R.id.sort_activity);
                     item.setVisible(visible);
-                    item.setChecked(sort == selectedSort);
+                    if (sort == selectedSort) {
+                        item.setChecked(true);
+                    }
 
                     if (visible) {
                         ++visibleOptions;
@@ -1089,7 +1144,9 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
                     visible = sharedPrefs.getBoolean(G.PREF_SORT_AGE, true);
                     item = menu.findItem(R.id.sort_age);
                     item.setVisible(visible);
-                    item.setChecked(sort == selectedSort);
+                    if (sort == selectedSort) {
+                        item.setChecked(true);
+                    }
 
                     if (visible) {
                         ++visibleOptions;
@@ -1099,7 +1156,9 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
                     visible = sharedPrefs.getBoolean(G.PREF_SORT_PROGRESS, true);
                     item = menu.findItem(R.id.sort_progress);
                     item.setVisible(visible);
-                    item.setChecked(sort == selectedSort);
+                    if (sort == selectedSort) {
+                        item.setChecked(true);
+                    }
 
                     if (visible) {
                         ++visibleOptions;
@@ -1109,7 +1168,9 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
                     visible = sharedPrefs.getBoolean(G.PREF_SORT_RATIO, true);
                     item = menu.findItem(R.id.sort_ratio);
                     item.setVisible(visible);
-                    item.setChecked(sort == selectedSort);
+                    if (sort == selectedSort) {
+                        item.setChecked(true);
+                    }
 
                     if (visible) {
                         ++visibleOptions;
@@ -1119,7 +1180,9 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
                     visible = sharedPrefs.getBoolean(G.PREF_SORT_LOCATION, true);
                     item = menu.findItem(R.id.sort_location);
                     item.setVisible(visible);
-                    item.setChecked(sort == selectedSort);
+                    if (sort == selectedSort) {
+                        item.setChecked(true);
+                    }
 
                     if (visible) {
                         ++visibleOptions;
@@ -1129,7 +1192,9 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
                     visible = sharedPrefs.getBoolean(G.PREF_SORT_PEERS, true);
                     item = menu.findItem(R.id.sort_peers);
                     item.setVisible(visible);
-                    item.setChecked(sort == selectedSort);
+                    if (sort == selectedSort) {
+                        item.setChecked(true);
+                    }
 
                     if (visible) {
                         ++visibleOptions;
@@ -1139,7 +1204,9 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
                     visible = sharedPrefs.getBoolean(G.PREF_SORT_RATE_DOWNLOAD, true);
                     item = menu.findItem(R.id.sort_download_speed);
                     item.setVisible(visible);
-                    item.setChecked(sort == selectedSort);
+                    if (sort == selectedSort) {
+                        item.setChecked(true);
+                    }
 
                     if (visible) {
                         ++visibleOptions;
@@ -1149,7 +1216,9 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
                     visible = sharedPrefs.getBoolean(G.PREF_SORT_RATE_UPLOAD, true);
                     item = menu.findItem(R.id.sort_upload_speed);
                     item.setVisible(visible);
-                    item.setChecked(sort == selectedSort);
+                    if (sort == selectedSort) {
+                        item.setChecked(true);
+                    }
 
                     if (visible) {
                         ++visibleOptions;
@@ -1159,7 +1228,9 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
                     visible = sharedPrefs.getBoolean(G.PREF_SORT_QUEUE, true);
                     item = menu.findItem(R.id.sort_queue);
                     item.setVisible(visible);
-                    item.setChecked(sort == selectedSort);
+                    if (sort == selectedSort) {
+                        item.setChecked(true);
+                    }
 
                     if (visible) {
                         ++visibleOptions;

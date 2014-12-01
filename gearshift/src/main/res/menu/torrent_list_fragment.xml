@@ -15,18 +15,18 @@
 
         <menu>
             <group android:checkableBehavior="single">
-                <item android:id="@+id/sort_name" android:title="@string/menu_sort_name" android:checkable="true"/>
-                <item android:id="@+id/sort_size" android:title="@string/menu_sort_size" android:checkable="true"/>
-                <item android:id="@+id/sort_status" android:title="@string/menu_sort_status" android:checkable="true"/>
-                <item android:id="@+id/sort_activity" android:title="@string/menu_sort_activity" android:checkable="true"/>
-                <item android:id="@+id/sort_age" android:title="@string/menu_sort_age" android:checkable="true"/>
-                <item android:id="@+id/sort_progress" android:title="@string/menu_sort_progress" android:checkable="true"/>
-                <item android:id="@+id/sort_ratio" android:title="@string/menu_sort_ratio" android:checkable="true"/>
-                <item android:id="@+id/sort_location" android:title="@string/menu_sort_location" android:checkable="true"/>
-                <item android:id="@+id/sort_peers" android:title="@string/menu_sort_peers" android:checkable="true"/>
-                <item android:id="@+id/sort_download_speed" android:title="@string/menu_sort_download_speed" android:checkable="true"/>
-                <item android:id="@+id/sort_upload_speed" android:title="@string/menu_sort_upload_speed" android:checkable="true"/>
-                <item android:id="@+id/sort_queue" android:title="@string/menu_sort_queue" android:checkable="true"/>
+                <item android:id="@+id/sort_name" android:title="@string/menu_sort_name"/>
+                <item android:id="@+id/sort_size" android:title="@string/menu_sort_size"/>
+                <item android:id="@+id/sort_status" android:title="@string/menu_sort_status"/>
+                <item android:id="@+id/sort_activity" android:title="@string/menu_sort_activity"/>
+                <item android:id="@+id/sort_age" android:title="@string/menu_sort_age"/>
+                <item android:id="@+id/sort_progress" android:title="@string/menu_sort_progress"/>
+                <item android:id="@+id/sort_ratio" android:title="@string/menu_sort_ratio"/>
+                <item android:id="@+id/sort_location" android:title="@string/menu_sort_location"/>
+                <item android:id="@+id/sort_peers" android:title="@string/menu_sort_peers"/>
+                <item android:id="@+id/sort_download_speed" android:title="@string/menu_sort_download_speed"/>
+                <item android:id="@+id/sort_upload_speed" android:title="@string/menu_sort_upload_speed"/>
+                <item android:id="@+id/sort_queue" android:title="@string/menu_sort_queue"/>
             </group>
 
             <item android:id="@+id/sort_order" android:title="@string/menu_order_descending" android:checkable="true"/>
