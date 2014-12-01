@@ -1057,7 +1057,7 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
                     break;
                 case SIZE:
                     visible = sharedPrefs.getBoolean(G.PREF_SORT_SIZE, true);
-                    item = menu.findItem(R.id.sort_name);
+                    item = menu.findItem(R.id.sort_size);
                     item.setVisible(visible);
                     item.setChecked(sort == selectedSort);
 
