@@ -22,6 +22,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.LocalBroadcastManager;
+import android.support.v7.widget.CardView;
 import android.text.Html;
 import android.text.Spanned;
 import android.text.TextUtils;
@@ -143,52 +144,78 @@ public class TorrentDetailPageFragment extends Fragment {
 
     private boolean[] expandedStates = new boolean[Expanders.TOTAL_EXPANDERS];
 
-    private View.OnClickListener expanderListener = new View.OnClickListener() {
-        @Override
-        public void onClick(View v) {
-            View image;
-            final View content;
-            int index;
-            switch(v.getId()) {
-                case R.id.torrent_detail_overview_expander:
-                    image = v.findViewById(R.id.torrent_detail_overview_expander_image);
-                    content = views.overviewContent;
-                    index = Expanders.OVERVIEW;
+    private View.OnTouchListener expanderTouchListener = new View.OnTouchListener() {
+        @TargetApi(Build.VERSION_CODES.LOLLIPOP)
+        @Override public boolean onTouch(View v, MotionEvent event) {
+            boolean handleRaise = false;
+
+            switch (event.getAction()) {
+                case MotionEvent.ACTION_DOWN:
+                case MotionEvent.ACTION_CANCEL:
+                    handleRaise = true;
                     break;
-                case R.id.torrent_detail_files_expander:
-                    image = v.findViewById(R.id.torrent_detail_files_expander_image);
-                    content = views.filesContent;
-                    index = Expanders.FILES;
+                case MotionEvent.ACTION_UP:
+                    View image;
+                    final View content;
+                    int index;
+                    switch(v.getId()) {
+                        case R.id.torrent_detail_overview_expander:
+                            image = v.findViewById(R.id.torrent_detail_overview_expander_image);
+                            content = views.overviewContent;
+                            index = Expanders.OVERVIEW;
+                            break;
+                        case R.id.torrent_detail_files_expander:
+                            image = v.findViewById(R.id.torrent_detail_files_expander_image);
+                            content = views.filesContent;
+                            index = Expanders.FILES;
+                            break;
+                        case R.id.torrent_detail_limits_expander:
+                            image = v.findViewById(R.id.torrent_detail_limits_expander_image);
+                            content = views.limitsContent;
+                            index = Expanders.LIMITS;
+                            break;
+                        case R.id.torrent_detail_trackers_expander:
+                            image = v.findViewById(R.id.torrent_detail_trackers_expander_image);
+                            content = views.trackersContent;
+                            index = Expanders.TRACKERS;
+                            break;
+                        default:
+                            return false;
+                    }
+
+                    final boolean expand = content.getVisibility() == View.GONE;
+
+                    image.animate().cancel();
+                    if (expand) {
+                        new ExpandAnimation(content).expand();
+                        image.setRotation(0);
+                        expandedStates[index] = true;
+                        updateFields(getView());
+                    } else {
+                        new ExpandAnimation(content).collapse();
+                        image.setRotation(180);
+                        expandedStates[index] = false;
+                    }
+
+                    image.animate().rotationBy(180);
+                    handleRaise = true;
+
                     break;
-                case R.id.torrent_detail_limits_expander:
-                    image = v.findViewById(R.id.torrent_detail_limits_expander_image);
-                    content = views.limitsContent;
-                    index = Expanders.LIMITS;
-                    break;
-                case R.id.torrent_detail_trackers_expander:
-                    image = v.findViewById(R.id.torrent_detail_trackers_expander_image);
-                    content = views.trackersContent;
-                    index = Expanders.TRACKERS;
-                    break;
-                default:
-                    return;
             }
 
-            final boolean expand = content.getVisibility() == View.GONE;
-
-            image.animate().cancel();
-            if (expand) {
-                new ExpandAnimation(content).expand();
-                image.setRotation(0);
-                expandedStates[index] = true;
-                updateFields(getView());
-            } else {
-                new ExpandAnimation(content).collapse();
-                image.setRotation(180);
-                expandedStates[index] = false;
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP && handleRaise) {
+                View parent = v;
+                while (parent.getParent() != null) {
+                    parent = (View) parent.getParent();
+                    if (parent.getClass() == CardView.class) {
+                        parent.animate().translationZ(event.getAction() == MotionEvent.ACTION_DOWN
+                            ? getResources().getDimension(R.dimen.card_raised_translation) : 0);
+                        break;
+                    }
+                }
             }
 
-            image.animate().rotationBy(180);
+            return false;
         }
     };
 
@@ -515,10 +542,10 @@ public class TorrentDetailPageFragment extends Fragment {
             final Bundle savedInstanceState) {
         final View root = inflater.inflate(R.layout.fragment_torrent_detail_page, container, false);
 
-        root.findViewById(R.id.torrent_detail_overview_expander).setOnClickListener(expanderListener);
-        root.findViewById(R.id.torrent_detail_files_expander).setOnClickListener(expanderListener);
-        root.findViewById(R.id.torrent_detail_limits_expander).setOnClickListener(expanderListener);
-        root.findViewById(R.id.torrent_detail_trackers_expander).setOnClickListener(expanderListener);
+        root.findViewById(R.id.torrent_detail_overview_expander).setOnTouchListener(expanderTouchListener);
+        root.findViewById(R.id.torrent_detail_files_expander).setOnTouchListener(expanderTouchListener);
+        root.findViewById(R.id.torrent_detail_limits_expander).setOnTouchListener(expanderTouchListener);
+        root.findViewById(R.id.torrent_detail_trackers_expander).setOnTouchListener(expanderTouchListener);
 
         views = new Views();
 

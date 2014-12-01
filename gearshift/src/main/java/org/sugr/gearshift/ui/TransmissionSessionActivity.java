@@ -1,10 +1,12 @@
 package org.sugr.gearshift.ui;
 
+import android.annotation.TargetApi;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.DialogFragment;
@@ -12,12 +14,14 @@ import android.support.v4.app.NavUtils;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.ActionBarActivity;
+import android.support.v7.widget.CardView;
 import android.support.v7.widget.Toolbar;
 import android.text.Html;
 import android.view.ContextThemeWrapper;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.widget.AdapterView;
@@ -68,48 +72,75 @@ public class TransmissionSessionActivity extends ActionBarActivity implements Da
 
     private List<String> encryptionValues;
 
-    private View.OnClickListener expanderListener = new View.OnClickListener() {
-        @Override
-        public void onClick(View v) {
-            View image;
-            View content;
-            int index;
-            switch(v.getId()) {
-                case R.id.transmission_session_general_expander:
-                    image = v.findViewById(R.id.transmission_session_general_expander_image);
-                    content = findViewById(R.id.transmission_session_general_content);
-                    index = Expanders.GENERAL;
+    private View.OnTouchListener expanderTouchListener = new View.OnTouchListener() {
+        @TargetApi(Build.VERSION_CODES.LOLLIPOP)
+        @Override public boolean onTouch(View v, MotionEvent event) {
+            boolean handleRaise = false;
+
+            switch (event.getAction()) {
+                case MotionEvent.ACTION_DOWN:
+                case MotionEvent.ACTION_CANCEL:
+                    handleRaise = true;
                     break;
-                case R.id.transmission_session_connections_expander:
-                    image = v.findViewById(R.id.transmission_session_connections_expander_image);
-                    content = findViewById(R.id.transmission_session_connections_content);
-                    index = Expanders.CONNECTIONS;
+                case MotionEvent.ACTION_UP:
+                    View image;
+                    View content;
+                    int index;
+                    switch (v.getId()) {
+                        case R.id.transmission_session_general_expander:
+                            image = v.findViewById(R.id.transmission_session_general_expander_image);
+                            content = findViewById(R.id.transmission_session_general_content);
+                            index = Expanders.GENERAL;
+                            break;
+                        case R.id.transmission_session_connections_expander:
+                            image = v.findViewById(R.id.transmission_session_connections_expander_image);
+                            content = findViewById(R.id.transmission_session_connections_content);
+                            index = Expanders.CONNECTIONS;
+                            break;
+                        case R.id.transmission_session_bandwidth_expander:
+                            image = v.findViewById(R.id.transmission_session_bandwidth_expander_image);
+                            content = findViewById(R.id.transmission_session_bandwidth_content);
+                            index = Expanders.BANDWIDTH;
+                            break;
+                        case R.id.transmission_session_limits_expander:
+                            image = v.findViewById(R.id.transmission_session_limits_expander_image);
+                            content = findViewById(R.id.transmission_session_limits_content);
+                            index = Expanders.LIMITS;
+                            break;
+                        default:
+                            return false;
+                    }
+
+                    image.animate().cancel();
+                    if (content.getVisibility() == View.GONE) {
+                        new ExpandAnimation(content).expand();
+                        image.setRotation(0);
+                        expandedStates[index] = true;
+                    } else {
+                        new ExpandAnimation(content).collapse();
+                        image.setRotation(180);
+                        expandedStates[index] = false;
+                    }
+
+                    image.animate().rotationBy(180);
+                    handleRaise = true;
+
                     break;
-                case R.id.transmission_session_bandwidth_expander:
-                    image = v.findViewById(R.id.transmission_session_bandwidth_expander_image);
-                    content = findViewById(R.id.transmission_session_bandwidth_content);
-                    index = Expanders.BANDWIDTH;
-                    break;
-                case R.id.transmission_session_limits_expander:
-                    image = v.findViewById(R.id.transmission_session_limits_expander_image);
-                    content = findViewById(R.id.transmission_session_limits_content);
-                    index = Expanders.LIMITS;
-                    break;
-                default:
-                    return;
             }
 
-            if (content.getVisibility() == View.GONE) {
-                new ExpandAnimation(content).expand();
-                image.setRotation(0);
-                expandedStates[index] = true;
-            } else {
-                new ExpandAnimation(content).collapse();
-                image.setRotation(180);
-                expandedStates[index] = false;
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP && handleRaise) {
+                View parent = v;
+                while (parent.getParent() != null) {
+                    parent = (View) parent.getParent();
+                    if (parent.getClass() == CardView.class) {
+                        parent.animate().translationZ(event.getAction() == MotionEvent.ACTION_DOWN
+                            ? getResources().getDimension(R.dimen.card_raised_translation) : 0);
+                        break;
+                    }
+                }
             }
 
-            image.animate().rotationBy(180);
+            return false;
         }
     };
 
@@ -604,10 +635,10 @@ public class TransmissionSessionActivity extends ActionBarActivity implements Da
     }
 
     private void initListeners() {
-        findViewById(R.id.transmission_session_general_expander).setOnClickListener(expanderListener);
-        findViewById(R.id.transmission_session_connections_expander).setOnClickListener(expanderListener);
-        findViewById(R.id.transmission_session_bandwidth_expander).setOnClickListener(expanderListener);
-        findViewById(R.id.transmission_session_limits_expander).setOnClickListener(expanderListener);
+        findViewById(R.id.transmission_session_general_expander).setOnTouchListener(expanderTouchListener);
+        findViewById(R.id.transmission_session_connections_expander).setOnTouchListener(expanderTouchListener);
+        findViewById(R.id.transmission_session_bandwidth_expander).setOnTouchListener(expanderTouchListener);
+        findViewById(R.id.transmission_session_limits_expander).setOnTouchListener(expanderTouchListener);
 
         CheckBox check;
         EditText edit;
