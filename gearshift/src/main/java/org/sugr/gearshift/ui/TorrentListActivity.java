@@ -736,10 +736,6 @@ public class TorrentListActivity extends BaseTorrentActivity
     private void showNewTorrentDialog(final Uri data, final String fileURI,
                                       final String filePath, final Uri documentUri) {
 
-        if (manager == null || session == null) {
-            return;
-        }
-
         newTorrentDialogVisible = true;
 
         int title;
@@ -750,6 +746,11 @@ public class TorrentListActivity extends BaseTorrentActivity
             okListener = new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int id) {
+                    if (manager == null || session == null) {
+                        newTorrentDialogVisible = false;
+                        return;
+                    }
+
                     Spinner location = (Spinner) ((AlertDialog) dialog).findViewById(R.id.location_choice);
                     EditText entry = (EditText) ((AlertDialog) dialog).findViewById(R.id.location_entry);
                     CheckBox paused = (CheckBox) ((AlertDialog) dialog).findViewById(R.id.start_paused);
@@ -777,6 +778,11 @@ public class TorrentListActivity extends BaseTorrentActivity
             okListener = new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(final DialogInterface dialog, int which) {
+                    if (manager == null) {
+                        newTorrentDialogVisible = false;
+                        return;
+                    }
+
                     Spinner location = (Spinner) ((AlertDialog) dialog).findViewById(R.id.location_choice);
                     EditText entry = (EditText) ((AlertDialog) dialog).findViewById(R.id.location_entry);
                     CheckBox paused = (CheckBox) ((AlertDialog) dialog).findViewById(R.id.start_paused);
