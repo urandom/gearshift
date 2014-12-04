@@ -479,6 +479,10 @@ public class TorrentListMenuFragment extends Fragment implements TorrentListNoti
             getActivity().getSupportLoaderManager().restartLoader(G.PROFILES_LOADER_ID, null, profileLoaderCallbacks);
         }
 
+        if (((TransmissionSessionInterface) getActivity()).getSession() != null) {
+            updateSessionFilters(true);
+        }
+
         LocalBroadcastManager.getInstance(getActivity()).registerReceiver(
             sessionReceiver, new IntentFilter(G.INTENT_SESSION_INVALIDATED));
     }
@@ -1028,6 +1032,38 @@ public class TorrentListMenuFragment extends Fragment implements TorrentListNoti
         return new int[]{start, count};
     }
 
+    private void updateSessionFilters(boolean validSession) {
+        if (validSession) {
+            int[] range = fillSessionItems();
+            if (range[0] != -1) {
+                filterAdapter.notifyItemRangeInserted(range[0], range[1]);
+            }
+
+            ListItem item = new ListItem(Type.OPTION, SESSION_SETTINGS_VALUE, R.string.session_settings_item,
+                R.drawable.ic_settings_remote_black_18dp);
+            ListItem pivot = listItemMap.get(OPTIONS_HEADER_KEY);
+            int position = filterAdapter.itemData.indexOf(pivot);
+
+            filterAdapter.itemData.add(++position, item);
+
+            filterAdapter.notifyItemInserted(position);
+        } else {
+            ListItem item = listItemMap.get(SESSION_SETTINGS_VALUE);
+            if (item != null) {
+                int position = filterAdapter.itemData.indexOf(item);
+                if (position != -1) {
+                    filterAdapter.itemData.remove(position);
+                    filterAdapter.notifyItemRemoved(position);
+                }
+            }
+
+            int[] range = removeSessionItems();
+            if (range[0] != -1) {
+                filterAdapter.notifyItemRangeRemoved(range[0], range[1]);
+            }
+        }
+    }
+
     private static class FilterAdapter extends SelectableRecyclerViewAdapter<FilterAdapter.ViewHolder, ListItem> {
         private TorrentListMenuFragment context;
         private boolean profilesVisible;
@@ -1259,35 +1295,7 @@ public class TorrentListMenuFragment extends Fragment implements TorrentListNoti
                 return;
             }
 
-            if (intent.getBooleanExtra(G.ARG_SESSION_VALID, false)) {
-                int[] range = fillSessionItems();
-                if (range[0] != -1) {
-                    filterAdapter.notifyItemRangeInserted(range[0], range[1]);
-                }
-
-                ListItem item = new ListItem(Type.OPTION, SESSION_SETTINGS_VALUE, R.string.session_settings_item,
-                    R.drawable.ic_settings_remote_black_18dp);
-                ListItem pivot = listItemMap.get(OPTIONS_HEADER_KEY);
-                int position = filterAdapter.itemData.indexOf(pivot);
-
-                filterAdapter.itemData.add(++position, item);
-
-                filterAdapter.notifyItemInserted(position);
-            } else {
-                ListItem item = listItemMap.get(SESSION_SETTINGS_VALUE);
-                if (item != null) {
-                    int position = filterAdapter.itemData.indexOf(item);
-                    if (position != -1) {
-                        filterAdapter.itemData.remove(position);
-                        filterAdapter.notifyItemRemoved(position);
-                    }
-                }
-
-                int[] range = removeSessionItems();
-                if (range[0] != -1) {
-                    filterAdapter.notifyItemRangeRemoved(range[0], range[1]);
-                }
-            }
+            updateSessionFilters(intent.getBooleanExtra(G.ARG_SESSION_VALID, false));
         }
     }
 }
