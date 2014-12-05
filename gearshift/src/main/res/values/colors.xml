@@ -2,8 +2,8 @@
 <resources>
     <color name="primary">#252525</color>
     <color name="primary_dark">#202020</color>
-    <color name="control_highlight">#00bba6</color>
-    <color name="control_activated">#00796b</color>
+    <color name="control_highlight">#FF9380</color>
+    <color name="control_activated">#FF4E40</color>
     <color name="accent">#b60000</color>
     <color name="accent_dull">#6e0000</color>
     <color name="accent_light">#f44336</color>
