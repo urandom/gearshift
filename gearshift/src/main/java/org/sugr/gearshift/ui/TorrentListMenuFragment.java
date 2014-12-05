@@ -479,8 +479,9 @@ public class TorrentListMenuFragment extends Fragment implements TorrentListNoti
             getActivity().getSupportLoaderManager().restartLoader(G.PROFILES_LOADER_ID, null, profileLoaderCallbacks);
         }
 
-        if (((TransmissionSessionInterface) getActivity()).getSession() != null) {
-            updateSessionFilters(true);
+        if (((TransmissionProfileInterface) getActivity()).getProfile() != null) {
+            getActivity().getSupportLoaderManager().restartLoader(G.TORRENT_MENU_TRAFFIC_LOADER_ID,
+                null, torrentTrafficLoaderCallbacks);
         }
 
         LocalBroadcastManager.getInstance(getActivity()).registerReceiver(
