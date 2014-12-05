@@ -163,6 +163,9 @@ public class TorrentListMenuFragment extends Fragment implements TorrentListNoti
                     filterList.scrollToPosition(0);
                     initialProfilesLoaded = true;
                 }
+
+                getActivity().getSupportLoaderManager().restartLoader(G.TORRENT_MENU_TRAFFIC_LOADER_ID,
+                    null, torrentTrafficLoaderCallbacks);
             }
         }
 
