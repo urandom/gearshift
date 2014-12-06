@@ -82,7 +82,7 @@
             android:name="org.sugr.gearshift.ui.AboutActivity"
             android:label="@string/about_item"
             android:parentActivityName="org.sugr.gearshift.ui.TorrentListActivity"
-            android:theme="@style/Theme.AppCompat.Light.DialogWhenLarge" >
+            android:theme="@style/AppTheme.About" >
         </activity>
         <activity
             android:name="org.sugr.gearshift.ui.CrashReport"

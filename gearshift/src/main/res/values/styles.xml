@@ -7,7 +7,6 @@
     <style name="AppBaseTheme" parent="Theme.AppCompat.Light.NoActionBar">
         <item name="colorPrimary">@color/primary</item>
         <item name="colorPrimaryDark">@color/primary_dark</item>
-        <item name="android:navigationBarColor">@color/primary</item>
         <item name="colorAccent">@color/control_activated</item>
         <item name="colorControlNormal">@color/material_blue_grey_800</item>
         <item name="colorControlHighlight">@color/control_highlight</item>
@@ -15,11 +14,11 @@
         <item name="actionBarStyle">@style/DefaultToolbar</item>
         <item name="windowActionBar">false</item>
         <item name="windowActionModeOverlay">true</item>
+        <item name="android:textColorLink">@color/accent</item>
     </style>
 
     <!-- Application theme. -->
     <style name="AppTheme" parent="AppBaseTheme">
-        <!-- All customizations that are NOT specific to a particular API-level can go here. -->
     </style>
     
     <style name="AppTheme.NoBackground" parent="AppTheme">
@@ -35,6 +34,11 @@
     
     <style name="AppTheme.CardsActivity" parent="AppTheme">
         <item name="android:windowBackground">@color/detail_background</item>
+    </style>
+
+    <style name="AppTheme.About" parent="Theme.AppCompat.Light.DialogWhenLarge">
+        <item name="android:textColorLink">@color/accent</item>
+        <item name="colorAccent">@color/control_activated</item>
     </style>
 
     <style name="DefaultToolbar" parent="ThemeOverlay.AppCompat.ActionBar">
