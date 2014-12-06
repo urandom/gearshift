@@ -482,9 +482,8 @@ public class TorrentListMenuFragment extends Fragment implements TorrentListNoti
             getActivity().getSupportLoaderManager().restartLoader(G.PROFILES_LOADER_ID, null, profileLoaderCallbacks);
         }
 
-        if (((TransmissionProfileInterface) getActivity()).getProfile() != null) {
-            getActivity().getSupportLoaderManager().restartLoader(G.TORRENT_MENU_TRAFFIC_LOADER_ID,
-                null, torrentTrafficLoaderCallbacks);
+        if (((TransmissionSessionInterface) getActivity()).getSession() != null) {
+            updateSessionFilters(true);
         }
 
         LocalBroadcastManager.getInstance(getActivity()).registerReceiver(
@@ -1051,6 +1050,9 @@ public class TorrentListMenuFragment extends Fragment implements TorrentListNoti
             filterAdapter.itemData.add(++position, item);
 
             filterAdapter.notifyItemInserted(position);
+
+            getActivity().getSupportLoaderManager().restartLoader(G.TORRENT_MENU_TRAFFIC_LOADER_ID,
+                null, torrentTrafficLoaderCallbacks);
         } else {
             ListItem item = listItemMap.get(SESSION_SETTINGS_VALUE);
             if (item != null) {
