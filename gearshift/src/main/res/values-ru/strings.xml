@@ -128,8 +128,8 @@
     <string name="traffic_seeding_format">%1$s, отдано %2$s (%3$s)%4$s</string>
     <string name="traffic_seeding_ratio_format">Коэффициент: %1$s%2$s</string>
     <string name="traffic_seeding_ratio_goal_format">, Цель: %1$s</string>
-    <string name="traffic_remaining_time_format">- &lt;i>%1$s осталось&lt;/i></string>
-    <string name="traffic_remaining_time_unknown">- Оставшееся время неизвестно</string>
+    <string name="traffic_remaining_time_format"> - &lt;i>%1$s осталось&lt;/i></string>
+    <string name="traffic_remaining_time_unknown"> - Оставшееся время неизвестно</string>
     
     <string name="status_format">%1$s %2$s</string>
     <string name="status_state_downloading">&lt;b&gt;Загружается&lt;/b&gt;</string>
@@ -156,7 +156,7 @@
     <string name="time_seconds">секунд</string>
     <string name="time_second">секунда</string>
 
-    <string name="remove_selected_confirmation">Вы действительно хотите удалить выделенные торренты?</string>
+    <string name="remove_selected_confirmation">Вы действительно хотите удалить выделенное?</string>
     <string name="remove_current_confirmation">Вы уверены, что хотите удалить \'%s\'?</string>
     <string name="remove_with_data">Удалить с данными</string>
 
@@ -205,9 +205,9 @@
     <string name="about_name">Gear Shift</string>
     <string name="app_icon">App icon</string>
     <string name="about_description">Gear Shift - многофункциональный клиент, предназначенный для удалённого управления демоном Transmission.</string>
-    <string name="about_contact">If you find any bugs, please write a post in the <![CDATA[<a href="https://plus.google.com/communities/115768021623513120266">Gear Shift G+ community</a>]]>, filed under bugs. Doing so will also show other people whether the bug has been reported already. Be sure to turn on the \'Debug\' options under \'General Settings\', and include the logcat related to the app.</string>
-    <string name="about_donation">This app is provided for free, without any annoying ads. If you find it useful, consider <![CDATA[<a href="https://www.paypal.com/bg/cgi-bin/webscr?cmd=_donations&business=support@sugr.org&lc=US&item_name=Gear Shift&no_note=1&no_shipping=1&currency_code=EUR">sending a beer or two this way</a>]]>.</string>
-    
+    <string name="about_contact">Если Вы нашли ошибку, пожалуйста сообщите об этом здесь: <![CDATA[<a href="https://plus.google.com/communities/115768021623513120266">Сообщество Gear Shift G+</a>]]>, в теме об ошибках, с приложением отладочных логов. Это будет свидетельствовать о том, что действительно ошибка существует. Убедитесь, что у Вас включена опция \'Отладка\' в \'Основных настройках\'.</string>
+    <string name="about_donation">Это приложение предоставляется бесплатно, без какой-либо раздражающей рекламы и объявлений. Если Вы считаете эту программу полезной, Вы можете <![CDATA[<a href="https://www.paypal.com/bg/cgi-bin/webscr?cmd=_donations&business=support@sugr.org&lc=US&item_name=Gear Shift&no_note=1&no_shipping=1&currency_code=EUR">отблагодарить автора таким образом</a>]]>.</string>
+   
     <string name="ic_menu_select_all">Выделить все</string>
     
     <string name="duplicate_torrent">Этот торрент уже есть в списке.</string>
@@ -244,7 +244,7 @@
     <string name="menu_sort_queue">Очередность</string>
 
     <string name="menu_order_header">Упорядочить</string>
-    <string name="menu_order_descending">По возрастанию</string>
+    <string name="menu_order_descending">В порядке убывания</string>
 
     <string name="menu_directories_header">Каталоги</string>
     <string name="menu_trackers_header">Трекеры</string>
