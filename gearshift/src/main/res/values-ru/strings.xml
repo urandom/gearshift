@@ -128,8 +128,8 @@
     <string name="traffic_seeding_format">%1$s, отдано %2$s (%3$s)%4$s</string>
     <string name="traffic_seeding_ratio_format">Коэффициент: %1$s%2$s</string>
     <string name="traffic_seeding_ratio_goal_format">, Цель: %1$s</string>
-    <string name="traffic_remaining_time_format">- &lt;i>%1$s осталось&lt;/i></string>
-    <string name="traffic_remaining_time_unknown">- Оставшееся время неизвестно</string>
+    <string name="traffic_remaining_time_format"> - &lt;i>%1$s осталось&lt;/i></string>
+    <string name="traffic_remaining_time_unknown"> - Оставшееся время неизвестно</string>
     
     <string name="status_format">%1$s %2$s</string>
     <string name="status_state_downloading">&lt;b&gt;Загружается&lt;/b&gt;</string>
@@ -156,7 +156,7 @@
     <string name="time_seconds">секунд</string>
     <string name="time_second">секунда</string>
 
-    <string name="remove_selected_confirmation">Вы действительно хотите удалить выделенные торренты?</string>
+    <string name="remove_selected_confirmation">Вы действительно хотите удалить выделенное?</string>
     <string name="remove_current_confirmation">Вы уверены, что хотите удалить \'%s\'?</string>
     <string name="remove_with_data">Удалить с данными</string>
 
@@ -244,7 +244,7 @@
     <string name="menu_sort_queue">Очередность</string>
 
     <string name="menu_order_header">Упорядочить</string>
-    <string name="menu_order_descending">По возрастанию</string>
+    <string name="menu_order_descending">В порядке убывания</string>
 
     <string name="menu_directories_header">Каталоги</string>
     <string name="menu_trackers_header">Трекеры</string>
