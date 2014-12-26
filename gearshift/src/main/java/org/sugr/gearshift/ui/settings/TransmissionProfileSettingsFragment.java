@@ -32,27 +32,8 @@ public class TransmissionProfileSettingsFragment extends BasePreferenceFragment 
     @Override public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        final String id;
-        Bundle args = getArguments();
-        if (args.containsKey(G.ARG_PROFILE_ID)) {
-            id = args.getString(G.ARG_PROFILE_ID);
-        } else {
-            id = null;
-        }
-
         sharedPrefs = getActivity().getSharedPreferences(TransmissionProfile.getPreferencesName(),
             Activity.MODE_PRIVATE);
-
-        if (id == null) {
-            TransmissionProfile.cleanTemporaryPreferences(getActivity());
-            profile = new TransmissionProfile(getActivity(),
-                PreferenceManager.getDefaultSharedPreferences(getActivity()));
-            isNew = true;
-        } else {
-            profile = new TransmissionProfile(id, getActivity(),
-                PreferenceManager.getDefaultSharedPreferences(getActivity()));
-            profile.fillTemporatyPreferences();
-        }
 
         getPreferenceManager().setSharedPreferencesName(G.PROFILES_PREF_NAME);
 
@@ -72,6 +53,17 @@ public class TransmissionProfileSettingsFragment extends BasePreferenceFragment 
                 R.array.pref_con_retries_values, R.array.pref_con_retries_entries, ""}, */
         };
 
+    }
+
+    @Override public void onAdd() {
+        final String id;
+        Bundle args = getArguments();
+        if (args.containsKey(G.ARG_PROFILE_ID)) {
+            id = args.getString(G.ARG_PROFILE_ID);
+        } else {
+            id = null;
+        }
+
         Preference directories = getPreferenceManager().findPreference(G.PREF_DIRECTORIES);
         directories.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             @Override public boolean onPreferenceClick(Preference preference) {
@@ -90,16 +82,22 @@ public class TransmissionProfileSettingsFragment extends BasePreferenceFragment 
                 return true;
             }
         });
-    }
 
-    @Override public void onAdd() {
-        if (isNew) {
+        if (id == null) {
             TransmissionProfile.cleanTemporaryPreferences(getActivity());
+
             PreferenceManager.setDefaultValues(
                 getActivity(), G.PROFILES_PREF_NAME,
                 Activity.MODE_PRIVATE, R.xml.torrent_profile_preferences, true);
+
+            profile = new TransmissionProfile(getActivity(),
+                PreferenceManager.getDefaultSharedPreferences(getActivity()));
+            isNew = true;
         } else {
+            profile = new TransmissionProfile(id, getActivity(),
+                PreferenceManager.getDefaultSharedPreferences(getActivity()));
             profile.fillTemporatyPreferences();
+            isNew = false;
         }
     }
 
