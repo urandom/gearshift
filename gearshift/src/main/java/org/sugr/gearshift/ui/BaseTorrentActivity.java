@@ -1,13 +1,17 @@
 package org.sugr.gearshift.ui;
 
+import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.LoaderManager;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -29,10 +33,15 @@ import org.sugr.gearshift.datasource.DataSource;
 import org.sugr.gearshift.service.DataService;
 import org.sugr.gearshift.service.DataServiceManager;
 import org.sugr.gearshift.service.DataServiceManagerInterface;
+import org.sugr.gearshift.ui.loader.TransmissionProfileSupportLoader;
 import org.sugr.gearshift.ui.util.LocationDialogHelper;
 import org.sugr.gearshift.ui.util.LocationDialogHelperInterface;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
+import java.util.List;
 
 public abstract class BaseTorrentActivity extends ActionBarActivity
     implements TransmissionSessionInterface, DataServiceManagerInterface,
@@ -54,6 +63,7 @@ public abstract class BaseTorrentActivity extends ActionBarActivity
 
     protected boolean hasFatalError = false;
     protected long lastServerActivity;
+    protected List<TransmissionProfile> profiles = new ArrayList<>();
 
     private static final String STATE_LAST_SERVER_ACTIVITY = "last_server_activity";
     private static final String STATE_FATAL_ERROR = "fatal_error";
@@ -65,6 +75,47 @@ public abstract class BaseTorrentActivity extends ActionBarActivity
     private int errorType;
     private int errorCode;
     private String errorString;
+
+    private LoaderManager.LoaderCallbacks<TransmissionProfile[]> profileLoaderCallbacks = new LoaderManager.LoaderCallbacks<TransmissionProfile[]>() {
+        @Override
+        public android.support.v4.content.Loader<TransmissionProfile[]> onCreateLoader(
+            int id, Bundle args) {
+            return new TransmissionProfileSupportLoader(BaseTorrentActivity.this);
+        }
+
+        @Override
+        public void onLoadFinished(
+            android.support.v4.content.Loader<TransmissionProfile[]> loader,
+            TransmissionProfile[] profiles) {
+
+            setProfiles(Arrays.asList(profiles));
+        }
+
+        @Override
+        public void onLoaderReset(
+            android.support.v4.content.Loader<TransmissionProfile[]> loader) {
+
+            setProfiles(Collections.<TransmissionProfile>emptyList());
+        }
+
+    };
+
+    /* The callback will get garbage collected if its a mere anon class */
+    private SharedPreferences.OnSharedPreferenceChangeListener profileChangeListener =
+        new SharedPreferences.OnSharedPreferenceChangeListener() {
+            @Override
+            public void onSharedPreferenceChanged(SharedPreferences prefs, String key) {
+                if (profile == null) return;
+
+                if (!key.endsWith(profile.getId())) return;
+
+                profile.load();
+
+                TransmissionProfile.setCurrentProfile(profile,
+                    PreferenceManager.getDefaultSharedPreferences(BaseTorrentActivity.this));
+                setProfile(profile);
+            }
+        };
 
     @Override protected void onCreate(Bundle savedInstanceState) {
         locationDialogHelper = new LocationDialogHelper(this);
@@ -86,6 +137,8 @@ public abstract class BaseTorrentActivity extends ActionBarActivity
                 setRefreshing(true, null);
             }
         }
+
+        getSupportLoaderManager().initLoader(G.PROFILES_LOADER_ID, null, profileLoaderCallbacks);
 
         super.onCreate(savedInstanceState);
     }
@@ -204,6 +257,46 @@ public abstract class BaseTorrentActivity extends ActionBarActivity
         return profile;
     }
 
+    @Override public void setProfile(TransmissionProfile profile) {
+        boolean newProfile = this.profile == null;
+
+        if (this.profile != null && this.profile.equals(profile) || this.profile == profile) {
+            return;
+        }
+
+        this.profile = profile;
+
+        if (manager != null) {
+            manager.reset();
+        }
+
+        if (menu != null) {
+            MenuItem item = menu.findItem(R.id.menu_refresh);
+            item.setVisible(profile != null);
+
+            if (findViewById(R.id.swipe_container) != null) {
+                findViewById(R.id.swipe_container).setEnabled(false);
+            }
+        }
+
+        if (profile != null) {
+            manager = new DataServiceManager(this, profile.getId()).startUpdating();
+            new SessionTask(this, SessionTask.Flags.START_TORRENT_TASK).execute();
+        }
+
+        SharedPreferences prefs = getSharedPreferences(
+            TransmissionProfile.getPreferencesName(),
+            Activity.MODE_PRIVATE);
+
+        if (prefs != null && newProfile) {
+            prefs.registerOnSharedPreferenceChangeListener(profileChangeListener);
+        }
+    }
+
+    @Override public List<TransmissionProfile> getProfiles() {
+        return new ArrayList<>(profiles);
+    }
+
     protected void showErrorMessage(int error, int code, String string) {
         findViewById(R.id.fatal_error_layer).setVisibility(View.VISIBLE);
         TextView text = (TextView) findViewById(R.id.transmission_error);
@@ -245,6 +338,43 @@ public abstract class BaseTorrentActivity extends ActionBarActivity
 
     protected abstract boolean handleSuccessServiceBroadcast(String type, Intent intent);
     protected abstract boolean handleErrorServiceBroadcast(String type, int error, Intent intent);
+
+    protected void setProfiles(List<TransmissionProfile> profiles) {
+        this.profiles.clear();
+
+        if (profiles.isEmpty()) {
+            TransmissionProfile.setCurrentProfile(null,
+                PreferenceManager.getDefaultSharedPreferences(this));
+
+            setProfile(null);
+            return;
+        }
+
+        this.profiles.addAll(profiles);
+
+        String currentId = TransmissionProfile.getCurrentProfileId(
+            PreferenceManager.getDefaultSharedPreferences(this));
+
+        boolean isProfileSet = false;
+        for (TransmissionProfile prof : profiles) {
+            if (prof.getId().equals(currentId)) {
+                setProfile(prof);
+                isProfileSet = true;
+                break;
+            }
+        }
+
+        if (!isProfileSet) {
+            if (this.profiles.size() > 0) {
+                setProfile(profiles.get(0));
+            } else {
+                setProfile(null);
+            }
+
+            TransmissionProfile.setCurrentProfile(getProfile(),
+                PreferenceManager.getDefaultSharedPreferences(this));
+        }
+    }
 
     protected class SessionTask extends AsyncTask<Void, Void, TransmissionSession> {
         DataSource readSource;

@@ -59,6 +59,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 import java.util.Date;
+import java.util.List;
 
 public class TorrentListActivity extends BaseTorrentActivity
         implements TorrentListFragment.Callbacks {
@@ -99,23 +100,6 @@ public class TorrentListActivity extends BaseTorrentActivity
         static int ALT_SPEED_ON = 1;
         static int ALT_SPEED_OFF = 1 << 1;
     }
-
-    /* The callback will get garbage collected if its a mere anon class */
-    private SharedPreferences.OnSharedPreferenceChangeListener profileChangeListener =
-        new SharedPreferences.OnSharedPreferenceChangeListener() {
-            @Override
-            public void onSharedPreferenceChanged(SharedPreferences prefs, String key) {
-                if (profile == null) return;
-
-                if (!key.endsWith(profile.getId())) return;
-
-                profile.load();
-
-                TransmissionProfile.setCurrentProfile(profile,
-                    PreferenceManager.getDefaultSharedPreferences(TorrentListActivity.this));
-                setProfile(profile);
-            }
-        };
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -487,43 +471,6 @@ public class TorrentListActivity extends BaseTorrentActivity
         return false;
     }
 
-    public void setProfile(TransmissionProfile profile) {
-        SharedPreferences prefs = getSharedPreferences(
-            TransmissionProfile.getPreferencesName(),
-            Activity.MODE_PRIVATE);
-
-        boolean newProfile = this.profile == null;
-
-        if (this.profile == profile
-            || (this.profile != null && profile != null && profile.getId().equals(this.profile.getId()))) {
-            return;
-        }
-        this.profile = profile;
-        toggleRightPane(false);
-
-        if (manager != null) {
-            manager.reset();
-        }
-
-        if (menu != null) {
-            MenuItem item = menu.findItem(R.id.menu_refresh);
-            item.setVisible(profile != null);
-
-            if (findViewById(R.id.swipe_container) != null) {
-                findViewById(R.id.swipe_container).setEnabled(false);
-            }
-        }
-
-        if (profile != null) {
-            manager = new DataServiceManager(this, profile.getId()).startUpdating();
-            new SessionTask(this, SessionTask.Flags.START_TORRENT_TASK).execute();
-        }
-
-        if (prefs != null && newProfile) {
-            prefs.registerOnSharedPreferenceChangeListener(profileChangeListener);
-        }
-    }
-
     @Override public void setSession(TransmissionSession session) {
         if (session == null) {
             boolean sessionRemoved = false;
@@ -694,6 +641,30 @@ public class TorrentListActivity extends BaseTorrentActivity
         }
     }
 
+    @Override public void setProfile(TransmissionProfile profile) {
+        super.setProfile(profile);
+
+        toggleRightPane(false);
+    }
+
+    @Override protected void setProfiles(List<TransmissionProfile> profileList) {
+        super.setProfiles(profileList);
+
+        FragmentManager fm = getSupportFragmentManager();
+        TorrentListMenuFragment menu = (TorrentListMenuFragment) fm.findFragmentById(R.id.torrent_list_menu);
+
+        if (menu != null) {
+            menu.notifyTransmissionProfileListChanged(getProfiles());
+        }
+
+        if (profiles.size() == 0) {
+            TorrentListFragment list = (TorrentListFragment) fm.findFragmentById(R.id.torrent_list);
+            if (list != null) {
+                list.setEmptyMessage(R.string.no_profiles_empty_list);
+            }
+        }
+    }
+
     private void setAltSpeed(boolean alt) {
         if (menu == null) {
             return;
@@ -851,6 +822,10 @@ public class TorrentListActivity extends BaseTorrentActivity
                 }
             }, okListener
         );
+
+        if (dialog == null) {
+            return;
+        }
 
         CheckBox startPaused = (CheckBox) dialog.findViewById(R.id.start_paused);
         startPaused.setChecked(profile != null && profile.getStartPaused());

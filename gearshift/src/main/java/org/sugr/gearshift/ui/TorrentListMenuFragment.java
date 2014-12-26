@@ -45,7 +45,9 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.TreeSet;
 
-public class TorrentListMenuFragment extends Fragment implements TorrentListNotificationInterface {
+public class TorrentListMenuFragment extends Fragment
+    implements TorrentListNotificationInterface, TransmissionProfileListNotificationInterface {
+
     private RecyclerView filterList;
     private FilterAdapter filterAdapter;
 
@@ -70,7 +72,6 @@ public class TorrentListMenuFragment extends Fragment implements TorrentListNoti
     private HashMap<String, ListItem> listItemMap = new HashMap<>();
 
     private SharedPreferences sharedPrefs;
-    private List<TransmissionProfile> profiles = new ArrayList<>();
 
     private BroadcastReceiver sessionReceiver;
 
@@ -97,98 +98,13 @@ public class TorrentListMenuFragment extends Fragment implements TorrentListNoti
         }
     };
 
-    private LoaderManager.LoaderCallbacks<TransmissionProfile[]> profileLoaderCallbacks = new LoaderManager.LoaderCallbacks<TransmissionProfile[]>() {
-        @Override
-        public android.support.v4.content.Loader<TransmissionProfile[]> onCreateLoader(
-            int id, Bundle args) {
-            return new TransmissionProfileSupportLoader(TorrentListMenuFragment.this.getActivity());
-        }
-
-        @Override
-        public void onLoadFinished(
-            android.support.v4.content.Loader<TransmissionProfile[]> loader,
-            TransmissionProfile[] profiles) {
-
-            int start = removeProfileSelector();
-            int[] range = removeProfiles();
-
-            if (start != -1) {
-                filterAdapter.notifyItemRangeRemoved(start, range[1] + 1);
-            }
-
-            TorrentListActivity context = (TorrentListActivity) TorrentListMenuFragment.this.getActivity();
-
-            TorrentListMenuFragment.this.profiles = Arrays.asList(profiles);
-
-            if (profiles.length > 0) {
-                context.setRefreshing(false, DataService.Requests.GET_TORRENTS);
-            } else {
-                TransmissionProfile.setCurrentProfile(null,
-                    PreferenceManager.getDefaultSharedPreferences(context));
-            }
-
-            String currentId = TransmissionProfile.getCurrentProfileId(
-                PreferenceManager.getDefaultSharedPreferences(context));
-
-            boolean isProfileSet = false;
-            for (TransmissionProfile prof : profiles) {
-                if (prof.getId().equals(currentId)) {
-                    context.setProfile(prof);
-                    isProfileSet = true;
-                    break;
-                }
-            }
-
-            if (!isProfileSet) {
-                if (profiles.length > 0) {
-                    context.setProfile(profiles[0]);
-                } else {
-                    context.setProfile(null);
-
-                    FragmentManager fm = context.getSupportFragmentManager();
-                    TorrentListFragment fragment = (TorrentListFragment) fm.findFragmentById(R.id.torrent_list);
-                    if (fragment != null) {
-                        fragment.setEmptyMessage(R.string.no_profiles_empty_list);
-                    }
-                }
-                TransmissionProfile.setCurrentProfile(context.getProfile(),
-                    PreferenceManager.getDefaultSharedPreferences(context));
-            }
-
-            if (profiles.length > 1) {
-                start = fillProfileSelector();
-                filterAdapter.notifyItemInserted(start);
-
-                if (!initialProfilesLoaded) {
-                    filterList.scrollToPosition(0);
-                    initialProfilesLoaded = true;
-                }
-
-                getActivity().getSupportLoaderManager().restartLoader(G.TORRENT_MENU_TRAFFIC_LOADER_ID,
-                    null, torrentTrafficLoaderCallbacks);
-            }
-        }
-
-        @Override
-        public void onLoaderReset(
-            android.support.v4.content.Loader<TransmissionProfile[]> loader) {
-
-            int start = removeProfileSelector();
-            int[] range = removeProfiles();
-            if (start != -1) {
-                filterAdapter.notifyItemRangeRemoved(start, range[1] + 1);
-            }
-        }
-
-    };
-
     private LoaderManager.LoaderCallbacks<TorrentTrafficLoader.TorrentTrafficOutputData> torrentTrafficLoaderCallbacks
         = new LoaderManager.LoaderCallbacks<TorrentTrafficLoader.TorrentTrafficOutputData>() {
 
         @Override public Loader<TorrentTrafficLoader.TorrentTrafficOutputData> onCreateLoader(int id, Bundle bundle) {
             if (id == G.TORRENT_MENU_TRAFFIC_LOADER_ID) {
                 TransmissionProfileInterface context = (TransmissionProfileInterface) getActivity();
-                if (context == null) {
+                if (context == null || context.getProfile() == null) {
                     return null;
                 }
 
@@ -472,8 +388,6 @@ public class TorrentListMenuFragment extends Fragment implements TorrentListNoti
         fillMenuItems();
         checkSelectedItems();
 
-        getActivity().getSupportLoaderManager().initLoader(G.PROFILES_LOADER_ID, null, profileLoaderCallbacks);
-
         return root;
     }
 
@@ -486,8 +400,6 @@ public class TorrentListMenuFragment extends Fragment implements TorrentListNoti
             trackers.clear();
             fillMenuItems();
             checkSelectedItems();
-
-            getActivity().getSupportLoaderManager().restartLoader(G.PROFILES_LOADER_ID, null, profileLoaderCallbacks);
         }
 
         if (((TransmissionSessionInterface) getActivity()).getSession() != null) {
@@ -504,6 +416,7 @@ public class TorrentListMenuFragment extends Fragment implements TorrentListNoti
         LocalBroadcastManager.getInstance(getActivity()).unregisterReceiver(sessionReceiver);
     }
 
+    @Override
     public void notifyTorrentListChanged(Cursor cursor, int error, boolean added, boolean removed,
                                         boolean statusChanged, boolean metadataNeeded,
                                         boolean connected) {
@@ -511,6 +424,30 @@ public class TorrentListMenuFragment extends Fragment implements TorrentListNoti
         getActivity().getSupportLoaderManager().restartLoader(G.TORRENT_MENU_TRAFFIC_LOADER_ID,
             null, torrentTrafficLoaderCallbacks);
     }
+
+    @Override
+    public void notifyTransmissionProfileListChanged(List<TransmissionProfile> profiles) {
+        int start = removeProfileSelector();
+        int[] range = removeProfiles();
+
+        if (start != -1) {
+            filterAdapter.notifyItemRangeRemoved(start, range[1] + 1);
+        }
+
+        if (profiles.size() > 0) {
+            start = fillProfileSelector();
+            filterAdapter.notifyItemInserted(start);
+
+            if (!initialProfilesLoaded) {
+                filterList.scrollToPosition(0);
+                initialProfilesLoaded = true;
+            }
+
+            getActivity().getSupportLoaderManager().restartLoader(G.TORRENT_MENU_TRAFFIC_LOADER_ID,
+                null, torrentTrafficLoaderCallbacks);
+        }
+    }
+
 
     private void setActivatedPosition(ListItem item, int position) {
         if (position == ListView.INVALID_POSITION) {
@@ -554,7 +491,7 @@ public class TorrentListMenuFragment extends Fragment implements TorrentListNoti
                         break;
                     }
 
-                    for (TransmissionProfile prof : profiles) {
+                    for (TransmissionProfile prof : context.getProfiles()) {
                         if (prof.getId().equals(item.getValueString())) {
                             TransmissionProfile.setCurrentProfile(prof,
                                 PreferenceManager.getDefaultSharedPreferences(context));
@@ -713,7 +650,7 @@ public class TorrentListMenuFragment extends Fragment implements TorrentListNoti
 
         int start = ++index;
         int count = 0;
-        for (TransmissionProfile profile : profiles) {
+        for (TransmissionProfile profile : context.getProfiles()) {
             if (profile.getId().equals(currentProfile.getId())) {
                 continue;
             }
