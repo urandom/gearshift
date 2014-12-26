@@ -13,14 +13,11 @@ import org.sugr.gearshift.R;
 import java.util.Arrays;
 
 public class BasePreferenceFragment extends PreferenceFragment
-        implements OnSharedPreferenceChangeListener, OnFragmentAddListener {
+        implements OnSharedPreferenceChangeListener {
 
     protected SharedPreferences sharedPrefs;
     protected Object[][] summaryPrefs = {
     };
-
-    public void onAdd() {
-    }
 
     @Override public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

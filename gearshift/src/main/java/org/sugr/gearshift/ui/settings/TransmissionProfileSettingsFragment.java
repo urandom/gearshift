@@ -92,17 +92,6 @@ public class TransmissionProfileSettingsFragment extends BasePreferenceFragment 
         });
     }
 
-    @Override public void onAdd() {
-        if (isNew) {
-            TransmissionProfile.cleanTemporaryPreferences(getActivity());
-            PreferenceManager.setDefaultValues(
-                getActivity(), G.PROFILES_PREF_NAME,
-                Activity.MODE_PRIVATE, R.xml.torrent_profile_preferences, true);
-        } else {
-            profile.fillTemporatyPreferences();
-        }
-    }
-
     @Override public void onResume() {
         super.onResume();
 

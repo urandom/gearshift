@@ -47,8 +47,6 @@ public class SettingsActivity extends ActionBarActivity {
 
     private ProfileAdapter profileAdapter;
 
-    private Map<String, Fragment> fragmentCache = new HashMap<>();
-
     private static final int PREFERENCE_GROUP_COUNT = 3;
     private static final String PREFERENCE_FRAGMENT_TAG = "preference-fragment";
     private static final String DIRECTORIES_FRAGMENT_TAG = "directories-fragment";
@@ -200,10 +198,6 @@ public class SettingsActivity extends ActionBarActivity {
         }
     }
 
-    public void addFragment(String id, Type type, Bundle args) {
-        addFragment(id, type, args, true);
-    }
-
     @Override public void onBackPressed() {
         Fragment f = getFragmentManager().findFragmentById(R.id.preference_panel);
 
@@ -214,7 +208,7 @@ public class SettingsActivity extends ActionBarActivity {
                 if (id == null) {
                     id = "new-profile";
                 }
-                addFragment(id, Type.PROFILE, null, false);
+                addFragment(id, Type.PROFILE, null);
             } else {
                 closePreferences();
             }
@@ -225,6 +219,81 @@ public class SettingsActivity extends ActionBarActivity {
         super.onBackPressed();
 
         overridePendingTransition(android.R.anim.fade_in, R.anim.slide_out_top);
+    }
+
+    public void addFragment(String id, Type type, Bundle args) {
+        Fragment fragment = null;
+
+        switch (id) {
+            case "general-preferences":
+                fragment = new GeneralSettingsFragment();
+                break;
+            case "filter-preferences":
+                fragment = new FiltersSettingsFragment();
+                break;
+            case "sort-preferences":
+                fragment = new SortSettingsFragment();
+                break;
+            case "new-profile":
+                fragment = new TransmissionProfileSettingsFragment();
+                if (args == null) {
+                    args = new Bundle();
+                }
+                break;
+            default:
+                switch (type) {
+                    case PROFILE:
+                        fragment = new TransmissionProfileSettingsFragment();
+                        if (args == null) {
+                            args = new Bundle();
+                        }
+
+                        args.putString(G.ARG_PROFILE_ID, id);
+
+                        Intent intent = getIntent();
+                        if (intent.hasExtra(G.ARG_PROFILE_ID)
+                            && id.equals(intent.getStringExtra(G.ARG_PROFILE_ID))) {
+
+                            args.putStringArrayList(G.ARG_DIRECTORIES,
+                                intent.getStringArrayListExtra(G.ARG_DIRECTORIES));
+                        }
+                        break;
+                    case PROFILE_DIRECTORIES:
+                        fragment = new TransmissionProfileDirectoriesSettingsFragment();
+                        if (args == null) {
+                            args = new Bundle();
+                        }
+                        break;
+                }
+        }
+
+        if (fragment != null) {
+            if (args != null) {
+                fragment.setArguments(args);
+            }
+        }
+
+        if (fragment == null) {
+            return;
+        }
+
+        String tag = type == Type.PROFILE_DIRECTORIES
+            ? DIRECTORIES_FRAGMENT_TAG : PREFERENCE_FRAGMENT_TAG;
+
+        findViewById(R.id.watermark).setVisibility(View.GONE);
+
+        FragmentManager fm = getFragmentManager();
+        Fragment previous = fm.findFragmentById(R.id.preference_panel);
+        FragmentTransaction tx = fm.beginTransaction();
+
+        if (previous != null) {
+            tx.remove(previous);
+        }
+
+
+        tx.replace(R.id.preference_panel, fragment, tag).addToBackStack(null).commit();
+
+        fm.executePendingTransactions();
     }
 
     @Override protected void onCreate(Bundle state) {
@@ -307,7 +376,7 @@ public class SettingsActivity extends ActionBarActivity {
                         String id = f.getArguments().getString(G.ARG_PROFILE_ID);
 
                         if (id != null) {
-                            addFragment(id, Type.PROFILE, null, false);
+                            addFragment(id, Type.PROFILE, null);
 
                             return true;
                         }
@@ -332,83 +401,6 @@ public class SettingsActivity extends ActionBarActivity {
                 return true;
         }
         return super.onOptionsItemSelected(item);
-    }
-
-    private void addFragment(String id, Type type, Bundle args, boolean invokeAdd) {
-        Fragment fragment = fragmentCache.get(id);
-
-        if (fragment == null) {
-            switch (id) {
-                case "general-preferences":
-                    fragment = new GeneralSettingsFragment();
-                    break;
-                case "filter-preferences":
-                    fragment = new FiltersSettingsFragment();
-                    break;
-                case "sort-preferences":
-                    fragment = new SortSettingsFragment();
-                    break;
-                case "new-profile":
-                    fragment = new TransmissionProfileSettingsFragment();
-                    if (args == null) {
-                        args = new Bundle();
-                    }
-                    break;
-                default:
-                    switch (type) {
-                        case PROFILE:
-                            fragment = new TransmissionProfileSettingsFragment();
-                            if (args == null) {
-                                args = new Bundle();
-                            }
-
-                            args.putString(G.ARG_PROFILE_ID, id);
-
-                            Intent intent = getIntent();
-                            if (intent.hasExtra(G.ARG_PROFILE_ID)
-                                && id.equals(intent.getStringExtra(G.ARG_PROFILE_ID))) {
-
-                                args.putStringArrayList(G.ARG_DIRECTORIES,
-                                    intent.getStringArrayListExtra(G.ARG_DIRECTORIES));
-                            }
-                            break;
-                        case PROFILE_DIRECTORIES:
-                            fragment = new TransmissionProfileDirectoriesSettingsFragment();
-                            if (args == null) {
-                                args = new Bundle();
-                            }
-                            break;
-                    }
-            }
-
-            if (fragment != null) {
-                if (args != null) {
-                    fragment.setArguments(args);
-                }
-
-                fragmentCache.put(id, fragment);
-            }
-        }
-
-        if (fragment == null) {
-            return;
-        }
-
-        String tag = type == Type.PROFILE_DIRECTORIES
-            ? DIRECTORIES_FRAGMENT_TAG : PREFERENCE_FRAGMENT_TAG;
-
-        findViewById(R.id.watermark).setVisibility(View.GONE);
-
-        FragmentManager fm = getFragmentManager();
-
-        fm.beginTransaction().replace(R.id.preference_panel, fragment, tag)
-            .addToBackStack(null).commit();
-
-        fm.executePendingTransactions();
-
-        if (invokeAdd && fragment instanceof OnFragmentAddListener) {
-            ((OnFragmentAddListener) fragment).onAdd();
-        }
     }
 
     private void setSelectedItem(ProfileItem item) {
