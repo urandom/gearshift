@@ -29,7 +29,6 @@ import android.support.v7.app.ActionBarActivity;
 import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
 import android.text.Html;
-import android.text.Spanned;
 import android.text.TextUtils;
 import android.util.SparseArray;
 import android.util.SparseBooleanArray;
@@ -73,9 +72,9 @@ import org.sugr.gearshift.service.DataServiceManager;
 import org.sugr.gearshift.service.DataServiceManagerInterface;
 import org.sugr.gearshift.ui.loader.TorrentTrafficLoader;
 import org.sugr.gearshift.ui.settings.SettingsActivity;
+import org.sugr.gearshift.ui.util.LocationDialogHelperInterface;
 import org.sugr.gearshift.ui.util.UpdateCheckDialog;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 

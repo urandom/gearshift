@@ -29,6 +29,8 @@ import org.sugr.gearshift.datasource.DataSource;
 import org.sugr.gearshift.service.DataService;
 import org.sugr.gearshift.service.DataServiceManager;
 import org.sugr.gearshift.service.DataServiceManagerInterface;
+import org.sugr.gearshift.ui.util.LocationDialogHelper;
+import org.sugr.gearshift.ui.util.LocationDialogHelperInterface;
 
 import java.util.Date;
 

@@ -1,4 +1,4 @@
-package org.sugr.gearshift.ui;
+package org.sugr.gearshift.ui.util;
 
 import android.app.AlertDialog;
 import android.content.Context;
@@ -18,6 +18,9 @@ import org.sugr.gearshift.core.TransmissionProfile;
 import org.sugr.gearshift.core.TransmissionSession;
 import org.sugr.gearshift.service.DataServiceManager;
 import org.sugr.gearshift.service.DataServiceManagerInterface;
+import org.sugr.gearshift.ui.BaseTorrentActivity;
+import org.sugr.gearshift.ui.TransmissionProfileDirectoryAdapter;
+import org.sugr.gearshift.ui.TransmissionSessionInterface;
 
 import java.util.ArrayList;
 import java.util.Collections;

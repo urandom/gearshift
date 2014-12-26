@@ -33,6 +33,7 @@ import org.sugr.gearshift.datasource.TorrentNameStatus;
 import org.sugr.gearshift.service.DataService;
 import org.sugr.gearshift.service.DataServiceManager;
 import org.sugr.gearshift.service.DataServiceManagerInterface;
+import org.sugr.gearshift.ui.util.LocationDialogHelperInterface;
 
 import java.util.Arrays;
 import java.util.HashMap;
