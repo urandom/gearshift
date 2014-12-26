@@ -83,6 +83,9 @@ public class TransmissionProfileSettingsFragment extends BasePreferenceFragment 
             }
         });
 
+        Toolbar toolbar = (Toolbar) getActivity().findViewById(R.id.toolbar);
+        toolbar.setNavigationIcon(R.drawable.ic_done_white_24dp);
+
         if (id == null) {
             TransmissionProfile.cleanTemporaryPreferences(getActivity());
 
@@ -92,24 +95,18 @@ public class TransmissionProfileSettingsFragment extends BasePreferenceFragment 
 
             profile = new TransmissionProfile(getActivity(),
                 PreferenceManager.getDefaultSharedPreferences(getActivity()));
+
+            toolbar.setTitle(R.string.new_profile);
+
             isNew = true;
         } else {
             profile = new TransmissionProfile(id, getActivity(),
                 PreferenceManager.getDefaultSharedPreferences(getActivity()));
             profile.fillTemporatyPreferences();
-            isNew = false;
-        }
-    }
 
-    @Override public void onResume() {
-        super.onResume();
-
-        Toolbar toolbar = (Toolbar) getActivity().findViewById(R.id.toolbar);
-        toolbar.setNavigationIcon(R.drawable.ic_done_white_24dp);
-        if (isNew) {
-            toolbar.setTitle(R.string.new_profile);
-        } else {
             toolbar.setTitle(profile.getName());
+
+            isNew = false;
         }
     }
 
