@@ -170,7 +170,11 @@ public class TransmissionSessionManager {
         } else {
             arguments.put(Torrent.AddFields.URI, uri);
         }
-        arguments.put(Torrent.AddFields.LOCATION, location);
+
+        if (location != null) {
+            arguments.put(Torrent.AddFields.LOCATION, location);
+        }
+
         arguments.put(Torrent.AddFields.PAUSED, paused);
 
         AddTorrentResponse response = new AddTorrentResponse();

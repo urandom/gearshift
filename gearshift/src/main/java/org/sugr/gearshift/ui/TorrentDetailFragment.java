@@ -33,6 +33,7 @@ import org.sugr.gearshift.datasource.TorrentNameStatus;
 import org.sugr.gearshift.service.DataService;
 import org.sugr.gearshift.service.DataServiceManager;
 import org.sugr.gearshift.service.DataServiceManagerInterface;
+import org.sugr.gearshift.ui.util.LocationDialogHelper;
 import org.sugr.gearshift.ui.util.LocationDialogHelperInterface;
 
 import java.util.Arrays;
@@ -433,30 +434,19 @@ public class TorrentDetailFragment extends Fragment implements TorrentListNotifi
             return true;
         }
 
-        AlertDialog dialog = ((LocationDialogHelperInterface) getActivity())
-            .getLocationDialogHelper().showDialog(R.layout.torrent_location_dialog,
+        final LocationDialogHelper helper =
+            ((LocationDialogHelperInterface) getActivity()).getLocationDialogHelper();
+
+        AlertDialog dialog = helper.showDialog(R.layout.torrent_location_dialog,
                 R.string.set_location, new DialogInterface.OnClickListener() {
                     @Override public void onClick(DialogInterface dialog, int which) {
                         actionMoveHashStrings = null;
                     }
                 }, new DialogInterface.OnClickListener() {
                     @Override public void onClick(DialogInterface dialog, int which) {
-                        Spinner location = (Spinner) ((AlertDialog) dialog).findViewById(R.id.location_choice);
-                        EditText entry = (EditText) ((AlertDialog) dialog).findViewById(R.id.location_entry);
-                        CheckBox move = (CheckBox) ((AlertDialog) dialog).findViewById(R.id.move);
-                        String dir;
+                        LocationDialogHelper.Location location = helper.getLocation();
 
-                        if (location.getVisibility() != View.GONE) {
-                            dir = (String) location.getSelectedItem();
-                        } else {
-                            dir = entry.getText().toString();
-                        }
-
-                        if (TextUtils.isEmpty(dir)) {
-                            dir = session.getDownloadDir();
-                        }
-
-                        manager.setTorrentLocation(hashStrings, dir, move.isChecked());
+                        manager.setTorrentLocation(hashStrings, location.directory, location.moveData);
                         ((TransmissionSessionInterface) getActivity()).setRefreshing(true,
                             DataService.Requests.SET_TORRENT_LOCATION);
                         actionMoveHashStrings = null;

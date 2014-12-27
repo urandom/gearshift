@@ -4,4 +4,6 @@
     <dimen name="torrent_list_traffic_text_size">11sp</dimen>
     <dimen name="torrent_list_status_text_size">13sp</dimen>
     <dimen name="torrent_list_error_text_size">11sp</dimen>
+
+    <dimen name="dialog_label_text_size">11sp</dimen>
 </resources>

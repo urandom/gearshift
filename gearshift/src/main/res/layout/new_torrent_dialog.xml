@@ -5,6 +5,10 @@
     android:padding="8dp"
     android:orientation="vertical" >
 
+    <TextView
+        style="@style/DialogLabel"
+        android:text="@string/dialog_location" />
+
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
@@ -47,6 +51,20 @@
         </LinearLayout>
 
     </FrameLayout>
+
+    <TextView
+        style="@style/DialogLabel"
+        android:id="@+id/new_torrent_profile_label"
+        android:visibility="gone"
+        android:text="@string/dialog_profile" />
+
+    <Spinner
+        android:id="@+id/new_torrent_profile_spinner"
+        android:visibility="gone"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:fontFamily="sans-serif"
+        android:textSize="16sp" />
 
     <CheckBox
         android:id="@+id/start_paused"

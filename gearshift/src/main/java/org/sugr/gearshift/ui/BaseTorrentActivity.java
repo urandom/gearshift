@@ -17,6 +17,7 @@ import android.support.v4.view.MenuItemCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBarActivity;
 import android.text.Html;
+import android.text.Spanned;
 import android.view.ContextThemeWrapper;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -301,28 +302,7 @@ public abstract class BaseTorrentActivity extends ActionBarActivity
         findViewById(R.id.fatal_error_layer).setVisibility(View.VISIBLE);
         TextView text = (TextView) findViewById(R.id.transmission_error);
 
-        if (error == DataService.Errors.NO_CONNECTIVITY) {
-            text.setText(Html.fromHtml(getString(R.string.no_connectivity_empty_list)));
-        } else if (error == DataService.Errors.ACCESS_DENIED) {
-            text.setText(Html.fromHtml(getString(R.string.access_denied_empty_list)));
-        } else if (error == DataService.Errors.NO_JSON) {
-            text.setText(Html.fromHtml(getString(R.string.no_json_empty_list)));
-        } else if (error == DataService.Errors.NO_CONNECTION) {
-            text.setText(Html.fromHtml(getString(R.string.no_connection_empty_list)));
-        } else if (error == DataService.Errors.THREAD_ERROR) {
-            text.setText(Html.fromHtml(getString(R.string.thread_error_empty_list)));
-        } else if (error == DataService.Errors.RESPONSE_ERROR) {
-            text.setText(Html.fromHtml(getString(R.string.response_error_empty_list)));
-        } else if (error == DataService.Errors.TIMEOUT) {
-            text.setText(Html.fromHtml(getString(R.string.timeout_empty_list)));
-        } else if (error == DataService.Errors.OUT_OF_MEMORY) {
-            text.setText(Html.fromHtml(getString(R.string.out_of_memory_empty_list)));
-        } else if (error == DataService.Errors.JSON_PARSE_ERROR) {
-            text.setText(Html.fromHtml(getString(R.string.json_parse_empty_list)));
-        } else if (error == DataService.Errors.GENERIC_HTTP) {
-            text.setText(Html.fromHtml(String.format(getString(R.string.generic_http_empty_list),
-                code, string)));
-        }
+        text.setText(getErrorMessage(error, code, string));
 
         setSession(null);
     }
@@ -374,6 +354,33 @@ public abstract class BaseTorrentActivity extends ActionBarActivity
             TransmissionProfile.setCurrentProfile(getProfile(),
                 PreferenceManager.getDefaultSharedPreferences(this));
         }
+    }
+
+    private Spanned getErrorMessage(int error, int code, String string) {
+        if (error == DataService.Errors.NO_CONNECTIVITY) {
+            return Html.fromHtml(getString(R.string.no_connectivity_empty_list));
+        } else if (error == DataService.Errors.ACCESS_DENIED) {
+            return Html.fromHtml(getString(R.string.access_denied_empty_list));
+        } else if (error == DataService.Errors.NO_JSON) {
+            return Html.fromHtml(getString(R.string.no_json_empty_list));
+        } else if (error == DataService.Errors.NO_CONNECTION) {
+            return Html.fromHtml(getString(R.string.no_connection_empty_list));
+        } else if (error == DataService.Errors.THREAD_ERROR) {
+            return Html.fromHtml(getString(R.string.thread_error_empty_list));
+        } else if (error == DataService.Errors.RESPONSE_ERROR) {
+            return Html.fromHtml(getString(R.string.response_error_empty_list));
+        } else if (error == DataService.Errors.TIMEOUT) {
+            return Html.fromHtml(getString(R.string.timeout_empty_list));
+        } else if (error == DataService.Errors.OUT_OF_MEMORY) {
+            return Html.fromHtml(getString(R.string.out_of_memory_empty_list));
+        } else if (error == DataService.Errors.JSON_PARSE_ERROR) {
+            return Html.fromHtml(getString(R.string.json_parse_empty_list));
+        } else if (error == DataService.Errors.GENERIC_HTTP) {
+            return Html.fromHtml(String.format(getString(R.string.generic_http_empty_list),
+                code, string));
+        }
+
+        return null;
     }
 
     protected class SessionTask extends AsyncTask<Void, Void, TransmissionSession> {
@@ -509,14 +516,14 @@ public abstract class BaseTorrentActivity extends ActionBarActivity
         @Override public void onReceive(Context context, Intent intent) {
             int error = intent.getIntExtra(G.ARG_ERROR, 0);
             String profileId = intent.getStringExtra(G.ARG_PROFILE_ID);
+            String type = intent.getStringExtra(G.ARG_REQUEST_TYPE);
 
-            if (profileId == null || profile == null || !profileId.equals(profile.getId())) {
+            if (profile == null || profileId == null) {
                 return;
             }
 
             hasFatalError = false;
 
-            String type = intent.getStringExtra(G.ARG_REQUEST_TYPE);
             switch (type) {
                 case DataService.Requests.GET_SESSION:
                 case DataService.Requests.SET_SESSION:
@@ -532,6 +539,21 @@ public abstract class BaseTorrentActivity extends ActionBarActivity
                     }
 
                     lastServerActivity = new Date().getTime();
+
+                    if (!profileId.equals(profile.getId()) && type.equals(DataService.Requests.ADD_TORRENT)) {
+                        if (error == 0) {
+                            Toast.makeText(BaseTorrentActivity.this,
+                                R.string.torrent_added_different_profile, Toast.LENGTH_SHORT).show();
+                        } else {
+                            Toast.makeText(BaseTorrentActivity.this,
+                                getErrorMessage(error, intent.getIntExtra(G.ARG_ERROR_CODE, 0),
+                                    intent.getStringExtra(G.ARG_ERROR_STRING)),
+                                Toast.LENGTH_LONG).show();
+                        }
+
+                        return;
+                    }
+
 
                     if (error == 0) {
                         if (!handleSuccessServiceBroadcast(type, intent)) {
@@ -558,6 +580,7 @@ public abstract class BaseTorrentActivity extends ActionBarActivity
                             showErrorMessage(errorType, errorCode, errorString);
                         }
                     }
+
                     break;
             }
         }

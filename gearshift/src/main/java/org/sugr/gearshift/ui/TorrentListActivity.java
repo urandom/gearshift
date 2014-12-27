@@ -47,6 +47,7 @@ import org.sugr.gearshift.core.TransmissionProfile;
 import org.sugr.gearshift.core.TransmissionSession;
 import org.sugr.gearshift.service.DataService;
 import org.sugr.gearshift.service.DataServiceManager;
+import org.sugr.gearshift.ui.util.LocationDialogHelper;
 import org.sugr.gearshift.util.Base64;
 import org.sugr.gearshift.util.CheatSheet;
 
@@ -722,22 +723,10 @@ public class TorrentListActivity extends BaseTorrentActivity
                         return;
                     }
 
-                    Spinner location = (Spinner) ((AlertDialog) dialog).findViewById(R.id.location_choice);
-                    EditText entry = (EditText) ((AlertDialog) dialog).findViewById(R.id.location_entry);
-                    CheckBox paused = (CheckBox) ((AlertDialog) dialog).findViewById(R.id.start_paused);
-                    String dir;
+                    LocationDialogHelper.Location location = locationDialogHelper.getLocation();
 
-                    if (location.getVisibility() != View.GONE) {
-                        dir = (String) location.getSelectedItem();
-                    } else {
-                        dir = entry.getText().toString();
-                    }
-
-                    if (TextUtils.isEmpty(dir)) {
-                        dir = session.getDownloadDir();
-                    }
-                    manager.addTorrent(
-                        Uri.decode(data.toString()), null, dir, paused.isChecked(), null, null);
+                    manager.addTorrent(location.profile.getId(), Uri.decode(data.toString()), null,
+                        location.directory, location.isPaused, null, null);
 
                     setRefreshing(true, DataService.Requests.ADD_TORRENT);
                     intentConsumed = true;
@@ -754,20 +743,11 @@ public class TorrentListActivity extends BaseTorrentActivity
                         return;
                     }
 
-                    Spinner location = (Spinner) ((AlertDialog) dialog).findViewById(R.id.location_choice);
-                    EditText entry = (EditText) ((AlertDialog) dialog).findViewById(R.id.location_entry);
-                    CheckBox paused = (CheckBox) ((AlertDialog) dialog).findViewById(R.id.start_paused);
-                    CheckBox deleteLocal = (CheckBox) ((AlertDialog) dialog).findViewById(R.id.delete_local);
+                    LocationDialogHelper.Location location = locationDialogHelper.getLocation();
+
                     BufferedReader reader = null;
 
                     try {
-                        String dir;
-                        if (location.getVisibility() != View.GONE) {
-                            dir = (String) location.getSelectedItem();
-                        } else {
-                            dir = entry.getText().toString();
-                        }
-
                         File file = new File(new URI(fileURI));
 
                         reader = new BufferedReader(new FileReader(file));
@@ -785,12 +765,13 @@ public class TorrentListActivity extends BaseTorrentActivity
 
                         String path = filePath;
                         Uri uri = documentUri;
-                        if (!deleteLocal.isChecked()) {
+                        if (!location.deleteLocal) {
                             path = null;
                             uri = null;
                         }
 
-                        manager.addTorrent(null, filedata.toString(), dir, paused.isChecked(),
+                        manager.addTorrent(location.profile.getId(), null, filedata.toString(),
+                            location.directory, location.isPaused,
                             path, uri);
 
                         setRefreshing(true, DataService.Requests.ADD_TORRENT);

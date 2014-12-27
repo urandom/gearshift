@@ -188,6 +188,12 @@ public class DataServiceManager {
 
     public DataServiceManager addTorrent(String magnet, String data, String location,
                                          boolean addPaused, String temporaryFile, Uri documentUri) {
+
+        return addTorrent(profileId, magnet, data, location, addPaused, temporaryFile, documentUri);
+    }
+
+    public DataServiceManager addTorrent(String profile, String magnet, String data, String location,
+                                         boolean addPaused, String temporaryFile, Uri documentUri) {
         Bundle args = new Bundle();
 
         args.putString(DataService.Args.MAGNET_URI, magnet);
@@ -196,7 +202,9 @@ public class DataServiceManager {
         args.putBoolean(DataService.Args.ADD_PAUSED, addPaused);
         args.putString(DataService.Args.TEMPORARY_FILE, temporaryFile);
         args.putParcelable(DataService.Args.DOCUMENT_URI, documentUri);
+
         Intent intent = createIntent(DataService.Requests.ADD_TORRENT, args);
+        intent.putExtra(G.ARG_PROFILE_ID, profile);
 
         context.startService(intent);
 
