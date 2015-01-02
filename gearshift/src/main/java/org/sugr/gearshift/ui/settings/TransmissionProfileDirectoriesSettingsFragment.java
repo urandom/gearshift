@@ -221,7 +221,7 @@ public class TransmissionProfileDirectoriesSettingsFragment extends ListFragment
     @Override public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         ArrayList<String> directories = new ArrayList<String>();
-        directories.addAll(directories);
+        directories.addAll(this.directories);
 
         outState.putStringArrayList(STATE_DIRECTORIES, directories);
     }

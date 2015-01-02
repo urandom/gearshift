@@ -22,6 +22,9 @@ import org.sugr.gearshift.core.TransmissionProfile;
 import org.sugr.gearshift.service.DataService;
 import org.sugr.gearshift.service.DataServiceManager;
 
+import java.util.HashSet;
+import java.util.Set;
+
 public class TransmissionProfileSettingsFragment extends BasePreferenceFragment {
     private TransmissionProfile profile;
 
@@ -43,6 +46,8 @@ public class TransmissionProfileSettingsFragment extends BasePreferenceFragment 
         sharedPrefs = getActivity().getSharedPreferences(TransmissionProfile.getPreferencesName(),
             Activity.MODE_PRIVATE);
 
+        Set<String> directories = sharedPrefs.getStringSet(G.PREF_DIRECTORIES, new HashSet<String>());
+
         if (id == null) {
             TransmissionProfile.cleanTemporaryPreferences(getActivity());
             profile = new TransmissionProfile(getActivity(),
@@ -52,6 +57,11 @@ public class TransmissionProfileSettingsFragment extends BasePreferenceFragment 
             profile = new TransmissionProfile(id, getActivity(),
                 PreferenceManager.getDefaultSharedPreferences(getActivity()));
             profile.fillTemporatyPreferences();
+        }
+
+        if (!directories.isEmpty()) {
+            sharedPrefs.edit().putStringSet(G.PREF_DIRECTORIES, directories).apply();
+            profile.setDirectories(directories);
         }
 
         getPreferenceManager().setSharedPreferencesName(G.PROFILES_PREF_NAME);
@@ -72,8 +82,8 @@ public class TransmissionProfileSettingsFragment extends BasePreferenceFragment 
                 R.array.pref_con_retries_values, R.array.pref_con_retries_entries, ""}, */
         };
 
-        Preference directories = getPreferenceManager().findPreference(G.PREF_DIRECTORIES);
-        directories.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+        getPreferenceManager().findPreference(G.PREF_DIRECTORIES)
+            .setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             @Override public boolean onPreferenceClick(Preference preference) {
                 Bundle args = getArguments();
                 Bundle fragmentArgs = new Bundle();
