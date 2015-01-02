@@ -1111,8 +1111,9 @@ public class TorrentListMenuFragment extends Fragment
             switch (item.getType()) {
                 case SESSION_DATA_HEADER:
                     return R.layout.filter_list_header;
-                case PROFILE:
                 case PROFILE_SELECTOR:
+                    return R.layout.filter_list_profile_selector;
+                case PROFILE:
                     return R.layout.filter_list_profile_item;
                 case OPTION_HEADER:
                     return R.layout.filter_list_option_header;
