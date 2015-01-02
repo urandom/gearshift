@@ -46,7 +46,7 @@ public class TransmissionProfileSettingsFragment extends BasePreferenceFragment 
         sharedPrefs = getActivity().getSharedPreferences(TransmissionProfile.getPreferencesName(),
             Activity.MODE_PRIVATE);
 
-        Set<String> directories = sharedPrefs.getStringSet(G.PREF_DIRECTORIES, new HashSet<String>());
+        Set<String> directories = sharedPrefs.getStringSet(G.PREF_DIRECTORIES, null);
 
         if (id == null) {
             TransmissionProfile.cleanTemporaryPreferences(getActivity());
@@ -59,7 +59,7 @@ public class TransmissionProfileSettingsFragment extends BasePreferenceFragment 
             profile.fillTemporatyPreferences();
         }
 
-        if (!directories.isEmpty()) {
+        if (directories != null) {
             sharedPrefs.edit().putStringSet(G.PREF_DIRECTORIES, directories).apply();
             profile.setDirectories(directories);
         }

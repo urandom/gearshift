@@ -335,6 +335,8 @@ public class SettingsActivity extends ActionBarActivity {
         boolean showNewProfile = getIntent().getBooleanExtra(G.ARG_NEW_PROFILE, false);
 
         if (state == null) {
+            TransmissionProfile.cleanTemporaryPreferences(this);
+
             SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
             prefs.registerOnSharedPreferenceChangeListener(defaultPrefListener);
 
