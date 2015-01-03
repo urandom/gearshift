@@ -708,6 +708,23 @@ public class TorrentListActivity extends BaseTorrentActivity
     private void showNewTorrentDialog(final Uri data, final String fileURI,
                                       final String filePath, final Uri documentUri) {
 
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+        if (!prefs.getBoolean(G.PREF_SHOW_ADD_DIALOG, true)) {
+            boolean startPaused = prefs.getBoolean(G.PREF_START_PAUSED, false);
+
+            if (data != null && data.getScheme().equals("magnet")) {
+                addMagnetLink(profile, data, null, startPaused);
+            } else if (fileURI != null) {
+                addTorrentFile(profile, fileURI, filePath, documentUri,
+                    null, startPaused, prefs.getBoolean(G.PREF_DELETE_LOCAL, false));
+            } else {
+                return;
+            }
+
+            intentConsumed = true;
+            return;
+        }
+
         newTorrentDialogVisible = true;
 
         int title;
@@ -725,10 +742,8 @@ public class TorrentListActivity extends BaseTorrentActivity
 
                     LocationDialogHelper.Location location = locationDialogHelper.getLocation();
 
-                    manager.addTorrent(location.profile.getId(), Uri.decode(data.toString()), null,
-                        location.directory, location.isPaused, null, null);
+                    addMagnetLink(location.profile, data, location.directory, location.isPaused);
 
-                    setRefreshing(true, DataService.Requests.ADD_TORRENT);
                     intentConsumed = true;
                     newTorrentDialogVisible = false;
                 }
@@ -745,48 +760,9 @@ public class TorrentListActivity extends BaseTorrentActivity
 
                     LocationDialogHelper.Location location = locationDialogHelper.getLocation();
 
-                    BufferedReader reader = null;
+                    addTorrentFile(location.profile, fileURI, filePath, documentUri,
+                        location.directory, location.isPaused, location.deleteLocal);
 
-                    try {
-                        File file = new File(new URI(fileURI));
-
-                        reader = new BufferedReader(new FileReader(file));
-                        StringBuilder filedata = new StringBuilder();
-                        String line;
-
-                        while ((line = reader.readLine()) != null) {
-                            filedata.append(line).append("\n");
-                        }
-
-                        if (!file.delete()) {
-                            Toast.makeText(TorrentListActivity.this,
-                                R.string.error_deleting_torrent_file, Toast.LENGTH_SHORT).show();
-                        }
-
-                        String path = filePath;
-                        Uri uri = documentUri;
-                        if (!location.deleteLocal) {
-                            path = null;
-                            uri = null;
-                        }
-
-                        manager.addTorrent(location.profile.getId(), null, filedata.toString(),
-                            location.directory, location.isPaused,
-                            path, uri);
-
-                        setRefreshing(true, DataService.Requests.ADD_TORRENT);
-                    } catch (Exception e) {
-                        Toast.makeText(TorrentListActivity.this,
-                            R.string.error_reading_torrent_file, Toast.LENGTH_SHORT).show();
-                    } finally {
-                        if (reader != null) {
-                            try {
-                                reader.close();
-                            } catch (IOException e) {
-                                e.printStackTrace();
-                            }
-                        }
-                    }
                     intentConsumed = true;
                     newTorrentDialogVisible = false;
                 }
@@ -860,6 +836,57 @@ public class TorrentListActivity extends BaseTorrentActivity
         AlertDialog dialog = builder.create();
         dialog.show();
 
+    }
+
+    private void addMagnetLink(TransmissionProfile profile, Uri magnet, String directory, boolean isPaused) {
+        manager.addTorrent(profile.getId(), Uri.decode(magnet.toString()), null, directory, isPaused, null, null);
+
+        setRefreshing(true, DataService.Requests.ADD_TORRENT);
+    }
+
+    private void addTorrentFile(TransmissionProfile profile, String fileURI, String filePath,
+                                Uri documentUri, String directory, boolean isPaused, boolean deleteLocal) {
+        BufferedReader reader = null;
+
+        try {
+            File file = new File(new URI(fileURI));
+
+            reader = new BufferedReader(new FileReader(file));
+            StringBuilder filedata = new StringBuilder();
+            String line;
+
+            while ((line = reader.readLine()) != null) {
+                filedata.append(line).append("\n");
+            }
+
+            if (!file.delete()) {
+                Toast.makeText(TorrentListActivity.this,
+                    R.string.error_deleting_torrent_file, Toast.LENGTH_SHORT).show();
+            }
+
+            String path = filePath;
+            Uri uri = documentUri;
+            if (!deleteLocal) {
+                path = null;
+                uri = null;
+            }
+
+            manager.addTorrent(profile.getId(), null, filedata.toString(), directory, isPaused,
+                path, uri);
+
+            setRefreshing(true, DataService.Requests.ADD_TORRENT);
+        } catch (Exception e) {
+            Toast.makeText(TorrentListActivity.this,
+                R.string.error_reading_torrent_file, Toast.LENGTH_SHORT).show();
+        } finally {
+            if (reader != null) {
+                try {
+                    reader.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
     }
 
     private class ReadTorrentDataTask extends AsyncTask<Uri, Void, ReadTorrentDataTask.TaskData> {

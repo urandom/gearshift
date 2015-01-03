@@ -35,7 +35,12 @@
         <CheckBoxPreference
             android:key="show_status"
             android:title="@string/show_status_bar"
-            android:defaultValue="false" />
+            android:defaultValue="true" />
+
+        <CheckBoxPreference
+            android:key="show_add_dialog"
+            android:title="@string/show_add_dialog"
+            android:defaultValue="true" />
 
     </PreferenceCategory>
     

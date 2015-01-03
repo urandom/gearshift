@@ -108,7 +108,7 @@ public class TorrentListMenuFragment extends Fragment
                     return null;
                 }
 
-                boolean showStatus = sharedPrefs.getBoolean(G.PREF_SHOW_STATUS, false);
+                boolean showStatus = sharedPrefs.getBoolean(G.PREF_SHOW_STATUS, true);
                 boolean directoriesEnabled = sharedPrefs.getBoolean(G.PREF_FILTER_DIRECTORIES, true);
                 boolean trackersEnabled = sharedPrefs.getBoolean(G.PREF_FILTER_TRACKERS, false);
 

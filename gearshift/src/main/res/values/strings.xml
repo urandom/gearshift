@@ -436,6 +436,7 @@
     <string name="status_bar_limit_format"><![CDATA[ (<i>%1$s</i>)]]></string>
     <string name="user_interface_header">User interface</string>
     <string name="show_status_bar">Status bar below the torrent list</string>
+    <string name="show_add_dialog">Show options dialog when adding torrents</string>
     <string name="error_deleting_torrent_file">Unable to delete torrent file</string>
     <string name="hint_download_directory">Download directory</string>
     <string name="spinner_default_directory">Default directory</string>

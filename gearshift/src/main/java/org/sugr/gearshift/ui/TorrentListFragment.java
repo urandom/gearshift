@@ -356,7 +356,7 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
                     return null;
                 }
                 return new TorrentTrafficLoader(getActivity(), context.getProfile().getId(),
-                    sharedPrefs.getBoolean(G.PREF_SHOW_STATUS, false), false, false);
+                    sharedPrefs.getBoolean(G.PREF_SHOW_STATUS, true), false, false);
             }
             return null;
         }
@@ -372,7 +372,7 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
             Toolbar status = (Toolbar) getView().findViewById(R.id.status_bar);
             TextView statusBarText = (TextView) status.findViewById(R.id.status_bar_text);
 
-            if (!sharedPrefs.getBoolean(G.PREF_SHOW_STATUS, false)) {
+            if (!sharedPrefs.getBoolean(G.PREF_SHOW_STATUS, true)) {
                 return;
             }
 
@@ -998,7 +998,7 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
     }
 
     private void toggleStatusBar(View status) {
-        if (sharedPrefs.getBoolean(G.PREF_SHOW_STATUS, false)) {
+        if (sharedPrefs.getBoolean(G.PREF_SHOW_STATUS, true)) {
             status.setVisibility(View.VISIBLE);
             status.setTranslationY(100);
             status.animate().alpha(1f).translationY(0).setStartDelay(500);
