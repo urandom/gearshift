@@ -205,14 +205,15 @@
     <string name="about_name">Gear Shift</string>
     <string name="app_icon">App icon</string>
     <string name="about_description">Gear Shift - многофункциональный клиент, предназначенный для удалённого управления демоном Transmission.</string>
-    <string name="about_contact">Если Вы нашли ошибку, пожалуйста сообщите об этом здесь: <![CDATA[<a href="https://plus.google.com/communities/115768021623513120266">Сообщество Gear Shift G+</a>]]>, в теме об ошибках, с приложением отладочных логов. Это будет свидетельствовать о том, что действительно ошибка существует. Убедитесь, что у Вас включена опция \'Отладка\' в \'Основных настройках\'.</string>
-    <string name="about_donation">Это приложение предоставляется бесплатно, без какой-либо раздражающей рекламы и объявлений. Если Вы считаете эту программу полезной, Вы можете <![CDATA[<a href="https://www.paypal.com/bg/cgi-bin/webscr?cmd=_donations&business=support@sugr.org&lc=US&item_name=Gear Shift&no_note=1&no_shipping=1&currency_code=EUR">отблагодарить автора таким образом</a>]]>.</string>
+    <string name="about_contact">Если Вы нашли ошибку, пожалуйста сообщите об этом <![CDATA[<a href="https://plus.google.com/communities/115768021623513120266">Сообществу Gear Shift G+</a>]]> в теме об ошибках, с приложением отладочных логов. Это будет свидетельствовать о том, что ошибка действительно существует. Убедитесь, что у Вас включена опция \'Отладка\' в \'Основных настройках\'.</string>
+    <string name="about_donation">Это приложение предоставляется бесплатно, без какой-либо раздражающей рекламы и объявлений. Если Вы считаете эту программу полезной, Вы можете <![CDATA[<a href="https://www.paypal.com/bg/cgi-bin/webscr?cmd=_donations&business=support@sugr.org&lc=US&item_name=Gear Shift&no_note=1&no_shipping=1&currency_code=EUR">отблагодарить автора бутылочкой пива или двумя</a>]]>.</string>
    
     <string name="ic_menu_select_all">Выделить все</string>
     
     <string name="duplicate_torrent">Этот торрент уже есть в списке.</string>
     <string name="invalid_torrent">Торрент поврежден или имеет неизвестный формат.</string>
     <string name="error_title">Ошибка!</string>
+    <string name="torrent_added_different_profile">Торрент добавлен</string>
     <string name="menu_high_priority">Высокий приоритет</string>
     <string name="menu_normal_priority">Нормальный приоритет</string>
     <string name="menu_low_priority">Низкий приоритет</string>
@@ -435,6 +436,7 @@
     <string name="status_bar_limit_format"><![CDATA[ (<i>%1$s</i>)]]></string>
     <string name="user_interface_header">Интерфейс пользователя</string>
     <string name="show_status_bar">Отображать строку состояния под списком торрентов</string>
+    <string name="show_add_dialog">Показывать опции загрузки при добавлении торрента</string>
     <string name="error_deleting_torrent_file">Ошибка удаления торрент-файла</string>
     <string name="hint_download_directory">Папка для загрузки</string>
     <string name="spinner_custom_directory">Альтернативная папка &#8230;</string>
@@ -451,6 +453,8 @@
     <string name="crash_title"><![CDATA[<h2>К сожалению, Gear Shift перестал работать.</h2><small>Хотите отправить по почте отчет об ошибке?</small>]]></string>
     <string name="crash_send">Отправить</string>
     <string name="sort">Сортировка</string>
+    <string name="dialog_location">Папка для загрузки</string>
+    <string name="dialog_profile">Выберите профиль</string>
 
     <string-array name="torrent_priority">
         <item>Низкий</item>
