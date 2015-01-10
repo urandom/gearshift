@@ -9,10 +9,15 @@ import java.net.URL;
 
 public class ConnectionProvider {
     public HttpURLConnection open(TransmissionProfile profile) throws IOException {
-        URL url = new URL(
-            (profile.isUseSSL() ? "https://" : "http://")
+        String location = (profile.isUseSSL() ? "https://" : "http://")
                 + profile.getHost() + ":" + profile.getPort()
-                + profile.getPath());
+                + profile.getPath();
+
+        return open(location);
+    }
+
+    public HttpURLConnection open(String location) throws IOException {
+        URL url = new URL(location);
 
         G.logD("Initializing a request to " + url);
 

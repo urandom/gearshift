@@ -360,6 +360,10 @@ public class TransmissionSessionManager {
     }
 
     private void requestData(ObjectNode data, Response response) throws ManagerException {
+        requestData(data, response, null);
+    }
+
+    private void requestData(ObjectNode data, Response response, String urlLocation) throws ManagerException {
         if (!hasConnectivity()) {
             throw new ManagerException("connectivity", -1);
         }
@@ -368,7 +372,11 @@ public class TransmissionSessionManager {
         InputStream is = null;
         HttpURLConnection conn = null;
         try {
-            conn = connProvider.open(profile);
+            if (urlLocation == null) {
+                conn = connProvider.open(profile);
+            } else {
+                conn = connProvider.open(urlLocation);
+            }
 
             if (profile.isUseSSL()) {
                 try {
@@ -440,7 +448,6 @@ public class TransmissionSessionManager {
 
             int code = conn.getResponseCode();
 
-            // TorrentListActivity.logD("Got a response code " + code);
             if (code == HttpURLConnection.HTTP_CONFLICT) {
                 sessionId = getSessionId(conn);
                 if (invalidSessionRetries < 3 && sessionId != null) {
@@ -455,6 +462,17 @@ public class TransmissionSessionManager {
             }
 
             switch(code) {
+                case HttpURLConnection.HTTP_MOVED_TEMP:
+                case HttpURLConnection.HTTP_MOVED_PERM:
+                case HttpURLConnection.HTTP_MULT_CHOICE:
+                case 307:
+                    String location = conn.getHeaderField("Location");
+                    if (location == null) {
+                        throw new ManagerException(conn.getResponseMessage(), code);
+                    } else {
+                        requestData(data, response, location);
+                    }
+                    return;
                 case HttpURLConnection.HTTP_OK:
                 case HttpURLConnection.HTTP_CREATED:
                     if (conn.getHeaderField("Content-Type").startsWith("text/html")) {
