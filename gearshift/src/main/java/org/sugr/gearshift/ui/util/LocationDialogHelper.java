@@ -241,6 +241,10 @@ public class LocationDialogHelper {
             location.profile = (TransmissionProfile) profileSpinner.getSelectedItem();
         }
 
+        if (location.profile == null) {
+            return null;
+        }
+
         Spinner locationSpinner = (Spinner) dialog.findViewById(R.id.location_choice);
         EditText locationEntry = (EditText) dialog.findViewById(R.id.location_entry);
 

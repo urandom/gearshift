@@ -92,12 +92,8 @@ public abstract class BaseTorrentActivity extends ActionBarActivity
             setProfiles(Arrays.asList(profiles));
         }
 
-        @Override
-        public void onLoaderReset(
-            android.support.v4.content.Loader<TransmissionProfile[]> loader) {
-
-            setProfiles(Collections.<TransmissionProfile>emptyList());
-        }
+        @Override public void onLoaderReset(
+            android.support.v4.content.Loader<TransmissionProfile[]> loader) { }
 
     };
 
