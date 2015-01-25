@@ -37,6 +37,7 @@ public class TransmissionProfile implements Parcelable, Comparable<TransmissionP
 
     private Set<String> directories = new HashSet<>();
 
+    private boolean useProxy = false;
     private String proxyHost = "";
     private int proxyPort = 8080;
 
@@ -178,6 +179,14 @@ public class TransmissionProfile implements Parcelable, Comparable<TransmissionP
         this.directories = directories;
     }
 
+    public boolean isUseProxy() {
+        return useProxy;
+    }
+
+    public void setUseProxy(boolean useProxy) {
+        this.useProxy = useProxy;
+    }
+
     public String getProxyHost() {
         return proxyHost;
     }
@@ -242,6 +251,7 @@ public class TransmissionProfile implements Parcelable, Comparable<TransmissionP
         deleteLocal = pref.getBoolean(getPrefName(G.PREF_DELETE_LOCAL, legacy, fromPreferences), false);
         startPaused = pref.getBoolean(getPrefName(G.PREF_START_PAUSED, legacy, fromPreferences), false);
 
+        useProxy = pref.getBoolean(getPrefName(G.PREF_PROXY, legacy, fromPreferences), false);
         proxyHost = pref.getString(getPrefName(G.PREF_PROXY_HOST, legacy, fromPreferences), "").trim();
         try {
             proxyPort = Integer.parseInt(pref.getString(getPrefName(G.PREF_PROXY_PORT, legacy, fromPreferences), "8080"));
@@ -294,6 +304,7 @@ public class TransmissionProfile implements Parcelable, Comparable<TransmissionP
         e.putString(G.PREF_TIMEOUT + id, Integer.toString(timeout));
         e.putString(G.PREF_RETRIES + id, Integer.toString(retries));
         e.putStringSet(G.PREF_DIRECTORIES + id, directories);
+        e.putBoolean(G.PREF_PROXY + id, useProxy);
         e.putString(G.PREF_PROXY_HOST + id, proxyHost);
         e.putString(G.PREF_PROXY_PORT + id, Integer.toString(proxyPort));
 
@@ -374,6 +385,7 @@ public class TransmissionProfile implements Parcelable, Comparable<TransmissionP
         e.putString(G.PREF_TIMEOUT, Integer.toString(timeout));
         e.putString(G.PREF_RETRIES, Integer.toString(retries));
         e.putStringSet(G.PREF_DIRECTORIES, directories);
+        e.putBoolean(G.PREF_PROXY, useProxy);
         e.putString(G.PREF_PROXY_HOST, proxyHost);
         e.putString(G.PREF_PROXY_PORT, Integer.toString(proxyPort));
 
@@ -491,6 +503,7 @@ public class TransmissionProfile implements Parcelable, Comparable<TransmissionP
         in.writeInt(moveData ? 1 : 0);
         in.writeInt(deleteLocal ? 1 : 0);
         in.writeInt(startPaused ? 1 : 0);
+        in.writeInt(useProxy ? 1 : 0);
         in.writeString(proxyHost);
         in.writeInt(proxyPort);
     }
@@ -528,6 +541,7 @@ public class TransmissionProfile implements Parcelable, Comparable<TransmissionP
         moveData = in.readInt() == 1;
         deleteLocal = in.readInt() == 1;
         startPaused = in.readInt() == 1;
+        useProxy = in.readInt() == 1;
         proxyHost = in.readString();
         proxyPort = in.readInt();
     }

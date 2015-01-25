@@ -90,7 +90,6 @@
     <string name="connection">Connection</string>
     <string name="con_host">Host</string>
     <string name="con_port">Port</string>
-    <string name="con_port_default">9091</string>
     <string name="con_username">Username</string>
     <string name="con_password">Password</string>
     <string name="con_path">Path</string>
@@ -99,12 +98,16 @@
     <string name="con_timeout">Timeout</string>
     <string name="con_timeout_default">40</string>
     <string name="con_retries">Retry</string>
+    <string name="con_use_proxy">Use Proxy</string>
+    <string name="con_proxy_host">Proxy Host</string>
+    <string name="con_proxy_port">Proxy Port</string>
     <string name="con_directories">Download Directories</string>
     
     <string name="invalid_input_title">Invalid Input</string>
     <string name="con_name_cannot_be_empty">The profile name cannot be empty</string>
     <string name="con_host_cannot_be_empty">The host cannot be empty</string>
-    
+    <string name="con_proxy_host_cannot_be_empty">The proxy host cannot be empty</string>
+
     <string name="no_profiles">No profiles</string>
     <string name="create_profile_in_settings">Create a new profile in the settings</string>
     

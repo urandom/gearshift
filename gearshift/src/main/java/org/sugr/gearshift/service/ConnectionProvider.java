@@ -36,7 +36,7 @@ public class ConnectionProvider {
     public Proxy getProxy(TransmissionProfile profile) {
         Proxy proxy = null;
 
-        if (!TextUtils.isEmpty(profile.getProxyHost())) {
+        if (profile.isUseProxy() && !TextUtils.isEmpty(profile.getProxyHost())) {
             proxy = new Proxy(Proxy.Type.HTTP,
                 new InetSocketAddress(profile.getProxyHost(), profile.getProxyPort()));
         }

@@ -37,6 +37,7 @@ public final class G {
     public static final String PREF_MOVE_DATA = "profile_move_data";
     public static final String PREF_DELETE_LOCAL = "profile_delete_local";
     public static final String PREF_START_PAUSED = "profile_start_paused";
+    public static final String PREF_PROXY = "profile_use_proxy";
     public static final String PREF_PROXY_HOST = "profile_proxy_host";
     public static final String PREF_PROXY_PORT = "profile_proxy_port";
     public static final String PREF_PREFIX = "profile_";

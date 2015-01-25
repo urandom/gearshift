@@ -16,7 +16,7 @@
 	        android:dialogTitle="@string/con_host" />
 	    <EditTextPreference
 	        android:key="profile_port"
-	        android:defaultValue="@string/con_port_default"
+	        android:defaultValue="9091"
 	        android:title="@string/con_port"
 	        android:inputType="number"
 	        android:dialogTitle="@string/con_port" />
@@ -56,6 +56,25 @@
 	        android:entries="@array/pref_con_retries_entries"
 	        android:entryValues="@array/pref_con_retries_values"
 	        android:defaultValue="3" />-->
+
+        <CheckBoxPreference
+            android:key="profile_use_proxy"
+            android:defaultValue="false"
+            android:title="@string/con_use_proxy" />
+        <EditTextPreference
+            android:key="profile_proxy_host"
+            android:defaultValue=""
+            android:dependency="profile_use_proxy"
+            android:inputType="textNoSuggestions|textVisiblePassword"
+            android:title="@string/con_proxy_host"
+            android:dialogTitle="@string/con_proxy_host" />
+        <EditTextPreference
+            android:key="profile_proxy_port"
+            android:defaultValue="8080"
+            android:dependency="profile_use_proxy"
+            android:title="@string/con_proxy_port"
+            android:inputType="number"
+            android:dialogTitle="@string/con_proxy_port" />
 	</PreferenceCategory>
 	<Preference
 	    android:key="profile_directories"

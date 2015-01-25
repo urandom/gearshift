@@ -137,6 +137,9 @@ public class TransmissionProfileSettingsFragment extends BasePreferenceFragment 
                     errorRes = R.string.con_name_cannot_be_empty;
                 } else if (sharedPrefs.getString(G.PREF_HOST, "").trim().equals("")) {
                     errorRes = R.string.con_host_cannot_be_empty;
+                } else if (sharedPrefs.getBoolean(G.PREF_PROXY, false) &&
+                           sharedPrefs.getString(G.PREF_PROXY_HOST, "").trim().equals("")) {
+                    errorRes = R.string.con_proxy_host_cannot_be_empty;
                 }
 
                 if (errorRes != -1) {
