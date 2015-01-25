@@ -33,4 +33,8 @@
 	<item android:id="@+id/reannounce"
 	    android:title="@string/reannounce"
 	    app:showAsAction="never" />
+
+    <item android:id="@+id/queue"
+          android:title="@string/queue_management"
+          app:showAsAction="never" />
 </menu>

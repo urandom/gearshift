@@ -36,6 +36,7 @@ public class DataService extends IntentService {
         public static final String SET_TORRENT = "set_torrent";
         public static final String SET_TORRENT_LOCATION = "set_torrent_location";
         public static final String SET_TORRENT_ACTION = "set_torrent_action";
+        public static final String SET_TORRENT_QUEUE_ACTION = "set_torrent_queue_action";
 
         public static final String GET_FREE_SPACE = "get_free_space";
         public static final String TEST_PORT = "test_port";
@@ -62,6 +63,7 @@ public class DataService extends IntentService {
         public static final String TORRENT_FIELD = "torrent_field";
         public static final String TORRENT_FIELD_VALUE = "torrent_field_value";
         public static final String TORRENT_ACTION = "torrent_action";
+        public static final String QUEUE_ACTION = "queue_direction";
     }
 
     private DataSource dataSource;

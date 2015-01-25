@@ -1,4 +1,5 @@
 #!/bin/sh
+# bower install material-design-icons
 ext="png"
 source="./bower_components/material-design-icons"
 target="./gearshift/src/main/res/drawable"
@@ -42,7 +43,10 @@ copy_icons "$sizes" "$icons" "white" "24dp"
 
 icons="
 file/ic_folder_open
+navigation/ic_arrow_drop_down
+navigation/ic_arrow_drop_up
 navigation/ic_expand_more
+navigation/ic_expand_less
 "
 
 copy_icons "$sizes" "$icons" 'grey600' "36dp"

@@ -297,6 +297,37 @@ public class DataServiceManager {
         return this;
     }
 
+    public DataServiceManager setTorrentQueueAction(String[] hashStrings, G.QueueAction direction) {
+        String action = null;
+
+        switch (direction) {
+            case MOVE_TOP:
+                action = "queue-move-top";
+                break;
+            case MOVE_UP:
+                action = "queue-move-up";
+                break;
+            case MOVE_DOWN:
+                action = "queue-move-down";
+                break;
+            case MOVE_BOTTOM:
+                action = "queue-move-bottom";
+                break;
+            default:
+                return this;
+        }
+
+        Bundle args = new Bundle();
+
+        args.putStringArray(DataService.Args.HASH_STRINGS, hashStrings);
+        args.putString(DataService.Args.QUEUE_ACTION, action);
+        Intent intent = createIntent(DataService.Requests.SET_TORRENT_QUEUE_ACTION, args);
+
+        context.startService(intent);
+
+        return this;
+    }
+
     public DataServiceManager removeProfile() {
         Intent intent = createIntent(DataService.Requests.REMOVE_PROFILE, null);
 

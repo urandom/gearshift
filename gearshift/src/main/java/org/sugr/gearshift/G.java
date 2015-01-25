@@ -141,6 +141,10 @@ public final class G {
         ASCENDING, DESCENDING
     }
 
+    public static enum QueueAction {
+        MOVE_TOP, MOVE_UP, MOVE_DOWN, MOVE_BOTTOM
+    }
+
     public static Comparator<String> SIMPLE_STRING_COMPARATOR = new Comparator<String>() {
         @Override
         public int compare(String lhs, String rhs) {

@@ -34,6 +34,7 @@ import android.util.SparseArray;
 import android.util.SparseBooleanArray;
 import android.view.ActionMode;
 import android.view.ContextThemeWrapper;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -53,6 +54,7 @@ import android.widget.CursorAdapter;
 import android.widget.EditText;
 import android.widget.FilterQueryProvider;
 import android.widget.ListView;
+import android.widget.PopupWindow;
 import android.widget.ProgressBar;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -75,6 +77,7 @@ import org.sugr.gearshift.ui.settings.SettingsActivity;
 import org.sugr.gearshift.ui.util.LocationDialogHelper;
 import org.sugr.gearshift.ui.util.LocationDialogHelperInterface;
 import org.sugr.gearshift.ui.util.UpdateCheckDialog;
+import org.sugr.gearshift.util.CheatSheet;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -222,6 +225,8 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
                 case R.id.reannounce:
                     action = "torrent-reannounce";
                     break;
+                case R.id.queue:
+                    return showQueueManagementDialog(hashStrings);
                 default:
                     return true;
             }
@@ -965,6 +970,44 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
         TransmissionProfile profile = ((TransmissionProfileInterface) getActivity()).getProfile();
         ((CheckBox) dialog.findViewById(R.id.move)).setChecked(
             profile != null && profile.getMoveData());
+
+        return true;
+    }
+
+    private boolean showQueueManagementDialog(final String[] hashStrings) {
+        final DataServiceManager manager =
+            ((DataServiceManagerInterface) getActivity()).getDataServiceManager();
+
+        if (manager == null) {
+            return true;
+        }
+
+        final TransmissionSession session = ((TransmissionSessionInterface) getActivity()).getSession();
+        if (session == null) {
+            return true;
+        }
+
+        LayoutInflater inflater = getActivity().getLayoutInflater();
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        builder.setView(inflater.inflate(R.layout.torrent_queue_management_popup, null))
+            .setTitle(R.string.queue_management_title);
+
+        AlertDialog dialog = builder.create();
+
+        dialog.show();
+
+        View button = dialog.findViewById(R.id.queue_top);
+        CheatSheet.setup(button);
+
+        button = dialog.findViewById(R.id.queue_up);
+        CheatSheet.setup(button);
+
+        button = dialog.findViewById(R.id.queue_down);
+        CheatSheet.setup(button);
+
+        button = dialog.findViewById(R.id.queue_bottom);
+        CheatSheet.setup(button);
 
         return true;
     }
