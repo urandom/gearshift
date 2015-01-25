@@ -37,6 +37,9 @@ public class TransmissionProfile implements Parcelable, Comparable<TransmissionP
 
     private Set<String> directories = new HashSet<>();
 
+    private String proxyHost = "";
+    private int proxyPort = 8080;
+
     private Context context;
     private SharedPreferences defaultPrefs;
 
@@ -174,7 +177,23 @@ public class TransmissionProfile implements Parcelable, Comparable<TransmissionP
     public void setDirectories(Set<String> directories) {
         this.directories = directories;
     }
-    
+
+    public String getProxyHost() {
+        return proxyHost;
+    }
+
+    public void setProxyHost(String host) {
+        this.proxyHost = host;
+    }
+
+    public void setProxyPort(int port) {
+        this.proxyPort = port;
+    }
+
+    public int getProxyPort() {
+        return proxyPort;
+    }
+
     public void load() {
         load(false);
     }
@@ -194,7 +213,7 @@ public class TransmissionProfile implements Parcelable, Comparable<TransmissionP
         host = pref.getString(getPrefName(G.PREF_HOST, legacy, fromPreferences), "").trim();
         try {
              port = Integer.parseInt(pref.getString(getPrefName(G.PREF_PORT, legacy, fromPreferences), "9091"));
-            if ( port < 1) {
+            if (port < 1) {
                  port = 1;
             } else if ( port > 65535) {
                  port = 65535;
@@ -222,6 +241,18 @@ public class TransmissionProfile implements Parcelable, Comparable<TransmissionP
         moveData = pref.getBoolean(getPrefName(G.PREF_MOVE_DATA, legacy, fromPreferences), true);
         deleteLocal = pref.getBoolean(getPrefName(G.PREF_DELETE_LOCAL, legacy, fromPreferences), false);
         startPaused = pref.getBoolean(getPrefName(G.PREF_START_PAUSED, legacy, fromPreferences), false);
+
+        proxyHost = pref.getString(getPrefName(G.PREF_PROXY_HOST, legacy, fromPreferences), "").trim();
+        try {
+            proxyPort = Integer.parseInt(pref.getString(getPrefName(G.PREF_PROXY_PORT, legacy, fromPreferences), "8080"));
+            if (proxyPort < 1) {
+                proxyPort = 1;
+            } else if ( proxyPort > 65535) {
+                proxyPort = 65535;
+            }
+        } catch (NumberFormatException e) {
+            proxyPort = 65535;
+        }
 
         if (legacy) {
             Editor e = pref.edit();
@@ -263,6 +294,8 @@ public class TransmissionProfile implements Parcelable, Comparable<TransmissionP
         e.putString(G.PREF_TIMEOUT + id, Integer.toString(timeout));
         e.putString(G.PREF_RETRIES + id, Integer.toString(retries));
         e.putStringSet(G.PREF_DIRECTORIES + id, directories);
+        e.putString(G.PREF_PROXY_HOST + id, proxyHost);
+        e.putString(G.PREF_PROXY_PORT + id, Integer.toString(proxyPort));
 
         e.commit();
 
@@ -341,6 +374,8 @@ public class TransmissionProfile implements Parcelable, Comparable<TransmissionP
         e.putString(G.PREF_TIMEOUT, Integer.toString(timeout));
         e.putString(G.PREF_RETRIES, Integer.toString(retries));
         e.putStringSet(G.PREF_DIRECTORIES, directories);
+        e.putString(G.PREF_PROXY_HOST, proxyHost);
+        e.putString(G.PREF_PROXY_PORT, Integer.toString(proxyPort));
 
         e.apply();
     }
@@ -456,6 +491,8 @@ public class TransmissionProfile implements Parcelable, Comparable<TransmissionP
         in.writeInt(moveData ? 1 : 0);
         in.writeInt(deleteLocal ? 1 : 0);
         in.writeInt(startPaused ? 1 : 0);
+        in.writeString(proxyHost);
+        in.writeInt(proxyPort);
     }
 
     public static final Parcelable.Creator<TransmissionProfile> CREATOR
@@ -491,6 +528,8 @@ public class TransmissionProfile implements Parcelable, Comparable<TransmissionP
         moveData = in.readInt() == 1;
         deleteLocal = in.readInt() == 1;
         startPaused = in.readInt() == 1;
+        proxyHost = in.readString();
+        proxyPort = in.readInt();
     }
 
     private SharedPreferences getLegacyPreferences(Context context) {

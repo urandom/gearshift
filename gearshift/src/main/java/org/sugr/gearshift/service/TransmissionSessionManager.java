@@ -28,6 +28,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
+import java.net.Proxy;
 import java.net.URL;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
@@ -375,7 +376,8 @@ public class TransmissionSessionManager {
             if (urlLocation == null) {
                 conn = connProvider.open(profile);
             } else {
-                conn = connProvider.open(urlLocation);
+                Proxy proxy = connProvider.getProxy(profile);
+                conn = connProvider.open(urlLocation, proxy);
             }
 
             if (profile.isUseSSL()) {
