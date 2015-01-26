@@ -1,37 +1,19 @@
 package org.sugr.gearshift.ui.util;
 
 import android.app.AlertDialog;
-import android.content.Context;
-import android.content.DialogInterface;
-import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
-import android.view.inputmethod.InputMethodManager;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
-import android.widget.AutoCompleteTextView;
-import android.widget.CheckBox;
-import android.widget.EditText;
-import android.widget.LinearLayout;
-import android.widget.Spinner;
 import android.widget.TextView;
 
 import org.sugr.gearshift.G;
 import org.sugr.gearshift.R;
-import org.sugr.gearshift.core.TransmissionProfile;
 import org.sugr.gearshift.core.TransmissionSession;
 import org.sugr.gearshift.service.DataService;
 import org.sugr.gearshift.service.DataServiceManager;
 import org.sugr.gearshift.service.DataServiceManagerInterface;
 import org.sugr.gearshift.ui.BaseTorrentActivity;
-import org.sugr.gearshift.ui.TransmissionProfileDirectoryAdapter;
 import org.sugr.gearshift.ui.TransmissionSessionInterface;
 import org.sugr.gearshift.util.CheatSheet;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 
 public class QueueManagementDialogHelper {
     private BaseTorrentActivity activity;
@@ -58,7 +40,7 @@ public class QueueManagementDialogHelper {
         final View view = inflater.inflate(R.layout.torrent_queue_management_popup, null);
         final AlertDialog.Builder builder = new AlertDialog.Builder(activity)
             .setView(view)
-            .setTitle(R.string.queue_management_title);
+            .setTitle(R.string.queue_management);
 
         if (dialog != null) {
             dialog.dismiss();
@@ -66,6 +48,9 @@ public class QueueManagementDialogHelper {
         dialog = builder.create();
 
         dialog.show();
+
+        TextView label = (TextView) dialog.findViewById(R.id.queue_label);
+        label.setText(activity.getResources().getQuantityString(R.plurals.queue_label, hashStrings.length));
 
         View button = dialog.findViewById(R.id.queue_top);
         CheatSheet.setup(button);
