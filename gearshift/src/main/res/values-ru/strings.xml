@@ -90,7 +90,6 @@
     <string name="connection">Подключение</string>
     <string name="con_host">Узел</string>
     <string name="con_port">Порт</string>
-    <string name="con_port_default">9091</string>
     <string name="con_username">Пользователь</string>
     <string name="con_password">Пароль</string>
     <string name="con_path">Путь</string>

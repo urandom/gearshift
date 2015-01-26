@@ -87,7 +87,6 @@
     <string name="connection">Conexión</string>
     <string name="con_host">Dirección del Host</string>
     <string name="con_port">Puerto</string>
-    <string name="con_port_default">9091</string>
     <string name="con_username">Usuario</string>
     <string name="con_password">Contraseña</string>
     <string name="con_path">Ruta</string>

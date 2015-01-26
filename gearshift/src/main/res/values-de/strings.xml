@@ -90,7 +90,6 @@
     <string name="connection">Verbindung</string>
     <string name="con_host">Host</string>
     <string name="con_port">Port</string>
-    <string name="con_port_default">9091</string>
     <string name="con_username">Username</string>
     <string name="con_password">Passwort</string>
     <string name="con_path">Pfad</string>
