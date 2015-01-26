@@ -141,8 +141,26 @@ public final class G {
         ASCENDING, DESCENDING
     }
 
-    public static enum QueueAction {
-        MOVE_TOP, MOVE_UP, MOVE_DOWN, MOVE_BOTTOM
+    public static enum TorrentAction {
+        START("torrent-start"),
+        START_NOW("torrent-start-now"),
+        STOP("torrent-stop"),
+        VERIFY("torrent-verify"),
+        REANNOUNCE("torrent-reannounce"),
+        QUEUE_MOVE_TOP("queue-move-top"),
+        QUEUE_MOVE_UP("queue-move-up"),
+        QUEUE_MOVE_DOWN("queue-move-down"),
+        QUEUE_MOVE_BOTTOM("queue-move-bottom");
+
+        private final String action;
+
+        TorrentAction(String action) {
+            this.action = action;
+        }
+
+        public String action() {
+            return action;
+        }
     }
 
     public static Comparator<String> SIMPLE_STRING_COMPARATOR = new Comparator<String>() {

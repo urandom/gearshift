@@ -76,6 +76,7 @@ import org.sugr.gearshift.ui.loader.TorrentTrafficLoader;
 import org.sugr.gearshift.ui.settings.SettingsActivity;
 import org.sugr.gearshift.ui.util.LocationDialogHelper;
 import org.sugr.gearshift.ui.util.LocationDialogHelperInterface;
+import org.sugr.gearshift.ui.util.QueueManagementDialogHelperInterface;
 import org.sugr.gearshift.ui.util.UpdateCheckDialog;
 import org.sugr.gearshift.util.CheatSheet;
 
@@ -170,7 +171,7 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
             }
 
             AlertDialog.Builder builder;
-            String action;
+            G.TorrentAction action;
             switch (item.getItemId()) {
                 case R.id.select_all:
                     ListView v = getListView();
@@ -212,18 +213,18 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
                         .show();
                     return true;
                 case R.id.resume:
-                    action = hasQueued ? "torrent-start-now" : "torrent-start";
+                    action = hasQueued ? G.TorrentAction.START_NOW : G.TorrentAction.START;
                     break;
                 case R.id.pause:
-                    action = "torrent-stop";
+                    action = G.TorrentAction.STOP;
                     break;
                 case R.id.move:
                     return showMoveDialog(hashStrings);
                 case R.id.verify:
-                    action = "torrent-verify";
+                    action = G.TorrentAction.VERIFY;
                     break;
                 case R.id.reannounce:
-                    action = "torrent-reannounce";
+                    action = G.TorrentAction.REANNOUNCE;
                     break;
                 case R.id.queue:
                     return showQueueManagementDialog(hashStrings);
@@ -975,39 +976,8 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
     }
 
     private boolean showQueueManagementDialog(final String[] hashStrings) {
-        final DataServiceManager manager =
-            ((DataServiceManagerInterface) getActivity()).getDataServiceManager();
-
-        if (manager == null) {
-            return true;
-        }
-
-        final TransmissionSession session = ((TransmissionSessionInterface) getActivity()).getSession();
-        if (session == null) {
-            return true;
-        }
-
-        LayoutInflater inflater = getActivity().getLayoutInflater();
-
-        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-        builder.setView(inflater.inflate(R.layout.torrent_queue_management_popup, null))
-            .setTitle(R.string.queue_management_title);
-
-        AlertDialog dialog = builder.create();
-
-        dialog.show();
-
-        View button = dialog.findViewById(R.id.queue_top);
-        CheatSheet.setup(button);
-
-        button = dialog.findViewById(R.id.queue_up);
-        CheatSheet.setup(button);
-
-        button = dialog.findViewById(R.id.queue_down);
-        CheatSheet.setup(button);
-
-        button = dialog.findViewById(R.id.queue_bottom);
-        CheatSheet.setup(button);
+        ((QueueManagementDialogHelperInterface) getActivity()).getQueueManagementDialogHelper()
+            .showDialog(hashStrings);
 
         return true;
     }

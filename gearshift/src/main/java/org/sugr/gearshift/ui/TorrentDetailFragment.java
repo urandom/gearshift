@@ -35,6 +35,7 @@ import org.sugr.gearshift.service.DataServiceManager;
 import org.sugr.gearshift.service.DataServiceManagerInterface;
 import org.sugr.gearshift.ui.util.LocationDialogHelper;
 import org.sugr.gearshift.ui.util.LocationDialogHelperInterface;
+import org.sugr.gearshift.ui.util.QueueManagementDialogHelperInterface;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -174,7 +175,7 @@ public class TorrentDetailFragment extends Fragment implements TorrentListNotifi
 
         final String[] hashStrings = new String[] { currentTorrentHashString };
 
-        String action;
+        G.TorrentAction action;
         switch (item.getItemId()) {
             case R.id.remove:
                 AlertDialog.Builder builder = new AlertDialog.Builder(getActivity())
@@ -200,25 +201,27 @@ public class TorrentDetailFragment extends Fragment implements TorrentListNotifi
                 switch(currentTorrentStatus) {
                     case Torrent.Status.DOWNLOAD_WAITING:
                     case Torrent.Status.SEED_WAITING:
-                        action = "torrent-start-now";
+                        action = G.TorrentAction.START_NOW;
                         break;
                     default:
-                        action = "torrent-start";
+                        action = G.TorrentAction.START;
                         break;
                 }
                 break;
             case R.id.pause:
-                action = "torrent-stop";
+                action = G.TorrentAction.STOP;
                 break;
             case R.id.move:
                 actionMoveHashStrings = hashStrings;
                 return showMoveDialog(hashStrings);
             case R.id.verify:
-                action = "torrent-verify";
+                action = G.TorrentAction.VERIFY;
                 break;
             case R.id.reannounce:
-                action = "torrent-reannounce";
+                action = G.TorrentAction.REANNOUNCE;
                 break;
+            case R.id.queue:
+                return showQueueManagementDialog(hashStrings);
             default:
                 return false;
         }
@@ -457,6 +460,13 @@ public class TorrentDetailFragment extends Fragment implements TorrentListNotifi
         TransmissionProfile profile = ((TransmissionProfileInterface) getActivity()).getProfile();
         ((CheckBox) dialog.findViewById(R.id.move)).setChecked(
             profile != null && profile.getMoveData());
+
+        return true;
+    }
+
+    private boolean showQueueManagementDialog(final String[] hashStrings) {
+        ((QueueManagementDialogHelperInterface) getActivity()).getQueueManagementDialogHelper()
+            .showDialog(hashStrings);
 
         return true;
     }

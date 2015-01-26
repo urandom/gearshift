@@ -63,7 +63,7 @@ public class DataService extends IntentService {
         public static final String TORRENT_FIELD = "torrent_field";
         public static final String TORRENT_FIELD_VALUE = "torrent_field_value";
         public static final String TORRENT_ACTION = "torrent_action";
-        public static final String QUEUE_ACTION = "queue_direction";
+        public static final String TORRENT_QUEUE_ACTION = "torrent_queue_action";
     }
 
     private DataSource dataSource;
@@ -284,6 +284,22 @@ public class DataService extends IntentService {
                         }
 
                         manager.setTorrentAction(hashStrings, action);
+                        response = createResponse(requestType, profileId);
+                        break;
+                    }
+                    case Requests.SET_TORRENT_QUEUE_ACTION: {
+                        String[] hashStrings = args.getStringArray(Args.HASH_STRINGS);
+                        String action = args.getString(Args.TORRENT_QUEUE_ACTION);
+
+                        if (hashStrings == null || hashStrings.length == 0) {
+                            throw new IllegalArgumentException("No hash strings provided");
+                        }
+
+                        if (TextUtils.isEmpty(action)) {
+                            throw new IllegalArgumentException("No action provided");
+                        }
+
+                        manager.setTorrentQueueAction(hashStrings, action);
                         response = createResponse(requestType, profileId);
                         break;
                     }

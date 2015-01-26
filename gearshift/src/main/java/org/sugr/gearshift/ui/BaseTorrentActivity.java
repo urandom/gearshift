@@ -10,7 +10,6 @@ import android.database.Cursor;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.support.v4.app.FragmentManager;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.view.MenuItemCompat;
@@ -37,17 +36,18 @@ import org.sugr.gearshift.service.DataServiceManagerInterface;
 import org.sugr.gearshift.ui.loader.TransmissionProfileSupportLoader;
 import org.sugr.gearshift.ui.util.LocationDialogHelper;
 import org.sugr.gearshift.ui.util.LocationDialogHelperInterface;
+import org.sugr.gearshift.ui.util.QueueManagementDialogHelper;
+import org.sugr.gearshift.ui.util.QueueManagementDialogHelperInterface;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
 public abstract class BaseTorrentActivity extends ActionBarActivity
     implements TransmissionSessionInterface, DataServiceManagerInterface,
-    LocationDialogHelperInterface, TransmissionProfileInterface,
-    TorrentDetailFragment.PagerCallbacks {
+    LocationDialogHelperInterface, QueueManagementDialogHelperInterface,
+    TransmissionProfileInterface, TorrentDetailFragment.PagerCallbacks {
 
     protected TransmissionProfile profile;
     protected TransmissionSession session;
@@ -61,6 +61,7 @@ public abstract class BaseTorrentActivity extends ActionBarActivity
     protected BroadcastReceiver serviceReceiver;
 
     protected LocationDialogHelper locationDialogHelper;
+    protected QueueManagementDialogHelper queueManagementDialogHelper;
 
     protected boolean hasFatalError = false;
     protected long lastServerActivity;
@@ -116,6 +117,7 @@ public abstract class BaseTorrentActivity extends ActionBarActivity
 
     @Override protected void onCreate(Bundle savedInstanceState) {
         locationDialogHelper = new LocationDialogHelper(this);
+        queueManagementDialogHelper = new QueueManagementDialogHelper(this);
         serviceReceiver = new ServiceReceiver();
 
         if (savedInstanceState != null) {
@@ -176,6 +178,7 @@ public abstract class BaseTorrentActivity extends ActionBarActivity
         GearShiftApplication.setActivityVisible(false);
 
         locationDialogHelper.reset();
+        queueManagementDialogHelper.reset();
     }
 
     @Override public void onSaveInstanceState(Bundle outState) {
@@ -248,6 +251,10 @@ public abstract class BaseTorrentActivity extends ActionBarActivity
 
     @Override public LocationDialogHelper getLocationDialogHelper() {
         return locationDialogHelper;
+    }
+
+    @Override public QueueManagementDialogHelper getQueueManagementDialogHelper() {
+        return queueManagementDialogHelper;
     }
 
     @Override public TransmissionProfile getProfile() {

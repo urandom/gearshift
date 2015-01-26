@@ -218,6 +218,18 @@ public class TransmissionSessionManager {
         }
     }
 
+    public void setTorrentQueueAction(String[] hashStrings, String action) throws ManagerException {
+        ObjectMapper mapper = new ObjectMapper();
+        ObjectNode request = createRequest(action, true);
+        ObjectNode arguments = (ObjectNode) request.path("arguments");
+        arguments.put("ids", mapper.valueToTree(hashStrings));
+
+        Response response = new Response();
+        requestData(request, response);
+        if (!"success".equals(response.getResult())) {
+            throw new ManagerException(response.getResult(), -2);
+        }
+    }
     public void setTorrentLocation(String[] hashStrings, String location, boolean move) throws ManagerException {
         ObjectMapper mapper = new ObjectMapper();
         ObjectNode request = createRequest("torrent-set-location", true);

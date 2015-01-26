@@ -34,4 +34,11 @@
         android:menuCategory="system"
         android:orderInCategory="10"
         app:showAsAction="never" />
+
+    <item android:id="@+id/queue"
+          android:title="@string/queue_management"
+          android:menuCategory="system"
+          android:orderInCategory="10"
+          app:showAsAction="never" />
+
 </menu>
