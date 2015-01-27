@@ -86,7 +86,7 @@
     <string name="profile">Профиль</string>
     <string name="profile_summary_format">%1$s</string>
     <string name="profile_name">Название</string>
-    <string name="profile_name_default">Default</string>
+    <string name="profile_name_default">По умолчанию</string>
     <string name="connection">Подключение</string>
     <string name="con_host">Узел</string>
     <string name="con_port">Порт</string>
@@ -98,23 +98,27 @@
     <string name="con_timeout">Таймаут</string>
     <string name="con_timeout_default">40</string>
     <string name="con_retries">Повтор</string>
+    <string name="con_use_proxy">Использовать прокси</string>
+    <string name="con_proxy_host">Адрес прокси</string>
+    <string name="con_proxy_port">Порт прокси</string>
     <string name="con_directories">Папки для загрузки</string>
-    
+        
     <string name="invalid_input_title">Неверный ввод</string>
     <string name="con_name_cannot_be_empty">Название профиля не может быть пустым</string>
     <string name="con_host_cannot_be_empty">Имя узла не может быть пустым</string>
-    
-    <string name="no_profiles">Пусто</string>
+    <string name="con_proxy_host_cannot_be_empty">Адрес прокси не может быть пустым</string>
+
+    <string name="no_profiles">Профилей нет</string>
     <string name="create_profile_in_settings">Создайте новый профиль в настройках</string>
-    
-    <string name="no_profiles_empty_list">&lt;h2>Ещё не было создано ни одного профиля.&lt;/h2>Вы должны создать хотя бы один профиль в меню &lt;i>Настройки&lt;/i>.</string>
+
+    <string name="no_profiles_empty_list"><![CDATA[<h2>Ещё не было создано ни одного профиля.</h2>Вы должны создать хотя бы один профиль в меню <i>Настройки</i> в панели навигации, или нажав на кнопку ниже.]]></string>
     <string name="connecting_empty_list"><![CDATA[<h2><font color="#666666">Подключение</font></h2>]]></string>
-    <string name="no_torrents_empty_list">&lt;h2>Подключение прошло успешно!&lt;/h2>В данный момент демон не управляет ни одним торрентом.</string>
+    <string name="no_torrents_empty_list">&lt;h2&gt;Подключение установлено!&lt;/h2&gt;В данный момент демон не управляет ни одним торрентом.</string>
     <string name="no_filtered_torrents_empty_list">Нет торрентов, соответствующих текущему фильтру</string>
     <string name="no_connectivity_empty_list">&lt;h2&gt;&lt;font color="#cc0000"&gt;Необходимо активное подключение к сети!&lt;/font&gt;&lt;/h2&gt;</string>
     <string name="access_denied_empty_list">&lt;h2&gt;&lt;font color="#cc0000"&gt;Доступ запрещен!&lt;/font&gt;&lt;/h2&gt;Неверные данные учетной записи, или ваш IP-адрес не занесен в белый список.</string>
-    <string name="no_json_empty_list">&lt;h2>&lt;font color=#cc0000>Неожиданный ответ!&lt;/font>&lt;/h2>Пожалуйста, проверьте верность настройки пути RPC в текущем профиле.</string>
-    <string name="no_connection_empty_list">&lt;h2>&lt;font color=#cc0000>Невозможно подключиться!&lt;/font>&lt;/h2>Пожалуйста, проверьте правильность заданного адреса сервера и порта в текущем профиле.</string>
+    <string name="no_json_empty_list">&lt;h2&gt;&lt;font color="#cc0000"&gt;Неожиданный ответ!&lt;/font&gt;&lt;/h2&gt;Пожалуйста, проверьте верность настройки пути RPC в текущем профиле.</string>
+    <string name="no_connection_empty_list">&lt;h2&gt;&lt;font color="#cc0000"&gt;Невозможно подключиться!&lt;/font&gt;&lt;/h2&gt;Пожалуйста, проверьте правильность заданного адреса сервера и порта в текущем профиле.</string>
     <string name="generic_http_empty_list"><![CDATA[<h2><font color="#cc0000>Ошибка HTTP!</font></h2>Возможно сервер ожидает подключение через SSL.]]></string>
     <string name="thread_error_empty_list">&lt;h2&gt;&lt;font color="#cc0000"&gt;Внутренняя ошибка!&lt;/font&gt;&lt;/h2&gt;</string>
     <string name="response_error_empty_list">&lt;h2&gt;&lt;font color="#cc0000"&gt;Ошибка демона Transmission!&lt;/font&gt;&lt;/h2&gt;Запрос к демону не выполнен. Для более подробной информации смотрите лог.</string>
@@ -127,8 +131,8 @@
     <string name="traffic_seeding_format">%1$s, отдано %2$s (%3$s)%4$s</string>
     <string name="traffic_seeding_ratio_format">Коэффициент: %1$s%2$s</string>
     <string name="traffic_seeding_ratio_goal_format">, Цель: %1$s</string>
-    <string name="traffic_remaining_time_format"> - &lt;i>%1$s осталось&lt;/i></string>
-    <string name="traffic_remaining_time_unknown"> - Оставшееся время неизвестно</string>
+    <string name="traffic_remaining_time_format">&#160;- &lt;i&gt;%1$s осталось&lt;/i&gt;</string>
+    <string name="traffic_remaining_time_unknown">&#160;- Оставшееся время неизвестно</string>
     
     <string name="status_format">%1$s %2$s</string>
     <string name="status_state_downloading">&lt;b&gt;Загружается&lt;/b&gt;</string>
@@ -178,14 +182,14 @@
 
     <string name="torrent_active_now">Активен сейчас</string>
 
-    <string name="directory">Каталоги</string>
+    <string name="directory">Добавить папку</string>
     <string name="remove_selected_directories_confirmation">Вы уверены, что хотите удалить выделенные папки?</string>
     <string name="move_checkbox">Переместить данные торрента из текущего места в новое</string>
     <string name="set_location">Задать расположение</string>
     
-    <string name="browse">Просмотр</string>
+    <string name="browse">Открыть</string>
     <string name="invalid_magnet_link">Неверная magnet-ссылка</string>
-    <string name="add_new_magnet">Новая magnet-ссылка</string>
+    <string name="add_new_magnet">Вставить magnet-ссылку</string>
     <string name="add_new_torrent">Новый торрент</string>
     <string name="start_paused_checkbox">Не запускать торрент</string>
     <string name="delete_local_checkbox">Удалить .torrent после добавления</string>
@@ -200,7 +204,7 @@
 
     <string name="torrent_detail_file_format"><![CDATA[%1$s<br /><small>%2$s из %3$s - %4$s</small>]]></string>
     
-    <string name="about_item">О программе</string>
+    <string name="about_item">О приложении</string>
     <string name="about_name">Gear Shift</string>
     <string name="app_icon">App icon</string>
     <string name="about_description">Gear Shift - многофункциональный клиент, предназначенный для удалённого управления демоном Transmission.</string>
@@ -438,8 +442,9 @@
     <string name="show_add_dialog">Показывать опции загрузки при добавлении торрента</string>
     <string name="error_deleting_torrent_file">Ошибка удаления торрент-файла</string>
     <string name="hint_download_directory">Папка для загрузки</string>
+    <string name="spinner_default_directory">Папка по умолчанию</string>
     <string name="spinner_custom_directory">Альтернативная папка &#8230;</string>
-    <string name="error_removing_profile">При удалении профиля произошла ошибка!</string>
+    <string name="error_removing_profile">Произошла ошибка при удалении профиля!</string>
     <string name="session_settings_enable_idle_seeding_limit">Прекратить раздачу если не активен</string>
     <string name="session_settings_idle_seeding_limit">Минут</string>
     <string name="update_download">Загрузка</string>
@@ -454,6 +459,15 @@
     <string name="sort">Сортировка</string>
     <string name="dialog_location">Папка для загрузки</string>
     <string name="dialog_profile">Выберите профиль</string>
+    <string name="queue_management">Управление очередью</string>
+    <string name="queue_top">Переместить в начало очереди</string>
+    <string name="queue_up">Переместить выше с текущей позиции</string>
+    <string name="queue_down">Переместить ниже с текущей позиции</string>
+    <string name="queue_bottom">Переместить в конец очереди</string>
+    <plurals name="queue_label">
+        <item quantity="one">Изменить относительное положение выбранного торрента в очереди.</item>
+        <item quantity="other">Изменить относительное положение выбранных торрентов в очереди.</item>
+    </plurals>
 
     <string-array name="torrent_priority">
         <item>Низкий</item>
