@@ -138,6 +138,10 @@ public class TorrentListActivity extends BaseTorrentActivity
                 @Override public void onAnimationEnd(Animator animation) {
                     super.onAnimationEnd(animation);
 
+                    if (manager == null) {
+                        return;
+                    }
+
                     final FragmentManager fm = getSupportFragmentManager();
                     TorrentDetailFragment fragment = (TorrentDetailFragment) fm.findFragmentByTag(
                             G.DETAIL_FRAGMENT_TAG);
