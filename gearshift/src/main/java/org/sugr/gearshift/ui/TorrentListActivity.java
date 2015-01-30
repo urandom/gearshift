@@ -413,6 +413,7 @@ public class TorrentListActivity extends BaseTorrentActivity
     }
 
     @Override public void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
         hasNewIntent = true;
         setIntent(intent);
     }

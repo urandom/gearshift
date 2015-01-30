@@ -29,10 +29,8 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.Proxy;
-import java.net.URL;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
-import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.zip.GZIPInputStream;
@@ -181,10 +179,10 @@ public class TransmissionSessionManager {
         AddTorrentResponse response = new AddTorrentResponse();
         response.setLocation(location);
         requestData(request, response);
-        if ("success".equals(response.getResult())) {
-            return response.getAddedHash();
-        } else if (response.isDuplicate()) {
+        if (response.isDuplicate()) {
             throw new ManagerException("duplicate torrent", -2);
+        } else if ("success".equals(response.getResult())) {
+            return response.getAddedHash();
         } else {
             throw new ManagerException(response.getResult(), -2);
         }
@@ -703,13 +701,13 @@ public class TransmissionSessionManager {
     }
 
     public static class Response {
-        protected String mResult = null;
+        protected String result = null;
 
         public String getResult() {
-            return mResult;
+            return result;
         }
         public void setResult(String result) {
-            mResult = result;
+            this.result = result;
         }
     }
 
