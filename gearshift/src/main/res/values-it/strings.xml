@@ -98,11 +98,15 @@
     <string name="con_timeout">Timeout</string>
     <string name="con_timeout_default">40</string>
     <string name="con_retries">Riprova</string>
+    <string name="con_use_proxy">Usa Proxy</string>
+    <string name="con_proxy_host">indirizzo Proxy</string>
+    <string name="con_proxy_port">Porta Proxy</string>
     <string name="con_directories">Cartelle di download</string>
     
     <string name="invalid_input_title">Dati errati</string>
     <string name="con_name_cannot_be_empty">Il nome del profilo non può essere vuoto</string>
     <string name="con_host_cannot_be_empty">L\'indirizzo non può essere vuoto</string>
+    <string name="con_proxy_host_cannot_be_empty">L\'indirizzo proxy non può essere vuoto</string>
     
     <string name="no_profiles">Nessun profilo</string>
     <string name="create_profile_in_settings">Crea un profilo dalle impostazioni</string>
@@ -212,6 +216,7 @@
     <string name="duplicate_torrent">Questo torrent è già nella lista.</string>
     <string name="invalid_torrent">Il torrent che vuoi aggiungere non è valido o corrotto.</string>
     <string name="error_title">Errore!</string>
+    <string name="torrent_added_different_profile">Torrent aggiunto</string>
     <string name="menu_high_priority">Priorità alta</string>
     <string name="menu_normal_priority">Priorita normale</string>
     <string name="menu_low_priority">Priorità bassa</string>
@@ -434,8 +439,10 @@
     <string name="status_bar_limit_format"><![CDATA[ (<i>%1$s</i>)]]></string>
     <string name="user_interface_header">Interfaccia utente</string>
     <string name="show_status_bar">Barra di stato sotto la lista torrent</string>
+    <string name="show_add_dialog">Mostra finestra opzioni quando aggiungi i torrent</string>
     <string name="error_deleting_torrent_file">Impossibile cancellare il file torrent</string>
     <string name="hint_download_directory">Cartella download</string>
+    <string name="spinner_default_directory">Cartella predefinita</string>
     <string name="spinner_custom_directory">Cartella personalizzata &#8230;</string>
     <string name="error_removing_profile">Erroro nel rimuovere il profilo!</string>
     <string name="session_settings_enable_idle_seeding_limit">Abilita limite inattività distribuzione</string>
@@ -449,6 +456,18 @@
     <string name="update_checking">Controllo …</string>
     <string name="crash_title"><![CDATA[<h2>Sfortunatamente, Gear Shift si è bloccato.</h2><small>Vuoi inviare un rapporto per email?</small>]]></string>
     <string name="crash_send">Invio</string>
+    <string name="sort">Ordina</string>
+    <string name="dialog_location">Location</string>
+    <string name="dialog_profile">Profile</string>
+    <string name="queue_management">Queue management</string>
+    <string name="queue_top">Move to the top of the queue</string>
+    <string name="queue_up">Move up from the current position</string>
+    <string name="queue_down">Move down from the current position</string>
+    <string name="queue_bottom">Move to the bottom of the queue</string>
+    <plurals name="queue_label">
+        <item quantity="one">Change the relative queue position of the selected torrent.</item>
+        <item quantity="other">Change the relative queue position of the selected torrents.</item>
+    </plurals>
 
     <string-array name="torrent_priority">
         <item>Bassa</item>
