@@ -457,16 +457,16 @@
     <string name="crash_title"><![CDATA[<h2>Sfortunatamente, Gear Shift si è bloccato.</h2><small>Vuoi inviare un rapporto per email?</small>]]></string>
     <string name="crash_send">Invio</string>
     <string name="sort">Ordina</string>
-    <string name="dialog_location">Location</string>
-    <string name="dialog_profile">Profile</string>
-    <string name="queue_management">Queue management</string>
-    <string name="queue_top">Move to the top of the queue</string>
-    <string name="queue_up">Move up from the current position</string>
-    <string name="queue_down">Move down from the current position</string>
-    <string name="queue_bottom">Move to the bottom of the queue</string>
+    <string name="dialog_location">Posizione</string>
+    <string name="dialog_profile">Profilo</string>
+    <string name="queue_management">Gestione coda</string>
+    <string name="queue_top">Sposta in cima alla coda</string>
+    <string name="queue_up">Sposta in alto dalla posizione attuale</string>
+    <string name="queue_down">Sposta in basso dalal posizione attuale</string>
+    <string name="queue_bottom">Sposta in fondo alla coda</string>
     <plurals name="queue_label">
-        <item quantity="one">Change the relative queue position of the selected torrent.</item>
-        <item quantity="other">Change the relative queue position of the selected torrents.</item>
+        <item quantity="one">Cambia la posizione in coda relativa al torrent selezionato.</item>
+        <item quantity="other">Cambia la posizione in coda relativa ai torrent selezionati.</item>
     </plurals>
 
     <string-array name="torrent_priority">
