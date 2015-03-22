@@ -44,7 +44,7 @@
     <string name="torrent_size">Größe:</string>
     <string name="torrent_hash">Hash:</string>
     <string name="torrent_location">Ort:</string>
-    <string name="torrent_privacy":>Privatsphäre</string>
+    <string name="torrent_privacy">Privatsphäre:</string>
     <string name="torrent_origin">Ursprung:</string>
     <string name="torrent_comment">Kommentar:</string>
     
