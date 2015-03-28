@@ -10,7 +10,7 @@
     <string name="resume">Fortsetzen</string>
     <string name="pause">Pause</string>
     <string name="stop">Stop</string>
-    <string name="move">Versetzen</string>
+    <string name="move">Verschieben</string>
     <string name="verify">Lokale Daten verifizieren</string>
     <string name="reannounce">Mehr Peers anfordern</string>
     <string name="replace">Ersetzen</string>
@@ -31,7 +31,7 @@
     <string name="torrent_trackers">Tracker</string>
     
     <string name="torrent_activity">Aktivitäten</string>
-    <string name="torrent_have">Habe:</string>
+    <string name="torrent_have">Vollständigkeit:</string>
     <string name="torrent_downloaded">Heruntergeladen:</string>
     <string name="torrent_uploaded">Hochgeladen:</string>
     <string name="torrent_state">Zustand:</string>
@@ -44,7 +44,7 @@
     <string name="torrent_size">Größe:</string>
     <string name="torrent_hash">Hash:</string>
     <string name="torrent_location">Ort:</string>
-    <string name="torrent_privacy">Geheimhaltung:</string>
+    <string name="torrent_privacy">Privatsphäre:</string>
     <string name="torrent_origin">Ursprung:</string>
     <string name="torrent_comment">Kommentar:</string>
     
@@ -98,6 +98,9 @@
     <string name="con_timeout">Timeout</string>
     <string name="con_timeout_default">40</string>
     <string name="con_retries">Nochmal versuchen</string>
+    <string name="con_use_proxy">Proxy benutzen</string>
+    <string name="con_proxy_host">Proxy Host</string>
+    <string name="con_proxy_port">Proxy Port</string>
     <string name="con_directories">Download-Ordner</string>
     
     <string name="invalid_input_title">Ungültige Eingabe</string>
@@ -376,7 +379,7 @@
         
     <string name="session_settings_global_peer_limit">Globales Peer-Limit</string>
         
-    <string name="session_settings_torrent_peer_limit">Peer-Limit per Torrent</string>
+    <string name="session_settings_torrent_peer_limit">Peer-Limit je Torrent</string>
         
     <string name="session_settings_upload">Upload (KiB/s)</string>
         
@@ -404,7 +407,7 @@
     <string name="import_session_directories">Importiere Session-Verzeichnisse</string>
 
     <string name="tracker_unknown_host">Unbekannter Host</string>
-    <string name="tracker_tier"><![CDATA[Tier %1$d]]></string>
+    <string name="tracker_tier"><![CDATA[Rang %1$d]]></string>
     <string name="tracker_announce_success"><![CDATA[Letzte Mitteilung: %1$s (got %2$s)]]></string>
     <string name="tracker_announce_never">Letzte Mitteilung: N/A</string>
     <string name="tracker_announce_error"><![CDATA[Mitteilungs-Fehler: %1$s%2$s]]></string>
@@ -433,6 +436,7 @@
     <string name="status_bar_limit_format"><![CDATA[ (<i>%1$s</i>)]]></string>
     <string name="user_interface_header">User-Interface</string>
     <string name="show_status_bar">Statusleiste unter der Torrent-Liste</string>
+    <string name="show_add_dialog">Optionen anzeigen wenn Torrent hinzugefügt wird</string>
     <string name="error_deleting_torrent_file">Kann Torrent-Datei nicht löschen</string>
     <string name="hint_download_directory">Download-Verzeichnis</string>
     <string name="spinner_custom_directory">Eigenes Verzeichnis &#8230;</string>
@@ -448,6 +452,15 @@
     <string name="update_checking">Überprüfe …</string>
     <string name="crash_title"><![CDATA[<h2>Unglücklicherweise hat Gear Shift aufgehört zu funtionieren.</h2><small>Willst du einen Crash-Bericht per E-Mail schicken?</small>]]></string>
     <string name="crash_send">Schicken</string>
+    <string name="queue_management">Warteschlangenoptionen</string>
+    <string name="queue_top">Verschiebe an den Anfang der Warteschlange</string>
+    <string name="queue_up">Verschiebe eine Position höher</string>
+    <string name="queue_down">Verschiebe eine Position tiefer</string>
+    <string name="queue_bottom">Verschiebe an das Ende der Warteschlange</string>
+    <plurals name="queue_label">
+        <item quantity="one">Ändere die relative Warteschlangenposition des ausgewählten Torrent.</item>
+        <item quantity="other">Ändere die relative Warteschlangenposition der ausgewählten Torrents.</item>
+    </plurals>
 
     <string-array name="torrent_priority">
         <item>Niedrig</item>
