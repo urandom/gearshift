@@ -15,6 +15,7 @@
         <item name="windowActionBar">false</item>
         <item name="windowActionModeOverlay">true</item>
         <item name="android:textColorLink">@color/accent</item>
+        <item name="actionModeBackground">@color/accent_dull</item>
     </style>
 
     <!-- Application theme. -->
@@ -49,6 +50,10 @@
 
     <style name="ToolbarControl" parent="DefaultToolbar">
         <item name="colorAccent">#e51c23</item>
+    </style>
+
+    <style name="DefaultActionMode" parent="@style/Widget.AppCompat.ActionMode">
+        <item name="background">@color/accent_dull</item>
     </style>
 
     <style name="TorrentTitle">
