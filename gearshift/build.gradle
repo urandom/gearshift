@@ -1,12 +1,12 @@
 apply plugin: 'android'
 
 android {
-    compileSdkVersion 21
-    buildToolsVersion '21.1.1'
+    compileSdkVersion 22
+    buildToolsVersion '22.0.1'
 
     defaultConfig {
         minSdkVersion 16
-        targetSdkVersion 21
+        targetSdkVersion 22
         versionCode 81
         versionName "0.9.98"
         applicationId "org.sugr.gearshift"
@@ -42,8 +42,8 @@ android {
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
 
-    compile 'com.android.support:support-v4:21.0.0'
-    compile 'com.android.support:appcompat-v7:21.0.0'
+    compile 'com.android.support:support-v4:22.0.0'
+    compile 'com.android.support:appcompat-v7:22.0.0'
     compile 'com.android.support:recyclerview-v7:21.0.0'
     compile 'com.android.support:cardview-v7:21.0.0'
     compile 'com.fasterxml.jackson.core:jackson-core:2.3.0'

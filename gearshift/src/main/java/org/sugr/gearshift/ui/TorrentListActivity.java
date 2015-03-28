@@ -460,7 +460,9 @@ public class TorrentListActivity extends BaseTorrentActivity
                 }
                 int panelMargin = params.leftMargin;
 
-                manager.setDetails(false);
+                if (manager != null) {
+                    manager.setDetails(false);
+                }
 
                 FragmentManager fm = getSupportFragmentManager();
                 TorrentDetailFragment fragment = (TorrentDetailFragment) fm.findFragmentByTag(G.DETAIL_FRAGMENT_TAG);
@@ -747,6 +749,10 @@ public class TorrentListActivity extends BaseTorrentActivity
 
                     LocationDialogHelper.Location location = locationDialogHelper.getLocation();
 
+                    if (location == null) {
+                        return;
+                    }
+
                     addMagnetLink(location.profile, data, location.directory, location.isPaused);
 
                     intentConsumed = true;
@@ -764,6 +770,10 @@ public class TorrentListActivity extends BaseTorrentActivity
                     }
 
                     LocationDialogHelper.Location location = locationDialogHelper.getLocation();
+
+                    if (location == null) {
+                        return;
+                    }
 
                     addTorrentFile(location.profile, fileURI, filePath, documentUri,
                         location.directory, location.isPaused, location.deleteLocal);

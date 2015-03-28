@@ -34,7 +34,6 @@ import android.util.SparseArray;
 import android.util.SparseBooleanArray;
 import android.view.ActionMode;
 import android.view.ContextThemeWrapper;
-import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -51,12 +50,9 @@ import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CursorAdapter;
-import android.widget.EditText;
 import android.widget.FilterQueryProvider;
 import android.widget.ListView;
-import android.widget.PopupWindow;
 import android.widget.ProgressBar;
-import android.widget.Spinner;
 import android.widget.TextView;
 
 import org.sugr.gearshift.G;
@@ -78,7 +74,6 @@ import org.sugr.gearshift.ui.util.LocationDialogHelper;
 import org.sugr.gearshift.ui.util.LocationDialogHelperInterface;
 import org.sugr.gearshift.ui.util.QueueManagementDialogHelperInterface;
 import org.sugr.gearshift.ui.util.UpdateCheckDialog;
-import org.sugr.gearshift.util.CheatSheet;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -497,9 +492,11 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
             @Override public void onRefresh() {
                 DataServiceManager manager =
                     ((DataServiceManagerInterface) getActivity()).getDataServiceManager();
-                manager.update();
-                ((TransmissionSessionInterface) getActivity()).setRefreshing(true,
-                    DataService.Requests.GET_TORRENTS);
+                if (manager != null) {
+                    manager.update();
+                    ((TransmissionSessionInterface) getActivity()).setRefreshing(true,
+                        DataService.Requests.GET_TORRENTS);
+                }
             }
         });
 
