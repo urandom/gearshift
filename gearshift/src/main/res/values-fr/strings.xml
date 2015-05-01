@@ -534,7 +534,7 @@
     </string-array>
 
     <string-array name="session_settings_encryption">
-        <item>Exigée</item>
-        <item>Préférée</item>
-        <item>Tolérée</item>
+        <item>Exigé</item>
+        <item>Préféré</item>
+        <item>Toléré</item>
  
