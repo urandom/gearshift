@@ -15,6 +15,7 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AppCompatActivity;
 import android.text.Html;
 import android.text.Spanned;
 import android.view.ContextThemeWrapper;
@@ -44,7 +45,7 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
-public abstract class BaseTorrentActivity extends ActionBarActivity
+public abstract class BaseTorrentActivity extends AppCompatActivity
     implements TransmissionSessionInterface, DataServiceManagerInterface,
     LocationDialogHelperInterface, QueueManagementDialogHelperInterface,
     TransmissionProfileInterface, TorrentDetailFragment.PagerCallbacks {

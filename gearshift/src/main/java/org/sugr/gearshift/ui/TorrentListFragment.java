@@ -26,6 +26,7 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
 import android.text.Html;
@@ -607,7 +608,7 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
         MenuItem item = menu.findItem(R.id.find);
 
         ContextThemeWrapper wrapper = new ContextThemeWrapper(
-            ((ActionBarActivity) getActivity()).getSupportActionBar().getThemedContext(),
+            ((AppCompatActivity) getActivity()).getSupportActionBar().getThemedContext(),
             R.style.ToolbarControl);
         SearchView findView = new SearchView(wrapper);
         findView.setQueryHint(getActivity().getString(R.string.filter));
