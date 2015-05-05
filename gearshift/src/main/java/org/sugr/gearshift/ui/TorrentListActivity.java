@@ -202,9 +202,7 @@ public class TorrentListActivity extends BaseTorrentActivity
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        ContextThemeWrapper wrapper = new ContextThemeWrapper(
-            getSupportActionBar().getThemedContext(), R.style.ToolbarControl);
-        View.inflate(wrapper, R.layout.alt_speed_switch, toolbar);
+        getLayoutInflater().inflate(R.layout.alt_speed_switch, toolbar);
 
         getWindow().setBackgroundDrawable(null);
         drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);

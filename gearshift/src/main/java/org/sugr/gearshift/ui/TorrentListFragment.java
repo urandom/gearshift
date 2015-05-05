@@ -607,10 +607,7 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
         inflater.inflate(R.menu.torrent_list_fragment, menu);
         MenuItem item = menu.findItem(R.id.find);
 
-        ContextThemeWrapper wrapper = new ContextThemeWrapper(
-            ((AppCompatActivity) getActivity()).getSupportActionBar().getThemedContext(),
-            R.style.ToolbarControl);
-        SearchView findView = new SearchView(wrapper);
+        SearchView findView = new SearchView(getActivity());
         findView.setQueryHint(getActivity().getString(R.string.filter));
         findView.setIconifiedByDefault(true);
         findView.setIconified(true);

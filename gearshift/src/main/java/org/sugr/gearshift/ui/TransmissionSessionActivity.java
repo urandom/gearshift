@@ -249,10 +249,7 @@ public class TransmissionSessionActivity extends ActionBarActivity implements Da
 
         MenuItem item = menu.findItem(R.id.menu_refresh);
         if (refreshing) {
-            ContextThemeWrapper wrapper = new ContextThemeWrapper(
-                getSupportActionBar().getThemedContext(),
-                R.style.ToolbarControl);
-            View actionView = View.inflate(wrapper, R.layout.action_progress_bar, null);
+            View actionView = getLayoutInflater().inflate(R.layout.action_progress_bar, null);
             MenuItemCompat.setActionView(item, actionView);
         } else {
             MenuItemCompat.setActionView(item, null);

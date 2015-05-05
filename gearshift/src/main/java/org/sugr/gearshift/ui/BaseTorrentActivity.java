@@ -230,10 +230,7 @@ public abstract class BaseTorrentActivity extends AppCompatActivity
                 swipeRefresh.setEnabled(false);
                 item.setEnabled(false);
             } else {
-                ContextThemeWrapper wrapper = new ContextThemeWrapper(
-                    getSupportActionBar().getThemedContext(),
-                    R.style.ToolbarControl);
-                View actionView = View.inflate(wrapper, R.layout.action_progress_bar, null);
+                View actionView = getLayoutInflater().inflate(R.layout.action_progress_bar, null);
                 MenuItemCompat.setActionView(item, actionView);
             }
         } else {

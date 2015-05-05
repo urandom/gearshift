@@ -8,21 +8,23 @@
         <item name="colorPrimary">@color/primary</item>
         <item name="colorPrimaryDark">@color/primary_dark</item>
         <item name="colorAccent">@color/control_activated</item>
-        <item name="colorControlNormal">@color/material_blue_grey_800</item>
         <item name="colorControlHighlight">@color/control_highlight</item>
-        <item name="colorSwitchThumbNormal">@android:color/white</item>
-        <item name="actionBarStyle">@style/DefaultToolbar</item>
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
         <item name="windowActionModeOverlay">true</item>
         <item name="android:textColorLink">@color/accent</item>
-        <item name="actionModeBackground">@color/accent_dull</item>
+        <item name="actionModeStyle">@style/DefaultActionMode</item>
     </style>
 
     <!-- Application theme. -->
     <style name="AppTheme" parent="AppBaseTheme">
     </style>
-    
+
+    <style name="AppTheme.Toolbar" parent="AppBaseTheme">
+        <item name="colorPrimary">@color/primary</item>
+        <item name="colorAccent">#f00</item>
+    </style>
+
     <style name="AppTheme.NoBackground" parent="AppTheme">
         <item name="android:windowBackground">@null</item>
     </style>
@@ -43,18 +45,27 @@
         <item name="colorAccent">@color/control_activated</item>
     </style>
 
-    <style name="DefaultToolbar" parent="ThemeOverlay.AppCompat.ActionBar">
+    <style name="DefaultToolbar" parent="ThemeOverlay.AppCompat.Dark.ActionBar">
         <item name="android:background">?attr/colorPrimary</item>
         <item name="popupTheme">@style/ThemeOverlay.AppCompat.Light</item>
         <item name="theme">@style/ThemeOverlay.AppCompat.Dark.ActionBar</item>
     </style>
 
-    <style name="ToolbarControl" parent="DefaultToolbar">
-        <item name="colorAccent">#e51c23</item>
-    </style>
-
     <style name="DefaultActionMode" parent="@style/Widget.AppCompat.ActionMode">
         <item name="background">@color/accent_dull</item>
+        <item name="popupTheme">@style/ThemeOverlay.AppCompat.Light</item>
+        <item name="theme">@style/ThemeOverlay.AppCompat.Dark.ActionBar</item>
+        <item name="titleTextStyle">@style/DefaultActionMode.Title</item>
+        <item name="subtitleTextStyle">@style/DefaultActionMode.Subtitle</item>
+        <item name="colorControlNormal">#0ff</item>
+    </style>
+
+    <style name="DefaultActionMode.Title" parent="@style/TextAppearance.AppCompat.Widget.ActionMode.Title">
+        <item name="android:textColor">@android:color/white</item>
+    </style>
+
+    <style name="DefaultActionMode.Subtitle" parent="@style/TextAppearance.AppCompat.Widget.ActionMode.Subtitle">
+        <item name="android:textColor">@android:color/white</item>
     </style>
 
     <style name="TorrentTitle">
