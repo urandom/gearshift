@@ -14,6 +14,7 @@
         <item name="windowActionModeOverlay">true</item>
         <item name="android:textColorLink">@color/accent</item>
         <item name="actionModeStyle">@style/DefaultActionMode</item>
+        <item name="actionBarTheme">@style/AppTheme.Toolbar</item>
     </style>
 
     <!-- Application theme. -->
@@ -23,6 +24,7 @@
     <style name="AppTheme.Toolbar" parent="AppBaseTheme">
         <item name="colorPrimary">@color/primary</item>
         <item name="colorAccent">#f00</item>
+        <item name="colorControlNormal">@android:color/white</item>
     </style>
 
     <style name="AppTheme.NoBackground" parent="AppTheme">
@@ -53,11 +55,8 @@
 
     <style name="DefaultActionMode" parent="@style/Widget.AppCompat.ActionMode">
         <item name="background">@color/accent_dull</item>
-        <item name="popupTheme">@style/ThemeOverlay.AppCompat.Light</item>
-        <item name="theme">@style/ThemeOverlay.AppCompat.Dark.ActionBar</item>
         <item name="titleTextStyle">@style/DefaultActionMode.Title</item>
         <item name="subtitleTextStyle">@style/DefaultActionMode.Subtitle</item>
-        <item name="colorControlNormal">#0ff</item>
     </style>
 
     <style name="DefaultActionMode.Title" parent="@style/TextAppearance.AppCompat.Widget.ActionMode.Title">
