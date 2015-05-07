@@ -11,7 +11,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
 import android.support.v4.content.LocalBroadcastManager;
@@ -28,18 +27,14 @@ import android.widget.TextView;
 
 import org.sugr.gearshift.G;
 import org.sugr.gearshift.G.FilterBy;
-import org.sugr.gearshift.G.SortBy;
-import org.sugr.gearshift.G.SortOrder;
 import org.sugr.gearshift.R;
 import org.sugr.gearshift.core.TransmissionProfile;
 import org.sugr.gearshift.core.TransmissionSession;
 import org.sugr.gearshift.service.DataService;
 import org.sugr.gearshift.ui.loader.TorrentTrafficLoader;
-import org.sugr.gearshift.ui.loader.TransmissionProfileSupportLoader;
 import org.sugr.gearshift.ui.settings.SettingsActivity;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -218,18 +213,25 @@ public class TorrentListMenuFragment extends Fragment
                     }
 
                     if (directories.size() > 1) {
+                        int position = filterAdapter.itemData.indexOf(listItemMap.get(TRACKERS_HEADER_KEY));
+                        if (position == -1) {
+                            position = filterAdapter.itemData.size();
+                        }
+
                         if (!listItemMap.containsKey(DIRECTORIES_HEADER_KEY)) {
                             new ListItem(Type.SESSION_DATA_HEADER, DIRECTORIES_HEADER_KEY, R.string.menu_directories_header);
                         }
 
                         ListItem header = listItemMap.get(DIRECTORIES_HEADER_KEY);
-                        insertRanges[0][0] = filterAdapter.itemData.size();
+                        insertRanges[0][0] = position;
 
+                        filterAdapter.itemData.add(position++, header);
                         insertRanges[0][1]++;
 
                         for (String d : directories) {
                             ListItem di = getDirectoryItem(d);
                             if (di != null) {
+                                filterAdapter.itemData.add(position++, di);
                                 insertRanges[0][1]++;
                             }
                         }
@@ -1051,14 +1053,14 @@ public class TorrentListMenuFragment extends Fragment
             return true;
         }
 
-        @Override public void onBindViewHolder(ViewHolder holder, final int position) {
+        @Override public void onBindViewHolder(ViewHolder holder, int position) {
             super.onBindViewHolder(holder, position);
 
             final ListItem item = itemData.get(position);
 
             holder.itemView.setOnClickListener(new View.OnClickListener() {
                 @Override public void onClick(View v) {
-                    context.setActivatedPosition(item, position);
+                    context.setActivatedPosition(item, itemData.indexOf(item));
                 }
             });
 
