@@ -10,4 +10,43 @@
         android:layout_height="0dp"
         android:layout_weight="1"/>
 
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="4dp"
+        android:background="@drawable/filter_options_divider" />
+
+    <LinearLayout
+        style="@style/FilterListOptionContainer"
+        android:id="@+id/filter_list_session_settings"
+        android:visibility="invisible">
+
+        <View style="@style/FilterListOptionIcon"
+            android:background="@drawable/ic_settings_remote_black_18dp" />
+        <TextView style="@style/FilterListOptionText"
+            android:text="@string/session_settings_item" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        style="@style/FilterListOptionContainer"
+        android:id="@+id/filter_list_settings">
+
+        <View style="@style/FilterListOptionIcon"
+            android:background="@drawable/ic_settings_black_18dp" />
+        <TextView style="@style/FilterListOptionText"
+            android:text="@string/settings" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        style="@style/FilterListOptionContainer"
+        android:id="@+id/filter_list_about">
+
+        <View style="@style/FilterListOptionIcon"
+            android:background="@drawable/ic_info_black_18dp" />
+        <TextView style="@style/FilterListOptionText"
+            android:text="@string/about_item" />
+
+    </LinearLayout>
+
 </LinearLayout>

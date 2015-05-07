@@ -53,18 +53,13 @@ public class TorrentListMenuFragment extends Fragment
 
     private enum Type {
         PROFILE_SELECTOR, PROFILE, FILTER, DIRECTORY, TRACKER,
-        SESSION_DATA_HEADER, OPTION_HEADER, OPTION
+        SESSION_DATA_HEADER
     }
 
     private static final String PROFILE_SELECTOR_KEY = "profile_selector";
     private static final String FILTERS_HEADER_KEY = "filters_header";
     private static final String DIRECTORIES_HEADER_KEY = "directories_header";
     private static final String TRACKERS_HEADER_KEY = "trackers_header";
-    private static final String OPTIONS_HEADER_KEY = "options_header";
-
-    private static final String SESSION_SETTINGS_VALUE = "session_settings";
-    private static final String SETTINGS_VALUE = "settings";
-    private static final String ABOUT_VALUE = "about";
 
     private TreeSet<String> directories = new TreeSet<>(G.SIMPLE_STRING_COMPARATOR);
     private TreeSet<String> trackers = new TreeSet<>(G.SIMPLE_STRING_COMPARATOR);
@@ -223,23 +218,18 @@ public class TorrentListMenuFragment extends Fragment
                     }
 
                     if (directories.size() > 1) {
-                        ListItem pivot = listItemMap.get(OPTIONS_HEADER_KEY);
-                        int position = filterAdapter.itemData.indexOf(pivot);
-
                         if (!listItemMap.containsKey(DIRECTORIES_HEADER_KEY)) {
                             new ListItem(Type.SESSION_DATA_HEADER, DIRECTORIES_HEADER_KEY, R.string.menu_directories_header);
                         }
 
                         ListItem header = listItemMap.get(DIRECTORIES_HEADER_KEY);
-                        insertRanges[0][0] = position;
+                        insertRanges[0][0] = filterAdapter.itemData.size();
 
-                        filterAdapter.itemData.add(position++, header);
                         insertRanges[0][1]++;
 
                         for (String d : directories) {
                             ListItem di = getDirectoryItem(d);
                             if (di != null) {
-                                filterAdapter.itemData.add(position++, di);
                                 insertRanges[0][1]++;
                             }
                         }
@@ -289,21 +279,18 @@ public class TorrentListMenuFragment extends Fragment
                     if (trackers.size() > 0 && sharedPrefs.getBoolean(G.PREF_FILTER_UNTRACKED, false)
                         || trackers.size() > 1) {
 
-                        ListItem pivot = listItemMap.get(OPTIONS_HEADER_KEY);
-                        int position = filterAdapter.itemData.indexOf(pivot);
-
                         if (!listItemMap.containsKey(TRACKERS_HEADER_KEY)) {
                             new ListItem(Type.SESSION_DATA_HEADER, TRACKERS_HEADER_KEY, R.string.menu_trackers_header);
                         }
 
                         ListItem header = listItemMap.get(TRACKERS_HEADER_KEY);
-                        insertRanges[1][0] = position;
+                        insertRanges[1][0] = filterAdapter.itemData.size();
 
-                        filterAdapter.itemData.add(position++, header);
+                        filterAdapter.itemData.add(header);
                         insertRanges[1][1]++;
 
                         for (String t : trackers) {
-                            filterAdapter.itemData.add(position++, getTrackerItem(t));
+                            filterAdapter.itemData.add(getTrackerItem(t));
                             insertRanges[1][1]++;
                         }
 
@@ -311,7 +298,7 @@ public class TorrentListMenuFragment extends Fragment
                             ListItem untracked = new ListItem(Type.TRACKER, G.FILTER_UNTRACKED,
                                 getString(R.string.menu_filters_untracked), G.PREF_FILTER_UNTRACKED);
 
-                            filterAdapter.itemData.add(position++, untracked);
+                            filterAdapter.itemData.add(untracked);
                             insertRanges[1][1]++;
                         }
                         updateTrackerFilter = !currentTrackerTorrents;
@@ -385,6 +372,7 @@ public class TorrentListMenuFragment extends Fragment
         sharedPrefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
         sharedPrefs.registerOnSharedPreferenceChangeListener(sharedPrefListener);
 
+        setStaticClickHandlers(root);
         fillMenuItems();
         checkSelectedItems();
 
@@ -407,7 +395,7 @@ public class TorrentListMenuFragment extends Fragment
         }
 
         LocalBroadcastManager.getInstance(getActivity()).registerReceiver(
-            sessionReceiver, new IntentFilter(G.INTENT_SESSION_INVALIDATED));
+                sessionReceiver, new IntentFilter(G.INTENT_SESSION_INVALIDATED));
     }
 
     @Override public void onPause() {
@@ -422,13 +410,14 @@ public class TorrentListMenuFragment extends Fragment
                                         boolean connected) {
 
         getActivity().getSupportLoaderManager().restartLoader(G.TORRENT_MENU_TRAFFIC_LOADER_ID,
-            null, torrentTrafficLoaderCallbacks);
+                null, torrentTrafficLoaderCallbacks);
     }
 
     @Override
     public void notifyTransmissionProfileListChanged(List<TransmissionProfile> profiles) {
         int start = removeProfileSelector();
         int[] range = removeProfiles();
+        View root = getView();
 
         if (start != -1) {
             filterAdapter.notifyItemRangeRemoved(start, range[1] + 1);
@@ -445,6 +434,14 @@ public class TorrentListMenuFragment extends Fragment
 
             getActivity().getSupportLoaderManager().restartLoader(G.TORRENT_MENU_TRAFFIC_LOADER_ID,
                 null, torrentTrafficLoaderCallbacks);
+
+            if (root != null) {
+                root.findViewById(R.id.filter_list).setVisibility(View.VISIBLE);
+            }
+        } else {
+            if (root != null) {
+                root.findViewById(R.id.filter_list).setVisibility(View.GONE);
+            }
         }
     }
 
@@ -557,56 +554,6 @@ public class TorrentListMenuFragment extends Fragment
                         fragment.setListTrackerFilter(item.getValueString());
                     }
                     break;
-                case OPTION:
-                    TransmissionSession session = context.getSession();
-                    final Intent intent;
-
-                    switch (item.getValueString()) {
-                        case SESSION_SETTINGS_VALUE:
-                            if (session == null) {
-                                return;
-                            }
-
-                            intent = new Intent(context, TransmissionSessionActivity.class);
-                            intent.putExtra(G.ARG_PROFILE, profile);
-                            intent.putExtra(G.ARG_SESSION, session);
-                            overrideTransition = true;
-                            break;
-                        case SETTINGS_VALUE:
-                            intent = new Intent(context, SettingsActivity.class);
-
-                            if (session != null) {
-                                ArrayList<String> directories = new ArrayList<>(session.getDownloadDirectories());
-                                directories.remove(session.getDownloadDir());
-                                intent.putExtra(G.ARG_DIRECTORIES, directories);
-                            }
-                            if (profile != null) {
-                                intent.putExtra(G.ARG_PROFILE_ID, profile.getId());
-                            }
-                            overrideTransition = true;
-                            break;
-                        case ABOUT_VALUE:
-                            intent = new Intent(context, AboutActivity.class);
-                            break;
-                        default:
-                            return;
-                    }
-
-                    closeHandler.removeCallbacks(closeRunnable);
-                    closeHandler.post(closeRunnable);
-                    if (intent != null) {
-                        final boolean oT = overrideTransition;
-
-                        closeHandler.postDelayed(new Runnable() {
-                            @Override public void run() {
-                                startActivity(intent);
-                                if (oT) {
-                                    context.overridePendingTransition(
-                                        R.anim.slide_in_top, android.R.anim.fade_out);
-                                }
-                            }
-                        }, getResources().getInteger(android.R.integer.config_shortAnimTime) + 100);
-                    }
                 default:
                     return;
             }
@@ -748,11 +695,6 @@ public class TorrentListMenuFragment extends Fragment
             }
 
             if (position == -1) {
-                pivot = listItemMap.get(OPTIONS_HEADER_KEY);
-                position = filterAdapter.itemData.indexOf(pivot);
-            }
-
-            if (position == -1) {
                 position = filterAdapter.itemData.size();
             }
 
@@ -770,6 +712,71 @@ public class TorrentListMenuFragment extends Fragment
         return range;
     }
 
+    private void setStaticClickHandlers(View root) {
+        final TorrentListActivity context = (TorrentListActivity) getActivity();
+
+        View.OnClickListener listener = new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                TransmissionSession session = context.getSession();
+                TransmissionProfile profile = context.getProfile();
+                boolean overrideTransition = false;
+                final Intent intent;
+
+                switch (view.getId()) {
+                    case R.id.filter_list_session_settings:
+                        if (session == null) {
+                            return;
+                        }
+
+                        intent = new Intent(context, TransmissionSessionActivity.class);
+                        intent.putExtra(G.ARG_PROFILE, profile);
+                        intent.putExtra(G.ARG_SESSION, session);
+                        overrideTransition = true;
+                        break;
+                    case R.id.filter_list_settings:
+                        intent = new Intent(context, SettingsActivity.class);
+
+                        if (session != null) {
+                            ArrayList<String> directories = new ArrayList<>(session.getDownloadDirectories());
+                            directories.remove(session.getDownloadDir());
+                            intent.putExtra(G.ARG_DIRECTORIES, directories);
+                        }
+                        if (profile != null) {
+                            intent.putExtra(G.ARG_PROFILE_ID, profile.getId());
+                        }
+                        overrideTransition = true;
+                        break;
+                    case R.id.filter_list_about:
+                        intent = new Intent(context, AboutActivity.class);
+                        break;
+                    default:
+                        return;
+                }
+
+                closeHandler.removeCallbacks(closeRunnable);
+                closeHandler.post(closeRunnable);
+                if (intent != null) {
+                    final boolean oT = overrideTransition;
+
+                    closeHandler.postDelayed(new Runnable() {
+                        @Override public void run() {
+                            startActivity(intent);
+                            if (oT) {
+                                context.overridePendingTransition(
+                                        R.anim.slide_in_top, android.R.anim.fade_out);
+                            }
+                        }
+                    }, getResources().getInteger(android.R.integer.config_shortAnimTime) + 100);
+                }
+            }
+        };
+
+        root.findViewById(R.id.filter_list_session_settings).setOnClickListener(listener);
+        root.findViewById(R.id.filter_list_settings).setOnClickListener(listener);
+        root.findViewById(R.id.filter_list_about).setOnClickListener(listener);
+    }
+
     private void fillMenuItems() {
         ArrayList<ListItem> list = new ArrayList<>();
 
@@ -778,28 +785,6 @@ public class TorrentListMenuFragment extends Fragment
         fillProfileSelector();
 
         fillSessionItems();
-
-        ListItem item;
-        if (listItemMap.containsKey(OPTIONS_HEADER_KEY)) {
-            item = listItemMap.get(OPTIONS_HEADER_KEY);
-        } else {
-            item = new ListItem(Type.OPTION_HEADER, null, null, null);
-        }
-        listItemMap.put(OPTIONS_HEADER_KEY, item);
-        filterAdapter.itemData.add(item);
-
-        if (((TransmissionSessionInterface) getActivity()).getSession() != null) {
-            item = new ListItem(Type.OPTION, SESSION_SETTINGS_VALUE, R.string.session_settings_item,
-                R.drawable.ic_settings_remote_black_18dp);
-            filterAdapter.itemData.add(item);
-        }
-
-        item = new ListItem(Type.OPTION, SETTINGS_VALUE, R.string.settings,
-            R.drawable.ic_settings_black_18dp);
-        filterAdapter.itemData.add(item);
-        item = new ListItem(Type.OPTION, ABOUT_VALUE, R.string.about_item,
-            R.drawable.ic_info_black_18dp);
-        filterAdapter.itemData.add(item);
 
         checkSelectedItems();
         filterAdapter.notifyDataSetChanged();
@@ -992,32 +977,12 @@ public class TorrentListMenuFragment extends Fragment
                 filterAdapter.notifyItemRangeInserted(range[0], range[1]);
             }
 
-            ListItem item = listItemMap.get(SESSION_SETTINGS_VALUE);
-            if (item == null) {
-                item = new ListItem(Type.OPTION, SESSION_SETTINGS_VALUE, R.string.session_settings_item,
-                    R.drawable.ic_settings_remote_black_18dp);
-            }
-
-            if (filterAdapter.itemData.indexOf(item) == -1) {
-                ListItem pivot = listItemMap.get(OPTIONS_HEADER_KEY);
-                int position = filterAdapter.itemData.indexOf(pivot);
-
-                filterAdapter.itemData.add(++position, item);
-
-                filterAdapter.notifyItemInserted(position);
-            }
+            getView().findViewById(R.id.filter_list_session_settings).setVisibility(View.VISIBLE);
 
             getActivity().getSupportLoaderManager().restartLoader(G.TORRENT_MENU_TRAFFIC_LOADER_ID,
                 null, torrentTrafficLoaderCallbacks);
         } else {
-            ListItem item = listItemMap.get(SESSION_SETTINGS_VALUE);
-            if (item != null) {
-                int position = filterAdapter.itemData.indexOf(item);
-                if (position != -1) {
-                    filterAdapter.itemData.remove(position);
-                    filterAdapter.notifyItemRemoved(position);
-                }
-            }
+            getView().findViewById(R.id.filter_list_session_settings).setVisibility(View.INVISIBLE);
 
             int[] range = removeSessionItems();
             if (range[0] != -1) {
@@ -1076,9 +1041,11 @@ public class TorrentListMenuFragment extends Fragment
 
             switch (item.getType()) {
                 case SESSION_DATA_HEADER:
-                case OPTION_HEADER:
-                case OPTION:
                     return false;
+                case PROFILE_SELECTOR:
+                    TorrentListActivity listActivity = (TorrentListActivity) context.getActivity();
+                    return listActivity.getProfiles().size() > 1;
+
             }
 
             return true;
@@ -1115,10 +1082,6 @@ public class TorrentListMenuFragment extends Fragment
                     return R.layout.filter_list_profile_selector;
                 case PROFILE:
                     return R.layout.filter_list_profile_item;
-                case OPTION_HEADER:
-                    return R.layout.filter_list_option_header;
-                case OPTION:
-                    return R.layout.filter_list_option_item;
                 default:
                     return R.layout.filter_list_item;
             }
