@@ -3,4 +3,6 @@
     <dimen name="card_elevation">2dp</dimen>
     <dimen name="card_raised_translation">8dp</dimen>
     <dimen name="status_bar_height">24dp</dimen>
+
+    <dimen name="card_entry_padding_bottom">6dp</dimen>
 </resources>

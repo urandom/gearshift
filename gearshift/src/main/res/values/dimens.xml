@@ -14,4 +14,6 @@
     <dimen name="location_popup_height">150dp</dimen>
 
     <dimen name="status_bar_height">0dp</dimen>
+
+    <dimen name="card_entry_padding_bottom">8dp</dimen>
 </resources>

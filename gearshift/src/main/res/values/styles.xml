@@ -178,13 +178,14 @@
     </style>
     
     <style name="CardEntry">
-        <!-- <item name="android:clickable">true</item> -->
-        <!-- <item name="android:background">@drawable/clickable_selector_holo_light</item> -->
         <item name="android:imeOptions">actionDone|flagNoExtractUi</item>
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:layout_margin">4dp</item>
-        <item name="android:padding">4dp</item>
+        <item name="android:paddingTop">4dp</item>
+        <item name="android:paddingLeft">4dp</item>
+        <item name="android:paddingRight">4dp</item>
+        <item name="android:paddingBottom">@dimen/card_entry_padding_bottom</item>
         <item name="android:selectAllOnFocus">true</item>
         <item name="android:textSize">16sp</item>
     </style>
