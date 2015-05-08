@@ -28,7 +28,6 @@ import org.sugr.gearshift.datasource.DataSource;
 import org.sugr.gearshift.datasource.SQLiteHelper;
 import org.sugr.gearshift.datasource.TorrentDetails;
 import org.sugr.gearshift.datasource.TorrentStatus;
-import org.sugr.gearshift.ui.TorrentListActivity;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -353,11 +352,11 @@ public class DataSourceTest {
             defaultPrefs.edit().putBoolean(G.PREF_FILTER_ACTIVE, true).commit();
             expectedNames = new String[] {
                 "clock.oiuwer...-aaa", "startup.sh", "1 Complete ", "alpha...-test ",
-                "Monster.Test.....-", "block", 
+                "Monster.Test.....-",
             };
             cursor = ds.getTorrentCursor(profile, defaultPrefs);
             cursor.moveToFirst();
-            assertEquals(6, cursor.getCount());
+            assertEquals(5, cursor.getCount());
 
             cursor.moveToFirst();
             index = -1;
@@ -457,12 +456,12 @@ public class DataSourceTest {
                 "", "Summer ", "Bla test-exa!", "fox", "ray of light 4", "grass",
                 "who.Who.foo.S06...-testtest", "Somewhere script", "texts..g.sh",
                 "gc14.01.12.test....baba", "access", "preserve.sh", "8516-.sh", "tele.sh.21.calen",
-                "block", "water test (abc - fao)", "gamma rotk (foo) []",
+                "water test (abc - fao)", "gamma rotk (foo) []",
                 "water fao - today test fire", "view.sh", "apache.sh"
             };
 
             cursor = ds.getTorrentCursor(profile, defaultPrefs);
-            assertEquals(20, cursor.getCount());
+            assertEquals(19, cursor.getCount());
             cursor.moveToFirst();
 
             index = -1;
@@ -881,7 +880,6 @@ public class DataSourceTest {
             details = ds.getTorrentDetails(profile, "caf28f38387ff5ccf2326d4b7392a1f8233083");
             details.trackersCursor.moveToFirst();
             while (!details.trackersCursor.isAfterLast()) {
-                System.out.println("### "+ Torrent.Tracker.getAnnounce(details.trackersCursor));
                 details.trackersCursor.moveToNext();
             }
             assertEquals(2, details.trackersCursor.getCount());
