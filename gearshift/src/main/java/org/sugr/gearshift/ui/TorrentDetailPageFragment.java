@@ -69,6 +69,7 @@ import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -2085,7 +2086,6 @@ public class TorrentDetailPageFragment extends Fragment {
             }
 
             List<View> trackerViews = trackersAdapter.getViews();
-            List<Integer> removal = new ArrayList<>();
             Set<String> trackerIndices = new HashSet<>();
 
             for (int i = 0; i < trackersAdapter.getCount(); ++i) {
@@ -2094,8 +2094,9 @@ public class TorrentDetailPageFragment extends Fragment {
                 trackerIndices.add(tracker.announce);
             }
 
-            int index = 0;
-            for (View v : trackerViews) {
+            Iterator<View> iter = trackerViews.iterator();
+            while (iter.hasNext()) {
+                View v = iter.next();
                 if (!trackerIndices.contains(v.getTag("announce".hashCode()))) {
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN)  {
                         animateRemoveView(v);
@@ -2103,13 +2104,8 @@ public class TorrentDetailPageFragment extends Fragment {
                         views.trackersContainer.removeView(v);
                     }
 
-                    removal.add(index);
+                    iter.remove();
                 }
-                ++index;
-            }
-
-            for (int i : removal) {
-                trackerViews.remove(i);
             }
 
             details.trackersCursor.moveToPosition(position);
