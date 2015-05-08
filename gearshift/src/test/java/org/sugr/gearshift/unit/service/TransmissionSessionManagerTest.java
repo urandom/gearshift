@@ -1,6 +1,7 @@
 package org.sugr.gearshift.unit.service;
 
 import android.app.Activity;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
@@ -13,9 +14,11 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.Robolectric;
-import org.robolectric.RobolectricTestRunner;
+import org.robolectric.RobolectricGradleTestRunner;
+import org.robolectric.RuntimeEnvironment;
 import org.robolectric.annotation.Config;
-import org.robolectric.tester.android.content.TestSharedPreferences;
+import org.robolectric.shadows.ShadowPreferenceManager;
+import org.sugr.gearshift.BuildConfig;
 import org.sugr.gearshift.G;
 import org.sugr.gearshift.core.Torrent;
 import org.sugr.gearshift.core.TransmissionProfile;
@@ -53,11 +56,11 @@ import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-@Config(emulateSdk = 17)
-@RunWith(RobolectricTestRunner.class)
+@RunWith(RobolectricGradleTestRunner.class)
+@Config(constants = BuildConfig.class, emulateSdk = 21)
 public class TransmissionSessionManagerTest {
     private ConnectivityManager connMananager;
-    private TestSharedPreferences defaultPrefs;
+    private SharedPreferences defaultPrefs;
     private TransmissionProfile profile;
     private DataSource dataSource;
     private ConnectionProvider connProvider;
@@ -65,8 +68,8 @@ public class TransmissionSessionManagerTest {
     private TransmissionSessionManager manager;
 
     @Before public void setUp() throws Exception {
-        defaultPrefs = new TestSharedPreferences(new HashMap<String, Map<String, Object>>(),
-            "default", Activity.MODE_PRIVATE);
+        defaultPrefs = ShadowPreferenceManager.getDefaultSharedPreferences(
+                RuntimeEnvironment.application.getApplicationContext());
 
         connMananager = mock(ConnectivityManager.class);
         when(connMananager.getActiveNetworkInfo()).thenReturn(mock(NetworkInfo.class));

@@ -15,9 +15,11 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.Robolectric;
-import org.robolectric.RobolectricTestRunner;
+import org.robolectric.RobolectricGradleTestRunner;
+import org.robolectric.RuntimeEnvironment;
 import org.robolectric.annotation.Config;
-import org.robolectric.tester.android.content.TestSharedPreferences;
+import org.robolectric.shadows.ShadowPreferenceManager;
+import org.sugr.gearshift.BuildConfig;
 import org.sugr.gearshift.G;
 import org.sugr.gearshift.core.Torrent;
 import org.sugr.gearshift.core.TransmissionSession;
@@ -26,14 +28,13 @@ import org.sugr.gearshift.datasource.DataSource;
 import org.sugr.gearshift.datasource.SQLiteHelper;
 import org.sugr.gearshift.datasource.TorrentDetails;
 import org.sugr.gearshift.datasource.TorrentStatus;
+import org.sugr.gearshift.ui.TorrentListActivity;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import static org.junit.Assert.assertEquals;
@@ -41,8 +42,8 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
-@Config(emulateSdk = 16)
-@RunWith(RobolectricTestRunner.class)
+@RunWith(RobolectricGradleTestRunner.class)
+@Config(constants = BuildConfig.class, emulateSdk = 21)
 public class DataSourceTest {
     private DataSource ds;
     private SQLiteOpenHelper helper;
@@ -56,8 +57,8 @@ public class DataSourceTest {
         ds = new DataSource(activity, helper);
         assertNotNull(ds);
 
-        defaultPrefs = new TestSharedPreferences(new HashMap<String, Map<String, Object>>(),
-            "default", Activity.MODE_PRIVATE);
+        defaultPrefs = ShadowPreferenceManager.getDefaultSharedPreferences(
+                RuntimeEnvironment.application.getApplicationContext());
 
         defaultPrefs.edit().putString(G.PREF_LIST_SORT_BY, G.SortBy.QUEUE.name()).commit();
     }

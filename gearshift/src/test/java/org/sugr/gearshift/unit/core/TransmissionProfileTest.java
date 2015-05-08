@@ -2,46 +2,44 @@ package org.sugr.gearshift.unit.core;
 
 import android.app.Activity;
 import android.content.Context;
-import android.os.Parcel;
+import android.content.SharedPreferences;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.robolectric.Robolectric;
-import org.robolectric.RobolectricTestRunner;
+import org.robolectric.RobolectricGradleTestRunner;
+import org.robolectric.RuntimeEnvironment;
 import org.robolectric.annotation.Config;
-import org.robolectric.shadows.ShadowParcel;
-import org.robolectric.tester.android.content.TestSharedPreferences;
+import org.robolectric.shadows.ShadowApplication;
+import org.robolectric.shadows.ShadowPreferenceManager;
+import org.sugr.gearshift.BuildConfig;
 import org.sugr.gearshift.G;
 import org.sugr.gearshift.core.TransmissionProfile;
 
 import java.io.File;
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-@RunWith(RobolectricTestRunner.class)
-@Config(emulateSdk = 16)
+@RunWith(RobolectricGradleTestRunner.class)
+@Config(constants = BuildConfig.class, emulateSdk = 21)
 public class TransmissionProfileTest {
-    private TestSharedPreferences defaultPrefs;
-    private TestSharedPreferences prefs;
+    private SharedPreferences defaultPrefs;
+    private SharedPreferences prefs;
     private Context context;
     private static final String existingId = "existing";
 
     @Before public void setUp() {
-        defaultPrefs = new TestSharedPreferences(new HashMap<String, Map<String, Object>>(),
-            "default", Activity.MODE_PRIVATE);
-        prefs = new TestSharedPreferences(new HashMap<String, Map<String, Object>>(),
-            "profiles", Activity.MODE_PRIVATE);
+        defaultPrefs = ShadowPreferenceManager.getDefaultSharedPreferences(
+                RuntimeEnvironment.application.getApplicationContext());
+        prefs = ShadowApplication.getInstance().getSharedPreferences(
+                "profiles", Activity.MODE_PRIVATE);
         context = mock(Context.class);
 
         when(context.getFilesDir()).thenReturn(new File("/mock/dir"));

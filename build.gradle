@@ -8,16 +8,13 @@ buildscript {
         }
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:1.0.1'
-        classpath 'com.github.jcandksolutions.gradle:android-unit-test:2.0.+'
+        classpath 'com.android.tools.build:gradle:1.2.2'
     }
 }
 
 allprojects {
     repositories {
         mavenCentral()
-        maven {
-            url "https://oss.sonatype.org/content/repositories/snapshots"
-        }
+        jcenter()
     }
 }
