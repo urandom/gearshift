@@ -13,11 +13,9 @@ import android.support.v4.app.DialogFragment;
 import android.support.v4.app.NavUtils;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.view.MenuItemCompat;
-import android.support.v7.app.ActionBarActivity;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.Toolbar;
 import android.text.Html;
-import android.view.ContextThemeWrapper;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -47,7 +45,7 @@ import org.sugr.gearshift.ui.util.ExpandAnimation;
 import java.util.Arrays;
 import java.util.List;
 
-public class TransmissionSessionActivity extends ActionBarActivity implements DataServiceManagerInterface {
+public class TransmissionSessionActivity extends ColorizedToolbarActivity implements DataServiceManagerInterface {
     private TransmissionProfile profile;
     private TransmissionSession session;
     private DataServiceManager manager;
@@ -203,6 +201,7 @@ public class TransmissionSessionActivity extends ActionBarActivity implements Da
 
         serviceReceiver = new ServiceReceiver();
 
+        colorize(profile);
     }
 
     @Override protected void onResume() {

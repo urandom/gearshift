@@ -984,7 +984,11 @@ public class TorrentListMenuFragment extends Fragment
             getActivity().getSupportLoaderManager().restartLoader(G.TORRENT_MENU_TRAFFIC_LOADER_ID,
                 null, torrentTrafficLoaderCallbacks);
         } else {
-            getView().findViewById(R.id.filter_list_session_settings).setVisibility(View.INVISIBLE);
+            if (((TransmissionProfileInterface) getActivity()).getProfile() == null) {
+                getView().findViewById(R.id.filter_list_session_settings).setVisibility(View.INVISIBLE);
+            } else {
+                getView().findViewById(R.id.filter_list_session_settings).setVisibility(View.GONE);
+            }
 
             int[] range = removeSessionItems();
             if (range[0] != -1) {

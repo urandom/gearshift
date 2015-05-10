@@ -12,7 +12,7 @@ import android.support.v4.app.LoaderManager;
 import android.support.v4.app.NavUtils;
 import android.support.v4.content.Loader;
 import android.support.v4.widget.SlidingPaneLayout;
-import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
@@ -26,18 +26,15 @@ import android.widget.TextView;
 import org.sugr.gearshift.G;
 import org.sugr.gearshift.R;
 import org.sugr.gearshift.core.TransmissionProfile;
-import org.sugr.gearshift.ui.DividerItemDecoration;
 import org.sugr.gearshift.ui.SelectableRecyclerViewAdapter;
 import org.sugr.gearshift.ui.TorrentListActivity;
 import org.sugr.gearshift.ui.loader.TransmissionProfileSupportLoader;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 
-public class SettingsActivity extends ActionBarActivity {
+public class SettingsActivity extends AppCompatActivity {
     enum Type {
         PROFILE_HEADER, PREFERENCES, PROFILE, PROFILE_DIRECTORIES
     }

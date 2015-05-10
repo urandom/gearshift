@@ -8,6 +8,7 @@ import android.os.Parcel;
 import android.os.Parcelable;
 
 import org.sugr.gearshift.G;
+import org.sugr.gearshift.ui.util.colorpicker.ColorPickerPreference;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -40,6 +41,8 @@ public class TransmissionProfile implements Parcelable, Comparable<TransmissionP
     private boolean useProxy = false;
     private String proxyHost = "";
     private int proxyPort = 8080;
+
+    private int color;
 
     private Context context;
     private SharedPreferences defaultPrefs;
@@ -95,6 +98,10 @@ public class TransmissionProfile implements Parcelable, Comparable<TransmissionP
         e.remove(G.PREF_TIMEOUT);
         e.remove(G.PREF_RETRIES);
         e.remove(G.PREF_DIRECTORIES);
+        e.remove(G.PREF_PROXY);
+        e.remove(G.PREF_PROXY_HOST);
+        e.remove(G.PREF_PROXY_PORT);
+        e.remove(G.PREF_COLOR);
 
         e.apply();
     }
@@ -203,6 +210,14 @@ public class TransmissionProfile implements Parcelable, Comparable<TransmissionP
         return proxyPort;
     }
 
+    public int getColor() {
+        return color;
+    }
+
+    public void setColor(int color) {
+        this.color = color;
+    }
+
     public void load() {
         load(false);
     }
@@ -264,6 +279,11 @@ public class TransmissionProfile implements Parcelable, Comparable<TransmissionP
             proxyPort = 65535;
         }
 
+        color = pref.getInt(getPrefName(G.PREF_COLOR, legacy, fromPreferences), 0);
+        if (color == 0) {
+            color = ColorPickerPreference.defaultColor(context);
+        }
+
         if (legacy) {
             Editor e = pref.edit();
             e.clear();
@@ -307,6 +327,7 @@ public class TransmissionProfile implements Parcelable, Comparable<TransmissionP
         e.putBoolean(G.PREF_PROXY + id, useProxy);
         e.putString(G.PREF_PROXY_HOST + id, proxyHost);
         e.putString(G.PREF_PROXY_PORT + id, Integer.toString(proxyPort));
+        e.putInt(G.PREF_COLOR + id, color);
 
         e.commit();
 
@@ -388,6 +409,7 @@ public class TransmissionProfile implements Parcelable, Comparable<TransmissionP
         e.putBoolean(G.PREF_PROXY, useProxy);
         e.putString(G.PREF_PROXY_HOST, proxyHost);
         e.putString(G.PREF_PROXY_PORT, Integer.toString(proxyPort));
+        e.putInt(G.PREF_COLOR, color);
 
         e.apply();
     }
@@ -506,6 +528,7 @@ public class TransmissionProfile implements Parcelable, Comparable<TransmissionP
         in.writeInt(useProxy ? 1 : 0);
         in.writeString(proxyHost);
         in.writeInt(proxyPort);
+        in.writeInt(color);
     }
 
     public static final Parcelable.Creator<TransmissionProfile> CREATOR
@@ -544,6 +567,7 @@ public class TransmissionProfile implements Parcelable, Comparable<TransmissionP
         useProxy = in.readInt() == 1;
         proxyHost = in.readString();
         proxyPort = in.readInt();
+        color = in.readInt();
     }
 
     private SharedPreferences getLegacyPreferences(Context context) {

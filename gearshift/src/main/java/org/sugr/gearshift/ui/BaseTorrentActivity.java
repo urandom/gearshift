@@ -14,11 +14,8 @@ import android.support.v4.app.LoaderManager;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
-import android.support.v7.app.ActionBarActivity;
-import android.support.v7.app.AppCompatActivity;
 import android.text.Html;
 import android.text.Spanned;
-import android.view.ContextThemeWrapper;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -45,7 +42,7 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
-public abstract class BaseTorrentActivity extends AppCompatActivity
+public abstract class BaseTorrentActivity extends ColorizedToolbarActivity
     implements TransmissionSessionInterface, DataServiceManagerInterface,
     LocationDialogHelperInterface, QueueManagementDialogHelperInterface,
     TransmissionProfileInterface, TorrentDetailFragment.PagerCallbacks {
@@ -293,6 +290,8 @@ public abstract class BaseTorrentActivity extends AppCompatActivity
         if (prefs != null && newProfile) {
             prefs.registerOnSharedPreferenceChangeListener(profileChangeListener);
         }
+
+        colorize(profile);
     }
 
     @Override public List<TransmissionProfile> getProfiles() {

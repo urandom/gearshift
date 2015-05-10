@@ -2,7 +2,6 @@ package org.sugr.gearshift;
 
 import android.app.backup.BackupManager;
 import android.content.Context;
-import android.content.Intent;
 import android.util.Log;
 
 import java.io.PrintWriter;
@@ -40,6 +39,7 @@ public final class G {
     public static final String PREF_PROXY = "profile_use_proxy";
     public static final String PREF_PROXY_HOST = "profile_proxy_host";
     public static final String PREF_PROXY_PORT = "profile_proxy_port";
+    public static final String PREF_COLOR = "profile_color";
     public static final String PREF_PREFIX = "profile_";
 
     public static final String PREF_LIST_SORT_BY = "torrents_sort_by";

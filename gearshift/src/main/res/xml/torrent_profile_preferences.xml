@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:app="http://schemas.android.com/apk/res-auto">
 	<PreferenceCategory android:title="@string/profile">
 	    <EditTextPreference
 	        android:key="profile_name"
@@ -81,6 +82,15 @@
 	    android:fragment="org.sugr.gearshift.ui.settings.TransmissionProfileDirectoriesSettingsFragment"
 	    android:title="@string/con_directories">
 	    
-	</Preference>    
+	</Preference>
+
+    <org.sugr.gearshift.ui.util.colorpicker.ColorPickerPreference
+        android:defaultValue="@color/primary"
+        android:key="profile_color"
+        android:negativeButtonText="@null"
+        android:positiveButtonText="@null"
+        android:title="@string/pref_profile_color"
+        app:cal_itemLayout="@layout/calendar_grid_item_color"
+        app:cal_numColumns="4" />
 
 </PreferenceScreen>
