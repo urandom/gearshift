@@ -7,6 +7,7 @@ import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.database.Cursor;
+import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
@@ -22,6 +23,7 @@ import android.view.ContextThemeWrapper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -33,6 +35,7 @@ import org.sugr.gearshift.core.TransmissionSession;
 import org.sugr.gearshift.service.DataService;
 import org.sugr.gearshift.ui.loader.TorrentTrafficLoader;
 import org.sugr.gearshift.ui.settings.SettingsActivity;
+import org.sugr.gearshift.ui.util.Colorizer;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -579,6 +582,7 @@ public class TorrentListMenuFragment extends Fragment
             profile.getId(), profile.getName(), null);
         item.setSublabel((profile.getUsername().length() > 0 ? profile.getUsername() + "@" : "")
             + profile.getHost() + ":" + profile.getPort());
+        item.setColor(profile.getColor());
         filterAdapter.itemData.add(0, item);
 
         listItemMap.put(PROFILE_SELECTOR_KEY, item);
@@ -608,6 +612,7 @@ public class TorrentListMenuFragment extends Fragment
                 profile.getId(), profile.getName(), null);
             item.setSublabel((profile.getUsername().length() > 0 ? profile.getUsername() + "@" : "")
                 + profile.getHost() + ":" + profile.getPort());
+            item.setColor(profile.getColor());
             filterAdapter.itemData.add(index++, item);
             count++;
         }
@@ -1077,6 +1082,13 @@ public class TorrentListMenuFragment extends Fragment
             if (holder.icon != null) {
                 holder.icon.setBackgroundResource(item.getIconId());
             }
+            if (holder.color != null) {
+                Colorizer.colorizeView(holder.color, item.getColor() == null ?
+                        Colorizer.defaultColor(context.getActivity()) :
+                                item.getColor(),
+                        GradientDrawable.OVAL
+                );
+            }
         }
 
         @Override public int getItemViewType(int position) {
@@ -1097,6 +1109,7 @@ public class TorrentListMenuFragment extends Fragment
             public TextView label;
             public TextView sublabel;
             public View icon;
+            public ImageView color;
 
             public ViewHolder(View itemView, int type) {
                 super(itemView);
@@ -1104,6 +1117,7 @@ public class TorrentListMenuFragment extends Fragment
                 label = (TextView) itemView.findViewById(android.R.id.text1);
                 sublabel = (TextView) itemView.findViewById(android.R.id.text2);
                 icon = itemView.findViewById(android.R.id.icon);
+                color = (ImageView) itemView.findViewById(R.id.profile_color);
             }
         }
     }
@@ -1112,6 +1126,7 @@ public class TorrentListMenuFragment extends Fragment
         private Type type;
         private Enum<?> value;
         private int iconId;
+        private Integer color = null;
         private String valueString;
         private String label;
         private String sublabel;
@@ -1184,6 +1199,14 @@ public class TorrentListMenuFragment extends Fragment
 
         public String getPreferenceKey() {
             return pref;
+        }
+
+        public Integer getColor() {
+            return color;
+        }
+
+        public void setColor(int color) {
+            this.color = color;
         }
 
         @Override

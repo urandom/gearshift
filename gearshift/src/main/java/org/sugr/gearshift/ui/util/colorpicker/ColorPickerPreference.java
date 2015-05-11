@@ -18,19 +18,16 @@ package org.sugr.gearshift.ui.util.colorpicker;
 import android.app.Activity;
 import android.content.Context;
 import android.content.res.Configuration;
-import android.content.res.Resources;
 import android.content.res.TypedArray;
 import android.graphics.Color;
-import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
 import android.preference.Preference;
 import android.util.AttributeSet;
-import android.util.TypedValue;
 import android.view.View;
 import android.widget.ImageView;
-import android.widget.TextView;
 
 import org.sugr.gearshift.R;
+import org.sugr.gearshift.ui.util.Colorizer;
 
 /**
  * ColorPreference based on ColorPickerDialog of Stock Calendar
@@ -88,7 +85,7 @@ public class ColorPickerPreference extends Preference{
     protected void onBindView(View view) {
         super.onBindView(view);
         mPreviewView = view.findViewById(R.id.calendar_color_view);
-        setColorViewValue(mPreviewView, mValue);
+        Colorizer.colorizeView((ImageView) mPreviewView, mValue, GradientDrawable.OVAL);
     }
 
     public void setValue(int value) {
@@ -158,48 +155,6 @@ public class ColorPickerPreference extends Preference{
         return mValue;
     }
     
-    private static void setColorViewValue(View view, int color) {
-        if (view instanceof ImageView) {
-            ImageView imageView = (ImageView) view;
-            Resources res = imageView.getContext().getResources();
-
-            Drawable currentDrawable = imageView.getDrawable();
-            GradientDrawable colorChoiceDrawable;
-            if (currentDrawable != null && currentDrawable instanceof GradientDrawable) {
-                // Reuse drawable
-                colorChoiceDrawable = (GradientDrawable) currentDrawable;
-            } else {
-                colorChoiceDrawable = new GradientDrawable();
-                colorChoiceDrawable.setShape(GradientDrawable.OVAL);
-            }
-
-            // Set stroke to dark version of color
-            int darkenedColor = Color.rgb(
-                    Color.red(color) * 192 / 256,
-                    Color.green(color) * 192 / 256,
-                    Color.blue(color) * 192 / 256);
-
-            colorChoiceDrawable.setColor(color);
-            colorChoiceDrawable.setStroke((int) TypedValue.applyDimension(
-                    TypedValue.COMPLEX_UNIT_DIP, 1, res.getDisplayMetrics()), darkenedColor);
-            imageView.setImageDrawable(colorChoiceDrawable);
-
-        } else if (view instanceof TextView) {
-            ((TextView) view).setTextColor(color);
-        }
-    }
-
-    public static int defaultColor(Context context) {
-
-        String[] colorArray = context.getResources().getStringArray(R.array.default_color_choice_values);
-
-        if (colorArray != null && colorArray.length > 0) {
-            return Color.parseColor(colorArray[0]);
-        } else {
-            return context.getResources().getColor(R.color.primary);
-        }
-    }
-
     public static boolean isTablet(Context context) {
         return (context.getResources().getConfiguration().screenLayout
                 & Configuration.SCREENLAYOUT_SIZE_MASK)

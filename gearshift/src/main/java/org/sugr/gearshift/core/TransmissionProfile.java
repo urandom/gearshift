@@ -8,7 +8,7 @@ import android.os.Parcel;
 import android.os.Parcelable;
 
 import org.sugr.gearshift.G;
-import org.sugr.gearshift.ui.util.colorpicker.ColorPickerPreference;
+import org.sugr.gearshift.ui.util.Colorizer;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -281,7 +281,7 @@ public class TransmissionProfile implements Parcelable, Comparable<TransmissionP
 
         color = pref.getInt(getPrefName(G.PREF_COLOR, legacy, fromPreferences), 0);
         if (color == 0) {
-            color = ColorPickerPreference.defaultColor(context);
+            color = Colorizer.defaultColor(context);
         }
 
         if (legacy) {
