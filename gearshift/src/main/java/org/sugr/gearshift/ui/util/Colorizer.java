@@ -25,11 +25,16 @@ public class Colorizer {
             colorChoiceDrawable.setShape(shape);
         }
 
-        // Set stroke to dark version of color
-        int darkenedColor = Color.rgb(
-                Color.red(color) * 192 / 256,
-                Color.green(color) * 192 / 256,
-                Color.blue(color) * 192 / 256);
+        int darkenedColor;
+        if (color == defaultColor(view.getContext())) {
+            darkenedColor = Color.rgb(95, 95, 95);
+        } else {
+            // Set stroke to dark version of color
+            darkenedColor = Color.rgb(
+                    Color.red(color) * 192 / 256,
+                    Color.green(color) * 192 / 256,
+                    Color.blue(color) * 192 / 256);
+        }
 
         colorChoiceDrawable.setColor(color);
         colorChoiceDrawable.setStroke((int) TypedValue.applyDimension(
