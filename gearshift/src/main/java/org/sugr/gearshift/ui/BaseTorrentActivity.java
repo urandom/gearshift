@@ -143,8 +143,11 @@ public abstract class BaseTorrentActivity extends ColorizedToolbarActivity
     @Override protected void onResume() {
         super.onResume();
 
-        if (profile != null && manager == null) {
-            manager = new DataServiceManager(this, profile.getId()).startUpdating();
+        if (profile != null) {
+            colorize(profile);
+            if (manager == null) {
+                manager = new DataServiceManager(this, profile.getId()).startUpdating();
+            }
         }
 
         LocalBroadcastManager.getInstance(this).registerReceiver(
