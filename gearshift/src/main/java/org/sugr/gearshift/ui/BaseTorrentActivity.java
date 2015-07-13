@@ -543,15 +543,18 @@ public abstract class BaseTorrentActivity extends ColorizedToolbarActivity
 
                     lastServerActivity = new Date().getTime();
 
-                    if (!profileId.equals(profile.getId()) && type.equals(DataService.Requests.ADD_TORRENT)) {
-                        if (error == 0) {
-                            Toast.makeText(BaseTorrentActivity.this,
-                                R.string.torrent_added_different_profile, Toast.LENGTH_SHORT).show();
-                        } else {
-                            Toast.makeText(BaseTorrentActivity.this,
-                                getErrorMessage(error, intent.getIntExtra(G.ARG_ERROR_CODE, 0),
-                                    intent.getStringExtra(G.ARG_ERROR_STRING)),
-                                Toast.LENGTH_LONG).show();
+                    if (!profileId.equals(profile.getId())) {
+                        /* Only torrent additions are handled out-of-profile, all errors are ignored */
+                        if (type.equals(DataService.Requests.ADD_TORRENT)) {
+                            if (error == 0) {
+                                Toast.makeText(BaseTorrentActivity.this,
+                                        R.string.torrent_added_different_profile, Toast.LENGTH_SHORT).show();
+                            } else {
+                                Toast.makeText(BaseTorrentActivity.this,
+                                        getErrorMessage(error, intent.getIntExtra(G.ARG_ERROR_CODE, 0),
+                                                intent.getStringExtra(G.ARG_ERROR_STRING)),
+                                        Toast.LENGTH_LONG).show();
+                            }
                         }
 
                         return;
