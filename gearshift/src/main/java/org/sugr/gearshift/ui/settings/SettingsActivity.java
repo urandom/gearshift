@@ -6,6 +6,7 @@ import android.app.FragmentManager;
 import android.app.FragmentTransaction;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.app.LoaderManager;
@@ -21,6 +22,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import org.sugr.gearshift.G;
@@ -29,6 +31,7 @@ import org.sugr.gearshift.core.TransmissionProfile;
 import org.sugr.gearshift.ui.SelectableRecyclerViewAdapter;
 import org.sugr.gearshift.ui.TorrentListActivity;
 import org.sugr.gearshift.ui.loader.TransmissionProfileSupportLoader;
+import org.sugr.gearshift.ui.util.Colorizer;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -437,6 +440,7 @@ public class SettingsActivity extends AppCompatActivity {
 
         ProfileItem item = new ProfileItem(profile.getId(), Type.PROFILE,
             profile.getName(), sublabel);
+        item.setColor(profile.getColor());
 
         return item;
     }
@@ -495,8 +499,19 @@ public class SettingsActivity extends AppCompatActivity {
             });
 
             holder.label.setText(item.getLabel());
+            /* Enable the marquee animation */
+            holder.label.setSelected(true);
             if (holder.sublabel != null) {
                 holder.sublabel.setText(item.getSublabel());
+                holder.sublabel.setSelected(true);
+            }
+
+            if (holder.color != null) {
+                Colorizer.colorizeView(holder.color, item.getColor() == null ?
+                                Colorizer.defaultColor(context) :
+                                item.getColor(),
+                        GradientDrawable.OVAL
+                );
             }
         }
 
@@ -519,12 +534,14 @@ public class SettingsActivity extends AppCompatActivity {
         public static class ViewHolder extends RecyclerView.ViewHolder {
             public TextView label;
             public TextView sublabel;
+            public ImageView color;
 
             public ViewHolder(View itemView, int type) {
                 super(itemView);
 
                 label = (TextView) itemView.findViewById(android.R.id.text1);
                 sublabel = (TextView) itemView.findViewById(android.R.id.text2);
+                color = (ImageView) itemView.findViewById(R.id.profile_color);
             }
         }
     }
@@ -534,6 +551,7 @@ public class SettingsActivity extends AppCompatActivity {
         private Type type;
         private String label;
         private String sublabel;
+        private Integer color = null;
 
         private ProfileItem(String id, Type type, String label, String sublabel) {
             this.id = id;
@@ -556,6 +574,14 @@ public class SettingsActivity extends AppCompatActivity {
 
         public String getSublabel() {
             return sublabel;
+        }
+
+        public Integer getColor() {
+            return color;
+        }
+
+        public void setColor(int color) {
+            this.color = color;
         }
 
         public boolean differs(ProfileItem o) {
