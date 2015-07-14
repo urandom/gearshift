@@ -27,6 +27,10 @@
         <item name="colorControlNormal">@android:color/white</item>
     </style>
 
+    <style name="AltSpeedSwitch" parent="AppBaseTheme">
+        <item name="colorControlActivated">@android:color/white</item>
+    </style>
+
     <style name="AppTheme.NoBackground" parent="AppTheme">
         <item name="android:windowBackground">@null</item>
     </style>
