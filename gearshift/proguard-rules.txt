@@ -32,3 +32,4 @@
     public static final android.os.Parcelable$Creator *;
 }
 -keep public class **.R
+-dontwarn android.support.**

@@ -2,9 +2,9 @@
 <resources>
     <style name="AppTheme" parent="AppBaseTheme">
         <item name="android:navigationBarColor">@color/primary</item>
-        <item name="android:statusBarColor">@color/primary_dark</item>
+        <item name="android:statusBarColor">#ccaabb</item>
         <item name="android:alertDialogTheme">@style/AppTheme.AlertDialog</item>
-        <item name="android:windowTranslucentStatus">true</item>
+         <item name="android:windowTranslucentStatus">true</item>
     </style>
 
     <style name="AppTheme.AlertDialog" parent="android:Theme.Material.Light.Dialog.Alert">
