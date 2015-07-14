@@ -32,7 +32,7 @@
 
     <color name="check_indicator">#757575</color>
 
-    <string-array name="default_color_choice_values" translatable="false">
+    <array name="default_color_choice_values">
         <item>#252525</item>
         <item>#D32F2F</item>
         <item>#C2185B</item>
@@ -53,5 +53,5 @@
         <item>#795548</item>
         <item>#424242</item>
         <item>#455A64</item>
-    </string-array>
+    </array>
 </resources>

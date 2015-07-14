@@ -19,7 +19,6 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.res.Configuration;
 import android.content.res.TypedArray;
-import android.graphics.Color;
 import android.graphics.drawable.GradientDrawable;
 import android.preference.Preference;
 import android.util.AttributeSet;
@@ -68,11 +67,7 @@ public class ColorPickerPreference extends Preference{
             int choicesResId = a.getResourceId(R.styleable.ColorPickerPreference_cal_choices,
                     R.array.default_color_choice_values);
             if (choicesResId > 0) {
-                String[] choices = a.getResources().getStringArray(choicesResId);
-                mColorChoices = new int[choices.length];
-                for (int i = 0; i < choices.length; i++) {
-                    mColorChoices[i] = Color.parseColor(choices[i]);
-                }
+                mColorChoices = a.getResources().getIntArray(choicesResId);
             }
 
         } finally {

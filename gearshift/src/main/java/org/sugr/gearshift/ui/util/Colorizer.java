@@ -49,10 +49,10 @@ public class Colorizer {
 
     public static int defaultColor(Context context) {
 
-        String[] colorArray = context.getResources().getStringArray(R.array.default_color_choice_values);
+        int[] colorArray = context.getResources().getIntArray(R.array.default_color_choice_values);
 
         if (colorArray != null && colorArray.length > 0) {
-            return Color.parseColor(colorArray[0]);
+            return colorArray[0];
         } else {
             return context.getResources().getColor(R.color.primary);
         }
