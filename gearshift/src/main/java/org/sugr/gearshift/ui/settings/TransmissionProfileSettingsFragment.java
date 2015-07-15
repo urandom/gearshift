@@ -9,6 +9,7 @@ import android.os.Bundle;
 import android.preference.Preference;
 import android.preference.PreferenceManager;
 import android.support.v4.content.LocalBroadcastManager;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.view.Menu;
@@ -28,7 +29,6 @@ public class TransmissionProfileSettingsFragment extends BasePreferenceFragment 
     private TransmissionProfile profile;
 
     private boolean isNew = false;
-    private boolean deleted = false;
 
     @Override public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -52,6 +52,7 @@ public class TransmissionProfileSettingsFragment extends BasePreferenceFragment 
             profile = new TransmissionProfile(getActivity(),
                 PreferenceManager.getDefaultSharedPreferences(getActivity()));
             isNew = true;
+            profile.save();
             id = profile.getId();
         } else {
             profile = new TransmissionProfile(id, getActivity(),
@@ -113,8 +114,74 @@ public class TransmissionProfileSettingsFragment extends BasePreferenceFragment 
                 return true;
             }
         });
+        pm.findPreference(G.PREF_NAME + id).setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+            @Override public boolean onPreferenceChange(Preference preference, Object newValue) {
+                if (TextUtils.isEmpty(newValue.toString())) {
+                    showErrorDialog(R.string.con_name_cannot_be_empty);
 
-        // FIXME: validate name and host (not empty), and proxyHost and proxyPort (not empty if useProxy is on)
+                    return false;
+                } else {
+                    return true;
+                }
+            }
+        });
+        pm.findPreference(G.PREF_HOST + id).setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+            @Override public boolean onPreferenceChange(Preference preference, Object newValue) {
+                if (TextUtils.isEmpty(newValue.toString())) {
+                    showErrorDialog(R.string.con_host_cannot_be_empty);
+
+                    return false;
+                } else {
+                    return true;
+                }
+            }
+        });
+        pm.findPreference(G.PREF_PORT + id).setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+            @Override public boolean onPreferenceChange(Preference preference, Object newValue) {
+                try {
+                     int port = Integer.parseInt(newValue.toString());
+                    if (port < 1 || port > 65535) {
+                        throw new RuntimeException("Invalid port value");
+                    }
+                } catch (Exception ignored) {
+                    showErrorDialog(R.string.con_port_not_valid);
+
+                    return false;
+                }
+
+                return true;
+            }
+        });
+        pm.findPreference(G.PREF_PROXY_HOST + id).setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+            @Override public boolean onPreferenceChange(Preference preference, Object newValue) {
+                if (sharedPrefs.getBoolean(G.PREF_PROXY + profile.getId(), false) &&
+                        TextUtils.isEmpty(newValue.toString())) {
+                    showErrorDialog(R.string.con_proxy_host_cannot_be_empty);
+
+                    return false;
+                } else {
+                    return true;
+                }
+            }
+        });
+        pm.findPreference(G.PREF_PROXY_PORT + id).setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+            @Override public boolean onPreferenceChange(Preference preference, Object newValue) {
+                if (sharedPrefs.getBoolean(G.PREF_PROXY + profile.getId(), false)) {
+                    try {
+                        int port = Integer.parseInt(newValue.toString());
+                        if (port < 1 || port > 65535) {
+                            throw new RuntimeException("Invalid port value");
+                        }
+                    } catch (Exception ignored) {
+                        showErrorDialog(R.string.con_proxy_port_not_valid);
+
+                        return false;
+                    }
+                }
+
+                return true;
+            }
+        });
     }
 
     @Override public void onResume() {
@@ -150,16 +217,12 @@ public class TransmissionProfileSettingsFragment extends BasePreferenceFragment 
 
                 return true;
             case R.id.delete:
-                deleted = true;
-
-                if (!isNew) {
-                    LocalBroadcastManager.getInstance(getActivity()).registerReceiver(
+                LocalBroadcastManager.getInstance(getActivity()).registerReceiver(
                         new ServiceReceiver(), new IntentFilter(G.INTENT_SERVICE_ACTION_COMPLETE));
 
-                    new DataServiceManager(getActivity(), profile.getId()).removeProfile();
+                new DataServiceManager(getActivity(), profile.getId()).removeProfile();
 
-                    item.setActionView(R.layout.action_progress_bar);
-                }
+                item.setActionView(R.layout.action_progress_bar);
 
                 close();
 
@@ -173,6 +236,14 @@ public class TransmissionProfileSettingsFragment extends BasePreferenceFragment 
         SettingsActivity context = (SettingsActivity) getActivity();
 
         context.closePreferences();
+    }
+
+    private void showErrorDialog(int messageId) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        builder.setTitle(R.string.invalid_input_title);
+        builder.setMessage(messageId);
+        builder.setPositiveButton(android.R.string.ok, null);
+        builder.show();
     }
 
     private class ServiceReceiver extends BroadcastReceiver {

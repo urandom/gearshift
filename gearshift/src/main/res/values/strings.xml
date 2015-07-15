@@ -106,7 +106,9 @@
     <string name="invalid_input_title">Invalid Input</string>
     <string name="con_name_cannot_be_empty">The profile name cannot be empty</string>
     <string name="con_host_cannot_be_empty">The host cannot be empty</string>
+    <string name="con_port_not_valid">The port value must be between 1 and 65535</string>
     <string name="con_proxy_host_cannot_be_empty">The proxy host cannot be empty</string>
+    <string name="con_proxy_port_not_valid">The proxy port value must be between 1 and 65535</string>
 
     <string name="no_profiles">No profiles</string>
     <string name="create_profile_in_settings">Create a new profile in the settings</string>

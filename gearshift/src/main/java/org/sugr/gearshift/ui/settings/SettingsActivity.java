@@ -82,7 +82,7 @@ public class SettingsActivity extends AppCompatActivity {
         @Override
         public android.support.v4.content.Loader<TransmissionProfile[]> onCreateLoader(
             int id, Bundle args) {
-            return new TransmissionProfileSupportLoader(SettingsActivity.this);
+            return new TransmissionProfileSupportLoader(SettingsActivity.this, true);
         }
 
         @Override
