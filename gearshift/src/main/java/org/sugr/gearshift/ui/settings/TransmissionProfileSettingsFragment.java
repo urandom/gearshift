@@ -127,7 +127,7 @@ public class TransmissionProfileSettingsFragment extends BasePreferenceFragment 
         });
         pm.findPreference(G.PREF_HOST + id).setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
             @Override public boolean onPreferenceChange(Preference preference, Object newValue) {
-                if (TextUtils.isEmpty(newValue.toString())) {
+                if (TextUtils.isEmpty(newValue.toString()) || newValue.toString().equals("example.com")) {
                     showErrorDialog(R.string.con_host_cannot_be_empty);
 
                     return false;
@@ -155,7 +155,7 @@ public class TransmissionProfileSettingsFragment extends BasePreferenceFragment 
         pm.findPreference(G.PREF_PROXY_HOST + id).setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
             @Override public boolean onPreferenceChange(Preference preference, Object newValue) {
                 if (sharedPrefs.getBoolean(G.PREF_PROXY + profile.getId(), false) &&
-                        TextUtils.isEmpty(newValue.toString())) {
+                        (TextUtils.isEmpty(newValue.toString()) || newValue.toString().equals("example.com"))) {
                     showErrorDialog(R.string.con_proxy_host_cannot_be_empty);
 
                     return false;

@@ -111,8 +111,9 @@ public class TransmissionProfile implements Parcelable, Comparable<TransmissionP
     }
 
     public boolean isValid() {
-        return !TextUtils.isEmpty(name) && !TextUtils.isEmpty(host) &&
-                (!useProxy || (TextUtils.isEmpty(proxyHost) && proxyPort > 0 && proxyPort < 65535));
+        return !TextUtils.isEmpty(name) && (!TextUtils.isEmpty(host) && !host.equals("example.com")) &&
+                (!useProxy || ((!TextUtils.isEmpty(proxyHost) && !proxyHost.equals("example.com")) &&
+                        proxyPort > 0 && proxyPort < 65535));
     }
 
     public String getId() {
