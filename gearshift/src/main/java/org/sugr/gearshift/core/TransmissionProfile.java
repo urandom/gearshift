@@ -6,11 +6,11 @@ import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.text.TextUtils;
 
 import org.sugr.gearshift.G;
 import org.sugr.gearshift.ui.util.Colorizer;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -88,20 +88,9 @@ public class TransmissionProfile implements Parcelable, Comparable<TransmissionP
             Activity.MODE_PRIVATE);
         Editor e = prefs.edit();
 
-        e.remove(G.PREF_NAME);
-        e.remove(G.PREF_HOST);
-        e.remove(G.PREF_PORT);
-        e.remove(G.PREF_PATH);
-        e.remove(G.PREF_USER);
-        e.remove(G.PREF_PASS);
-        e.remove(G.PREF_SSL);
-        e.remove(G.PREF_TIMEOUT);
-        e.remove(G.PREF_RETRIES);
-        e.remove(G.PREF_DIRECTORIES);
-        e.remove(G.PREF_PROXY);
-        e.remove(G.PREF_PROXY_HOST);
-        e.remove(G.PREF_PROXY_PORT);
-        e.remove(G.PREF_COLOR);
+        for (String key : G.UNPREFIXED_PROFILE_PREFERENCE_KEYS) {
+            e.remove(key);
+        }
 
         e.apply();
     }
@@ -119,6 +108,11 @@ public class TransmissionProfile implements Parcelable, Comparable<TransmissionP
         this.context = context;
         this.defaultPrefs = prefs;
         load();
+    }
+
+    public boolean isValid() {
+        return !TextUtils.isEmpty(name) && !TextUtils.isEmpty(host) &&
+                (!useProxy || (TextUtils.isEmpty(proxyHost) && proxyPort > 0 && proxyPort < 65535));
     }
 
     public String getId() {
@@ -219,24 +213,12 @@ public class TransmissionProfile implements Parcelable, Comparable<TransmissionP
     }
 
     public void load() {
-        load(false);
-    }
-
-    public void load(boolean fromPreferences) {
         SharedPreferences pref = getPreferences();
-        boolean legacy = false;
-        String dir = context.getFilesDir().getParent() + "/shared_prefs";
-        File legacyFile = new File(dir, G.PREF_PREFIX + id + ".xml");
 
-        if (!fromPreferences && pref.getString(G.PREF_NAME + id, null) == null && legacyFile.exists()) {
-            legacy = true;
-            pref = getLegacyPreferences(context);
-        }
-
-        name = pref.getString(getPrefName(G.PREF_NAME, legacy, fromPreferences), "").trim();
-        host = pref.getString(getPrefName(G.PREF_HOST, legacy, fromPreferences), "").trim();
+        name = pref.getString(G.PREF_NAME + id, "").trim();
+        host = pref.getString(G.PREF_HOST + id, "").trim();
         try {
-             port = Integer.parseInt(pref.getString(getPrefName(G.PREF_PORT, legacy, fromPreferences), "9091"));
+             port = Integer.parseInt(pref.getString(G.PREF_PORT + id, "9091"));
             if (port < 1) {
                  port = 1;
             } else if ( port > 65535) {
@@ -245,31 +227,31 @@ public class TransmissionProfile implements Parcelable, Comparable<TransmissionP
         } catch (NumberFormatException e) {
              port = 65535;
         }
-        path = pref.getString(getPrefName(G.PREF_PATH, legacy, fromPreferences), "").trim();
-        username = pref.getString(getPrefName(G.PREF_USER, legacy, fromPreferences), "").trim();
-        password = pref.getString(getPrefName(G.PREF_PASS, legacy, fromPreferences), "").trim();
-        useSSL = pref.getBoolean(getPrefName(G.PREF_SSL, legacy, fromPreferences), false);
+        path = pref.getString(G.PREF_PATH + id, "").trim();
+        username = pref.getString(G.PREF_USER + id, "").trim();
+        password = pref.getString(G.PREF_PASS + id, "").trim();
+        useSSL = pref.getBoolean(G.PREF_SSL + id, false);
         try {
-            timeout = Integer.parseInt(pref.getString(getPrefName(G.PREF_TIMEOUT, legacy, fromPreferences), "-1"));
+            timeout = Integer.parseInt(pref.getString(G.PREF_TIMEOUT + id, "-1"));
         } catch (NumberFormatException e) {
             timeout = Integer.MAX_VALUE;
         }
         try {
-            retries = Integer.parseInt(pref.getString(getPrefName(G.PREF_RETRIES, legacy, fromPreferences), "-1"));
+            retries = Integer.parseInt(pref.getString(G.PREF_RETRIES + id, "-1"));
         } catch (NumberFormatException e) {
             retries = Integer.MAX_VALUE;
         }
-        directories = pref.getStringSet(getPrefName(G.PREF_DIRECTORIES, legacy, fromPreferences), new HashSet<String>());
+        directories = pref.getStringSet(G.PREF_DIRECTORIES + id, new HashSet<String>());
 
-        lastDirectory = pref.getString(getPrefName(G.PREF_LAST_DIRECTORY, legacy, fromPreferences), "");
-        moveData = pref.getBoolean(getPrefName(G.PREF_MOVE_DATA, legacy, fromPreferences), true);
-        deleteLocal = pref.getBoolean(getPrefName(G.PREF_DELETE_LOCAL, legacy, fromPreferences), false);
-        startPaused = pref.getBoolean(getPrefName(G.PREF_START_PAUSED, legacy, fromPreferences), false);
+        lastDirectory = pref.getString(G.PREF_LAST_DIRECTORY + id, "");
+        moveData = pref.getBoolean(G.PREF_MOVE_DATA + id, true);
+        deleteLocal = pref.getBoolean(G.PREF_DELETE_LOCAL + id, false);
+        startPaused = pref.getBoolean(G.PREF_START_PAUSED + id, false);
 
-        useProxy = pref.getBoolean(getPrefName(G.PREF_PROXY, legacy, fromPreferences), false);
-        proxyHost = pref.getString(getPrefName(G.PREF_PROXY_HOST, legacy, fromPreferences), "").trim();
+        useProxy = pref.getBoolean(G.PREF_PROXY + id, false);
+        proxyHost = pref.getString(G.PREF_PROXY_HOST + id, "").trim();
         try {
-            proxyPort = Integer.parseInt(pref.getString(getPrefName(G.PREF_PROXY_PORT, legacy, fromPreferences), "8080"));
+            proxyPort = Integer.parseInt(pref.getString(G.PREF_PROXY_PORT + id, "8080"));
             if (proxyPort < 1) {
                 proxyPort = 1;
             } else if ( proxyPort > 65535) {
@@ -279,38 +261,13 @@ public class TransmissionProfile implements Parcelable, Comparable<TransmissionP
             proxyPort = 65535;
         }
 
-        color = pref.getInt(getPrefName(G.PREF_COLOR, legacy, fromPreferences), 0);
+        color = pref.getInt(G.PREF_COLOR + id, 0);
         if (color == 0) {
             color = Colorizer.defaultColor(context);
-        }
-
-        if (legacy) {
-            Editor e = pref.edit();
-            e.clear();
-            e.commit();
-
-            //noinspection ResultOfMethodCallIgnored
-            legacyFile.delete();
-
-            File file = new File(dir, G.PREF_PREFIX + id + ".bak");
-            if (file.exists()) {
-                //noinspection ResultOfMethodCallIgnored
-                file.delete();
-            }
-
-            save();
         }
     }
 
     public void save() {
-        save(false);
-    }
-
-    public void save(boolean fromPreferences) {
-        if (fromPreferences) {
-            load(true);
-        }
-
         SharedPreferences pref = getPreferences();
         Editor e = pref.edit();
 
@@ -357,20 +314,9 @@ public class TransmissionProfile implements Parcelable, Comparable<TransmissionP
         SharedPreferences pref = getPreferences();
         Editor e = pref.edit();
 
-        e.remove(G.PREF_NAME + id);
-        e.remove(G.PREF_HOST + id);
-        e.remove(G.PREF_PORT + id);
-        e.remove(G.PREF_PATH + id);
-        e.remove(G.PREF_USER + id);
-        e.remove(G.PREF_PASS + id);
-        e.remove(G.PREF_SSL + id);
-        e.remove(G.PREF_TIMEOUT + id);
-        e.remove(G.PREF_RETRIES + id);
-        e.remove(G.PREF_DIRECTORIES + id);
-        e.remove(G.PREF_LAST_DIRECTORY + id);
-        e.remove(G.PREF_MOVE_DATA + id);
-        e.remove(G.PREF_START_PAUSED + id);
-        e.remove(G.PREF_DELETE_LOCAL + id);
+        for (String key : G.UNPREFIXED_PROFILE_PREFERENCE_KEYS) {
+            e.remove(key + id);
+        }
 
         e.commit();
 
@@ -568,21 +514,6 @@ public class TransmissionProfile implements Parcelable, Comparable<TransmissionP
         proxyHost = in.readString();
         proxyPort = in.readInt();
         color = in.readInt();
-    }
-
-    private SharedPreferences getLegacyPreferences(Context context) {
-        return context.getSharedPreferences(
-                G.PREF_PREFIX + id, Activity.MODE_PRIVATE);
-    }
-
-    private String getPrefName(String name, boolean legacy, boolean fromPreferences) {
-        if (legacy) {
-            return name;
-        } else if (fromPreferences) {
-            return name;
-        } else {
-            return  name + id;
-        }
     }
 
     private SharedPreferences getPreferences() {

@@ -1,7 +1,6 @@
 package org.sugr.gearshift.ui.settings;
 
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -11,6 +10,7 @@ import android.preference.Preference;
 import android.preference.PreferenceManager;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.widget.Toolbar;
+import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -22,7 +22,6 @@ import org.sugr.gearshift.core.TransmissionProfile;
 import org.sugr.gearshift.service.DataService;
 import org.sugr.gearshift.service.DataServiceManager;
 
-import java.util.HashSet;
 import java.util.Set;
 
 public class TransmissionProfileSettingsFragment extends BasePreferenceFragment {
@@ -30,12 +29,11 @@ public class TransmissionProfileSettingsFragment extends BasePreferenceFragment 
 
     private boolean isNew = false;
     private boolean deleted = false;
-    private boolean saved = false;
 
     @Override public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        final String id;
+        String id;
         Bundle args = getArguments();
         if (args.containsKey(G.ARG_PROFILE_ID)) {
             id = args.getString(G.ARG_PROFILE_ID);
@@ -43,16 +41,18 @@ public class TransmissionProfileSettingsFragment extends BasePreferenceFragment 
             id = null;
         }
 
+        TransmissionProfile.cleanTemporaryPreferences(getActivity());
+
         sharedPrefs = getActivity().getSharedPreferences(TransmissionProfile.getPreferencesName(),
             Activity.MODE_PRIVATE);
 
         Set<String> directories = sharedPrefs.getStringSet(G.PREF_DIRECTORIES, null);
 
         if (id == null) {
-            TransmissionProfile.cleanTemporaryPreferences(getActivity());
             profile = new TransmissionProfile(getActivity(),
                 PreferenceManager.getDefaultSharedPreferences(getActivity()));
             isNew = true;
+            id = profile.getId();
         } else {
             profile = new TransmissionProfile(id, getActivity(),
                 PreferenceManager.getDefaultSharedPreferences(getActivity()));
@@ -71,42 +71,56 @@ public class TransmissionProfileSettingsFragment extends BasePreferenceFragment 
             getActivity(), G.PROFILES_PREF_NAME,
             Activity.MODE_PRIVATE, R.xml.torrent_profile_preferences, true);
 
+        PreferenceManager pm = getPreferenceManager();
+        for (String key : G.UNPREFIXED_PROFILE_PREFERENCE_KEYS) {
+            Preference pref = pm.findPreference(key);
+            if (pref == null) {
+                continue;
+            }
+
+            pref.setKey(key + id);
+            if (!TextUtils.isEmpty(pref.getDependency())) {
+                pref.setDependency(pref.getDependency() + id);
+            }
+        }
+
         summaryPrefs = new Object[][] {
-            {G.PREF_NAME, getString(R.string.profile_summary_format), -1, -1, ""},
-            {G.PREF_HOST, getString(R.string.profile_summary_format), -1, -1, ""},
-            {G.PREF_PORT, getString(R.string.profile_summary_format), -1, -1, ""},
-            {G.PREF_USER, getString(R.string.profile_summary_format), -1, -1, ""},
-            {G.PREF_PATH, getString(R.string.profile_summary_format), -1, -1, ""},
-            {G.PREF_TIMEOUT, getString(R.string.profile_summary_format), -1, -1, ""},
-            /* {G.PREF_RETRIES, getString(R.string.profile_summary_format),
+            {G.PREF_NAME + id, getString(R.string.profile_summary_format), -1, -1, ""},
+            {G.PREF_HOST + id, getString(R.string.profile_summary_format), -1, -1, ""},
+            {G.PREF_PORT + id, getString(R.string.profile_summary_format), -1, -1, ""},
+            {G.PREF_USER + id, getString(R.string.profile_summary_format), -1, -1, ""},
+            {G.PREF_PATH + id, getString(R.string.profile_summary_format), -1, -1, ""},
+            {G.PREF_TIMEOUT + id, getString(R.string.profile_summary_format), -1, -1, ""},
+            /* {G.PREF_RETRIES + id, getString(R.string.profile_summary_format),
                 R.array.pref_con_retries_values, R.array.pref_con_retries_entries, ""}, */
         };
 
-        getPreferenceManager().findPreference(G.PREF_DIRECTORIES)
+        pm.findPreference(G.PREF_DIRECTORIES + id)
             .setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             @Override public boolean onPreferenceClick(Preference preference) {
                 Bundle args = getArguments();
                 Bundle fragmentArgs = new Bundle();
 
-                fragmentArgs.putString(G.ARG_PROFILE_ID, id);
+                fragmentArgs.putString(G.ARG_PROFILE_ID, profile.getId());
                 if (args.containsKey(G.ARG_DIRECTORIES)) {
                     fragmentArgs.putStringArrayList(G.ARG_DIRECTORIES,
                         args.getStringArrayList(G.ARG_DIRECTORIES));
                 }
 
-                ((SettingsActivity) getActivity()).addFragment(id + "-directories",
+                ((SettingsActivity) getActivity()).addFragment(profile.getId() + "-directories",
                     SettingsActivity.Type.PROFILE_DIRECTORIES, fragmentArgs);
 
                 return true;
             }
         });
+
+        // FIXME: validate name and host (not empty), and proxyHost and proxyPort (not empty if useProxy is on)
     }
 
     @Override public void onResume() {
         super.onResume();
 
         Toolbar toolbar = (Toolbar) getActivity().findViewById(R.id.toolbar);
-        toolbar.setNavigationIcon(R.drawable.ic_done_white_24dp);
         if (isNew) {
             toolbar.setTitle(R.string.new_profile);
         } else {
@@ -132,28 +146,6 @@ public class TransmissionProfileSettingsFragment extends BasePreferenceFragment 
     @Override public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case android.R.id.home:
-                int errorRes = -1;
-                if (sharedPrefs.getString(G.PREF_NAME, "").trim().equals("")) {
-                    errorRes = R.string.con_name_cannot_be_empty;
-                } else if (sharedPrefs.getString(G.PREF_HOST, "").trim().equals("")) {
-                    errorRes = R.string.con_host_cannot_be_empty;
-                } else if (sharedPrefs.getBoolean(G.PREF_PROXY, false) &&
-                           sharedPrefs.getString(G.PREF_PROXY_HOST, "").trim().equals("")) {
-                    errorRes = R.string.con_proxy_host_cannot_be_empty;
-                }
-
-                if (errorRes != -1) {
-                    final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-                    builder.setTitle(R.string.invalid_input_title);
-                    builder.setMessage(errorRes);
-                    builder.setPositiveButton(android.R.string.ok, null);
-                    builder.show();
-
-                    return true;
-                }
-
-                saved = true;
-
                 close();
 
                 return true;
@@ -179,16 +171,6 @@ public class TransmissionProfileSettingsFragment extends BasePreferenceFragment 
 
     private void close() {
         SettingsActivity context = (SettingsActivity) getActivity();
-
-        if (saved) {
-            profile.save(true);
-        }
-
-        TransmissionProfile.cleanTemporaryPreferences(getActivity());
-
-        if (saved || deleted) {
-            G.requestBackup(getActivity());
-        }
 
         context.closePreferences();
     }

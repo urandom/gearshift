@@ -11,7 +11,7 @@
 	<PreferenceCategory android:title="@string/connection">
 	    <EditTextPreference
 	        android:key="profile_host"
-	        android:defaultValue=""
+	        android:defaultValue="192.168.0.1"
 	        android:inputType="textNoSuggestions|textVisiblePassword"
 	        android:title="@string/con_host"
 	        android:dialogTitle="@string/con_host" />
@@ -77,20 +77,23 @@
             android:inputType="number"
             android:dialogTitle="@string/con_proxy_port" />
 	</PreferenceCategory>
-	<Preference
-	    android:key="profile_directories"
-	    android:fragment="org.sugr.gearshift.ui.settings.TransmissionProfileDirectoriesSettingsFragment"
-	    android:title="@string/con_directories">
-	    
-	</Preference>
 
-    <org.sugr.gearshift.ui.util.colorpicker.ColorPickerPreference
-        android:defaultValue="@color/primary"
-        android:key="profile_color"
-        android:negativeButtonText="@null"
-        android:positiveButtonText="@null"
-        android:title="@string/pref_profile_color"
-        app:cal_itemLayout="@layout/calendar_grid_item_color"
-        app:cal_numColumns="4" />
+	<PreferenceCategory android:title="@string/misc">
+        <Preference
+            android:key="profile_directories"
+            android:fragment="org.sugr.gearshift.ui.settings.TransmissionProfileDirectoriesSettingsFragment"
+            android:title="@string/con_directories">
+
+        </Preference>
+
+        <org.sugr.gearshift.ui.util.colorpicker.ColorPickerPreference
+            android:defaultValue="@color/primary"
+            android:key="profile_color"
+            android:negativeButtonText="@null"
+            android:positiveButtonText="@null"
+            android:title="@string/pref_profile_color"
+            app:cal_itemLayout="@layout/calendar_grid_item_color"
+            app:cal_numColumns="4" />
+	</PreferenceCategory>
 
 </PreferenceScreen>

@@ -209,7 +209,7 @@ public class TransmissionProfileDirectoriesSettingsFragment extends ListFragment
 
         if (sharedPrefs != null) {
             Editor e = sharedPrefs.edit();
-            e.putStringSet(G.PREF_DIRECTORIES, directories);
+            e.putStringSet(G.PREF_DIRECTORIES + profileId, directories);
             e.commit();
         }
 

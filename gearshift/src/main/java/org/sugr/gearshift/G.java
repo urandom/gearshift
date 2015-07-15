@@ -42,6 +42,23 @@ public final class G {
     public static final String PREF_COLOR = "profile_color";
     public static final String PREF_PREFIX = "profile_";
 
+    public static final String[] UNPREFIXED_PROFILE_PREFERENCE_KEYS = new String[] {
+            G.PREF_NAME,
+            G.PREF_HOST,
+            G.PREF_PORT,
+            G.PREF_PATH,
+            G.PREF_USER,
+            G.PREF_PASS,
+            G.PREF_SSL,
+            G.PREF_TIMEOUT,
+            G.PREF_RETRIES,
+            G.PREF_PROXY,
+            G.PREF_PROXY_HOST,
+            G.PREF_PROXY_PORT,
+            G.PREF_DIRECTORIES,
+            G.PREF_COLOR,
+    };
+
     public static final String PREF_LIST_SORT_BY = "torrents_sort_by";
     public static final String PREF_LIST_SORT_ORDER = "torrents_sort_order";
     public static final String PREF_LIST_FILTER = "torrents_filter";

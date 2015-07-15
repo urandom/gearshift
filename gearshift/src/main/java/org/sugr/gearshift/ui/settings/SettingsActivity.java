@@ -90,7 +90,6 @@ public class SettingsActivity extends AppCompatActivity {
             android.support.v4.content.Loader<TransmissionProfile[]> loader,
             TransmissionProfile[] profiles) {
 
-            SettingsActivity context = SettingsActivity.this;
             List<ProfileItem> items = new ArrayList<>(profiles.length);
 
             for (TransmissionProfile profile : profiles) {
@@ -145,6 +144,9 @@ public class SettingsActivity extends AppCompatActivity {
                 }
                 profileAdapter.notifyItemRangeInserted(start, items.size());
             }
+
+            G.requestBackup(SettingsActivity.this);
+
         }
 
         @Override
@@ -589,7 +591,7 @@ public class SettingsActivity extends AppCompatActivity {
                 return false;
             }
 
-            if (!label.equals(o.label) || !sublabel.equals(o.sublabel)) {
+            if (!label.equals(o.label) || !sublabel.equals(o.sublabel) || color != o.color) {
                 return true;
             }
 

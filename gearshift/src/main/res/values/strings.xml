@@ -546,5 +546,6 @@
     <!-- Content description for a selected color square. -->
     <string name="color_swatch_description_selected">Color <xliff:g id="color_index" example="14">%1$d</xliff:g> selected</string>
     <string name="pref_profile_color">Profile color</string>
+    <string name="misc">Miscellaneous</string>
 
 </resources>

@@ -123,6 +123,8 @@ public class TorrentListMenuFragment extends Fragment
             }
 
             if (context.getSession() == null) {
+                G.logD("No session, removing directories and tracker filters");
+
                 int[][] insertRanges = new int[][]{new int[]{-1, 1}, new int[]{-1, 1}};
                 Iterator<ListItem> iter = filterAdapter.itemData.iterator();
 
