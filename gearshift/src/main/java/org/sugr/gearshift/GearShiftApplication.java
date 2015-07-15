@@ -7,14 +7,13 @@ import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonArrayRequest;
-import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import java.io.ByteArrayInputStream;
-import java.util.List;
+import java.util.ArrayList;
+import java.util.Arrays;
 
 public class GearShiftApplication extends Application {
     private static boolean activityVisible;
@@ -100,24 +99,56 @@ public class GearShiftApplication extends Application {
         requestQueue.add(request);
     }
 
-    public Integer versionCompare(String str1, String str2) {
+    public static Integer versionCompare(String str1, String str2) {
+        if (str1.equals(str2)) {
+            return 0;
+        }
+
         String[] vals1 = str1.split("\\.");
         String[] vals2 = str2.split("\\.");
 
+        ArrayList<String> a1, a2;
+        a1 = new ArrayList<>(Arrays.asList(vals1));
+        a2 = new ArrayList<>(Arrays.asList(vals2));
+
+        formatPrerelease(a1);
+        formatPrerelease(a2);
+
         int i = 0;
         // set index to first non-equal ordinal or length of shortest version string
-        while (i < vals1.length && i < vals2.length && vals1[i].equals(vals2[i])) {
+        while (i < a1.size() && i < a2.size() && a1.get(i).equals(a2.get(i))) {
             i++;
         }
 
         // compare first non-equal ordinal number
-        if (i < vals1.length && i < vals2.length) {
-            int diff = Integer.valueOf(vals1[i]).compareTo(Integer.valueOf(vals2[i]));
+        if (i < a1.size() && i < a2.size()) {
+
+            int diff = Integer.valueOf(a1.get(i)).compareTo(Integer.valueOf(a2.get(i)));
             return Integer.signum(diff);
         } else {
             // the strings are equal or one string is a substring of the other
             // e.g. "1.2.3" = "1.2.3" or "1.2.3" < "1.2.3.4"
-            return Integer.signum(vals1.length - vals2.length);
+            return Integer.signum(a1.size() - a2.size());
+        }
+    }
+
+    private static void formatPrerelease(ArrayList<String> version) {
+        String last = version.get(version.size() - 1);
+        if (last.contains("-")) {
+            version.remove(version.size() - 1);
+            version.add(last.substring(0, last.indexOf("-")));
+
+            if (last.contains("-beta")) {
+                version.add("0");
+                version.add(last.substring(last.indexOf("-") + 5));
+            } else if (last.contains("-rc")) {
+                version.add("1");
+                version.add(last.substring(last.indexOf("-") + 3));
+            } else {
+                version.add("-1");
+            }
+        } else {
+            version.add("2");
         }
     }
 
