@@ -101,12 +101,14 @@
     <string name="con_use_proxy">Utiliser un proxy</string>
     <string name="con_proxy_host">Hôte proxy</string>
     <string name="con_proxy_port">Port proxy</string>
-    <string name="con_directories">Répertoires de téléchargements</string>
+    <string name="con_directories">Répertoires des téléchargements</string>
     
     <string name="invalid_input_title">Donnée invalide</string>
     <string name="con_name_cannot_be_empty">Le nom du profil ne peut pas être vide</string>
     <string name="con_host_cannot_be_empty">L\'hôte ne peut pas être vide</string>
+    <string name="con_port_not_valid">La valeur du port doit être comprise entre 1 et 65535</string>
     <string name="con_proxy_host_cannot_be_empty">L\'hôte du proxy ne peut pas être vide</string>
+    <string name="con_proxy_port_not_valid">La valeur du port du proxy doit être comprise entre 1 et 65535</string>
 
     <string name="no_profiles">Aucun profil</string>
     <string name="create_profile_in_settings">Créez un nouveau profil dans les paramètres</string>
@@ -141,7 +143,7 @@
     <string name="status_state_download_waiting">&lt;b&gt;En attente de téléchargement&lt;/b&gt;</string>
     <string name="status_state_seed_waiting">&lt;b&gt;En attente de partage&lt;/b&gt;</string>
     <string name="status_state_paused"><![CDATA[<b>En pause</b>]]></string>
-    <string name="status_state_finished"><![CDATA[<b>Terminés</b>]]></string>
+    <string name="status_state_finished"><![CDATA[<b>Terminé</b>]]></string>
     <string name="status_state_check_waiting">&lt;b&gt;En attente de vérification&lt;/b&gt;</string>
     <string name="status_state_checking">&lt;b&gt;Vérification en cours&lt;/b&gt; (%1$s%% analysé)</string>
     <string name="status_more_downloading_format"> depuis %1$d de %2$d pairs connectés - &lt;i&gt;%3$s&lt;/i&gt;</string>
@@ -231,7 +233,7 @@
     <string name="menu_filters_active">Actifs</string>
     <string name="menu_filters_checking">En vérification</string>
     <string name="menu_filters_errors">Erreurs</string>
-    <string name="menu_filters_untracked">Untracked</string>
+    <string name="menu_filters_untracked">Sans tracker</string>
 
     <string name="menu_sort_header">Classer par</string>
     <string name="menu_sort_name">Nom</string>
@@ -243,9 +245,9 @@
     <string name="menu_sort_ratio">Ratio</string>
     <string name="menu_sort_location">Emplacement</string>
     <string name="menu_sort_peers">Pairs</string>
-    <string name="menu_sort_download_speed">Vitesse téléchargement</string>
-    <string name="menu_sort_upload_speed">Vitesse envoi</string>
-    <string name="menu_sort_queue">Position file</string>
+    <string name="menu_sort_download_speed">Vitesse de téléchargement</string>
+    <string name="menu_sort_upload_speed">Vitesse d\'envoi</string>
+    <string name="menu_sort_queue">Position dans la file</string>
 
     <string name="menu_order_header">Tri</string>
     <string name="menu_order_descending">Descendant</string>
@@ -266,9 +268,9 @@
 
     <string name="sort_visibility">Visibilité des options de tri</string>
     
-    <string name="base_sort_method">Méthode de tri de base</string>
+    <string name="base_sort_method">Méthode de tri</string>
     
-    <string name="sorting_option">Option de tri</string>
+    <string name="sorting_option">Options de tri</string>
         
     <string name="show_all_filter_summary">Si masqué, cliquer sur un filtre déjà sélectionné le désélectionnera.</string>
         
@@ -296,7 +298,7 @@
         
     <string name="session_settings_download_directory">Répertoire de téléchargement</string>
         
-    <string name="session_settings_incomplete_download_directory">Répertoire de téléchargement incomplet</string>
+    <string name="session_settings_incomplete_download_directory">Répertoire des téléchargements incomplets</string>
         
     <string name="session_settings_script_to_run_when_torrent_finishes">Script à lancer lorsqu\'un torrent est terminé</string>
         
@@ -306,7 +308,7 @@
         
     <string name="session_settings_rename_partial_files">Ajouter \'.part\' aux fichiers partiels</string>
         
-    <string name="session_settings_trash_original">Supprimer les fichiers ajoutés depuis le répertoire surveillé</string>
+    <string name="session_settings_trash_original">Supprimer les \'.torrent\' ajoutés depuis le répertoire surveillé</string>
         
     <string name="session_settings_start_added_torrents">Démarrer les torrents ajoutés</string>
         
@@ -439,7 +441,7 @@
     <string name="status_bar_limit_format"><![CDATA[ (<i>%1$s</i>)]]></string>
     <string name="user_interface_header">Interface utilisateur</string>
     <string name="show_status_bar">Barre d\'état en dessous de la liste des torrents</string>
-    <string name="show_add_dialog">Afficher la boîte de dialogue des options lors de l\'ajout de torrents</string>
+    <string name="show_add_dialog">Afficher les options lors de l\'ajout de torrents</string>
     <string name="error_deleting_torrent_file">Impossible de supprimer le fichier torrent</string>
     <string name="hint_download_directory">Répertoire de téléchargement</string>
     <string name="spinner_default_directory">Répertoire par défaut</string>
@@ -529,8 +531,8 @@
     <string-array name="pref_base_sort_order_entries">
         <item>Ascendant</item>
         <item>Descendant</item>
-        <item>Identique tri primaire</item>
-        <item>Inverse tri primaire</item>
+        <item>Identique au tri primaire</item>
+        <item>Inverse du tri primaire</item>
     </string-array>
 
     <string-array name="session_settings_encryption">
@@ -538,4 +540,14 @@
         <item>Préféré</item>
         <item>Toléré</item>
     </string-array>
+
+    <!-- Default title for color picker dialog [CHAR LIMIT=30] -->
+    <string name="color_picker_default_title">Selectionnez une couleur</string>
+    <!-- Content description for a color square. -->
+    <string name="color_swatch_description">Couleur	<xliff:g id="color_index" example="14">%1$d</xliff:g></string>
+    <!-- Content description for a selected color square. -->
+    <string name="color_swatch_description_selected">Couleur <xliff:g id="color_index" example="14">%1$d</xliff:g> selectionnée</string>
+    <string name="pref_profile_color">Couleur du profil</string>
+    <string name="misc">Divers</string>
+
 </resources>
