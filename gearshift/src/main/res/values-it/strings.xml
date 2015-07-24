@@ -106,7 +106,9 @@
     <string name="invalid_input_title">Dati errati</string>
     <string name="con_name_cannot_be_empty">Il nome del profilo non può essere vuoto</string>
     <string name="con_host_cannot_be_empty">L\'indirizzo non può essere vuoto</string>
+    <string name="con_port_not_valid">La porta deve essere compresa tra 1 e 65535</string>
     <string name="con_proxy_host_cannot_be_empty">L\'indirizzo proxy non può essere vuoto</string>
+    <string name="con_proxy_port_not_valid">La porta del proxy deve essere compresa tra 1 e 65535</string>
     
     <string name="no_profiles">Nessun profilo</string>
     <string name="create_profile_in_settings">Crea un profilo dalle impostazioni</string>
@@ -504,7 +506,7 @@
 
     <string-array name="pref_con_retries_entries">
         <item>1 volta</item>
-        <item>-2 volte</item>
+        <item>2 volte</item>
         <item>3 volte</item>
         <item>5 volte</item>
         <item>10 volte</item>
@@ -539,4 +541,13 @@
         <item>Consentita</item>
     </string-array>
 
+    <!-- Default title for color picker dialog [CHAR LIMIT=30] -->
+    <string name="color_picker_default_title">Seleziona un colore</string>
+    <!-- Content description for a color square. -->
+    <string name="color_swatch_description">Colore <xliff:g id="color_index" example="14">%1$d</xliff:g></string>
+    <!-- Content description for a selected color square. -->
+    <string name="color_swatch_description_selected">Colore <xliff:g id="color_index" example="14">%1$d</xliff:g> selezionato</string>
+    <string name="pref_profile_color">Colore profilo</string>
+    <string name="misc">Varie</string>
+    
 </resources>
