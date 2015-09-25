@@ -33,3 +33,6 @@
 }
 -keep public class **.R
 -dontwarn android.support.**
+-dontwarn org.apache.http.**
+-dontwarn com.android.volley.toolbox.**
+-dontwarn android.net.http.AndroidHttpClient
