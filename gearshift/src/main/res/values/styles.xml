@@ -23,7 +23,7 @@
 
     <style name="AppTheme.Toolbar" parent="AppBaseTheme">
         <item name="colorPrimary">@color/primary</item>
-        <item name="colorAccent">#f00</item>
+        <item name="colorAccent">@android:color/white</item>
         <item name="colorControlNormal">@android:color/white</item>
     </style>
 
@@ -51,9 +51,21 @@
         <item name="colorAccent">@color/control_activated</item>
     </style>
 
+    <style name="DefaultToolbarTheme" parent="AppTheme">
+        <item name="colorPrimary">@color/primary</item>
+        <item name="colorAccent">@android:color/white</item>
+        <item name="colorControlNormal">@android:color/white</item>
+        <item name="colorControlHighlight">@color/ripple_material_light</item>
+        <item name="android:textColorPrimary">@android:color/primary_text_dark</item>
+    </style>
+
+    <style name="DefaultToolbarPopupTheme" parent="@style/ThemeOverlay.AppCompat.Light">
+        <item name="colorAccent">@color/accent</item>
+    </style>
+
     <style name="DefaultToolbar" parent="ThemeOverlay.AppCompat.Dark.ActionBar">
         <item name="android:background">?attr/colorPrimary</item>
-        <item name="popupTheme">@style/ThemeOverlay.AppCompat.Light</item>
+        <item name="popupTheme">@style/DefaultToolbarPopupTheme</item>
         <item name="android:theme">@style/ThemeOverlay.AppCompat.Dark.ActionBar</item>
     </style>
 

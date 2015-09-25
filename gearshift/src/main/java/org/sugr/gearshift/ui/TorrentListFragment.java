@@ -24,9 +24,7 @@ import android.support.v4.content.Loader;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
-import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.AlertDialog;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
 import android.text.Html;
@@ -34,7 +32,6 @@ import android.text.TextUtils;
 import android.util.SparseArray;
 import android.util.SparseBooleanArray;
 import android.view.ActionMode;
-import android.view.ContextThemeWrapper;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -607,7 +604,8 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
         inflater.inflate(R.menu.torrent_list_fragment, menu);
         MenuItem item = menu.findItem(R.id.find);
 
-        SearchView findView = new SearchView(getActivity());
+        SearchView findView = (SearchView) item.getActionView();
+
         findView.setQueryHint(getActivity().getString(R.string.filter));
         findView.setIconifiedByDefault(true);
         findView.setIconified(true);
