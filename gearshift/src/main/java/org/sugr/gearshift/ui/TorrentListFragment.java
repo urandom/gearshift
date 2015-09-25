@@ -485,15 +485,15 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
 
         final SwipeRefreshLayout swipeRefresh = (SwipeRefreshLayout) view.findViewById(R.id.swipe_container);
         swipeRefresh.setColorSchemeResources(R.color.main_red, R.color.main_gray,
-            R.color.main_black, R.color.main_red);
+                R.color.main_black, R.color.main_red);
         swipeRefresh.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override public void onRefresh() {
                 DataServiceManager manager =
-                    ((DataServiceManagerInterface) getActivity()).getDataServiceManager();
+                        ((DataServiceManagerInterface) getActivity()).getDataServiceManager();
                 if (manager != null) {
                     manager.update();
                     ((TransmissionSessionInterface) getActivity()).setRefreshing(true,
-                        DataService.Requests.GET_TORRENTS);
+                            DataService.Requests.GET_TORRENTS);
                 }
             }
         });
@@ -549,7 +549,7 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
         super.onResume();
 
         LocalBroadcastManager.getInstance(getActivity()).registerReceiver(
-            sessionReceiver, new IntentFilter(G.INTENT_SESSION_INVALIDATED));
+                sessionReceiver, new IntentFilter(G.INTENT_SESSION_INVALIDATED));
     }
 
     @Override public void onPause() {
@@ -604,32 +604,44 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
         inflater.inflate(R.menu.torrent_list_fragment, menu);
         MenuItem item = menu.findItem(R.id.find);
 
-        SearchView findView = (SearchView) item.getActionView();
+        SearchView findView = (SearchView) MenuItemCompat.getActionView(item);
 
         findView.setQueryHint(getActivity().getString(R.string.filter));
         findView.setIconifiedByDefault(true);
         findView.setIconified(true);
+
+        if (findVisible) {
+            setFindVisibility();
+        }
+
         findView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
-            @Override public boolean onQueryTextSubmit(String query) {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
                 return false;
             }
 
-            @Override public boolean onQueryTextChange(String newText) {
+            @Override
+            public boolean onQueryTextChange(String newText) {
                 if (!newText.equals(findQuery)) {
                     findQuery = newText;
                     findHandler.removeCallbacks(findRunnable);
                     findHandler.postDelayed(findRunnable, 500);
+
+                    sharedPrefs.edit().putString(G.PREF_LIST_SEARCH, findQuery).apply();
                 }
                 return true;
             }
         });
 
         MenuItemCompat.setOnActionExpandListener(item, new MenuItemCompat.OnActionExpandListener() {
-            @Override public boolean onMenuItemActionExpand(MenuItem item) {
+            @Override
+            public boolean onMenuItemActionExpand(MenuItem item) {
+                findVisible = true;
                 return true;
             }
 
-            @Override public boolean onMenuItemActionCollapse(MenuItem item) {
+            @Override
+            public boolean onMenuItemActionCollapse(MenuItem item) {
                 findQuery = "";
                 findVisible = false;
                 setListFilter((String) null);
@@ -638,16 +650,12 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
             }
         });
 
-        item.setActionView(findView);
-
-        if (findVisible) {
-            setFindVisibility(findVisible);
-        }
-
         if (((TransmissionSessionInterface) getActivity()).getSession() != null) {
             int visibleCount = setupSortMenu();
             item = menu.findItem(R.id.sort);
             item.setVisible(visibleCount > 0);
+
+            menu.findItem(R.id.find).setVisible(true);
         }
     }
 
@@ -910,10 +918,6 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
         scrollToTop = true;
     }
 
-    public boolean isFindShown() {
-        return findVisible;
-    }
-
     public Cursor getCursor() {
         return torrentAdapter.getCursor();
     }
@@ -975,26 +979,23 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
         return true;
     }
 
-    private void setFindVisibility(boolean visible) {
+    private void setFindVisibility() {
         MenuItem item = menu.findItem(R.id.find);
-        if (visible) {
-            if (actionMode != null) {
-                actionMode.finish();
-            }
+        if (actionMode != null) {
+            actionMode.finish();
+        }
 
-            findVisible = true;
-            findQuery = sharedPrefs.getString(G.PREF_LIST_SEARCH, "");
-            item.setVisible(true);
-            item.expandActionView();
+        item.setVisible(true);
+        MenuItemCompat.expandActionView(item);
 
-            SearchView findView = (SearchView) MenuItemCompat.getActionView(item);
+        final SearchView findView = (SearchView) MenuItemCompat.getActionView(item);
 
-            if (!findQuery.equals("")) {
-                findView.setQuery(findQuery, false);
-            }
-
-        } else {
-            item.collapseActionView();
+        if (!findQuery.equals("")) {
+            findView.post(new Runnable() {
+                @Override public void run() {
+                    findView.setQuery(findQuery, true);
+                }
+            });
         }
     }
 
