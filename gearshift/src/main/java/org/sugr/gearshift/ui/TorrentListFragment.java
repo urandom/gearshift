@@ -155,7 +155,7 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
             final DataServiceManager manager =
                 ((DataServiceManagerInterface) getActivity()).getDataServiceManager();
 
-            if (manager == null)
+            if (manager == null || selectedTorrentIds == null)
                 return false;
 
             final String[] hashStrings = new String[selectedTorrentIds.size()];
