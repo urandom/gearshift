@@ -94,11 +94,7 @@
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
-
-        <meta-data
-            android:name="com.google.android.backup.api_key"
-            android:value="AEdPqrEAAAAIPmUc7ecxzuRYH5xae0ephTNsrjJDOho8oAYxLA" />
-
+        
         <service
             android:name="org.sugr.gearshift.service.DataService"
             android:exported="false" />
