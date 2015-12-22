@@ -2,7 +2,7 @@ apply plugin: 'android'
 
 android {
     compileSdkVersion 23
-    buildToolsVersion '23.0.0'
+    buildToolsVersion '23.0.2'
 
     defaultConfig {
         minSdkVersion 16
@@ -46,10 +46,10 @@ android {
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
 
-    compile 'com.android.support:support-v4:23.0.+'
-    compile 'com.android.support:appcompat-v7:23.0.+'
-    compile 'com.android.support:recyclerview-v7:23.0.+'
-    compile 'com.android.support:cardview-v7:23.0.+'
+    compile 'com.android.support:support-v4:23.1.1'
+    compile 'com.android.support:appcompat-v7:23.1.1'
+    compile 'com.android.support:recyclerview-v7:23.1.1'
+    compile 'com.android.support:cardview-v7:23.1.1'
     compile 'com.fasterxml.jackson.core:jackson-core:2.3.0'
     compile 'com.fasterxml.jackson.core:jackson-databind:2.3.0'
     compile 'com.fasterxml.jackson.core:jackson-annotations:2.3.0'
