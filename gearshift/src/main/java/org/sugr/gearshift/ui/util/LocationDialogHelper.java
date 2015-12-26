@@ -144,7 +144,14 @@ public class LocationDialogHelper {
             }
         };
 
-        setInitialLocation.run();
+        location.addOnAttachStateChangeListener(new View.OnAttachStateChangeListener() {
+            @Override public void onViewAttachedToWindow(View v) {
+                setInitialLocation.run();
+                location.removeOnAttachStateChangeListener(this);
+            }
+
+            @Override public void onViewDetachedFromWindow(View v) { }
+        });
 
         View collapse = view.findViewById(R.id.location_collapse);
         collapse.setOnClickListener(new View.OnClickListener() {
