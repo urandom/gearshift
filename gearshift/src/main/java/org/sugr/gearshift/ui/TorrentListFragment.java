@@ -183,26 +183,17 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
                             new DialogInterface.OnClickListener() {
                                 @Override
                                 public void onClick(DialogInterface dialog, int id) {
-                                    manager.removeTorrent(hashStrings, false);
+                                    boolean removeData =
+                                            ((CheckBox) ((AlertDialog) dialog).findViewById(R.id.remove_data))
+                                                    .isChecked();
+                                    manager.removeTorrent(hashStrings, removeData);
                                     ((TransmissionSessionInterface) getActivity()).setRefreshing(true,
                                         DataService.Requests.REMOVE_TORRENT);
 
                                     mode.finish();
                                 }
                             })
-                        .setNeutralButton(R.string.remove_with_data,
-                            new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialog, int which) {
-                                    manager.removeTorrent(hashStrings, true);
-                                    ((TransmissionSessionInterface) getActivity()).setRefreshing(true,
-                                        DataService.Requests.REMOVE_TORRENT);
-
-                                    mode.finish();
-
-                                }
-                            })
-                        .setMessage(R.string.remove_selected_confirmation)
+                        .setView(getActivity().getLayoutInflater().inflate(R.layout.remove_torrent_dialog, null))
                         .show();
                     return true;
                 case R.id.resume:

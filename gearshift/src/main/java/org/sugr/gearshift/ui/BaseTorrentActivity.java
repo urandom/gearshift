@@ -284,6 +284,8 @@ public abstract class BaseTorrentActivity extends ColorizedToolbarActivity
         if (profile != null) {
             manager = new DataServiceManager(this, profile.getId()).startUpdating();
             new SessionTask(this, SessionTask.Flags.START_TORRENT_TASK).execute();
+
+            colorize(profile);
         }
 
         SharedPreferences prefs = getSharedPreferences(
@@ -293,8 +295,6 @@ public abstract class BaseTorrentActivity extends ColorizedToolbarActivity
         if (prefs != null && newProfile) {
             prefs.registerOnSharedPreferenceChangeListener(profileChangeListener);
         }
-
-        colorize(profile);
     }
 
     @Override public List<TransmissionProfile> getProfiles() {

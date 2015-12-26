@@ -12,7 +12,6 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AlertDialog;
 import android.text.Html;
-import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -20,14 +19,13 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
-import android.widget.EditText;
-import android.widget.Spinner;
+import android.widget.TextView;
 
 import org.sugr.gearshift.G;
 import org.sugr.gearshift.R;
+import org.sugr.gearshift.core.Torrent;
 import org.sugr.gearshift.core.TransmissionProfile;
 import org.sugr.gearshift.core.TransmissionSession;
-import org.sugr.gearshift.core.Torrent;
 import org.sugr.gearshift.datasource.DataSource;
 import org.sugr.gearshift.datasource.TorrentNameStatus;
 import org.sugr.gearshift.service.DataService;
@@ -178,24 +176,24 @@ public class TorrentDetailFragment extends Fragment implements TorrentListNotifi
         G.TorrentAction action;
         switch (item.getItemId()) {
             case R.id.remove:
+                ViewGroup v = (ViewGroup) getActivity().getLayoutInflater().inflate(R.layout.remove_torrent_dialog, null);
                 AlertDialog.Builder builder = new AlertDialog.Builder(getActivity())
                     .setCancelable(false)
+                    .setView(v)
                     .setNegativeButton(android.R.string.no, null);
 
+                ((TextView) v.findViewById(R.id.remove_torrent_text)).setText(
+                        String.format(getString(R.string.remove_current_confirmation),
+                                G.trimTrailingWhitespace(Html.fromHtml(currentTorrentName))));
                 builder.setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
                     @Override public void onClick(DialogInterface dialog, int id) {
-                        manager.removeTorrent(hashStrings, false);
+                        boolean removeData =
+                                ((CheckBox) ((AlertDialog) dialog).findViewById(R.id.remove_data))
+                                        .isChecked();
+                        manager.removeTorrent(hashStrings, removeData);
                         context.setRefreshing(true, DataService.Requests.REMOVE_TORRENT);
                     }
-                }).setNeutralButton(R.string.remove_with_data, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        manager.removeTorrent(hashStrings, true);
-                        context.setRefreshing(true, DataService.Requests.REMOVE_TORRENT);
-                    }
-                }).setMessage(String.format(getString(R.string.remove_current_confirmation),
-                    G.trimTrailingWhitespace(Html.fromHtml(currentTorrentName))))
-                .show();
+                }).show();
                 return true;
             case R.id.resume:
                 switch(currentTorrentStatus) {
