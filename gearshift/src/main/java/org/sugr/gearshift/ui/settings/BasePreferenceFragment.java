@@ -17,6 +17,7 @@ public class BasePreferenceFragment extends PreferenceFragment
 
     protected SharedPreferences sharedPrefs;
     protected Object[][] summaryPrefs = {
+            // key, format, values, entries, type_if_no_values_and_entries
     };
 
     @Override public void onCreate(Bundle savedInstanceState) {

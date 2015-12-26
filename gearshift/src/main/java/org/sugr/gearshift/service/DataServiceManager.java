@@ -13,13 +13,14 @@ import android.support.v4.content.LocalBroadcastManager;
 
 import org.sugr.gearshift.G;
 import org.sugr.gearshift.core.Torrent;
+import org.sugr.gearshift.core.TransmissionProfile;
 import org.sugr.gearshift.core.TransmissionSession;
 
 import java.util.ArrayList;
 
 public class DataServiceManager {
     private Context context;
-    private String profileId;
+    private TransmissionProfile profile;
 
     private int iteration;
     private boolean details;
@@ -43,9 +44,9 @@ public class DataServiceManager {
 
     private static final String STATE_ITERATION = "data_service_iteration";
 
-    public DataServiceManager(Context context, String profileId) {
+    public DataServiceManager(Context context, TransmissionProfile profile) {
         this.context = context;
-        this.profileId = profileId;
+        this.profile = profile;
 
         iteration = 0;
         serviceReceiver = new ServiceReceiver();
@@ -128,9 +129,8 @@ public class DataServiceManager {
         if (sessionOnly) {
             getSession();
         } else {
-            SharedPreferences prefs = getPreferences();
-            boolean active = prefs.getBoolean(G.PREF_UPDATE_ACTIVE, false);
-            int fullUpdate = Integer.parseInt(prefs.getString(G.PREF_FULL_UPDATE, "2"));
+            boolean active = profile.updateActiveTorrentsOnly();
+            int fullUpdate = profile.getFullUpdate();
 
             String requestType = DataService.Requests.GET_TORRENTS;
             Bundle args = new Bundle();
@@ -184,12 +184,6 @@ public class DataServiceManager {
         context.startService(intent);
 
         return this;
-    }
-
-    public DataServiceManager addTorrent(String magnet, String data, String location,
-                                         boolean addPaused, String temporaryFile, Uri documentUri) {
-
-        return addTorrent(profileId, magnet, data, location, addPaused, temporaryFile, documentUri);
     }
 
     public DataServiceManager addTorrent(String profile, String magnet, String data, String location,
@@ -338,7 +332,7 @@ public class DataServiceManager {
 
     private Intent createIntent(String requestType, Bundle args) {
         Intent intent = new Intent(context, DataService.class);
-        intent.putExtra(G.ARG_PROFILE_ID, profileId);
+        intent.putExtra(G.ARG_PROFILE_ID, profile.getId());
         intent.putExtra(G.ARG_REQUEST_TYPE, requestType);
         intent.putExtra(G.ARG_REQUEST_ARGS, args == null ? new Bundle() : args);
 
@@ -346,8 +340,7 @@ public class DataServiceManager {
     }
 
     private void repeatLoading() {
-        SharedPreferences prefs = getPreferences();
-        int update = Integer.parseInt(prefs.getString(G.PREF_UPDATE_INTERVAL, "-1"));
+        int update = profile.getUpdateInterval();
         if (update >= 0 && !isStopped) {
             if (sessionOnly && update < 10) {
                 update = 10;

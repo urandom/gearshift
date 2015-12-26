@@ -75,7 +75,6 @@
     <string name="no_download_dirs">&lt;h2&gt;Vous n\'avez pas de répertoire de téléchargement supplémentaire.&lt;/h2&gt;En ajouter ici vous autorisera à changer l\'emplacement de tous les torrents dans ce profil.</string>
     
     <string name="updates">Rafraîchissements</string>
-    <string name="update_active_torrents">Rafraîchir uniquement les torrents actifs</string>
     <string name="full_update">Rafraîchissement complet</string>
     <string name="full_update_summary_format">Tous les %1$d rafraîchissements actifs</string>
     <string name="update_interval_dialog_title">Intervalle de rafraîchissement</string>
@@ -484,6 +483,7 @@
     </string-array>
 
     <string-array name="pref_full_update_entries">
+        <item>Disable partial updates</item>
         <item>2 mises à jour</item>
         <item>3 mises à jour</item>
         <item>5 mises à jour</item>

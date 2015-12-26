@@ -1,27 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
-     <PreferenceCategory 
-        android:title="@string/updates" >
-        <CheckBoxPreference
-            android:key="update_active_torrents"
-            android:title="@string/update_active_torrents"
-            android:defaultValue="false" />
-        <ListPreference
-	        android:dependency="update_active_torrents"
-	        android:key="full_update"
-	        android:title="@string/full_update"
-	        android:dialogTitle="@string/update_interval_dialog_title"
-	        android:entries="@array/pref_full_update_entries"
-	        android:entryValues="@array/pref_full_update_values"
-	        android:defaultValue="2" />
-        <ListPreference
-	        android:key="update_interval"
-	        android:title="@string/update_interval"
-	        android:dialogTitle="@string/update_interval_dialog_title"
-	        android:entries="@array/pref_update_interval_entries"
-	        android:entryValues="@array/pref_update_interval_values"
-	        android:defaultValue="1" />
-
+     <PreferenceCategory android:title="@string/updates" >
          <CheckBoxPreference
              android:key="auto_update_check"
              android:title="@string/auto_update_check"
@@ -29,8 +8,7 @@
 
     </PreferenceCategory>
 
-    <PreferenceCategory
-        android:title="@string/user_interface_header">
+    <PreferenceCategory android:title="@string/user_interface_header">
 
         <CheckBoxPreference
             android:key="show_status"
@@ -49,8 +27,7 @@
 
     </PreferenceCategory>
     
-    <PreferenceCategory
-        android:title="@string/developer_options">
+    <PreferenceCategory android:title="@string/developer_options">
         
         <CheckBoxPreference
             android:key="debug"

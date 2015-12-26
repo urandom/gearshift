@@ -146,7 +146,7 @@ public abstract class BaseTorrentActivity extends ColorizedToolbarActivity
         if (profile != null) {
             colorize(profile);
             if (manager == null) {
-                manager = new DataServiceManager(this, profile.getId()).startUpdating();
+                manager = new DataServiceManager(this, profile).startUpdating();
             }
         }
 
@@ -281,8 +281,10 @@ public abstract class BaseTorrentActivity extends ColorizedToolbarActivity
             }
         }
 
-        if (profile != null) {
-            manager = new DataServiceManager(this, profile.getId()).startUpdating();
+        if (profile == null) {
+            manager = null;
+        } else {
+            manager = new DataServiceManager(this, profile).startUpdating();
             new SessionTask(this, SessionTask.Flags.START_TORRENT_TASK).execute();
 
             colorize(profile);

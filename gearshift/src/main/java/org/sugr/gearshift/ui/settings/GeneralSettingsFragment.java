@@ -6,7 +6,6 @@ import android.preference.PreferenceManager;
 import android.view.Menu;
 import android.view.MenuInflater;
 
-import org.sugr.gearshift.G;
 import org.sugr.gearshift.R;
 
 public class GeneralSettingsFragment extends BasePreferenceFragment {
@@ -17,12 +16,6 @@ public class GeneralSettingsFragment extends BasePreferenceFragment {
 
         sharedPrefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
         addPreferencesFromResource(R.xml.general_preferences);
-
-        summaryPrefs = new Object[][] {
-            {G.PREF_FULL_UPDATE, getString(R.string.full_update_summary_format), -1, -1, "int"},
-            {G.PREF_UPDATE_INTERVAL, getString(R.string.update_interval_summary_format),
-                R.array.pref_update_interval_values, R.array.pref_update_interval_entries, ""},
-        };
 
         ActionBar actionBar = getActivity().getActionBar();
         if (actionBar != null) {

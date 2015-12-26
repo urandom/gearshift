@@ -72,7 +72,6 @@
     <string name="no_download_dirs">&lt;h2&gt;No tienes ningún directorio de descarga extra.&lt;/h2&gt;Añadir algunos aquí te permitirá cambiar el directori ode descarga para este perfil.</string>
     
     <string name="updates">Actializaciones</string>
-    <string name="update_active_torrents">Actualizar sólamente torrents activos</string>
     <string name="full_update">Actualización completa</string>
     <string name="full_update_summary_format">Cada %1$d actualizaciones activas</string>
     <string name="update_interval_dialog_title">Intervalo de actualización</string>
@@ -415,6 +414,7 @@
     </string-array>
 
     <string-array name="pref_full_update_entries">
+        <item>Disable partial updates</item>
         <item>2 actualizaciones</item>
         <item>3 actualizaciones</item>
         <item>5 actualizaciones</item>

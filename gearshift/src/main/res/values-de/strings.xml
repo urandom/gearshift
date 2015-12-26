@@ -75,7 +75,6 @@
     <string name="no_download_dirs">&lt;h2&gt;Du hast keine zusätzlichen Download-Ordner.&lt;/h2&gt;Füge welche hier hinzu um den Ort eines Torrents in diesem Profil zu ändern.</string>
     
     <string name="updates">Updates</string>
-    <string name="update_active_torrents">Nur aktive Torrents aktualisieren</string>
     <string name="full_update">Volles update</string>
     <string name="full_update_summary_format">Alle %1$d aktive Updates</string>
     <string name="update_interval_dialog_title">Update-Interval</string>
@@ -475,6 +474,7 @@
     </string-array>
 
     <string-array name="pref_full_update_entries">
+        <item>Disable partial updates</item>
         <item>2 Updates</item>
         <item>3 Updates</item>
         <item>5 Updates</item>

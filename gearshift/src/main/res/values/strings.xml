@@ -75,7 +75,6 @@
     <string name="no_download_dirs">&lt;h2&gt;You have no extra download directories.&lt;/h2&gt;Adding some here will allow you to change the location of any torrent in this profile.</string>
     
     <string name="updates">Updates</string>
-    <string name="update_active_torrents">Update active torrents only</string>
     <string name="full_update">Full update</string>
     <string name="full_update_summary_format">Every %1$d active updates</string>
     <string name="update_interval_dialog_title">Update interval</string>
@@ -484,6 +483,7 @@
     </string-array>
 
     <string-array name="pref_full_update_entries">
+        <item>Disable partial updates</item>
         <item>2 updates</item>
         <item>3 updates</item>
         <item>5 updates</item>

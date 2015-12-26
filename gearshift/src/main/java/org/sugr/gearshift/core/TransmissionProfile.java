@@ -42,6 +42,9 @@ public class TransmissionProfile implements Parcelable, Comparable<TransmissionP
     private String proxyHost = "";
     private int proxyPort = 8080;
 
+    private int updateInterval = 1;
+    private int fullUpdate = 2;
+
     private int color;
 
     private Context context;
@@ -205,6 +208,26 @@ public class TransmissionProfile implements Parcelable, Comparable<TransmissionP
         return proxyPort;
     }
 
+    public int getUpdateInterval() {
+        return updateInterval;
+    }
+
+    public void setUpdateInterval(int interval) {
+        updateInterval = interval;
+    }
+
+    public int getFullUpdate() {
+        return fullUpdate;
+    }
+
+    public void setFullUpdate(int every) {
+        fullUpdate = every;
+    }
+
+    public boolean updateActiveTorrentsOnly() {
+        return fullUpdate > 0;
+    }
+
     public int getColor() {
         return color;
     }
@@ -262,6 +285,17 @@ public class TransmissionProfile implements Parcelable, Comparable<TransmissionP
             proxyPort = 65535;
         }
 
+        try {
+            updateInterval = Integer.parseInt(pref.getString(G.PREF_UPDATE_INTERVAL + id, "1"));
+        } catch (NumberFormatException e) {
+            updateInterval = 1;
+        }
+        try {
+            fullUpdate = Integer.parseInt(pref.getString(G.PREF_FULL_UPDATE + id, "2"));
+        } catch (NumberFormatException e) {
+            fullUpdate = 2;
+        }
+
         color = pref.getInt(G.PREF_COLOR + id, 0);
         if (color == 0) {
             color = Colorizer.defaultColor(context);
@@ -285,6 +319,8 @@ public class TransmissionProfile implements Parcelable, Comparable<TransmissionP
         e.putBoolean(G.PREF_PROXY + id, useProxy);
         e.putString(G.PREF_PROXY_HOST + id, proxyHost);
         e.putString(G.PREF_PROXY_PORT + id, Integer.toString(proxyPort));
+        e.putString(G.PREF_UPDATE_INTERVAL + id, Integer.toString(updateInterval));
+        e.putString(G.PREF_FULL_UPDATE + id, Integer.toString(fullUpdate));
         e.putInt(G.PREF_COLOR + id, color);
 
         e.commit();
@@ -356,6 +392,8 @@ public class TransmissionProfile implements Parcelable, Comparable<TransmissionP
         e.putBoolean(G.PREF_PROXY, useProxy);
         e.putString(G.PREF_PROXY_HOST, proxyHost);
         e.putString(G.PREF_PROXY_PORT, Integer.toString(proxyPort));
+        e.putString(G.PREF_UPDATE_INTERVAL, Integer.toString(updateInterval));
+        e.putString(G.PREF_FULL_UPDATE, Integer.toString(fullUpdate));
         e.putInt(G.PREF_COLOR, color);
 
         e.apply();
@@ -475,6 +513,8 @@ public class TransmissionProfile implements Parcelable, Comparable<TransmissionP
         in.writeInt(useProxy ? 1 : 0);
         in.writeString(proxyHost);
         in.writeInt(proxyPort);
+        in.writeInt(updateInterval);
+        in.writeInt(fullUpdate);
         in.writeInt(color);
     }
 
@@ -514,6 +554,8 @@ public class TransmissionProfile implements Parcelable, Comparable<TransmissionP
         useProxy = in.readInt() == 1;
         proxyHost = in.readString();
         proxyPort = in.readInt();
+        updateInterval = in.readInt();
+        fullUpdate = in.readInt();
         color = in.readInt();
     }
 

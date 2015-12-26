@@ -75,7 +75,6 @@
     <string name="no_download_dirs">&lt;h2&gt;Non hai impostato cartelle aggiuntive.&lt;/h2&gt;Aggiungi cartelle per cambiare la posizione dei torrent di questo profilo.</string>
     
     <string name="updates">Aggiornamenti</string>
-    <string name="update_active_torrents">Aggiorna solo i torrent attivi</string>
     <string name="full_update">Aggiornamento completo</string>
     <string name="full_update_summary_format">Ogni %1$d aggiornamenti attivi</string>
     <string name="update_interval_dialog_title">Intervallo di aggiornamento</string>
@@ -484,6 +483,7 @@
     </string-array>
 
     <string-array name="pref_full_update_entries">
+        <item>Disable partial updates</item>
         <item>2 aggiornamenti</item>
         <item>3 aggiornamenti</item>
         <item>5 aggiornamenti</item>

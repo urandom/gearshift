@@ -155,7 +155,7 @@ public class TransmissionSessionActivity extends ColorizedToolbarActivity implem
 
         profile = in.getParcelableExtra(G.ARG_PROFILE);
         session = in.getParcelableExtra(G.ARG_SESSION);
-        manager = new DataServiceManager(this, profile.getId())
+        manager = new DataServiceManager(this, profile)
             .setSessionOnly(true).onRestoreInstanceState(savedInstanceState).startUpdating();
 
         super.onCreate(savedInstanceState);
@@ -208,7 +208,7 @@ public class TransmissionSessionActivity extends ColorizedToolbarActivity implem
         super.onResume();
 
         if (profile != null && manager == null) {
-            manager = new DataServiceManager(this, profile.getId())
+            manager = new DataServiceManager(this, profile)
                 .setDetails(true).startUpdating();
         }
         LocalBroadcastManager.getInstance(this).registerReceiver(serviceReceiver, new IntentFilter(G.INTENT_SERVICE_ACTION_COMPLETE));

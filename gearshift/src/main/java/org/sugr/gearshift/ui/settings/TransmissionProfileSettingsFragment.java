@@ -94,6 +94,9 @@ public class TransmissionProfileSettingsFragment extends BasePreferenceFragment 
             {G.PREF_TIMEOUT + id, getString(R.string.profile_summary_format), -1, -1, ""},
             /* {G.PREF_RETRIES + id, getString(R.string.profile_summary_format),
                 R.array.pref_con_retries_values, R.array.pref_con_retries_entries, ""}, */
+            {G.PREF_FULL_UPDATE + id, getString(R.string.full_update_summary_format), -1, -1, "int"},
+            {G.PREF_UPDATE_INTERVAL + id, getString(R.string.update_interval_summary_format),
+                    R.array.pref_update_interval_values, R.array.pref_update_interval_entries, ""},
         };
 
         pm.findPreference(G.PREF_DIRECTORIES + id)
@@ -220,7 +223,7 @@ public class TransmissionProfileSettingsFragment extends BasePreferenceFragment 
                 LocalBroadcastManager.getInstance(getActivity()).registerReceiver(
                         new ServiceReceiver(), new IntentFilter(G.INTENT_SERVICE_ACTION_COMPLETE));
 
-                new DataServiceManager(getActivity(), profile.getId()).removeProfile();
+                new DataServiceManager(getActivity(), profile).removeProfile();
 
                 item.setActionView(R.layout.action_progress_bar);
 

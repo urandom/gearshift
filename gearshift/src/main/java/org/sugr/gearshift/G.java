@@ -12,9 +12,6 @@ import java.util.Comparator;
 public final class G {
     public static final String PREF_DEBUG = "debug";
 
-    public static final String PREF_UPDATE_ACTIVE = "update_active_torrents";
-    public static final String PREF_FULL_UPDATE = "full_update";
-    public static final String PREF_UPDATE_INTERVAL = "update_interval";
     public static final String PREF_SHOW_STATUS = "show_status";
     public static final String PREF_SHOW_ADD_DIALOG = "show_add_dialog";
     public static final String PREF_DELETE_DATA = "delete_data";
@@ -40,8 +37,9 @@ public final class G {
     public static final String PREF_PROXY = "profile_use_proxy";
     public static final String PREF_PROXY_HOST = "profile_proxy_host";
     public static final String PREF_PROXY_PORT = "profile_proxy_port";
+    public static final String PREF_UPDATE_INTERVAL = "profile_update_interval";
+    public static final String PREF_FULL_UPDATE = "profile_full_update";
     public static final String PREF_COLOR = "profile_color";
-    public static final String PREF_PREFIX = "profile_";
 
     public static final String[] UNPREFIXED_PROFILE_PREFERENCE_KEYS = new String[] {
             G.PREF_NAME,
@@ -57,6 +55,8 @@ public final class G {
             G.PREF_PROXY_HOST,
             G.PREF_PROXY_PORT,
             G.PREF_DIRECTORIES,
+            G.PREF_UPDATE_INTERVAL,
+            G.PREF_FULL_UPDATE,
             G.PREF_COLOR,
     };
 

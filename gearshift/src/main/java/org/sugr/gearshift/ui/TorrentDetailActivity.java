@@ -50,7 +50,7 @@ public class TorrentDetailActivity extends BaseTorrentActivity {
             setRefreshing(true, in.getStringExtra(G.ARG_REFRESH_TYPE));
         }
 
-        manager = new DataServiceManager(this, profile.getId())
+        manager = new DataServiceManager(this, profile)
             .setDetails(true).onRestoreInstanceState(savedInstanceState).startUpdating();
 
         super.onCreate(savedInstanceState);

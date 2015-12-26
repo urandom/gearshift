@@ -78,6 +78,24 @@
             android:dialogTitle="@string/con_proxy_port" />
 	</PreferenceCategory>
 
+	<PreferenceCategory android:title="@string/updates" >
+		<ListPreference
+			android:key="profile_update_interval"
+			android:title="@string/update_interval"
+			android:dialogTitle="@string/update_interval_dialog_title"
+			android:entries="@array/pref_update_interval_entries"
+			android:entryValues="@array/pref_update_interval_values"
+			android:defaultValue="1" />
+
+        <ListPreference
+            android:key="profile_full_update"
+            android:title="@string/full_update"
+            android:dialogTitle="@string/update_interval_dialog_title"
+            android:entries="@array/pref_full_update_entries"
+            android:entryValues="@array/pref_full_update_values"
+            android:defaultValue="2" />
+	</PreferenceCategory>
+
 	<PreferenceCategory android:title="@string/misc">
         <Preference
             android:key="profile_directories"

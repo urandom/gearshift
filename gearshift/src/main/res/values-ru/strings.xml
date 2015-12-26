@@ -75,7 +75,6 @@
     <string name="no_download_dirs">&lt;h2>У вас не настроен список папок для загрузки торрентов.&lt;/h2>Добавление папок позволит вам перемещать данные торрентов из текущего места в новое.</string>
     
     <string name="updates">Обновление</string>
-    <string name="update_active_torrents">Обновлять только активные торренты</string>
     <string name="full_update">Полное обновление</string>
     <string name="full_update_summary_format">После каждых %1$d обновлений активных торрентов</string>
     <string name="update_interval_dialog_title">Интервал обновления</string>
@@ -484,6 +483,7 @@
     </string-array>
 
     <string-array name="pref_full_update_entries">
+        <item>Disable partial updates</item>
         <item>2 обновления</item>
         <item>3 обновления</item>
         <item>5 обновлений</item>
