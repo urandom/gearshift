@@ -166,7 +166,7 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
             AlertDialog.Builder builder;
             G.TorrentAction action;
             switch (item.getItemId()) {
-                case R.id.select_all:
+                case R.id.select_all: {
                     ListView v = getListView();
                     for (int i = 0; i < torrentAdapter.getCount(); i++) {
                         if (!v.isItemChecked(i)) {
@@ -174,7 +174,13 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
                         }
                     }
                     return true;
-                case R.id.remove:
+                }
+                case R.id.remove: {
+                    ViewGroup v = (ViewGroup) getActivity().getLayoutInflater().inflate(R.layout.remove_torrent_dialog, null);
+
+                    SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
+                    ((CheckBox) v.findViewById(R.id.remove_data)).setChecked(prefs.getBoolean(G.PREF_DELETE_DATA, false));
+
                     builder = new AlertDialog.Builder(getActivity())
                             .setCancelable(false)
                             .setNegativeButton(android.R.string.no, null);
@@ -188,14 +194,15 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
                                                     .isChecked();
                                     manager.removeTorrent(hashStrings, removeData);
                                     ((TransmissionSessionInterface) getActivity()).setRefreshing(true,
-                                        DataService.Requests.REMOVE_TORRENT);
+                                            DataService.Requests.REMOVE_TORRENT);
 
                                     mode.finish();
                                 }
                             })
-                        .setView(getActivity().getLayoutInflater().inflate(R.layout.remove_torrent_dialog, null))
-                        .show();
+                            .setView(v)
+                            .show();
                     return true;
+                }
                 case R.id.resume:
                     action = hasQueued ? G.TorrentAction.START_NOW : G.TorrentAction.START;
                     break;

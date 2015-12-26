@@ -549,5 +549,6 @@
     <string name="color_swatch_description_selected">Color <xliff:g id="color_index" example="14">%1$d</xliff:g> selected</string>
     <string name="pref_profile_color">Profile color</string>
     <string name="misc">Miscellaneous</string>
+    <string name="delete_data_default">Delete the torrent data during removal by default</string>
 
 </resources>

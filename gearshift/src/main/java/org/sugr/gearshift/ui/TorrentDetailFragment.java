@@ -3,10 +3,12 @@ package org.sugr.gearshift.ui;
 import android.app.Activity;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
+import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.view.ViewPager;
@@ -106,7 +108,7 @@ public class TorrentDetailFragment extends Fragment implements TorrentListNotifi
             @Override
             public void onPageSelected(int position) {
                 if (currentTorrentPosition != -1) {
-                    Intent intent=new Intent(G.INTENT_PAGE_UNSELECTED);
+                    Intent intent = new Intent(G.INTENT_PAGE_UNSELECTED);
                     intent.putExtra(G.ARG_TORRENT_HASH_STRING, currentTorrentPosition);
 
                     LocalBroadcastManager.getInstance(getActivity()).sendBroadcast(intent);
@@ -185,8 +187,13 @@ public class TorrentDetailFragment extends Fragment implements TorrentListNotifi
                 ((TextView) v.findViewById(R.id.remove_torrent_text)).setText(
                         String.format(getString(R.string.remove_current_confirmation),
                                 G.trimTrailingWhitespace(Html.fromHtml(currentTorrentName))));
+
+                SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
+                ((CheckBox) v.findViewById(R.id.remove_data)).setChecked(prefs.getBoolean(G.PREF_DELETE_DATA, false));
+
                 builder.setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
-                    @Override public void onClick(DialogInterface dialog, int id) {
+                    @Override
+                    public void onClick(DialogInterface dialog, int id) {
                         boolean removeData =
                                 ((CheckBox) ((AlertDialog) dialog).findViewById(R.id.remove_data))
                                         .isChecked();
@@ -194,6 +201,7 @@ public class TorrentDetailFragment extends Fragment implements TorrentListNotifi
                         context.setRefreshing(true, DataService.Requests.REMOVE_TORRENT);
                     }
                 }).show();
+
                 return true;
             case R.id.resume:
                 switch(currentTorrentStatus) {
