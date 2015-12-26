@@ -8,12 +8,10 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonArrayRequest;
 import com.android.volley.toolbox.Volley;
+import com.github.zafarkhaja.semver.Version;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
-
-import java.util.ArrayList;
-import java.util.Arrays;
 
 public class GearShiftApplication extends Application {
     private static boolean activityVisible;
@@ -75,7 +73,10 @@ public class GearShiftApplication extends Application {
                         String description = latest.getString("body");
                         String downloadUrl = latest.getJSONArray("assets").getJSONObject(0).getString("browser_download_url");
 
-                        if (versionCompare(version, tag) < 0) {
+                        Version current = Version.valueOf(version);
+                        Version remote = Version.valueOf(tag);
+
+                        if (remote.greaterThan(current)) {
                             G.logD("New update available at " + url);
 
                             onUpdateCheck.onNewRelease(name, description, url, downloadUrl);
@@ -97,59 +98,6 @@ public class GearShiftApplication extends Application {
         });
 
         requestQueue.add(request);
-    }
-
-    public static Integer versionCompare(String str1, String str2) {
-        if (str1.equals(str2)) {
-            return 0;
-        }
-
-        String[] vals1 = str1.split("\\.");
-        String[] vals2 = str2.split("\\.");
-
-        ArrayList<String> a1, a2;
-        a1 = new ArrayList<>(Arrays.asList(vals1));
-        a2 = new ArrayList<>(Arrays.asList(vals2));
-
-        formatPrerelease(a1);
-        formatPrerelease(a2);
-
-        int i = 0;
-        // set index to first non-equal ordinal or length of shortest version string
-        while (i < a1.size() && i < a2.size() && a1.get(i).equals(a2.get(i))) {
-            i++;
-        }
-
-        // compare first non-equal ordinal number
-        if (i < a1.size() && i < a2.size()) {
-
-            int diff = Integer.valueOf(a1.get(i)).compareTo(Integer.valueOf(a2.get(i)));
-            return Integer.signum(diff);
-        } else {
-            // the strings are equal or one string is a substring of the other
-            // e.g. "1.2.3" = "1.2.3" or "1.2.3" < "1.2.3.4"
-            return Integer.signum(a1.size() - a2.size());
-        }
-    }
-
-    private static void formatPrerelease(ArrayList<String> version) {
-        String last = version.get(version.size() - 1);
-        if (last.contains("-")) {
-            version.remove(version.size() - 1);
-            version.add(last.substring(0, last.indexOf("-")));
-
-            if (last.contains("-beta")) {
-                version.add("0");
-                version.add(last.substring(last.indexOf("-") + 5));
-            } else if (last.contains("-rc")) {
-                version.add("1");
-                version.add(last.substring(last.indexOf("-") + 3));
-            } else {
-                version.add("-1");
-            }
-        } else {
-            version.add("2");
-        }
     }
 
     private void handleUncaughtException(Thread thread, Throwable e) {
