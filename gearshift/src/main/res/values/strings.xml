@@ -550,5 +550,6 @@
     <string name="pref_profile_color">Profile color</string>
     <string name="misc">Miscellaneous</string>
     <string name="delete_data_default">Delete the torrent data during removal by default</string>
+    <string name="no_activity_for_open_document">Android cannot browse for torrent files</string>
 
 </resources>

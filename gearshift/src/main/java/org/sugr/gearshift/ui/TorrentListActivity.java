@@ -6,6 +6,7 @@ import android.animation.AnimatorListenerAdapter;
 import android.animation.ValueAnimator;
 import android.annotation.TargetApi;
 import android.app.Activity;
+import android.content.ActivityNotFoundException;
 import android.content.ContentResolver;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -785,12 +786,13 @@ public class TorrentListActivity extends BaseTorrentActivity
         }
 
         AlertDialog dialog = locationDialogHelper.showDialog(R.layout.new_torrent_dialog,
-            title, new DialogInterface.OnClickListener() {
-                @Override public void onClick(DialogInterface dialog, int which) {
-                    intentConsumed = true;
-                    newTorrentDialogVisible = false;
-                }
-            }, okListener
+                title, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        intentConsumed = true;
+                        newTorrentDialogVisible = false;
+                    }
+                }, okListener
         );
 
         if (dialog == null) {
@@ -835,13 +837,20 @@ public class TorrentListActivity extends BaseTorrentActivity
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
             builder.setNeutralButton(R.string.browse, new DialogInterface.OnClickListener() {
                 @TargetApi(Build.VERSION_CODES.KITKAT)
-                @Override public void onClick(DialogInterface dialog, int which) {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
                     Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
 
                     intent.addCategory(Intent.CATEGORY_OPENABLE);
                     intent.setType("application/x-bittorrent");
 
-                    startActivityForResult(intent, BROWSE_REQUEST_CODE);
+                    try {
+                        startActivityForResult(intent, BROWSE_REQUEST_CODE);
+                    } catch (ActivityNotFoundException e) {
+                        Toast.makeText(TorrentListActivity.this,
+                                R.string.no_activity_for_open_document, Toast.LENGTH_SHORT).show();
+                    }
+
                 }
             });
         }
