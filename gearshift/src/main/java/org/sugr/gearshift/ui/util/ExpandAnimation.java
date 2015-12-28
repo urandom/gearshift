@@ -80,11 +80,7 @@ public class ExpandAnimation {
                 if (expand) {
                     target.startAnimation(a);
                 } else {
-                    target.animate().alpha(0).withEndAction(new Runnable() {
-                        @Override public void run() {
-                            target.startAnimation(a);
-                        }
-                    });
+                    target.animate().alpha(0).withEndAction(() -> target.startAnimation(a));
                 }
 
                 return false;

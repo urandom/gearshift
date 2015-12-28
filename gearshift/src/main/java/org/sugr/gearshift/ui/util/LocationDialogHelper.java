@@ -89,33 +89,27 @@ public class LocationDialogHelper {
         final AutoCompleteTextView entry = (AutoCompleteTextView) view.findViewById(R.id.location_entry);
         final LinearLayout container = (LinearLayout) view.findViewById(R.id.location_container);
         final int duration = activity.getResources().getInteger(android.R.integer.config_shortAnimTime);
-        final Runnable swapLocationSpinner = new Runnable() {
-            @Override public void run() {
-                container.setAlpha(0f);
-                container.setVisibility(View.VISIBLE);
-                container.animate().alpha(1f).setDuration(duration);
+        final Runnable swapLocationSpinner = () -> {
+            container.setAlpha(0f);
+            container.setVisibility(View.VISIBLE);
+            container.animate().alpha(1f).setDuration(duration);
 
-                location.animate().alpha(0f).setDuration(duration).withEndAction(new Runnable() {
-                    @Override public void run() {
-                        location.setVisibility(View.GONE);
-                        location.animate().setListener(null).cancel();
-                        if (location.getSelectedItemPosition() != locationAdapter.getCount() - 1) {
-                            entry.setText((String) location.getSelectedItem());
-                        }
-                        entry.requestFocusFromTouch();
-                        InputMethodManager imm =
-                            (InputMethodManager) entry.getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
-                        imm.showSoftInput(entry, InputMethodManager.SHOW_IMPLICIT);
-                    }
-                });
-            }
+            location.animate().alpha(0f).setDuration(duration).withEndAction(() -> {
+                location.setVisibility(View.GONE);
+                location.animate().setListener(null).cancel();
+                if (location.getSelectedItemPosition() != locationAdapter.getCount() - 1) {
+                    entry.setText((String) location.getSelectedItem());
+                }
+                entry.requestFocusFromTouch();
+                InputMethodManager imm =
+                    (InputMethodManager) entry.getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
+                imm.showSoftInput(entry, InputMethodManager.SHOW_IMPLICIT);
+            });
         };
         location.setAdapter(locationAdapter);
-        location.setOnLongClickListener(new View.OnLongClickListener() {
-            @Override public boolean onLongClick(final View v) {
-                swapLocationSpinner.run();
-                return true;
-            }
+        location.setOnLongClickListener(v -> {
+            swapLocationSpinner.run();
+            return true;
         });
         location.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
@@ -126,21 +120,19 @@ public class LocationDialogHelper {
             @Override public void onNothingSelected(AdapterView<?> adapterView) {}
         });
 
-        ArrayAdapter<String> entryAdapter = new ArrayAdapter<String>(view.getContext(),
-            android.R.layout.simple_spinner_dropdown_item);
+        ArrayAdapter<String> entryAdapter = new ArrayAdapter<>(view.getContext(),
+                android.R.layout.simple_spinner_dropdown_item);
         List<String> directories = new ArrayList<>(session.getDownloadDirectories());
         Collections.sort(directories, G.SIMPLE_STRING_COMPARATOR);
         entryAdapter.addAll(directories);
         entry.setAdapter(entryAdapter);
 
-        final Runnable setInitialLocation = new Runnable() {
-            @Override public void run() {
-                TransmissionProfile profile = activity.getProfile();
-                if (profile != null && profile.getLastDownloadDirectory() != null) {
-                    int position = locationAdapter.getPosition(profile.getLastDownloadDirectory());
+        final Runnable setInitialLocation = () -> {
+            TransmissionProfile profile = activity.getProfile();
+            if (profile != null && profile.getLastDownloadDirectory() != null) {
+                int position = locationAdapter.getPosition(profile.getLastDownloadDirectory());
 
-                    location.setSelection(position == -1 ? 0 : position);
-                }
+                location.setSelection(position == -1 ? 0 : position);
             }
         };
 
@@ -154,22 +146,18 @@ public class LocationDialogHelper {
         });
 
         View collapse = view.findViewById(R.id.location_collapse);
-        collapse.setOnClickListener(new View.OnClickListener() {
-            @Override public void onClick(View v) {
-                location.setAlpha(0f);
-                location.setVisibility(View.VISIBLE);
-                location.animate().alpha(1f).setDuration(duration);
-                if (location.getSelectedItemPosition() == locationAdapter.getCount() - 1) {
-                    setInitialLocation.run();
-                }
-
-                container.animate().alpha(0f).setDuration(duration).withEndAction(new Runnable() {
-                    @Override public void run() {
-                        container.setVisibility(View.GONE);
-                        container.animate().setListener(null).cancel();
-                    }
-                });
+        collapse.setOnClickListener(v -> {
+            location.setAlpha(0f);
+            location.setVisibility(View.VISIBLE);
+            location.animate().alpha(1f).setDuration(duration);
+            if (location.getSelectedItemPosition() == locationAdapter.getCount() - 1) {
+                setInitialLocation.run();
             }
+
+            container.animate().alpha(0f).setDuration(duration).withEndAction(() -> {
+                container.setVisibility(View.GONE);
+                container.animate().setListener(null).cancel();
+            });
         });
 
         TextView profilesLabel = (TextView) view.findViewById(R.id.new_torrent_profile_label);

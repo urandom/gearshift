@@ -334,7 +334,7 @@ public class TransmissionProfile implements Parcelable, Comparable<TransmissionP
 
         if (ids.add(id)) {
             e.remove(G.PREF_PROFILES);
-            e.commit();
+            e.apply();
 
             if (ids.size() == 1 && !defaultPrefs.getString(G.PREF_CURRENT_PROFILE, "").equals(id)) {
                 e.putString(G.PREF_CURRENT_PROFILE, id);
@@ -363,7 +363,7 @@ public class TransmissionProfile implements Parcelable, Comparable<TransmissionP
 
         if (ids.remove(id)) {
             e.remove(G.PREF_PROFILES);
-            e.commit();
+            e.apply();
             e.putStringSet(G.PREF_PROFILES, ids);
             e.commit();
 
@@ -400,7 +400,7 @@ public class TransmissionProfile implements Parcelable, Comparable<TransmissionP
     }
 
     public String getLastDownloadDirectory() {
-        return lastDirectory;
+        return getPreferences().getString(G.PREF_LAST_DIRECTORY + id, "");
     }
 
     public void setLastDownloadDirectory(String directory) {

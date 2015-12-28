@@ -485,7 +485,6 @@ public class TorrentListMenuFragment extends Fragment
                 }
             }
 
-            boolean overrideTransition = false;
             switch(item.getType()) {
                 case PROFILE_SELECTOR:
                     filterAdapter.setProfilesVisible(!filterAdapter.areProfilesVisible());
@@ -724,61 +723,54 @@ public class TorrentListMenuFragment extends Fragment
     private void setStaticClickHandlers(View root) {
         final TorrentListActivity context = (TorrentListActivity) getActivity();
 
-        View.OnClickListener listener = new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                TransmissionSession session = context.getSession();
-                TransmissionProfile profile = context.getProfile();
-                boolean overrideTransition = false;
-                final Intent intent;
+        View.OnClickListener listener = view -> {
+            TransmissionSession session = context.getSession();
+            TransmissionProfile profile = context.getProfile();
+            boolean overrideTransition = false;
+            final Intent intent;
 
-                switch (view.getId()) {
-                    case R.id.filter_list_session_settings:
-                        if (session == null) {
-                            return;
-                        }
-
-                        intent = new Intent(context, TransmissionSessionActivity.class);
-                        intent.putExtra(G.ARG_PROFILE, profile);
-                        intent.putExtra(G.ARG_SESSION, session);
-                        overrideTransition = true;
-                        break;
-                    case R.id.filter_list_settings:
-                        intent = new Intent(context, SettingsActivity.class);
-
-                        if (session != null) {
-                            ArrayList<String> directories = new ArrayList<>(session.getDownloadDirectories());
-                            directories.remove(session.getDownloadDir());
-                            intent.putExtra(G.ARG_DIRECTORIES, directories);
-                        }
-                        if (profile != null) {
-                            intent.putExtra(G.ARG_PROFILE_ID, profile.getId());
-                        }
-                        overrideTransition = true;
-                        break;
-                    case R.id.filter_list_about:
-                        intent = new Intent(context, AboutActivity.class);
-                        break;
-                    default:
+            switch (view.getId()) {
+                case R.id.filter_list_session_settings:
+                    if (session == null) {
                         return;
-                }
+                    }
 
-                closeHandler.removeCallbacks(closeRunnable);
-                closeHandler.post(closeRunnable);
-                if (intent != null) {
-                    final boolean oT = overrideTransition;
+                    intent = new Intent(context, TransmissionSessionActivity.class);
+                    intent.putExtra(G.ARG_PROFILE, profile);
+                    intent.putExtra(G.ARG_SESSION, session);
+                    overrideTransition = true;
+                    break;
+                case R.id.filter_list_settings:
+                    intent = new Intent(context, SettingsActivity.class);
 
-                    closeHandler.postDelayed(new Runnable() {
-                        @Override public void run() {
-                            startActivity(intent);
-                            if (oT) {
-                                context.overridePendingTransition(
-                                        R.anim.slide_in_top, android.R.anim.fade_out);
-                            }
-                        }
-                    }, getResources().getInteger(android.R.integer.config_shortAnimTime) + 100);
-                }
+                    if (session != null) {
+                        ArrayList<String> directories1 = new ArrayList<>(session.getDownloadDirectories());
+                        directories1.remove(session.getDownloadDir());
+                        intent.putExtra(G.ARG_DIRECTORIES, directories1);
+                    }
+                    if (profile != null) {
+                        intent.putExtra(G.ARG_PROFILE_ID, profile.getId());
+                    }
+                    overrideTransition = true;
+                    break;
+                case R.id.filter_list_about:
+                    intent = new Intent(context, AboutActivity.class);
+                    break;
+                default:
+                    return;
             }
+
+            closeHandler.removeCallbacks(closeRunnable);
+            closeHandler.post(closeRunnable);
+            final boolean oT = overrideTransition;
+
+            closeHandler.postDelayed(() -> {
+                startActivity(intent);
+                if (oT) {
+                    context.overridePendingTransition(
+                            R.anim.slide_in_top, android.R.anim.fade_out);
+                }
+            }, getResources().getInteger(android.R.integer.config_shortAnimTime) + 100);
         };
 
         root.findViewById(R.id.filter_list_session_settings).setOnClickListener(listener);
@@ -787,8 +779,6 @@ public class TorrentListMenuFragment extends Fragment
     }
 
     private void fillMenuItems() {
-        ArrayList<ListItem> list = new ArrayList<>();
-
         filterAdapter.itemData.clear();
 
         fillProfileSelector();
@@ -1069,11 +1059,7 @@ public class TorrentListMenuFragment extends Fragment
 
             final ListItem item = itemData.get(position);
 
-            holder.itemView.setOnClickListener(new View.OnClickListener() {
-                @Override public void onClick(View v) {
-                    context.setActivatedPosition(item, itemData.indexOf(item));
-                }
-            });
+            holder.itemView.setOnClickListener(v -> context.setActivatedPosition(item, itemData.indexOf(item)));
 
             if (holder.label != null) {
                 holder.label.setText(item.getLabel());

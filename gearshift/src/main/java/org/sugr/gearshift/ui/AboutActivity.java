@@ -5,7 +5,6 @@ import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 import android.text.Html;
 import android.text.method.LinkMovementMethod;
-import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
@@ -39,34 +38,32 @@ public class AboutActivity extends ActionBarActivity {
             "https://www.paypal.com/bg/cgi-bin/webscr?cmd=_donations&business=support@sugr.org&lc=US&item_name=Gear Shift&no_note=1&no_shipping=1&currency_code=EUR")));
         donation.setMovementMethod(LinkMovementMethod.getInstance());
 
-        findViewById(R.id.about_check_for_updates).setOnClickListener(new View.OnClickListener() {
-            @Override public void onClick(View v) {
-                final Button button = ((Button) v);
+        findViewById(R.id.about_check_for_updates).setOnClickListener(v -> {
+            final Button button = ((Button) v);
 
-                button.setText(R.string.update_checking);
+            button.setText(R.string.update_checking);
 
-                ((GearShiftApplication) getApplication()).checkForUpdates(new GearShiftApplication.OnUpdateCheck() {
-                    @Override public void onNewRelease(String title, String description, String url, String downloadUrl) {
-                        new UpdateCheckDialog(AboutActivity.this,
-                            G.trimTrailingWhitespace(Html.fromHtml(String.format(getString(R.string.update_available), title))),
-                            url, downloadUrl).show();
+            ((GearShiftApplication) getApplication()).checkForUpdates(new GearShiftApplication.OnUpdateCheck() {
+                @Override public void onNewRelease(String title, String description, String url, String downloadUrl) {
+                    new UpdateCheckDialog(AboutActivity.this,
+                        G.trimTrailingWhitespace(Html.fromHtml(String.format(getString(R.string.update_available), title))),
+                        url, downloadUrl).show();
 
-                        button.setText(R.string.about_updates);
-                    }
+                    button.setText(R.string.about_updates);
+                }
 
-                    @Override public void onCurrentRelease() {
-                        new UpdateCheckDialog(AboutActivity.this,
-                            G.trimTrailingWhitespace(Html.fromHtml(getString(R.string.update_current)))
-                        ).show();
+                @Override public void onCurrentRelease() {
+                    new UpdateCheckDialog(AboutActivity.this,
+                        G.trimTrailingWhitespace(Html.fromHtml(getString(R.string.update_current)))
+                    ).show();
 
-                        button.setText(R.string.about_updates);
-                    }
+                    button.setText(R.string.about_updates);
+                }
 
-                    @Override public void onUpdateCheckError(Exception e) {
-                        button.setText(R.string.about_updates);
-                    }
-                });
-            }
+                @Override public void onUpdateCheckError(Exception e) {
+                    button.setText(R.string.about_updates);
+                }
+            });
         });
     }
 

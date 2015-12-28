@@ -100,90 +100,78 @@ public class TransmissionProfileSettingsFragment extends BasePreferenceFragment 
         };
 
         pm.findPreference(G.PREF_DIRECTORIES + id)
-            .setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-            @Override public boolean onPreferenceClick(Preference preference) {
-                Bundle args = getArguments();
+            .setOnPreferenceClickListener(preference -> {
+                Bundle args1 = getArguments();
                 Bundle fragmentArgs = new Bundle();
 
                 fragmentArgs.putString(G.ARG_PROFILE_ID, profile.getId());
-                if (args.containsKey(G.ARG_DIRECTORIES)) {
+                if (args1.containsKey(G.ARG_DIRECTORIES)) {
                     fragmentArgs.putStringArrayList(G.ARG_DIRECTORIES,
-                        args.getStringArrayList(G.ARG_DIRECTORIES));
+                        args1.getStringArrayList(G.ARG_DIRECTORIES));
                 }
 
                 ((SettingsActivity) getActivity()).addFragment(profile.getId() + "-directories",
                     SettingsActivity.Type.PROFILE_DIRECTORIES, fragmentArgs);
 
                 return true;
-            }
-        });
-        pm.findPreference(G.PREF_NAME + id).setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
-            @Override public boolean onPreferenceChange(Preference preference, Object newValue) {
-                if (TextUtils.isEmpty(newValue.toString())) {
-                    showErrorDialog(R.string.con_name_cannot_be_empty);
+            });
+        pm.findPreference(G.PREF_NAME + id).setOnPreferenceChangeListener((preference, newValue) -> {
+            if (TextUtils.isEmpty(newValue.toString())) {
+                showErrorDialog(R.string.con_name_cannot_be_empty);
 
-                    return false;
-                } else {
-                    return true;
-                }
+                return false;
+            } else {
+                return true;
             }
         });
-        pm.findPreference(G.PREF_HOST + id).setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
-            @Override public boolean onPreferenceChange(Preference preference, Object newValue) {
-                if (TextUtils.isEmpty(newValue.toString()) || newValue.toString().equals("example.com")) {
-                    showErrorDialog(R.string.con_host_cannot_be_empty);
+        pm.findPreference(G.PREF_HOST + id).setOnPreferenceChangeListener((preference, newValue) -> {
+            if (TextUtils.isEmpty(newValue.toString()) || newValue.toString().equals("example.com")) {
+                showErrorDialog(R.string.con_host_cannot_be_empty);
 
-                    return false;
-                } else {
-                    return true;
-                }
+                return false;
+            } else {
+                return true;
             }
         });
-        pm.findPreference(G.PREF_PORT + id).setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
-            @Override public boolean onPreferenceChange(Preference preference, Object newValue) {
+        pm.findPreference(G.PREF_PORT + id).setOnPreferenceChangeListener((preference, newValue) -> {
+            try {
+                 int port = Integer.parseInt(newValue.toString());
+                if (port < 1 || port > 65535) {
+                    throw new RuntimeException("Invalid port value");
+                }
+            } catch (Exception ignored) {
+                showErrorDialog(R.string.con_port_not_valid);
+
+                return false;
+            }
+
+            return true;
+        });
+        pm.findPreference(G.PREF_PROXY_HOST + id).setOnPreferenceChangeListener((preference, newValue) -> {
+            if (sharedPrefs.getBoolean(G.PREF_PROXY + profile.getId(), false) &&
+                    (TextUtils.isEmpty(newValue.toString()) || newValue.toString().equals("example.com"))) {
+                showErrorDialog(R.string.con_proxy_host_cannot_be_empty);
+
+                return false;
+            } else {
+                return true;
+            }
+        });
+        pm.findPreference(G.PREF_PROXY_PORT + id).setOnPreferenceChangeListener((preference, newValue) -> {
+            if (sharedPrefs.getBoolean(G.PREF_PROXY + profile.getId(), false)) {
                 try {
-                     int port = Integer.parseInt(newValue.toString());
+                    int port = Integer.parseInt(newValue.toString());
                     if (port < 1 || port > 65535) {
                         throw new RuntimeException("Invalid port value");
                     }
                 } catch (Exception ignored) {
-                    showErrorDialog(R.string.con_port_not_valid);
+                    showErrorDialog(R.string.con_proxy_port_not_valid);
 
                     return false;
                 }
-
-                return true;
             }
-        });
-        pm.findPreference(G.PREF_PROXY_HOST + id).setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
-            @Override public boolean onPreferenceChange(Preference preference, Object newValue) {
-                if (sharedPrefs.getBoolean(G.PREF_PROXY + profile.getId(), false) &&
-                        (TextUtils.isEmpty(newValue.toString()) || newValue.toString().equals("example.com"))) {
-                    showErrorDialog(R.string.con_proxy_host_cannot_be_empty);
 
-                    return false;
-                } else {
-                    return true;
-                }
-            }
-        });
-        pm.findPreference(G.PREF_PROXY_PORT + id).setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
-            @Override public boolean onPreferenceChange(Preference preference, Object newValue) {
-                if (sharedPrefs.getBoolean(G.PREF_PROXY + profile.getId(), false)) {
-                    try {
-                        int port = Integer.parseInt(newValue.toString());
-                        if (port < 1 || port > 65535) {
-                            throw new RuntimeException("Invalid port value");
-                        }
-                    } catch (Exception ignored) {
-                        showErrorDialog(R.string.con_proxy_port_not_valid);
-
-                        return false;
-                    }
-                }
-
-                return true;
-            }
+            return true;
         });
     }
 

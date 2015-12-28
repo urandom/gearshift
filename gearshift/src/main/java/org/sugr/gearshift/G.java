@@ -145,21 +145,21 @@ public final class G {
 
     public static final String FILTER_UNTRACKED = "|__untracked__|";
 
-    public static enum FilterBy {
+    public enum FilterBy {
         ALL, DOWNLOADING, SEEDING, PAUSED, COMPLETE, INCOMPLETE,
         ACTIVE, CHECKING, ERRORS,
     }
 
-    public static enum SortBy {
+    public enum SortBy {
         NAME, SIZE, STATUS, RATE_DOWNLOAD, RATE_UPLOAD, AGE,
         PROGRESS, RATIO, ACTIVITY, LOCATION, PEERS, QUEUE
     }
 
-    public static enum SortOrder {
+    public enum SortOrder {
         ASCENDING, DESCENDING
     }
 
-    public static enum TorrentAction {
+    public enum TorrentAction {
         START("torrent-start"),
         START_NOW("torrent-start-now"),
         STOP("torrent-stop"),

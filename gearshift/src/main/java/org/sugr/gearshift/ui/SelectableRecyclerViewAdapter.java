@@ -103,7 +103,7 @@ public abstract class SelectableRecyclerViewAdapter<VH extends RecyclerView.View
 
     public List<I> getSelectedItems() {
         List<I> items =
-            new ArrayList<I>(selectedItems.size());
+            new ArrayList<>(selectedItems.size());
 
         for (int i = 0; i < selectedItems.size(); i++) {
             int index = selectedItems.keyAt(i);

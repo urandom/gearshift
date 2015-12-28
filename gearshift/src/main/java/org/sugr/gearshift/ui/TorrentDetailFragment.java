@@ -1,7 +1,6 @@
 package org.sugr.gearshift.ui;
 
 import android.app.Activity;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
@@ -44,7 +43,7 @@ public class TorrentDetailFragment extends Fragment implements TorrentListNotifi
     public static final String ARG_SHOW_PAGER = "show_pager";
 
     public interface PagerCallbacks {
-        public void onPageSelected(int position);
+        void onPageSelected(int position);
     }
 
     private PagerCallbacks pagerCallbacks = dummyCallbacks;
@@ -65,10 +64,7 @@ public class TorrentDetailFragment extends Fragment implements TorrentListNotifi
     private String[] torrentHashStrings;
     private HashMap<String, Integer> torrentPositionMap = new HashMap<>();
 
-    private static PagerCallbacks dummyCallbacks = new PagerCallbacks() {
-        @Override
-        public void onPageSelected(int position) { }
-    };
+    private static PagerCallbacks dummyCallbacks = position -> { };
     /**
      * Mandatory empty constructor for the fragment manager to instantiate the
      * fragment (e.g. upon screen orientation changes).
@@ -191,15 +187,12 @@ public class TorrentDetailFragment extends Fragment implements TorrentListNotifi
                 SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
                 ((CheckBox) v.findViewById(R.id.remove_data)).setChecked(prefs.getBoolean(G.PREF_DELETE_DATA, false));
 
-                builder.setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int id) {
-                        boolean removeData =
-                                ((CheckBox) ((AlertDialog) dialog).findViewById(R.id.remove_data))
-                                        .isChecked();
-                        manager.removeTorrent(hashStrings, removeData);
-                        context.setRefreshing(true, DataService.Requests.REMOVE_TORRENT);
-                    }
+                builder.setPositiveButton(android.R.string.yes, (dialog, id) -> {
+                    boolean removeData =
+                            ((CheckBox) ((AlertDialog) dialog).findViewById(R.id.remove_data))
+                                    .isChecked();
+                    manager.removeTorrent(hashStrings, removeData);
+                    context.setRefreshing(true, DataService.Requests.REMOVE_TORRENT);
                 }).show();
 
                 return true;
@@ -367,11 +360,7 @@ public class TorrentDetailFragment extends Fragment implements TorrentListNotifi
 
                 cursor.moveToPosition(cursorPosition);
             }
-            new Handler().post(new Runnable() {
-                @Override public void run() {
-                    pagerCallbacks.onPageSelected(pager.getCurrentItem());
-                }
-            });
+            new Handler().post(() -> pagerCallbacks.onPageSelected(pager.getCurrentItem()));
         }
 
         if (updateMenu) {
@@ -447,19 +436,13 @@ public class TorrentDetailFragment extends Fragment implements TorrentListNotifi
             ((LocationDialogHelperInterface) getActivity()).getLocationDialogHelper();
 
         AlertDialog dialog = helper.showDialog(R.layout.torrent_location_dialog,
-                R.string.set_location, new DialogInterface.OnClickListener() {
-                    @Override public void onClick(DialogInterface dialog, int which) {
-                        actionMoveHashStrings = null;
-                    }
-                }, new DialogInterface.OnClickListener() {
-                    @Override public void onClick(DialogInterface dialog, int which) {
-                        LocationDialogHelper.Location location = helper.getLocation();
+                R.string.set_location, (dialog1, which) -> actionMoveHashStrings = null, (dialog1, which) -> {
+                    LocationDialogHelper.Location location = helper.getLocation();
 
-                        manager.setTorrentLocation(hashStrings, location.directory, location.moveData);
-                        ((TransmissionSessionInterface) getActivity()).setRefreshing(true,
-                            DataService.Requests.SET_TORRENT_LOCATION);
-                        actionMoveHashStrings = null;
-                    }
+                    manager.setTorrentLocation(hashStrings, location.directory, location.moveData);
+                    ((TransmissionSessionInterface) getActivity()).setRefreshing(true,
+                        DataService.Requests.SET_TORRENT_LOCATION);
+                    actionMoveHashStrings = null;
                 }
         );
 

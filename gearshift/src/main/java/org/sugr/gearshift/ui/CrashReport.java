@@ -3,24 +3,19 @@ package org.sugr.gearshift.ui;
 import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
-import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Environment;
-import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AppCompatActivity;
 import android.text.Html;
-import android.view.View;
 import android.widget.TextView;
 
 import org.sugr.gearshift.R;
 
-import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.Date;
 
-public class CrashReport extends ActionBarActivity {
+public class CrashReport extends AppCompatActivity {
     @Override protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
@@ -30,18 +25,11 @@ public class CrashReport extends ActionBarActivity {
             Html.fromHtml(getString(R.string.crash_title))
         );
 
-        findViewById(R.id.cancel).setOnClickListener(new View.OnClickListener() {
-            @Override public void onClick(View v) {
-                System.exit(1);
-            }
-        });
+        findViewById(R.id.cancel).setOnClickListener(v -> System.exit(1));
 
-        findViewById(R.id.send).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                sendLogFile();
-                System.exit(1);
-            }
+        findViewById(R.id.send).setOnClickListener(v -> {
+            sendLogFile();
+            System.exit(1);
         });
     }
 
@@ -66,12 +54,12 @@ public class CrashReport extends ActionBarActivity {
             Process process = Runtime.getRuntime().exec(cmd);
             reader = new InputStreamReader(process.getInputStream());
 
-            StringBuffer stringBuffer = new StringBuffer();
+            StringBuilder stringBuffer = new StringBuilder();
 
-            stringBuffer.append("Android version: " + Build.VERSION.SDK_INT + "\n");
-            stringBuffer.append("Device: " + model + "\n");
-            stringBuffer.append("App version: " + (info == null ? "(null)" : info.versionCode) + "\n");
-            stringBuffer.append("App version name: " + (info == null ? "(null)" : info.versionName) + "\n");
+            stringBuffer.append("Android version: ").append(Build.VERSION.SDK_INT).append("\n");
+            stringBuffer.append("Device: ").append(model).append("\n");
+            stringBuffer.append("App version: ").append(info == null ? "(null)" : info.versionCode).append("\n");
+            stringBuffer.append("App version name: ").append(info == null ? "(null)" : info.versionName).append("\n");
 
             char[] buffer = new char[10000];
             do {
@@ -89,7 +77,7 @@ public class CrashReport extends ActionBarActivity {
             if (reader != null) {
                 try {
                     reader.close();
-                } catch (IOException e1) { }
+                } catch (IOException ignored) { }
             }
 
             // You might want to write a failure message to the log here.

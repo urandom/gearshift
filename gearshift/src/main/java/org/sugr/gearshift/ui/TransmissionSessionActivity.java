@@ -1,6 +1,5 @@
 package org.sugr.gearshift.ui;
 
-import android.annotation.TargetApi;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -16,7 +15,6 @@ import android.support.v4.view.MenuItemCompat;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.Toolbar;
 import android.text.Html;
-import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
@@ -25,7 +23,6 @@ import android.view.inputmethod.EditorInfo;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.CheckBox;
-import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.ScrollView;
 import android.widget.Spinner;
@@ -70,84 +67,77 @@ public class TransmissionSessionActivity extends ColorizedToolbarActivity implem
 
     private List<String> encryptionValues;
 
-    private View.OnTouchListener expanderTouchListener = new View.OnTouchListener() {
-        @TargetApi(Build.VERSION_CODES.LOLLIPOP)
-        @Override public boolean onTouch(View v, MotionEvent event) {
-            boolean handleRaise = false;
+    private View.OnTouchListener expanderTouchListener = (v, event) -> {
+        boolean handleRaise = false;
 
-            switch (event.getAction()) {
-                case MotionEvent.ACTION_DOWN:
-                case MotionEvent.ACTION_CANCEL:
-                    handleRaise = true;
-                    break;
-                case MotionEvent.ACTION_UP:
-                    View image;
-                    View content;
-                    int index;
-                    switch (v.getId()) {
-                        case R.id.transmission_session_general_expander:
-                            image = v.findViewById(R.id.transmission_session_general_expander_image);
-                            content = findViewById(R.id.transmission_session_general_content);
-                            index = Expanders.GENERAL;
-                            break;
-                        case R.id.transmission_session_connections_expander:
-                            image = v.findViewById(R.id.transmission_session_connections_expander_image);
-                            content = findViewById(R.id.transmission_session_connections_content);
-                            index = Expanders.CONNECTIONS;
-                            break;
-                        case R.id.transmission_session_bandwidth_expander:
-                            image = v.findViewById(R.id.transmission_session_bandwidth_expander_image);
-                            content = findViewById(R.id.transmission_session_bandwidth_content);
-                            index = Expanders.BANDWIDTH;
-                            break;
-                        case R.id.transmission_session_limits_expander:
-                            image = v.findViewById(R.id.transmission_session_limits_expander_image);
-                            content = findViewById(R.id.transmission_session_limits_content);
-                            index = Expanders.LIMITS;
-                            break;
-                        default:
-                            return false;
-                    }
-
-                    image.animate().cancel();
-                    if (content.getVisibility() == View.GONE) {
-                        new ExpandAnimation(content).expand();
-                        image.setRotation(0);
-                        expandedStates[index] = true;
-                    } else {
-                        new ExpandAnimation(content).collapse();
-                        image.setRotation(180);
-                        expandedStates[index] = false;
-                    }
-
-                    image.animate().rotationBy(180);
-                    handleRaise = true;
-
-                    break;
-            }
-
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP && handleRaise) {
-                View parent = v;
-                while (parent.getParent() != null) {
-                    parent = (View) parent.getParent();
-                    if (parent.getClass() == CardView.class) {
-                        parent.animate().translationZ(event.getAction() == MotionEvent.ACTION_DOWN
-                            ? getResources().getDimension(R.dimen.card_raised_translation) : 0);
+        switch (event.getAction()) {
+            case MotionEvent.ACTION_DOWN:
+            case MotionEvent.ACTION_CANCEL:
+                handleRaise = true;
+                break;
+            case MotionEvent.ACTION_UP:
+                View image;
+                View content;
+                int index;
+                switch (v.getId()) {
+                    case R.id.transmission_session_general_expander:
+                        image = v.findViewById(R.id.transmission_session_general_expander_image);
+                        content = findViewById(R.id.transmission_session_general_content);
+                        index = Expanders.GENERAL;
                         break;
-                    }
+                    case R.id.transmission_session_connections_expander:
+                        image = v.findViewById(R.id.transmission_session_connections_expander_image);
+                        content = findViewById(R.id.transmission_session_connections_content);
+                        index = Expanders.CONNECTIONS;
+                        break;
+                    case R.id.transmission_session_bandwidth_expander:
+                        image = v.findViewById(R.id.transmission_session_bandwidth_expander_image);
+                        content = findViewById(R.id.transmission_session_bandwidth_content);
+                        index = Expanders.BANDWIDTH;
+                        break;
+                    case R.id.transmission_session_limits_expander:
+                        image = v.findViewById(R.id.transmission_session_limits_expander_image);
+                        content = findViewById(R.id.transmission_session_limits_content);
+                        index = Expanders.LIMITS;
+                        break;
+                    default:
+                        return false;
+                }
+
+                image.animate().cancel();
+                if (content.getVisibility() == View.GONE) {
+                    new ExpandAnimation(content).expand();
+                    image.setRotation(0);
+                    expandedStates[index] = true;
+                } else {
+                    new ExpandAnimation(content).collapse();
+                    image.setRotation(180);
+                    expandedStates[index] = false;
+                }
+
+                image.animate().rotationBy(180);
+                handleRaise = true;
+
+                break;
+        }
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP && handleRaise) {
+            View parent = v;
+            while (parent.getParent() != null) {
+                parent = (View) parent.getParent();
+                if (parent.getClass() == CardView.class) {
+                    parent.animate().translationZ(event.getAction() == MotionEvent.ACTION_DOWN
+                        ? getResources().getDimension(R.dimen.card_raised_translation) : 0);
+                    break;
                 }
             }
-
-            return false;
         }
+
+        return false;
     };
 
 
-    private Runnable loseFocusRunnable = new Runnable() {
-        @Override public void run() {
-            findViewById(R.id.transmission_session_container).requestFocus();
-        }
-    };
+    private Runnable loseFocusRunnable = () -> findViewById(R.id.transmission_session_container).requestFocus();
 
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
@@ -640,192 +630,170 @@ public class TransmissionSessionActivity extends ColorizedToolbarActivity implem
         EditText edit;
 
         edit = (EditText) findViewById(R.id.transmission_session_download_directory);
-        edit.setOnEditorActionListener(new TextView.OnEditorActionListener() {
-            @Override public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-                if (session == null) {
-                    return false;
-                }
-                if (actionId == EditorInfo.IME_ACTION_DONE) {
-                    String value = v.getText().toString().trim();
-                    if (!value.equals(session.getDownloadDir())) {
-                        session.setDownloadDir(value);
-                        setSession(TransmissionSession.SetterFields.DOWNLOAD_DIR);
-                    }
-                }
-                new Handler().post(loseFocusRunnable);
+        edit.setOnEditorActionListener((v, actionId, event) -> {
+            if (session == null) {
                 return false;
             }
+            if (actionId == EditorInfo.IME_ACTION_DONE) {
+                String value = v.getText().toString().trim();
+                if (!value.equals(session.getDownloadDir())) {
+                    session.setDownloadDir(value);
+                    setSession(TransmissionSession.SetterFields.DOWNLOAD_DIR);
+                }
+            }
+            new Handler().post(loseFocusRunnable);
+            return false;
         });
 
         check = (CheckBox) findViewById(R.id.transmission_session_incomplete_download_check);
-        check.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if (session == null) {
-                    return;
-                }
-                findViewById(R.id.transmission_session_incomplete_download_directory).setEnabled(isChecked);
-                if (session.isIncompleteDirEnabled() != isChecked) {
-                    session.setIncompleteDirEnabled(isChecked);
-                    setSession(TransmissionSession.SetterFields.INCOMPLETE_DIR_ENABLED);
-                }
+        check.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            if (session == null) {
+                return;
+            }
+            findViewById(R.id.transmission_session_incomplete_download_directory).setEnabled(isChecked);
+            if (session.isIncompleteDirEnabled() != isChecked) {
+                session.setIncompleteDirEnabled(isChecked);
+                setSession(TransmissionSession.SetterFields.INCOMPLETE_DIR_ENABLED);
             }
         });
 
         edit = (EditText) findViewById(R.id.transmission_session_incomplete_download_directory);
-        edit.setOnEditorActionListener(new TextView.OnEditorActionListener() {
-            @Override public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-                if (session == null) {
-                    return false;
-                }
-                if (actionId == EditorInfo.IME_ACTION_DONE) {
-                    String value = v.getText().toString().trim();
-                    if (!value.equals(session.getIncompleteDir())) {
-                        session.setIncompleteDir(value);
-                        setSession(TransmissionSession.SetterFields.INCOMPLETE_DIR);
-                    }
-                }
-                new Handler().post(loseFocusRunnable);
+        edit.setOnEditorActionListener((v, actionId, event) -> {
+            if (session == null) {
                 return false;
             }
+            if (actionId == EditorInfo.IME_ACTION_DONE) {
+                String value = v.getText().toString().trim();
+                if (!value.equals(session.getIncompleteDir())) {
+                    session.setIncompleteDir(value);
+                    setSession(TransmissionSession.SetterFields.INCOMPLETE_DIR);
+                }
+            }
+            new Handler().post(loseFocusRunnable);
+            return false;
         });
 
         check = (CheckBox) findViewById(R.id.transmission_session_done_script_check);
-        check.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if (session == null) {
-                    return;
-                }
-                findViewById(R.id.transmission_session_done_script).setEnabled(isChecked);
-                if (session.isDoneScriptEnabled() != isChecked) {
-                    session.setDoneScriptEnabled(isChecked);
-                    setSession(TransmissionSession.SetterFields.DONE_SCRIPT_ENABLED);
-                }
+        check.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            if (session == null) {
+                return;
+            }
+            findViewById(R.id.transmission_session_done_script).setEnabled(isChecked);
+            if (session.isDoneScriptEnabled() != isChecked) {
+                session.setDoneScriptEnabled(isChecked);
+                setSession(TransmissionSession.SetterFields.DONE_SCRIPT_ENABLED);
             }
         });
 
         edit = (EditText) findViewById(R.id.transmission_session_done_script);
-        edit.setOnEditorActionListener(new TextView.OnEditorActionListener() {
-            @Override public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-                if (session == null) {
-                    return false;
-                }
-                if (actionId == EditorInfo.IME_ACTION_DONE) {
-                    String value = v.getText().toString().trim();
-                    if (!value.equals(session.getDoneScript())) {
-                        session.setDoneScript(value);
-                        setSession(TransmissionSession.SetterFields.DONE_SCRIPT);
-                    }
-                }
-                new Handler().post(loseFocusRunnable);
+        edit.setOnEditorActionListener((v, actionId, event) -> {
+            if (session == null) {
                 return false;
             }
+            if (actionId == EditorInfo.IME_ACTION_DONE) {
+                String value = v.getText().toString().trim();
+                if (!value.equals(session.getDoneScript())) {
+                    session.setDoneScript(value);
+                    setSession(TransmissionSession.SetterFields.DONE_SCRIPT);
+                }
+            }
+            new Handler().post(loseFocusRunnable);
+            return false;
         });
 
         edit = (EditText) findViewById(R.id.transmission_session_cache_size);
-        edit.setOnEditorActionListener(new TextView.OnEditorActionListener() {
-            @Override public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-                if (session == null) {
-                    return false;
-                }
-                if (actionId == EditorInfo.IME_ACTION_DONE) {
-                    long value;
-                    try {
-                        value = Long.parseLong(v.getText().toString().trim());
-                    } catch (NumberFormatException e) {
-                        return false;
-                    }
-                    if (session.getCacheSize() != value) {
-                        session.setCacheSize(value);
-                        setSession(TransmissionSession.SetterFields.CACHE_SIZE);
-                    }
-                }
-                new Handler().post(loseFocusRunnable);
+        edit.setOnEditorActionListener((v, actionId, event) -> {
+            if (session == null) {
                 return false;
             }
+            if (actionId == EditorInfo.IME_ACTION_DONE) {
+                long value;
+                try {
+                    value = Long.parseLong(v.getText().toString().trim());
+                } catch (NumberFormatException e) {
+                    return false;
+                }
+                if (session.getCacheSize() != value) {
+                    session.setCacheSize(value);
+                    setSession(TransmissionSession.SetterFields.CACHE_SIZE);
+                }
+            }
+            new Handler().post(loseFocusRunnable);
+            return false;
         });
 
         check = (CheckBox) findViewById(R.id.transmission_session_rename_partial_check);
-        check.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if (session == null) {
-                    return;
-                }
-                if (session.isRenamePartialFilesEnabled() != isChecked) {
-                    session.setRenamePartialFilesEnabled(isChecked);
-                    setSession(TransmissionSession.SetterFields.RENAME_PARTIAL);
-                }
+        check.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            if (session == null) {
+                return;
+            }
+            if (session.isRenamePartialFilesEnabled() != isChecked) {
+                session.setRenamePartialFilesEnabled(isChecked);
+                setSession(TransmissionSession.SetterFields.RENAME_PARTIAL);
             }
         });
 
         check = (CheckBox) findViewById(R.id.transmission_session_trash_original_check);
-        check.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if (session == null) {
-                    return;
-                }
-                if (session.isTrashOriginalTorrentFilesEnabled() != isChecked) {
-                    session.setTrashOriginalTorrentFilesEnabled(isChecked);
-                    setSession(TransmissionSession.SetterFields.TRASH_ORIGINAL);
-                }
+        check.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            if (session == null) {
+                return;
+            }
+            if (session.isTrashOriginalTorrentFilesEnabled() != isChecked) {
+                session.setTrashOriginalTorrentFilesEnabled(isChecked);
+                setSession(TransmissionSession.SetterFields.TRASH_ORIGINAL);
             }
         });
 
         check = (CheckBox) findViewById(R.id.transmission_session_start_added_check);
-        check.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if (session == null) {
-                    return;
-                }
-                if (session.isStartAddedTorrentsEnabled() != isChecked) {
-                    session.setStartAddedTorrentsEnabled(isChecked);
-                    setSession(TransmissionSession.SetterFields.START_ADDED);
-                }
+        check.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            if (session == null) {
+                return;
+            }
+            if (session.isStartAddedTorrentsEnabled() != isChecked) {
+                session.setStartAddedTorrentsEnabled(isChecked);
+                setSession(TransmissionSession.SetterFields.START_ADDED);
             }
         });
 
         edit = (EditText) findViewById(R.id.transmission_session_peer_port);
-        edit.setOnEditorActionListener(new TextView.OnEditorActionListener() {
-            @Override public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-                if (session == null) {
-                    return false;
-                }
-                if (actionId == EditorInfo.IME_ACTION_DONE) {
-                    int value;
-                    try {
-                        value = Integer.parseInt(v.getText().toString().trim());
-                    } catch (NumberFormatException e) {
-                        return false;
-                    }
-                    if (value > 65535) {
-                        value = 65535;
-                        v.setText(value);
-                    }
-                    if (session.getPeerPort() != value) {
-                        session.setPeerPort(value);
-                        setSession(TransmissionSession.SetterFields.PEER_PORT);
-                        ((Button) findViewById(R.id.transmission_session_port_test))
-                            .setText(R.string.session_settings_port_test);
-                    }
-                }
-                new Handler().post(loseFocusRunnable);
+        edit.setOnEditorActionListener((v, actionId, event) -> {
+            if (session == null) {
                 return false;
             }
+            if (actionId == EditorInfo.IME_ACTION_DONE) {
+                int value;
+                try {
+                    value = Integer.parseInt(v.getText().toString().trim());
+                } catch (NumberFormatException e) {
+                    return false;
+                }
+                if (value > 65535) {
+                    value = 65535;
+                    v.setText(Integer.toString(value));
+                }
+                if (session.getPeerPort() != value) {
+                    session.setPeerPort(value);
+                    setSession(TransmissionSession.SetterFields.PEER_PORT);
+                    ((Button) findViewById(R.id.transmission_session_port_test))
+                        .setText(R.string.session_settings_port_test);
+                }
+            }
+            new Handler().post(loseFocusRunnable);
+            return false;
         });
 
         Button button = (Button) findViewById(R.id.transmission_session_port_test);
-        button.setOnClickListener(new View.OnClickListener() {
-            @Override  public void onClick(View v) {
-                if (session == null) {
-                    return;
-                }
-                Button test = (Button) TransmissionSessionActivity.this.findViewById(
-                        R.id.transmission_session_port_test);
-
-                test.setText(R.string.port_test_testing);
-                test.setEnabled(false);
-
-                manager.testPort();
+        button.setOnClickListener(v -> {
+            if (session == null) {
+                return;
             }
+            Button test = (Button) TransmissionSessionActivity.this.findViewById(
+                    R.id.transmission_session_port_test);
+
+            test.setText(R.string.port_test_testing);
+            test.setEnabled(false);
+
+            manager.testPort();
         });
 
         Spinner spinner = (Spinner) findViewById(R.id.transmission_session_encryption);
@@ -845,534 +813,472 @@ public class TransmissionSessionActivity extends ColorizedToolbarActivity implem
         });
 
         check = (CheckBox) findViewById(R.id.transmission_session_random_port);
-        check.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if (session == null) {
-                    return;
-                }
-                if (session.isPeerPortRandomOnStart() != isChecked) {
-                    session.setPeerPortRandomOnStart(isChecked);
-                    setSession(TransmissionSession.SetterFields.RANDOM_PORT);
-                }
+        check.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            if (session == null) {
+                return;
+            }
+            if (session.isPeerPortRandomOnStart() != isChecked) {
+                session.setPeerPortRandomOnStart(isChecked);
+                setSession(TransmissionSession.SetterFields.RANDOM_PORT);
             }
         });
 
         check = (CheckBox) findViewById(R.id.transmission_session_port_forwarding);
-        check.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if (session == null) {
-                    return;
-                }
-                if (session.isPortForwardingEnabled() != isChecked) {
-                    session.setPortForwardingEnabled(isChecked);
-                    setSession(TransmissionSession.SetterFields.PORT_FORWARDING);
-                }
+        check.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            if (session == null) {
+                return;
+            }
+            if (session.isPortForwardingEnabled() != isChecked) {
+                session.setPortForwardingEnabled(isChecked);
+                setSession(TransmissionSession.SetterFields.PORT_FORWARDING);
             }
         });
 
         check = (CheckBox) findViewById(R.id.transmission_session_peer_exchange);
-        check.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if (session == null) {
-                    return;
-                }
-                if (session.isPeerExchangeEnabled() != isChecked) {
-                    session.setPeerExchangeEnabled(isChecked);
-                    setSession(TransmissionSession.SetterFields.PEER_EXCHANGE);
-                }
+        check.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            if (session == null) {
+                return;
+            }
+            if (session.isPeerExchangeEnabled() != isChecked) {
+                session.setPeerExchangeEnabled(isChecked);
+                setSession(TransmissionSession.SetterFields.PEER_EXCHANGE);
             }
         });
 
         check = (CheckBox) findViewById(R.id.transmission_session_hash_table);
-        check.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if (session == null) {
-                    return;
-                }
-                if (session.isDhtEnabled() != isChecked) {
-                    session.setDhtEnabled(isChecked);
-                    setSession(TransmissionSession.SetterFields.DHT);
-                }
+        check.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            if (session == null) {
+                return;
+            }
+            if (session.isDhtEnabled() != isChecked) {
+                session.setDhtEnabled(isChecked);
+                setSession(TransmissionSession.SetterFields.DHT);
             }
         });
 
         check = (CheckBox) findViewById(R.id.transmission_session_local_discovery);
-        check.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if (session == null) {
-                    return;
-                }
-                if (session.isLocalDiscoveryEnabled() != isChecked) {
-                    session.setLocalDiscoveryEnabled(isChecked);
-                    setSession(TransmissionSession.SetterFields.LOCAL_DISCOVERY);
-                }
+        check.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            if (session == null) {
+                return;
+            }
+            if (session.isLocalDiscoveryEnabled() != isChecked) {
+                session.setLocalDiscoveryEnabled(isChecked);
+                setSession(TransmissionSession.SetterFields.LOCAL_DISCOVERY);
             }
         });
 
         check = (CheckBox) findViewById(R.id.transmission_session_utp);
-        check.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if (session == null) {
-                    return;
-                }
-                if (session.isUtpEnabled() != isChecked) {
-                    session.setUtpEnabled(isChecked);
-                    setSession(TransmissionSession.SetterFields.UTP);
-                }
+        check.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            if (session == null) {
+                return;
+            }
+            if (session.isUtpEnabled() != isChecked) {
+                session.setUtpEnabled(isChecked);
+                setSession(TransmissionSession.SetterFields.UTP);
             }
         });
 
         check = (CheckBox) findViewById(R.id.transmission_session_blocklist_check);
-        check.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if (session == null) {
-                    return;
-                }
-                findViewById(R.id.transmission_session_blocklist_update).setEnabled(isChecked);
-                findViewById(R.id.transmission_session_blocklist_url).setEnabled(isChecked);
-                if (session.isBlocklistEnabled() != isChecked) {
-                    session.setBlocklistEnabled(isChecked);
-                    setSession(TransmissionSession.SetterFields.BLOCKLIST_ENABLED);
-                }
+        check.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            if (session == null) {
+                return;
+            }
+            findViewById(R.id.transmission_session_blocklist_update).setEnabled(isChecked);
+            findViewById(R.id.transmission_session_blocklist_url).setEnabled(isChecked);
+            if (session.isBlocklistEnabled() != isChecked) {
+                session.setBlocklistEnabled(isChecked);
+                setSession(TransmissionSession.SetterFields.BLOCKLIST_ENABLED);
             }
         });
 
         edit = (EditText) findViewById(R.id.transmission_session_blocklist_url);
-        edit.setOnEditorActionListener(new TextView.OnEditorActionListener() {
-            @Override public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-                if (session == null) {
-                    return false;
-                }
-                if (actionId == EditorInfo.IME_ACTION_DONE) {
-                    String value = v.getText().toString().trim();
-                    if (!value.equals(session.getBlocklistURL())) {
-                        session.setBlocklistURL(value);
-                        setSession(TransmissionSession.SetterFields.BLOCKLIST_URL);
-                    }
-                }
-                new Handler().post(loseFocusRunnable);
+        edit.setOnEditorActionListener((v, actionId, event) -> {
+            if (session == null) {
                 return false;
             }
+            if (actionId == EditorInfo.IME_ACTION_DONE) {
+                String value = v.getText().toString().trim();
+                if (!value.equals(session.getBlocklistURL())) {
+                    session.setBlocklistURL(value);
+                    setSession(TransmissionSession.SetterFields.BLOCKLIST_URL);
+                }
+            }
+            new Handler().post(loseFocusRunnable);
+            return false;
         });
 
         button = (Button) findViewById(R.id.transmission_session_blocklist_update);
-        button.setOnClickListener(new View.OnClickListener() {
-            @Override  public void onClick(View v) {
-                if (session == null) {
-                    return;
-                }
-                Button update = (Button) TransmissionSessionActivity.this.findViewById(
-                    R.id.transmission_session_blocklist_update);
-
-                update.setText(R.string.blocklist_updating);
-                update.setEnabled(false);
-
-                manager.updateBlocklist();
+        button.setOnClickListener(v -> {
+            if (session == null) {
+                return;
             }
+            Button update = (Button) TransmissionSessionActivity.this.findViewById(
+                R.id.transmission_session_blocklist_update);
+
+            update.setText(R.string.blocklist_updating);
+            update.setEnabled(false);
+
+            manager.updateBlocklist();
         });
 
         check = (CheckBox) findViewById(R.id.transmission_session_down_limit_check);
-        check.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if (session == null) {
-                    return;
-                }
-                findViewById(R.id.transmission_session_down_limit).setEnabled(isChecked);
-                if (session.isDownloadSpeedLimitEnabled() != isChecked) {
-                    session.setDownloadSpeedLimitEnabled(isChecked);
-                    setSession(TransmissionSession.SetterFields.DOWNLOAD_SPEED_LIMIT_ENABLED);
-                }
+        check.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            if (session == null) {
+                return;
+            }
+            findViewById(R.id.transmission_session_down_limit).setEnabled(isChecked);
+            if (session.isDownloadSpeedLimitEnabled() != isChecked) {
+                session.setDownloadSpeedLimitEnabled(isChecked);
+                setSession(TransmissionSession.SetterFields.DOWNLOAD_SPEED_LIMIT_ENABLED);
             }
         });
 
         edit = (EditText) findViewById(R.id.transmission_session_down_limit);
-        edit.setOnEditorActionListener(new TextView.OnEditorActionListener() {
-            @Override public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-                if (session == null) {
-                    return false;
-                }
-                if (actionId == EditorInfo.IME_ACTION_DONE) {
-                    long value;
-                    try {
-                        value = Long.parseLong(v.getText().toString().trim());
-                    } catch (NumberFormatException e) {
-                        return false;
-                    }
-                    if (session.getDownloadSpeedLimit() != value) {
-                        session.setDownloadSpeedLimit(value);
-                        setSession(TransmissionSession.SetterFields.DOWNLOAD_SPEED_LIMIT);
-                    }
-                }
-                new Handler().post(loseFocusRunnable);
+        edit.setOnEditorActionListener((v, actionId, event) -> {
+            if (session == null) {
                 return false;
             }
+            if (actionId == EditorInfo.IME_ACTION_DONE) {
+                long value;
+                try {
+                    value = Long.parseLong(v.getText().toString().trim());
+                } catch (NumberFormatException e) {
+                    return false;
+                }
+                if (session.getDownloadSpeedLimit() != value) {
+                    session.setDownloadSpeedLimit(value);
+                    setSession(TransmissionSession.SetterFields.DOWNLOAD_SPEED_LIMIT);
+                }
+            }
+            new Handler().post(loseFocusRunnable);
+            return false;
         });
 
         check = (CheckBox) findViewById(R.id.transmission_session_up_limit_check);
-        check.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if (session == null) {
-                    return;
-                }
-                findViewById(R.id.transmission_session_up_limit).setEnabled(isChecked);
-                if (session.isUploadSpeedLimitEnabled() != isChecked) {
-                    session.setUploadSpeedLimitEnabled(isChecked);
-                    setSession(TransmissionSession.SetterFields.UPLOAD_SPEED_LIMIT_ENABLED);
-                }
+        check.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            if (session == null) {
+                return;
+            }
+            findViewById(R.id.transmission_session_up_limit).setEnabled(isChecked);
+            if (session.isUploadSpeedLimitEnabled() != isChecked) {
+                session.setUploadSpeedLimitEnabled(isChecked);
+                setSession(TransmissionSession.SetterFields.UPLOAD_SPEED_LIMIT_ENABLED);
             }
         });
 
         edit = (EditText) findViewById(R.id.transmission_session_up_limit);
-        edit.setOnEditorActionListener(new TextView.OnEditorActionListener() {
-            @Override public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-                if (session == null) {
-                    return false;
-                }
-                if (actionId == EditorInfo.IME_ACTION_DONE) {
-                    long value;
-                    try {
-                        value = Long.parseLong(v.getText().toString().trim());
-                    } catch (NumberFormatException e) {
-                        return false;
-                    }
-                    if (session.getUploadSpeedLimit() != value) {
-                        session.setUploadSpeedLimit(value);
-                        setSession(TransmissionSession.SetterFields.UPLOAD_SPEED_LIMIT);
-                    }
-                }
-                new Handler().post(loseFocusRunnable);
+        edit.setOnEditorActionListener((v, actionId, event) -> {
+            if (session == null) {
                 return false;
             }
+            if (actionId == EditorInfo.IME_ACTION_DONE) {
+                long value;
+                try {
+                    value = Long.parseLong(v.getText().toString().trim());
+                } catch (NumberFormatException e) {
+                    return false;
+                }
+                if (session.getUploadSpeedLimit() != value) {
+                    session.setUploadSpeedLimit(value);
+                    setSession(TransmissionSession.SetterFields.UPLOAD_SPEED_LIMIT);
+                }
+            }
+            new Handler().post(loseFocusRunnable);
+            return false;
         });
 
         check = (CheckBox) findViewById(R.id.transmission_session_alt_limits_check);
-        check.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if (session == null) {
-                    return;
-                }
-                findViewById(R.id.transmission_session_alt_down_limit).setEnabled(isChecked);
-                findViewById(R.id.transmission_session_alt_up_limit).setEnabled(isChecked);
-                if (session.isAltSpeedLimitEnabled() != isChecked) {
-                    session.setAltSpeedLimitEnabled(isChecked);
-                    setSession(TransmissionSession.SetterFields.ALT_SPEED_LIMIT_ENABLED);
-                }
+        check.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            if (session == null) {
+                return;
+            }
+            findViewById(R.id.transmission_session_alt_down_limit).setEnabled(isChecked);
+            findViewById(R.id.transmission_session_alt_up_limit).setEnabled(isChecked);
+            if (session.isAltSpeedLimitEnabled() != isChecked) {
+                session.setAltSpeedLimitEnabled(isChecked);
+                setSession(TransmissionSession.SetterFields.ALT_SPEED_LIMIT_ENABLED);
             }
         });
 
         edit = (EditText) findViewById(R.id.transmission_session_alt_down_limit);
-        edit.setOnEditorActionListener(new TextView.OnEditorActionListener() {
-            @Override public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-                if (session == null) {
-                    return false;
-                }
-                if (actionId == EditorInfo.IME_ACTION_DONE) {
-                    long value;
-                    try {
-                        value = Long.parseLong(v.getText().toString().trim());
-                    } catch (NumberFormatException e) {
-                        return false;
-                    }
-                    if (session.getAltDownloadSpeedLimit() != value) {
-                        session.setAltDownloadSpeedLimit(value);
-                        setSession(TransmissionSession.SetterFields.ALT_DOWNLOAD_SPEED_LIMIT);
-                    }
-                }
-                new Handler().post(loseFocusRunnable);
+        edit.setOnEditorActionListener((v, actionId, event) -> {
+            if (session == null) {
                 return false;
             }
+            if (actionId == EditorInfo.IME_ACTION_DONE) {
+                long value;
+                try {
+                    value = Long.parseLong(v.getText().toString().trim());
+                } catch (NumberFormatException e) {
+                    return false;
+                }
+                if (session.getAltDownloadSpeedLimit() != value) {
+                    session.setAltDownloadSpeedLimit(value);
+                    setSession(TransmissionSession.SetterFields.ALT_DOWNLOAD_SPEED_LIMIT);
+                }
+            }
+            new Handler().post(loseFocusRunnable);
+            return false;
         });
 
         edit = (EditText) findViewById(R.id.transmission_session_alt_up_limit);
-        edit.setOnEditorActionListener(new TextView.OnEditorActionListener() {
-            @Override public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-                if (session == null) {
-                    return false;
-                }
-                if (actionId == EditorInfo.IME_ACTION_DONE) {
-                    long value;
-                    try {
-                        value = Long.parseLong(v.getText().toString().trim());
-                    } catch (NumberFormatException e) {
-                        return false;
-                    }
-                    if (session.getAltUploadSpeedLimit() != value) {
-                        session.setAltUploadSpeedLimit(value);
-                        setSession(TransmissionSession.SetterFields.ALT_UPLOAD_SPEED_LIMIT);
-                    }
-                }
-                new Handler().post(loseFocusRunnable);
+        edit.setOnEditorActionListener((v, actionId, event) -> {
+            if (session == null) {
                 return false;
             }
+            if (actionId == EditorInfo.IME_ACTION_DONE) {
+                long value;
+                try {
+                    value = Long.parseLong(v.getText().toString().trim());
+                } catch (NumberFormatException e) {
+                    return false;
+                }
+                if (session.getAltUploadSpeedLimit() != value) {
+                    session.setAltUploadSpeedLimit(value);
+                    setSession(TransmissionSession.SetterFields.ALT_UPLOAD_SPEED_LIMIT);
+                }
+            }
+            new Handler().post(loseFocusRunnable);
+            return false;
         });
 
         check = (CheckBox) findViewById(R.id.transmission_session_alt_limits_time_check);
-        check.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if (session == null) {
-                    return;
-                }
-                findViewById(R.id.transmission_session_alt_limit_time_from).setEnabled(isChecked);
-                findViewById(R.id.transmission_session_alt_limit_time_to).setEnabled(isChecked);
-                if (session.isAltSpeedLimitTimeEnabled() != isChecked) {
-                    session.setAltSpeedLimitTimeEnabled(isChecked);
-                    setSession(TransmissionSession.SetterFields.ALT_SPEED_LIMIT_TIME_ENABLED);
-                }
+        check.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            if (session == null) {
+                return;
+            }
+            findViewById(R.id.transmission_session_alt_limit_time_from).setEnabled(isChecked);
+            findViewById(R.id.transmission_session_alt_limit_time_to).setEnabled(isChecked);
+            if (session.isAltSpeedLimitTimeEnabled() != isChecked) {
+                session.setAltSpeedLimitTimeEnabled(isChecked);
+                setSession(TransmissionSession.SetterFields.ALT_SPEED_LIMIT_TIME_ENABLED);
             }
         });
 
         button = (Button) findViewById(R.id.transmission_session_alt_limit_time_from);
-        button.setOnClickListener(new View.OnClickListener() {
-            @Override  public void onClick(View v) {
-                if (session == null) {
-                    return;
-                }
-                showTimePickerDialog(true,
-                    session.getAltSpeedTimeBegin() / 60,
-                    session.getAltSpeedTimeBegin() % 60);
+        button.setOnClickListener(v -> {
+            if (session == null) {
+                return;
             }
+            showTimePickerDialog(true,
+                session.getAltSpeedTimeBegin() / 60,
+                session.getAltSpeedTimeBegin() % 60);
         });
 
         button = (Button) findViewById(R.id.transmission_session_alt_limit_time_to);
-        button.setOnClickListener(new View.OnClickListener() {
-            @Override  public void onClick(View v) {
-                if (session == null) {
-                    return;
-                }
-                showTimePickerDialog(false,
-                    session.getAltSpeedTimeEnd() / 60,
-                    session.getAltSpeedTimeEnd() % 60);
+        button.setOnClickListener(v -> {
+            if (session == null) {
+                return;
             }
+            showTimePickerDialog(false,
+                session.getAltSpeedTimeEnd() / 60,
+                session.getAltSpeedTimeEnd() % 60);
         });
 
         check = (CheckBox) findViewById(R.id.transmission_session_seed_ratio_limit_check);
-        check.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if (session == null) {
-                    return;
-                }
-                findViewById(R.id.transmission_session_seed_ratio_limit).setEnabled(isChecked);
-                if (session.isSeedRatioLimitEnabled() != isChecked) {
-                    session.setSeedRatioLimitEnabled(isChecked);
-                    setSession(TransmissionSession.SetterFields.SEED_RATIO_LIMIT_ENABLED);
-                }
+        check.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            if (session == null) {
+                return;
+            }
+            findViewById(R.id.transmission_session_seed_ratio_limit).setEnabled(isChecked);
+            if (session.isSeedRatioLimitEnabled() != isChecked) {
+                session.setSeedRatioLimitEnabled(isChecked);
+                setSession(TransmissionSession.SetterFields.SEED_RATIO_LIMIT_ENABLED);
             }
         });
 
         edit = (EditText) findViewById(R.id.transmission_session_seed_ratio_limit);
-        edit.setOnEditorActionListener(new TextView.OnEditorActionListener() {
-            @Override public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-                if (session == null) {
-                    return false;
-                }
-                if (actionId == EditorInfo.IME_ACTION_DONE) {
-                    float value;
-                    try {
-                        value = Float.parseFloat(v.getText().toString().trim());
-                    } catch (NumberFormatException e) {
-                        return false;
-                    }
-                    if (session.getSeedRatioLimit() != value) {
-                        session.setSeedRatioLimit(value);
-                        setSession(TransmissionSession.SetterFields.SEED_RATIO_LIMIT);
-                    }
-                }
-                new Handler().post(loseFocusRunnable);
+        edit.setOnEditorActionListener((v, actionId, event) -> {
+            if (session == null) {
                 return false;
             }
+            if (actionId == EditorInfo.IME_ACTION_DONE) {
+                float value;
+                try {
+                    value = Float.parseFloat(v.getText().toString().trim());
+                } catch (NumberFormatException e) {
+                    return false;
+                }
+                if (session.getSeedRatioLimit() != value) {
+                    session.setSeedRatioLimit(value);
+                    setSession(TransmissionSession.SetterFields.SEED_RATIO_LIMIT);
+                }
+            }
+            new Handler().post(loseFocusRunnable);
+            return false;
         });
 
         check = (CheckBox) findViewById(R.id.transmission_session_idle_seeding_limit_check);
-        check.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if (session == null) {
-                    return;
-                }
-                findViewById(R.id.transmission_session_idle_seeding_limit).setEnabled(isChecked);
-                if (session.isIdleSeedingLimitEnabled() != isChecked) {
-                    session.setIdleSeedingLimitEnabled(isChecked);
-                    setSession(TransmissionSession.SetterFields.IDLE_SEEDING_LIMIT_ENABLED);
-                }
+        check.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            if (session == null) {
+                return;
+            }
+            findViewById(R.id.transmission_session_idle_seeding_limit).setEnabled(isChecked);
+            if (session.isIdleSeedingLimitEnabled() != isChecked) {
+                session.setIdleSeedingLimitEnabled(isChecked);
+                setSession(TransmissionSession.SetterFields.IDLE_SEEDING_LIMIT_ENABLED);
             }
         });
 
         edit = (EditText) findViewById(R.id.transmission_session_idle_seeding_limit);
-        edit.setOnEditorActionListener(new TextView.OnEditorActionListener() {
-            @Override public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-                if (session == null) {
-                    return false;
-                }
-                if (actionId == EditorInfo.IME_ACTION_DONE) {
-                    long value;
-                    try {
-                        value = Long.parseLong(v.getText().toString().trim());
-                    } catch (NumberFormatException e) {
-                        return false;
-                    }
-                    if (session.getIdleSeedingLimig() != value) {
-                        session.setIdleSeedingLimig(value);
-                        setSession(TransmissionSession.SetterFields.IDLE_SEEDING_LIMIT);
-                    }
-                }
-                new Handler().post(loseFocusRunnable);
+        edit.setOnEditorActionListener((v, actionId, event) -> {
+            if (session == null) {
                 return false;
             }
+            if (actionId == EditorInfo.IME_ACTION_DONE) {
+                long value;
+                try {
+                    value = Long.parseLong(v.getText().toString().trim());
+                } catch (NumberFormatException e) {
+                    return false;
+                }
+                if (session.getIdleSeedingLimig() != value) {
+                    session.setIdleSeedingLimig(value);
+                    setSession(TransmissionSession.SetterFields.IDLE_SEEDING_LIMIT);
+                }
+            }
+            new Handler().post(loseFocusRunnable);
+            return false;
         });
         check = (CheckBox) findViewById(R.id.transmission_session_download_queue_size_check);
-        check.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if (session == null) {
-                    return;
-                }
-                findViewById(R.id.transmission_session_download_queue_size).setEnabled(isChecked);
-                if (session.isDownloadQueueEnabled() != isChecked) {
-                    session.setDownloadQueueEnabled(isChecked);
-                    setSession(TransmissionSession.SetterFields.DOWNLOAD_QUEUE_ENABLED);
-                }
+        check.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            if (session == null) {
+                return;
+            }
+            findViewById(R.id.transmission_session_download_queue_size).setEnabled(isChecked);
+            if (session.isDownloadQueueEnabled() != isChecked) {
+                session.setDownloadQueueEnabled(isChecked);
+                setSession(TransmissionSession.SetterFields.DOWNLOAD_QUEUE_ENABLED);
             }
         });
 
         edit = (EditText) findViewById(R.id.transmission_session_download_queue_size);
-        edit.setOnEditorActionListener(new TextView.OnEditorActionListener() {
-            @Override public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-                if (session == null) {
-                    return false;
-                }
-                if (actionId == EditorInfo.IME_ACTION_DONE) {
-                    int value;
-                    try {
-                        value = Integer.parseInt(v.getText().toString().trim());
-                    } catch (NumberFormatException e) {
-                        return false;
-                    }
-                    if (session.getDownloadQueueSize() != value) {
-                        session.setDownloadQueueSize(value);
-                        setSession(TransmissionSession.SetterFields.DOWNLOAD_QUEUE_SIZE);
-                    }
-                }
-                new Handler().post(loseFocusRunnable);
+        edit.setOnEditorActionListener((v, actionId, event) -> {
+            if (session == null) {
                 return false;
             }
+            if (actionId == EditorInfo.IME_ACTION_DONE) {
+                int value;
+                try {
+                    value = Integer.parseInt(v.getText().toString().trim());
+                } catch (NumberFormatException e) {
+                    return false;
+                }
+                if (session.getDownloadQueueSize() != value) {
+                    session.setDownloadQueueSize(value);
+                    setSession(TransmissionSession.SetterFields.DOWNLOAD_QUEUE_SIZE);
+                }
+            }
+            new Handler().post(loseFocusRunnable);
+            return false;
         });
 
         check = (CheckBox) findViewById(R.id.transmission_session_seed_queue_size_check);
-        check.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if (session == null) {
-                    return;
-                }
-                findViewById(R.id.transmission_session_seed_queue_size).setEnabled(isChecked);
-                if (session.isSeedQueueEnabled() != isChecked) {
-                    session.setSeedQueueEnabled(isChecked);
-                    setSession(TransmissionSession.SetterFields.SEED_QUEUE_ENABLED);
-                }
+        check.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            if (session == null) {
+                return;
+            }
+            findViewById(R.id.transmission_session_seed_queue_size).setEnabled(isChecked);
+            if (session.isSeedQueueEnabled() != isChecked) {
+                session.setSeedQueueEnabled(isChecked);
+                setSession(TransmissionSession.SetterFields.SEED_QUEUE_ENABLED);
             }
         });
 
         edit = (EditText) findViewById(R.id.transmission_session_seed_queue_size);
-        edit.setOnEditorActionListener(new TextView.OnEditorActionListener() {
-            @Override public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-                if (session == null) {
-                    return false;
-                }
-                if (actionId == EditorInfo.IME_ACTION_DONE) {
-                    int value;
-                    try {
-                        value = Integer.parseInt(v.getText().toString().trim());
-                    } catch (NumberFormatException e) {
-                        return false;
-                    }
-                    if (session.getSeedQueueSize() != value) {
-                        session.setSeedQueueSize(value);
-                        setSession(TransmissionSession.SetterFields.SEED_QUEUE_SIZE);
-                    }
-                }
-                new Handler().post(loseFocusRunnable);
+        edit.setOnEditorActionListener((v, actionId, event) -> {
+            if (session == null) {
                 return false;
             }
+            if (actionId == EditorInfo.IME_ACTION_DONE) {
+                int value;
+                try {
+                    value = Integer.parseInt(v.getText().toString().trim());
+                } catch (NumberFormatException e) {
+                    return false;
+                }
+                if (session.getSeedQueueSize() != value) {
+                    session.setSeedQueueSize(value);
+                    setSession(TransmissionSession.SetterFields.SEED_QUEUE_SIZE);
+                }
+            }
+            new Handler().post(loseFocusRunnable);
+            return false;
         });
 
         check = (CheckBox) findViewById(R.id.transmission_session_stalled_queue_size_check);
-        check.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if (session == null) {
-                    return;
-                }
-                findViewById(R.id.transmission_session_stalled_queue_size).setEnabled(isChecked);
-                if (session.isStalledQueueEnabled() != isChecked) {
-                    session.setStalledQueueEnabled(isChecked);
-                    setSession(TransmissionSession.SetterFields.STALLED_QUEUE_ENABLED);
-                }
+        check.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            if (session == null) {
+                return;
+            }
+            findViewById(R.id.transmission_session_stalled_queue_size).setEnabled(isChecked);
+            if (session.isStalledQueueEnabled() != isChecked) {
+                session.setStalledQueueEnabled(isChecked);
+                setSession(TransmissionSession.SetterFields.STALLED_QUEUE_ENABLED);
             }
         });
 
         edit = (EditText) findViewById(R.id.transmission_session_stalled_queue_size);
-        edit.setOnEditorActionListener(new TextView.OnEditorActionListener() {
-            @Override public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-                if (session == null) {
-                    return false;
-                }
-                if (actionId == EditorInfo.IME_ACTION_DONE) {
-                    int value;
-                    try {
-                        value = Integer.parseInt(v.getText().toString().trim());
-                    } catch (NumberFormatException e) {
-                        return false;
-                    }
-                    if (session.getStalledQueueSize() != value) {
-                        session.setStalledQueueSize(value);
-                        setSession(TransmissionSession.SetterFields.STALLED_QUEUE_SIZE);
-                    }
-                }
-                new Handler().post(loseFocusRunnable);
+        edit.setOnEditorActionListener((v, actionId, event) -> {
+            if (session == null) {
                 return false;
             }
+            if (actionId == EditorInfo.IME_ACTION_DONE) {
+                int value;
+                try {
+                    value = Integer.parseInt(v.getText().toString().trim());
+                } catch (NumberFormatException e) {
+                    return false;
+                }
+                if (session.getStalledQueueSize() != value) {
+                    session.setStalledQueueSize(value);
+                    setSession(TransmissionSession.SetterFields.STALLED_QUEUE_SIZE);
+                }
+            }
+            new Handler().post(loseFocusRunnable);
+            return false;
         });
 
         edit = (EditText) findViewById(R.id.transmission_session_global_peer_limit);
-        edit.setOnEditorActionListener(new TextView.OnEditorActionListener() {
-            @Override public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-                if (session == null) {
-                    return false;
-                }
-                if (actionId == EditorInfo.IME_ACTION_DONE) {
-                    int value;
-                    try {
-                        value = Integer.parseInt(v.getText().toString().trim());
-                    } catch (NumberFormatException e) {
-                        return false;
-                    }
-                    if (session.getGlobalPeerLimit() != value) {
-                        session.setGlobalPeerLimit(value);
-                        setSession(TransmissionSession.SetterFields.GLOBAL_PEER_LIMIT);
-                    }
-                }
-                new Handler().post(loseFocusRunnable);
+        edit.setOnEditorActionListener((v, actionId, event) -> {
+            if (session == null) {
                 return false;
             }
+            if (actionId == EditorInfo.IME_ACTION_DONE) {
+                int value;
+                try {
+                    value = Integer.parseInt(v.getText().toString().trim());
+                } catch (NumberFormatException e) {
+                    return false;
+                }
+                if (session.getGlobalPeerLimit() != value) {
+                    session.setGlobalPeerLimit(value);
+                    setSession(TransmissionSession.SetterFields.GLOBAL_PEER_LIMIT);
+                }
+            }
+            new Handler().post(loseFocusRunnable);
+            return false;
         });
 
         edit = (EditText) findViewById(R.id.transmission_session_torrent_peer_limit);
-        edit.setOnEditorActionListener(new TextView.OnEditorActionListener() {
-            @Override public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-                if (session == null) {
-                    return false;
-                }
-                if (actionId == EditorInfo.IME_ACTION_DONE) {
-                    int value;
-                    try {
-                        value = Integer.parseInt(v.getText().toString().trim());
-                    } catch (NumberFormatException e) {
-                        return false;
-                    }
-                    if (session.getTorrentPeerLimit() != value) {
-                        session.setTorrentPeerLimit(value);
-                        setSession(TransmissionSession.SetterFields.TORRENT_PEER_LIMIT);
-                    }
-                }
-                new Handler().post(loseFocusRunnable);
+        edit.setOnEditorActionListener((v, actionId, event) -> {
+            if (session == null) {
                 return false;
             }
+            if (actionId == EditorInfo.IME_ACTION_DONE) {
+                int value;
+                try {
+                    value = Integer.parseInt(v.getText().toString().trim());
+                } catch (NumberFormatException e) {
+                    return false;
+                }
+                if (session.getTorrentPeerLimit() != value) {
+                    session.setTorrentPeerLimit(value);
+                    setSession(TransmissionSession.SetterFields.TORRENT_PEER_LIMIT);
+                }
+            }
+            new Handler().post(loseFocusRunnable);
+            return false;
         });
 
     }

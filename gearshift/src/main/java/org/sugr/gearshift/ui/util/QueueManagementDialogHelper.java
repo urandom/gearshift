@@ -54,46 +54,38 @@ public class QueueManagementDialogHelper {
 
         View button = dialog.findViewById(R.id.queue_top);
         CheatSheet.setup(button);
-        button.setOnClickListener(new View.OnClickListener() {
-            @Override public void onClick(View v) {
-                manager.setTorrentAction(hashStrings, G.TorrentAction.QUEUE_MOVE_TOP);
-                activity.setRefreshing(true, DataService.Requests.SET_TORRENT_ACTION);
+        button.setOnClickListener(v -> {
+            manager.setTorrentAction(hashStrings, G.TorrentAction.QUEUE_MOVE_TOP);
+            activity.setRefreshing(true, DataService.Requests.SET_TORRENT_ACTION);
 
-                dialog.dismiss();
-            }
+            dialog.dismiss();
         });
 
         button = dialog.findViewById(R.id.queue_up);
         CheatSheet.setup(button);
-        button.setOnClickListener(new View.OnClickListener() {
-            @Override public void onClick(View v) {
-                manager.setTorrentAction(hashStrings, G.TorrentAction.QUEUE_MOVE_UP);
-                activity.setRefreshing(true, DataService.Requests.SET_TORRENT_ACTION);
+        button.setOnClickListener(v -> {
+            manager.setTorrentAction(hashStrings, G.TorrentAction.QUEUE_MOVE_UP);
+            activity.setRefreshing(true, DataService.Requests.SET_TORRENT_ACTION);
 
-                dialog.dismiss();
-            }
+            dialog.dismiss();
         });
 
         button = dialog.findViewById(R.id.queue_down);
         CheatSheet.setup(button);
-        button.setOnClickListener(new View.OnClickListener() {
-            @Override public void onClick(View v) {
-                manager.setTorrentAction(hashStrings, G.TorrentAction.QUEUE_MOVE_DOWN);
-                activity.setRefreshing(true, DataService.Requests.SET_TORRENT_ACTION);
+        button.setOnClickListener(v -> {
+            manager.setTorrentAction(hashStrings, G.TorrentAction.QUEUE_MOVE_DOWN);
+            activity.setRefreshing(true, DataService.Requests.SET_TORRENT_ACTION);
 
-                dialog.dismiss();
-            }
+            dialog.dismiss();
         });
 
         button = dialog.findViewById(R.id.queue_bottom);
         CheatSheet.setup(button);
-        button.setOnClickListener(new View.OnClickListener() {
-            @Override public void onClick(View v) {
-                manager.setTorrentAction(hashStrings, G.TorrentAction.QUEUE_MOVE_BOTTOM);
-                activity.setRefreshing(true, DataService.Requests.SET_TORRENT_ACTION);
+        button.setOnClickListener(v -> {
+            manager.setTorrentAction(hashStrings, G.TorrentAction.QUEUE_MOVE_BOTTOM);
+            activity.setRefreshing(true, DataService.Requests.SET_TORRENT_ACTION);
 
-                dialog.dismiss();
-            }
+            dialog.dismiss();
         });
 
         return dialog;

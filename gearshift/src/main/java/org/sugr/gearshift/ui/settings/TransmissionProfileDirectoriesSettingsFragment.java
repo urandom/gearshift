@@ -18,8 +18,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AbsListView.MultiChoiceModeListener;
-import android.widget.AdapterView;
-import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ListView;
@@ -35,21 +33,15 @@ import java.util.Set;
 
 public class TransmissionProfileDirectoriesSettingsFragment extends ListFragment {
     private SharedPreferences sharedPrefs;
-    private Set<String> directories = new HashSet<String>();
+    private HashSet<String> directories = new HashSet<>();
     private ArrayAdapter<String> adapter;
     private String profileId;
 
     private ActionMode actionMode;
 
-    private Comparator<String> mDirComparator = new Comparator<String>() {
-        @Override
-        public int compare(String lhs, String rhs) {
-            return lhs.compareToIgnoreCase(rhs);
-        }
+    private Comparator<String> mDirComparator = String::compareToIgnoreCase;
 
-    };
-
-    private ArrayList<String> mSessionDirectories = new ArrayList<String>();
+    private ArrayList<String> mSessionDirectories = new ArrayList<>();
 
     private static final String STATE_DIRECTORIES = "directories";
 
@@ -88,12 +80,12 @@ public class TransmissionProfileDirectoriesSettingsFragment extends ListFragment
             directories.clear();
             directories.addAll(savedInstanceState.getStringArrayList(STATE_DIRECTORIES));
         } else if (profileId != null) {
-            directories = new HashSet<String>(
+            directories = new HashSet<>(
                     sharedPrefs.getStringSet(G.PREF_DIRECTORIES + profileId,
-                            new HashSet<String>()));
+                            new HashSet<>()));
         }
 
-        adapter = new ArrayAdapter<String>(getActivity(),
+        adapter = new ArrayAdapter<>(getActivity(),
                 R.layout.settings_preference_item,
                 android.R.id.text1
         );
@@ -105,15 +97,12 @@ public class TransmissionProfileDirectoriesSettingsFragment extends ListFragment
 
         final ListView list = getListView();
         list.setChoiceMode(ListView.CHOICE_MODE_NONE);
-        list.setOnItemLongClickListener(new OnItemLongClickListener() {
-            @Override
-            public boolean onItemLongClick(AdapterView<?> parent, View view,
-                    int position, long id) {
+        list.setOnItemLongClickListener((parent, view1, position, id) -> {
 
-                list.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE_MODAL);
-                list.setItemChecked(position, true);
-                return true;
-            }});
+            list.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE_MODAL);
+            list.setItemChecked(position, true);
+            return true;
+        });
 
         list.setMultiChoiceModeListener(new MultiChoiceModeListener() {
             private Set<String> mSelectedDirectories;
@@ -123,7 +112,7 @@ public class TransmissionProfileDirectoriesSettingsFragment extends ListFragment
                 MenuInflater inflater = mode.getMenuInflater();
                 inflater.inflate(R.menu.download_directories_multiselect, menu);
 
-                mSelectedDirectories = new HashSet<String>();
+                mSelectedDirectories = new HashSet<>();
                 actionMode = mode;
                 return true;
             }
@@ -152,17 +141,14 @@ public class TransmissionProfileDirectoriesSettingsFragment extends ListFragment
                             .setNegativeButton(android.R.string.no, null);
 
                         builder.setPositiveButton(android.R.string.yes,
-                            new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int id) {
-                                for (String directory : mSelectedDirectories) {
-                                    directories.remove(directory);
-                                }
+                                (dialog, id) -> {
+                                    for (String directory : mSelectedDirectories) {
+                                        directories.remove(directory);
+                                    }
 
-                                mode.finish();
-                                setAdapterDirectories();
-                            }
-                        })
+                                    mode.finish();
+                                    setAdapterDirectories();
+                                })
                             .setMessage(R.string.remove_selected_directories_confirmation)
                             .show();
 
@@ -220,7 +206,7 @@ public class TransmissionProfileDirectoriesSettingsFragment extends ListFragment
 
     @Override public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        ArrayList<String> directories = new ArrayList<String>();
+        ArrayList<String> directories = new ArrayList<>();
         directories.addAll(this.directories);
 
         outState.putStringArrayList(STATE_DIRECTORIES, directories);
@@ -241,19 +227,17 @@ public class TransmissionProfileDirectoriesSettingsFragment extends ListFragment
     @Override public boolean onOptionsItemSelected(MenuItem item) {
         switch(item.getItemId()) {
             case R.id.menu_add_directory:
-                createEntryDialog(new DialogInterface.OnClickListener() {
-                    @Override public void onClick(DialogInterface dialog, int which) {
-                        EditText text = (EditText) ((AlertDialog) dialog).findViewById(R.id.dialog_entry);
-                        String dir = text.getText().toString().trim();
+                createEntryDialog((dialog, which) -> {
+                    EditText text = (EditText) ((AlertDialog) dialog).findViewById(R.id.dialog_entry);
+                    String dir = text.getText().toString().trim();
 
-                        while (dir.endsWith("/")) {
-                            dir = dir.substring(0, dir.length() - 1);
-                        }
-
-                        directories.add(dir);
-
-                        setAdapterDirectories();
+                    while (dir.endsWith("/")) {
+                        dir = dir.substring(0, dir.length() - 1);
                     }
+
+                    directories.add(dir);
+
+                    setAdapterDirectories();
                 });
                 return true;
             case R.id.import_directories:
@@ -272,22 +256,19 @@ public class TransmissionProfileDirectoriesSettingsFragment extends ListFragment
 
             final String directory = adapter.getItem(position);
 
-            createEntryDialog(new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                    EditText text = (EditText) ((AlertDialog) dialog).findViewById(R.id.dialog_entry);
+            createEntryDialog((dialog, which) -> {
+                EditText text = (EditText) ((AlertDialog) dialog).findViewById(R.id.dialog_entry);
 
-                    directories.remove(directory);
-                    String dir = text.getText().toString().trim();
+                directories.remove(directory);
+                String dir = text.getText().toString().trim();
 
-                    while (dir.endsWith("/")) {
-                        dir = dir.substring(0, dir.length() - 1);
-                    }
-
-                    directories.add(dir);
-
-                    setAdapterDirectories();
+                while (dir.endsWith("/")) {
+                    dir = dir.substring(0, dir.length() - 1);
                 }
+
+                directories.add(dir);
+
+                setAdapterDirectories();
             }, directory);
         } else {
             listView.setItemChecked(position, true);

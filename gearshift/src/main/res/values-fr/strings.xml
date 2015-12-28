@@ -549,6 +549,6 @@
     <string name="color_swatch_description_selected">Couleur <xliff:g id="color_index" example="14">%1$d</xliff:g> selectionnée</string>
     <string name="pref_profile_color">Couleur du profil</string>
     <string name="misc">Divers</string>
-    <string name="delete_data_default">Par défaut, effacer les données lors de la suppression d'un torrent</string>
+    <string name="delete_data_default">Par défaut, effacer les données lors de la suppression d\'un torrent</string>
 
 </resources>

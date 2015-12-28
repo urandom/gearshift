@@ -17,23 +17,12 @@ public class TransmissionProfileSupportLoader extends AsyncTaskLoader<Transmissi
     private TransmissionProfile[] profiles;
     private boolean ignoreInvalid;
 
-    private OnSharedPreferenceChangeListener listener = new OnSharedPreferenceChangeListener() {
-        @Override
-        public void onSharedPreferenceChanged(
-                SharedPreferences sharedPreferences, String key) {
+    private OnSharedPreferenceChangeListener listener = (sharedPreferences, key) -> onContentChanged();
+
+
+    private OnSharedPreferenceChangeListener defaultListener = (sharedPreferences, key) -> {
+        if (key.equals(G.PREF_PROFILES)) {
             onContentChanged();
-        }
-
-    };
-
-
-    private OnSharedPreferenceChangeListener defaultListener = new OnSharedPreferenceChangeListener() {
-        @Override
-        public void onSharedPreferenceChanged(
-                SharedPreferences sharedPreferences, String key) {
-            if (key.equals(G.PREF_PROFILES)) {
-                onContentChanged();
-            }
         }
     };
 
@@ -84,7 +73,9 @@ public class TransmissionProfileSupportLoader extends AsyncTaskLoader<Transmissi
         this.profiles = profiles;
 
         if (isStarted()) {
-            G.logD("TPLoader: Delivering results: %d profiles", new Object[] {profiles.length});
+            G.logD("TPLoader: Delivering results: %d profiles", new Object[] {
+                    profiles == null ? 0 : profiles.length
+            });
             super.deliverResult(profiles);
         }
     }

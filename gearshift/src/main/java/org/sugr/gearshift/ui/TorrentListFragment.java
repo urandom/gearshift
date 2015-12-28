@@ -8,7 +8,6 @@ import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
@@ -43,8 +42,6 @@ import android.view.animation.AccelerateInterpolator;
 import android.view.animation.DecelerateInterpolator;
 import android.view.animation.PathInterpolator;
 import android.widget.AbsListView.MultiChoiceModeListener;
-import android.widget.AdapterView;
-import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CursorAdapter;
@@ -133,18 +130,14 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
         /**
          * Callback for when an item has been selected.
          */
-        public void onItemSelected(int position);
+        void onItemSelected(int position);
     }
 
     /**
      * A dummy implementation of the {@link Callbacks} interface that does
      * nothing. Used only when this fragment is not attached to an activity.
      */
-    private static Callbacks dummyCallbacks = new Callbacks() {
-        @Override
-        public void onItemSelected(int position) {
-        }
-    };
+    private static Callbacks dummyCallbacks = position -> { };
 
     private MultiChoiceModeListener listChoiceListener = new MultiChoiceModeListener() {
         private SparseArray<String> selectedTorrentIds;
@@ -186,18 +179,15 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
                             .setNegativeButton(android.R.string.no, null);
 
                     builder.setPositiveButton(android.R.string.yes,
-                            new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialog, int id) {
-                                    boolean removeData =
-                                            ((CheckBox) ((AlertDialog) dialog).findViewById(R.id.remove_data))
-                                                    .isChecked();
-                                    manager.removeTorrent(hashStrings, removeData);
-                                    ((TransmissionSessionInterface) getActivity()).setRefreshing(true,
-                                            DataService.Requests.REMOVE_TORRENT);
+                            (dialog, id) -> {
+                                boolean removeData =
+                                        ((CheckBox) ((AlertDialog) dialog).findViewById(R.id.remove_data))
+                                                .isChecked();
+                                manager.removeTorrent(hashStrings, removeData);
+                                ((TransmissionSessionInterface) getActivity()).setRefreshing(true,
+                                        DataService.Requests.REMOVE_TORRENT);
 
-                                    mode.finish();
-                                }
+                                mode.finish();
                             })
                             .setView(v)
                             .show();
@@ -333,14 +323,12 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
             };
 
     private Handler findHandler = new Handler();
-    private Runnable findRunnable = new Runnable() {
-        @Override public void run() {
-            if (getActivity() == null) {
-                return;
-            }
-            G.logD("Search query " + findQuery);
-            setListFilter(findQuery);
+    private Runnable findRunnable = () -> {
+        if (getActivity() == null) {
+            return;
         }
+        G.logD("Search query " + findQuery);
+        setListFilter(findQuery);
     };
 
     private LoaderManager.LoaderCallbacks<TorrentTrafficLoader.TorrentTrafficOutputData> torrentTrafficLoaderCallbacks
@@ -484,15 +472,13 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
         final SwipeRefreshLayout swipeRefresh = (SwipeRefreshLayout) view.findViewById(R.id.swipe_container);
         swipeRefresh.setColorSchemeResources(R.color.main_red, R.color.main_gray,
                 R.color.main_black, R.color.main_red);
-        swipeRefresh.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
-            @Override public void onRefresh() {
-                DataServiceManager manager =
-                        ((DataServiceManagerInterface) getActivity()).getDataServiceManager();
-                if (manager != null) {
-                    manager.update();
-                    ((TransmissionSessionInterface) getActivity()).setRefreshing(true,
-                            DataService.Requests.GET_TORRENTS);
-                }
+        swipeRefresh.setOnRefreshListener(() -> {
+            DataServiceManager manager =
+                    ((DataServiceManagerInterface) getActivity()).getDataServiceManager();
+            if (manager != null) {
+                manager.update();
+                ((TransmissionSessionInterface) getActivity()).setRefreshing(true,
+                        DataService.Requests.GET_TORRENTS);
             }
         });
 
@@ -505,18 +491,14 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
 
         final ListView list = getListView();
         list.setChoiceMode(listChoiceMode);
-        list.setOnItemLongClickListener(new OnItemLongClickListener() {
-            @Override
-            public boolean onItemLongClick(AdapterView<?> parent, View view,
-                                           int position, long id) {
+        list.setOnItemLongClickListener((parent, view, position, id) -> {
 
-                if (!((TorrentListActivity) getActivity()).isDetailPanelVisible()) {
-                    list.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE_MODAL);
-                    setActivatedPosition(position);
-                    return true;
-                }
-                return false;
+            if (!((TorrentListActivity) getActivity()).isDetailPanelVisible()) {
+                list.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE_MODAL);
+                setActivatedPosition(position);
+                return true;
             }
+            return false;
         });
 
         list.setMultiChoiceModeListener(listChoiceListener);
@@ -856,15 +838,13 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
             Button button = (Button) getView().findViewById(R.id.empty_button);
             if (stringId == R.string.no_profiles_empty_list) {
                 button.setText(R.string.add_profile_option);
-                button.setOnClickListener(new View.OnClickListener() {
-                    @Override public void onClick(View v) {
-                        Intent intent = new Intent(getActivity(), SettingsActivity.class);
+                button.setOnClickListener(v -> {
+                    Intent intent = new Intent(getActivity(), SettingsActivity.class);
 
-                        intent.putExtra(G.ARG_NEW_PROFILE, true);
-                        startActivity(intent);
-                        getActivity().overridePendingTransition(
-                            R.anim.slide_in_top, android.R.anim.fade_out);
-                    }
+                    intent.putExtra(G.ARG_NEW_PROFILE, true);
+                    startActivity(intent);
+                    getActivity().overridePendingTransition(
+                        R.anim.slide_in_top, android.R.anim.fade_out);
                 });
                 button.setVisibility(View.VISIBLE);
             } else {
@@ -947,8 +927,7 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
             ((LocationDialogHelperInterface) getActivity()).getLocationDialogHelper();
 
         AlertDialog dialog = helper.showDialog(R.layout.torrent_location_dialog,
-                R.string.set_location, null, new DialogInterface.OnClickListener() {
-                @Override public void onClick(DialogInterface dialog, int which) {
+                R.string.set_location, null, (dialog1, which) -> {
                     LocationDialogHelper.Location location = helper.getLocation();
 
 
@@ -960,7 +939,6 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
                         actionMode.finish();
                     }
                 }
-            }
         );
 
         TransmissionProfile profile = ((TransmissionProfileInterface) getActivity()).getProfile();
@@ -989,11 +967,7 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
         final SearchView findView = (SearchView) MenuItemCompat.getActionView(item);
 
         if (!findQuery.equals("")) {
-            findView.post(new Runnable() {
-                @Override public void run() {
-                    findView.setQuery(findQuery, true);
-                }
-            });
+            findView.post(() -> findView.setQuery(findQuery, true));
         }
     }
 
@@ -1408,19 +1382,17 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
             }
 
             final int position = cursor.getPosition();
-            progress.setOnClickListener(new View.OnClickListener() {
-                @Override public void onClick(View v) {
-                    if (actionMode == null) {
-                        if (!((TorrentListActivity) getActivity()).isDetailPanelVisible()) {
-                            getListView().setChoiceMode(ListView.CHOICE_MODE_MULTIPLE_MODAL);
-                            setActivatedPosition(position);
-                        } else {
-                            onListItemClick(getListView(), view, position, id);
-                        }
+            progress.setOnClickListener(v -> {
+                if (actionMode == null) {
+                    if (!((TorrentListActivity) getActivity()).isDetailPanelVisible()) {
+                        getListView().setChoiceMode(ListView.CHOICE_MODE_MULTIPLE_MODAL);
+                        setActivatedPosition(position);
                     } else {
-                        SparseBooleanArray checkedItems = getListView().getCheckedItemPositions();
-                        getListView().setItemChecked(position, !checkedItems.get(position));
+                        onListItemClick(getListView(), view, position, id);
                     }
+                } else {
+                    SparseBooleanArray checkedItems = getListView().getCheckedItemPositions();
+                    getListView().setItemChecked(position, !checkedItems.get(position));
                 }
             });
 
@@ -1509,11 +1481,7 @@ public class TorrentListFragment extends ListFragment implements TorrentListNoti
                 initialLoading = false;
                 final int position = getListView().getCheckedItemPosition();
                 if (position != ListView.INVALID_POSITION) {
-                    new Handler().postDelayed(new Runnable() {
-                        @Override public void run() {
-                            callbacks.onItemSelected(position);
-                        }
-                    }, 500);
+                    new Handler().postDelayed(() -> callbacks.onItemSelected(position), 500);
                 }
             }
 

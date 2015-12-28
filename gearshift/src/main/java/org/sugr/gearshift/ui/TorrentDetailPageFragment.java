@@ -27,7 +27,6 @@ import android.text.Html;
 import android.text.Spanned;
 import android.text.TextUtils;
 import android.view.ActionMode;
-import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -40,7 +39,6 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
-import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
@@ -409,11 +407,8 @@ public class TorrentDetailPageFragment extends Fragment {
         }
     };
 
-    private Runnable loseFocusRunnable = new Runnable() {
-        @Override public void run() {
-            getView().findViewById(R.id.torrent_detail_page_container).requestFocus();
-        }
-    };
+    private Runnable loseFocusRunnable =
+            () -> getView().findViewById(R.id.torrent_detail_page_container).requestFocus();
 
     private class UpdateReceiver extends BroadcastReceiver {
         @Override
@@ -588,22 +583,19 @@ public class TorrentDetailPageFragment extends Fragment {
         views.peerLimit = (EditText) root.findViewById(R.id.torrent_peer_limit);
 
         if (savedInstanceState != null) {
-            new Handler().post(new Runnable() {
-                @Override
-                public void run() {
-                    if (savedInstanceState.containsKey(STATE_EXPANDED)) {
-                        expandedStates = savedInstanceState.getBooleanArray(STATE_EXPANDED);
-                        views.overviewContent.setVisibility(expandedStates[Expanders.OVERVIEW] ? View.VISIBLE : View.GONE);
-                        views.filesContent.setVisibility(expandedStates[Expanders.FILES] ? View.VISIBLE : View.GONE);
-                        views.limitsContent.setVisibility(expandedStates[Expanders.LIMITS] ? View.VISIBLE : View.GONE);
-                        views.trackersContent.setVisibility(expandedStates[Expanders.TRACKERS] ? View.VISIBLE : View.GONE);
-                        updateFields(root);
-                    }
-                    if (savedInstanceState.containsKey(STATE_SCROLL_POSITION)) {
-                        final int position = savedInstanceState.getInt(STATE_SCROLL_POSITION);
-                        final ScrollView scroll = (ScrollView) root.findViewById(R.id.detail_scroll);
-                        scroll.scrollTo(0, position);
-                    }
+            new Handler().post(() -> {
+                if (savedInstanceState.containsKey(STATE_EXPANDED)) {
+                    expandedStates = savedInstanceState.getBooleanArray(STATE_EXPANDED);
+                    views.overviewContent.setVisibility(expandedStates[Expanders.OVERVIEW] ? View.VISIBLE : View.GONE);
+                    views.filesContent.setVisibility(expandedStates[Expanders.FILES] ? View.VISIBLE : View.GONE);
+                    views.limitsContent.setVisibility(expandedStates[Expanders.LIMITS] ? View.VISIBLE : View.GONE);
+                    views.trackersContent.setVisibility(expandedStates[Expanders.TRACKERS] ? View.VISIBLE : View.GONE);
+                    updateFields(root);
+                }
+                if (savedInstanceState.containsKey(STATE_SCROLL_POSITION)) {
+                    final int position = savedInstanceState.getInt(STATE_SCROLL_POSITION);
+                    final ScrollView scroll = (ScrollView) root.findViewById(R.id.detail_scroll);
+                    scroll.scrollTo(0, position);
                 }
             });
         }
@@ -618,12 +610,8 @@ public class TorrentDetailPageFragment extends Fragment {
 
         updateFields(root);
 
-        views.globalLimits.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                setTorrentProperty(SetterFields.SESSION_LIMITS, isChecked);
-            }
-        });
+        views.globalLimits.setOnCheckedChangeListener(
+                (buttonView, isChecked) -> setTorrentProperty(SetterFields.SESSION_LIMITS, isChecked));
 
         views.torrentPriority.setOnItemSelectedListener(
             new AdapterView.OnItemSelectedListener() {
@@ -645,71 +633,54 @@ public class TorrentDetailPageFragment extends Fragment {
                 }
             });
 
-        views.queuePosition.setOnEditorActionListener(new TextView.OnEditorActionListener() {
-            @Override
-            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-                if (actionId == EditorInfo.IME_ACTION_DONE) {
-                    int position;
-                    try {
-                        position=Integer.parseInt(v.getText().toString().trim());
-                    } catch (NumberFormatException e) {
-                        return false;
-                    }
-                    setTorrentProperty(SetterFields.QUEUE_POSITION, position);
-                }
-                new Handler().post(loseFocusRunnable);
-                return false;
-            }
-        });
-
-        views.downloadLimited.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                views.downloadLimit.setEnabled(isChecked);
-                setTorrentProperty(SetterFields.DOWNLOAD_LIMITED, isChecked);
-            }
-        });
-
-        views.downloadLimit.setOnEditorActionListener(new TextView.OnEditorActionListener() {
-            @Override
-            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-                long limit;
+        views.queuePosition.setOnEditorActionListener((v, actionId, event) -> {
+            if (actionId == EditorInfo.IME_ACTION_DONE) {
+                int position;
                 try {
-                    limit=Long.parseLong(v.getText().toString().trim());
+                    position=Integer.parseInt(v.getText().toString().trim());
                 } catch (NumberFormatException e) {
                     return false;
                 }
-                setTorrentProperty(SetterFields.DOWNLOAD_LIMIT, limit);
-
-                new Handler().post(loseFocusRunnable);
-                return false;
+                setTorrentProperty(SetterFields.QUEUE_POSITION, position);
             }
-
+            new Handler().post(loseFocusRunnable);
+            return false;
         });
 
-        views.uploadLimited.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                views.uploadLimit.setEnabled(isChecked);
-                setTorrentProperty(SetterFields.UPLOAD_LIMITED, isChecked);
-            }
+        views.downloadLimited.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            views.downloadLimit.setEnabled(isChecked);
+            setTorrentProperty(SetterFields.DOWNLOAD_LIMITED, isChecked);
         });
 
-        views.uploadLimit.setOnEditorActionListener(new TextView.OnEditorActionListener() {
-            @Override
-            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-                long limit;
-                try {
-                    limit=Long.parseLong(v.getText().toString().trim());
-                } catch (NumberFormatException e) {
-                    return false;
-                }
-                setTorrentProperty(SetterFields.UPLOAD_LIMIT, limit);
-
-                new Handler().post(loseFocusRunnable);
+        views.downloadLimit.setOnEditorActionListener((v, actionId, event) -> {
+            long limit;
+            try {
+                limit=Long.parseLong(v.getText().toString().trim());
+            } catch (NumberFormatException e) {
                 return false;
             }
+            setTorrentProperty(SetterFields.DOWNLOAD_LIMIT, limit);
 
+            new Handler().post(loseFocusRunnable);
+            return false;
+        });
+
+        views.uploadLimited.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            views.uploadLimit.setEnabled(isChecked);
+            setTorrentProperty(SetterFields.UPLOAD_LIMITED, isChecked);
+        });
+
+        views.uploadLimit.setOnEditorActionListener((v, actionId, event) -> {
+            long limit;
+            try {
+                limit=Long.parseLong(v.getText().toString().trim());
+            } catch (NumberFormatException e) {
+                return false;
+            }
+            setTorrentProperty(SetterFields.UPLOAD_LIMIT, limit);
+
+            new Handler().post(loseFocusRunnable);
+            return false;
         });
 
         views.seedRatioMode.setOnItemSelectedListener(
@@ -732,91 +703,78 @@ public class TorrentDetailPageFragment extends Fragment {
                 }
             });
 
-        views.seedRatioLimit.setOnEditorActionListener(new TextView.OnEditorActionListener() {
-            @Override
-            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-                float limit;
-                try {
-                    limit=Float.parseFloat(v.getText().toString().trim());
-                } catch (NumberFormatException e) {
-                    return false;
-                }
-                setTorrentProperty(SetterFields.SEED_RATIO_LIMIT, limit);
-
-                new Handler().post(loseFocusRunnable);
+        views.seedRatioLimit.setOnEditorActionListener((v, actionId, event) -> {
+            float limit;
+            try {
+                limit=Float.parseFloat(v.getText().toString().trim());
+            } catch (NumberFormatException e) {
                 return false;
             }
+            setTorrentProperty(SetterFields.SEED_RATIO_LIMIT, limit);
 
+            new Handler().post(loseFocusRunnable);
+            return false;
         });
 
-        views.peerLimit.setOnEditorActionListener(new TextView.OnEditorActionListener() {
-            @Override
-            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-                int limit;
-                try {
-                    limit=Integer.parseInt(v.getText().toString().trim());
-                } catch (NumberFormatException e) {
-                    return false;
-                }
-                setTorrentProperty(SetterFields.PEER_LIMIT, limit);
-
-                new Handler().post(loseFocusRunnable);
+        views.peerLimit.setOnEditorActionListener((v, actionId, event) -> {
+            int limit;
+            try {
+                limit=Integer.parseInt(v.getText().toString().trim());
+            } catch (NumberFormatException e) {
                 return false;
             }
+            setTorrentProperty(SetterFields.PEER_LIMIT, limit);
 
+            new Handler().post(loseFocusRunnable);
+            return false;
         });
 
         Button addTracker = (Button) root.findViewById(R.id.torrent_detail_add_tracker);
-        addTracker.setOnClickListener(new View.OnClickListener() {
-            @Override public void onClick(View v) {
-                final ArrayList<String> urls = new ArrayList<>();
-                LayoutInflater inflater = getActivity().getLayoutInflater();
+        addTracker.setOnClickListener(v -> {
+            final ArrayList<String> urls = new ArrayList<>();
+            LayoutInflater inflater1 = getActivity().getLayoutInflater();
 
-                AlertDialog.Builder builder = new AlertDialog.Builder(getActivity())
-                        .setTitle(R.string.tracker_add)
-                        .setCancelable(false)
-                        .setNegativeButton(android.R.string.no, null)
-                        .setPositiveButton(android.R.string.yes,
-                                new DialogInterface.OnClickListener() {
-                                    @Override
-                                    public void onClick(DialogInterface dialog, int id) {
-                                        EditText url = (EditText) ((AlertDialog) dialog).findViewById(R.id.tracker_announce_url);
+            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity())
+                    .setTitle(R.string.tracker_add)
+                    .setCancelable(false)
+                    .setNegativeButton(android.R.string.no, null)
+                    .setPositiveButton(android.R.string.yes,
+                            new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int id) {
+                                    EditText url = (EditText) ((AlertDialog) dialog).findViewById(R.id.tracker_announce_url);
 
-                                        urls.add(url.getText().toString());
+                                    urls.add(url.getText().toString());
 
-                                        setTorrentProperty(SetterFields.TRACKER_ADD, urls);
+                                    setTorrentProperty(SetterFields.TRACKER_ADD, urls);
 
-                                        ((TransmissionSessionInterface) getActivity()).setRefreshing(true,
+                                    ((TransmissionSessionInterface) getActivity()).setRefreshing(true,
                                             DataService.Requests.GET_TORRENTS);
-                                        DataServiceManager manager =
+                                    DataServiceManager manager =
                                             ((DataServiceManagerInterface) getActivity()).getDataServiceManager();
 
-                                        if (manager != null) {
-                                            manager.update();
-                                        }
+                                    if (manager != null) {
+                                        manager.update();
                                     }
-                                }).setView(inflater.inflate(R.layout.replace_tracker_dialog, null));
-                AlertDialog dialog = builder.create();
-                dialog.show();
-            }
+                                }
+                            }).setView(inflater1.inflate(R.layout.replace_tracker_dialog, null));
+            AlertDialog dialog = builder.create();
+            dialog.show();
         });
 
-        root.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                if (views.queuePosition.hasFocus()) {
-                    views.queuePosition.clearFocus();
-                } else if (views.downloadLimit.hasFocus()) {
-                    views.downloadLimit.clearFocus();
-                } else if (views.uploadLimit.hasFocus()) {
-                    views.uploadLimit.clearFocus();
-                } else if (views.seedRatioLimit.hasFocus()) {
-                    views.seedRatioLimit.clearFocus();
-                } else if (views.peerLimit.hasFocus()) {
-                    views.peerLimit.clearFocus();
-                }
-                return false;
+        root.setOnTouchListener((v, event) -> {
+            if (views.queuePosition.hasFocus()) {
+                views.queuePosition.clearFocus();
+            } else if (views.downloadLimit.hasFocus()) {
+                views.downloadLimit.clearFocus();
+            } else if (views.uploadLimit.hasFocus()) {
+                views.uploadLimit.clearFocus();
+            } else if (views.seedRatioLimit.hasFocus()) {
+                views.seedRatioLimit.clearFocus();
+            } else if (views.peerLimit.hasFocus()) {
+                views.peerLimit.clearFocus();
             }
+            return false;
         });
 
         return root;
@@ -1406,81 +1364,76 @@ public class TorrentDetailPageFragment extends Fragment {
                     row.setVisibility(View.GONE);
                 } else {
                     row.setText(file.directory);
-                    row.setOnLongClickListener(new View.OnLongClickListener() {
-                        @Override
-                        public boolean onLongClick(View v) {
-                            if (fileActionMode != null) {
-                                return false;
-                            }
-                            List<View> files = filesAdapter.getViews();
-
-                            for (int i = position + 1; i < files.size(); ++i) {
-                                View view = files.get(i);
-                                TorrentFile child = getItem(i);
-
-                                if (!file.directory.equals(child.directory)) {
-                                    break;
-                                }
-                                if (view != null && !view.isActivated() && child != null) {
-                                    view.setActivated(true);
-                                    selectedFiles.add(view);
-                                }
-                            }
-                            fileActionMode = getActivity().findViewById(R.id.toolbar).startActionMode(actionModeFiles);
-                            invalidateFileActionMenu(fileActionMode.getMenu());
-                            return true;
+                    row.setOnLongClickListener(v -> {
+                        if (fileActionMode != null) {
+                            return false;
                         }
+                        List<View> files = filesAdapter.getViews();
+
+                        for (int i = position + 1; i < files.size(); ++i) {
+                            View view = files.get(i);
+                            TorrentFile child = getItem(i);
+
+                            if (!file.directory.equals(child.directory)) {
+                                break;
+                            }
+                            if (view != null && !view.isActivated()) {
+                                view.setActivated(true);
+                                selectedFiles.add(view);
+                            }
+                        }
+                        fileActionMode = getActivity().findViewById(R.id.toolbar).startActionMode(actionModeFiles);
+                        invalidateFileActionMenu(fileActionMode.getMenu());
+                        return true;
                     });
-                    row.setOnClickListener(new View.OnClickListener() {
-                        @Override public void onClick(View v) {
-                            if (fileActionMode == null) {
-                                return;
+                    row.setOnClickListener(v -> {
+                        if (fileActionMode == null) {
+                            return;
+                        }
+
+                        List<View> files = filesAdapter.getViews();
+                        int activated = 0;
+                        int deactivated = 0;
+
+                        for (int i = position + 1; i < files.size(); ++i) {
+                            View view = files.get(i);
+                            TorrentFile child = getItem(i);
+
+                            if (!file.directory.equals(child.directory)) {
+                                break;
                             }
-
-                            List<View> files = filesAdapter.getViews();
-                            int activated = 0;
-                            int deactivated = 0;
-
-                            for (int i = position + 1; i < files.size(); ++i) {
-                                View view = files.get(i);
-                                TorrentFile child = getItem(i);
-
-                                if (!file.directory.equals(child.directory)) {
-                                    break;
-                                }
-                                if (view != null && child != null) {
-                                    if (view.isActivated()) {
-                                        ++activated;
-                                    } else {
-                                        ++deactivated;
-                                    }
+                            if (view != null) {
+                                if (view.isActivated()) {
+                                    ++activated;
+                                } else {
+                                    ++deactivated;
                                 }
                             }
+                        }
 
-                            boolean activate = activated < deactivated;
+                        boolean activate = activated < deactivated;
 
-                            for (int i = position + 1; i < files.size(); ++i) {
-                                View view = files.get(i);
-                                TorrentFile child = getItem(i);
+                        for (int i = position + 1; i < files.size(); ++i) {
+                            View view = files.get(i);
+                            TorrentFile child = getItem(i);
 
-                                if (!file.directory.equals(child.directory)) {
-                                    break;
-                                }
-                                if (view != null && child != null) {
-                                    view.setActivated(activate);
-                                    if (activate) {
-                                        selectedFiles.add(view);
-                                    } else {
-                                        selectedFiles.remove(view);
-                                    }
+                            if (!file.directory.equals(child.directory)) {
+                                break;
+                            }
+                            if (view != null) {
+                                view.setActivated(activate);
+                                if (activate) {
+                                    selectedFiles.add(view);
+                                } else {
+                                    selectedFiles.remove(view);
                                 }
                             }
+                        }
 
-                            if (selectedFiles.size() == 0) {
-                                fileActionMode.finish();
-                            } else {
-                                invalidateFileActionMenu(fileActionMode.getMenu());
-                            }
+                        if (selectedFiles.size() == 0) {
+                            fileActionMode.finish();
+                        } else {
+                            invalidateFileActionMenu(fileActionMode.getMenu());
                         }
                     });
                 }
@@ -1488,46 +1441,41 @@ public class TorrentDetailPageFragment extends Fragment {
                 final View container = rowView;
                 CheckBox row = (CheckBox) rowView.findViewById(fieldId);
                 if (initial) {
-                    row.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-                        @Override public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                            if (fileActionMode != null) {
-                                buttonView.setChecked(!isChecked);
-                                if (container.isActivated()) {
-                                    container.setActivated(false);
-                                    selectedFiles.remove(container);
-                                    if (selectedFiles.size() == 0) {
-                                        fileActionMode.finish();
-                                    } else {
-                                        invalidateFileActionMenu(fileActionMode.getMenu());
-                                    }
+                    row.setOnCheckedChangeListener((buttonView, isChecked) -> {
+                        if (fileActionMode != null) {
+                            buttonView.setChecked(!isChecked);
+                            if (container.isActivated()) {
+                                container.setActivated(false);
+                                selectedFiles.remove(container);
+                                if (selectedFiles.size() == 0) {
+                                    fileActionMode.finish();
                                 } else {
-                                    container.setActivated(true);
-                                    selectedFiles.add(container);
                                     invalidateFileActionMenu(fileActionMode.getMenu());
                                 }
-                                return;
+                            } else {
+                                container.setActivated(true);
+                                selectedFiles.add(container);
+                                invalidateFileActionMenu(fileActionMode.getMenu());
                             }
-                            if (file.wanted != isChecked) {
-                                if (isChecked) {
-                                    setTorrentProperty(SetterFields.FILES_WANTED, file.index);
-                                } else {
-                                    setTorrentProperty(SetterFields.FILES_UNWANTED, file.index);
-                                }
+                            return;
+                        }
+                        if (file.wanted != isChecked) {
+                            if (isChecked) {
+                                setTorrentProperty(SetterFields.FILES_WANTED, file.index);
+                            } else {
+                                setTorrentProperty(SetterFields.FILES_UNWANTED, file.index);
                             }
                         }
                     });
-                    row.setOnLongClickListener(new View.OnLongClickListener() {
-                        @Override
-                        public boolean onLongClick(View v) {
-                            if (fileActionMode != null) {
-                                return false;
-                            }
-                            container.setActivated(true);
-                            selectedFiles.add(container);
-                            fileActionMode = getActivity().findViewById(R.id.toolbar).startActionMode(actionModeFiles);
-                            invalidateFileActionMenu(fileActionMode.getMenu());
-                            return true;
+                    row.setOnLongClickListener(v -> {
+                        if (fileActionMode != null) {
+                            return false;
                         }
+                        container.setActivated(true);
+                        selectedFiles.add(container);
+                        fileActionMode = getActivity().findViewById(R.id.toolbar).startActionMode(actionModeFiles);
+                        invalidateFileActionMenu(fileActionMode.getMenu());
+                        return true;
                     });
                 }
                 String priority;
@@ -1751,11 +1699,9 @@ public class TorrentDetailPageFragment extends Fragment {
                 if (tracker.hasLastAnnounceSucceeded) {
                     announce.setText(String.format(
                             getString(R.string.tracker_announce_success),
-                            time, String.format(
-                                getResources().getQuantityString(R.plurals.tracker_peers,
-                                        tracker.lastAnnouncePeerCount,
-                                        tracker.lastAnnouncePeerCount)
-                    )));
+                            time, getResources().getQuantityString(R.plurals.tracker_peers,
+                                    tracker.lastAnnouncePeerCount,
+                                    tracker.lastAnnouncePeerCount)));
                 } else {
                     announce.setText(String.format(
                             getString(R.string.tracker_announce_error),
@@ -1798,118 +1744,103 @@ public class TorrentDetailPageFragment extends Fragment {
                 View row = rowView.findViewById(R.id.torrent_detail_trackers_row_info);
                 final ViewGroup buttons = (ViewGroup) rowView.findViewById(R.id.torrent_detail_tracker_buttons);
 
-                row.setOnLongClickListener(new View.OnLongClickListener() {
-                    @Override
-                    public boolean onLongClick(View v) {
-                        if (trackerActionMode != null) {
-                            return false;
-                        }
-                        v.setActivated(true);
-                        selectedTrackers.add(v);
-                        trackerActionMode = getActivity().findViewById(R.id.toolbar).startActionMode(actionModeTrackers);
-                        stopAnimator();
-                        animateTrackerLayout(null, visibleButtons);
-
-                        return true;
+                row.setOnLongClickListener(v -> {
+                    if (trackerActionMode != null) {
+                        return false;
                     }
+                    v.setActivated(true);
+                    selectedTrackers.add(v);
+                    trackerActionMode = getActivity().findViewById(R.id.toolbar).startActionMode(actionModeTrackers);
+                    stopAnimator();
+                    animateTrackerLayout(null, visibleButtons);
+
+                    return true;
                 });
-                row.setOnClickListener(new View.OnClickListener() {
-                    @Override public void onClick(View v) {
-                        if (trackerActionMode != null) {
-                            if (v.isActivated()) {
-                                selectedTrackers.remove(v);
-                                v.setActivated(false);
-                                if (selectedTrackers.size() == 0) {
-                                    trackerActionMode.finish();
-                                }
-                            } else {
-                                selectedTrackers.add(v);
-                                v.setActivated(true);
+                row.setOnClickListener(v -> {
+                    if (trackerActionMode != null) {
+                        if (v.isActivated()) {
+                            selectedTrackers.remove(v);
+                            v.setActivated(false);
+                            if (selectedTrackers.size() == 0) {
+                                trackerActionMode.finish();
                             }
-
-                            return;
-                        }
-
-                        stopAnimator();
-                        if (buttons == visibleButtons) {
-                            animateTrackerLayout(null, visibleButtons);
                         } else {
-                            animateTrackerLayout(buttons, visibleButtons);
+                            selectedTrackers.add(v);
+                            v.setActivated(true);
                         }
+
+                        return;
                     }
 
+                    stopAnimator();
+                    if (buttons == visibleButtons) {
+                        animateTrackerLayout(null, visibleButtons);
+                    } else {
+                        animateTrackerLayout(buttons, visibleButtons);
+                    }
                 });
 
                 final TransmissionSessionInterface context = (TransmissionSessionInterface) getActivity();
                 final DataServiceManager manager =
                     ((DataServiceManagerInterface) getActivity()).getDataServiceManager();
 
-                buttons.findViewById(R.id.torrent_detail_tracker_remove).setOnClickListener(new View.OnClickListener() {
-                    @Override public void onClick(View v) {
-                        trackersAdapter.remove(tracker);
-                        trackersObserver.setFrozen(true);
-                        ArrayList<Integer> ids = new ArrayList<>();
-                        ids.add(tracker.id);
+                buttons.findViewById(R.id.torrent_detail_tracker_remove).setOnClickListener(v -> {
+                    trackersAdapter.remove(tracker);
+                    trackersObserver.setFrozen(true);
+                    ArrayList<Integer> ids = new ArrayList<>();
+                    ids.add(tracker.id);
 
-                        setTorrentProperty(SetterFields.TRACKER_REMOVE, ids);
-                        context.setRefreshing(true, DataService.Requests.SET_TORRENT);
+                    setTorrentProperty(SetterFields.TRACKER_REMOVE, ids);
+                    context.setRefreshing(true, DataService.Requests.SET_TORRENT);
 
-                        if (manager != null) {
-                            manager.update();
-                        }
-
-                        stopAnimator();
+                    if (manager != null) {
+                        manager.update();
                     }
+
+                    stopAnimator();
                 });
 
-                buttons.findViewById(R.id.torrent_detail_tracker_replace).setOnClickListener(new View.OnClickListener() {
-                    @Override public void onClick(View v) {
-                        final ArrayList<String> tuple = new ArrayList<>();
-                        tuple.add(Integer.toString(tracker.id));
+                buttons.findViewById(R.id.torrent_detail_tracker_replace).setOnClickListener(v -> {
+                    final ArrayList<String> tuple = new ArrayList<>();
+                    tuple.add(Integer.toString(tracker.id));
 
-                        LayoutInflater inflater = getActivity().getLayoutInflater();
+                    LayoutInflater inflater = getActivity().getLayoutInflater();
 
-                        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity())
-                            .setTitle(R.string.tracker_replace)
-                            .setCancelable(false)
-                            .setNegativeButton(android.R.string.no, null)
-                            .setPositiveButton(android.R.string.yes,
-                                    new DialogInterface.OnClickListener() {
-                                        @Override
-                                        public void onClick(DialogInterface dialog, int id) {
-                                            EditText url = (EditText) ((AlertDialog) dialog).findViewById(R.id.tracker_announce_url);
+                    AlertDialog.Builder builder = new AlertDialog.Builder(getActivity())
+                        .setTitle(R.string.tracker_replace)
+                        .setCancelable(false)
+                        .setNegativeButton(android.R.string.no, null)
+                        .setPositiveButton(android.R.string.yes,
+                                (dialog, id) -> {
+                                    EditText url1 = (EditText) ((AlertDialog) dialog).findViewById(R.id.tracker_announce_url);
 
-                                            tuple.add(url.getText().toString());
+                                    tuple.add(url1.getText().toString());
 
-                                            setTorrentProperty(SetterFields.TRACKER_REPLACE, tuple);
+                                    setTorrentProperty(SetterFields.TRACKER_REPLACE, tuple);
 
-                                            context.setRefreshing(true, DataService.Requests.GET_TORRENTS);
-                                            if (manager != null) {
-                                                manager.update();
-                                            }
-                                        }
-                                    }).setView(inflater.inflate(R.layout.replace_tracker_dialog, null));
-                        AlertDialog dialog = builder.create();
-                        dialog.show();
+                                    context.setRefreshing(true, DataService.Requests.GET_TORRENTS);
+                                    if (manager != null) {
+                                        manager.update();
+                                    }
+                                }).setView(inflater.inflate(R.layout.replace_tracker_dialog, null));
+                    AlertDialog dialog = builder.create();
+                    dialog.show();
 
-                        stopAnimator();
-                        animateTrackerLayout(null, visibleButtons);
-                    }
+                    stopAnimator();
+                    animateTrackerLayout(null, visibleButtons);
                 });
 
-                buttons.findViewById(R.id.torrent_detail_tracker_copy).setOnClickListener(new View.OnClickListener() {
-                    @Override public void onClick(View v) {
-                        String url = tracker.announce;
-                        ClipboardManager clipboard = (ClipboardManager) getActivity().getSystemService(Context.CLIPBOARD_SERVICE);
-                        ClipData clip = ClipData.newPlainText(getString(R.string.tracker_announce_url), url);
-                        clipboard.setPrimaryClip(clip);
+                buttons.findViewById(R.id.torrent_detail_tracker_copy).setOnClickListener(v -> {
+                    String url1 = tracker.announce;
+                    ClipboardManager clipboard = (ClipboardManager) getActivity().getSystemService(Context.CLIPBOARD_SERVICE);
+                    ClipData clip = ClipData.newPlainText(getString(R.string.tracker_announce_url), url1);
+                    clipboard.setPrimaryClip(clip);
 
-                        Toast.makeText(getActivity(),
-                                R.string.tracker_url_copy, Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getActivity(),
+                            R.string.tracker_url_copy, Toast.LENGTH_SHORT).show();
 
-                        stopAnimator();
-                        animateTrackerLayout(null, visibleButtons);
-                    }
+                    stopAnimator();
+                    animateTrackerLayout(null, visibleButtons);
                 });
             }
 
@@ -2136,11 +2067,8 @@ public class TorrentDetailPageFragment extends Fragment {
 
         @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
         private void animateRemoveView(final View v) {
-            v.animate().setDuration(250).alpha(0).translationY(-50).withEndAction(new Runnable() {
-                @Override public void run() {
-                    views.trackersContainer.removeView(v);
-                }
-            });
+            v.animate().setDuration(250).alpha(0).translationY(-50).withEndAction(
+                    () -> views.trackersContainer.removeView(v));
         }
     }
 

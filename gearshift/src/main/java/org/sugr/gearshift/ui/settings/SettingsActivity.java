@@ -43,7 +43,6 @@ public class SettingsActivity extends AppCompatActivity {
     }
 
     private SlidingPaneLayout slidingPane;
-    private RecyclerView profileList;
 
     private ProfileAdapter profileAdapter;
 
@@ -52,30 +51,24 @@ public class SettingsActivity extends AppCompatActivity {
     private static final String DIRECTORIES_FRAGMENT_TAG = "directories-fragment";
 
     private SharedPreferences.OnSharedPreferenceChangeListener defaultPrefListener
-            = new SharedPreferences.OnSharedPreferenceChangeListener() {
-        @Override
-        public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-            if (key.equals(G.PREF_PROFILES)) {
+            = (sharedPreferences, key) -> {
+                if (key.equals(G.PREF_PROFILES)) {
+                    Loader loader = getSupportLoaderManager().getLoader(G.PROFILES_LOADER_ID);
+
+                    if (loader != null) {
+                        loader.onContentChanged();
+                    }
+                }
+            };
+
+    private SharedPreferences.OnSharedPreferenceChangeListener profilesPrefListener
+            = (sharedPreferences, key) -> {
                 Loader loader = getSupportLoaderManager().getLoader(G.PROFILES_LOADER_ID);
 
                 if (loader != null) {
                     loader.onContentChanged();
                 }
-            }
-        }
-    };
-
-    private SharedPreferences.OnSharedPreferenceChangeListener profilesPrefListener
-            = new SharedPreferences.OnSharedPreferenceChangeListener() {
-        @Override
-        public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-            Loader loader = getSupportLoaderManager().getLoader(G.PROFILES_LOADER_ID);
-
-            if (loader != null) {
-                loader.onContentChanged();
-            }
-        }
-    };
+            };
 
 
     private LoaderManager.LoaderCallbacks<TransmissionProfile[]> profileLoaderCallbacks = new LoaderManager.LoaderCallbacks<TransmissionProfile[]>() {
@@ -325,7 +318,7 @@ public class SettingsActivity extends AppCompatActivity {
 
         profileAdapter = new ProfileAdapter(this);
 
-        profileList = (RecyclerView) findViewById(R.id.profile_list);
+        RecyclerView profileList = (RecyclerView) findViewById(R.id.profile_list);
 
         profileList.setLayoutManager(new LinearLayoutManager(this));
         profileList.setAdapter(profileAdapter);
@@ -472,18 +465,14 @@ public class SettingsActivity extends AppCompatActivity {
             }
 
             ProfileItem item = itemData.get(position);
-            if (item.getType() == Type.PROFILE_HEADER) {
-                return false;
-            }
+            return item.getType() != Type.PROFILE_HEADER;
 
-            return true;
         }
 
         @Override public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
             View itemLayoutView = LayoutInflater.from(parent.getContext()).inflate(viewType, parent, false);
 
-            ViewHolder holder = new ViewHolder(itemLayoutView, viewType);
-            return holder;
+            return new ViewHolder(itemLayoutView, viewType);
         }
 
         @Override public void onBindViewHolder(ViewHolder holder, final int position) {
@@ -491,13 +480,10 @@ public class SettingsActivity extends AppCompatActivity {
 
             final ProfileItem item = itemData.get(position);
 
-            holder.itemView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    clearSelections();
-                    setItemSelected(position, true);
-                    context.setSelectedItem(item);
-                }
+            holder.itemView.setOnClickListener(v -> {
+                clearSelections();
+                setItemSelected(position, true);
+                context.setSelectedItem(item);
             });
 
             holder.label.setText(item.getLabel());

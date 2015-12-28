@@ -4,13 +4,10 @@ import android.app.Application;
 import android.content.Intent;
 
 import com.android.volley.RequestQueue;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonArrayRequest;
 import com.android.volley.toolbox.Volley;
 import com.github.zafarkhaja.semver.Version;
 
-import org.json.JSONArray;
 import org.json.JSONObject;
 
 public class GearShiftApplication extends Application {
@@ -31,11 +28,7 @@ public class GearShiftApplication extends Application {
 
         requestQueue = Volley.newRequestQueue(this);
 
-        Thread.setDefaultUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
-            @Override public void uncaughtException(Thread thread, Throwable ex) {
-                handleUncaughtException(thread, ex);
-            }
-        });
+        Thread.setDefaultUncaughtExceptionHandler((thread, ex) -> handleUncaughtException(thread, ex));
     }
 
     public static boolean isActivityVisible() {
@@ -59,42 +52,38 @@ public class GearShiftApplication extends Application {
     }
 
     public void checkForUpdates(final OnUpdateCheck onUpdateCheck) {
-        JsonArrayRequest request = new JsonArrayRequest(UPDATE_URL, new Response.Listener<JSONArray>() {
-            @Override public void onResponse(JSONArray response) {
-                try {
-                    String version = getPackageManager().getPackageInfo(getPackageName(), 0).versionName;
+        JsonArrayRequest request = new JsonArrayRequest(UPDATE_URL, response -> {
+            try {
+                String version = getPackageManager().getPackageInfo(getPackageName(), 0).versionName;
 
-                    if (response.length() > 0) {
-                        JSONObject latest = response.getJSONObject(0);
+                if (response.length() > 0) {
+                    JSONObject latest = response.getJSONObject(0);
 
-                        String url = latest.getString("html_url");
-                        String tag = latest.getString("tag_name");
-                        String name = latest.getString("name");
-                        String description = latest.getString("body");
-                        String downloadUrl = latest.getJSONArray("assets").getJSONObject(0).getString("browser_download_url");
+                    String url = latest.getString("html_url");
+                    String tag = latest.getString("tag_name");
+                    String name = latest.getString("name");
+                    String description = latest.getString("body");
+                    String downloadUrl = latest.getJSONArray("assets").getJSONObject(0).getString("browser_download_url");
 
-                        Version current = Version.valueOf(version);
-                        Version remote = Version.valueOf(tag);
+                    Version current = Version.valueOf(version);
+                    Version remote = Version.valueOf(tag);
 
-                        if (remote.greaterThan(current)) {
-                            G.logD("New update available at " + url);
+                    if (remote.greaterThan(current)) {
+                        G.logD("New update available at " + url);
 
-                            onUpdateCheck.onNewRelease(name, description, url, downloadUrl);
-                        } else {
-                            onUpdateCheck.onCurrentRelease();
-                        }
+                        onUpdateCheck.onNewRelease(name, description, url, downloadUrl);
+                    } else {
+                        onUpdateCheck.onCurrentRelease();
                     }
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    onUpdateCheck.onUpdateCheckError(e);
-                    return;
                 }
+            } catch (Exception e) {
+                e.printStackTrace();
+                onUpdateCheck.onUpdateCheckError(e);
+                return;
             }
-        }, new Response.ErrorListener() {
-            @Override public void onErrorResponse(VolleyError error) {
-                G.logD("Error fetching releases feed: " + error.toString());
-                onUpdateCheck.onUpdateCheckError(error);
-            }
+        }, error -> {
+            G.logD("Error fetching releases feed: " + error.toString());
+            onUpdateCheck.onUpdateCheckError(error);
         });
 
         requestQueue.add(request);

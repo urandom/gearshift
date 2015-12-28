@@ -2,10 +2,8 @@ package org.sugr.gearshift.ui.util;
 
 import android.app.AlertDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
-import android.text.Spanned;
 
 import org.sugr.gearshift.R;
 
@@ -17,20 +15,16 @@ public class UpdateCheckDialog {
             .setCancelable(true)
             .setNegativeButton(android.R.string.no, null);
 
-        builder.setNeutralButton(R.string.update_download, new DialogInterface.OnClickListener() {
-            @Override public void onClick(DialogInterface dialog, int which) {
-                Intent i = new Intent(Intent.ACTION_VIEW);
-                i.setData(Uri.parse(downloadUrl));
-                context.startActivity(i);
-            }
+        builder.setNeutralButton(R.string.update_download, (dialog1, which) -> {
+            Intent i = new Intent(Intent.ACTION_VIEW);
+            i.setData(Uri.parse(downloadUrl));
+            context.startActivity(i);
         });
 
-        builder.setPositiveButton(R.string.update_view, new DialogInterface.OnClickListener() {
-            @Override public void onClick(DialogInterface dialog, int which) {
-                Intent i = new Intent(Intent.ACTION_VIEW);
-                i.setData(Uri.parse(viewUrl));
-                context.startActivity(i);
-            }
+        builder.setPositiveButton(R.string.update_view, (dialog1, which) -> {
+            Intent i = new Intent(Intent.ACTION_VIEW);
+            i.setData(Uri.parse(viewUrl));
+            context.startActivity(i);
         });
 
         builder.setMessage(text);
