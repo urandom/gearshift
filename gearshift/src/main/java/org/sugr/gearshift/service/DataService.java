@@ -20,8 +20,12 @@ import org.sugr.gearshift.core.TransmissionSession;
 import org.sugr.gearshift.datasource.DataSource;
 import org.sugr.gearshift.datasource.TorrentStatus;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
 import java.net.HttpURLConnection;
+import java.net.URI;
 
 public class DataService extends IntentService {
     public static final class Requests {
@@ -52,11 +56,11 @@ public class DataService extends IntentService {
         public static final String TORRENTS_TO_UPDATE = "torrents_to_update";
         public static final String REMOVE_OBSOLETE = "remove_obsolete";
         public static final String MAGNET_URI = "magnet_uri";
-        public static final String TORRENT_DATA = "torrent_data";
+        public static final String TORRENT_DATA_PATH = "torrent_data_path";
+        public static final String TORRENT_FILE = "torrent_file";
         public static final String LOCATION = "location";
         public static final String MOVE_DATA = "move_data";
         public static final String ADD_PAUSED = "add_paused";
-        public static final String TEMPORARY_FILE = "temporary_file";
         public static final String DOCUMENT_URI = "document_uri";
         public static final String HASH_STRINGS = "hash_strings";
         public static final String DELETE_DATA = "delete_data";
@@ -187,33 +191,67 @@ public class DataService extends IntentService {
                     }
                     case Requests.ADD_TORRENT: {
                         String uri = args.getString(Args.MAGNET_URI);
-                        String data = args.getString(Args.TORRENT_DATA);
+                        String temporaryFile = args.getString(Args.TORRENT_DATA_PATH);
+                        String torrentFile = args.getString(Args.TORRENT_FILE);
                         String location = args.getString(Args.LOCATION);
                         boolean paused = args.getBoolean(Args.ADD_PAUSED, false);
-                        String temporary = args.getString(Args.TEMPORARY_FILE);
                         Uri document = args.getParcelable(Args.DOCUMENT_URI);
+                        String meta = null;
 
-                        if (TextUtils.isEmpty(uri) && TextUtils.isEmpty(data)) {
+                        if (TextUtils.isEmpty(uri) && TextUtils.isEmpty(temporaryFile)) {
                             throw new IllegalArgumentException(
                                 "Either a uri or the torrent data needs to be specified");
                         }
 
-                        String addedHash = manager.addTorrent(uri, data, location, paused);
+                        if (!TextUtils.isEmpty(temporaryFile)) {
+                            BufferedReader reader = null;
 
-                        if (!TextUtils.isEmpty(temporary)) {
-                            File file = new File(temporary);
-                            if (!file.delete()) {
-                                G.logD("Couldn't remove torrent " + file.getName());
+                            try {
+                                File file = new File(new URI(temporaryFile));
+
+                                reader = new BufferedReader(new FileReader(file));
+                                StringBuilder fileData = new StringBuilder();
+                                String line;
+
+                                while ((line = reader.readLine()) != null) {
+                                    fileData.append(line).append("\n");
+                                }
+
+                                meta = fileData.toString();
+
+                                if (!file.delete()) {
+                                    G.logD("Couldn't remove torrent " + file.getName());
+                                }
+                            } catch (Exception e) {
+                                throw new IllegalArgumentException("Unable to process torrent data " + temporaryFile);
+                            } finally {
+                                if (reader != null) {
+                                    try {
+                                        reader.close();
+                                    } catch (IOException e) {
+                                        e.printStackTrace();
+                                    }
+                                }
                             }
                         }
+
+                        String addedHash = manager.addTorrent(uri, meta, location, paused);
+
                         if (document != null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
                             if (!DocumentsContract.deleteDocument(getContentResolver(), document)) {
                                 G.logD("Couldn't remove torrent " + document.toString());
                             }
                         }
 
+                        if (!TextUtils.isEmpty(torrentFile)) {
+                            File file = new File(torrentFile);
+                            if (!file.delete()) {
+                                G.logD("Couldn't remove torrent " + file.getName());
+                            }
+                        }
+
                         profile.setLastDownloadDirectory(location);
-                        profile.setDeleteLocal(temporary != null || document != null);
+                        profile.setDeleteLocal(torrentFile != null || document != null);
                         profile.setStartPaused(paused);
 
                         response = createResponse(requestType, profileId)

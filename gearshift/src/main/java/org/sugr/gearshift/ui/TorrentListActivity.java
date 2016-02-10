@@ -62,8 +62,8 @@ import java.util.List;
 public class TorrentListActivity extends BaseTorrentActivity
         implements TorrentListFragment.Callbacks {
 
-    public static final String ARG_FILE_URI = "torrent_file_uri";
-    public static final String ARG_FILE_PATH = "torrent_file_path";
+    public static final String ARG_TEMPORARY_FILE = "torrent_file_uri";
+    public static final String ARG_TORRENT_FILE = "torrent_file_path";
     public final static String ACTION_OPEN = "torrent_file_open_action";
 
     /**
@@ -687,17 +687,17 @@ public class TorrentListActivity extends BaseTorrentActivity
                 && (Intent.ACTION_VIEW.equals(action) || ACTION_OPEN.equals(action))) {
 
             Uri data = intent.getData();
-            String fileURI = intent.getStringExtra(ARG_FILE_URI);
-            String filePath = intent.getStringExtra(ARG_FILE_PATH);
+            String temporaryFile = intent.getStringExtra(ARG_TEMPORARY_FILE);
+            String torrentFile = intent.getStringExtra(ARG_TORRENT_FILE);
 
-            showNewTorrentDialog(data, fileURI, filePath, null);
+            showNewTorrentDialog(data, temporaryFile, torrentFile, null);
         } else {
             intentConsumed = true;
         }
     }
 
-    private void showNewTorrentDialog(final Uri data, final String fileURI,
-                                      final String filePath, final Uri documentUri) {
+    private void showNewTorrentDialog(final Uri data, final String temporaryFile,
+                                      final String torrentFile, final Uri documentUri) {
 
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
         if (!prefs.getBoolean(G.PREF_SHOW_ADD_DIALOG, true)) {
@@ -705,8 +705,8 @@ public class TorrentListActivity extends BaseTorrentActivity
 
             if (data != null && data.getScheme().equals("magnet")) {
                 addMagnetLink(profile, data, null, startPaused);
-            } else if (fileURI != null) {
-                addTorrentFile(profile, fileURI, filePath, documentUri,
+            } else if (temporaryFile != null) {
+                addTorrentFile(profile, temporaryFile, torrentFile, documentUri,
                     null, startPaused, prefs.getBoolean(G.PREF_DELETE_LOCAL, false));
             } else {
                 return;
@@ -740,7 +740,7 @@ public class TorrentListActivity extends BaseTorrentActivity
                 intentConsumed = true;
                 newTorrentDialogVisible = false;
             };
-        } else if (fileURI != null) {
+        } else if (temporaryFile != null) {
             title = R.string.add_new_torrent;
             okListener = (dialog, which) -> {
                 if (manager == null) {
@@ -754,7 +754,7 @@ public class TorrentListActivity extends BaseTorrentActivity
                     return;
                 }
 
-                addTorrentFile(location.profile, fileURI, filePath, documentUri,
+                addTorrentFile(location.profile, temporaryFile, torrentFile, documentUri,
                     location.directory, location.isPaused, location.deleteLocal);
 
                 intentConsumed = true;
@@ -781,7 +781,7 @@ public class TorrentListActivity extends BaseTorrentActivity
         CheckBox deleteLocal = (CheckBox) dialog.findViewById(R.id.delete_local);
         deleteLocal.setChecked(profile != null && profile.getDeleteLocal());
 
-        if (fileURI != null) {
+        if (temporaryFile != null) {
             deleteLocal.setVisibility(View.VISIBLE);
         }
     }
@@ -830,54 +830,21 @@ public class TorrentListActivity extends BaseTorrentActivity
     }
 
     private void addMagnetLink(TransmissionProfile profile, Uri magnet, String directory, boolean isPaused) {
-        manager.addTorrent(profile.getId(), Uri.decode(magnet.toString()), null, directory, isPaused, null, null);
+        manager.addTorrent(profile.getId(), Uri.decode(magnet.toString()), null, null, directory, isPaused, null);
 
         setRefreshing(true, DataService.Requests.ADD_TORRENT);
     }
 
-    private void addTorrentFile(TransmissionProfile profile, String fileURI, String filePath,
+    private void addTorrentFile(TransmissionProfile profile, String temporaryFile, String torrentFile,
                                 Uri documentUri, String directory, boolean isPaused, boolean deleteLocal) {
-        BufferedReader reader = null;
-
-        try {
-            File file = new File(new URI(fileURI));
-
-            reader = new BufferedReader(new FileReader(file));
-            StringBuilder filedata = new StringBuilder();
-            String line;
-
-            while ((line = reader.readLine()) != null) {
-                filedata.append(line).append("\n");
-            }
-
-            if (!file.delete()) {
-                Toast.makeText(TorrentListActivity.this,
-                    R.string.error_deleting_torrent_file, Toast.LENGTH_SHORT).show();
-            }
-
-            String path = filePath;
-            Uri uri = documentUri;
-            if (!deleteLocal) {
-                path = null;
-                uri = null;
-            }
-
-            manager.addTorrent(profile.getId(), null, filedata.toString(), directory, isPaused,
-                path, uri);
-
-            setRefreshing(true, DataService.Requests.ADD_TORRENT);
-        } catch (Exception e) {
-            Toast.makeText(TorrentListActivity.this,
-                R.string.error_reading_torrent_file, Toast.LENGTH_SHORT).show();
-        } finally {
-            if (reader != null) {
-                try {
-                    reader.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
+        Uri uri = documentUri;
+        if (!deleteLocal) {
+            uri = null;
         }
+
+        manager.addTorrent(profile.getId(), null, temporaryFile, torrentFile, directory, isPaused, uri);
+
+        setRefreshing(true, DataService.Requests.ADD_TORRENT);
     }
 
     private class ReadTorrentDataTask extends AsyncTask<Uri, Void, ReadTorrentDataTask.TaskData> {

@@ -186,15 +186,15 @@ public class DataServiceManager {
         return this;
     }
 
-    public DataServiceManager addTorrent(String profile, String magnet, String data, String location,
-                                         boolean addPaused, String temporaryFile, Uri documentUri) {
+    public DataServiceManager addTorrent(String profile, String magnet, String temporaryFile, String torrentFile,
+                                         String location, boolean addPaused, Uri documentUri) {
         Bundle args = new Bundle();
 
         args.putString(DataService.Args.MAGNET_URI, magnet);
-        args.putString(DataService.Args.TORRENT_DATA, data);
+        args.putString(DataService.Args.TORRENT_DATA_PATH, temporaryFile);
+        args.putString(DataService.Args.TORRENT_FILE, torrentFile);
         args.putString(DataService.Args.LOCATION, location);
         args.putBoolean(DataService.Args.ADD_PAUSED, addPaused);
-        args.putString(DataService.Args.TEMPORARY_FILE, temporaryFile);
         args.putParcelable(DataService.Args.DOCUMENT_URI, documentUri);
 
         Intent intent = createIntent(DataService.Requests.ADD_TORRENT, args);

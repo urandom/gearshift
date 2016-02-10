@@ -266,6 +266,7 @@ public abstract class BaseTorrentActivity extends ColorizedToolbarActivity
             return;
         }
 
+        profile.setContext(this);
         this.profile = profile;
 
         if (manager != null) {

@@ -36,7 +36,7 @@ public class TorrentFileReadActivity extends ActionBarActivity {
 
     private class ReadTorrentDataTask extends AsyncTask<Uri, Void, ReadTorrentDataTask.TaskData> {
         public class TaskData {
-            public File file;
+            public String temporaryFile;
             public String path;
         }
 
@@ -87,7 +87,7 @@ public class TorrentFileReadActivity extends ActionBarActivity {
                     G.logD("Torrent file path: " + path);
 
                     TaskData data = new TaskData();
-                    data.file = file;
+                    data.temporaryFile = file.toURI().toString();
                     data.path = path;
                     return data;
                 } else {
@@ -116,8 +116,8 @@ public class TorrentFileReadActivity extends ActionBarActivity {
                 Intent listIntent = new Intent(TorrentFileReadActivity.this, TorrentListActivity.class);
                 listIntent.setAction(TorrentListActivity.ACTION_OPEN);
                 listIntent.setData(uri);
-                listIntent.putExtra(TorrentListActivity.ARG_FILE_URI, data.file.toURI().toString());
-                listIntent.putExtra(TorrentListActivity.ARG_FILE_PATH, data.path);
+                listIntent.putExtra(TorrentListActivity.ARG_TEMPORARY_FILE, data.temporaryFile);
+                listIntent.putExtra(TorrentListActivity.ARG_TORRENT_FILE, data.path);
 
                 startActivity(listIntent);
             }
