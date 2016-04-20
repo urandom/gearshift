@@ -549,5 +549,7 @@
     <string name="color_swatch_description_selected">Color <xliff:g id="color_index" example="14">%1$d</xliff:g> selected</string>
     <string name="pref_profile_color">Цвет профиля</string>
     <string name="misc">Дополнительно</string>
+    <string name="delete_data_default">Удалять данные торрента по умолчанию</string>
+    <string name="no_activity_for_open_document">Система Android не может отобразить торрент-файлы</string>
 
 </resources>
