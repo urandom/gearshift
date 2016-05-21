@@ -698,6 +698,9 @@ public class TorrentListActivity extends BaseTorrentActivity
 
     private void showNewTorrentDialog(final Uri data, final String temporaryFile,
                                       final String torrentFile, final Uri documentUri) {
+        if (profile.getContext() == null) {
+            throw new RuntimeException("null context in profile");
+        }
 
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
         if (!prefs.getBoolean(G.PREF_SHOW_ADD_DIALOG, true)) {
