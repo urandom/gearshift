@@ -445,7 +445,7 @@
     <string name="hint_download_directory">Cartella download</string>
     <string name="spinner_default_directory">Cartella predefinita</string>
     <string name="spinner_custom_directory">Cartella personalizzata &#8230;</string>
-    <string name="error_removing_profile">Erroro nel rimuovere il profilo!</string>
+    <string name="error_removing_profile">Errore nel rimuovere il profilo!</string>
     <string name="session_settings_enable_idle_seeding_limit">Abilita limite inattività distribuzione</string>
     <string name="session_settings_idle_seeding_limit">Ferma se inattivo per (minuti)</string>
     <string name="update_download">Download</string>
@@ -483,7 +483,7 @@
     </string-array>
 
     <string-array name="pref_full_update_entries">
-        <item>Disable partial updates</item>
+        <item>Disabilita aggiornamenti parziali</item>
         <item>2 aggiornamenti</item>
         <item>3 aggiornamenti</item>
         <item>5 aggiornamenti</item>
@@ -549,5 +549,7 @@
     <string name="color_swatch_description_selected">Colore <xliff:g id="color_index" example="14">%1$d</xliff:g> selezionato</string>
     <string name="pref_profile_color">Colore profilo</string>
     <string name="misc">Varie</string>
+    <string name="delete_data_default">Cancella i dati scaricati con la rimozione dei torrent come opzione predefinita</string>
+    <string name="no_activity_for_open_document">Android non può cercare i file torrent</string>
     
 </resources>
