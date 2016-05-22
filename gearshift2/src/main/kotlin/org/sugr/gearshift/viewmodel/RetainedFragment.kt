@@ -4,8 +4,7 @@ import android.app.Fragment
 import android.app.FragmentManager
 import android.content.SharedPreferences
 import android.os.Bundle
-
-import org.sugr.gearshift.App
+import org.sugr.gearshift.defaultPreferences
 
 class RetainedFragment<VM : RetainedViewModel<T>, T> : Fragment() {
     var viewModel: VM? = null
@@ -22,25 +21,21 @@ class RetainedFragment<VM : RetainedViewModel<T>, T> : Fragment() {
             viewModel!!.onDestroy()
         }
     }
+}
 
-    companion object {
+inline fun <reified VM : RetainedViewModel<T>, T> viewModelFrom(fm: FragmentManager,
+                                                                tag: String = VM::class.toString(),
+                                                                factory: (prefs: SharedPreferences) -> VM): VM {
 
-        @SuppressWarnings("unchecked")
-        inline fun <reified VM : RetainedViewModel<T>, T> getViewModel(fm: FragmentManager,
-                                                        tag: String = VM::class.toString(),
-                                                        factory: (prefs: SharedPreferences) -> VM): VM {
+    var fragment = fm.findFragmentByTag(tag) as? RetainedFragment<VM, T>
 
-            var fragment = fm.findFragmentByTag(tag) as? RetainedFragment<VM, T>
+    if (fragment == null) {
+        fragment = RetainedFragment<VM, T>()
+        fragment.viewModel = factory(defaultPreferences())
 
-            if (fragment == null) {
-                fragment = RetainedFragment<VM, T>()
-                fragment.viewModel = factory(App.defaultPreferences())
-
-                // TODO: commit -> commitNow (support v24)
-                fm.beginTransaction().add(fragment, tag).commit()
-            }
-
-            return fragment.viewModel as VM
-        }
+        // TODO: commit -> commitNow (support v24)
+        fm.beginTransaction().add(fragment, tag).commit()
     }
+
+    return fragment.viewModel as VM
 }

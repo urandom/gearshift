@@ -12,15 +12,15 @@ import android.support.v7.widget.Toolbar
 import android.view.Menu
 import android.view.MenuItem
 import org.sugr.gearshift.R
-import org.sugr.gearshift.viewmodel.RetainedFragment
 import org.sugr.gearshift.viewmodel.TorrentViewModel
+import org.sugr.gearshift.viewmodel.viewModelFrom
 
 class TorrentActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
     private var viewModel : TorrentViewModel? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        viewModel = RetainedFragment.getViewModel(fragmentManager) {
+        viewModel = viewModelFrom(fragmentManager) {
             prefs -> TorrentViewModel(prefs)
         }
 

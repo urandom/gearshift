@@ -28,7 +28,7 @@ class App : Application() {
     override fun onCreate() {
         super.onCreate()
 
-        app = this
+        appDependencies.app = this
 
         Thread.setDefaultUncaughtExceptionHandler { thread, e -> this.handleUncaughtException(thread, e) }
     }
@@ -79,15 +79,18 @@ class App : Application() {
     }
 
     companion object {
-        lateinit private var app : App
         private val UPDATE_URL = "https://api.github.com/repos/urandom/gearshift/releases"
-
-        fun get(): App {
-            return app
-        }
-
-        fun defaultPreferences(): SharedPreferences {
-            return PreferenceManager.getDefaultSharedPreferences(app)
-        }
     }
+}
+
+private object appDependencies {
+    lateinit var app: App
+}
+
+fun app(): App {
+    return appDependencies.app;
+}
+
+fun defaultPreferences(): SharedPreferences {
+    return PreferenceManager.getDefaultSharedPreferences(app())
 }
