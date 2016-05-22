@@ -5,8 +5,8 @@ import android.databinding.ObservableBoolean
 import android.databinding.ObservableField
 import android.databinding.ObservableInt
 import android.view.View
-import org.sugr.gearshift.App
 import org.sugr.gearshift.R
+import org.sugr.gearshift.app
 import org.sugr.gearshift.model.Profile
 import org.sugr.gearshift.viewmodel.util.ResourceUtils
 
@@ -43,7 +43,7 @@ class ProfileEditorViewModel(prefs: SharedPreferences, private val profile: Prof
     }
 
     init {
-        val resources = App.get().resources
+        val resources = app().resources
         updateIntervalEntries = resources.getStringArray(R.array.pref_update_interval_entries)
         updateIntervalValues = ResourceUtils.stringArrayAsInt(R.array.pref_update_interval_values)
 

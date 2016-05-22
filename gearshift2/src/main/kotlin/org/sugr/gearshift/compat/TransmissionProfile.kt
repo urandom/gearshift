@@ -6,11 +6,14 @@ import com.f2prateek.rx.preferences.RxSharedPreferences
 import org.sugr.gearshift.C
 import org.sugr.gearshift.app
 import org.sugr.gearshift.defaultPreferences
+import org.sugr.gearshift.logD
 import org.sugr.gearshift.model.Profile
 import org.sugr.gearshift.model.transmissionProfile
 
 private class TransmissionProfileCompat(private val prefs: SharedPreferences) {
     fun migrate() :Array<Profile> {
+        logD("Migrating any old profiles")
+
         val ids = prefs.getStringSet(C.PREF_PROFILES, setOf()).toList()
         val prefs = getPreferences()
         val rxPrefs = RxSharedPreferences.create(prefs)

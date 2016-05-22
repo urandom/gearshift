@@ -2,7 +2,6 @@ package org.sugr.gearshift
 
 import android.app.Application
 import android.content.Intent
-import android.content.SharedPreferences
 import android.content.pm.PackageManager
 import android.preference.PreferenceManager
 import com.github.salomonbrys.kotson.fromJson
@@ -87,10 +86,6 @@ private object appDependencies {
     lateinit var app: App
 }
 
-fun app(): App {
-    return appDependencies.app;
-}
+fun app() = appDependencies.app
 
-fun defaultPreferences(): SharedPreferences {
-    return PreferenceManager.getDefaultSharedPreferences(app())
-}
+fun defaultPreferences() = PreferenceManager.getDefaultSharedPreferences(app())

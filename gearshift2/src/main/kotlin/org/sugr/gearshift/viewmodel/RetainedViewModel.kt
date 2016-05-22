@@ -3,6 +3,7 @@ package org.sugr.gearshift.viewmodel
 import android.content.SharedPreferences
 
 import com.f2prateek.rx.preferences.RxSharedPreferences
+import org.sugr.gearshift.logD
 
 import rx.Observable
 import rx.lang.kotlin.PublishSubject
@@ -15,20 +16,24 @@ open class RetainedViewModel<T>(prefs: SharedPreferences) {
     private val destroySubject = PublishSubject<Void>()
 
     init {
+        logD("Creating $this view model")
         this.prefs = RxSharedPreferences.create(prefs)
     }
 
     fun bind(consumer: T) {
+        logD("Binding $this view model")
         this.consumer = consumer
     }
 
     fun unbind() {
+        logD("Unbinding $this view model")
         unbindSubject.onNext(null)
 
         consumer = null
     }
 
     fun onDestroy() {
+        logD("Destroying $this view model")
         destroySubject.onNext(null)
     }
 
