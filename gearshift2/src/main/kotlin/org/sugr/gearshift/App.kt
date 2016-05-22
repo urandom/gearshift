@@ -5,11 +5,14 @@ import android.content.Intent
 import android.content.SharedPreferences
 import android.content.pm.PackageManager
 import android.preference.PreferenceManager
+import com.github.salomonbrys.kotson.fromJson
+import com.github.salomonbrys.kotson.get
+import com.github.salomonbrys.kotson.string
 import com.github.zafarkhaja.semver.Version
 import com.google.gson.Gson
+import com.google.gson.JsonArray
 import okhttp3.OkHttpClient
 import okhttp3.Request
-import org.json.JSONArray
 import org.json.JSONException
 import rx.Observable
 import rx.lang.kotlin.observable
@@ -27,7 +30,7 @@ class App : Application() {
 
         app = this
 
-        Thread.setDefaultUncaughtExceptionHandler(Thread.UncaughtExceptionHandler { thread, e -> this.handleUncaughtException(thread, e) })
+        Thread.setDefaultUncaughtExceptionHandler { thread, e -> this.handleUncaughtException(thread, e) }
     }
 
     fun checkForUpdates(): Observable<Update> {
@@ -38,9 +41,9 @@ class App : Application() {
             try {
                 val response = OkHttpClient().newCall(request).execute()
 
-                val result = gson.fromJson<JSONArray>(response.body().charStream(), JSONArray::class.java).getJSONObject(0)
+                val result = gson.fromJson<JsonArray>(response.body().charStream())[0];
 
-                val tag = result.getString("tag_name")
+                val tag = result.get("tag_name").string
 
                 val current = Version.valueOf(packageManager.getPackageInfo(packageName, 0).versionName)
                 val remote = Version.valueOf(tag)
@@ -48,10 +51,10 @@ class App : Application() {
                 var update: Update? = null
 
                 if (remote.greaterThan(current)) {
-                    update = Update(result.getString("name"),
-                            result.getString("body"),
-                            result.getString("html_url"),
-                            result.getJSONArray("assets").getJSONObject(0).getString("browser_download_url"))
+                    update = Update(result.get("name").string,
+                            result.get("body").string,
+                            result.get("html_url").string,
+                            result.get("assets").asJsonArray[0].get("browser_download_url").string)
                 }
 
                 subscriber.onNext(update)

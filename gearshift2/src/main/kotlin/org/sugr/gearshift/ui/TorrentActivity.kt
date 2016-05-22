@@ -12,11 +12,18 @@ import android.support.v7.widget.Toolbar
 import android.view.Menu
 import android.view.MenuItem
 import org.sugr.gearshift.R
+import org.sugr.gearshift.viewmodel.RetainedFragment
+import org.sugr.gearshift.viewmodel.TorrentViewModel
 
 class TorrentActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
+    private var viewModel : TorrentViewModel? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        viewModel = RetainedFragment.getViewModel(fragmentManager) {
+            prefs -> TorrentViewModel(prefs)
+        }
+
         setContentView(R.layout.torrent_activity)
         val toolbar = findViewById(R.id.toolbar) as Toolbar?
         setSupportActionBar(toolbar)

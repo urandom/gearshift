@@ -10,11 +10,6 @@ import org.sugr.gearshift.App
 class RetainedFragment<VM : RetainedViewModel<T>, T> : Fragment() {
     var viewModel: VM? = null
 
-    // Interface for creating a view model with a lambda
-    interface Factory<VM : RetainedViewModel<T>, T> {
-        fun create(prefs: SharedPreferences): VM
-    }
-
     override fun onCreate(state: Bundle?) {
         super.onCreate(state)
         retainInstance = true
@@ -31,15 +26,15 @@ class RetainedFragment<VM : RetainedViewModel<T>, T> : Fragment() {
     companion object {
 
         @SuppressWarnings("unchecked")
-        fun <VM : RetainedViewModel<T>, T> getViewModel(fm: FragmentManager,
-                                                        tag: String,
-                                                        factory: Factory<VM, T>): VM {
+        inline fun <reified VM : RetainedViewModel<T>, T> getViewModel(fm: FragmentManager,
+                                                        tag: String = VM::class.toString(),
+                                                        factory: (prefs: SharedPreferences) -> VM): VM {
 
-            var fragment: RetainedFragment<VM, T>? = fm.findFragmentByTag(tag) as RetainedFragment<VM, T>
+            var fragment = fm.findFragmentByTag(tag) as? RetainedFragment<VM, T>
 
             if (fragment == null) {
                 fragment = RetainedFragment<VM, T>()
-                fragment.viewModel = factory.create(App.defaultPreferences())
+                fragment.viewModel = factory(App.defaultPreferences())
 
                 // TODO: commit -> commitNow (support v24)
                 fm.beginTransaction().add(fragment, tag).commit()

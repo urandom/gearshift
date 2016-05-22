@@ -37,7 +37,10 @@ class ProfileEditorViewModel(prefs: SharedPreferences, private val profile: Prof
     private val fullUpdateEntries: Array<String>
     private val fullUpdateValues: IntArray
 
-    interface Consumer
+    interface Consumer {
+        fun showUpdateIntervalPicker(current: Int)
+        fun showFullUpdatePicker(current: Int)
+    }
 
     init {
         val resources = App.get().resources
@@ -57,10 +60,10 @@ class ProfileEditorViewModel(prefs: SharedPreferences, private val profile: Prof
     }
 
     fun onPickUpdateInterval(unused: View) {
-
+        consumer?.showUpdateIntervalPicker(updateIntervalValue.get())
     }
 
     fun onPickFullUpdate(unused: View) {
-
+        consumer?.showFullUpdatePicker(fullUpdateValue.get())
     }
 }
