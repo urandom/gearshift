@@ -1,7 +1,6 @@
 package org.sugr.gearshift.viewmodel
 
 import android.content.SharedPreferences
-import android.databinding.Observable
 import android.databinding.ObservableBoolean
 import android.databinding.ObservableField
 import android.databinding.ObservableInt
@@ -9,9 +8,10 @@ import android.view.View
 import org.sugr.gearshift.R
 import org.sugr.gearshift.app
 import org.sugr.gearshift.model.Profile
-import org.sugr.gearshift.viewmodel.databinding.PropertyChangedDebouncer
+import org.sugr.gearshift.viewmodel.databinding.PropertyChangedCallback
+import org.sugr.gearshift.viewmodel.databinding.debounce
+import org.sugr.gearshift.viewmodel.databinding.observe
 import org.sugr.gearshift.viewmodel.util.ResourceUtils
-import rx.functions.Action1
 
 class ProfileEditorViewModel(prefs: SharedPreferences, private val profile: Profile) : RetainedViewModel<ProfileEditorViewModel.Consumer>(prefs) {
     val profileName = ObservableField("Default")
@@ -32,9 +32,12 @@ class ProfileEditorViewModel(prefs: SharedPreferences, private val profile: Prof
     val password = ObservableField("")
 
     val proxyHost = ObservableField("")
-    val proxyPort = ObservableField("")
+    val proxyHostValid = ObservableBoolean(true)
+    val proxyPort = ObservableInt(8080)
+    val proxyPortValid = ObservableBoolean(true)
 
     val timeout = ObservableInt(40)
+    val timeoutValid = ObservableBoolean(true)
     val path = ObservableField("")
 
     val formValid = ObservableBoolean(false)
@@ -78,18 +81,39 @@ class ProfileEditorViewModel(prefs: SharedPreferences, private val profile: Prof
     }
 
     private fun setupValidation() {
-        port.addOnPropertyChangedCallback(PropertyChangedDebouncer(takeUntilDestroy())
-                .subscribeChain(Action1 { o ->
-                    // Always reset the value to counter TextView's setError behavior
-                    portValid.set(true)
-                    portValid.set(port.get() > 0 && port.get() < 65535)
-                }))
+        profileName.observe().debounce().subscribe { o ->
+            // Always reset the value to counter TextView's setError behavior
+            profileNameValid.set(true)
+            profileNameValid.set(profileName.get() != "")
+        }
 
-        val formValidator = object : Observable.OnPropertyChangedCallback() {
-            override fun onPropertyChanged(o: Observable?, i: Int) {
-                formValid.set(portValid.get())
-            }
+        host.observe().debounce().subscribe {
+            hostValid.set(true)
+            hostValid.set(host.get() != "" && !host.get().endsWith("example.com"))
+        }
 
+        port.observe().debounce().subscribe {
+            portValid.set(true)
+            portValid.set(port.get() > 0 && port.get() < 65535)
+        }
+
+        proxyHost.observe().debounce().subscribe {
+            proxyHostValid.set(true)
+            proxyHostValid.set(proxyHost.get() == "" || !proxyHost.get().endsWith("example.com"))
+        }
+
+        proxyPort.observe().debounce().subscribe {
+            proxyPortValid.set(true)
+            proxyPortValid.set(proxyPort.get() > 0 && proxyPort.get() < 65535)
+        }
+
+        timeout.observe().debounce().subscribe {
+            timeoutValid.set(true)
+            timeoutValid.set(timeout.get() >= 0)
+        }
+
+        val formValidator = PropertyChangedCallback {o ->
+            formValid.set(profileNameValid.get() && hostValid.get() && portValid.get())
         }
 
         portValid.addOnPropertyChangedCallback(formValidator)

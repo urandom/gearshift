@@ -24,8 +24,8 @@ data class Profile(var id: String = UUID.randomUUID().toString(), var type: Prof
     fun updateActiveTorrentsOnly() = fullUpdate > 0
 
     fun isValid() : Boolean {
-        return name != "" && host != "" && host != "example.com" && port > 0 && port < 65535 && (
-                proxyHost == "" || (proxyHost != "example.com" && proxyPort > 0 && proxyPort < 65535)
+        return name != "" && host != "" && !host.endsWith("example.com") && port > 0 && port < 65535 && (
+                proxyHost == "" || (!proxyHost.endsWith("example.com") && proxyPort > 0 && proxyPort < 65535)
                 )
     }
 
