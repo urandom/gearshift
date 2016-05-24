@@ -9,8 +9,8 @@ import org.sugr.gearshift.R
 import org.sugr.gearshift.app
 import org.sugr.gearshift.model.Profile
 import org.sugr.gearshift.viewmodel.databinding.PropertyChangedCallback
-import org.sugr.gearshift.viewmodel.databinding.debounce
 import org.sugr.gearshift.viewmodel.databinding.observe
+import org.sugr.gearshift.viewmodel.rxutil.debounce
 import org.sugr.gearshift.viewmodel.util.ResourceUtils
 
 class ProfileEditorViewModel(prefs: SharedPreferences, private val profile: Profile) : RetainedViewModel<ProfileEditorViewModel.Consumer>(prefs) {
@@ -18,7 +18,7 @@ class ProfileEditorViewModel(prefs: SharedPreferences, private val profile: Prof
     val profileNameValid = ObservableBoolean(true)
     val host = ObservableField("")
     val hostValid = ObservableBoolean(true)
-    val port = ObservableInt(9091)
+    val port = ObservableField("9091")
     val portValid = ObservableBoolean(true)
     val useSSL = ObservableBoolean(false)
 
@@ -33,10 +33,10 @@ class ProfileEditorViewModel(prefs: SharedPreferences, private val profile: Prof
 
     val proxyHost = ObservableField("")
     val proxyHostValid = ObservableBoolean(true)
-    val proxyPort = ObservableInt(8080)
+    val proxyPort = ObservableField("8080")
     val proxyPortValid = ObservableBoolean(true)
 
-    val timeout = ObservableInt(40)
+    val timeout = ObservableField("40")
     val timeoutValid = ObservableBoolean(true)
     val path = ObservableField("")
 
@@ -101,7 +101,7 @@ class ProfileEditorViewModel(prefs: SharedPreferences, private val profile: Prof
 
         profile.name = profileName.get()
         profile.host = host.get()
-        profile.port = port.get()
+        profile.port = port.get().toInt()
         profile.useSSL = useSSL.get()
 
         profile.updateInterval = updateIntervalValue.get()
@@ -111,9 +111,9 @@ class ProfileEditorViewModel(prefs: SharedPreferences, private val profile: Prof
         profile.password = password.get()
 
         profile.proxyHost = proxyHost.get()
-        profile.proxyPort = proxyPort.get()
+        profile.proxyPort = proxyPort.get().toInt()
 
-        profile.timeout = timeout.get()
+        profile.timeout = timeout.get().toInt()
         profile.password = path.get()
 
         if (profile.valid) {
@@ -124,7 +124,7 @@ class ProfileEditorViewModel(prefs: SharedPreferences, private val profile: Prof
     private fun valuesFromProfile() {
         profileName.set(profile.name)
         host.set(profile.host)
-        port.set(profile.port)
+        port.set(profile.port.toString())
         useSSL.set(profile.useSSL)
 
         setUpdateInterval(profile.updateInterval)
@@ -133,8 +133,8 @@ class ProfileEditorViewModel(prefs: SharedPreferences, private val profile: Prof
         username.set(profile.username)
         password.set(profile.password)
         proxyHost.set(profile.proxyHost)
-        proxyPort.set(profile.proxyPort)
-        timeout.set(profile.timeout)
+        proxyPort.set(profile.proxyPort.toString())
+        timeout.set(profile.timeout.toString())
         path.set(profile.path)
     }
 
@@ -169,8 +169,13 @@ class ProfileEditorViewModel(prefs: SharedPreferences, private val profile: Prof
         }
 
         port.observe().debounce().subscribe {
-            portValid.set(true)
-            portValid.set(port.get() > 0 && port.get() < 65535)
+            try {
+                val port = port.get().toInt()
+                portValid.set(true)
+                portValid.set(port > 0 && port < 65535)
+            } catch (e: NumberFormatException) {
+                portValid.set(false)
+            }
         }
 
         proxyHost.observe().debounce().subscribe {
@@ -179,13 +184,23 @@ class ProfileEditorViewModel(prefs: SharedPreferences, private val profile: Prof
         }
 
         proxyPort.observe().debounce().subscribe {
-            proxyPortValid.set(true)
-            proxyPortValid.set(proxyPort.get() > 0 && proxyPort.get() < 65535)
+            try {
+                val proxyPort = proxyPort.get().toInt()
+                proxyPortValid.set(true)
+                proxyPortValid.set(proxyPort > 0 && proxyPort < 65535)
+            } catch (e: NumberFormatException) {
+                proxyPortValid.set(false)
+            }
         }
 
         timeout.observe().debounce().subscribe {
-            timeoutValid.set(true)
-            timeoutValid.set(timeout.get() >= 0)
+            try {
+                val timeout = timeout.get().toInt()
+                timeoutValid.set(true)
+                timeoutValid.set(timeout >= 0)
+            } catch (e: NumberFormatException) {
+                timeoutValid.set(false)
+            }
         }
 
         PropertyChangedCallback {o ->

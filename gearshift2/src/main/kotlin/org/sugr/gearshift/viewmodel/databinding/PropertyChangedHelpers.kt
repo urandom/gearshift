@@ -35,8 +35,3 @@ fun <T : Observable> T.observe(): rx.Observable<T> {
         }
     }
 }
-
-fun <T> rx.Observable<T>.debounce() : rx.Observable<T> {
-    return debounce(300, TimeUnit.MILLISECONDS)
-}
-

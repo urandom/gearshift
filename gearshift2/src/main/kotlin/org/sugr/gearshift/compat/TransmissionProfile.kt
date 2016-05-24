@@ -2,13 +2,13 @@ package org.sugr.gearshift.compat
 
 import android.app.Activity
 import android.content.SharedPreferences
-import com.f2prateek.rx.preferences.RxSharedPreferences
 import org.sugr.gearshift.C
 import org.sugr.gearshift.app
 import org.sugr.gearshift.defaultPreferences
 import org.sugr.gearshift.logD
 import org.sugr.gearshift.model.Profile
 import org.sugr.gearshift.model.transmissionProfile
+import org.sugr.gearshift.viewmodel.rxutil.sharedPreferences
 
 private class TransmissionProfileCompat(private val prefs: SharedPreferences) {
     fun migrate() :Array<Profile> {
@@ -16,7 +16,7 @@ private class TransmissionProfileCompat(private val prefs: SharedPreferences) {
 
         val ids = prefs.getStringSet(C.PREF_PROFILES, setOf()).toList()
         val prefs = getPreferences()
-        val rxPrefs = RxSharedPreferences.create(prefs)
+        val rxPrefs = sharedPreferences(prefs)
 
         val profiles = Array(ids.size) { i ->
             val id = ids[i]

@@ -4,6 +4,7 @@ import android.content.SharedPreferences
 
 import com.f2prateek.rx.preferences.RxSharedPreferences
 import org.sugr.gearshift.logD
+import org.sugr.gearshift.viewmodel.rxutil.sharedPreferences
 
 import rx.Observable
 import rx.lang.kotlin.PublishSubject
@@ -17,7 +18,7 @@ open class RetainedViewModel<T>(prefs: SharedPreferences) {
 
     init {
         logD("Creating $this view model")
-        this.prefs = RxSharedPreferences.create(prefs)
+        this.prefs = sharedPreferences(prefs)
     }
 
     fun bind(consumer: T) {

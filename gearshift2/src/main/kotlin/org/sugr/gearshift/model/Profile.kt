@@ -6,6 +6,8 @@ import com.github.salomonbrys.kotson.fromJson
 import com.google.gson.Gson
 import org.sugr.gearshift.C
 import org.sugr.gearshift.app
+import org.sugr.gearshift.defaultPreferences
+import org.sugr.gearshift.viewmodel.rxutil.sharedPreferences
 import java.util.*
 
 data class Profile(var id: String = UUID.randomUUID().toString(), var type: ProfileType = ProfileType.TRANSMISSION,
@@ -59,11 +61,20 @@ enum class ProfileType {
     TRANSMISSION
 }
 
+fun loadProfiles(prefs: RxSharedPreferences = sharedPreferences(defaultPreferences()),
+                 profilePrefs : RxSharedPreferences = preferences()) : Array<Profile> {
+    val ids = prefs.getStringSet(C.PREF_PROFILES, setOf()).get()?.toList() ?: return emptyArray()
+
+    return Array(ids.size) { i ->
+        Profile(id = ids[i]).load(profilePrefs)
+    }
+}
+
 fun transmissionProfile(): Profile {
     return Profile(type = ProfileType.TRANSMISSION, path = "/transmission/rpc", port = 9091)
 }
 
 private fun preferences() : RxSharedPreferences {
-    return RxSharedPreferences.create(app().getSharedPreferences(C.PROFILES_PREF_NAME, Activity.MODE_PRIVATE))
+    return sharedPreferences(app().getSharedPreferences(C.PROFILES_PREF_NAME, Activity.MODE_PRIVATE))
 }
 
