@@ -19,19 +19,22 @@ data class Profile(var id: String = UUID.randomUUID().toString(), var type: Prof
                    var updateInterval: Int = 1, var fullUpdate: Int = 2,
                    var color: Int = 0) {
 
+    var loaded : Boolean = false
+        private set
+
+    val valid : Boolean
+        get() = name != "" && host != "" && !host.endsWith("example.com") && port > 0 && port < 65535 && (
+                proxyHost == "" || (!proxyHost.endsWith("example.com") && proxyPort > 0 && proxyPort < 65535)
+                )
+
     fun proxyEnabled() = proxyHost != "" && proxyPort > 0
 
     fun updateActiveTorrentsOnly() = fullUpdate > 0
 
-    fun isValid() : Boolean {
-        return name != "" && host != "" && !host.endsWith("example.com") && port > 0 && port < 65535 && (
-                proxyHost == "" || (!proxyHost.endsWith("example.com") && proxyPort > 0 && proxyPort < 65535)
-                )
-    }
-
     fun load(prefs: RxSharedPreferences = preferences()) : Profile {
         val p = prefs.getString(id)
         if (p.isSet) {
+            loaded = true
             return Gson().fromJson<Profile>(prefs.getString(id).get() ?: "")
         } else {
             return this
