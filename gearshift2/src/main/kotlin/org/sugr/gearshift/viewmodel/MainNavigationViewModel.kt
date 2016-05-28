@@ -7,7 +7,8 @@ import android.view.MenuItem
 import org.sugr.gearshift.logD
 import org.sugr.gearshift.model.loadProfiles
 
-class TorrentViewModel(prefs: SharedPreferences) : RetainedViewModel<TorrentViewModel.Consumer>(prefs) {
+class MainNavigationViewModel(tag: String, prefs: SharedPreferences) :
+        RetainedViewModel<MainNavigationViewModel.Consumer>(tag, prefs) {
     val navigationListener = object : NavigationView.OnNavigationItemSelectedListener {
         override fun onNavigationItemSelected(item: MenuItem?): Boolean {
             logD("Navigation item ${item?.title}")
@@ -27,11 +28,20 @@ class TorrentViewModel(prefs: SharedPreferences) : RetainedViewModel<TorrentView
 
     }
 
+    var firstTimeProfile = true
+
     interface Consumer {
         fun closeDrawer()
+        fun createProfile()
     }
 
-    init {
-        val profiles = loadProfiles()
+    override fun bind(consumer: Consumer) {
+        super.bind(consumer)
+
+        var profiles = loadProfiles()
+        if (profiles.size == 0 && firstTimeProfile) {
+            firstTimeProfile = false
+            consumer.createProfile()
+        }
     }
 }

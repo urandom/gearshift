@@ -9,7 +9,7 @@ import org.sugr.gearshift.viewmodel.rxutil.sharedPreferences
 import rx.Observable
 import rx.lang.kotlin.PublishSubject
 
-open class RetainedViewModel<T>(prefs: SharedPreferences) {
+open class RetainedViewModel<T>(val tag: String, prefs: SharedPreferences) {
     protected val prefs: RxSharedPreferences
     protected var consumer: T? = null
 
@@ -21,7 +21,7 @@ open class RetainedViewModel<T>(prefs: SharedPreferences) {
         this.prefs = sharedPreferences(prefs)
     }
 
-    fun bind(consumer: T) {
+    open fun bind(consumer: T) {
         logD("Binding $this view model")
         this.consumer = consumer
     }

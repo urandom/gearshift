@@ -27,4 +27,8 @@
         <item name="android:textAppearance">?android:textAppearanceSmall</item>
         <item name="android:layout_margin">8dp</item>
     </style>
+
+    <style name="HeaderText.Title">
+        <item name="android:textColor">?android:textColorPrimary</item>
+    </style>
 </resources>

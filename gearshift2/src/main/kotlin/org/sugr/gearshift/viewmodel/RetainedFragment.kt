@@ -24,18 +24,28 @@ class RetainedFragment<VM : RetainedViewModel<T>, T> : Fragment() {
 }
 
 inline fun <reified VM : RetainedViewModel<T>, T> viewModelFrom(fm: FragmentManager,
-                                                                tag: String = VM::class.toString(),
-                                                                factory: (prefs: SharedPreferences) -> VM): VM {
-
+                                                                tag: String = VM::class.java.toString(),
+                                                                factory: (tag: String, prefs: SharedPreferences) -> VM): VM {
     var fragment = fm.findFragmentByTag(tag) as? RetainedFragment<VM, T>
 
     if (fragment == null) {
         fragment = RetainedFragment<VM, T>()
-        fragment.viewModel = factory(defaultPreferences())
+        fragment.viewModel = factory(tag, defaultPreferences())
 
         // TODO: commit -> commitNow (support v24)
         fm.beginTransaction().add(fragment, tag).commit()
     }
 
     return fragment.viewModel as VM
+}
+
+inline fun <reified VM : RetainedViewModel<T>, T> destroyViewModel(fm: FragmentManager,
+                                                                   viewModel: VM) {
+
+    val fragment = fm.findFragmentByTag(viewModel.tag) as? RetainedFragment<*, *>
+
+    if (fragment != null) {
+        // TODO: commit -> commitNow (support v24)
+        fm.beginTransaction().remove(fragment).commit()
+    }
 }

@@ -69,6 +69,7 @@ class App : Application() {
     }
 
     private fun handleUncaughtException(thread: Thread, e: Throwable) {
+        e.printStackTrace()
         val intent = Intent()
         intent.action = "org.sugr.gearshift.CRASH_REPORT"
         intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK

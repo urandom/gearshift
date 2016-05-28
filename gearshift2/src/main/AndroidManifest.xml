@@ -4,7 +4,7 @@
     <application android:allowBackup="true" android:icon="@mipmap/ic_launcher"
         android:name="org.sugr.gearshift.App"
         android:label="@string/app_name" android:supportsRtl="true" android:theme="@style/AppTheme">
-        <activity android:name=".ui.TorrentActivity" android:label="@string/app_name"
+        <activity android:name=".ui.MainNavigationActivity" android:label="@string/app_name"
             android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

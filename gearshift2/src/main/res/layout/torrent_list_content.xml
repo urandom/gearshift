@@ -3,7 +3,7 @@
     <data>
         <variable
             name="viewModel"
-            type="org.sugr.gearshift.viewmodel.TorrentViewModel"/>
+            type="org.sugr.gearshift.viewmodel.MainNavigationViewModel"/>
     </data>
 
     <android.support.constraint.ConstraintLayout
@@ -12,7 +12,7 @@
         xmlns:tools="http://schemas.android.com/tools" android:id="@+id/content_torrent"
         android:layout_width="match_parent" android:layout_height="match_parent"
         app:layout_behavior="@string/appbar_scrolling_view_behavior"
-        tools:context=".ui.TorrentActivity" tools:showIn="@layout/torrent_app_bar">
+        tools:context=".ui.MainNavigationActivity" tools:showIn="@layout/main_navigation_app_bar">
 
         <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
             android:text="Hello World!" app:layout_constraintBottom_toBottomOf="@+id/content_torrent"

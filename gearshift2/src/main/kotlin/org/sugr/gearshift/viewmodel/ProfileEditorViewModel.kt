@@ -13,7 +13,8 @@ import org.sugr.gearshift.viewmodel.databinding.observe
 import org.sugr.gearshift.viewmodel.rxutil.debounce
 import org.sugr.gearshift.viewmodel.util.ResourceUtils
 
-class ProfileEditorViewModel(prefs: SharedPreferences, private val profile: Profile) : RetainedViewModel<ProfileEditorViewModel.Consumer>(prefs) {
+class ProfileEditorViewModel(tag: String, prefs: SharedPreferences, private val profile: Profile) :
+        RetainedViewModel<ProfileEditorViewModel.Consumer>(tag, prefs) {
     val profileName = ObservableField("Default")
     val profileNameValid = ObservableBoolean(true)
     val host = ObservableField("")
