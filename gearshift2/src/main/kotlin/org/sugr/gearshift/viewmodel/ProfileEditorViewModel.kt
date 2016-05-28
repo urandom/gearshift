@@ -3,7 +3,6 @@ package org.sugr.gearshift.viewmodel
 import android.content.SharedPreferences
 import android.databinding.ObservableBoolean
 import android.databinding.ObservableInt
-import android.view.View
 import org.sugr.gearshift.R
 import org.sugr.gearshift.app
 import org.sugr.gearshift.model.Profile
@@ -83,13 +82,13 @@ class ProfileEditorViewModel(tag: String, prefs: SharedPreferences, private val 
         setupValidation()
     }
 
-    fun onPickUpdateInterval(unused: View) {
+    fun onPickUpdateInterval() {
         consumer?.showUpdateIntervalPicker(updateIntervalValue.get())
                 ?.compose(takeUntilUnbind<Int>())
                 ?.subscribe { update -> setUpdateInterval(update) }
     }
 
-    fun onPickFullUpdate(unused: View) {
+    fun onPickFullUpdate() {
         consumer?.showFullUpdatePicker(fullUpdateValue.get())
             ?.compose(takeUntilUnbind<Int>())
             ?.subscribe { update -> setFullUpdate(update) }
