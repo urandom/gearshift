@@ -36,6 +36,8 @@ class FirstTimeProfileEditorView(context: Context?, attrs: AttributeSet?) :
 
     override fun onDetachedFromWindow() {
         super.onDetachedFromWindow()
+
+        viewModel.save()
     }
 
     override fun showFullUpdatePicker(current: Int): Observable<Int> {
@@ -51,7 +53,12 @@ class FirstTimeProfileEditorView(context: Context?, attrs: AttributeSet?) :
     }
 
     override fun canDetach(): Boolean {
-        return viewModel.save()
+        if (viewModel.isValid()) {
+            return true
+        }
+
+        viewModel.refreshValidity()
+        return false
     }
 
 }

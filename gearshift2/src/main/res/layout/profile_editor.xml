@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layout xmlns:android="http://schemas.android.com/apk/res/android">
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:bind="http://schemas.android.com/apk/res-auto">
     <data>
         <variable
             name="viewModel"
@@ -30,7 +31,8 @@
                 android:text="@={viewModel.profileName}"
                 android:layout_width="match_parent"
                 android:hint="@string/profile_name"
-                android:maxLines="1" />
+                android:maxLines="1"
+                bind:error="@{viewModel.profileNameValid ? null : @string/con_name_cannot_be_empty}"/>
         </android.support.design.widget.TextInputLayout>
 
         <TextView
@@ -53,7 +55,8 @@
                 android:text="@={viewModel.host}"
                 android:layout_width="match_parent"
                 android:hint="@string/con_host"
-                android:maxLines="1" />
+                android:maxLines="1"
+                bind:error="@{viewModel.hostValid ? null : @string/con_host_cannot_be_empty}"/>
 
         </android.support.design.widget.TextInputLayout>
 
@@ -71,7 +74,8 @@
                 android:text="@={viewModel.port}"
                 android:layout_width="match_parent"
                 android:hint="@string/con_port"
-                android:maxLines="1" />
+                android:maxLines="1"
+                bind:error="@{viewModel.portValid ? null : @string/con_port_not_valid}"/>
 
         </android.support.design.widget.TextInputLayout>
 
@@ -202,7 +206,8 @@
                 android:text="@={viewModel.proxyHost}"
                 android:layout_width="match_parent"
                 android:hint="@string/con_proxy_host"
-                android:maxLines="1" />
+                android:maxLines="1"
+                bind:error="@{viewModel.proxyHostValid ? null : @string/con_proxy_host_cannot_be_empty}"/>
 
         </android.support.design.widget.TextInputLayout>
 
@@ -220,7 +225,8 @@
                 android:text="@={viewModel.proxyPort}"
                 android:layout_width="match_parent"
                 android:hint="@string/con_proxy_port"
-                android:maxLines="1" />
+                android:maxLines="1"
+                bind:error="@{viewModel.proxyPortValid ? null : @string/con_proxy_port_not_valid}"/>
 
         </android.support.design.widget.TextInputLayout>
 
@@ -244,7 +250,8 @@
                 android:text="@={viewModel.timeout}"
                 android:layout_width="match_parent"
                 android:hint="@string/con_timeout"
-                android:maxLines="1" />
+                android:maxLines="1"
+                bind:error="@{viewModel.timeoutValid ? null : @string/con_timeout_not_valid}"/>
 
         </android.support.design.widget.TextInputLayout>
 

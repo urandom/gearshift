@@ -17,6 +17,13 @@
     <string name="full_update">Full update</string>
     <string name="full_update_label">Every %1$d active updates</string>
 
+    <string name="con_name_cannot_be_empty">The profile name cannot be empty</string>
+    <string name="con_host_cannot_be_empty">The host cannot be empty</string>
+    <string name="con_port_not_valid">The port value must be between 1 and 65535</string>
+    <string name="con_proxy_host_cannot_be_empty">The proxy host cannot be empty</string>
+    <string name="con_proxy_port_not_valid">The proxy port value must be between 1 and 65535</string>
+    <string name="con_timeout_not_valid">The timeout must be a positive number</string>
+
     <string-array name="pref_full_update_entries">
         <item>Disable partial updates</item>
         <item>2 updates</item>

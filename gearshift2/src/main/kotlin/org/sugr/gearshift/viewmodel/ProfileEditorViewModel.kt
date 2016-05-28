@@ -95,7 +95,7 @@ class ProfileEditorViewModel(tag: String, prefs: SharedPreferences, private val 
             ?.subscribe { update -> setFullUpdate(update) }
     }
 
-    fun save() : Boolean {
+    fun isValid() : Boolean {
         if (!formValid.get()) {
             return false
         }
@@ -117,12 +117,22 @@ class ProfileEditorViewModel(tag: String, prefs: SharedPreferences, private val 
         profile.timeout = timeout.get().toInt()
         profile.password = path.get()
 
-        if (profile.valid) {
-            profile.save()
-            return true
-        }
+        return profile.valid
+    }
 
-        return false
+    fun save() {
+        if (isValid()) {
+            profile.save()
+        }
+    }
+
+    fun refreshValidity() {
+        profileName.notifyChange()
+        host.notifyChange()
+        port.notifyChange()
+        proxyHost.notifyChange()
+        proxyPort.notifyChange()
+        timeout.notifyChange()
     }
 
     private fun valuesFromProfile() {
@@ -177,7 +187,7 @@ class ProfileEditorViewModel(tag: String, prefs: SharedPreferences, private val 
             try {
                 val port = port.get().toInt()
                 portValid.set(!(port > 0 && port < 65535))
-                portValid.set(portValid.get())
+                portValid.set(!portValid.get())
             } catch (e: NumberFormatException) {
                 portValid.set(false)
             }
@@ -192,7 +202,7 @@ class ProfileEditorViewModel(tag: String, prefs: SharedPreferences, private val 
             try {
                 val proxyPort = proxyPort.get().toInt()
                 proxyPortValid.set(!(proxyPort > 0 && proxyPort < 65535))
-                proxyPortValid.set(proxyPortValid.get())
+                proxyPortValid.set(!proxyPortValid.get())
             } catch (e: NumberFormatException) {
                 proxyPortValid.set(false)
             }
@@ -202,7 +212,7 @@ class ProfileEditorViewModel(tag: String, prefs: SharedPreferences, private val 
             try {
                 val timeout = timeout.get().toInt()
                 timeoutValid.set(!(timeout >= 0))
-                timeoutValid.set(timeoutValid.get())
+                timeoutValid.set(!timeoutValid.get())
             } catch (e: NumberFormatException) {
                 timeoutValid.set(false)
             }
