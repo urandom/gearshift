@@ -43,14 +43,33 @@ data class Profile(var id: String = UUID.randomUUID().toString(), var type: Prof
         }
     }
 
-    fun save(prefs: RxSharedPreferences = preferences()) : Profile {
+    fun save(defaultPrefs : RxSharedPreferences = sharedPreferences(defaultPreferences()),
+             prefs: RxSharedPreferences = preferences()) : Profile {
+
         prefs.getString(id).set(Gson().toJson(this))
+
+        val idsPref = defaultPrefs.getStringSet(C.PREF_PROFILES, mutableSetOf())
+        val ids = idsPref.get() ?: mutableSetOf()
+
+        if (!ids.contains(id)) {
+            ids.add(id)
+            idsPref.set(ids)
+        }
 
         return this
     }
 
-    fun delete(prefs: RxSharedPreferences = preferences()) : Profile {
+    fun delete(defaultPrefs : RxSharedPreferences = sharedPreferences(defaultPreferences()),
+               prefs: RxSharedPreferences = preferences()) : Profile {
         prefs.getString(id).delete()
+
+        val idsPref = defaultPrefs.getStringSet(C.PREF_PROFILES, emptySet())
+        val ids = idsPref.get() ?: emptySet()
+
+        if (ids.contains(id)) {
+            ids.remove(id)
+            idsPref.set(ids)
+        }
 
         return this
     }

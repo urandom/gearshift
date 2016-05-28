@@ -51,7 +51,7 @@ class FirstTimeProfileEditorView(context: Context?, attrs: AttributeSet?) :
     }
 
     override fun canDetach(): Boolean {
-        return true
+        return viewModel.save()
     }
 
 }

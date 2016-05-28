@@ -2,12 +2,12 @@ package org.sugr.gearshift.viewmodel
 
 import android.content.SharedPreferences
 import android.databinding.ObservableBoolean
-import android.databinding.ObservableField
 import android.databinding.ObservableInt
 import android.view.View
 import org.sugr.gearshift.R
 import org.sugr.gearshift.app
 import org.sugr.gearshift.model.Profile
+import org.sugr.gearshift.viewmodel.databinding.ObservableField
 import org.sugr.gearshift.viewmodel.databinding.PropertyChangedCallback
 import org.sugr.gearshift.viewmodel.databinding.observe
 import org.sugr.gearshift.viewmodel.rxutil.debounce
@@ -95,9 +95,9 @@ class ProfileEditorViewModel(tag: String, prefs: SharedPreferences, private val 
             ?.subscribe { update -> setFullUpdate(update) }
     }
 
-    fun save() {
+    fun save() : Boolean {
         if (!formValid.get()) {
-            return
+            return false
         }
 
         profile.name = profileName.get()
@@ -119,7 +119,10 @@ class ProfileEditorViewModel(tag: String, prefs: SharedPreferences, private val 
 
         if (profile.valid) {
             profile.save()
+            return true
         }
+
+        return false
     }
 
     private fun valuesFromProfile() {
@@ -160,35 +163,36 @@ class ProfileEditorViewModel(tag: String, prefs: SharedPreferences, private val 
     private fun setupValidation() {
         profileName.observe().debounce().subscribe { o ->
             // Always reset the value to counter TextView's setError behavior
-            profileNameValid.set(true)
-            profileNameValid.set(profileName.get() != "")
+            // Invert and set so that the observable will fire
+            profileNameValid.set(!(profileName.get() != ""))
+            profileNameValid.set(!profileNameValid.get())
         }
 
         host.observe().debounce().subscribe {
-            hostValid.set(true)
-            hostValid.set(host.get() != "" && !host.get().endsWith("example.com"))
+            hostValid.set(!(host.get() != "" && !host.get().endsWith("example.com")))
+            hostValid.set(!hostValid.get())
         }
 
         port.observe().debounce().subscribe {
             try {
                 val port = port.get().toInt()
-                portValid.set(true)
-                portValid.set(port > 0 && port < 65535)
+                portValid.set(!(port > 0 && port < 65535))
+                portValid.set(portValid.get())
             } catch (e: NumberFormatException) {
                 portValid.set(false)
             }
         }
 
         proxyHost.observe().debounce().subscribe {
-            proxyHostValid.set(true)
-            proxyHostValid.set(proxyHost.get() == "" || !proxyHost.get().endsWith("example.com"))
+            proxyHostValid.set(!(proxyHost.get() == "" || !proxyHost.get().endsWith("example.com")))
+            proxyHostValid.set(!proxyHostValid.get())
         }
 
         proxyPort.observe().debounce().subscribe {
             try {
                 val proxyPort = proxyPort.get().toInt()
-                proxyPortValid.set(true)
-                proxyPortValid.set(proxyPort > 0 && proxyPort < 65535)
+                proxyPortValid.set(!(proxyPort > 0 && proxyPort < 65535))
+                proxyPortValid.set(proxyPortValid.get())
             } catch (e: NumberFormatException) {
                 proxyPortValid.set(false)
             }
@@ -197,8 +201,8 @@ class ProfileEditorViewModel(tag: String, prefs: SharedPreferences, private val 
         timeout.observe().debounce().subscribe {
             try {
                 val timeout = timeout.get().toInt()
-                timeoutValid.set(true)
-                timeoutValid.set(timeout >= 0)
+                timeoutValid.set(!(timeout >= 0))
+                timeoutValid.set(timeoutValid.get())
             } catch (e: NumberFormatException) {
                 timeoutValid.set(false)
             }

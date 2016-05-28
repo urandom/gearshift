@@ -3,7 +3,23 @@ package org.sugr.gearshift.viewmodel.databinding
 import android.databinding.Observable
 import rx.lang.kotlin.add
 import rx.lang.kotlin.observable
-import java.util.concurrent.TimeUnit
+import java.io.Serializable
+
+class ObservableField<T>(t: T) : android.databinding.ObservableField<T>(), Serializable {
+    var value : T
+
+    init {
+        value = t
+    }
+
+    override fun get() = value
+    override fun set(t: T) {
+        if (value != t) {
+            value = t
+            notifyChange()
+        }
+    }
+}
 
 class PropertyChangedCallback(private val cb: (o: Observable) -> Unit) : Observable.OnPropertyChangedCallback() {
     override fun onPropertyChanged(o: Observable?, i: Int) = if (o != null) cb(o) else Unit
