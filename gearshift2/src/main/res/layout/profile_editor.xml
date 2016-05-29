@@ -6,6 +6,7 @@
             name="viewModel"
             type="org.sugr.gearshift.viewmodel.ProfileEditorViewModel"/>
         <import type="java.lang.String"/>
+        <import type="android.view.View"/>
     </data>
 
     <LinearLayout
@@ -13,6 +14,7 @@
         xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:animateLayoutChanges="true"
         android:orientation="vertical">
 
         <android.support.design.widget.TextInputLayout
@@ -29,6 +31,7 @@
                 tools:layout_editor_absoluteX="0dp"
                 tools:layout_editor_absoluteY="11dp"
                 android:text="@={viewModel.profileName}"
+                android:drawableStart="@drawable/ic_navigate_next_black_small"
                 android:layout_width="match_parent"
                 android:hint="@string/profile_name"
                 android:maxLines="1"
@@ -53,6 +56,7 @@
                 android:inputType="text"
                 android:ems="10"
                 android:text="@={viewModel.host}"
+                android:drawableStart="@drawable/ic_navigate_next_black_small"
                 android:layout_width="match_parent"
                 android:hint="@string/con_host"
                 android:maxLines="1"
@@ -72,6 +76,7 @@
                 android:inputType="number"
                 android:ems="10"
                 android:text="@={viewModel.port}"
+                android:drawableStart="@drawable/ic_navigate_next_black_small"
                 android:layout_width="match_parent"
                 android:hint="@string/con_port"
                 android:maxLines="1"
@@ -92,12 +97,16 @@
             style="@style/HeaderText.Small"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:clickable="true"
+            android:drawableStart="@{(viewModel.sectionCollapse[`updates`] ?? false) ? @drawable/ic_header_collapsed : @drawable/ic_header_expanded}"
+            android:onClick="@{() -> viewModel.toggleCollapseSection(`updates`)}"
             android:text="@string/updates"/>
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal">
+            android:orientation="horizontal"
+            android:visibility="@{(viewModel.sectionCollapse[`updates`] ?? false) ? View.GONE : View.VISIBLE}">
 
             <TextView
                 android:layout_width="wrap_content"
@@ -122,7 +131,8 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal">
+            android:orientation="horizontal"
+            android:visibility="@{(viewModel.sectionCollapse[`updates`] ?? false) ? View.GONE : View.VISIBLE}">
 
             <TextView
                 android:layout_width="wrap_content"
@@ -148,11 +158,14 @@
             style="@style/HeaderText.Small"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:drawableStart="@{(viewModel.sectionCollapse[`auth`] ?? false) ? @drawable/ic_header_collapsed : @drawable/ic_header_expanded}"
+            android:onClick="@{() -> viewModel.toggleCollapseSection(`auth`)}"
             android:text="@string/authentication"/>
 
         <android.support.design.widget.TextInputLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:visibility="@{(viewModel.sectionCollapse[`auth`] ?? false) ? View.GONE : View.VISIBLE}"
             android:layout_marginStart="8dp"
             android:layout_marginEnd="8dp"
             android:layout_marginTop="8dp">
@@ -171,6 +184,7 @@
         <android.support.design.widget.TextInputLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:visibility="@{(viewModel.sectionCollapse[`auth`] ?? false) ? View.GONE : View.VISIBLE}"
             android:layout_marginStart="8dp"
             android:layout_marginEnd="8dp"
             android:layout_marginTop="8dp">
@@ -190,11 +204,14 @@
             style="@style/HeaderText.Small"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:drawableStart="@{(viewModel.sectionCollapse[`proxy`] ?? false) ? @drawable/ic_header_collapsed : @drawable/ic_header_expanded}"
+            android:onClick="@{() -> viewModel.toggleCollapseSection(`proxy`)}"
             android:text="@string/proxy"/>
 
         <android.support.design.widget.TextInputLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:visibility="@{(viewModel.sectionCollapse[`proxy`] ?? false) ? View.GONE : View.VISIBLE}"
             android:layout_marginStart="8dp"
             android:layout_marginEnd="8dp"
             android:layout_marginTop="8dp">
@@ -214,6 +231,7 @@
         <android.support.design.widget.TextInputLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:visibility="@{(viewModel.sectionCollapse[`proxy`] ?? false) ? View.GONE : View.VISIBLE}"
             android:layout_marginStart="8dp"
             android:layout_marginEnd="8dp"
             android:layout_marginTop="8dp">
@@ -234,11 +252,14 @@
             style="@style/HeaderText.Small"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:drawableStart="@{(viewModel.sectionCollapse[`advanced`] ?? false) ? @drawable/ic_header_collapsed : @drawable/ic_header_expanded}"
+            android:onClick="@{() -> viewModel.toggleCollapseSection(`advanced`)}"
             android:text="@string/advanced"/>
 
         <android.support.design.widget.TextInputLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:visibility="@{(viewModel.sectionCollapse[`advanced`] ?? false) ? View.GONE : View.VISIBLE}"
             android:layout_marginStart="8dp"
             android:layout_marginEnd="8dp"
             android:layout_marginTop="8dp">
@@ -258,6 +279,7 @@
         <android.support.design.widget.TextInputLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:visibility="@{(viewModel.sectionCollapse[`advanced`] ?? false) ? View.GONE : View.VISIBLE}"
             android:layout_marginStart="8dp"
             android:layout_marginEnd="8dp"
             android:layout_marginTop="8dp">
@@ -277,6 +299,8 @@
             style="@style/HeaderText.Small"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:drawableStart="@{(viewModel.sectionCollapse[`misc`] ?? false) ? @drawable/ic_header_collapsed : @drawable/ic_header_expanded}"
+            android:onClick="@{() -> viewModel.toggleCollapseSection(`misc`)}"
             android:text="@string/misc"/>
 
     </LinearLayout>

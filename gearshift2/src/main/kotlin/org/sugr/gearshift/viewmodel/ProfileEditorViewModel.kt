@@ -1,6 +1,7 @@
 package org.sugr.gearshift.viewmodel
 
 import android.content.SharedPreferences
+import android.databinding.ObservableArrayMap
 import android.databinding.ObservableBoolean
 import android.databinding.ObservableInt
 import org.sugr.gearshift.R
@@ -42,6 +43,8 @@ class ProfileEditorViewModel(tag: String, prefs: SharedPreferences, private val 
 
     val formValid = ObservableBoolean(false)
 
+    val sectionCollapse = ObservableArrayMap<String, Boolean>()
+
     private val updateIntervalEntries: Array<String>
     private val updateIntervalValues: IntArray
 
@@ -77,6 +80,14 @@ class ProfileEditorViewModel(tag: String, prefs: SharedPreferences, private val 
         // If a profile doesn't exist, it's not marked as loaded
         if (profile.loaded) {
             valuesFromProfile()
+        }
+
+        sectionCollapse.apply {
+            put("updates", false)
+            put("auth", true)
+            put("proxy", true)
+            put("advanced", true)
+            put("misc", false)
         }
 
         setupValidation()
@@ -132,6 +143,10 @@ class ProfileEditorViewModel(tag: String, prefs: SharedPreferences, private val 
         proxyHost.notifyChange()
         proxyPort.notifyChange()
         timeout.notifyChange()
+    }
+
+    fun toggleCollapseSection(section: String) {
+        sectionCollapse.put(section, !(sectionCollapse.get(section) ?: true))
     }
 
     private fun valuesFromProfile() {
