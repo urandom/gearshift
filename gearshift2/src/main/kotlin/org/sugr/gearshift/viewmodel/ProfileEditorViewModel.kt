@@ -87,7 +87,6 @@ class ProfileEditorViewModel(tag: String, prefs: SharedPreferences, private val 
             put("auth", true)
             put("proxy", true)
             put("advanced", true)
-            put("misc", false)
         }
 
         setupValidation()
