@@ -5,30 +5,29 @@ import android.animation.AnimatorListenerAdapter
 import android.animation.ValueAnimator
 import android.databinding.DataBindingUtil
 import android.os.Bundle
-import android.support.annotation.LayoutRes
 import android.support.v4.view.GravityCompat
 import android.support.v4.widget.DrawerLayout
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.graphics.drawable.DrawerArrowDrawable
 import android.view.View
-import android.view.ViewGroup
 import org.sugr.gearshift.R
 import org.sugr.gearshift.databinding.MainNavigationActivityBinding
-import org.sugr.gearshift.ui.view.*
+import org.sugr.gearshift.ui.path.*
+import org.sugr.gearshift.ui.view.util.asSequence
 import org.sugr.gearshift.viewmodel.MainNavigationViewModel
 import org.sugr.gearshift.viewmodel.viewModelFrom
-import rx.internal.operators.OperatorOnBackpressureBuffer
 
-class MainNavigationActivity : AppCompatActivity(), MainNavigationViewModel.Consumer, View.OnClickListener, ViewNavigator {
-    lateinit private var binding : MainNavigationActivityBinding
-    lateinit private var viewModel : MainNavigationViewModel
-    lateinit private var toolbarToggle : DrawerArrowDrawable
+class MainNavigationActivity : AppCompatActivity(),
+        MainNavigationViewModel.Consumer,
+        View.OnClickListener,
+        PathViewBridge {
 
-    @LayoutRes override val defaultContent = R.layout.torrent_list_content
+    lateinit private var binding: MainNavigationActivityBinding
+    lateinit private var viewModel: MainNavigationViewModel
+    lateinit private var toolbarToggle: DrawerArrowDrawable
+    lateinit private var pathNavigator: PathNavigator
 
-    override lateinit var viewContainer : ViewGroup
-    override val contentIndex = 1
-    override val contentHierarchy = mutableListOf(defaultContent)
+    override val defaultPath = TorrentListPath()
 
     private var toolbarToggleAnimatorReversed = false
     private val toolbarToggleAnimator = lazy {
@@ -54,21 +53,22 @@ class MainNavigationActivity : AppCompatActivity(), MainNavigationViewModel.Cons
         }
     }
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
+    override fun onCreate(state: Bundle?) {
+        super.onCreate(state)
+        pathNavigator = PathNavigator(this)
+        pathNavigator.onRestoreInstanceState(state)
+
         viewModel = viewModelFrom(fragmentManager) { tag, prefs ->
             MainNavigationViewModel(tag, prefs)
         }
         binding = DataBindingUtil.setContentView<MainNavigationActivityBinding>(this, R.layout.main_navigation_activity)
         binding.viewModel = viewModel
 
-        binding.appBar.toolbar.inflateMenu(R.menu.torrent)
-
-        viewContainer = binding.appBar.viewContainer
-
         toolbarToggle = DrawerArrowDrawable(binding.appBar.toolbar.getContext())
         binding.appBar.toolbar.navigationIcon = toolbarToggle
         binding.appBar.toolbar.setNavigationOnClickListener(this)
+
+        pathNavigator.restorePath()
 
         viewModel.bind(this)
     }
@@ -78,8 +78,15 @@ class MainNavigationActivity : AppCompatActivity(), MainNavigationViewModel.Cons
         viewModel.unbind()
     }
 
+    override fun onSaveInstanceState(state: Bundle) {
+        super.onSaveInstanceState(state)
+        pathNavigator.onSaveInstanceState(state)
+    }
+
     override fun onBackPressed() {
-        navigateUp(true)
+        if (pathNavigator.navigateUp()) {
+            onNavigateUp(true)
+        }
     }
 
     override fun closeDrawer() {
@@ -87,41 +94,69 @@ class MainNavigationActivity : AppCompatActivity(), MainNavigationViewModel.Cons
     }
 
     override fun createProfile() {
-        setContent(R.layout.first_time_profile_editor)
+        pathNavigator.setPath(FirstTimeProfileEditorPath())
     }
 
     override fun onClick(v: View?) {
-        navigateUp()
+        if (pathNavigator.navigateUp()) {
+            onNavigateUp(false)
+        }
     }
 
-    override fun getContent() : View? {
-        val content = binding.appBar.viewContainer.getChildAt(contentIndex)
-        return if (content?.tag == getString(R.string.container_chrome)) null else content
+    override fun getContentView(): Any? {
+        return getContentViewWithIndex().first
     }
 
-    override fun onSetContent(oldDepth: Int, newDepth: Int) {
+    override fun onSetContent(newPath: Path, oldPath: Path) {
+        val pair = getContentViewWithIndex()
+        val container = binding.appBar.viewContainer
+        if (pair.second != -1) {
+            container.removeViewAt(pair.second)
+        }
+
+        val inflater = getLayoutInflater()
+        val view = inflater.inflate(newPath.layout, container, false)
+
+        view.setTag(R.id.view_content, true)
+        container.addView(view)
+
+        if (newPath.menu == 0) {
+            binding.appBar.toolbar.menu.clear();
+        } else {
+            binding.appBar.toolbar.inflateMenu(newPath.menu)
+        }
+
+        if (newPath.title == 0) {
+            binding.appBar.toolbar.title = ""
+        } else {
+            binding.appBar.toolbar.setTitle(newPath.title)
+        }
+
         binding.drawer.setDrawerLockMode(
-                if (newDepth > Depth.TOP_LEVEL) DrawerLayout.LOCK_MODE_LOCKED_CLOSED
+                if (!newPath.isTopLevel()) DrawerLayout.LOCK_MODE_LOCKED_CLOSED
                 else DrawerLayout.LOCK_MODE_UNLOCKED,
                 GravityCompat.START
         )
 
-
-        toggleDrawable(newDepth > Depth.TOP_LEVEL)
+        toggleDrawable(!newPath.isTopLevel())
     }
 
-    override fun onNavigateUp(didNavigate: Boolean, fromBackButton: Boolean) {
-        if (didNavigate) {
-            if (contentHierarchy.size == 1) {
-                toggleDrawable(false)
+    private fun getContentViewWithIndex(): Pair<View?, Int> {
+        for ((i, v) in binding.appBar.viewContainer.asSequence().withIndex()) {
+            if (v.getTag(R.id.view_content) != null) {
+                return v to i
             }
+        }
+
+        return null to -1
+    }
+
+    private fun onNavigateUp(fromBackButton: Boolean) {
+        val drawer = binding.drawer
+        if (drawer.isDrawerVisible(GravityCompat.START) || !fromBackButton) {
+            toggleDrawer()
         } else {
-            val drawer = binding.drawer
-            if (drawer.isDrawerVisible(GravityCompat.START) || !fromBackButton) {
-                toggleDrawer()
-            } else {
-                super.onBackPressed()
-            }
+            super.onBackPressed()
         }
     }
 

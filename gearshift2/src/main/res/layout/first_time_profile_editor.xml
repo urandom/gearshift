@@ -23,7 +23,13 @@
                 style="@style/HeaderText.Title"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/create_new_profile"/>
+                android:text="@string/first_time_profile_title"/>
+
+            <TextView
+                style="@style/HeaderText.Small.Title"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/first_time_profile_subtitle"/>
 
             <include layout="@layout/profile_editor"
                 android:id="@+id/editor"

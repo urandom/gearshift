@@ -29,7 +29,9 @@ class App : Application() {
 
         appDependencies.app = this
 
-        Thread.setDefaultUncaughtExceptionHandler { thread, e -> this.handleUncaughtException(thread, e) }
+        if (!BuildConfig.DEBUG) {
+            Thread.setDefaultUncaughtExceptionHandler { thread, e -> this.handleUncaughtException(thread, e) }
+        }
     }
 
     fun checkForUpdates(): Observable<Update> {

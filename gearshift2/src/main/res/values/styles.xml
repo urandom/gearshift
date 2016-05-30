@@ -30,6 +30,12 @@
     </style>
 
     <style name="HeaderText.Title">
+        <item name="android:fontFamily">sans-serif-medium</item>
+        <item name="android:textColor">?android:textColorPrimary</item>
+    </style>
+
+    <style name="HeaderText.Small.Title">
+        <item name="android:fontFamily">sans-serif-thin</item>
         <item name="android:textColor">?android:textColorPrimary</item>
     </style>
 </resources>

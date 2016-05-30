@@ -6,7 +6,7 @@ import android.content.SharedPreferences
 import android.os.Bundle
 import org.sugr.gearshift.defaultPreferences
 
-class RetainedFragment<VM : RetainedViewModel<T>, T> : Fragment() {
+class RetainedFragment<VM : RetainedViewModel<*>> : Fragment() {
     var viewModel: VM? = null
 
     override fun onCreate(state: Bundle?) {
@@ -23,13 +23,13 @@ class RetainedFragment<VM : RetainedViewModel<T>, T> : Fragment() {
     }
 }
 
-inline fun <reified VM : RetainedViewModel<T>, T> viewModelFrom(fm: FragmentManager,
+inline fun <reified VM : RetainedViewModel<*>> viewModelFrom(fm: FragmentManager,
                                                                 tag: String = VM::class.java.toString(),
                                                                 factory: (tag: String, prefs: SharedPreferences) -> VM): VM {
-    var fragment = fm.findFragmentByTag(tag) as? RetainedFragment<VM, T>
+    var fragment = fm.findFragmentByTag(tag) as? RetainedFragment<VM>
 
     if (fragment == null) {
-        fragment = RetainedFragment<VM, T>()
+        fragment = RetainedFragment<VM>()
         fragment.viewModel = factory(tag, defaultPreferences())
 
         // TODO: commit -> commitNow (support v24)
@@ -39,10 +39,10 @@ inline fun <reified VM : RetainedViewModel<T>, T> viewModelFrom(fm: FragmentMana
     return fragment.viewModel as VM
 }
 
-inline fun <reified VM : RetainedViewModel<T>, T> destroyViewModel(fm: FragmentManager,
-                                                                   viewModel: VM) {
+fun <VM : RetainedViewModel<*>> destroyViewModel(fm: FragmentManager,
+                                                    viewModel: VM) {
 
-    val fragment = fm.findFragmentByTag(viewModel.tag) as? RetainedFragment<*, *>
+    val fragment = fm.findFragmentByTag(viewModel.tag) as? RetainedFragment<*>
 
     if (fragment != null) {
         // TODO: commit -> commitNow (support v24)

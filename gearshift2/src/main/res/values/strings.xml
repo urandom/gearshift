@@ -54,7 +54,9 @@
     <string name="advanced">Advanced</string>
     <string name="con_timeout">Timeout</string>
     <string name="con_path">Path</string>
-    <string name="create_new_profile">Create a new profile</string>
+    <string name="first_time_profile_title">Hi there</string>
+    <string name="first_time_profile_subtitle">Please fill out all relevant information for access to your torrent server</string>
+    <string name="new_profile">New profile</string>
 
 
     <string-array name="pref_con_retries_entries">
