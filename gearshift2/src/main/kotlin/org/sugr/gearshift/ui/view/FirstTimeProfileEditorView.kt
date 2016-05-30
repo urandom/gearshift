@@ -2,14 +2,19 @@ package org.sugr.gearshift.ui.view
 
 import android.content.Context
 import android.databinding.DataBindingUtil
+import android.support.v7.app.AlertDialog
 import android.util.AttributeSet
+import android.widget.NumberPicker
 import android.widget.ScrollView
+import org.sugr.gearshift.R
 import org.sugr.gearshift.databinding.FirstTimeProfileEditorBinding
 import org.sugr.gearshift.model.transmissionProfile
 import org.sugr.gearshift.viewmodel.ProfileEditorViewModel
 import org.sugr.gearshift.viewmodel.destroyViewModel
 import org.sugr.gearshift.viewmodel.viewModelFrom
 import rx.Observable
+import rx.lang.kotlin.observable
+import rx.lang.kotlin.subscriber
 
 @ViewDepth(1)
 class FirstTimeProfileEditorView(context: Context?, attrs: AttributeSet?) :
@@ -41,11 +46,31 @@ class FirstTimeProfileEditorView(context: Context?, attrs: AttributeSet?) :
     }
 
     override fun showFullUpdatePicker(current: Int): Observable<Int> {
-        throw UnsupportedOperationException()
+        return observable { subscriber ->
+            val builder = AlertDialog.Builder(context)
+
+            builder.setTitle(R.string.full_update)
+                    .setItems(R.array.pref_full_update_entries, { dialog, which ->
+                        subscriber.onNext(resources.getIntArray(R.array.pref_full_update_values)[which])
+                        subscriber.onCompleted()
+                    })
+
+            builder.show()
+        }
     }
 
     override fun showUpdateIntervalPicker(current: Int): Observable<Int> {
-        throw UnsupportedOperationException()
+        return observable { subscriber ->
+            val builder = AlertDialog.Builder(context)
+
+            builder.setTitle(R.string.update_interval)
+                    .setItems(R.array.pref_update_interval_entries, { dialog, which ->
+                        subscriber.onNext(resources.getIntArray(R.array.pref_update_interval_values)[which])
+                        subscriber.onCompleted()
+                    })
+
+            builder.show()
+        }
     }
 
     override fun onDestroy() {

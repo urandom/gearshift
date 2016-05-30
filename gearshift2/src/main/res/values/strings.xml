@@ -55,7 +55,7 @@
     <string name="con_timeout">Timeout</string>
     <string name="con_path">Path</string>
     <string name="first_time_profile_title">Hi there</string>
-    <string name="first_time_profile_subtitle">Please fill out all relevant information for access to your torrent server</string>
+    <string name="first_time_profile_subtitle">Please fill out all relevant information for access to your torrent server. You can adjust the profile later in the settings.</string>
     <string name="new_profile">New profile</string>
 
 

@@ -11,7 +11,6 @@ import org.sugr.gearshift.viewmodel.databinding.ObservableField
 import org.sugr.gearshift.viewmodel.databinding.PropertyChangedCallback
 import org.sugr.gearshift.viewmodel.databinding.observe
 import org.sugr.gearshift.viewmodel.rxutil.debounce
-import org.sugr.gearshift.viewmodel.util.ResourceUtils
 
 class ProfileEditorViewModel(tag: String, prefs: SharedPreferences, private val profile: Profile) :
         RetainedViewModel<ProfileEditorViewModel.Consumer>(tag, prefs) {
@@ -59,10 +58,10 @@ class ProfileEditorViewModel(tag: String, prefs: SharedPreferences, private val 
     init {
         val resources = app().resources
         updateIntervalEntries = resources.getStringArray(R.array.pref_update_interval_entries)
-        updateIntervalValues = ResourceUtils.stringArrayAsInt(R.array.pref_update_interval_values)
+        updateIntervalValues = resources.getIntArray(R.array.pref_update_interval_values)
 
         fullUpdateEntries = resources.getStringArray(R.array.pref_full_update_entries)
-        fullUpdateValues = ResourceUtils.stringArrayAsInt(R.array.pref_full_update_values)
+        fullUpdateValues = resources.getIntArray(R.array.pref_full_update_values)
 
         updateIntervalLabel.set(updateIntervalEntries[0])
         updateIntervalValue.set(updateIntervalValues[0])
