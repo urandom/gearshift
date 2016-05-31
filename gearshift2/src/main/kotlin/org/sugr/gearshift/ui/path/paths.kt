@@ -27,4 +27,5 @@ class FirstTimeProfileEditorPath: Path<ProfileEditorViewModel> {
     override val layout = R.layout.first_time_profile_editor
     override val depth = 1
     override val title = R.string.new_profile
+    override val menu = R.menu.first_time_profile_editor
 }

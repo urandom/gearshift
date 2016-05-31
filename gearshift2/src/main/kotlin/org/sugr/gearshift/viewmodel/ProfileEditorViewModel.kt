@@ -4,17 +4,20 @@ import android.content.SharedPreferences
 import android.databinding.ObservableArrayMap
 import android.databinding.ObservableBoolean
 import android.databinding.ObservableInt
+import android.view.Menu
+import android.view.MenuItem
 import org.sugr.gearshift.R
 import org.sugr.gearshift.app
 import org.sugr.gearshift.model.Profile
 import org.sugr.gearshift.model.transmissionProfile
+import org.sugr.gearshift.ui.view.ToolbarMenuItemClickListener
 import org.sugr.gearshift.viewmodel.databinding.ObservableField
 import org.sugr.gearshift.viewmodel.databinding.PropertyChangedCallback
 import org.sugr.gearshift.viewmodel.databinding.observe
 import org.sugr.gearshift.viewmodel.rxutil.debounce
 
 class ProfileEditorViewModel(tag: String, prefs: SharedPreferences, private val profile: Profile = transmissionProfile()) :
-        RetainedViewModel<ProfileEditorViewModel.Consumer>(tag, prefs), LeaveBlocker {
+        RetainedViewModel<ProfileEditorViewModel.Consumer>(tag, prefs), LeaveBlocker, ToolbarMenuItemClickListener {
     val profileName = ObservableField("Default")
     val profileNameValid = ObservableBoolean(true)
     val host = ObservableField("")
@@ -98,6 +101,20 @@ class ProfileEditorViewModel(tag: String, prefs: SharedPreferences, private val 
         }
 
         refreshValidity()
+        return false
+    }
+
+    override fun onToolbarMenuItemClick(menu: Menu, item: MenuItem): Boolean {
+        when (item.itemId) {
+            R.id.test -> {
+                if (canLeave()) {
+                    item.setVisible(false)
+                    menu.findItem(R.id.progress).setVisible(true)
+                }
+                return true
+            }
+        }
+
         return false
     }
 

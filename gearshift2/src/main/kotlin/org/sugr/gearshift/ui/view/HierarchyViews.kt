@@ -1,5 +1,7 @@
 package org.sugr.gearshift.ui.view
 
+import android.view.Menu
+import android.view.MenuItem
 import android.view.View
 import kotlin.reflect.KClass
 
@@ -9,6 +11,10 @@ annotation class ViewDepth(val value : Int)
 
 interface ViewModelConsumer<in VM> {
     fun setViewModel(viewModel: VM)
+}
+
+interface ToolbarMenuItemClickListener {
+    fun onToolbarMenuItemClick(menu: Menu, item: MenuItem): Boolean
 }
 
 object Depth {

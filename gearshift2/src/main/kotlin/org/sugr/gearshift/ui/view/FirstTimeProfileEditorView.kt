@@ -4,17 +4,12 @@ import android.content.Context
 import android.databinding.DataBindingUtil
 import android.support.v7.app.AlertDialog
 import android.util.AttributeSet
-import android.widget.NumberPicker
 import android.widget.ScrollView
 import org.sugr.gearshift.R
 import org.sugr.gearshift.databinding.FirstTimeProfileEditorBinding
-import org.sugr.gearshift.model.transmissionProfile
 import org.sugr.gearshift.viewmodel.ProfileEditorViewModel
-import org.sugr.gearshift.viewmodel.destroyViewModel
-import org.sugr.gearshift.viewmodel.viewModelFrom
 import rx.Observable
 import rx.lang.kotlin.observable
-import rx.lang.kotlin.subscriber
 
 @ViewDepth(1)
 class FirstTimeProfileEditorView(context: Context?, attrs: AttributeSet?) :

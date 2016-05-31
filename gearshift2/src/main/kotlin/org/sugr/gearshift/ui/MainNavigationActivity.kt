@@ -10,11 +10,16 @@ import android.support.v4.view.GravityCompat
 import android.support.v4.widget.DrawerLayout
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.graphics.drawable.DrawerArrowDrawable
+import android.support.v7.widget.Toolbar
 import android.view.View
 import org.sugr.gearshift.BR
 import org.sugr.gearshift.R
 import org.sugr.gearshift.databinding.MainNavigationActivityBinding
-import org.sugr.gearshift.ui.path.*
+import org.sugr.gearshift.ui.path.FirstTimeProfileEditorPath
+import org.sugr.gearshift.ui.path.Path
+import org.sugr.gearshift.ui.path.PathNavigator
+import org.sugr.gearshift.ui.path.TorrentListPath
+import org.sugr.gearshift.ui.view.ToolbarMenuItemClickListener
 import org.sugr.gearshift.ui.view.ViewModelConsumer
 import org.sugr.gearshift.ui.view.util.asSequence
 import org.sugr.gearshift.viewmodel.MainNavigationViewModel
@@ -117,8 +122,9 @@ class MainNavigationActivity : AppCompatActivity(),
 
         val inflater = getLayoutInflater()
         val view = inflater.inflate(newPath.layout, container, false)
+        val viewModel = newPath.getViewModel(fragmentManager)
 
-        (view as? ViewModelConsumer<RetainedViewModel<*>>)?.setViewModel(newPath.getViewModel(fragmentManager))
+        (view as? ViewModelConsumer<RetainedViewModel<*>>)?.setViewModel(viewModel)
 
         view.setTag(R.id.view_content, true)
         container.addView(view)
@@ -126,13 +132,19 @@ class MainNavigationActivity : AppCompatActivity(),
         for (layout in newPath.extraLayouts) {
             val binding = DataBindingUtil.inflate<ViewDataBinding>(inflater, layout, container, true)
             binding.root.setTag(R.id.view_content_extra, true)
-            binding.setVariable(BR.viewModel, newPath.getViewModel(fragmentManager))
+            binding.setVariable(BR.viewModel, viewModel)
         }
 
         if (newPath.menu == 0) {
             binding.appBar.toolbar.menu.clear();
+            binding.appBar.toolbar.setOnMenuItemClickListener(null)
         } else {
             binding.appBar.toolbar.inflateMenu(newPath.menu)
+            if (viewModel is ToolbarMenuItemClickListener) {
+                binding.appBar.toolbar.setOnMenuItemClickListener { item ->
+                    viewModel.onToolbarMenuItemClick(binding.appBar.toolbar.menu, item)
+                }
+            }
         }
 
         if (newPath.title == 0) {

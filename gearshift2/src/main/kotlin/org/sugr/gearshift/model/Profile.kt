@@ -19,7 +19,7 @@ data class Profile(var id: String = UUID.randomUUID().toString(), var type: Prof
                    var directories: List<String> = listOf(),
                    var proxyHost: String = "", var proxyPort: Int = 8080,
                    var updateInterval: Int = 1, var fullUpdate: Int = 2,
-                   var color: Int = 0) {
+                   var color: Int = 0, var sessionData: String = "") {
 
     var loaded : Boolean = false
         private set
