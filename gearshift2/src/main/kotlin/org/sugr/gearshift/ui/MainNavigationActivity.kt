@@ -4,23 +4,27 @@ import android.animation.Animator
 import android.animation.AnimatorListenerAdapter
 import android.animation.ValueAnimator
 import android.databinding.DataBindingUtil
+import android.databinding.ViewDataBinding
 import android.os.Bundle
 import android.support.v4.view.GravityCompat
 import android.support.v4.widget.DrawerLayout
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.graphics.drawable.DrawerArrowDrawable
 import android.view.View
+import org.sugr.gearshift.BR
 import org.sugr.gearshift.R
 import org.sugr.gearshift.databinding.MainNavigationActivityBinding
 import org.sugr.gearshift.ui.path.*
+import org.sugr.gearshift.ui.view.ViewModelConsumer
 import org.sugr.gearshift.ui.view.util.asSequence
 import org.sugr.gearshift.viewmodel.MainNavigationViewModel
+import org.sugr.gearshift.viewmodel.RetainedViewModel
 import org.sugr.gearshift.viewmodel.viewModelFrom
 
 class MainNavigationActivity : AppCompatActivity(),
         MainNavigationViewModel.Consumer,
         View.OnClickListener,
-        PathViewBridge {
+        PathNavigator.Consumer {
 
     lateinit private var binding: MainNavigationActivityBinding
     lateinit private var viewModel: MainNavigationViewModel
@@ -103,22 +107,27 @@ class MainNavigationActivity : AppCompatActivity(),
         }
     }
 
-    override fun getContentView(): Any? {
-        return getContentViewWithIndex().first
-    }
-
-    override fun onSetContent(newPath: Path, oldPath: Path) {
+    override fun onSetContent(newPath: Path<*>, oldPath: Path<*>) {
         val pair = getContentViewWithIndex()
         val container = binding.appBar.viewContainer
         if (pair.second != -1) {
             container.removeViewAt(pair.second)
+            removeExtraViews()
         }
 
         val inflater = getLayoutInflater()
         val view = inflater.inflate(newPath.layout, container, false)
 
+        (view as? ViewModelConsumer<RetainedViewModel<*>>)?.setViewModel(newPath.getViewModel(fragmentManager))
+
         view.setTag(R.id.view_content, true)
         container.addView(view)
+
+        for (layout in newPath.extraLayouts) {
+            val binding = DataBindingUtil.inflate<ViewDataBinding>(inflater, layout, container, true)
+            binding.root.setTag(R.id.view_content_extra, true)
+            binding.setVariable(BR.viewModel, newPath.getViewModel(fragmentManager))
+        }
 
         if (newPath.menu == 0) {
             binding.appBar.toolbar.menu.clear();
@@ -149,6 +158,16 @@ class MainNavigationActivity : AppCompatActivity(),
         }
 
         return null to -1
+    }
+
+    private fun removeExtraViews() {
+        val iterator = binding.appBar.viewContainer.asSequence().toMutableList().listIterator()
+        while (iterator.hasNext()) {
+            val v = iterator.next()
+            if (v.getTag(R.id.view_content_extra) != null) {
+                iterator.remove()
+            }
+        }
     }
 
     private fun onNavigateUp(fromBackButton: Boolean) {

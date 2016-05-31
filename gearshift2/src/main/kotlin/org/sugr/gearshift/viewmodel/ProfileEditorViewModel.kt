@@ -7,13 +7,14 @@ import android.databinding.ObservableInt
 import org.sugr.gearshift.R
 import org.sugr.gearshift.app
 import org.sugr.gearshift.model.Profile
+import org.sugr.gearshift.model.transmissionProfile
 import org.sugr.gearshift.viewmodel.databinding.ObservableField
 import org.sugr.gearshift.viewmodel.databinding.PropertyChangedCallback
 import org.sugr.gearshift.viewmodel.databinding.observe
 import org.sugr.gearshift.viewmodel.rxutil.debounce
 
-class ProfileEditorViewModel(tag: String, prefs: SharedPreferences, private val profile: Profile) :
-        RetainedViewModel<ProfileEditorViewModel.Consumer>(tag, prefs) {
+class ProfileEditorViewModel(tag: String, prefs: SharedPreferences, private val profile: Profile = transmissionProfile()) :
+        RetainedViewModel<ProfileEditorViewModel.Consumer>(tag, prefs), LeaveBlocker {
     val profileName = ObservableField("Default")
     val profileNameValid = ObservableBoolean(true)
     val host = ObservableField("")
@@ -90,6 +91,16 @@ class ProfileEditorViewModel(tag: String, prefs: SharedPreferences, private val 
 
         setupValidation()
     }
+
+    override fun canLeave(): Boolean {
+        if (isValid()) {
+            return true
+        }
+
+        refreshValidity()
+        return false
+    }
+
 
     fun onPickUpdateInterval() {
         consumer?.showUpdateIntervalPicker(updateIntervalValue.get())

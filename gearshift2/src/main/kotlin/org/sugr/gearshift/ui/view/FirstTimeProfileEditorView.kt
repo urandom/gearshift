@@ -18,7 +18,7 @@ import rx.lang.kotlin.subscriber
 
 @ViewDepth(1)
 class FirstTimeProfileEditorView(context: Context?, attrs: AttributeSet?) :
-        ScrollView(context, attrs), ViewDestructor, DetachBlocker, ProfileEditorViewModel.Consumer {
+        ScrollView(context, attrs), ProfileEditorViewModel.Consumer, ViewModelConsumer<ProfileEditorViewModel> {
     lateinit private var viewModel : ProfileEditorViewModel
 
     override fun onAttachedToWindow() {
@@ -29,10 +29,6 @@ class FirstTimeProfileEditorView(context: Context?, attrs: AttributeSet?) :
         }
 
         val activity = getActivity()
-        val profile = transmissionProfile()
-        viewModel = viewModelFrom(activity.fragmentManager) { tag, prefs ->
-            ProfileEditorViewModel(tag, prefs, profile)
-        }
         val binding : FirstTimeProfileEditorBinding = DataBindingUtil.bind(this)
         binding.viewModel = viewModel
 
@@ -73,18 +69,8 @@ class FirstTimeProfileEditorView(context: Context?, attrs: AttributeSet?) :
         }
     }
 
-    override fun onDestroy() {
-        destroyViewModel(getActivity().fragmentManager, viewModel)
+    override fun setViewModel(viewModel: ProfileEditorViewModel) {
+        this.viewModel = viewModel
     }
-
-    override fun canDetach(): Boolean {
-        if (viewModel.isValid()) {
-            return true
-        }
-
-        viewModel.refreshValidity()
-        return false
-    }
-
 }
 

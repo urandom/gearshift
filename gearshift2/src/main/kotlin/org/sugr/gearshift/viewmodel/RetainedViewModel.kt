@@ -48,3 +48,7 @@ open class RetainedViewModel<T>(val tag: String, prefs: SharedPreferences) {
         return Observable.Transformer { o -> o.takeUntil(destroySubject) }
     }
 }
+
+interface LeaveBlocker {
+    fun canLeave(): Boolean
+}

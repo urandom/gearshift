@@ -1,19 +1,25 @@
 package org.sugr.gearshift.ui.path
 
+import android.app.FragmentManager
 import android.os.Bundle
-import org.sugr.gearshift.ui.view.DetachBlocker
-import org.sugr.gearshift.ui.view.ViewDestructor
+import org.sugr.gearshift.viewmodel.LeaveBlocker
 import java.util.*
 
-class PathNavigator(private var bridge: PathViewBridge) {
-    private val contentHierarchy = mutableListOf<Path>()
+class PathNavigator(private var consumer: PathNavigator.Consumer) {
+    private val contentHierarchy = mutableListOf<Path<*>>()
+
+    interface Consumer {
+        val defaultPath : Path<*>
+        fun getFragmentManager(): FragmentManager
+        fun onSetContent(newPath: Path<*>, oldPath: Path<*>)
+    }
 
     companion object {
         val STATE_CONTENT_HIERARCHY = "state_content_hierarchy"
     }
 
     fun onSaveInstanceState(state: Bundle) {
-        val list = ArrayList<Path>(contentHierarchy)
+        val list = ArrayList<Path<*>>(contentHierarchy)
         state.putSerializable(STATE_CONTENT_HIERARCHY, list)
     }
 
@@ -22,7 +28,7 @@ class PathNavigator(private var bridge: PathViewBridge) {
         val serializable = state.getSerializable(STATE_CONTENT_HIERARCHY)
         if (serializable is ArrayList<*>) {
             contentHierarchy.clear()
-            contentHierarchy.addAll(serializable as ArrayList<Path>)
+            contentHierarchy.addAll(serializable as ArrayList<Path<*>>)
         }
     }
 
@@ -30,24 +36,21 @@ class PathNavigator(private var bridge: PathViewBridge) {
         val path = if (contentHierarchy.size > 0) {
             contentHierarchy.removeAt(contentHierarchy.size - 1)
         } else {
-            bridge.defaultPath
+            consumer.defaultPath
         }
         setPath(path)
     }
 
-    fun setPath(path: Path) {
-        val current = contentHierarchy.lastOrNull() ?: bridge.defaultPath
+    fun setPath(path: Path<*>) {
+        val current = contentHierarchy.lastOrNull() ?: consumer.defaultPath
         val currentDepth = current.depth
         val depth = path.depth
 
         if (currentDepth >= depth && current !== path) {
-            val view = bridge.getContentView()
-            if (view is ViewDestructor) {
-                view.onDestroy()
-            }
+            current.destroyViewModel(consumer.getFragmentManager())
         }
 
-        bridge.onSetContent(path, current)
+        consumer.onSetContent(path, current)
 
         if (currentDepth > depth) {
             contentHierarchy.removeAt(contentHierarchy.size - 1)
@@ -60,8 +63,8 @@ class PathNavigator(private var bridge: PathViewBridge) {
 
     fun navigateUp() : Boolean {
         if (contentHierarchy.size > 1) {
-            val view = bridge.getContentView()
-            if (view is DetachBlocker && !view.canDetach()) {
+            val vm = contentHierarchy.last().getViewModel(consumer.getFragmentManager())
+            if (vm is LeaveBlocker && !vm.canLeave()) {
                 return false
             }
 
@@ -74,8 +77,3 @@ class PathNavigator(private var bridge: PathViewBridge) {
     }
 }
 
-interface PathViewBridge {
-    val defaultPath : Path
-    fun getContentView(): Any?
-    fun onSetContent(newPath: Path, oldPath: Path)
-}

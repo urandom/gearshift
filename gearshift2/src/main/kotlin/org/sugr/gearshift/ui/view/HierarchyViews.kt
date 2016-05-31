@@ -7,14 +7,8 @@ import kotlin.reflect.KClass
 @Target(AnnotationTarget.CLASS)
 annotation class ViewDepth(val value : Int)
 
-interface ViewDestructor {
-    // Called when a view is replaced with one with the same or lesser depth
-    // Any retained view model should be retained
-    fun onDestroy()
-}
-
-interface DetachBlocker {
-    fun canDetach() : Boolean
+interface ViewModelConsumer<in VM> {
+    fun setViewModel(viewModel: VM)
 }
 
 object Depth {
