@@ -11,6 +11,7 @@ import org.sugr.gearshift.app
 import org.sugr.gearshift.model.Profile
 import org.sugr.gearshift.model.transmissionProfile
 import org.sugr.gearshift.ui.view.ToolbarMenuItemClickListener
+import org.sugr.gearshift.viewmodel.api.apiOf
 import org.sugr.gearshift.viewmodel.databinding.ObservableField
 import org.sugr.gearshift.viewmodel.databinding.PropertyChangedCallback
 import org.sugr.gearshift.viewmodel.databinding.observe
@@ -110,6 +111,11 @@ class ProfileEditorViewModel(tag: String, prefs: SharedPreferences, private val 
                 if (canLeave()) {
                     item.setVisible(false)
                     menu.findItem(R.id.progress).setVisible(true)
+
+                    apiOf(profile).test().compose(takeUntilUnbind<Boolean>()).subscribe { success ->
+                        item.setVisible(true)
+                        menu.findItem(R.id.progress).setVisible(false)
+                    }
                 }
                 return true
             }
