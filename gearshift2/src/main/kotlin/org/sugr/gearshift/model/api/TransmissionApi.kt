@@ -13,6 +13,7 @@ import org.sugr.gearshift.viewmodel.rxutil.sharedPreferences
 import rx.Observable
 import java.security.cert.X509Certificate
 import java.util.concurrent.TimeUnit
+import javax.net.ssl.HttpsURLConnection
 import javax.net.ssl.SSLContext
 import javax.net.ssl.TrustManager
 import javax.net.ssl.X509TrustManager
@@ -43,7 +44,26 @@ class TransmissionApi(
                 requestBuilder.header("X-Transmission-Session-Id", profile.sessionData)
             }
 
-            chain.proceed(requestBuilder.build())
+            var response = chain.proceed(requestBuilder.build())
+
+            var retries = 0
+            while (response.code() == HttpsURLConnection.HTTP_CONFLICT && retries < 3) {
+                retries++
+                val sessionId = response.header("X-Transmission-Session-Id")
+                if (sessionId.isEmpty()) {
+                    break
+                } else {
+                    profile.sessionData = sessionId
+                    if (profile.valid) {
+                        profile.save()
+
+                        requestBuilder.header("X-Transmission-Session-Id", profile.sessionData)
+                        response = chain.proceed(requestBuilder.build())
+                    }
+                }
+            }
+
+            response
         }
 
         if (profile.useSSL) {
