@@ -1,7 +1,7 @@
 package org.sugr.gearshift.ui.path
 
-import android.app.FragmentManager
 import android.os.Bundle
+import android.support.v4.app.FragmentManager
 import org.sugr.gearshift.viewmodel.LeaveBlocker
 import java.util.*
 
@@ -10,7 +10,7 @@ class PathNavigator(private var consumer: PathNavigator.Consumer) {
 
     interface Consumer {
         val defaultPath : Path<*>
-        fun getFragmentManager(): FragmentManager
+        fun getSupportFragmentManager(): FragmentManager
         fun onSetContent(newPath: Path<*>, oldPath: Path<*>)
     }
 
@@ -47,7 +47,7 @@ class PathNavigator(private var consumer: PathNavigator.Consumer) {
         val depth = path.depth
 
         if (currentDepth >= depth && current !== path) {
-            current.destroyViewModel(consumer.getFragmentManager())
+            current.destroyViewModel(consumer.getSupportFragmentManager())
         }
 
         consumer.onSetContent(path, current)
@@ -63,7 +63,7 @@ class PathNavigator(private var consumer: PathNavigator.Consumer) {
 
     fun navigateUp() : Boolean {
         if (contentHierarchy.size > 1) {
-            val vm = contentHierarchy.last().getViewModel(consumer.getFragmentManager())
+            val vm = contentHierarchy.last().getViewModel(consumer.getSupportFragmentManager())
             if (vm is LeaveBlocker && !vm.canLeave()) {
                 return false
             }

@@ -1,9 +1,9 @@
 package org.sugr.gearshift.viewmodel
 
-import android.app.Fragment
-import android.app.FragmentManager
 import android.content.SharedPreferences
 import android.os.Bundle
+import android.support.v4.app.Fragment
+import android.support.v4.app.FragmentManager
 import org.sugr.gearshift.defaultPreferences
 
 class RetainedFragment<VM : RetainedViewModel<*>> : Fragment() {
@@ -24,16 +24,15 @@ class RetainedFragment<VM : RetainedViewModel<*>> : Fragment() {
 }
 
 inline fun <reified VM : RetainedViewModel<*>> viewModelFrom(fm: FragmentManager,
-                                                                tag: String = VM::class.java.toString(),
-                                                                factory: (tag: String, prefs: SharedPreferences) -> VM): VM {
+                                                             tag: String = VM::class.java.toString(),
+                                                             factory: (tag: String, prefs: SharedPreferences) -> VM): VM {
     var fragment = fm.findFragmentByTag(tag) as? RetainedFragment<VM>
 
     if (fragment == null) {
         fragment = RetainedFragment<VM>()
         fragment.viewModel = factory(tag, defaultPreferences())
 
-        // TODO: commit -> commitNow (support v24)
-        fm.beginTransaction().add(fragment, tag).commit()
+        fm.beginTransaction().add(fragment, tag).commitNow()
     }
 
     return fragment.viewModel as VM
@@ -45,7 +44,6 @@ fun <VM : RetainedViewModel<*>> destroyViewModel(fm: FragmentManager,
     val fragment = fm.findFragmentByTag(viewModel.tag) as? RetainedFragment<*>
 
     if (fragment != null) {
-        // TODO: commit -> commitNow (support v24)
-        fm.beginTransaction().remove(fragment).commit()
+        fm.beginTransaction().remove(fragment).commitNow()
     }
 }

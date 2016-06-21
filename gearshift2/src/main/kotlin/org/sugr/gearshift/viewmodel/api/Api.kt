@@ -5,7 +5,7 @@ import org.sugr.gearshift.model.ProfileType
 import rx.Observable
 
 interface Api {
-    fun test(): Observable<Boolean>
+    fun version(): Observable<String>
 }
 
 fun apiOf(profile: Profile) : Api {

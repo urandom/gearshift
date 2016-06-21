@@ -10,7 +10,6 @@ import android.support.v4.view.GravityCompat
 import android.support.v4.widget.DrawerLayout
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.graphics.drawable.DrawerArrowDrawable
-import android.support.v7.widget.Toolbar
 import android.view.View
 import org.sugr.gearshift.BR
 import org.sugr.gearshift.R
@@ -67,7 +66,7 @@ class MainNavigationActivity : AppCompatActivity(),
         pathNavigator = PathNavigator(this)
         pathNavigator.onRestoreInstanceState(state)
 
-        viewModel = viewModelFrom(fragmentManager) { tag, prefs ->
+        viewModel = viewModelFrom(supportFragmentManager) { tag, prefs ->
             MainNavigationViewModel(tag, prefs)
         }
         binding = DataBindingUtil.setContentView<MainNavigationActivityBinding>(this, R.layout.main_navigation_activity)
@@ -122,7 +121,7 @@ class MainNavigationActivity : AppCompatActivity(),
 
         val inflater = getLayoutInflater()
         val view = inflater.inflate(newPath.layout, container, false)
-        val viewModel = newPath.getViewModel(fragmentManager)
+        val viewModel = newPath.getViewModel(supportFragmentManager)
 
         (view as? ViewModelConsumer<RetainedViewModel<*>>)?.setViewModel(viewModel)
 
@@ -136,13 +135,17 @@ class MainNavigationActivity : AppCompatActivity(),
         }
 
         if (newPath.menu == 0) {
+            for (item in binding.appBar.toolbar.menu.asSequence()) {
+                item.setActionView(null)
+            }
+
             binding.appBar.toolbar.menu.clear();
             binding.appBar.toolbar.setOnMenuItemClickListener(null)
         } else {
             binding.appBar.toolbar.inflateMenu(newPath.menu)
-            if (viewModel is ToolbarMenuItemClickListener) {
+            if (view is ToolbarMenuItemClickListener) {
                 binding.appBar.toolbar.setOnMenuItemClickListener { item ->
-                    viewModel.onToolbarMenuItemClick(binding.appBar.toolbar.menu, item)
+                    view.onToolbarMenuItemClick(binding.appBar.toolbar.menu, item)
                 }
             }
         }

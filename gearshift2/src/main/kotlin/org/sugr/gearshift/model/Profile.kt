@@ -10,16 +10,17 @@ import org.sugr.gearshift.defaultPreferences
 import org.sugr.gearshift.viewmodel.rxutil.sharedPreferences
 import java.util.*
 
-data class Profile(var id: String = UUID.randomUUID().toString(), var type: ProfileType = ProfileType.TRANSMISSION,
-                   var name: String = "", var host: String = "example.com", var port: Int = 0,
-                   var path: String = "", var username: String = "", var password: String = "",
-                   var useSSL: Boolean = false, var timeout: Int = 40, var retries: Int = 3,
-                   var lastDirectory: String = "", var moveData: Boolean = false,
-                   var deleteLocal: Boolean = false, var startPaused: Boolean = false,
-                   var directories: List<String> = listOf(),
-                   var proxyHost: String = "", var proxyPort: Int = 8080,
-                   var updateInterval: Int = 1, var fullUpdate: Int = 2,
-                   var color: Int = 0, var sessionData: String = "") {
+data class Profile(val id: String = UUID.randomUUID().toString(), val type: ProfileType = ProfileType.TRANSMISSION,
+                   val name: String = "", val host: String = "example.com", val port: Int = 0,
+                   val path: String = "", val username: String = "", val password: String = "",
+                   val useSSL: Boolean = false, val timeout: Int = 40, val retries: Int = 3,
+                   val lastDirectory: String = "", val moveData: Boolean = false,
+                   val deleteLocal: Boolean = false, val startPaused: Boolean = false,
+                   val directories: List<String> = listOf(),
+                   val proxyHost: String = "", val proxyPort: Int = 8080,
+                   val updateInterval: Int = 1, val fullUpdate: Int = 2,
+                   val color: Int = 0, val sessionData: String = "",
+                   val temporary: Boolean = false) {
 
     var loaded : Boolean = false
         private set
@@ -45,6 +46,10 @@ data class Profile(var id: String = UUID.randomUUID().toString(), var type: Prof
 
     fun save(defaultPrefs : RxSharedPreferences = sharedPreferences(defaultPreferences()),
              prefs: RxSharedPreferences = preferences()) : Profile {
+
+        if (temporary) {
+            return this
+        }
 
         prefs.getString(id).set(Gson().toJson(this))
 

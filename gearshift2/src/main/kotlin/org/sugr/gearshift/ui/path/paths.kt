@@ -1,6 +1,6 @@
 package org.sugr.gearshift.ui.path
 
-import android.app.FragmentManager
+import android.support.v4.app.FragmentManager
 import org.sugr.gearshift.R
 import org.sugr.gearshift.viewmodel.ProfileEditorViewModel
 import org.sugr.gearshift.viewmodel.TorrentListViewModel

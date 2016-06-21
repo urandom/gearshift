@@ -59,6 +59,8 @@
     <string name="new_profile">New profile</string>
     <string name="action_test">Test</string>
 
+    <string name="profile_check_success">Success</string>
+    <string name="profile_check_failure">Failure</string>
 
     <string-array name="pref_con_retries_entries">
         <item>Once</item>

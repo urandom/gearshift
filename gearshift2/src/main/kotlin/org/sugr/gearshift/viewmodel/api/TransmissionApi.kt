@@ -13,7 +13,7 @@ import org.sugr.gearshift.logD
 import org.sugr.gearshift.model.Profile
 import org.sugr.gearshift.viewmodel.rxutil.CallOnSubscribe
 import rx.Observable
-import rx.lang.kotlin.observable
+import rx.android.schedulers.AndroidSchedulers
 import rx.schedulers.Schedulers
 import java.net.HttpURLConnection
 import java.net.InetSocketAddress
@@ -25,7 +25,7 @@ import javax.net.ssl.TrustManager
 import javax.net.ssl.X509TrustManager
 
 class TransmissionApi(
-        private val profile: Profile,
+        private var profile: Profile,
         private val gson: Gson = Gson(),
         private val debug: Boolean = BuildConfig.DEBUG
 ) : Api {
@@ -60,7 +60,7 @@ class TransmissionApi(
                 if (sessionId.isEmpty()) {
                     break
                 } else {
-                    profile.sessionData = sessionId
+                    profile = profile.copy(sessionData = sessionId)
                     if (profile.valid) {
                         profile.save()
 
@@ -91,7 +91,7 @@ class TransmissionApi(
                 }
 
                 override fun getAcceptedIssuers(): Array<out X509Certificate>? {
-                    return null
+                    return emptyArray()
                 }
 
             }
@@ -119,9 +119,13 @@ class TransmissionApi(
         requestBuilder = Request.Builder().url(url)
     }
 
-    override fun test(): Observable<Boolean> {
+    override fun version(): Observable<String> {
         return request<JsonObject>(requestBody("session-get")).map { json ->
-            if (json.has("version")) true else false
+            if (json.has("version")) {
+                json.get("version").asString
+            } else {
+                null
+            }
         }
     }
 
@@ -136,12 +140,19 @@ class TransmissionApi(
 
     inline private fun <reified T: Any> request(body: RequestBody): Observable<T> {
         val call = httpClient.newCall(requestBuilder.post(body).build())
-        return observable<Response> { CallOnSubscribe(call) }
+        return Observable.create(CallOnSubscribe(call))
                 .subscribeOn(Schedulers.io())
+                .observeOn(Schedulers.computation())
                 .map { response ->
-                    gson.fromJson<T>(response.body().charStream())
+                    val json = gson.fromJson<JsonObject>(response.body().charStream())
+                    when {
+                        !json.has("result") -> throw TransmissionApiException("unknown response")
+                        json.get("result").asString != "success" -> throw TransmissionApiException(json.get("result").asString)
+                        json.has("arguments") -> gson.fromJson(json.get("arguments"), T::class.java)
+                        else -> throw TransmissionApiException("unknown response")
+                    }
                 }
-                .cacheWithInitialCapacity(1)
+                .observeOn(AndroidSchedulers.mainThread())
     }
 
     companion object {
@@ -149,3 +160,4 @@ class TransmissionApi(
     }
 }
 
+class TransmissionApiException(message: String): RuntimeException("transmission api: " + message)

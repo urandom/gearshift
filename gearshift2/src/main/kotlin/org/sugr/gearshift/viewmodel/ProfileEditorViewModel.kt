@@ -4,21 +4,19 @@ import android.content.SharedPreferences
 import android.databinding.ObservableArrayMap
 import android.databinding.ObservableBoolean
 import android.databinding.ObservableInt
-import android.view.Menu
-import android.view.MenuItem
 import org.sugr.gearshift.R
 import org.sugr.gearshift.app
 import org.sugr.gearshift.model.Profile
 import org.sugr.gearshift.model.transmissionProfile
-import org.sugr.gearshift.ui.view.ToolbarMenuItemClickListener
 import org.sugr.gearshift.viewmodel.api.apiOf
 import org.sugr.gearshift.viewmodel.databinding.ObservableField
 import org.sugr.gearshift.viewmodel.databinding.PropertyChangedCallback
 import org.sugr.gearshift.viewmodel.databinding.observe
 import org.sugr.gearshift.viewmodel.rxutil.debounce
+import rx.Observable
 
-class ProfileEditorViewModel(tag: String, prefs: SharedPreferences, private val profile: Profile = transmissionProfile()) :
-        RetainedViewModel<ProfileEditorViewModel.Consumer>(tag, prefs), LeaveBlocker, ToolbarMenuItemClickListener {
+class ProfileEditorViewModel(tag: String, prefs: SharedPreferences, private var profile: Profile = transmissionProfile()) :
+        RetainedViewModel<ProfileEditorViewModel.Consumer>(tag, prefs), LeaveBlocker {
     val profileName = ObservableField("Default")
     val profileNameValid = ObservableBoolean(true)
     val host = ObservableField("")
@@ -105,25 +103,15 @@ class ProfileEditorViewModel(tag: String, prefs: SharedPreferences, private val 
         return false
     }
 
-    override fun onToolbarMenuItemClick(menu: Menu, item: MenuItem): Boolean {
-        when (item.itemId) {
-            R.id.test -> {
-                if (canLeave()) {
-                    item.setVisible(false)
-                    menu.findItem(R.id.progress).setVisible(true)
-
-                    apiOf(profile).test().compose(takeUntilUnbind<Boolean>()).subscribe { success ->
-                        item.setVisible(true)
-                        menu.findItem(R.id.progress).setVisible(false)
-                    }
-                }
-                return true
-            }
+    fun check() : Observable<Boolean> {
+        if (canLeave()) {
+            return apiOf(profile.copy(temporary = true)).version()
+                    .compose(takeUntilDestroy<String>())
+                    .map { version -> version.isNotEmpty() }
+        } else {
+            return Observable.just(false)
         }
-
-        return false
     }
-
 
     fun onPickUpdateInterval() {
         consumer?.showUpdateIntervalPicker(updateIntervalValue.get())
@@ -142,22 +130,20 @@ class ProfileEditorViewModel(tag: String, prefs: SharedPreferences, private val 
             return false
         }
 
-        profile.name = profileName.get()
-        profile.host = host.get()
-        profile.port = port.get().toInt()
-        profile.useSSL = useSSL.get()
-
-        profile.updateInterval = updateIntervalValue.get()
-        profile.fullUpdate = fullUpdateValue.get()
-
-        profile.username = username.get()
-        profile.password = password.get()
-
-        profile.proxyHost = proxyHost.get()
-        profile.proxyPort = proxyPort.get().toInt()
-
-        profile.timeout = timeout.get().toInt()
-        profile.password = path.get()
+        profile = profile.copy(
+                name = profileName.get(),
+                host = host.get(),
+                port = port.get().toInt(),
+                useSSL = useSSL.get(),
+                updateInterval = updateIntervalValue.get(),
+                fullUpdate = fullUpdateValue.get(),
+                username = username.get(),
+                password = password.get(),
+                proxyHost = proxyHost.get(),
+                proxyPort = proxyPort.get().toInt(),
+                timeout = timeout.get().toInt(),
+                path = path.get()
+        )
 
         return profile.valid
     }

@@ -31,9 +31,9 @@ class RequestArbiter(private val call: Call, private val subscriber: Subscriber<
 
     override fun request(n: Long) {
         when {
-            n > 0 -> throw IllegalArgumentException("n < 0: " + n)
+            n < 0 -> throw IllegalArgumentException("n < 0: " + n)
             n == 0L -> return
-            compareAndSet(false, true) -> return // request already triggered
+            !compareAndSet(false, true) -> return // request already triggered
         }
 
         try {
