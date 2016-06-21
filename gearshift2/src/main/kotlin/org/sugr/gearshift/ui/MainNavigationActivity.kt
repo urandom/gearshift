@@ -86,7 +86,7 @@ class MainNavigationActivity : AppCompatActivity(),
     }
 
     override fun onBackPressed() {
-        if (pathNavigator.navigateUp()) {
+        if (!pathNavigator.navigateUp()) {
             onNavigateUp(true)
         }
     }
@@ -100,7 +100,7 @@ class MainNavigationActivity : AppCompatActivity(),
     }
 
     override fun onClick(v: View?) {
-        if (pathNavigator.navigateUp()) {
+        if (!pathNavigator.navigateUp()) {
             onNavigateUp(false)
         }
     }
