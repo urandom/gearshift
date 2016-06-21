@@ -64,7 +64,6 @@ class MainNavigationActivity : AppCompatActivity(),
     override fun onCreate(state: Bundle?) {
         super.onCreate(state)
         pathNavigator = PathNavigator(this)
-        pathNavigator.onRestoreInstanceState(state)
 
         viewModel = viewModelFrom(supportFragmentManager) { tag, prefs ->
             MainNavigationViewModel(tag, prefs)
@@ -84,11 +83,6 @@ class MainNavigationActivity : AppCompatActivity(),
     override fun onDestroy() {
         super.onDestroy()
         viewModel.unbind()
-    }
-
-    override fun onSaveInstanceState(state: Bundle) {
-        super.onSaveInstanceState(state)
-        pathNavigator.onSaveInstanceState(state)
     }
 
     override fun onBackPressed() {

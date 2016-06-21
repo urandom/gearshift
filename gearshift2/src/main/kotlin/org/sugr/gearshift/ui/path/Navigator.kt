@@ -1,12 +1,16 @@
 package org.sugr.gearshift.ui.path
 
-import android.os.Bundle
+import android.content.SharedPreferences
 import android.support.v4.app.FragmentManager
 import org.sugr.gearshift.viewmodel.LeaveBlocker
-import java.util.*
+import org.sugr.gearshift.viewmodel.RetainedViewModel
+import org.sugr.gearshift.viewmodel.viewModelFrom
 
 class PathNavigator(private var consumer: PathNavigator.Consumer) {
-    private val contentHierarchy = mutableListOf<Path<*>>()
+    private var viewModel =
+            viewModelFrom(consumer.getSupportFragmentManager()) { tag, prefs ->
+                ContentHierarchyViewModel(tag, prefs)
+            }
 
     interface Consumer {
         val defaultPath : Path<*>
@@ -14,35 +18,12 @@ class PathNavigator(private var consumer: PathNavigator.Consumer) {
         fun onSetContent(newPath: Path<*>, oldPath: Path<*>)
     }
 
-    companion object {
-        val STATE_CONTENT_HIERARCHY = "state_content_hierarchy"
-    }
-
-    fun onSaveInstanceState(state: Bundle) {
-        val list = ArrayList<Path<*>>(contentHierarchy)
-        state.putSerializable(STATE_CONTENT_HIERARCHY, list)
-    }
-
-    fun onRestoreInstanceState(state: Bundle?) {
-        state ?: return
-        val serializable = state.getSerializable(STATE_CONTENT_HIERARCHY)
-        if (serializable is ArrayList<*>) {
-            contentHierarchy.clear()
-            contentHierarchy.addAll(serializable as ArrayList<Path<*>>)
-        }
-    }
-
     fun restorePath() {
-        val path = if (contentHierarchy.size > 0) {
-            contentHierarchy.removeAt(contentHierarchy.size - 1)
-        } else {
-            consumer.defaultPath
-        }
-        setPath(path)
+        setPath(viewModel.pop() ?: consumer.defaultPath)
     }
 
     fun setPath(path: Path<*>) {
-        val current = contentHierarchy.lastOrNull() ?: consumer.defaultPath
+        val current = viewModel.last() ?: consumer.defaultPath
         val currentDepth = current.depth
         val depth = path.depth
 
@@ -53,22 +34,22 @@ class PathNavigator(private var consumer: PathNavigator.Consumer) {
         consumer.onSetContent(path, current)
 
         if (currentDepth > depth) {
-            contentHierarchy.removeAt(contentHierarchy.size - 1)
-        } else if (currentDepth == depth && contentHierarchy.size > 0) {
-            contentHierarchy[contentHierarchy.size - 1] = path
+            viewModel.pop()
+        } else if (currentDepth == depth && !viewModel.isEmpty()) {
+            viewModel.replaceLast(path)
         } else {
-            contentHierarchy.add(path)
+            viewModel.push(path)
         }
     }
 
     fun navigateUp() : Boolean {
-        if (contentHierarchy.size > 1) {
-            val vm = contentHierarchy.last().getViewModel(consumer.getSupportFragmentManager())
+        if (viewModel.size() > 1) {
+            val vm = viewModel.last()?.getViewModel(consumer.getSupportFragmentManager())
             if (vm is LeaveBlocker && !vm.canLeave()) {
                 return false
             }
 
-            setPath(contentHierarchy[contentHierarchy.size - 2])
+            setPath(viewModel.get(viewModel.size() - 2))
 
             return true
         }
@@ -77,3 +58,14 @@ class PathNavigator(private var consumer: PathNavigator.Consumer) {
     }
 }
 
+class ContentHierarchyViewModel(tag: String, prefs: SharedPreferences) : RetainedViewModel<Unit>(tag, prefs) {
+    val contentHierarchy = mutableListOf<Path<*>>()
+
+    fun pop() = if (contentHierarchy.size > 0) contentHierarchy.removeAt(contentHierarchy.size - 1) else null
+    fun push(path: Path<*>) = contentHierarchy.add(path)
+    fun replaceLast(path: Path<*>) = contentHierarchy.set(contentHierarchy.size - 1, path)
+    fun get(i: Int) = contentHierarchy.get(i)
+    fun last() = contentHierarchy.lastOrNull()
+    fun size() = contentHierarchy.size
+    fun isEmpty() = contentHierarchy.size == 0
+}

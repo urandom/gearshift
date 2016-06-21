@@ -3,9 +3,8 @@ package org.sugr.gearshift.ui.path
 import android.support.v4.app.FragmentManager
 import org.sugr.gearshift.viewmodel.RetainedViewModel
 import org.sugr.gearshift.viewmodel.destroyViewModel
-import java.io.Serializable
 
-interface Path<VM: RetainedViewModel<*>>: Serializable {
+interface Path<VM: RetainedViewModel<*>> {
     val layout : Int
 
     val extraLayouts: Array<Int>
