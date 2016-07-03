@@ -5,10 +5,6 @@ import android.view.MenuItem
 import android.view.View
 import kotlin.reflect.KClass
 
-@Retention(AnnotationRetention.RUNTIME)
-@Target(AnnotationTarget.CLASS)
-annotation class ViewDepth(val value : Int)
-
 interface ViewModelConsumer<in VM> {
     fun setViewModel(viewModel: VM)
 }

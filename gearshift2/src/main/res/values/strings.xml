@@ -70,4 +70,6 @@
         <item>10 times</item>
         <item>15 times</item>
     </string-array>
+
+    <string name="tracker_unknown_host">Unknown host</string>
 </resources>

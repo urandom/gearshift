@@ -74,9 +74,9 @@ class TransmissionApi(
         }
 
         if (debug) {
-            val logger = HttpLoggingInterceptor({message ->
-                logD("http: ${message}")
-            })
+            val logger = HttpLoggingInterceptor { message ->
+                logD("http: $message")
+            }
             builder.addInterceptor(logger)
         }
 

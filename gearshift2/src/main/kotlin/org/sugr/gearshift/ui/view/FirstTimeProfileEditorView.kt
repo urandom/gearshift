@@ -17,7 +17,6 @@ import org.sugr.gearshift.viewmodel.ProfileEditorViewModel
 import rx.Observable
 import rx.lang.kotlin.observable
 
-@ViewDepth(1)
 class FirstTimeProfileEditorView(context: Context?, attrs: AttributeSet?) :
         ScrollView(context, attrs),
         ProfileEditorViewModel.Consumer,
@@ -32,7 +31,6 @@ class FirstTimeProfileEditorView(context: Context?, attrs: AttributeSet?) :
             return
         }
 
-        val activity = getActivity()
         val binding : FirstTimeProfileEditorBinding = DataBindingUtil.bind(this)
         binding.viewModel = viewModel
 
