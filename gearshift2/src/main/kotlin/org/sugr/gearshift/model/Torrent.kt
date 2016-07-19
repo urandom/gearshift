@@ -7,13 +7,24 @@ import java.net.URI
 import java.net.URISyntaxException
 import kotlin.comparisons.compareValuesBy
 
-data class Torrent(val id: Int, val name: String,
+data class Torrent(val hash: String, val id: Int, val name: String,
                    val status: String = "", val statusType: StatusType = Torrent.StatusType.STOPPED,
                    val metaProcess: Float = 0f,
                    val downloadProgress: Float = 0f, val uploadProgress: Float = 0f,
                    val isDirectory: Boolean = false,
                    val trafficText: String = "",
-                   val error: String = "", val errorType: ErrorType = ErrorType.OK) {
+                   val error: String = "", val errorType: ErrorType = ErrorType.OK,
+                   val downloadDir: String = "",
+                   val validSize: Long = 0, val totalSize: Long = 0, val sizeLeft: Long = 0,
+                   val downloaded: Long = 0, val uploaded: Long = 0,
+                   val startTime: Long = 0, val activityTime: Long = 0, val addedTime: Long = 0,
+                   val remainingTime: Long = 0, val createdTime: Long = 0,
+                   val pieceSize: Long = 0, val pieceCount: Int = 0,
+                   val isPrivate: Boolean = false,
+                   val creator: String = "", val comment: String = "",
+                   val files: List<TorrentFile> = emptyList(),
+                   val trackers: List<TorrentTracker> = emptyList()) {
+
     fun hasError() = errorType == ErrorType.OK
     fun isActive() = when (statusType) {
         StatusType.CHECKING, StatusType.DOWNLOADING, StatusType.SEEDING -> true
@@ -38,16 +49,8 @@ data class Torrent(val id: Int, val name: String,
     }
 }
 
-data class TorrentDetails(val validSize: Long, val totalSize: Long, val sizeLeft: Long,
-                          val downloaded: Long, val uploaded: Long,
-                          val startTime: Long, val activityTime: Long, val addedTime: Long,
-                          val remainingTime: Long, val createdTime: Long,
-                          val pieceSize: Long, val pieceCount: Int,
-                          val hash: String, val isPrivate: Boolean,
-                          val creator: String, val comment: String,
-                          val downloadDir: String)
-
-data class TorrentFile(val path: String,
+data class TorrentFile(val hash: String,
+                       val path: String,
                        val bytes: Long, val total: Long,
                        val priority: Int, val wanted: Boolean) : Comparable<TorrentFile> {
 
@@ -64,7 +67,8 @@ data class TorrentFile(val path: String,
     override fun compareTo(other: TorrentFile) = compareValuesBy(this, other, { it.directory }, { it.name })
 }
 
-data class TorrentTracker(val id: Int,
+data class TorrentTracker(val hash: String,
+                          val id: Int,
                           val announce: String, val scrape: String, val tier: Int,
                           val seederCount: Int, val leecherCount: Int,
                           val hasAnnounced: Boolean, val lastAnnounceTime: Long,

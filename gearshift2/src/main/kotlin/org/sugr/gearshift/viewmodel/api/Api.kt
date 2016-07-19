@@ -2,6 +2,7 @@ package org.sugr.gearshift.viewmodel.api
 
 import org.sugr.gearshift.model.Profile
 import org.sugr.gearshift.model.ProfileType
+import org.sugr.gearshift.viewmodel.api.transmission.TransmissionApi
 import rx.Observable
 
 interface Api {

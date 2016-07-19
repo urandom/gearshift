@@ -1,4 +1,4 @@
-package org.sugr.gearshift.viewmodel.api
+package org.sugr.gearshift.viewmodel.api.transmission
 
 import com.github.salomonbrys.kotson.fromJson
 import com.github.salomonbrys.kotson.jsonObject
@@ -11,6 +11,7 @@ import okhttp3.logging.HttpLoggingInterceptor
 import org.sugr.gearshift.BuildConfig
 import org.sugr.gearshift.logD
 import org.sugr.gearshift.model.Profile
+import org.sugr.gearshift.viewmodel.api.Api
 import org.sugr.gearshift.viewmodel.rxutil.CallOnSubscribe
 import rx.Observable
 import rx.android.schedulers.AndroidSchedulers
@@ -18,6 +19,7 @@ import rx.schedulers.Schedulers
 import java.net.HttpURLConnection
 import java.net.InetSocketAddress
 import java.net.Proxy
+import java.security.SecureRandom
 import java.security.cert.X509Certificate
 import java.util.concurrent.TimeUnit
 import javax.net.ssl.SSLContext
@@ -95,7 +97,7 @@ class TransmissionApi(
                 }
 
             }
-            sc.init(null, arrayOf<TrustManager>(manager), java.security.SecureRandom())
+            sc.init(null, arrayOf<TrustManager>(manager), SecureRandom())
             builder.sslSocketFactory(sc.socketFactory, manager)
             builder.hostnameVerifier { hostname, sslSession -> true }
         }
