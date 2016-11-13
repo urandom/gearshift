@@ -48,14 +48,11 @@ import org.sugr.gearshift.ui.util.LocationDialogHelper;
 import org.sugr.gearshift.util.Base64;
 import org.sugr.gearshift.util.CheatSheet;
 
-import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URI;
 import java.util.Date;
 import java.util.List;
 
@@ -128,7 +125,7 @@ public class TorrentListActivity extends BaseTorrentActivity
             final LinearLayout slidingLayout = (LinearLayout) findViewById(R.id.sliding_layout);
             final View detailPanel = findViewById(R.id.torrent_detail_panel);
 
-            detailSlideAnimator = (ValueAnimator) AnimatorInflater.loadAnimator(this, R.anim.weight_animator);
+            detailSlideAnimator = (ValueAnimator) AnimatorInflater.loadAnimator(this, R.animator.weight_animator);
             detailSlideAnimator.setDuration(getResources().getInteger(android.R.integer.config_shortAnimTime));
             detailSlideAnimator.setInterpolator(new DecelerateInterpolator());
             detailSlideAnimator.addListener(new AnimatorListenerAdapter() {
