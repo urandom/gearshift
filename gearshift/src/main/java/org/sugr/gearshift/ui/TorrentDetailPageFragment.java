@@ -142,6 +142,7 @@ public class TorrentDetailPageFragment extends Fragment {
     private Views views;
 
     private boolean[] expandedStates = new boolean[Expanders.TOTAL_EXPANDERS];
+	private Map<String, Long> debouncers = new HashMap<>();
 
     private View.OnTouchListener expanderTouchListener = new View.OnTouchListener() {
         @TargetApi(Build.VERSION_CODES.LOLLIPOP)
@@ -625,7 +626,7 @@ public class TorrentDetailPageFragment extends Fragment {
                     } else if (val.equals("high")) {
                         priority=Torrent.Priority.HIGH;
                     }
-                    setTorrentProperty(SetterFields.TORRENT_PRIORITY, priority);
+					setTorrentProperty(SetterFields.TORRENT_PRIORITY, priority);
                 }
 
                 @Override
@@ -695,7 +696,7 @@ public class TorrentDetailPageFragment extends Fragment {
                         mode=Torrent.SeedRatioMode.NO_LIMIT;
                     }
                     views.seedRatioLimit.setEnabled(val.equals("user"));
-                    setTorrentProperty(SetterFields.SEED_RATIO_MODE, mode);
+					setTorrentProperty(SetterFields.SEED_RATIO_MODE, mode);
                 }
 
                 @Override
@@ -815,6 +816,10 @@ public class TorrentDetailPageFragment extends Fragment {
     }
 
     private void setTorrentProperty(String key, int value) {
+		if (debounce(key)) {
+			return;
+		}
+
         DataServiceManager manager =
             ((DataServiceManagerInterface) getActivity()).getDataServiceManager();
 
@@ -826,6 +831,10 @@ public class TorrentDetailPageFragment extends Fragment {
     }
 
     private void setTorrentProperty(String key, long value) {
+		if (debounce(key)) {
+			return;
+		}
+
         DataServiceManager manager =
             ((DataServiceManagerInterface) getActivity()).getDataServiceManager();
 
@@ -837,6 +846,10 @@ public class TorrentDetailPageFragment extends Fragment {
     }
 
     private void setTorrentProperty(String key, boolean value) {
+		if (debounce(key)) {
+			return;
+		}
+
         DataServiceManager manager =
             ((DataServiceManagerInterface) getActivity()).getDataServiceManager();
 
@@ -848,6 +861,10 @@ public class TorrentDetailPageFragment extends Fragment {
     }
 
     private void setTorrentProperty(String key, float value) {
+		if (debounce(key)) {
+			return;
+		}
+
         DataServiceManager manager =
             ((DataServiceManagerInterface) getActivity()).getDataServiceManager();
 
@@ -859,6 +876,10 @@ public class TorrentDetailPageFragment extends Fragment {
     }
 
     private void setTorrentProperty(String key, ArrayList<?> value) {
+		if (debounce(key)) {
+			return;
+		}
+
         DataServiceManager manager =
             ((DataServiceManagerInterface) getActivity()).getDataServiceManager();
 
@@ -881,6 +902,18 @@ public class TorrentDetailPageFragment extends Fragment {
             return !fieldModifiers.containsKey(key) || fieldModifiers.get(key) < 1;
         }
     }
+
+	private boolean debounce(String key) {
+		Long last = debouncers.get(key);
+		long now = new Date().getTime();
+		if (last != null && now < last + 300) {
+			return true;
+		}
+
+		debouncers.put(key, now);
+
+		return false;
+	}
 
     private void updateFields(View root) {
          if (root == null || details == null || details.torrentCursor.isClosed()
@@ -2112,7 +2145,14 @@ public class TorrentDetailPageFragment extends Fragment {
                     TorrentDetailPageFragment.this.details = null;
                 }
                 TorrentDetailPageFragment.this.details = details;
-                updateFields(getView());
+
+				long now = new Date().getTime();
+				for (Long time : debouncers.values()) {
+					if (time != null && now < time + 300) {
+						return;
+					}
+				}
+				updateFields(getView());
             }
         }
     }

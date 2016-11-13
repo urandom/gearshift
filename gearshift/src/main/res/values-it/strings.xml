@@ -165,7 +165,7 @@
     <string name="remove_with_data">Cancella i dati</string>
 
     <string name="torrent_have_format">%1$s di %2$s (%3$s%%)</string>
-    <string name="torrent_size_format">%1$s (%2$s pezzi @ %3$s)</string>
+    <string name="torrent_size_format">%1$s (%2$d pezzi @ %3$s)</string>
     <string name="torrent_added_format">%1$s fa</string>
 
     <string name="none">Nessuno</string>
