@@ -36,3 +36,4 @@
 -dontwarn org.apache.http.**
 -dontwarn com.android.volley.toolbox.**
 -dontwarn android.net.http.AndroidHttpClient
+-dontwarn java.lang.invoke.*
