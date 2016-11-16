@@ -211,7 +211,7 @@ public class SettingsActivity extends AppCompatActivity {
             return;
         }
 
-        super.onBackPressed();
+        NavUtils.navigateUpTo(this, new Intent(this, TorrentListActivity.class));
 
         overridePendingTransition(android.R.anim.fade_in, R.anim.slide_out_top);
     }
