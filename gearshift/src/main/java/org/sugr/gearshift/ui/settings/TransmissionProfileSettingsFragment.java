@@ -41,7 +41,7 @@ public class TransmissionProfileSettingsFragment extends BasePreferenceFragment 
             id = null;
         }
 
-        TransmissionProfile.cleanTemporaryPreferences(getActivity());
+        TransmissionProfile.cleanTemporaryPreferences();
 
         sharedPrefs = getActivity().getSharedPreferences(TransmissionProfile.getPreferencesName(),
             Activity.MODE_PRIVATE);
@@ -49,14 +49,14 @@ public class TransmissionProfileSettingsFragment extends BasePreferenceFragment 
         Set<String> directories = sharedPrefs.getStringSet(G.PREF_DIRECTORIES, null);
 
         if (id == null) {
-            profile = new TransmissionProfile(getActivity(),
-                PreferenceManager.getDefaultSharedPreferences(getActivity()));
+            profile = new TransmissionProfile(
+                    PreferenceManager.getDefaultSharedPreferences(getActivity()));
             isNew = true;
             profile.save();
             id = profile.getId();
         } else {
-            profile = new TransmissionProfile(id, getActivity(),
-                PreferenceManager.getDefaultSharedPreferences(getActivity()));
+            profile = new TransmissionProfile(id,
+                    PreferenceManager.getDefaultSharedPreferences(getActivity()));
             profile.fillTemporatyPreferences();
         }
 

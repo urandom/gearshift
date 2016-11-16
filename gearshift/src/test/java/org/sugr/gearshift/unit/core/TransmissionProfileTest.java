@@ -70,7 +70,7 @@ public class TransmissionProfileTest {
     @Test public void readProfiles() {
         prefs.edit().putStringSet(G.PREF_PROFILES, new HashSet<String>()).commit();
 
-        TransmissionProfile[] profiles = TransmissionProfile.readProfiles(context, prefs);
+        TransmissionProfile[] profiles = TransmissionProfile.readProfiles(prefs);
         assertEquals(0, profiles.length);
     }
 
@@ -85,7 +85,7 @@ public class TransmissionProfileTest {
         prefs.edit().putBoolean(G.PREF_SSL, true).commit();
         prefs.edit().putString(G.PREF_RETRIES, "15").commit();
 
-        TransmissionProfile.cleanTemporaryPreferences(context);
+        TransmissionProfile.cleanTemporaryPreferences();
         assertFalse(prefs.contains(G.PREF_NAME));
         assertFalse(prefs.contains(G.PREF_HOST));
         assertFalse(prefs.contains(G.PREF_PORT));
@@ -104,7 +104,7 @@ public class TransmissionProfileTest {
     }
 
     @Test public void load() {
-        TransmissionProfile profile = new TransmissionProfile("nonexisting", context, defaultPrefs);
+        TransmissionProfile profile = new TransmissionProfile("nonexisting", defaultPrefs);
         assertEquals("", profile.getName());
         assertEquals("", profile.getHost());
         assertEquals(9091, profile.getPort());
@@ -121,7 +121,7 @@ public class TransmissionProfileTest {
         assertFalse(profile.getStartPaused());
         assertFalse(prefs.contains(G.PREF_NAME + "nonexisting"));
 
-        profile = new TransmissionProfile(existingId, context, defaultPrefs);
+        profile = new TransmissionProfile(existingId, defaultPrefs);
         assertEquals("name", profile.getName());
         assertEquals("host", profile.getHost());
         assertEquals(9911, profile.getPort());
@@ -139,7 +139,7 @@ public class TransmissionProfileTest {
     }
 
     @Test public void save() {
-        TransmissionProfile profile = new TransmissionProfile(existingId, context, defaultPrefs);
+        TransmissionProfile profile = new TransmissionProfile(existingId, defaultPrefs);
         profile.setName("another name");
         profile.setHost("some host");
         profile.setTimeout(22);
@@ -165,7 +165,7 @@ public class TransmissionProfileTest {
 
     @Test public void delete() {
         assertFalse(prefs.contains(G.PREF_NAME + "nonexisting"));
-        TransmissionProfile profile = new TransmissionProfile("nonexisting", context, defaultPrefs);
+        TransmissionProfile profile = new TransmissionProfile("nonexisting", defaultPrefs);
         profile.delete();
         assertFalse(prefs.contains(G.PREF_NAME + "nonexisting"));
 
@@ -184,7 +184,7 @@ public class TransmissionProfileTest {
         assertTrue(prefs.contains(G.PREF_DELETE_LOCAL + existingId));
         assertTrue(prefs.contains(G.PREF_START_PAUSED + existingId));
 
-        profile = new TransmissionProfile(existingId, context, defaultPrefs);
+        profile = new TransmissionProfile(existingId, defaultPrefs);
         profile.delete();
         assertFalse(prefs.contains(G.PREF_NAME + existingId));
         assertFalse(prefs.contains(G.PREF_HOST + existingId));
@@ -214,7 +214,7 @@ public class TransmissionProfileTest {
         assertFalse(prefs.contains(G.PREF_RETRIES));
         assertFalse(prefs.contains(G.PREF_DIRECTORIES));
 
-        TransmissionProfile profile = new TransmissionProfile(existingId, context, defaultPrefs);
+        TransmissionProfile profile = new TransmissionProfile(existingId, defaultPrefs);
         profile.fillTemporatyPreferences();
 
         assertTrue(prefs.contains(G.PREF_NAME));
@@ -228,7 +228,7 @@ public class TransmissionProfileTest {
         assertTrue(prefs.contains(G.PREF_RETRIES));
         assertTrue(prefs.contains(G.PREF_DIRECTORIES));
 
-        TransmissionProfile.cleanTemporaryPreferences(context);
+        TransmissionProfile.cleanTemporaryPreferences();
         assertFalse(prefs.contains(G.PREF_NAME));
         assertFalse(prefs.contains(G.PREF_HOST));
         assertFalse(prefs.contains(G.PREF_PORT));
@@ -242,7 +242,7 @@ public class TransmissionProfileTest {
     }
 
     @Test public void name() {
-        TransmissionProfile profile = new TransmissionProfile(existingId, context, defaultPrefs);
+        TransmissionProfile profile = new TransmissionProfile(existingId, defaultPrefs);
         assertEquals("name", profile.getName());
 
         profile.setName("test");
@@ -250,7 +250,7 @@ public class TransmissionProfileTest {
     }
 
     @Test public void host() {
-        TransmissionProfile profile = new TransmissionProfile(existingId, context, defaultPrefs);
+        TransmissionProfile profile = new TransmissionProfile(existingId, defaultPrefs);
         assertEquals("host", profile.getHost());
 
         profile.setHost("test");
@@ -258,7 +258,7 @@ public class TransmissionProfileTest {
     }
 
     @Test public void port() {
-        TransmissionProfile profile = new TransmissionProfile(existingId, context, defaultPrefs);
+        TransmissionProfile profile = new TransmissionProfile(existingId, defaultPrefs);
         assertEquals(9911, profile.getPort());
 
         profile.setPort(14111);
@@ -266,7 +266,7 @@ public class TransmissionProfileTest {
     }
 
     @Test public void path() {
-        TransmissionProfile profile = new TransmissionProfile(existingId, context, defaultPrefs);
+        TransmissionProfile profile = new TransmissionProfile(existingId, defaultPrefs);
         assertEquals("/transmission/rpc", profile.getPath());
 
         profile.setPath("/foo/bar");
@@ -274,7 +274,7 @@ public class TransmissionProfileTest {
     }
 
     @Test public void username() {
-        TransmissionProfile profile = new TransmissionProfile(existingId, context, defaultPrefs);
+        TransmissionProfile profile = new TransmissionProfile(existingId, defaultPrefs);
         assertEquals("", profile.getUsername());
 
         profile.setUsername("another");
@@ -282,7 +282,7 @@ public class TransmissionProfileTest {
     }
 
     @Test public void password() {
-        TransmissionProfile profile = new TransmissionProfile(existingId, context, defaultPrefs);
+        TransmissionProfile profile = new TransmissionProfile(existingId, defaultPrefs);
         assertEquals("", profile.getPassword());
 
         profile.setPassword("pass");
@@ -290,7 +290,7 @@ public class TransmissionProfileTest {
     }
 
     @Test public void ssl() {
-        TransmissionProfile profile = new TransmissionProfile(existingId, context, defaultPrefs);
+        TransmissionProfile profile = new TransmissionProfile(existingId, defaultPrefs);
         assertTrue(profile.isUseSSL());
 
         profile.setUseSSL(false);
@@ -298,7 +298,7 @@ public class TransmissionProfileTest {
     }
 
     @Test public void timeout() {
-        TransmissionProfile profile = new TransmissionProfile(existingId, context, defaultPrefs);
+        TransmissionProfile profile = new TransmissionProfile(existingId, defaultPrefs);
         assertEquals(2, profile.getTimeout());
 
         profile.setTimeout(14);
@@ -306,7 +306,7 @@ public class TransmissionProfileTest {
     }
 
     @Test public void retries() {
-        TransmissionProfile profile = new TransmissionProfile(existingId, context, defaultPrefs);
+        TransmissionProfile profile = new TransmissionProfile(existingId, defaultPrefs);
         assertEquals(15, profile.getRetries());
 
         profile.setRetries(10);
@@ -314,7 +314,7 @@ public class TransmissionProfileTest {
     }
 
     @Test public void directories() {
-        TransmissionProfile profile = new TransmissionProfile(existingId, context, defaultPrefs);
+        TransmissionProfile profile = new TransmissionProfile(existingId, defaultPrefs);
         Set<String> dirs = profile.getDirectories();
 
         Set<String> expected = new HashSet<>();
@@ -329,7 +329,7 @@ public class TransmissionProfileTest {
     }
 
     @Test public void lastDownloadDirectory() {
-        TransmissionProfile profile = new TransmissionProfile(existingId, context, defaultPrefs);
+        TransmissionProfile profile = new TransmissionProfile(existingId, defaultPrefs);
         assertEquals("/alpha", profile.getLastDownloadDirectory());
 
         profile.setLastDownloadDirectory("/beta");
@@ -337,7 +337,7 @@ public class TransmissionProfileTest {
     }
 
     @Test public void moveData() {
-        TransmissionProfile profile = new TransmissionProfile(existingId, context, defaultPrefs);
+        TransmissionProfile profile = new TransmissionProfile(existingId, defaultPrefs);
         assertTrue(profile.getMoveData());
 
         profile.setMoveData(false);
@@ -345,7 +345,7 @@ public class TransmissionProfileTest {
     }
 
     @Test public void deleteLocal() {
-        TransmissionProfile profile = new TransmissionProfile(existingId, context, defaultPrefs);
+        TransmissionProfile profile = new TransmissionProfile(existingId, defaultPrefs);
         assertFalse(profile.getDeleteLocal());
 
         profile.setDeleteLocal(true);
@@ -353,7 +353,7 @@ public class TransmissionProfileTest {
     }
 
     @Test public void startPaused() {
-        TransmissionProfile profile = new TransmissionProfile(existingId, context, defaultPrefs);
+        TransmissionProfile profile = new TransmissionProfile(existingId, defaultPrefs);
         assertFalse(profile.getStartPaused());
 
         profile.setStartPaused(true);

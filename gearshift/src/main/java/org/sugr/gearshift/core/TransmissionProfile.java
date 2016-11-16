@@ -1,7 +1,6 @@
 package org.sugr.gearshift.core;
 
 import android.app.Activity;
-import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.os.Parcel;
@@ -9,6 +8,7 @@ import android.os.Parcelable;
 import android.text.TextUtils;
 
 import org.sugr.gearshift.G;
+import org.sugr.gearshift.GearShiftApplication;
 import org.sugr.gearshift.ui.util.Colorizer;
 
 import java.util.ArrayList;
@@ -47,16 +47,15 @@ public class TransmissionProfile implements Parcelable, Comparable<TransmissionP
 
     private int color;
 
-    private Context context;
     private SharedPreferences defaultPrefs;
 
-    public static TransmissionProfile[] readProfiles(Context context, SharedPreferences prefs) {
+    public static TransmissionProfile[] readProfiles(SharedPreferences prefs) {
         Set<String> profile_ids = prefs.getStringSet(G.PREF_PROFILES, new HashSet<String>());
         TransmissionProfile[] profiles = new TransmissionProfile[profile_ids.size()];
         int index = 0;
 
         for (String id : profile_ids) {
-            profiles[index++] = new TransmissionProfile(id, context, prefs);
+            profiles[index++] = new TransmissionProfile(id, prefs);
         }
 
         Arrays.sort(profiles);
@@ -86,8 +85,8 @@ public class TransmissionProfile implements Parcelable, Comparable<TransmissionP
         return G.PROFILES_PREF_NAME;
     }
 
-    public static void cleanTemporaryPreferences(Context context) {
-        SharedPreferences prefs = context.getSharedPreferences(getPreferencesName(),
+    public static void cleanTemporaryPreferences() {
+        SharedPreferences prefs = GearShiftApplication.get().getSharedPreferences(getPreferencesName(),
             Activity.MODE_PRIVATE);
         Editor e = prefs.edit();
 
@@ -98,17 +97,15 @@ public class TransmissionProfile implements Parcelable, Comparable<TransmissionP
         e.apply();
     }
 
-    public TransmissionProfile(Context context, SharedPreferences prefs) {
+    public TransmissionProfile(SharedPreferences prefs) {
         id = generateId();
 
-        this.context = context;
         this.defaultPrefs = prefs;
     }
 
-    public TransmissionProfile(String id, Context context, SharedPreferences prefs) {
+    public TransmissionProfile(String id, SharedPreferences prefs) {
         this.id = id;
 
-        this.context = context;
         this.defaultPrefs = prefs;
         load();
     }
@@ -298,7 +295,7 @@ public class TransmissionProfile implements Parcelable, Comparable<TransmissionP
 
         color = pref.getInt(G.PREF_COLOR + id, 0);
         if (color == 0) {
-            color = Colorizer.defaultColor(context);
+            color = Colorizer.defaultColor(GearShiftApplication.get());
         }
     }
 
@@ -455,14 +452,6 @@ public class TransmissionProfile implements Parcelable, Comparable<TransmissionP
         e.commit();
     }
 
-    public Context getContext() {
-        return context;
-    }
-
-    public void setContext(Context context) {
-        this.context = context;
-    }
-
     @Override public int compareTo(TransmissionProfile another) {
         return name.compareToIgnoreCase(another.getName());
     }
@@ -560,7 +549,7 @@ public class TransmissionProfile implements Parcelable, Comparable<TransmissionP
     }
 
     private SharedPreferences getPreferences() {
-        return context.getSharedPreferences(
+        return GearShiftApplication.get().getSharedPreferences(
             getPreferencesName(), Activity.MODE_PRIVATE);
     }
 

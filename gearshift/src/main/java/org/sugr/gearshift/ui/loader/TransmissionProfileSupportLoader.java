@@ -48,7 +48,7 @@ public class TransmissionProfileSupportLoader extends AsyncTaskLoader<Transmissi
         Context context = getContext().getApplicationContext();
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
 
-        TransmissionProfile[] profiles = TransmissionProfile.readProfiles(context, prefs);
+        TransmissionProfile[] profiles = TransmissionProfile.readProfiles(prefs);
         List<TransmissionProfile> profileList = new ArrayList<>();
         for (TransmissionProfile profile : profiles) {
             if (profile.isValid() || ignoreInvalid) {

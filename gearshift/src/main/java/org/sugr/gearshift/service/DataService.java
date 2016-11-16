@@ -102,8 +102,8 @@ public class DataService extends IntentService {
                 throw new IllegalArgumentException("No arguments bundle");
             }
             if (profile == null || !profile.getId().equals(profileId)) {
-                profile = new TransmissionProfile(profileId, this,
-                    PreferenceManager.getDefaultSharedPreferences(this));
+                profile = new TransmissionProfile(profileId,
+                        PreferenceManager.getDefaultSharedPreferences(this));
             }
 
             if (requestType.equals(Requests.REMOVE_PROFILE)) {

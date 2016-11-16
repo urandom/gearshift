@@ -40,7 +40,6 @@ public class TorrentDetailActivity extends BaseTorrentActivity {
         Intent in = getIntent();
 
         profile = in.getParcelableExtra(G.ARG_PROFILE);
-        profile.setContext(this);
         session = in.getParcelableExtra(G.ARG_SESSION);
         setSession(session);
 

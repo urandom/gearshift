@@ -330,7 +330,7 @@ public class SettingsActivity extends AppCompatActivity {
         boolean showNewProfile = getIntent().getBooleanExtra(G.ARG_NEW_PROFILE, false);
 
         if (state == null) {
-            TransmissionProfile.cleanTemporaryPreferences(this);
+            TransmissionProfile.cleanTemporaryPreferences();
 
             SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
             prefs.registerOnSharedPreferenceChangeListener(defaultPrefListener);

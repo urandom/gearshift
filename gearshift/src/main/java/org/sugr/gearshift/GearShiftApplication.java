@@ -14,6 +14,7 @@ public class GearShiftApplication extends Application {
     private static boolean activityVisible;
     private static boolean startupInitialized;
     private static final String UPDATE_URL = "https://api.github.com/repos/urandom/gearshift/releases";
+	private static GearShiftApplication app;
 
     private RequestQueue requestQueue;
 
@@ -29,6 +30,7 @@ public class GearShiftApplication extends Application {
         requestQueue = Volley.newRequestQueue(this);
 
         Thread.setDefaultUncaughtExceptionHandler((thread, ex) -> handleUncaughtException(thread, ex));
+		app = this;
     }
 
     public static boolean isActivityVisible() {
@@ -45,6 +47,10 @@ public class GearShiftApplication extends Application {
 
     public static void setStartupInitialized(boolean initialized) {
         startupInitialized = initialized;
+    }
+
+    public static GearShiftApplication get() {
+        return app;
     }
 
     public RequestQueue getRequestQueue() {
