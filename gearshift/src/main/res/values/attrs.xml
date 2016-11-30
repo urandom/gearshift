@@ -1,8 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-     <declare-styleable name="ColorPickerPreference">
-        <attr name="cal_itemLayout" format="reference" />
-        <attr name="cal_choices" format="reference" />
-        <attr name="cal_numColumns" format="integer" />
+    <declare-styleable name="Theme">
+        <attr name="colorRequired" format="color|reference" />
     </declare-styleable>
 </resources>

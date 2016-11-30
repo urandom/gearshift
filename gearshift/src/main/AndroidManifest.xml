@@ -1,104 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="org.sugr.gearshift"
-    android:installLocation="auto" >
+<manifest xmlns:android="http://schemas.android.com/apk/res/android" package="org.sugr.gearshift">
 
-    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.INTERNET" />
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 
-    <supports-screens
-        android:largeScreens="true"
-        android:normalScreens="true"
-        android:smallScreens="false"
-        android:xlargeScreens="true" />
-
-    <application
-        android:name="org.sugr.gearshift.GearShiftApplication"
-        android:allowBackup="true"
-        android:backupAgent="org.sugr.gearshift.misc.BackupAgent"
-        android:icon="@drawable/ic_launcher"
-        android:label="@string/app_name"
-        android:logo="@drawable/ic_home"
-        android:restoreAnyVersion="true"
-        android:theme="@style/AppTheme" >
-        <activity
-            android:name="org.sugr.gearshift.ui.TorrentListActivity"
-            android:label="@string/app_name"
-            android:launchMode="singleTask" >
+    <application android:allowBackup="true" android:icon="@mipmap/ic_launcher"
+        android:name="org.sugr.gearshift.App"
+        android:label="@string/app_name" android:supportsRtl="true" android:theme="@style/AppTheme">
+        <activity android:name=".ui.MainNavigationActivity" android:label="@string/app_name"
+            android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-            <intent-filter>
-                <action android:name="android.intent.action.VIEW" />
-
-                <category android:name="android.intent.category.DEFAULT" />
-                <category android:name="android.intent.category.BROWSABLE" />
-
-                <data android:scheme="magnet" />
-            </intent-filter>
         </activity>
-        <activity
-            android:name="org.sugr.gearshift.ui.TorrentFileReadActivity"
-            android:label="@string/title_torrent_file_read"
-            android:theme="@style/AppTheme.DialogNoTitle" >
-            <intent-filter>
-                <action android:name="android.intent.action.VIEW" />
-
-                <category android:name="android.intent.category.DEFAULT" />
-                <category android:name="android.intent.category.BROWSABLE" />
-
-                <data android:mimeType="application/x-bittorrent" />
-            </intent-filter>
-        </activity>
-        <activity
-            android:name="org.sugr.gearshift.ui.TorrentDetailActivity"
-            android:label="@string/title_torrent_detail"
-            android:parentActivityName="org.sugr.gearshift.ui.TorrentListActivity"
-            android:theme="@style/AppTheme.NoBackground" >
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value=".ui.TorrentListActivity" />
-        </activity>
-        <activity
-            android:name="org.sugr.gearshift.ui.TransmissionSessionActivity"
-            android:label="@string/session_settings_item"
-            android:parentActivityName="org.sugr.gearshift.ui.TorrentListActivity"
-            android:theme="@style/AppTheme.CardsActivity" >
-        </activity>
-        <activity
-            android:name=".ui.settings.SettingsActivity"
-            android:label="@string/settings"
-            android:parentActivityName="org.sugr.gearshift.ui.TorrentListActivity" >
-            <intent-filter>
-                <action android:name="android.intent.action.MANAGE_NETWORK_USAGE" />
-
-                <category android:name="android.intent.category.DEFAULT" />
-            </intent-filter>
-        </activity>
-        <activity
-            android:name="org.sugr.gearshift.ui.AboutActivity"
-            android:label="@string/about_item"
-            android:parentActivityName="org.sugr.gearshift.ui.TorrentListActivity"
-            android:theme="@style/AppTheme.About" >
-        </activity>
-        <activity
-            android:name="org.sugr.gearshift.ui.CrashReport"
-            android:theme="@style/AppTheme.DialogNoTitle"
-            android:textAppearance="@android:style/TextAppearance.Large"
-            android:windowSoftInputMode="stateHidden">
-            <intent-filter>
-                <action android:name="org.sugr.gearshift.CRASH_REPORT" />
-                <category android:name="android.intent.category.DEFAULT" />
-            </intent-filter>
-        </activity>
-        
-        <service
-            android:name="org.sugr.gearshift.service.DataService"
-            android:exported="false" />
-
     </application>
 
 </manifest>

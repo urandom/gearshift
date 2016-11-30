@@ -1,13 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
-
-    <!--
-    Layout alias to replace the single-pane version of the layout with a
-    two-pane version on Large screens.
-
-    For more on layout aliases, see:
-    http://developer.android.com/training/multiscreen/screensizes.html#TaskUseAliasFilters
-    -->
-    <item name="ic_home" type="drawable">@drawable/ic_launcher</item>
-    <item name="default_in_interpolator" type="interpolator">@android:interpolator/accelerate_decelerate</item>
-    <item name="default_out_interpolator" type="interpolator">@android:interpolator/accelerate_decelerate</item>
+    <item name="view_content" type="id" />
+    <item name="view_content_extra" type="id" />
 </resources>

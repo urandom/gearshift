@@ -1,57 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="primary">#252525</color>
-    <color name="primary_dark">#202020</color>
-    <color name="control_highlight">#FF9380</color>
-    <color name="control_activated">#FF4E40</color>
-    <color name="accent">#b60000</color>
-    <color name="accent_dull">#6e0000</color>
-    <color name="accent_light">#f44336</color>
+    <color name="colorPrimary">#3F51B5</color>
+    <color name="colorPrimaryDark">#303F9F</color>
+    <color name="colorAccent">#FF4081</color>
+    <color name="colorAccentDark">#C51162</color>
 
-    <color name="main_red">#b60000</color>
-    <color name="main_gray">#cacaca</color>
-    <color name="main_black">#1a1a1a</color>
-
-    <color name="success">#69e974</color>
-
-    <color name="progress_background">#ccc</color>
-    <color name="progress_downloading">#5677fc</color>
-    <color name="progress_seeding">#aeea00</color>
-
-    <color name="torrent_list_background">#e8e8e8</color>
-
-    <color name="detail_background">#ddd</color>
-    <color name="detail_background_edge">#bfbfbf</color>
-    <color name="highlight_dark">#222222</color>
-
-    <color name="preference_background">#e3e3e3</color>
-
-    <color name="list_menu_background">#e3e3e3</color>
-    <color name="filter_highlight_primary">#E68305</color>
-    <color name="filter_highlight_secondary">#C98733</color>
-
-    <color name="check_indicator">#757575</color>
-
-    <array name="default_color_choice_values">
-        <item>#252525</item>
-        <item>#D32F2F</item>
-        <item>#C2185B</item>
-        <item>#8E24AA</item>
-        <item>#5E35B1</item>
-        <item>#311B92</item>
-        <item>#3949AB</item>
-        <item>#1E88E5</item>
-        <item>#0097A7</item>
-        <item>#006064</item>
-        <item>#009688</item>
-        <item>#43A047</item>
-        <item>#1B5E20</item>
-        <item>#689F38</item>
-        <item>#827717</item>
-        <item>#E65100</item>
-        <item>#FF5722</item>
-        <item>#795548</item>
-        <item>#424242</item>
-        <item>#455A64</item>
-    </array>
+    <color name="colorRequired">#B71C1C</color>
 </resources>

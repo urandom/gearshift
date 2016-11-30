@@ -1,486 +1,28 @@
-<?xml version="1.0" encoding="utf-8"?>
-<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+<resources>
+    <string name="app_name">Gearshift</string>
 
-    <string name="app_name">Gear Shift</string>
-    <string name="title_torrent_detail">Torrent Detail</string>
-    
-    <string name="done">Done</string>
-    <string name="delete">Delete</string>
-    <string name="remove">Remove</string>
-    <string name="resume">Resume</string>
-    <string name="pause">Pause</string>
-    <string name="stop">Stop</string>
-    <string name="move">Move</string>
-    <string name="verify">Verify local data</string>
-    <string name="reannounce">Request more peers</string>
-    <string name="replace">Replace</string>
-    <string name="copy">Copy</string>
-    
-    <string name="number_dialog_delete">Delete a digit</string>
-    
-    <string name="refresh">Refresh</string>
-    <string name="alt_speed_label_on">Alternate speed limit on</string>
-    <string name="alt_speed_label_off">Alternate speed limit off</string>
-    <string name="alt_speed">Alternate speed limit</string>
-    <string name="add_torrent">Add torrent</string>
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+
     <string name="settings">Settings</string>
 
-    <string name="torrent_overview">Overview</string>
-    <string name="torrent_files">Files</string>
-    <string name="torrent_limits">Limits</string>
-    <string name="torrent_trackers">Trackers</string>
-    
-    <string name="torrent_activity">Activity</string>
-    <string name="torrent_have">Have:</string>
-    <string name="torrent_downloaded">Downloaded:</string>
-    <string name="torrent_uploaded">Uploaded:</string>
-    <string name="torrent_state">State:</string>
-    <string name="torrent_running_time">Running time:</string>
-    <string name="torrent_remaining_time">Remaining time:</string>
-    <string name="torrent_last_activity">Last activity:</string>
-    <string name="torrent_error">Torrent error:</string>
-    
-    <string name="torrent_details">Details</string>
-    <string name="torrent_size">Size:</string>
-    <string name="torrent_hash">Hash:</string>
-    <string name="torrent_location">Location:</string>
-    <string name="torrent_privacy">Privacy:</string>
-    <string name="torrent_origin">Origin:</string>
-    <string name="torrent_comment">Comment:</string>
-    
-    <string name="torrent_bandwidth">Bandwidth</string>
-    <string name="torrent_global_limits">Honor global limits</string>
-    <string name="torrent_priority">Torrent priority:</string>
-    <string name="torrent_queue_position">Queue position:</string>
-    <string name="torrent_limit_download">Limit Download Speed (KiB/s)</string>
-    <string name="torrent_limit_upload">Limit Upload Speed (KiB/s)</string>
-    <string name="torrent_limit_speed_amount">Amount</string>
-    
-    <string name="torrent_seeding">Seeding</string>
-    <string name="torrent_seed_ratio_mode">Seed ratio mode:</string>
-    <string name="torrent_seed_ratio_limit">Seed ratio limit:</string>
-    
-    <string name="torrent_peers">Peers</string>
-    <string name="torrent_peer_limit">Peer limit:</string>
-
-    <string name="add_profile_option">Add profile</string>
-    <string name="header_label_general_preferences">General</string>
-    <string name="header_label_filters">Filters</string>
-    <string name="header_label_sort">Sorting options</string>
-    <string name="header_label_profiles">Profiles</string>
-    <string name="new_profile">New profile</string>
-    <string name="profile_directories">Profile directories</string>
-
-    <string name="add_directory_option">Add directory</string>
-    <string name="no_download_dirs">&lt;h2&gt;You have no extra download directories.&lt;/h2&gt;Adding some here will allow you to change the location of any torrent in this profile.</string>
-    
-    <string name="updates">Updates</string>
-    <string name="full_update">Full update</string>
-    <string name="full_update_summary_format">Every %1$d active updates</string>
-    <string name="update_interval_dialog_title">Update interval</string>
-    <string name="update_interval">Update interval</string>
-    <string name="update_interval_summary_format">%1$s</string>
-    <string name="session_update_interval">Session update interval</string>
-
     <string name="profile">Profile</string>
-    <string name="profile_summary_format">%1$s</string>
     <string name="profile_name">Name</string>
-    <string name="profile_name_default">Default</string>
     <string name="connection">Connection</string>
     <string name="con_host">Host</string>
     <string name="con_port">Port</string>
-    <string name="con_username">Username</string>
-    <string name="con_password">Password</string>
-    <string name="con_path">Path</string>
-    <string name="con_path_default">/transmission/rpc</string>
     <string name="con_use_ssl">Use SSL</string>
-    <string name="con_timeout">Timeout</string>
-    <string name="con_timeout_default">40</string>
-    <string name="con_retries">Retry</string>
-    <string name="con_use_proxy">Use Proxy</string>
-    <string name="con_proxy_host">Proxy Host</string>
-    <string name="con_proxy_port">Proxy Port</string>
-    <string name="con_directories">Download Directories</string>
-    
-    <string name="invalid_input_title">Invalid Input</string>
+    <string name="updates">Updates</string>
+    <string name="update_interval">Update interval</string>
+    <string name="full_update">Full update</string>
+    <string name="full_update_label">Every %1$d active updates</string>
+
     <string name="con_name_cannot_be_empty">The profile name cannot be empty</string>
     <string name="con_host_cannot_be_empty">The host cannot be empty</string>
     <string name="con_port_not_valid">The port value must be between 1 and 65535</string>
     <string name="con_proxy_host_cannot_be_empty">The proxy host cannot be empty</string>
     <string name="con_proxy_port_not_valid">The proxy port value must be between 1 and 65535</string>
-
-    <string name="no_profiles">No profiles</string>
-    <string name="create_profile_in_settings">Create a new profile in the settings</string>
-    
-    <string name="no_profiles_empty_list"><![CDATA[<h2>No profile seems to have been created yet.</h2>You can add profiles by visiting the <i>settings</i> in the navigation drawer, or by pressing the button below.]]></string>
-    <string name="connecting_empty_list"><![CDATA[<h2><font color="#666666">Connecting</font></h2>]]></string>
-    <string name="no_torrents_empty_list">&lt;h2&gt;You are connected!&lt;/h2&gt;You may want to add at least one torrent.</string>
-    <string name="no_filtered_torrents_empty_list">No torrents match the current filter</string>
-    <string name="no_connectivity_empty_list">&lt;h2&gt;&lt;font color="#cc0000"&gt;You need an active network connection!&lt;/font&gt;&lt;/h2&gt;</string>
-    <string name="access_denied_empty_list">&lt;h2&gt;&lt;font color="#cc0000"&gt;Access denied!&lt;/font&gt;&lt;/h2&gt;Your credentials might be incorrect, or your IP address might not be in the daemon\'s white list.</string>
-    <string name="no_json_empty_list">&lt;h2&gt;&lt;font color="#cc0000"&gt;Unexpected response!&lt;/font&gt;&lt;/h2&gt;Please check if the RPC path in your current profile is correct.</string>
-    <string name="no_connection_empty_list">&lt;h2&gt;&lt;font color="#cc0000"&gt;Unable to connect!&lt;/font&gt;&lt;/h2&gt;Please check if the server address and port in your current profile are correct.</string>
-    <string name="generic_http_empty_list"><![CDATA[<h2><font color="#cc0000>HTTP client error!</font></h2>The HTTP status is '%1$s %2$s'.]]></string>
-    <string name="thread_error_empty_list">&lt;h2&gt;&lt;font color="#cc0000"&gt;Internal error!&lt;/font&gt;&lt;/h2&gt;</string>
-    <string name="response_error_empty_list">&lt;h2&gt;&lt;font color="#cc0000"&gt;Transmission daemon error!&lt;/font&gt;&lt;/h2&gt;A request to the daemon was not successful. See the logcat for more details.</string>
-    <string name="timeout_empty_list"><![CDATA[<h2><font color="#cc0000>Connection timeout!</font></h2>]]></string>
-    <string name="out_of_memory_empty_list"><![CDATA[<h2><font color="#cc0000>Out of memory!</font></h2>]]></string>
-    <string name="json_parse_empty_list"><![CDATA[<h2><font color="#cc0000>Unexpected server response!</font></h2>]]>This isn't the response we are looking for.</string>
-    
-    <string name="traffic_downloading_format">%1$s of %2$s (%3$s)%4$s</string>
-    <string name="traffic_downloading_percentage_format">%1$s%%</string>
-    <string name="traffic_seeding_format">%1$s, uploaded %2$s (%3$s)%4$s</string>
-    <string name="traffic_seeding_ratio_format">Ratio: %1$s%2$s</string>
-    <string name="traffic_seeding_ratio_goal_format">, Goal: %1$s</string>
-    <string name="traffic_remaining_time_format">&#160;- &lt;i&gt;%1$s remaining&lt;/i&gt;</string>
-    <string name="traffic_remaining_time_unknown">&#160;- Remaining time unknown</string>
-    
-    <string name="status_format">%1$s %2$s</string>
-    <string name="status_state_downloading">&lt;b&gt;Downloading&lt;/b&gt;</string>
-    <string name="status_state_downloading_metadata">&lt;b&gt;Downloading metadata&lt;/b&gt;</string>
-    <string name="status_state_seeding">&lt;b&gt;Seeding&lt;/b&gt;</string>
-    <string name="status_state_download_waiting">&lt;b&gt;Queued for downloading&lt;/b&gt;</string>
-    <string name="status_state_seed_waiting">&lt;b&gt;Queued for seeding&lt;/b&gt;</string>
-    <string name="status_state_paused"><![CDATA[<b>Paused</b>]]></string>
-    <string name="status_state_finished"><![CDATA[<b>Finished</b>]]></string>
-    <string name="status_state_check_waiting">&lt;b&gt;Queued for checking&lt;/b&gt;</string>
-    <string name="status_state_checking">&lt;b&gt;Checking&lt;/b&gt; (%1$s%% tested)</string>
-    <string name="status_more_downloading_format"> from %1$d of %2$d connected peers - &lt;i&gt;%3$s&lt;/i&gt;</string>
-    <string name="status_more_downloading_speed_format">&#x2193; %1$s/s, &#x2191; %2$s/s</string>
-    <string name="status_more_seeding_format"> to %1$d of %2$d connected peers - &lt;i&gt;%3$s&lt;/i&gt;</string>
-    <string name="status_more_seeding_speed_format">&#x2191; %1$s/s</string>
-    <string name="status_more_idle">Idle</string>
-
-    <string name="time_days">days</string>
-    <string name="time_day">day</string>
-    <string name="time_hours">hours</string>
-    <string name="time_hour">hour</string>
-    <string name="time_minutes">minutes</string>
-    <string name="time_minute">minute</string>
-    <string name="time_seconds">seconds</string>
-    <string name="time_second">second</string>
-
-    <string name="remove_selected_confirmation">Are you sure you want to remove the selected torrents?</string>
-    <string name="remove_current_confirmation">Are you sure you want to remove \'%s\'?</string>
-    <string name="remove_with_data">Delete the data</string>
-
-    <string name="torrent_have_format">%1$s of %2$s (%3$s%%)</string>
-    <string name="torrent_size_format">%1$s (%2$s pieces @ %3$s)</string>
-    <string name="torrent_added_format">%1$s ago</string>
-
-    <string name="none">None</string>
-    <string name="unknown">Unknown</string>
-
-    <string name="status_paused">Paused</string>
-    <string name="status_finished">Finished</string>
-    <string name="status_check_waiting">Queued check</string>
-    <string name="status_checking">Checking</string>
-    <string name="status_download_waiting">Queued download</string>
-    <string name="status_downloading">Downloading</string>
-    <string name="status_downloading_metadata">Downloading metadata</string>
-    <string name="status_seed_waiting">Queued seed</string>
-    <string name="status_seeding">Seeding</string>
-
-    <string name="torrent_active_now">Active now</string>
-
-    <string name="directory">Directory</string>
-    <string name="remove_selected_directories_confirmation">Are you sure you want to remove the selected directories?</string>
-    <string name="move_checkbox">Move the data from its current location</string>
-    <string name="set_location">Set location</string>
-
-    <string name="browse">Browse</string>
-    <string name="invalid_magnet_link">Invalid magnet link</string>
-    <string name="add_new_magnet">New magnet link</string>
-    <string name="add_new_torrent">New torrent</string>
-    <string name="start_paused_checkbox">Start paused</string>
-    <string name="delete_local_checkbox">Remove local torrent file</string>
-    
-    <string name="no_tracker_errors">No errors</string>
-    
-    <string name="torrent_private">Private torrent</string>
-    
-    <string name="torrent_public">Public torrent</string>
-    <string name="torrent_origin_format">Created on %1$s</string>
-    <string name="torrent_origin_creator_format">Created by %1$s on %2$s</string>
-
-    <string name="torrent_detail_file_format"><![CDATA[%1$s<br /><small>%2$s of %3$s - %4$s</small>]]></string>
-    
-    <string name="about_item">About</string>
-    <string name="about_name">Gear Shift</string>
-    <string name="app_icon">App icon</string>
-    <string name="about_description">Gear Shift is a Transmission remote client, created to provide a great experience when dealing with all aspects of torrent management.</string>
-    <string name="about_contact">If you find any bugs, please file an issue in the <![CDATA[<a href="%1$s">Gear Shift github repository</a>]]>. Doing so will also show other people whether the bug has been reported already. Be sure to turn on the \'Debug\' options under \'General Settings\', and include the logcat related to the app. There is also a <![CDATA[<a href="%2$s">Gear Shift google+ community</a>]]> for discussions about the app.</string>
-    <string name="about_donation">This app is provided for free, without any annoying ads. If you find it useful, consider <![CDATA[<a href="%1$s">sending a beer or two this way</a>]]>.</string>
-    
-    <string name="ic_menu_select_all">Select All</string>
-    
-    <string name="duplicate_torrent">This torrent is already in the list.</string>
-    <string name="invalid_torrent">The torrent being added is invalid or corrupt.</string>
-    <string name="error_title">Error!</string>
-    <string name="torrent_added_different_profile">Torrent added</string>
-    <string name="menu_high_priority">High priority</string>
-    <string name="menu_normal_priority">Normal priority</string>
-    <string name="menu_low_priority">Low priority</string>
-
-    <string name="menu_filters_header">Filters</string>
-    <string name="menu_filters_all">All</string>
-    <string name="menu_filters_downloading">Downloading</string>
-    <string name="menu_filters_seeding">Seeding</string>
-    <string name="menu_filters_paused">Paused</string>
-    <string name="menu_filters_complete">Complete</string>
-    <string name="menu_filters_incomplete">Incomplete</string>
-    <string name="menu_filters_active">Active</string>
-    <string name="menu_filters_checking">Checking</string>
-    <string name="menu_filters_errors">Errors</string>
-    <string name="menu_filters_untracked">Untracked</string>
-
-    <string name="menu_sort_header">Sort By</string>
-    <string name="menu_sort_name">Name</string>
-    <string name="menu_sort_size">Size</string>
-    <string name="menu_sort_status">Status</string>
-    <string name="menu_sort_activity">Activity</string>
-    <string name="menu_sort_age">Age</string>
-    <string name="menu_sort_progress">Progress</string>
-    <string name="menu_sort_ratio">Ratio</string>
-    <string name="menu_sort_location">Location</string>
-    <string name="menu_sort_peers">Peers</string>
-    <string name="menu_sort_download_speed">Download speed</string>
-    <string name="menu_sort_upload_speed">Upload speed</string>
-    <string name="menu_sort_queue">Queue position</string>
-
-    <string name="menu_order_header">Order</string>
-    <string name="menu_order_descending">Descending</string>
-
-    <string name="menu_directories_header">Directories</string>
-    <string name="menu_trackers_header">Trackers</string>
-
-    <string name="filter_visibility">Filter visibility</string>
-
-    <string name="directory_filters">Directory filters</string>
-
-    <string name="show_directory_filters">Show directory filters</string>
-
-    <string name="tracker_filters">Tracker filters</string>
-
-    <string name="show_tracker_filters">Show tracker filters</string>
-    <string name="show_untracked_filter">Show untracked filter</string>
-
-    <string name="sort_visibility">Sorting options visibility</string>
-    
-    <string name="base_sort_method">Base sort method</string>
-    
-    <string name="sorting_option">Sorting option</string>
-        
-    <string name="show_all_filter_summary">If hidden, clicking on a selected filter will unselect it</string>
-        
-    <string name="developer_options">Developer options</string>
-        
-    <string name="debug">Debug</string>
-        
-    <string name="debug_summary">Display debug information in the logcat</string>
-
-    <string name="auto_update_check">Check for updates at startup</string>
-        
-    <string name="open_drawer">open drawer</string>
-        
-    <string name="close_drawer">close drawer</string>
-        
-    <string name="unwant_file">Skip</string>
-        
-    <string name="want_file">Download</string>
-        
-    <string name="session_settings_item">Session settings</string>
-        
-    <string name="session_settings_general">General</string>
-        
-    <string name="session_settings_environment">Environment</string>
-        
-    <string name="session_settings_download_directory">Download directory</string>
-        
-    <string name="session_settings_incomplete_download_directory">Incomplete download directory</string>
-        
-    <string name="session_settings_script_to_run_when_torrent_finishes">Script to run when a torrent is done</string>
-        
-    <string name="session_settings_cache_size">Cache size (MiB)</string>
-        
-    <string name="session_settings_behavior">Behavior</string>
-        
-    <string name="session_settings_rename_partial_files">Rename partial files</string>
-        
-    <string name="session_settings_trash_original">Delete files added from the watch directory</string>
-        
-    <string name="session_settings_start_added_torrents">Start added torrents</string>
-        
-    <string name="session_settings_connections">Connections</string>
-        
-    <string name="session_settings_peer_port">Peer port</string>
-        
-    <string name="session_settings_port_test">Test</string>
-        
-    <string name="session_settings_encryption">Encryption</string>
-        
-    <string name="session_settings_random_port">Random peer port on start</string>
-        
-    <string name="session_settings_port_forwarding">Peer port forwarding</string>
-        
-    <string name="session_settings_protocol">Protocol</string>
-        
-    <string name="session_settings_peer_exchange">Peer exchange (PEX)</string>
-        
-    <string name="session_settings_distributed_hash_table">Distributed Hash Table (DHT)</string>
-        
-    <string name="session_settings_local_discovery">Local peer discovery</string>
-
-    <string name="session_settings_utp">Micro Transport Protocol (µTP)</string>
-        
-    <string name="session_settings_blocklist">Blocklist</string>
-        
-    <string name="session_settings_blocklist_url">URL</string>
-        
-    <string name="session_settings_blocklist_enable">Enable the blocklist</string>
-
-    <string name="session_settings_blocklist_count_format">%1$d entries</string>
-        
-    <string name="session_settings_blocklist_update">Update</string>
-        
-    <string name="session_settings_bandwidth">Bandwidth</string>
-        
-    <string name="session_settings_general_limits">General limits</string>
-        
-    <string name="session_settings_down_limit">Download limit (KiB/s)</string>
-        
-    <string name="session_settings_upload_limit">Upload limit (KiB/s)</string>
-        
-    <string name="session_settings_alt_limits">Alternate limits</string>
-        
-    <string name="session_settings_enable_alt_limits">Enable alternate speed limits</string>
-        
-    <string name="session_settings_alt_time_range">Alternate time range</string>
-        
-    <string name="session_settings_alt_time">Time</string>
-
-    <string name="session_settings_alt_limit_time_format">%1$02d:%2$02d</string>
-
-    <string name="session_settings_alt_down_limit">Alternate Download limit (KiB/s)</string>
-        
-    <string name="session_settings_alt_upload_limit">Alternate Upload limit (KiB/s)</string>
-        
-    <string name="session_settings_seeding">Seeding</string>
-        
-    <string name="session_settings_seed_ratio_limit">Seed ratio limit</string>
-        
-    <string name="session_settings_queues">Queues</string>
-        
-    <string name="session_settings_download_size">Download size</string>
-        
-    <string name="session_settings_seed_size">Seed size</string>
-        
-    <string name="session_settings_ignore_stalled_torrents">Ignore stalled torrents</string>
-        
-    <string name="session_settings_ignore_stalled_minutes">Minutes</string>
-        
-    <string name="session_settings_peers">Peers</string>
-        
-    <string name="session_settings_global_peer_limit">Global peer limit</string>
-        
-    <string name="session_settings_torrent_peer_limit">Per torrent peer limit</string>
-        
-    <string name="session_settings_upload">Upload (KiB/s)</string>
-        
-    <string name="session_settings_download">Download (KiB/s)</string>
-        
-    <string name="port_test_testing">Testing …</string>
-        
-    <string name="port_test_closed"><![CDATA[<font color="#E73939">Closed</font>]]></string>
-        
-    <string name="port_test_open"><![CDATA[<font color="#7CAF00">Open</font>]]></string>
-
-    <string name="blocklist_update_error"><![CDATA[<font color="#CC0000">Error</font>]]></string>
-
-    <string name="blocklist_updating">Updating</string>
-
-    <string name="title_torrent_file_read">Opening .torrent file</string>
-
-    <string name="reading_torrent_file">Reading .torrent file …</string>
-
-    <string name="error_reading_torrent_file">Error while reading the torrent file</string>
-
-    <string name="find">Find</string>
-
-    <string name="filter">Filter</string>
-    <string name="import_session_directories">Import session directories</string>
-
-    <string name="tracker_unknown_host">Unknown host</string>
-    <string name="tracker_tier"><![CDATA[Tier %1$d]]></string>
-    <string name="tracker_announce_success"><![CDATA[Last announce: %1$s (got %2$s)]]></string>
-    <string name="tracker_announce_never">Last announce: N/A</string>
-    <string name="tracker_announce_error"><![CDATA[Announce error: %1$s%2$s]]></string>
-
-    <string name="tracker_scrape_success"><![CDATA[Last scrape: %1$s]]></string>
-    <string name="tracker_scrape_never">Last scrape: N/A</string>
-    <string name="tracker_scrape_error"><![CDATA[Scrape error: %1$s%2$s]]></string>
-
-    <string name="tracker_seeders"><![CDATA[Seeders: %1$d]]></string>
-    <string name="tracker_leechers"><![CDATA[Leechers: %1$d]]></string>
-    <string name="tracker_add">Add tracker</string>
-    <string name="tracker_announce_url">Tracker announce URL</string>
-    <string name="tracker_url_copy">The tracker\'s announce URL has been copied to the clipboard</string>
-    <string name="tracker_replace">Change tracker</string>
-    <string name="tracker_new_announce_url">New announce URL</string>
-    <string name="base_sort">Secondary sorting</string>
-    <string name="base_sort_order">Sorting direction</string>
-    <string name="torrent_added">Added:</string>
-
-    <plurals name="tracker_peers">
-        <item quantity="one">1 peer</item>
-        <item quantity="other">%1$d peers</item>
-    </plurals>
-
-    <string name="status_bar_format"><![CDATA[↓ %1$s%2$s, ↑ %3$s%4$s, ⊙ %5$s]]></string>
-    <string name="status_bar_limit_format"><![CDATA[ (<i>%1$s</i>)]]></string>
-    <string name="user_interface_header">User interface</string>
-    <string name="show_status_bar">Status bar below the torrent list</string>
-    <string name="show_add_dialog">Show options dialog when adding torrents</string>
-    <string name="error_deleting_torrent_file">Unable to delete torrent file</string>
-    <string name="hint_download_directory">Download directory</string>
-    <string name="spinner_default_directory">Default directory</string>
-    <string name="spinner_custom_directory">Custom directory &#8230;</string>
-    <string name="error_removing_profile">Error while removing profile!</string>
-    <string name="session_settings_enable_idle_seeding_limit">Enable idle seeding limit</string>
-    <string name="session_settings_idle_seeding_limit">Stop after being idle for (minutes)</string>
-    <string name="update_download">Download</string>
-    <string name="update_view">View</string>
-    <string name="update_available"><![CDATA[<h2><font color="#666666">A new version of Gear Shift is available</font><h2><small>The new version is \'%1$s\'</small>]]></string>
-    <string name="update_current">You are using the latest version of Gear Shift</string>
-    <string name="update_error"><![CDATA[<font color="#E73939">An error occured while checking for updates</font>]]></string>
-    <string name="about_updates">Check for updates</string>
-    <string name="update_checking">Checking …</string>
-    <string name="crash_title"><![CDATA[<h2>Unfortunately, Gear Shift has stopped.</h2><small>Would you like to email a crash report?</small>]]></string>
-    <string name="crash_send">Send</string>
-    <string name="sort">Sort</string>
-    <string name="dialog_location">Location</string>
-    <string name="dialog_profile">Profile</string>
-    <string name="queue_management">Queue management</string>
-    <string name="queue_top">Move to the top of the queue</string>
-    <string name="queue_up">Move up from the current position</string>
-    <string name="queue_down">Move down from the current position</string>
-    <string name="queue_bottom">Move to the bottom of the queue</string>
-    <plurals name="queue_label">
-        <item quantity="one">Change the relative queue position of the selected torrent.</item>
-        <item quantity="other">Change the relative queue position of the selected torrents.</item>
-    </plurals>
-
-    <string-array name="torrent_priority">
-        <item>Low</item>
-        <item>Normal</item>
-        <item>High</item>
-    </string-array>
-
-    <string-array name="torrent_seed_ratio_mode">
-        <item>Use global settings</item>
-        <item>Stop seeding at ratio</item>
-        <item>Seed regardless of ratio</item>
-    </string-array>
+    <string name="con_timeout_not_valid">The timeout must be a positive number</string>
 
     <string-array name="pref_full_update_entries">
         <item>Disable partial updates</item>
@@ -503,6 +45,22 @@
         <item>2 minutes</item>
         <item>Never</item>
     </string-array>
+    <string name="authentication">Authentication</string>
+    <string name="con_username">Username</string>
+    <string name="con_password">Password</string>
+    <string name="proxy">Proxy</string>
+    <string name="con_proxy_host">Proxy Host</string>
+    <string name="con_proxy_port">Proxy Port</string>
+    <string name="advanced">Advanced</string>
+    <string name="con_timeout">Timeout</string>
+    <string name="con_path">Path</string>
+    <string name="first_time_profile_title">Hi there</string>
+    <string name="first_time_profile_subtitle">Please fill out all relevant information for access to your torrent server. You can adjust the profile later in the settings.</string>
+    <string name="new_profile">New profile</string>
+    <string name="action_test">Test</string>
+
+    <string name="profile_check_success">Success</string>
+    <string name="profile_check_failure">Failure</string>
 
     <string-array name="pref_con_retries_entries">
         <item>Once</item>
@@ -513,43 +71,38 @@
         <item>15 times</item>
     </string-array>
 
-    <string-array name="pref_base_sort_method_entries">
-        <item>Name</item>
-        <item>Size</item>
-        <item>Status</item>
-        <item>Download speed</item>
-        <item>Upload speed</item>
-        <item>Age</item>
-        <item>Progress</item>
-        <item>Ratio</item>
-        <item>Activity</item>
-        <item>Location</item>
-        <item>Peers</item>
-        <item>Queue position</item>
-    </string-array>
+    <string name="tracker_unknown_host">Unknown host</string>
 
-    <string-array name="pref_base_sort_order_entries">
-        <item>Ascending</item>
-        <item>Descending</item>
-        <item>Primary order</item>
-        <item>Reverse primary order</item>
-    </string-array>
+	<string name="traffic_downloading_format">%1$s of %2$s (%3$s)%4$s</string>
+	<string name="traffic_downloading_percentage_format">%1$s%%</string>
+	<string name="traffic_seeding_format">%1$s, uploaded %2$s (%3$s)%4$s</string>
+	<string name="traffic_seeding_ratio_format">Ratio: %1$s%2$s</string>
+	<string name="traffic_seeding_ratio_goal_format">, Goal: %1$s</string>
+	<string name="traffic_remaining_time_format">&#160;- &lt;i&gt;%1$s remaining&lt;/i&gt;</string>
+	<string name="traffic_remaining_time_unknown">&#160;- Remaining time unknown</string>
 
-    <string-array name="session_settings_encryption">
-        <item>Required</item>
-        <item>Preferred</item>
-        <item>Tolerated</item>
-    </string-array>
+    <string name="status_format">%1$s %2$s</string>
+	<string name="status_state_downloading">&lt;b&gt;Downloading&lt;/b&gt;</string>
+	<string name="status_state_downloading_metadata">&lt;b&gt;Downloading metadata&lt;/b&gt;</string>
+	<string name="status_state_seeding">&lt;b&gt;Seeding&lt;/b&gt;</string>
+	<string name="status_state_download_waiting">&lt;b&gt;Queued for downloading&lt;/b&gt;</string>
+	<string name="status_state_seed_waiting">&lt;b&gt;Queued for seeding&lt;/b&gt;</string>
+	<string name="status_state_paused"><![CDATA[<b>Paused</b>]]></string>
+	<string name="status_state_finished"><![CDATA[<b>Finished</b>]]></string>
+	<string name="status_state_check_waiting">&lt;b&gt;Queued for checking&lt;/b&gt;</string>
+	<string name="status_state_checking">&lt;b&gt;Checking&lt;/b&gt; (%1$s%% tested)</string>
+	<string name="status_more_downloading_format"> from %1$d of %2$d connected peers - &lt;i&gt;%3$s&lt;/i&gt;</string>
+	<string name="status_more_downloading_speed_format">&#x2193; %1$s/s, &#x2191; %2$s/s</string>
+	<string name="status_more_seeding_format"> to %1$d of %2$d connected peers - &lt;i&gt;%3$s&lt;/i&gt;</string>
+	<string name="status_more_seeding_speed_format">&#x2191; %1$s/s</string>
+	<string name="status_more_idle">Idle</string>
 
-    <!-- Default title for color picker dialog [CHAR LIMIT=30] -->
-    <string name="color_picker_default_title">Select a Color</string>
-    <!-- Content description for a color square. -->
-    <string name="color_swatch_description">Color <xliff:g id="color_index" example="14">%1$d</xliff:g></string>
-    <!-- Content description for a selected color square. -->
-    <string name="color_swatch_description_selected">Color <xliff:g id="color_index" example="14">%1$d</xliff:g> selected</string>
-    <string name="pref_profile_color">Profile color</string>
-    <string name="misc">Miscellaneous</string>
-    <string name="delete_data_default">Delete the torrent data during removal by default</string>
-    <string name="no_activity_for_open_document">Android cannot browse for torrent files</string>
-
+	<string name="time_days">days</string>
+	<string name="time_day">day</string>
+	<string name="time_hours">hours</string>
+	<string name="time_hour">hour</string>
+	<string name="time_minutes">minutes</string>
+	<string name="time_minute">minute</string>
+	<string name="time_seconds">seconds</string>
+	<string name="time_second">second</string>
 </resources>

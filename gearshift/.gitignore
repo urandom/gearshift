@@ -1,4 +1,1 @@
 /build
-!/build/proguard
-/build/proguard/release
-!/build/proguard/release/mapping.txt

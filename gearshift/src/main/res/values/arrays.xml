@@ -1,18 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string-array name="torrent_priority_values" translatable="false">
-        <item>low</item>
-        <item>normal</item>
-        <item>high</item>
-    </string-array>
-
-    <string-array name="torrent_seed_ratio_mode_values" translatable="false">
-        <item>global</item>
-        <item>user</item>
-        <item>infinite</item>
-    </string-array>
-
-    <string-array name="pref_full_update_values" translatable="false">
+    <integer-array name="pref_full_update_values">
         <item>0</item>
         <item>2</item>
         <item>3</item>
@@ -21,9 +9,9 @@
         <item>30</item>
         <item>60</item>
         <item>100</item>
-    </string-array>
+    </integer-array>
 
-    <string-array name="pref_update_interval_values" translatable="false">
+    <integer-array name="pref_update_interval_values">
         <item>1</item>
         <item>2</item>
         <item>5</item>
@@ -32,43 +20,14 @@
         <item>60</item>
         <item>120</item>
         <item>-1</item>
-    </string-array>
+    </integer-array>
 
-    <string-array name="pref_con_retries_values" translatable="false">
+    <integer-array name="pref_con_retries_values">
         <item>1</item>
         <item>2</item>
         <item>3</item>
         <item>5</item>
         <item>10</item>
         <item>15</item>
-    </string-array>
-
-    <string-array name="pref_base_sort_method_values" translatable="false">
-        <item>NAME</item>
-        <item>SIZE</item>
-        <item>STATUS</item>
-        <item>RATE_DOWNLOAD</item>
-		<item>RATE_UPLOAD</item>
-		<item>AGE</item>
-		<item>PROGRESS</item>
-		<item>RATIO</item>
-		<item>ACTIVITY</item>
-		<item>LOCATION</item>
-		<item>PEERS</item>
-		<item>QUEUE</item>
-    </string-array>
-
-    <string-array name="pref_base_sort_order_values" translatable="false">
-        <item>ASCENDING</item>
-        <item>DESCENDING</item>
-        <item>PRIMARY</item>
-        <item>REVERSE</item>
-    </string-array>
-
-    <string-array name="session_settings_encryption_values" translatable="false">
-        <item>required</item>
-        <item>preferred</item>
-        <item>tolerated</item>
-    </string-array>
-    
+    </integer-array>
 </resources>
