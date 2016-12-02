@@ -1,6 +1,7 @@
 package org.sugr.gearshift
 
 import android.app.Application
+import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
 import android.content.pm.PackageManager
@@ -20,6 +21,7 @@ import java.io.IOException
 import java.util.concurrent.Callable
 
 class App : Application() {
+    val component : AppComponent = AppComponentImpl(this)
 
     class Update(val title: String, val description: String, val url: String, val downloadUrl: String)
 
@@ -63,8 +65,6 @@ class App : Application() {
     override fun onCreate() {
         super.onCreate()
 
-        appDependencies.app = this
-
         if (!BuildConfig.DEBUG) {
             Thread.setDefaultUncaughtExceptionHandler { thread, e -> this.handleUncaughtException(thread, e) }
         }
@@ -85,9 +85,14 @@ class App : Application() {
     }
 }
 
-private object appDependencies {
-    lateinit var app: App
+interface AppComponent {
+    val app : App
+    val context : Context
+    val prefs : SharedPreferences
 }
 
-fun app() = appDependencies.app
-fun defaultPreferences(app: App = org.sugr.gearshift.app()): SharedPreferences = PreferenceManager.getDefaultSharedPreferences(app)
+class AppComponentImpl(application : App) : AppComponent {
+    override val app : App = application
+    override val context : Context = app
+    override val prefs = PreferenceManager.getDefaultSharedPreferences(app)
+}

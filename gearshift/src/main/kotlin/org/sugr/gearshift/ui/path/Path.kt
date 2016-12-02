@@ -1,8 +1,6 @@
 package org.sugr.gearshift.ui.path
 
 import android.support.v4.app.FragmentManager
-import io.reactivex.Flowable
-import org.sugr.gearshift.viewmodel.ActivityLifecycle
 import org.sugr.gearshift.viewmodel.RetainedViewModel
 import org.sugr.gearshift.viewmodel.destroyViewModel
 
@@ -18,10 +16,10 @@ interface Path<VM: RetainedViewModel<*>> {
     val depth : Int
         get() = 0
 
-    fun getViewModel(fm: FragmentManager, lifecycle: Flowable<ActivityLifecycle>): VM
+    val viewModel : VM
 
-    fun destroyViewModel(fm: FragmentManager, lifecycle: Flowable<ActivityLifecycle>) {
-        destroyViewModel(fm, getViewModel(fm, lifecycle))
+    fun destroyViewModel(fm: FragmentManager) {
+        destroyViewModel(fm, viewModel)
     }
 
     fun isTopLevel() : Boolean {

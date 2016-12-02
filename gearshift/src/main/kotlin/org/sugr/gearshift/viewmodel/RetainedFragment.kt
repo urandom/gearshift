@@ -3,8 +3,6 @@ package org.sugr.gearshift.viewmodel
 import android.os.Bundle
 import android.support.v4.app.Fragment
 import android.support.v4.app.FragmentManager
-import io.reactivex.Flowable
-import org.sugr.gearshift.App
 
 class RetainedFragment<VM : RetainedViewModel<*>> : Fragment() {
     var viewModel: VM? = null
@@ -25,10 +23,8 @@ class RetainedFragment<VM : RetainedViewModel<*>> : Fragment() {
 
 inline fun <reified VM : RetainedViewModel<*>> viewModelFrom(
         fm: FragmentManager,
-        tag: String = VM::class.java.toString(),
-        app: App = org.sugr.gearshift.app(),
-        lifecycle: Flowable<ActivityLifecycle> = Flowable.empty(),
-        factory: (tag: String, app: App, lifecycle: Flowable<ActivityLifecycle>) -> VM): VM {
+        tag: String,
+        factory: () -> VM): VM {
 
     var fragment = fm.findFragmentByTag(tag) as? RetainedFragment<VM>
 
@@ -39,7 +35,7 @@ inline fun <reified VM : RetainedViewModel<*>> viewModelFrom(
 
     var vm = fragment.viewModel
     if (vm == null) {
-        vm = factory(tag, app, lifecycle)
+        vm = factory()
         fragment.viewModel = vm
     }
 

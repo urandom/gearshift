@@ -6,11 +6,15 @@ import android.animation.ValueAnimator
 import android.databinding.DataBindingUtil
 import android.databinding.ViewDataBinding
 import android.os.Bundle
+import android.support.v4.app.FragmentManager
 import android.support.v4.view.GravityCompat
 import android.support.v4.widget.DrawerLayout
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.graphics.drawable.DrawerArrowDrawable
 import android.view.View
+import io.reactivex.processors.PublishProcessor
+import org.sugr.gearshift.App
+import org.sugr.gearshift.AppComponent
 import org.sugr.gearshift.BR
 import org.sugr.gearshift.R
 import org.sugr.gearshift.databinding.MainNavigationActivityBinding
@@ -31,12 +35,12 @@ class MainNavigationActivity : AppCompatActivity(),
         View.OnClickListener,
         PathNavigator.Consumer {
 
+    lateinit private var component : NavComponent
     lateinit private var binding: MainNavigationActivityBinding
-    lateinit private var viewModel: MainNavigationViewModel
     lateinit private var toolbarToggle: DrawerArrowDrawable
     lateinit private var pathNavigator: PathNavigator
 
-    override val defaultPath = TorrentListPath()
+    override val defaultPath by lazy { TorrentListPath(component) }
 
     private var toolbarToggleAnimatorReversed = false
     private val toolbarToggleAnimator = lazy {
@@ -65,14 +69,12 @@ class MainNavigationActivity : AppCompatActivity(),
     override fun onCreate(state: Bundle?) {
         super.onCreate(state)
 
-        viewModel = viewModelFrom(supportFragmentManager) { tag, app, lifecycle ->
-            MainNavigationViewModel(tag, app)
-        }
+        component = NavComponentImpl(supportFragmentManager, (application as App).component)
 
-        pathNavigator = PathNavigator(viewModel.activityLifecycle, this)
+        pathNavigator = PathNavigator(component, this)
 
         binding = DataBindingUtil.setContentView<MainNavigationActivityBinding>(this, R.layout.main_navigation_activity)
-        binding.viewModel = viewModel
+        binding.viewModel = component.navigationViewModel
 
         toolbarToggle = DrawerArrowDrawable(binding.appBar.toolbar.getContext())
         binding.appBar.toolbar.navigationIcon = toolbarToggle
@@ -80,34 +82,34 @@ class MainNavigationActivity : AppCompatActivity(),
 
         pathNavigator.restorePath()
 
-        viewModel.bind(this)
+        component.navigationViewModel.bind(this)
 
-        viewModel.activityLifecycle.onNext(ActivityLifecycle.CREATE)
+        component.lifecycle.onNext(ActivityLifecycle.CREATE)
     }
 
     override fun onDestroy() {
-        viewModel.activityLifecycle.onNext(ActivityLifecycle.DESTROY)
+        component.lifecycle.onNext(ActivityLifecycle.DESTROY)
         super.onDestroy()
-        viewModel.unbind()
+        component.navigationViewModel.unbind()
     }
 
     override fun onStart() {
         super.onStart()
-        viewModel.activityLifecycle.onNext(ActivityLifecycle.START)
+        component.lifecycle.onNext(ActivityLifecycle.START)
     }
 
     override fun onStop() {
         super.onStop()
-        viewModel.activityLifecycle.onNext(ActivityLifecycle.STOP)
+        component.lifecycle.onNext(ActivityLifecycle.STOP)
     }
 
     override fun onResume() {
         super.onResume()
-        viewModel.activityLifecycle.onNext(ActivityLifecycle.RESUME)
+        component.lifecycle.onNext(ActivityLifecycle.RESUME)
     }
 
     override fun onPause() {
-        viewModel.activityLifecycle.onNext(ActivityLifecycle.PAUSE)
+        component.lifecycle.onNext(ActivityLifecycle.PAUSE)
         super.onPause()
     }
 
@@ -122,7 +124,7 @@ class MainNavigationActivity : AppCompatActivity(),
     }
 
     override fun createProfile() {
-        pathNavigator.setPath(FirstTimeProfileEditorPath())
+        pathNavigator.setPath(FirstTimeProfileEditorPath(component))
     }
 
     override fun onClick(v: View?) {
@@ -141,7 +143,7 @@ class MainNavigationActivity : AppCompatActivity(),
 
         val inflater = getLayoutInflater()
         val view = inflater.inflate(newPath.layout, container, false)
-        val viewModel = newPath.getViewModel(supportFragmentManager, viewModel.activityLifecycle)
+        val viewModel = newPath.viewModel
 
         (view as? ViewModelConsumer<RetainedViewModel<*>>)?.setViewModel(viewModel)
 
@@ -235,4 +237,23 @@ class MainNavigationActivity : AppCompatActivity(),
         }
     }
 
+}
+
+interface NavComponent : AppComponent {
+    val fragmentManager : FragmentManager
+    val navigationViewModel : MainNavigationViewModel
+    val lifecycle : PublishProcessor<ActivityLifecycle>
+}
+
+class NavComponentImpl(override val fragmentManager: FragmentManager, b : AppComponent) :
+        NavComponent, AppComponent by b {
+    private val tag = MainNavigationViewModel::class.java.toString()
+
+    override val navigationViewModel : MainNavigationViewModel by lazy {
+        viewModelFrom(fragmentManager, tag) {
+            MainNavigationViewModel(tag, app, prefs)
+        }
+    }
+
+    override val lifecycle : PublishProcessor<ActivityLifecycle> = navigationViewModel.activityLifecycle
 }

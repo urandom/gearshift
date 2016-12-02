@@ -1,7 +1,6 @@
 package org.sugr.gearshift.model
 
 import org.sugr.gearshift.R
-import org.sugr.gearshift.app
 import java.io.File
 import java.net.URI
 import java.net.URISyntaxException
@@ -91,7 +90,7 @@ data class TorrentTracker(val hash: String,
         host = try {
             URI(announce).host
         } catch (e: URISyntaxException) {
-            app().getString(R.string.tracker_unknown_host)
+            ""
         }
     }
 

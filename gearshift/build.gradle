@@ -1,5 +1,6 @@
 apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
+apply plugin: 'kotlin-kapt'
 
 android {
     compileSdkVersion 25
@@ -27,6 +28,7 @@ android {
     sourceSets {
         main.java.srcDirs += 'src/main/kotlin'
     }
+    compileOptions.incremental = false
 }
 
 kapt {
@@ -34,28 +36,47 @@ kapt {
 }
 
 dependencies {
-    kapt 'com.android.databinding:compiler:2.1.0'
+    ext.support_version = "25.0.1"
+    ext.dagger_version = "2.8"
+    ext.rx_version = "2.0.1"
 
-    compile fileTree(include: ['*.jar'], dir: 'libs')
-    compile 'com.android.support:appcompat-v7:25.0.1'
-    compile 'com.android.support:support-v4:25.0.1'
-    compile 'com.android.support:design:25.0.1'
-    compile 'io.reactivex.rxjava2:rxjava:2.0.1'
-    compile 'io.reactivex.rxjava2:rxandroid:2.0.1'
-    compile 'com.google.code.gson:gson:2.6.2'
-    compile 'com.github.salomonbrys.kotson:kotson:2.2.0'
-    compile 'com.squareup.okhttp3:okhttp:3.3.1'
-    compile group: 'com.squareup.okhttp3', name: 'logging-interceptor', version: '3.3.1'
-    compile 'com.github.zafarkhaja:java-semver:0.9.0'
-    compile group: 'org.jetbrains.kotlin', name: 'kotlin-stdlib', version: "$kotlin_version"
-    compile group: 'org.jetbrains.kotlin', name: 'kotlin-reflect', version: "$kotlin_version"
-    compile 'com.colintmiller:simplenosql:0.5.1'
-    testCompile 'junit:junit:4.12'
-    androidTestCompile 'com.android.support.test.espresso:espresso-core:2.2.2'
-    androidTestCompile 'com.android.support.test:runner:0.5'
-    androidTestCompile 'com.android.support:support-annotations:25.0.1'
-    compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
-    compile 'com.android.support.constraint:constraint-layout:1.0.0-alpha4'
+    compile(
+            fileTree(include: ['*.jar'], dir: 'libs'),
+            "com.android.support:appcompat-v7:$support_version",
+            "com.android.support:support-v4:$support_version",
+            "com.android.support:design:$support_version",
+            'com.android.support.constraint:constraint-layout:1.0.0-alpha4',
+            "io.reactivex.rxjava2:rxjava:$rx_version",
+            "io.reactivex.rxjava2:rxandroid:$rx_version",
+             'com.google.code.gson:gson:2.6.2',
+             'com.github.salomonbrys.kotson:kotson:2.2.0',
+             'com.squareup.okhttp3:okhttp:3.3.1',
+             group: 'com.squareup.okhttp3', name: 'logging-interceptor', version: '3.3.1',
+             'com.github.zafarkhaja:java-semver:0.9.0',
+            "org.jetbrains.kotlin:kotlin-stdlib:${kotlin_version}",
+            "org.jetbrains.kotlin:kotlin-reflect:${kotlin_version}",
+             'com.colintmiller:simplenosql:0.5.1',
+            // "com.google.dagger:dagger:$dagger_version"
+    )
+
+    kapt(
+            'com.android.databinding:compiler:2.1.0',
+            // "com.google.dagger:dagger-compiler:$dagger_version"
+    )
+
+    provided(
+            'javax.annotation:jsr250-api:1.0'
+    )
+
+    testCompile(
+            'junit:junit:4.12'
+    )
+
+    androidTestCompile(
+            'com.android.support.test.espresso:espresso-core:2.2.2',
+            'com.android.support.test:runner:0.5',
+            'com.android.support:support-annotations:25.0.1'
+    )
 }
 repositories {
     mavenCentral()

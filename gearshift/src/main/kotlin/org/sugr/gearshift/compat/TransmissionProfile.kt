@@ -1,16 +1,18 @@
 package org.sugr.gearshift.compat
 
+import android.app.Activity
+import android.content.Context
 import android.content.SharedPreferences
-import org.sugr.gearshift.*
+import org.sugr.gearshift.C
+import org.sugr.gearshift.logD
 import org.sugr.gearshift.model.Profile
-import org.sugr.gearshift.model.profilePreferences
 import org.sugr.gearshift.model.transmissionProfile
 
-private class TransmissionProfileCompat(private val app: App, private val prefs: SharedPreferences) {
+private class TransmissionProfileCompat(private val ctx: Context, private val prefs: SharedPreferences) {
     fun migrate() :Array<Profile> {
         logD("Migrating any old profiles")
 
-        val prefs = profilePreferences(app)
+        val prefs = profilePreferences(ctx)
         val ids = prefs.getStringSet(C.PREF_PROFILES, setOf()).toList()
 
         val profiles = Array(ids.size) { i ->
@@ -42,7 +44,7 @@ private class TransmissionProfileCompat(private val app: App, private val prefs:
         prefs.edit().clear().apply()
 
         return profiles.map {
-            profile -> profile.save(defaultPrefs = this.prefs, prefs = prefs)
+            profile -> profile.save(this.prefs)
         }.toTypedArray()
     }
 
@@ -70,6 +72,10 @@ private class TransmissionProfileCompat(private val app: App, private val prefs:
     }
 }
 
-fun migrateTransmissionProfiles(app : App = app(), prefs: SharedPreferences = defaultPreferences()): Array<Profile> {
-    return TransmissionProfileCompat(app, prefs).migrate()
+fun migrateTransmissionProfiles(ctx : Context, prefs: SharedPreferences): Array<Profile> {
+    return TransmissionProfileCompat(ctx, prefs).migrate()
+}
+
+fun profilePreferences(ctx: Context) : SharedPreferences {
+    return ctx.getSharedPreferences("profiles", Activity.MODE_PRIVATE)
 }

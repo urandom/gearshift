@@ -1,14 +1,14 @@
 package org.sugr.gearshift.viewmodel
 
+import android.content.Context
+import android.content.SharedPreferences
 import android.databinding.ObservableArrayMap
 import android.databinding.ObservableBoolean
 import android.databinding.ObservableInt
+import io.reactivex.BackpressureStrategy
 import io.reactivex.Single
-import org.sugr.gearshift.App
 import org.sugr.gearshift.R
-import org.sugr.gearshift.defaultPreferences
 import org.sugr.gearshift.model.Profile
-import org.sugr.gearshift.model.profilePreferences
 import org.sugr.gearshift.model.transmissionProfile
 import org.sugr.gearshift.viewmodel.api.apiOf
 import org.sugr.gearshift.viewmodel.databinding.ObservableField
@@ -17,8 +17,12 @@ import org.sugr.gearshift.viewmodel.databinding.observe
 import org.sugr.gearshift.viewmodel.rxutil.debounce
 import org.sugr.gearshift.viewmodel.rxutil.singleOf
 
-class ProfileEditorViewModel(tag: String, app: App, private var profile: Profile = transmissionProfile()) :
-        RetainedViewModel<ProfileEditorViewModel.Consumer>(tag, app), LeaveBlocker {
+class ProfileEditorViewModel(tag: String,
+                             private val ctx: Context,
+                             private val prefs : SharedPreferences,
+                             private var profile: Profile = transmissionProfile()) :
+        RetainedViewModel<ProfileEditorViewModel.Consumer>(tag), LeaveBlocker {
+
     val profileName = ObservableField("Default")
     val profileNameValid = ObservableBoolean(true)
     val host = ObservableField("")
@@ -61,7 +65,7 @@ class ProfileEditorViewModel(tag: String, app: App, private var profile: Profile
     }
 
     init {
-        val resources = app.resources
+        val resources = ctx.resources
         updateIntervalEntries = resources.getStringArray(R.array.pref_update_interval_entries)
         updateIntervalValues = resources.getIntArray(R.array.pref_update_interval_values)
 
@@ -78,7 +82,7 @@ class ProfileEditorViewModel(tag: String, app: App, private var profile: Profile
         path.set(profile.path)
 
         if (!profile.loaded) {
-            profile.load()
+            profile.load(prefs)
         }
 
         // If a profile doesn't exist, it's not marked as loaded
@@ -107,8 +111,8 @@ class ProfileEditorViewModel(tag: String, app: App, private var profile: Profile
 
     fun check() : Single<Boolean> {
         if (canLeave()) {
-            return apiOf(profile.copy(temporary = true), app).version()
-                    .takeUntil(takeUntilUnbind())
+            return apiOf(profile.copy(temporary = true), ctx, prefs).version()
+                    .takeUntil(takeUntilUnbind().toFlowable(BackpressureStrategy.LATEST))
                     .map { version -> version.isNotEmpty() }
         } else {
             return singleOf(false)
@@ -117,13 +121,13 @@ class ProfileEditorViewModel(tag: String, app: App, private var profile: Profile
 
     fun onPickUpdateInterval() {
         consumer?.showUpdateIntervalPicker(updateIntervalValue.get())
-                ?.takeUntil(takeUntilUnbind())
+                ?.takeUntil(takeUntilUnbind().toFlowable(BackpressureStrategy.LATEST))
                 ?.subscribe { update -> setUpdateInterval(update) }
     }
 
     fun onPickFullUpdate() {
         consumer?.showFullUpdatePicker(fullUpdateValue.get())
-                ?.takeUntil(takeUntilUnbind())
+                ?.takeUntil(takeUntilUnbind().toFlowable(BackpressureStrategy.LATEST))
                 ?.subscribe { update -> setFullUpdate(update) }
     }
 
@@ -152,7 +156,7 @@ class ProfileEditorViewModel(tag: String, app: App, private var profile: Profile
 
     fun save() {
         if (isValid()) {
-            profile.save(defaultPrefs = defaultPreferences(app), prefs = profilePreferences(app))
+            profile.save(prefs)
         }
     }
 

@@ -100,9 +100,11 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:clickable="true"
-            android:drawableStart="@{(viewModel.sectionCollapse[`updates`] ?? false) ? @drawable/ic_header_collapsed : @drawable/ic_header_expanded}"
+            android:drawableStart="@drawable/ic_header_collapsed"
             android:onClick="@{() -> viewModel.toggleCollapseSection(`updates`)}"
             android:text="@string/updates"/>
+
+        <!-- android:drawableStart="@{(viewModel.sectionCollapse[`updates`] ?? false) ? @drawable/ic_header_collapsed : @drawable/ic_header_expanded}" -->
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -160,9 +162,11 @@
             style="@style/HeaderText.Small"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:drawableStart="@{(viewModel.sectionCollapse[`auth`] ?? false) ? @drawable/ic_header_collapsed : @drawable/ic_header_expanded}"
+            android:drawableStart="@drawable/ic_header_collapsed"
             android:onClick="@{() -> viewModel.toggleCollapseSection(`auth`)}"
             android:text="@string/authentication"/>
+
+        <!-- android:drawableStart="@{(viewModel.sectionCollapse[`auth`] ?? false) ? @drawable/ic_header_collapsed : @drawable/ic_header_expanded}" -->
 
         <android.support.design.widget.TextInputLayout
             android:layout_width="match_parent"
@@ -206,9 +210,11 @@
             style="@style/HeaderText.Small"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:drawableStart="@{(viewModel.sectionCollapse[`proxy`] ?? false) ? @drawable/ic_header_collapsed : @drawable/ic_header_expanded}"
+            android:drawableStart="@drawable/ic_header_collapsed"
             android:onClick="@{() -> viewModel.toggleCollapseSection(`proxy`)}"
             android:text="@string/proxy"/>
+
+        <!-- android:drawableStart="@{(viewModel.sectionCollapse[`proxy`] ?? false) ? @drawable/ic_header_collapsed : @drawable/ic_header_expanded}" -->
 
         <android.support.design.widget.TextInputLayout
             android:layout_width="match_parent"
@@ -254,9 +260,11 @@
             style="@style/HeaderText.Small"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:drawableStart="@{(viewModel.sectionCollapse[`advanced`] ?? false) ? @drawable/ic_header_collapsed : @drawable/ic_header_expanded}"
+            android:drawableStart="@drawable/ic_header_collapsed"
             android:onClick="@{() -> viewModel.toggleCollapseSection(`advanced`)}"
             android:text="@string/advanced"/>
+
+	    <!-- android:drawableStart="@{(viewModel.sectionCollapse[`advanced`] ?? false) ? @drawable/ic_header_collapsed : @drawable/ic_header_expanded}" -->
 
         <android.support.design.widget.TextInputLayout
             android:layout_width="match_parent"

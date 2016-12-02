@@ -1,14 +1,13 @@
 package org.sugr.gearshift.viewmodel
 
-import io.reactivex.processors.PublishProcessor
-import org.sugr.gearshift.App
+import io.reactivex.subjects.PublishSubject
 import org.sugr.gearshift.logD
 
-open class RetainedViewModel<T>(val tag: String, val app: App) {
+open class RetainedViewModel<T>(val tag: String) {
     protected var consumer: T? = null
 
-    protected val lifecycle: PublishProcessor<Lifecycle> =
-            PublishProcessor.create<Lifecycle>()
+    protected val lifecycle: PublishSubject<Lifecycle> =
+            PublishSubject.create<Lifecycle>()
 
     enum class Lifecycle {
         BIND, UNBIND, DESTROY

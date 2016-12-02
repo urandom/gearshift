@@ -1,12 +1,9 @@
 package org.sugr.gearshift.model
 
-import android.app.Activity
 import android.content.SharedPreferences
 import com.github.salomonbrys.kotson.fromJson
 import com.google.gson.Gson
-import org.sugr.gearshift.App
 import org.sugr.gearshift.C
-import org.sugr.gearshift.defaultPreferences
 import org.sugr.gearshift.viewmodel.rxutil.delete
 import org.sugr.gearshift.viewmodel.rxutil.set
 import java.util.*
@@ -35,8 +32,8 @@ data class Profile(val id: String = UUID.randomUUID().toString(), val type: Prof
 
     fun updateActiveTorrentsOnly() = fullUpdate > 0
 
-    fun load(prefs: SharedPreferences = profilePreferences()) : Profile {
-        val p = prefs.getString(id, null)
+    fun load(prefs: SharedPreferences) : Profile {
+        val p = prefs.getString(prefix + id, null)
         if (p != null) {
             loaded = true
             return Gson().fromJson<Profile>(p ?: "")
@@ -45,37 +42,38 @@ data class Profile(val id: String = UUID.randomUUID().toString(), val type: Prof
         }
     }
 
-    fun save(defaultPrefs : SharedPreferences = defaultPreferences(),
-             prefs: SharedPreferences = profilePreferences()) : Profile {
-
+    fun save(prefs : SharedPreferences) : Profile {
         if (temporary) {
             return this
         }
 
-        prefs.set(id, Gson().toJson(this))
+        prefs.set(prefix + id, Gson().toJson(this))
 
-        val ids = defaultPrefs.getStringSet(C.PREF_PROFILES, mutableSetOf())
+        val ids = prefs.getStringSet(C.PREF_PROFILES, mutableSetOf())
 
         if (!ids.contains(id)) {
             ids.add(id)
-            defaultPrefs.set(C.PREF_PROFILES, ids)
+            prefs.set(C.PREF_PROFILES, ids)
         }
 
         return this
     }
 
-    fun delete(defaultPrefs : SharedPreferences = defaultPreferences(),
-               prefs: SharedPreferences = profilePreferences()) : Profile {
-        prefs.delete(id)
+    fun delete(prefs : SharedPreferences) : Profile {
+        prefs.delete(prefix + id)
 
-        val ids = defaultPrefs.getStringSet(C.PREF_PROFILES, emptySet())
+        val ids = prefs.getStringSet(C.PREF_PROFILES, emptySet())
 
         if (ids.contains(id)) {
             ids.remove(id)
-            defaultPrefs.set(C.PREF_PROFILES, ids)
+            prefs.set(C.PREF_PROFILES, ids)
         }
 
         return this
+    }
+
+    companion object {
+        val prefix = "profile_"
     }
 
 }
@@ -84,19 +82,14 @@ enum class ProfileType {
     TRANSMISSION
 }
 
-fun loadProfiles(prefs: SharedPreferences = defaultPreferences(),
-                 profilePrefs : SharedPreferences = profilePreferences()) : Array<Profile> {
+fun loadProfiles(prefs: SharedPreferences) : Array<Profile> {
     val ids = prefs.getStringSet(C.PREF_PROFILES, setOf()).toList()
 
     return Array(ids.size) { i ->
-        Profile(id = ids[i]).load(profilePrefs)
+        Profile(id = ids[i]).load(prefs)
     }
 }
 
 fun transmissionProfile(): Profile {
     return Profile(type = ProfileType.TRANSMISSION, path = "/transmission/rpc", port = 9091)
-}
-
-fun profilePreferences(app: App = org.sugr.gearshift.app()) : SharedPreferences {
-    return app.getSharedPreferences(C.PROFILES_PREF_NAME, Activity.MODE_PRIVATE)
 }

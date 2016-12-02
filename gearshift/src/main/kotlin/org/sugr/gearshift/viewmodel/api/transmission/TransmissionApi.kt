@@ -1,6 +1,7 @@
 package org.sugr.gearshift.viewmodel.api.transmission
 
-import android.app.Application
+import android.content.Context
+import android.content.SharedPreferences
 import com.github.salomonbrys.kotson.*
 import com.google.gson.Gson
 import com.google.gson.JsonElement
@@ -12,11 +13,12 @@ import io.reactivex.schedulers.Schedulers
 import okhttp3.*
 import okhttp3.logging.HttpLoggingInterceptor
 import org.apache.commons.codec.binary.Base64
-import org.sugr.gearshift.*
+import org.sugr.gearshift.BuildConfig
+import org.sugr.gearshift.R
+import org.sugr.gearshift.logD
 import org.sugr.gearshift.model.Profile
 import org.sugr.gearshift.model.Session
 import org.sugr.gearshift.model.Torrent
-import org.sugr.gearshift.model.profilePreferences
 import org.sugr.gearshift.viewmodel.api.Api
 import org.sugr.gearshift.viewmodel.ext.readableFileSize
 import org.sugr.gearshift.viewmodel.ext.readablePercent
@@ -34,7 +36,8 @@ import javax.net.ssl.X509TrustManager
 
 class TransmissionApi(
         private var profile: Profile,
-        private val ctx : App = org.sugr.gearshift.app(),
+        private val ctx : Context,
+        private val prefs: SharedPreferences,
         private val gson: Gson = Gson(),
         private val debug: Boolean = BuildConfig.DEBUG
 ) : Api {
@@ -71,7 +74,7 @@ class TransmissionApi(
                 } else {
                     profile = profile.copy(sessionData = sessionId)
                     if (profile.valid) {
-                        profile.save(defaultPreferences(ctx), profilePreferences(ctx))
+                        profile.save(prefs)
 
                         requestBuilder.header("X-Transmission-Session-Id", profile.sessionData)
                         response = chain.proceed(requestBuilder.build())
@@ -229,7 +232,7 @@ class TransmissionApi(
                 "trackers", "uploadedEver", "uploadRatio", "downloadDir"
         )
 
-        private fun torrentFrom(json: JsonObject, ctx: Application = app(), session : Session = Session()) : Torrent {
+        private fun torrentFrom(json: JsonObject, ctx: Context, session : Session = Session()) : Torrent {
             val metaProgress = json["metadataPercentComplete"].float
             val downloadProgress = json["percentDone"].float
             val eta = json["eta"].long

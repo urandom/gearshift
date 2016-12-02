@@ -1,59 +1,51 @@
 package org.sugr.gearshift.ui.path
 
-import android.support.v4.app.FragmentManager
-import io.reactivex.Flowable
-import org.sugr.gearshift.App
-import org.sugr.gearshift.viewmodel.ActivityLifecycle
+import org.sugr.gearshift.ui.NavComponent
 import org.sugr.gearshift.viewmodel.LeaveBlocker
 import org.sugr.gearshift.viewmodel.RetainedViewModel
 import org.sugr.gearshift.viewmodel.viewModelFrom
 
-class PathNavigator(private val lifecycle: Flowable<ActivityLifecycle>,
+class PathNavigator(private val navComponent: NavComponent,
                     private var consumer: PathNavigator.Consumer) {
-    private var viewModel =
-            viewModelFrom(consumer.getSupportFragmentManager(), lifecycle = lifecycle)
-            { tag, app, lifecycle ->
-                ContentHierarchyViewModel(tag, app)
-            }
+    private val component : PathNavigatorComponent = PathNavigatorComponentImpl(navComponent)
 
     interface Consumer {
         val defaultPath : Path<*>
-        fun getSupportFragmentManager(): FragmentManager
         fun onSetContent(newPath: Path<*>, oldPath: Path<*>)
     }
 
     fun restorePath() {
-        setPath(viewModel.pop() ?: consumer.defaultPath)
+        setPath(component.viewModel.pop() ?: consumer.defaultPath)
     }
 
     fun setPath(path: Path<*>) {
-        val current = viewModel.last() ?: consumer.defaultPath
+        val current = component.viewModel.last() ?: consumer.defaultPath
         val currentDepth = current.depth
         val depth = path.depth
 
         if (currentDepth >= depth && current !== path) {
-            current.destroyViewModel(consumer.getSupportFragmentManager(), lifecycle)
+            current.destroyViewModel(navComponent.fragmentManager)
         }
 
         consumer.onSetContent(path, current)
 
         if (currentDepth > depth) {
-            viewModel.pop()
-        } else if (currentDepth == depth && !viewModel.isEmpty()) {
-            viewModel.replaceLast(path)
+            component.viewModel.pop()
+        } else if (currentDepth == depth && !component.viewModel.isEmpty()) {
+            component.viewModel.replaceLast(path)
         } else {
-            viewModel.push(path)
+            component.viewModel.push(path)
         }
     }
 
     fun navigateUp() : Boolean {
-        if (viewModel.size() > 1) {
-            val vm = viewModel.last()?.getViewModel(consumer.getSupportFragmentManager(), lifecycle)
+        if (component.viewModel.size() > 1) {
+            val vm = component.viewModel.last()?.viewModel
             if (vm is LeaveBlocker && !vm.canLeave()) {
                 return false
             }
 
-            setPath(viewModel.get(viewModel.size() - 2))
+            setPath(component.viewModel.get(component.viewModel.size() - 2))
 
             return true
         }
@@ -62,7 +54,20 @@ class PathNavigator(private val lifecycle: Flowable<ActivityLifecycle>,
     }
 }
 
-class ContentHierarchyViewModel(tag: String, app: App) : RetainedViewModel<Unit>(tag, app) {
+interface PathNavigatorComponent : NavComponent {
+    val viewModel: ContentHierarchyViewModel
+}
+
+class PathNavigatorComponentImpl(b : NavComponent) : PathNavigatorComponent, NavComponent by b {
+    private val tag = ContentHierarchyViewModel::class.java.toString()
+
+    override val viewModel: ContentHierarchyViewModel get() =
+        viewModelFrom(fragmentManager, tag) {
+            ContentHierarchyViewModel(tag)
+        }
+}
+
+class ContentHierarchyViewModel(tag: String) : RetainedViewModel<Unit>(tag) {
     val contentHierarchy = mutableListOf<Path<*>>()
 
     fun pop() = if (contentHierarchy.size > 0) contentHierarchy.removeAt(contentHierarchy.size - 1) else null

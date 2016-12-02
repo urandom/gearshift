@@ -23,14 +23,15 @@ fun SharedPreferences.delete(key: String) {
     }
 }
 
-fun SharedPreferences.toFlowable() =
-    latestFlowable<String> { e ->
-        val listener = SharedPreferences.OnSharedPreferenceChangeListener { pref, key ->
-            e.onNext(key)
-        }
+fun SharedPreferences.toObservable() =
+        observable<String> { e ->
+            val listener = SharedPreferences.OnSharedPreferenceChangeListener { _, key ->
+                e.onNext(key)
+            }
 
-        registerOnSharedPreferenceChangeListener(listener)
-        e.setCancellable {
-            unregisterOnSharedPreferenceChangeListener(listener)
-        }
-    }.share()
+            registerOnSharedPreferenceChangeListener(listener)
+            e.setCancellable {
+                unregisterOnSharedPreferenceChangeListener(listener)
+            }
+        }.share()
+

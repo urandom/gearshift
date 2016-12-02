@@ -5,6 +5,8 @@ import java.util.concurrent.Callable
 
 fun <T> single(body: (e: SingleEmitter<in T>) -> Unit) = Single.create(body)
 fun <T> singleOf(value: T) = Single.just(value)
+fun <T> observable(body: (e: ObservableEmitter<in T>) -> Unit) =
+        Observable.create(body)
 fun <T> latestFlowable(body: (e: FlowableEmitter<in T>) -> Unit) =
         Flowable.create(body, BackpressureStrategy.LATEST)
 

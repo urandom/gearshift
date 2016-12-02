@@ -1,5 +1,6 @@
 package org.sugr.gearshift.viewmodel
 
+import android.content.SharedPreferences
 import android.support.design.widget.NavigationView
 import android.view.MenuItem
 import io.reactivex.Flowable
@@ -7,14 +8,12 @@ import io.reactivex.FlowableTransformer
 import io.reactivex.functions.BiFunction
 import io.reactivex.processors.PublishProcessor
 import org.sugr.gearshift.App
-import org.sugr.gearshift.defaultPreferences
 import org.sugr.gearshift.logD
 import org.sugr.gearshift.model.loadProfiles
-import org.sugr.gearshift.model.profilePreferences
 import java.util.concurrent.TimeUnit
 
-class MainNavigationViewModel(tag: String, app: App) :
-        RetainedViewModel<MainNavigationViewModel.Consumer>(tag, app) {
+class MainNavigationViewModel(tag: String, private val app: App, private val prefs: SharedPreferences) :
+        RetainedViewModel<MainNavigationViewModel.Consumer>(tag) {
 
     val activityLifecycle = PublishProcessor.create<ActivityLifecycle>()
 
@@ -39,9 +38,7 @@ class MainNavigationViewModel(tag: String, app: App) :
     override fun bind(consumer: Consumer) {
         super.bind(consumer)
 
-        val profiles = loadProfiles(
-                prefs = defaultPreferences(app),
-                profilePrefs = profilePreferences(app))
+        val profiles = loadProfiles(prefs)
 
         if (profiles.isEmpty() && firstTimeProfile) {
             firstTimeProfile = false
