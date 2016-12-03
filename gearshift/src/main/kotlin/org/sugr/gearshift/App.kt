@@ -16,6 +16,7 @@ import io.reactivex.schedulers.Schedulers
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import org.json.JSONException
+import org.sugr.gearshift.compat.migrateTransmissionProfiles
 import org.sugr.gearshift.viewmodel.rxutil.toMaybe
 import java.io.IOException
 import java.util.concurrent.Callable
@@ -68,6 +69,8 @@ class App : Application() {
         if (!BuildConfig.DEBUG) {
             Thread.setDefaultUncaughtExceptionHandler { thread, e -> this.handleUncaughtException(thread, e) }
         }
+
+        migrateTransmissionProfiles(this, component.prefs)
     }
 
     private fun handleUncaughtException(thread: Thread, e: Throwable) {

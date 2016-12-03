@@ -9,6 +9,13 @@ fun SharedPreferences.set(key: String, value: String) {
     }
 }
 
+fun SharedPreferences.set(key: String, value: Boolean) {
+    edit().apply {
+        putBoolean(key, value)
+        apply()
+    }
+}
+
 fun SharedPreferences.set(key: String, value: Set<String>) {
     edit().apply {
         putStringSet(key, value)
