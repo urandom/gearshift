@@ -5,6 +5,7 @@ import android.content.SharedPreferences
 import android.databinding.ObservableArrayMap
 import android.databinding.ObservableBoolean
 import android.databinding.ObservableInt
+import com.google.gson.Gson
 import io.reactivex.BackpressureStrategy
 import io.reactivex.Single
 import org.sugr.gearshift.R
@@ -20,6 +21,7 @@ import org.sugr.gearshift.viewmodel.rxutil.singleOf
 class ProfileEditorViewModel(tag: String,
                              private val ctx: Context,
                              private val prefs : SharedPreferences,
+                             private val gson: Gson,
                              private var profile: Profile = transmissionProfile()) :
         RetainedViewModel<ProfileEditorViewModel.Consumer>(tag), LeaveBlocker {
 
@@ -111,7 +113,7 @@ class ProfileEditorViewModel(tag: String,
 
     fun check() : Single<Boolean> {
         if (canLeave()) {
-            return apiOf(profile.copy(temporary = true), ctx, prefs).version()
+            return apiOf(profile.copy(temporary = true), ctx, prefs, gson).version()
                     .takeUntil(takeUntilUnbind().toFlowable(BackpressureStrategy.LATEST))
                     .map { version -> version.isNotEmpty() }
         } else {

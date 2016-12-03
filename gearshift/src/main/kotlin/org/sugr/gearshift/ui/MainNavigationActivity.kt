@@ -12,12 +12,15 @@ import android.support.v4.widget.DrawerLayout
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.graphics.drawable.DrawerArrowDrawable
 import android.view.View
-import io.reactivex.processors.PublishProcessor
+import com.google.gson.Gson
+import io.reactivex.Observable
+import io.reactivex.subjects.PublishSubject
 import org.sugr.gearshift.App
 import org.sugr.gearshift.AppComponent
 import org.sugr.gearshift.BR
 import org.sugr.gearshift.R
 import org.sugr.gearshift.databinding.MainNavigationActivityBinding
+import org.sugr.gearshift.model.Profile
 import org.sugr.gearshift.ui.path.FirstTimeProfileEditorPath
 import org.sugr.gearshift.ui.path.Path
 import org.sugr.gearshift.ui.path.PathNavigator
@@ -28,6 +31,7 @@ import org.sugr.gearshift.ui.view.util.asSequence
 import org.sugr.gearshift.viewmodel.ActivityLifecycle
 import org.sugr.gearshift.viewmodel.MainNavigationViewModel
 import org.sugr.gearshift.viewmodel.RetainedViewModel
+import org.sugr.gearshift.viewmodel.api.Api
 import org.sugr.gearshift.viewmodel.viewModelFrom
 
 class MainNavigationActivity : AppCompatActivity(),
@@ -242,7 +246,10 @@ class MainNavigationActivity : AppCompatActivity(),
 interface NavComponent : AppComponent {
     val fragmentManager : FragmentManager
     val navigationViewModel : MainNavigationViewModel
-    val lifecycle : PublishProcessor<ActivityLifecycle>
+    val lifecycle : PublishSubject<ActivityLifecycle>
+    val gson : Gson
+    val profileObservable : Observable<Profile>
+    val apiObservable : Observable<Api>
 }
 
 class NavComponentImpl(override val fragmentManager: FragmentManager, b : AppComponent) :
@@ -255,5 +262,9 @@ class NavComponentImpl(override val fragmentManager: FragmentManager, b : AppCom
         }
     }
 
-    override val lifecycle : PublishProcessor<ActivityLifecycle> = navigationViewModel.activityLifecycle
+    override val lifecycle : PublishSubject<ActivityLifecycle> = navigationViewModel.activityLifecycle
+
+    override val gson = navigationViewModel.gson
+    override val profileObservable = navigationViewModel.profileObservable
+    override val apiObservable = navigationViewModel.apiObservable
 }

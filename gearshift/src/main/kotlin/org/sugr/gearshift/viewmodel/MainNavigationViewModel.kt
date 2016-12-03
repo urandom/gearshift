@@ -1,21 +1,25 @@
 package org.sugr.gearshift.viewmodel
 
+import android.content.Context
 import android.content.SharedPreferences
 import android.support.design.widget.NavigationView
 import android.view.MenuItem
-import io.reactivex.Flowable
-import io.reactivex.FlowableTransformer
-import io.reactivex.functions.BiFunction
-import io.reactivex.processors.PublishProcessor
-import org.sugr.gearshift.App
+import com.google.gson.Gson
+import io.reactivex.subjects.PublishSubject
+import org.sugr.gearshift.C
 import org.sugr.gearshift.logD
 import org.sugr.gearshift.model.loadProfiles
-import java.util.concurrent.TimeUnit
+import org.sugr.gearshift.model.profileOf
+import org.sugr.gearshift.viewmodel.api.apiOf
+import org.sugr.gearshift.viewmodel.rxutil.latest
+import org.sugr.gearshift.viewmodel.rxutil.toObservable
 
-class MainNavigationViewModel(tag: String, private val app: App, private val prefs: SharedPreferences) :
+class MainNavigationViewModel(tag: String, private val ctx: Context, private val prefs: SharedPreferences) :
         RetainedViewModel<MainNavigationViewModel.Consumer>(tag) {
 
-    val activityLifecycle = PublishProcessor.create<ActivityLifecycle>()
+    val activityLifecycle = PublishSubject.create<ActivityLifecycle>()
+
+    val gson = Gson()
 
     val navigationListener = object : NavigationView.OnNavigationItemSelectedListener {
         override fun onNavigationItemSelected(item: MenuItem): Boolean {
@@ -27,6 +31,21 @@ class MainNavigationViewModel(tag: String, private val app: App, private val pre
         }
 
     }
+
+    val profileObservable = prefs.toObservable()
+            .filter { key -> key == C.PREF_CURRENT_PROFILE }
+            .startWith { C.PREF_CURRENT_PROFILE }
+            .map { key -> prefs.getString(key, "") }
+            .latest { id ->
+                profileOf(id, prefs)
+            }
+            .replay(1).refCount()
+            .takeUntil(takeUntilDestroy())
+
+    val apiObservable = profileObservable
+            .latest { profile -> apiOf(profile, ctx, prefs, gson) }
+            .replay(1).refCount()
+            .takeUntil(takeUntilDestroy())
 
     var firstTimeProfile = true
 
@@ -50,35 +69,4 @@ class MainNavigationViewModel(tag: String, private val app: App, private val pre
 enum class ActivityLifecycle {
     CREATE, START, RESUME, PAUSE, STOP, DESTROY
 }
-
-fun <T> lifecyclePauseTransformer(
-        lifecycleObserver: Flowable<ActivityLifecycle>,
-        stop: ActivityLifecycle, start: ActivityLifecycle
-) : FlowableTransformer<T, T> {
-    val lifecycle = lifecycleObserver.filter { state -> state == stop || state == start }.share()
-
-    return FlowableTransformer { o ->
-        Flowable.combineLatest (
-                o, lifecycle.throttleLast(1, TimeUnit.SECONDS), BiFunction {t1: T, t2: ActivityLifecycle ->  Pair(t1, t2) }
-        ).map { pair ->
-            if (pair.second == stop) {
-                logD("Stopping observable due to lifecycle signal")
-
-                throw LifecycleException()
-            }
-
-            pair.first
-        }.retryWhen { attempts -> attempts.flatMap { err ->
-            if (err is LifecycleException) {
-                logD("Waiting for lifecycle signal to restart observable")
-
-                lifecycle.filter { v -> v == start }.take(1)
-            } else {
-                Flowable.error(err)
-            }
-        } }
-    }
-}
-
-private class LifecycleException : RuntimeException()
 

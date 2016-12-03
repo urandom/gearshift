@@ -27,7 +27,7 @@ class FirstTimeProfileEditorComponentImpl(b : NavComponent) : FirstTimeProfileEd
 
     override val viewModel : ProfileEditorViewModel by lazy {
         viewModelFrom(fragmentManager, tag) {
-            ProfileEditorViewModel(tag, context, prefs)
+            ProfileEditorViewModel(tag, context, prefs, gson)
         }
     }
 }

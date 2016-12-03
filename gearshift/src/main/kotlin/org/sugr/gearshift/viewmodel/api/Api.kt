@@ -24,5 +24,10 @@ fun apiOf(profile: Profile, ctx: Context,
         return TransmissionApi(profile, ctx, prefs, gson, debug)
     }
 
-    throw IllegalArgumentException("unsupported profile type")
+    return NoApi
+}
+
+object NoApi : Api {
+    override fun version() = Single.just("")
+    override fun torrents() = Observable.empty<Torrent>()
 }

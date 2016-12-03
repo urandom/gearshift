@@ -1,8 +1,8 @@
 package org.sugr.gearshift.viewmodel
 
-import io.reactivex.Flowable
+import io.reactivex.Observable
 
-class TorrentListViewModel(tag: String, lifecycle: Flowable<ActivityLifecycle>):
+class TorrentListViewModel(tag: String, lifecycle: Observable<ActivityLifecycle>):
         RetainedViewModel<TorrentListViewModel.Consumer>(tag) {
 
     interface Consumer {

@@ -82,6 +82,8 @@ enum class ProfileType {
     TRANSMISSION
 }
 
+fun profileOf(id: String, prefs: SharedPreferences) = Profile(id = id).load(prefs)
+
 fun loadProfiles(prefs: SharedPreferences) : Array<Profile> {
     val ids = prefs.getStringSet(C.PREF_PROFILES, setOf()).toList()
 

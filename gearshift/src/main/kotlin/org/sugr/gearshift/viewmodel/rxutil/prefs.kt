@@ -40,5 +40,5 @@ fun SharedPreferences.toObservable() =
             e.setCancellable {
                 unregisterOnSharedPreferenceChangeListener(listener)
             }
-        }.share()
+        }
 
