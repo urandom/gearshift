@@ -13,7 +13,7 @@ import org.sugr.gearshift.viewmodel.api.transmission.TransmissionApi
 
 interface Api {
     fun version(): Single<String>
-    fun torrents(): Observable<Torrent>
+    fun torrents(interval: Long, initial: Set<Torrent> = setOf()): Observable<Set<Torrent>>
 }
 
 fun apiOf(profile: Profile, ctx: Context,
@@ -29,5 +29,5 @@ fun apiOf(profile: Profile, ctx: Context,
 
 object NoApi : Api {
     override fun version() = Single.just("")
-    override fun torrents() = Observable.empty<Torrent>()
+    override fun torrents(interval: Long, initial: Set<Torrent>) = Observable.empty<Set<Torrent>>()
 }

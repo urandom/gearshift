@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.SharedPreferences
 import com.github.salomonbrys.kotson.*
 import com.google.gson.Gson
+import com.google.gson.JsonArray
 import com.google.gson.JsonElement
 import com.google.gson.JsonObject
 import io.reactivex.Observable
@@ -141,46 +142,50 @@ class TransmissionApi(
         }
     }
 
-    override fun torrents(): Observable<Torrent> {
-        return request<JsonObject>(requestBody("torrent-get", jsonObject(
-                "fields" to jsonArray( TORRENT_STAT_FIELDS)
-        ))).map { json ->
-            json.getAsJsonArray("torrents")
-        }.flatMap { torrentsJson ->
-            val partials = torrentsJson.filter {
-                it.isJsonObject && (it.obj.get(FIELD_NAME)?.string?.isEmpty() ?: true ||
-                        it.obj.get(FIELD_FILES)?.array?.size() == 0)
-            }.map { it.get(FIELD_HASH).string }
+    override fun torrents(interval: Long, initial: Set<Torrent>) : Observable<Set<Torrent>> {
+        val initialMap = initial.associateBy { it.hash }.toMutableMap()
 
-            if (partials.isNotEmpty()) {
-                // If any of these fields are missing for a given torrent,
-                // fetch them and update the original json object
-                val fields = TORRENT_META_FIELDS + arrayOf(FIELD_FILES)
-                request<JsonObject>(requestBody("torrent-get", jsonObject(
-                        "ids" to jsonArray(partials),
-                        "fields" to jsonArray(arrayOf(FIELD_HASH) + fields)
-                ))).map { json ->
-                    json.getAsJsonArray("torrents")
-                }.map { json ->
-                    json.associate { it -> Pair(it.get(FIELD_HASH).string, it) }
-                }.map { jsonMap ->
-                    torrentsJson.apply {
-                        forEach {
-                            val torrent = it.obj
-                            fields.forEach { field ->
-                                torrent[field] = jsonMap[torrent.get(FIELD_HASH).string]?.get(field)
-                            }
+        return getTorrents(TORRENT_META_FIELDS + TORRENT_STAT_FIELDS).toObservable().concatWith {
+            getTorrents(TORRENT_STAT_FIELDS)
+                    .toObservable()
+                    .flatMap { json ->
+                        var list = Observable.just(json)
+
+                        val incomplete = json.filter { it.isJsonObject }.filter {
+                            (it.obj[FIELD_TOTAL_SIZE]?.nullInt ?: 0) == 0
+                        }.map { it[FIELD_HASH].string }
+
+                        val withoutFiles = json.filter { it.isJsonObject }.filter {
+                            (it.obj[FIELD_FILES]?.nullArray?.size() ?: 0) == 0
+                        }.map { it[FIELD_HASH].string }
+
+                        if (incomplete.isNotEmpty()) {
+                            list = list.concatWith(
+                                    getTorrents(TORRENT_META_FIELDS, "ids" to jsonArray(incomplete))
+                                            .toObservable()
+                            )
                         }
-                    }
-                }
-            } else {
-                Single.just(torrentsJson)
-            }
-        }.flatMapObservable { json ->
-            Observable.fromIterable(json)
-        }.map(JsonElement::obj).map { torrentFrom(it, ctx) }
-    }
 
+                        if (withoutFiles.isNotEmpty()) {
+                            list = list.concatWith(
+                                    getTorrents(arrayOf(FIELD_HASH, FIELD_FILES), "ids" to jsonArray(withoutFiles))
+                                            .toObservable()
+                            )
+                        }
+
+                        list
+                    }
+                    .repeatWhen { attempts ->
+                        attempts.flatMap { Observable.timer(interval, TimeUnit.SECONDS) }
+                    }
+        }.scan(initialMap) { accum, json ->
+            json.filter { it.isJsonObject }.map { it.asJsonObject }.map { torrentFrom(it, ctx) }.forEach { torrent ->
+                accum[torrent.hash] = accum[torrent.hash]?.merge(torrent) ?: torrent
+            }
+
+            accum
+        }.map { map -> map.values.toSet() }
+    }
 
     private fun requestBody(method: String, arguments: JsonObject? = null): RequestBody {
         val obj = jsonObject("method" to method)
@@ -214,49 +219,54 @@ class TransmissionApi(
                 .observeOn(AndroidSchedulers.mainThread())
     }
 
+
+    inline private fun getTorrents(fields: Array<String>, vararg args: Pair<String, JsonElement>) : Single<JsonArray> {
+        return request<JsonObject>(requestBody(
+                "torrent-get", jsonObject("fields" to jsonArray(fields), *args)
+        )).map { json ->
+            json.getAsJsonArray("torrents")
+        }
+    }
+
     companion object {
         val JSON = MediaType.parse("application/json; charset=utf-8");
 
+        private val FIELD_ID = "id"
         private val FIELD_HASH = "hashString"
         private val FIELD_NAME = "name"
+        private val FIELD_TOTAL_SIZE = "totalSize"
         private val FIELD_FILES = "files"
+        private val FIELD_TRACKERS = "trackers"
 
-        private val TORRENT_META_FIELDS = arrayOf(FIELD_NAME, "addedDate", "totalSize")
+        private val TORRENT_META_FIELDS = arrayOf(FIELD_HASH, FIELD_NAME, "addedDate", FIELD_TOTAL_SIZE)
 
         private val TORRENT_STAT_FIELDS = arrayOf(
-                FIELD_HASH, "id", "error", "errorString", "eta",
+                FIELD_HASH, FIELD_ID, "error", "errorString", "eta",
                 "isFinished", "isStalled", "leftUntilDone", "metadataPercentComplete",
                 "peersConnected", "peersGettingFromUs", "peersSendingToUs", "percentDone",
                 "queuePosition", "rateDownload", "rateUpload", "recheckProgress",
                 "seedRatioMode", "seedRatioLimit", "sizeWhenDone", "status",
-                "trackers", "uploadedEver", "uploadRatio", "downloadDir"
+                "uploadedEver", "uploadRatio", "downloadDir"
         )
 
-        private fun torrentFrom(json: JsonObject, ctx: Context, session : Session = Session()) : Torrent {
-            val metaProgress = json["metadataPercentComplete"].float
-            val downloadProgress = json["percentDone"].float
-            val eta = json["eta"].long
-            val status = Torrent.statusOf(json["status"].int)
-            val isStalled = json["isStalled"].bool
-            val rateDownload = json["rateDownload"].long
-            val rateUpload = json["rateUpload"].long
-            val peersSendingToUs = json["peersSendingToUs"].int
-            val peersGettingFromUs = json["peersGettingFromUs"].int
-            val peersConnected = json["peersConnected"].int
-            val recheckProgress = json["recheckProgress"].float
-            val uploadRatio = json["uploadRatio"].float
-            val seedMode = json["seedRatioMode"].int
+        private fun torrentFrom(json: JsonObject, ctx: Context) : Torrent {
+            val metaProgress = json["metadataPercentComplete"]?.nullFloat ?: 0f
+            val downloadProgress = json["percentDone"]?.nullFloat ?: 0f
+            val eta = json["eta"]?.nullLong ?: 0L
+            val status = Torrent.statusOf(json["status"]?.nullInt ?: 0)
+            val isStalled = json["isStalled"]?.nullBool ?: false
+            val rateDownload = json["rateDownload"]?.nullLong ?: 0L
+            val rateUpload = json["rateUpload"]?.nullLong ?: 0L
+            val peersSendingToUs = json["peersSendingToUs"]?.nullInt ?: 0
+            val peersGettingFromUs = json["peersGettingFromUs"]?.nullInt ?: 0
+            val peersConnected = json["peersConnected"]?.nullInt ?: 0
+            val recheckProgress = json["recheckProgress"]?.nullFloat ?: 0f
+            val uploadRatio = json["uploadRatio"]?.nullFloat ?: 0f
+            val seedLimit = json["seedRatioLimit"]?.nullFloat ?: 0f
+            val seedMode = json["seedRatioMode"]?.nullInt ?: 0
             val sizeWhenDone = json["sizeWhenDone"]?.nullLong ?: 0
             val leftUntilDone = json["leftUntilDone"]?.nullLong ?: 0
-            val uploadedEver = json["uploadedEver"].long
-
-            val seedLimit = if (seedMode == SeedRatioMode.NO_LIMIT.value) {
-                0f
-            } else if (seedMode == SeedRatioMode.GLOBAL_LIMIT.value) {
-                if (session.seedRatioLimitEnabled) session.seedRatioLimit else 0f
-            } else {
-                json["seedRatioLimit"].float
-            }
+            val uploadedEver = json["uploadedEver"]?.nullLong ?: 0L
 
             val statusFormat = ctx.getString(R.string.status_format);
             val statusText = when (status) {
@@ -375,24 +385,31 @@ class TransmissionApi(
 
 
             return Torrent(
-                    hash = json[FIELD_HASH].string, id = json["id"].int,
-                    name = json[FIELD_NAME].string, statusType = status,
+                    hash = json[FIELD_HASH]?.nullString ?: "", id = json[FIELD_ID]?.nullInt ?: 0,
+                    name = json[FIELD_NAME]?.nullString ?: "", statusType = status,
                     metaProgress = metaProgress,
                     downloadProgress = downloadProgress,
                     uploadProgress = uploadRatio,
-                    isDirectory = (json[FIELD_FILES]?.array?.size() ?: 0) > 1,
+                    isDirectory = (json[FIELD_FILES]?.nullArray?.size() ?: 0) > 1,
                     statusText = statusText, trafficText = trafficText,
-                    error = json["errorString"].string, errorType = Torrent.errorOf(json["error"].int),
-                    downloadDir = json["downloadDir"].string,
-                    validSize = sizeWhenDone, totalSize = json["totalSize"]?.nullLong ?: 0,
-                    sizeLeft = leftUntilDone
+                    error = json["errorString"]?.nullString ?: "",
+                    errorType = Torrent.errorOf(json["error"]?.nullInt ?: 0),
+                    downloadDir = json["downloadDir"]?.nullString ?: "",
+                    validSize = sizeWhenDone,
+                    totalSize = json["totalSize"]?.nullLong ?: 0,
+                    sizeLeft = leftUntilDone,
+                    seedRatioLimit =  seedLimit,
+                    seedRatioMode = SeedRatioMode.values().filter { it.value == seedMode }
+                            .map { it.mode }.firstOrNull() ?: Torrent.SeedRatioMode.UNKNOWN
             )
         }
     }
 }
 
-enum class SeedRatioMode(val value: Int) {
-    GLOBAL_LIMIT(0), TORRENT_LIMIT(1), NO_LIMIT(2)
+enum class SeedRatioMode(val value: Int, val mode: Torrent.SeedRatioMode) {
+    GLOBAL_LIMIT(0, Torrent.SeedRatioMode.GLOBAL_LIMIT),
+    TORRENT_LIMIT(1, Torrent.SeedRatioMode.LIMIT),
+    NO_LIMIT(2, Torrent.SeedRatioMode.NO_LIMIT)
 }
 
 class TransmissionApiException(message: String): RuntimeException("transmission api: " + message)
