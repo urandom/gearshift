@@ -18,7 +18,6 @@ import org.sugr.gearshift.BuildConfig
 import org.sugr.gearshift.R
 import org.sugr.gearshift.logD
 import org.sugr.gearshift.model.Profile
-import org.sugr.gearshift.model.Session
 import org.sugr.gearshift.model.Torrent
 import org.sugr.gearshift.viewmodel.api.Api
 import org.sugr.gearshift.viewmodel.ext.readableFileSize
@@ -146,18 +145,26 @@ class TransmissionApi(
         val initialMap = initial.associateBy { it.hash }.toMutableMap()
 
         return getTorrents(TORRENT_META_FIELDS + TORRENT_STAT_FIELDS).toObservable().concatWith {
-            getTorrents(TORRENT_STAT_FIELDS)
+            request<JsonObject>(requestBody(
+                    "torrent-get", jsonObject("fields" to jsonArray(TORRENT_STAT_FIELDS), "ids" to "recently-active".toJson())
+            ))
                     .toObservable()
                     .flatMap { json ->
-                        var list = Observable.just(json)
+                        val torrents = json["torrents"].array
 
-                        val incomplete = json.filter { it.isJsonObject }.filter {
+                        var list = Observable.just(torrents)
+
+                        val incomplete = torrents.filter { it.isJsonObject }.filter {
                             (it.obj[FIELD_TOTAL_SIZE]?.nullInt ?: 0) == 0
                         }.map { it[FIELD_HASH].string }
 
-                        val withoutFiles = json.filter { it.isJsonObject }.filter {
+                        val withoutFiles = torrents.filter { it.isJsonObject }.filter {
                             (it.obj[FIELD_FILES]?.nullArray?.size() ?: 0) == 0
                         }.map { it[FIELD_HASH].string }
+
+                        json["removed"]?.nullArray?.map { jsonObject(FIELD_ID to it) }?.forEach { t ->
+                            torrents.add(t)
+                        }
 
                         if (incomplete.isNotEmpty()) {
                             list = list.concatWith(
@@ -179,11 +186,18 @@ class TransmissionApi(
                         attempts.flatMap { Observable.timer(interval, TimeUnit.SECONDS) }
                     }
         }.scan(initialMap) { accum, json ->
-            json.filter { it.isJsonObject }.map { it.asJsonObject }.map { torrentFrom(it, ctx) }.forEach { torrent ->
+            val torrents = json.filter { it.isJsonObject }.map { it.asJsonObject }
+            val removed = torrents.filter { !it.contains(FIELD_HASH) }.map { it[FIELD_ID].int }.toSet()
+
+            torrents.filter { it.contains(FIELD_HASH) }.map { torrentFrom(it, ctx) }.forEach { torrent ->
                 accum[torrent.hash] = accum[torrent.hash]?.merge(torrent) ?: torrent
             }
 
-            accum
+            if (removed.isNotEmpty()) {
+                accum.filter { !removed.contains(it.value.id) }.toMutableMap()
+            } else {
+                accum
+            }
         }.map { map -> map.values.toSet() }
     }
 
@@ -223,9 +237,7 @@ class TransmissionApi(
     inline private fun getTorrents(fields: Array<String>, vararg args: Pair<String, JsonElement>) : Single<JsonArray> {
         return request<JsonObject>(requestBody(
                 "torrent-get", jsonObject("fields" to jsonArray(fields), *args)
-        )).map { json ->
-            json.getAsJsonArray("torrents")
-        }
+        )).map { json -> json["torrents"].array }
     }
 
     companion object {
