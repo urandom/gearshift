@@ -11,7 +11,6 @@ import android.view.View
 import android.widget.ScrollView
 import org.sugr.gearshift.R
 import org.sugr.gearshift.databinding.FirstTimeProfileEditorBinding
-import org.sugr.gearshift.logE
 import org.sugr.gearshift.viewmodel.ProfileEditorViewModel
 import org.sugr.gearshift.viewmodel.rxutil.single
 
@@ -78,7 +77,7 @@ class FirstTimeProfileEditorView(context: Context?, attrs: AttributeSet?) :
                     Snackbar.make((parent as View), message, Snackbar.LENGTH_LONG).show()
                     item.setActionView(null)
                 }) { err ->
-                    logE("profile check", err)
+                    viewModel.log.E("profile check", err)
                     item.setActionView(null)
                 }
                 return true

@@ -15,8 +15,9 @@ import okhttp3.*
 import okhttp3.logging.HttpLoggingInterceptor
 import org.apache.commons.codec.binary.Base64
 import org.sugr.gearshift.BuildConfig
+import org.sugr.gearshift.Log
+import org.sugr.gearshift.Logger
 import org.sugr.gearshift.R
-import org.sugr.gearshift.logD
 import org.sugr.gearshift.model.Profile
 import org.sugr.gearshift.model.Torrent
 import org.sugr.gearshift.viewmodel.api.Api
@@ -39,6 +40,7 @@ class TransmissionApi(
         private val ctx : Context,
         private val prefs: SharedPreferences,
         private val gson: Gson = Gson(),
+        private val log: Logger = Log,
         private val debug: Boolean = BuildConfig.DEBUG
 ) : Api {
     private val httpClient: OkHttpClient
@@ -87,7 +89,7 @@ class TransmissionApi(
 
         if (debug) {
             val logger = HttpLoggingInterceptor { message ->
-                logD("http: $message")
+                log.D("http: $message")
             }
             builder.addInterceptor(logger)
         }

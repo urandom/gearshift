@@ -92,9 +92,10 @@ interface AppComponent {
     val app : App
     val context : Context
     val prefs : SharedPreferences
+    val log : Logger
 }
 
-class AppComponentImpl(application : App) : AppComponent {
+class AppComponentImpl(application : App, override val log: Logger = Log) : AppComponent {
     override val app : App = application
     override val context : Context = app
     override val prefs = PreferenceManager.getDefaultSharedPreferences(app)

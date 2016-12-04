@@ -8,6 +8,7 @@ import android.databinding.ObservableInt
 import com.google.gson.Gson
 import io.reactivex.BackpressureStrategy
 import io.reactivex.Single
+import org.sugr.gearshift.Logger
 import org.sugr.gearshift.R
 import org.sugr.gearshift.model.Profile
 import org.sugr.gearshift.model.transmissionProfile
@@ -18,12 +19,12 @@ import org.sugr.gearshift.viewmodel.databinding.observe
 import org.sugr.gearshift.viewmodel.rxutil.debounce
 import org.sugr.gearshift.viewmodel.rxutil.singleOf
 
-class ProfileEditorViewModel(tag: String,
+class ProfileEditorViewModel(tag: String, log: Logger,
                              private val ctx: Context,
                              private val prefs : SharedPreferences,
                              private val gson: Gson,
                              private var profile: Profile = transmissionProfile()) :
-        RetainedViewModel<ProfileEditorViewModel.Consumer>(tag), LeaveBlocker {
+        RetainedViewModel<ProfileEditorViewModel.Consumer>(tag, log), LeaveBlocker {
 
     val profileName = ObservableField("Default")
     val profileNameValid = ObservableBoolean(true)
@@ -113,7 +114,7 @@ class ProfileEditorViewModel(tag: String,
 
     fun check() : Single<Boolean> {
         if (canLeave()) {
-            return apiOf(profile.copy(temporary = true), ctx, prefs, gson).version()
+            return apiOf(profile.copy(temporary = true), ctx, prefs, gson, log).version()
                     .takeUntil(takeUntilUnbind().toFlowable(BackpressureStrategy.LATEST))
                     .map { version -> version.isNotEmpty() }
         } else {

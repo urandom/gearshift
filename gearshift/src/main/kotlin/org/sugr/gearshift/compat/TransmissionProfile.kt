@@ -4,23 +4,26 @@ import android.app.Activity
 import android.content.Context
 import android.content.SharedPreferences
 import org.sugr.gearshift.C
-import org.sugr.gearshift.logD
+import org.sugr.gearshift.Log
+import org.sugr.gearshift.Logger
 import org.sugr.gearshift.model.transmissionProfile
 import org.sugr.gearshift.viewmodel.rxutil.set
 
-fun migrateTransmissionProfiles(ctx : Context, prefs: SharedPreferences) {
-    logD("Migrating any old profiles")
+fun migrateTransmissionProfiles(ctx : Context, prefs: SharedPreferences, log : Logger = Log) {
+    log.D("Migrating any old profiles")
 
     if (prefs.contains(C.PREF_MIGRATION_V1)) {
         return
     }
 
     val compatPrefs = profilePreferences(ctx)
-    val ids = compatPrefs.getStringSet(C.PREF_PROFILES, setOf()).toList()
+    val ids = prefs.getStringSet(C.PREF_PROFILES, setOf()).toList()
 
     val profiles = Array(ids.size) { i -> ids[i] }
             .filter { id -> compatPrefs.contains(keys.PREF_NAME + id) }
             .map { id ->
+                log.D("Copy data for profile $id")
+
                 transmissionProfile().copy(id = id,
                         name = compatPrefs.getString(keys.PREF_NAME + id, ""),
                         host = compatPrefs.getString(keys.PREF_HOST + id, ""),

@@ -7,15 +7,17 @@ import android.view.MenuItem
 import com.google.gson.Gson
 import io.reactivex.subjects.PublishSubject
 import org.sugr.gearshift.C
-import org.sugr.gearshift.logD
+import org.sugr.gearshift.Logger
 import org.sugr.gearshift.model.loadProfiles
 import org.sugr.gearshift.model.profileOf
 import org.sugr.gearshift.viewmodel.api.apiOf
 import org.sugr.gearshift.viewmodel.rxutil.latest
 import org.sugr.gearshift.viewmodel.rxutil.toObservable
 
-class MainNavigationViewModel(tag: String, private val ctx: Context, private val prefs: SharedPreferences) :
-        RetainedViewModel<MainNavigationViewModel.Consumer>(tag) {
+class MainNavigationViewModel(tag: String, log: Logger,
+                              private val ctx: Context,
+                              private val prefs: SharedPreferences) :
+        RetainedViewModel<MainNavigationViewModel.Consumer>(tag, log) {
 
     val activityLifecycle = PublishSubject.create<ActivityLifecycle>()
 
@@ -23,7 +25,7 @@ class MainNavigationViewModel(tag: String, private val ctx: Context, private val
 
     val navigationListener = object : NavigationView.OnNavigationItemSelectedListener {
         override fun onNavigationItemSelected(item: MenuItem): Boolean {
-            logD("Navigation item ${item.title}")
+            log.D("Navigation item ${item.title}")
 
             consumer?.closeDrawer()
 
@@ -43,7 +45,7 @@ class MainNavigationViewModel(tag: String, private val ctx: Context, private val
             .takeUntil(takeUntilDestroy())
 
     val apiObservable = profileObservable
-            .latest { profile -> apiOf(profile, ctx, prefs, gson) }
+            .latest { profile -> apiOf(profile, ctx, prefs, gson, log) }
             .replay(1).refCount()
             .takeUntil(takeUntilDestroy())
 

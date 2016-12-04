@@ -1,9 +1,9 @@
 package org.sugr.gearshift.viewmodel
 
 import io.reactivex.subjects.PublishSubject
-import org.sugr.gearshift.logD
+import org.sugr.gearshift.Logger
 
-open class RetainedViewModel<T>(val tag: String) {
+open class RetainedViewModel<T>(val tag: String, val log: Logger) {
     protected var consumer: T? = null
 
     protected val lifecycle: PublishSubject<Lifecycle> =
@@ -14,25 +14,25 @@ open class RetainedViewModel<T>(val tag: String) {
     }
 
     init {
-        logD("Creating $this view model")
+        log.D("Creating $this view model")
     }
 
     open fun bind(consumer: T) {
-        logD("Binding $this view model")
+        log.D("Binding $this view model")
         this.consumer = consumer
 
         lifecycle.onNext(Lifecycle.BIND)
     }
 
     fun unbind() {
-        logD("Unbinding $this view model")
+        log.D("Unbinding $this view model")
         lifecycle.onNext(Lifecycle.UNBIND)
 
         consumer = null
     }
 
     fun onDestroy() {
-        logD("Destroying $this view model")
+        log.D("Destroying $this view model")
         lifecycle.onNext(Lifecycle.DESTROY)
     }
 

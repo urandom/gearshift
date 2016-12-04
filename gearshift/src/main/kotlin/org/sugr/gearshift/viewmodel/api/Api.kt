@@ -6,6 +6,8 @@ import com.google.gson.Gson
 import io.reactivex.Observable
 import io.reactivex.Single
 import org.sugr.gearshift.BuildConfig
+import org.sugr.gearshift.Log
+import org.sugr.gearshift.Logger
 import org.sugr.gearshift.model.Profile
 import org.sugr.gearshift.model.ProfileType
 import org.sugr.gearshift.model.Torrent
@@ -19,9 +21,10 @@ interface Api {
 fun apiOf(profile: Profile, ctx: Context,
           prefs: SharedPreferences,
           gson : Gson = Gson(),
+          log: Logger = Log,
           debug : Boolean = BuildConfig.DEBUG) : Api {
     if (profile.type == ProfileType.TRANSMISSION) {
-        return TransmissionApi(profile, ctx, prefs, gson, debug)
+        return TransmissionApi(profile, ctx, prefs, gson, log, debug)
     }
 
     return NoApi

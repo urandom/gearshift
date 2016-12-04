@@ -1,5 +1,6 @@
 package org.sugr.gearshift.ui.path
 
+import org.sugr.gearshift.Logger
 import org.sugr.gearshift.ui.NavComponent
 import org.sugr.gearshift.viewmodel.LeaveBlocker
 import org.sugr.gearshift.viewmodel.RetainedViewModel
@@ -63,11 +64,11 @@ class PathNavigatorComponentImpl(b : NavComponent) : PathNavigatorComponent, Nav
 
     override val viewModel: ContentHierarchyViewModel get() =
         viewModelFrom(fragmentManager, tag) {
-            ContentHierarchyViewModel(tag)
+            ContentHierarchyViewModel(tag, log)
         }
 }
 
-class ContentHierarchyViewModel(tag: String) : RetainedViewModel<Unit>(tag) {
+class ContentHierarchyViewModel(tag: String, log: Logger) : RetainedViewModel<Unit>(tag, log) {
     val contentHierarchy = mutableListOf<Path<*>>()
 
     fun pop() = if (contentHierarchy.size > 0) contentHierarchy.removeAt(contentHierarchy.size - 1) else null

@@ -69,7 +69,9 @@ dependencies {
     )
 
     testCompile(
-            'junit:junit:4.12'
+            'junit:junit:4.12',
+            project(":mockito-kotlin")
+
     )
 
     androidTestCompile(

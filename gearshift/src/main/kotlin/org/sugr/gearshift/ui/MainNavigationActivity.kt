@@ -258,7 +258,7 @@ class NavComponentImpl(override val fragmentManager: FragmentManager, b : AppCom
 
     override val navigationViewModel : MainNavigationViewModel by lazy {
         viewModelFrom(fragmentManager, tag) {
-            MainNavigationViewModel(tag, app, prefs)
+            MainNavigationViewModel(tag, log, app, prefs)
         }
     }
 
