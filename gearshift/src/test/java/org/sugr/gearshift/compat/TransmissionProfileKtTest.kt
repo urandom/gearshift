@@ -3,7 +3,9 @@ package org.sugr.gearshift.compat
 import android.app.Activity
 import android.content.Context
 import android.content.SharedPreferences
+import com.github.salomonbrys.kotson.bool
 import com.github.salomonbrys.kotson.fromJson
+import com.github.salomonbrys.kotson.int
 import com.github.salomonbrys.kotson.string
 import com.google.gson.Gson
 import com.google.gson.JsonObject
@@ -22,7 +24,7 @@ class TransmissionProfileKtTest {
             "profile_path1" to "path1",
             "profile_username1" to "user1",
             "profile_password1" to "pass1",
-            "profile_user_ssl1" to false,
+            "profile_use_ssl1" to false,
             "profile_timeout1" to "1",
             "profile_retries1" to "1",
             "profile_directories1" to setOf("dir1", "dir11"),
@@ -41,7 +43,7 @@ class TransmissionProfileKtTest {
             "profile_path2" to "path2",
             "profile_username2" to "user2",
             "profile_password2" to "pass2",
-            "profile_user_ssl2" to true,
+            "profile_use_ssl2" to true,
             "profile_timeout2" to "2",
             "profile_retries2" to "2",
             "profile_directories2" to setOf("dir2", "dir22"),
@@ -55,20 +57,57 @@ class TransmissionProfileKtTest {
             "profile_color2" to 2
     )
 
+    val keyMap = mapOf(
+            "profile_name" to "name",
+            "profile_host" to "host",
+            "profile_port" to "port",
+            "profile_path" to "path",
+            "profile_username" to "username",
+            "profile_password" to "password",
+            "profile_use_ssl" to "useSSL",
+            "profile_timeout" to "timeout",
+            "profile_retries" to "retries",
+            "profile_last_directory" to "lastDirectory",
+            "profile_move_data" to "moveData",
+            "profile_start_paused" to "startPaused",
+            "profile_proxy_host" to "proxyHost",
+            "profile_proxy_port" to "proxyPort",
+            "profile_update_interval" to "updateInterval",
+            "profile_color" to "color"
+    )
+
     @Test
     fun migrateTransmissionProfiles() {
         val gson = Gson()
 
-        var defaultEditor = mock<SharedPreferences.Editor> {}
+        val defaultEditor = mock<SharedPreferences.Editor> {}
         whenever(defaultEditor.putString(any(), any())).thenAnswer {
             val obj = gson.fromJson<JsonObject>(it.arguments[1] as String)
 
-            if (it.arguments[0] == "profile_1") {
-                assertThat(obj["name"].string, `is`(table["profile_name1"]))
+            val id : Int = if (it.arguments[0] == "profile_1") {
+                1
             } else if (it.arguments[0] == "profile_2") {
-                assertThat(obj["name"].string, `is`(table["profile_name2"]))
+                2
             } else {
                 assertThat("Invalid case", false)
+                -1
+            }
+
+            keyMap.keys.forEach { key ->
+                val value = table[key + id]
+                val element = obj[keyMap[key]]
+
+                val json = when (value) {
+                    is String -> element.string
+                    is Int -> element.int
+                    is Boolean -> element.bool
+                    else -> {
+                        assertThat("Invalid case", false)
+                        Unit
+                    }
+                }
+
+                assertThat(json, `is`(value))
             }
 
             defaultEditor

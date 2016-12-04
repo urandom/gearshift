@@ -37,11 +37,11 @@ fun migrateTransmissionProfiles(ctx : Context, prefs: SharedPreferences, log : L
                         directories = compatPrefs.getStringSet(keys.PREF_DIRECTORIES + id, emptySet()).toList(),
                         lastDirectory = compatPrefs.getString(keys.PREF_LAST_DIRECTORY + id, ""),
                         moveData = compatPrefs.getBoolean(keys.PREF_MOVE_DATA + id, false),
+                        deleteLocal = compatPrefs.getBoolean(keys.PREF_DELETE_LOCAL + id, false),
                         startPaused = compatPrefs.getBoolean(keys.PREF_START_PAUSED + id, false),
                         proxyHost = compatPrefs.getString(keys.PREF_PROXY_HOST + id, ""),
                         proxyPort = compatPrefs.getString(keys.PREF_PROXY_PORT + id, "8080").toInt(),
                         updateInterval = compatPrefs.getString(keys.PREF_UPDATE_INTERVAL + id, "-1").toInt(),
-                        fullUpdate = compatPrefs.getString(keys.PREF_FULL_UPDATE + id, "2").toInt(),
                         color = compatPrefs.getInt(keys.PREF_COLOR + id, 0)
                 )
             }

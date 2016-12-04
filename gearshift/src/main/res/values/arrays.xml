@@ -1,16 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <integer-array name="pref_full_update_values">
-        <item>0</item>
-        <item>2</item>
-        <item>3</item>
-        <item>5</item>
-        <item>10</item>
-        <item>30</item>
-        <item>60</item>
-        <item>100</item>
-    </integer-array>
-
     <integer-array name="pref_update_interval_values">
         <item>1</item>
         <item>2</item>

@@ -40,18 +40,6 @@ class FirstTimeProfileEditorView(context: Context?, attrs: AttributeSet?) :
         viewModel.save()
     }
 
-    override fun showFullUpdatePicker(current: Int) =
-        single<Int> { e ->
-            val builder = AlertDialog.Builder(context)
-
-            builder.setTitle(R.string.full_update)
-                    .setItems(R.array.pref_full_update_entries, { dialog, which ->
-                        e.onSuccess(resources.getIntArray(R.array.pref_full_update_values)[which])
-                    })
-
-            builder.show()
-        }
-
     override fun showUpdateIntervalPicker(current: Int) =
         single<Int> { e ->
             val builder = AlertDialog.Builder(context)

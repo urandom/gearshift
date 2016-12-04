@@ -132,32 +132,6 @@
 
         </LinearLayout>
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:visibility="@{(viewModel.sectionCollapse[`updates`] ?? false) ? View.GONE : View.VISIBLE}">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="12dp"
-                android:layout_marginEnd="8dp"
-                android:text="@string/full_update"/>
-
-            <Button
-                style="?android:borderlessButtonStyle"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:layout_marginEnd="12dp"
-                android:gravity="start"
-                android:text='@{String.format(viewModel.fullUpdateLabel ?? "", viewModel.fullUpdateValue)}'
-                android:onClick="@{() -> viewModel.onPickFullUpdate()}"/>
-
-
-        </LinearLayout>
-
         <TextView
             style="@style/HeaderText.Small"
             android:layout_width="match_parent"

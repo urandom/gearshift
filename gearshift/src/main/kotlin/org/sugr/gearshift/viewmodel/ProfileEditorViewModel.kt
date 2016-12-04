@@ -37,9 +37,6 @@ class ProfileEditorViewModel(tag: String, log: Logger,
     val updateIntervalLabel = ObservableField("")
     val updateIntervalValue = ObservableInt(0)
 
-    val fullUpdateLabel = ObservableField("")
-    val fullUpdateValue = ObservableInt(0)
-
     val username = ObservableField("")
     val password = ObservableField("")
 
@@ -59,12 +56,8 @@ class ProfileEditorViewModel(tag: String, log: Logger,
     private val updateIntervalEntries: Array<String>
     private val updateIntervalValues: IntArray
 
-    private val fullUpdateEntries: Array<String>
-    private val fullUpdateValues: IntArray
-
     interface Consumer {
         fun showUpdateIntervalPicker(current: Int) : Single<Int>
-        fun showFullUpdatePicker(current: Int) : Single<Int>
     }
 
     init {
@@ -72,14 +65,8 @@ class ProfileEditorViewModel(tag: String, log: Logger,
         updateIntervalEntries = resources.getStringArray(R.array.pref_update_interval_entries)
         updateIntervalValues = resources.getIntArray(R.array.pref_update_interval_values)
 
-        fullUpdateEntries = resources.getStringArray(R.array.pref_full_update_entries)
-        fullUpdateValues = resources.getIntArray(R.array.pref_full_update_values)
-
         updateIntervalLabel.set(updateIntervalEntries[0])
         updateIntervalValue.set(updateIntervalValues[0])
-
-        fullUpdateLabel.set(fullUpdateEntries[0])
-        fullUpdateValue.set(fullUpdateValues[0])
 
         // Unloaded profiles have default paths set
         path.set(profile.path)
@@ -128,12 +115,6 @@ class ProfileEditorViewModel(tag: String, log: Logger,
                 ?.subscribe { update -> setUpdateInterval(update) }
     }
 
-    fun onPickFullUpdate() {
-        consumer?.showFullUpdatePicker(fullUpdateValue.get())
-                ?.takeUntil(takeUntilUnbind().toFlowable(BackpressureStrategy.LATEST))
-                ?.subscribe { update -> setFullUpdate(update) }
-    }
-
     fun isValid() : Boolean {
         if (!formValid.get()) {
             return false
@@ -145,7 +126,6 @@ class ProfileEditorViewModel(tag: String, log: Logger,
                 port = port.get().toInt(),
                 useSSL = useSSL.get(),
                 updateInterval = updateIntervalValue.get(),
-                fullUpdate = fullUpdateValue.get(),
                 username = username.get(),
                 password = password.get(),
                 proxyHost = proxyHost.get(),
@@ -183,7 +163,6 @@ class ProfileEditorViewModel(tag: String, log: Logger,
         useSSL.set(profile.useSSL)
 
         setUpdateInterval(profile.updateInterval)
-        setFullUpdate(profile.fullUpdate)
 
         username.set(profile.username)
         password.set(profile.password)
@@ -198,15 +177,6 @@ class ProfileEditorViewModel(tag: String, log: Logger,
             if (v == interval) {
                 updateIntervalLabel.set(updateIntervalEntries[i])
                 updateIntervalValue.set(v)
-            }
-        }
-    }
-
-    private fun setFullUpdate(interval: Int) {
-        for ((i, v) in fullUpdateValues.withIndex()) {
-            if (v == interval) {
-                fullUpdateLabel.set(fullUpdateEntries[i])
-                fullUpdateValue.set(v)
             }
         }
     }

@@ -16,11 +16,11 @@ data class Profile(val id: String = UUID.randomUUID().toString(), val type: Prof
                    val deleteLocal: Boolean = false, val startPaused: Boolean = false,
                    val directories: List<String> = listOf(),
                    val proxyHost: String = "", val proxyPort: Int = 8080,
-                   val updateInterval: Int = 1, val fullUpdate: Int = 2,
+                   val updateInterval: Int = 1,
                    val color: Int = 0, val sessionData: String = "",
                    val temporary: Boolean = false) {
 
-    var loaded : Boolean = false
+    @Transient var loaded : Boolean = false
         private set
 
     val valid : Boolean
@@ -29,8 +29,6 @@ data class Profile(val id: String = UUID.randomUUID().toString(), val type: Prof
                 )
 
     fun proxyEnabled() = proxyHost != "" && proxyPort > 0
-
-    fun updateActiveTorrentsOnly() = fullUpdate > 0
 
     fun load(prefs: SharedPreferences) : Profile {
         val p = prefs.getString(prefix + id, null)
