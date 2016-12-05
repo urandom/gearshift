@@ -3,7 +3,10 @@ package org.sugr.gearshift.model
 import android.content.SharedPreferences
 import com.github.salomonbrys.kotson.fromJson
 import com.google.gson.Gson
+import com.google.gson.JsonParseException
 import org.sugr.gearshift.C
+import org.sugr.gearshift.Log
+import org.sugr.gearshift.Logger
 import org.sugr.gearshift.viewmodel.rxutil.delete
 import org.sugr.gearshift.viewmodel.rxutil.set
 import java.util.*
@@ -15,7 +18,7 @@ data class Profile(val id: String = UUID.randomUUID().toString(), val type: Prof
                    val lastDirectory: String = "", val moveData: Boolean = false,
                    val deleteLocal: Boolean = false, val startPaused: Boolean = false,
                    val directories: List<String> = listOf(),
-                   val proxyHost: String = "", val proxyPort: Int = 8080,
+                   val proxyHost: String = "", val proxyPort: Int = 0,
                    val updateInterval: Int = 1,
                    val color: Int = 0, val sessionData: String = "",
                    val temporary: Boolean = false) {
@@ -24,17 +27,25 @@ data class Profile(val id: String = UUID.randomUUID().toString(), val type: Prof
         private set
 
     val valid : Boolean
-        get() = name != "" && host != "" && !host.endsWith("example.com") && port > 0 && port < 65535 && (
-                proxyHost == "" || (!proxyHost.endsWith("example.com") && proxyPort > 0 && proxyPort < 65535)
+        get() = name != "" && host != "" && !host.endsWith("example.com") && port > 0 && port < 65536 && (
+                proxyHost == "" || (!proxyHost.endsWith("example.com") && proxyPort > 0 && proxyPort < 65536)
                 )
 
-    fun proxyEnabled() = proxyHost != "" && proxyPort > 0
+    val proxyEnabled : Boolean
+        get() = valid && proxyHost != ""
 
-    fun load(prefs: SharedPreferences) : Profile {
+    fun load(prefs: SharedPreferences, log : Logger = Log) : Profile {
         val p = prefs.getString(prefix + id, null)
         if (p != null) {
-            loaded = true
-            return Gson().fromJson<Profile>(p ?: "")
+            try {
+                val profile = Gson().fromJson<Profile>(p ?: "")
+                profile.loaded = true
+
+                return profile
+            } catch (e : JsonParseException) {
+                log.E("Cannot parse data for profile $id: '$p'", e)
+                return this
+            }
         } else {
             return this
         }

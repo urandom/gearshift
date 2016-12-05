@@ -72,7 +72,7 @@ class ProfileEditorViewModel(tag: String, log: Logger,
         path.set(profile.path)
 
         if (!profile.loaded) {
-            profile.load(prefs)
+            profile = profile.load(prefs)
         }
 
         // If a profile doesn't exist, it's not marked as loaded
@@ -182,7 +182,7 @@ class ProfileEditorViewModel(tag: String, log: Logger,
     }
 
     private fun setupValidation() {
-        profileName.observe().debounce().subscribe { o ->
+        profileName.observe().debounce().subscribe {
             // Always reset the value to counter TextView's setError behavior
             // Invert and set so that the observable will fire
             profileNameValid.set(!(profileName.get() != ""))
@@ -229,7 +229,7 @@ class ProfileEditorViewModel(tag: String, log: Logger,
             }
         }
 
-        PropertyChangedCallback {o ->
+        PropertyChangedCallback {
             formValid.set(profileNameValid.get() && hostValid.get() && portValid.get() &&
                     proxyHostValid.get() && proxyPortValid.get() && timeoutValid.get())
         }.addTo(profileNameValid, hostValid, portValid,

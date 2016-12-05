@@ -111,14 +111,14 @@ class TransmissionApi(
             }
             sc.init(null, arrayOf<TrustManager>(manager), SecureRandom())
             builder.sslSocketFactory(sc.socketFactory, manager)
-            builder.hostnameVerifier { hostname, sslSession -> true }
+            builder.hostnameVerifier { _, _ -> true }
         }
 
         val timeout = if (profile.timeout > 0) profile.timeout else 10
         builder.readTimeout(timeout.toLong(), TimeUnit.SECONDS)
                 .connectTimeout(timeout.toLong(), TimeUnit.SECONDS)
 
-        if (profile.proxyEnabled()) {
+        if (profile.proxyEnabled) {
             builder.proxy(Proxy(Proxy.Type.HTTP, InetSocketAddress(profile.proxyHost, profile.proxyPort)))
         }
 
