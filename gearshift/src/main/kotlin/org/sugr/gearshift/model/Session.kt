@@ -11,5 +11,6 @@ data class Session(
         val altDownloadSpeedLimit: Long = -1,
         val altUploadSpeedLimit: Long = -1,
         val seedRatioLimitEnabled: Boolean = false,
-        val seedRatioLimit: Float = -1f
+        val seedRatioLimit: Float = -1f,
+        val rpcVersion: Int = 0
 )

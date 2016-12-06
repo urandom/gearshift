@@ -59,8 +59,9 @@ data class Torrent(val hash: String, val id: Int, val name: String,
             trackers = if (other.trackers.isEmpty()) trackers else other.trackers
     )
 
+    val hasError : Boolean
+        get() = errorType != ErrorType.OK
 
-    fun hasError() = errorType != ErrorType.OK
     fun isActive() = when (statusType) {
         StatusType.CHECKING, StatusType.DOWNLOADING, StatusType.SEEDING -> true
         else -> false
@@ -76,35 +77,17 @@ data class Torrent(val hash: String, val id: Int, val name: String,
         }
     }
 
-    enum class ErrorType(val value: Int) {
-        OK(0),
-        TRACKER_WARNING(1),
-        TRACKER_ERROR(2),
-        LOCAL_ERROR(3),
-        UNKNOWN(-1)
+    enum class ErrorType {
+        OK, TRACKER_WARNING, TRACKER_ERROR, LOCAL_ERROR, UNKNOWN
     }
 
-    enum class StatusType(val value: Int) {
-        STOPPED(0),
-        CHECK_WAITING(1),
-        CHECKING(2),
-        DOWNLOAD_WAITING(3),
-        DOWNLOADING(4),
-        SEED_WAITING(5),
-        SEEDING(6),
-        UNKNOWN(-1);
+    enum class StatusType {
+        STOPPED, CHECK_WAITING, CHECKING, DOWNLOAD_WAITING, DOWNLOADING,
+        SEED_WAITING, SEEDING, UNKNOWN
     }
 
     enum class SeedRatioMode {
         NO_LIMIT, LIMIT, GLOBAL_LIMIT, UNKNOWN
-    }
-
-    companion object {
-        fun statusOf(v: Int) =
-                StatusType.values().filter { it.value == v }.firstOrNull() ?: StatusType.UNKNOWN
-
-        fun errorOf(v: Int) =
-                ErrorType.values().filter { it.value == v }.firstOrNull() ?: ErrorType.UNKNOWN
     }
 }
 

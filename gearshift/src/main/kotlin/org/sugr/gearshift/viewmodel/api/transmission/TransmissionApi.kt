@@ -19,6 +19,7 @@ import org.sugr.gearshift.Log
 import org.sugr.gearshift.Logger
 import org.sugr.gearshift.R
 import org.sugr.gearshift.model.Profile
+import org.sugr.gearshift.model.Session
 import org.sugr.gearshift.model.Torrent
 import org.sugr.gearshift.viewmodel.api.Api
 import org.sugr.gearshift.viewmodel.ext.readableFileSize
@@ -143,64 +144,66 @@ class TransmissionApi(
         }
     }
 
-    override fun torrents(interval: Long, initial: Set<Torrent>) : Observable<Set<Torrent>> {
+    override fun torrents(session: Observable<Session>, interval: Long, initial: Set<Torrent>) : Observable<Set<Torrent>> {
         val initialMap = initial.associateBy { it.hash }.toMutableMap()
 
-        return getTorrents(TORRENT_META_FIELDS + TORRENT_STAT_FIELDS).toObservable().concatWith {
-            request<JsonObject>(requestBody(
-                    "torrent-get", jsonObject("fields" to jsonArray(TORRENT_STAT_FIELDS), "ids" to "recently-active".toJson())
-            ))
-                    .toObservable()
-                    .flatMap { json ->
-                        val torrents = json["torrents"].array
+        return session.take(1).flatMap { session ->
+            getTorrents(TORRENT_META_FIELDS + TORRENT_STAT_FIELDS).toObservable().concatWith {
+                request<JsonObject>(requestBody(
+                        "torrent-get", jsonObject("fields" to jsonArray(TORRENT_STAT_FIELDS), "ids" to "recently-active".toJson())
+                ))
+                        .toObservable()
+                        .flatMap { json ->
+                            val torrents = json["torrents"].array
 
-                        var list = Observable.just(torrents)
+                            var list = Observable.just(torrents)
 
-                        val incomplete = torrents.filter { it.isJsonObject }.filter {
-                            (it.obj[FIELD_TOTAL_SIZE]?.nullInt ?: 0) == 0
-                        }.map { it[FIELD_HASH].string }
+                            val incomplete = torrents.filter { it.isJsonObject }.filter {
+                                (it.obj[FIELD_TOTAL_SIZE]?.nullInt ?: 0) == 0
+                            }.map { it[FIELD_HASH].string }
 
-                        val withoutFiles = torrents.filter { it.isJsonObject }.filter {
-                            (it.obj[FIELD_FILES]?.nullArray?.size() ?: 0) == 0
-                        }.map { it[FIELD_HASH].string }
+                            val withoutFiles = torrents.filter { it.isJsonObject }.filter {
+                                (it.obj[FIELD_FILES]?.nullArray?.size() ?: 0) == 0
+                            }.map { it[FIELD_HASH].string }
 
-                        json["removed"]?.nullArray?.map { jsonObject(FIELD_ID to it) }?.forEach { t ->
-                            torrents.add(t)
+                            json["removed"]?.nullArray?.map { jsonObject(FIELD_ID to it) }?.forEach { t ->
+                                torrents.add(t)
+                            }
+
+                            if (incomplete.isNotEmpty()) {
+                                list = list.concatWith(
+                                        getTorrents(TORRENT_META_FIELDS, "ids" to jsonArray(incomplete))
+                                                .toObservable()
+                                )
+                            }
+
+                            if (withoutFiles.isNotEmpty()) {
+                                list = list.concatWith(
+                                        getTorrents(arrayOf(FIELD_HASH, FIELD_FILES), "ids" to jsonArray(withoutFiles))
+                                                .toObservable()
+                                )
+                            }
+
+                            list
                         }
-
-                        if (incomplete.isNotEmpty()) {
-                            list = list.concatWith(
-                                    getTorrents(TORRENT_META_FIELDS, "ids" to jsonArray(incomplete))
-                                            .toObservable()
-                            )
+                        .repeatWhen { attempts ->
+                            attempts.flatMap { Observable.timer(interval, TimeUnit.SECONDS) }
                         }
+            }.scan(initialMap) { accum, json ->
+                val torrents = json.filter { it.isJsonObject }.map { it.asJsonObject }
+                val removed = torrents.filter { !it.contains(FIELD_HASH) }.map { it[FIELD_ID].int }.toSet()
 
-                        if (withoutFiles.isNotEmpty()) {
-                            list = list.concatWith(
-                                    getTorrents(arrayOf(FIELD_HASH, FIELD_FILES), "ids" to jsonArray(withoutFiles))
-                                            .toObservable()
-                            )
-                        }
+                torrents.filter { it.contains(FIELD_HASH) }.map { torrentFrom(it, ctx, session.rpcVersion) }.forEach { torrent ->
+                    accum[torrent.hash] = accum[torrent.hash]?.merge(torrent) ?: torrent
+                }
 
-                        list
-                    }
-                    .repeatWhen { attempts ->
-                        attempts.flatMap { Observable.timer(interval, TimeUnit.SECONDS) }
-                    }
-        }.scan(initialMap) { accum, json ->
-            val torrents = json.filter { it.isJsonObject }.map { it.asJsonObject }
-            val removed = torrents.filter { !it.contains(FIELD_HASH) }.map { it[FIELD_ID].int }.toSet()
-
-            torrents.filter { it.contains(FIELD_HASH) }.map { torrentFrom(it, ctx) }.forEach { torrent ->
-                accum[torrent.hash] = accum[torrent.hash]?.merge(torrent) ?: torrent
-            }
-
-            if (removed.isNotEmpty()) {
-                accum.filter { !removed.contains(it.value.id) }.toMutableMap()
-            } else {
-                accum
-            }
-        }.map { map -> map.values.toSet() }
+                if (removed.isNotEmpty()) {
+                    accum.filter { !removed.contains(it.value.id) }.toMutableMap()
+                } else {
+                    accum
+                }
+            }.map { map -> map.values.toSet() }
+        }
     }
 
     private fun requestBody(method: String, arguments: JsonObject? = null): RequestBody {
@@ -245,6 +248,8 @@ class TransmissionApi(
     companion object {
         val JSON = MediaType.parse("application/json; charset=utf-8");
 
+        private val NEW_STATUS_RPC_VERSION = 14
+
         private val FIELD_ID = "id"
         private val FIELD_HASH = "hashString"
         private val FIELD_NAME = "name"
@@ -263,11 +268,10 @@ class TransmissionApi(
                 "uploadedEver", "uploadRatio", "downloadDir"
         )
 
-        private fun torrentFrom(json: JsonObject, ctx: Context) : Torrent {
+        private fun torrentFrom(json: JsonObject, ctx: Context, rpcVersion: Int) : Torrent {
             val metaProgress = json["metadataPercentComplete"]?.nullFloat ?: 0f
             val downloadProgress = json["percentDone"]?.nullFloat ?: 0f
             val eta = json["eta"]?.nullLong ?: 0L
-            val status = Torrent.statusOf(json["status"]?.nullInt ?: 0)
             val isStalled = json["isStalled"]?.nullBool ?: false
             val rateDownload = json["rateDownload"]?.nullLong ?: 0L
             val rateUpload = json["rateUpload"]?.nullLong ?: 0L
@@ -281,6 +285,15 @@ class TransmissionApi(
             val sizeWhenDone = json["sizeWhenDone"]?.nullLong ?: 0
             val leftUntilDone = json["leftUntilDone"]?.nullLong ?: 0
             val uploadedEver = json["uploadedEver"]?.nullLong ?: 0L
+            val status = if (rpcVersion < NEW_STATUS_RPC_VERSION) {
+                LegacyStatusType.values().filter {
+                    it.value == json["status"]?.nullInt ?: 0
+                }.getOrElse(0) { LegacyStatusType.STOPPED }.type
+            } else {
+                StatusType.values().filter {
+                    it.value == json["status"]?.nullInt ?: 0
+                }.getOrElse(0) { StatusType.STOPPED }.type
+            }
 
             val statusFormat = ctx.getString(R.string.status_format);
             val statusText = when (status) {
@@ -407,7 +420,7 @@ class TransmissionApi(
                     isDirectory = (json[FIELD_FILES]?.nullArray?.size() ?: 0) > 1,
                     statusText = statusText, trafficText = trafficText,
                     error = json["errorString"]?.nullString ?: "",
-                    errorType = Torrent.errorOf(json["error"]?.nullInt ?: 0),
+                    errorType = ErrorType.values().filter { it.value == json["error"]?.nullInt ?: 0 }.first().type,
                     downloadDir = json["downloadDir"]?.nullString ?: "",
                     validSize = sizeWhenDone,
                     totalSize = json["totalSize"]?.nullLong ?: 0,
@@ -418,6 +431,31 @@ class TransmissionApi(
             )
         }
     }
+}
+
+enum class ErrorType(val value: Int, val type: Torrent.ErrorType) {
+    OK(0, Torrent.ErrorType.OK),
+    TRACKER_WARNING(1, Torrent.ErrorType.TRACKER_WARNING),
+    TRACKER_ERROR(2, Torrent.ErrorType.TRACKER_ERROR),
+    LOCAL_ERROR(3, Torrent.ErrorType.LOCAL_ERROR)
+}
+
+enum class StatusType(val value: Int, val type: Torrent.StatusType) {
+    STOPPED(0, Torrent.StatusType.STOPPED),
+    CHECK_WAITING(1, Torrent.StatusType.CHECK_WAITING),
+    CHECKING(2, Torrent.StatusType.CHECKING),
+    DOWNLOAD_WAITING(3, Torrent.StatusType.DOWNLOAD_WAITING),
+    DOWNLOADING(4, Torrent.StatusType.DOWNLOADING),
+    SEED_WAITING(5, Torrent.StatusType.SEED_WAITING),
+    SEEDING(6, Torrent.StatusType.SEEDING)
+}
+
+enum class LegacyStatusType(val value: Int, val type: Torrent.StatusType) {
+    CHECK_WAITING(1, Torrent.StatusType.CHECK_WAITING),
+    CHECKING(2, Torrent.StatusType.CHECKING),
+    DOWNLOADING(4, Torrent.StatusType.DOWNLOADING),
+    SEEDING(8, Torrent.StatusType.SEEDING),
+    STOPPED(16, Torrent.StatusType.STOPPED)
 }
 
 enum class SeedRatioMode(val value: Int, val mode: Torrent.SeedRatioMode) {

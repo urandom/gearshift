@@ -10,12 +10,13 @@ import org.sugr.gearshift.Log
 import org.sugr.gearshift.Logger
 import org.sugr.gearshift.model.Profile
 import org.sugr.gearshift.model.ProfileType
+import org.sugr.gearshift.model.Session
 import org.sugr.gearshift.model.Torrent
 import org.sugr.gearshift.viewmodel.api.transmission.TransmissionApi
 
 interface Api {
     fun version(): Single<String>
-    fun torrents(interval: Long, initial: Set<Torrent> = setOf()): Observable<Set<Torrent>>
+    fun torrents(session: Observable<Session>, interval: Long, initial: Set<Torrent> = setOf()): Observable<Set<Torrent>>
 }
 
 fun apiOf(profile: Profile, ctx: Context,
@@ -32,5 +33,5 @@ fun apiOf(profile: Profile, ctx: Context,
 
 object NoApi : Api {
     override fun version() = Single.just("")
-    override fun torrents(interval: Long, initial: Set<Torrent>) = Observable.empty<Set<Torrent>>()
+    override fun torrents(session: Observable<Session>, interval: Long, initial: Set<Torrent>) = Observable.empty<Set<Torrent>>()
 }
