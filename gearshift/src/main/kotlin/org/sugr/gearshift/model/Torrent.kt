@@ -24,51 +24,56 @@ data class Torrent(val hash: String, val id: Int, val name: String,
                    val files: List<TorrentFile> = emptyList(),
                    val trackers: List<TorrentTracker> = emptyList()) {
 
-    fun merge(other: Torrent) = copy(
-            hash = if (other.hash == "") hash else other.hash,
-            id = if (other.id == 0) id else other.id,
-            name = if (other.name == "") name else other.name,
-            statusType = if (other.statusType == StatusType.UNKNOWN) statusType else other.statusType,
-            metaProgress = if (other.metaProgress == 0f) metaProgress else other.metaProgress,
-            downloadProgress = if (other.downloadProgress == 0f) downloadProgress else other.downloadProgress,
-            uploadProgress = if (other.uploadProgress == 0f) uploadProgress else other.uploadProgress,
-            isDirectory = if (!other.isDirectory) isDirectory else other.isDirectory,
-            statusText = if (other.statusText == "") statusText else other.statusText,
-            trafficText = if (other.trafficText == "") trafficText else other.trafficText,
-            error = if (other.error == "") error else other.error,
-            errorType = if (other.errorType == ErrorType.UNKNOWN) errorType else other.errorType,
-            downloadDir = if (other.downloadDir == "") downloadDir else other.downloadDir,
-            validSize = if (other.validSize == 0L) validSize else other.validSize,
-            totalSize = if (other.totalSize == 0L) totalSize else other.totalSize,
-            sizeLeft = if (other.sizeLeft == 0L) sizeLeft else other.sizeLeft,
-            seedRatioLimit = if (other.seedRatioLimit == 0f) seedRatioLimit else other.seedRatioLimit,
-            seedRatioMode = if (other.seedRatioMode == SeedRatioMode.UNKNOWN) seedRatioMode else other.seedRatioMode,
-            downloaded = if (other.downloaded == 0L) downloaded else other.downloaded,
-            uploaded = if (other.uploaded == 0L) uploaded else other.uploaded,
-            startTime = if (other.startTime == 0L) startTime else other.startTime,
-            activityTime = if (other.activityTime == 0L) activityTime else other.activityTime,
-            addedTime = if (other.addedTime == 0L) addedTime else other.addedTime,
-            remainingTime = if (other.remainingTime == 0L) remainingTime else other.remainingTime,
-            createdTime = if (other.createdTime == 0L) createdTime else other.createdTime,
-            pieceSize = if (other.pieceSize == 0L) pieceSize else other.pieceSize,
-            pieceCount = if (other.pieceCount == 0) pieceCount else other.pieceCount,
-            isPrivate = if (!other.isPrivate) isPrivate else other.isPrivate,
-            creator = if (other.creator == "") creator else other.creator,
-            comment = if (other.comment == "") comment else other.comment,
-            files = if (other.files.isEmpty()) files else other.files,
-            trackers = if (other.trackers.isEmpty()) trackers else other.trackers
-    )
+    fun merge(other: Torrent) : Torrent {
+        val default = Torrent(hash = "", id = 0, name = "")
+
+        return copy(
+                hash = if (other.hash == default.hash) hash else other.hash,
+                id = if (other.id == default.id) id else other.id,
+                name = if (other.name == default.name) name else other.name,
+                statusType = if (other.statusType == default.statusType) statusType else other.statusType,
+                metaProgress = if (other.metaProgress == default.metaProgress) metaProgress else other.metaProgress,
+                downloadProgress = if (other.downloadProgress == default.downloadProgress) downloadProgress else other.downloadProgress,
+                uploadProgress = if (other.uploadProgress == default.uploadProgress) uploadProgress else other.uploadProgress,
+                isDirectory = if (other.isDirectory == default.isDirectory) isDirectory else other.isDirectory,
+                statusText = if (other.statusText == default.statusText) statusText else other.statusText,
+                trafficText = if (other.trafficText == default.trafficText) trafficText else other.trafficText,
+                error = if (other.error == default.error) error else other.error,
+                errorType = if (other.errorType == default.errorType) errorType else other.errorType,
+                downloadDir = if (other.downloadDir == default.downloadDir) downloadDir else other.downloadDir,
+                validSize = if (other.validSize == default.validSize) validSize else other.validSize,
+                totalSize = if (other.totalSize == default.totalSize) totalSize else other.totalSize,
+                sizeLeft = if (other.sizeLeft == default.sizeLeft) sizeLeft else other.sizeLeft,
+                seedRatioLimit = if (other.seedRatioLimit == default.seedRatioLimit) seedRatioLimit else other.seedRatioLimit,
+                seedRatioMode = if (other.seedRatioMode == default.seedRatioMode) seedRatioMode else other.seedRatioMode,
+                downloaded = if (other.downloaded == default.downloaded) downloaded else other.downloaded,
+                uploaded = if (other.uploaded == default.uploaded) uploaded else other.uploaded,
+                startTime = if (other.startTime == default.startTime) startTime else other.startTime,
+                activityTime = if (other.activityTime == default.activityTime) activityTime else other.activityTime,
+                addedTime = if (other.addedTime == default.addedTime) addedTime else other.addedTime,
+                remainingTime = if (other.remainingTime == default.remainingTime) remainingTime else other.remainingTime,
+                createdTime = if (other.createdTime == default.createdTime) createdTime else other.createdTime,
+                pieceSize = if (other.pieceSize == default.pieceSize) pieceSize else other.pieceSize,
+                pieceCount = if (other.pieceCount == default.pieceCount) pieceCount else other.pieceCount,
+                isPrivate = if (other.isPrivate == default.isPrivate) isPrivate else other.isPrivate,
+                creator = if (other.creator == default.creator) creator else other.creator,
+                comment = if (other.comment == default.comment) comment else other.comment,
+                files = if (other.files == default.files) files else other.files,
+                trackers = if (other.trackers == default.trackers) trackers else other.trackers
+        )
+    }
 
     val hasError : Boolean
         get() = errorType != ErrorType.OK
 
-    fun isActive() = when (statusType) {
-        StatusType.CHECKING, StatusType.DOWNLOADING, StatusType.SEEDING -> true
-        else -> false
-    }
+    val isActive : Boolean
+        get() = when (statusType) {
+            StatusType.CHECKING, StatusType.DOWNLOADING, StatusType.SEEDING -> true
+            else -> false
+        }
 
     fun seedRatioLimit(session: Session = Session()) : Float {
-        if (seedRatioMode == SeedRatioMode.NO_LIMIT) {
+        if (seedRatioMode == SeedRatioMode.NO_LIMIT || seedRatioMode == SeedRatioMode.UNKNOWN) {
             return 0f
         } else if (seedRatioMode == SeedRatioMode.GLOBAL_LIMIT) {
             return if (session.seedRatioLimitEnabled) session.seedRatioLimit else 0f

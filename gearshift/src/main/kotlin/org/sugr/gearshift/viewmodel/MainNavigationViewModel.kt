@@ -11,7 +11,6 @@ import org.sugr.gearshift.Logger
 import org.sugr.gearshift.model.loadProfiles
 import org.sugr.gearshift.model.profileOf
 import org.sugr.gearshift.viewmodel.api.apiOf
-import org.sugr.gearshift.viewmodel.rxutil.latest
 import org.sugr.gearshift.viewmodel.rxutil.toObservable
 
 class MainNavigationViewModel(tag: String, log: Logger,
@@ -38,14 +37,12 @@ class MainNavigationViewModel(tag: String, log: Logger,
             .filter { key -> key == C.PREF_CURRENT_PROFILE }
             .startWith { C.PREF_CURRENT_PROFILE }
             .map { key -> prefs.getString(key, "") }
-            .latest { id ->
-                profileOf(id, prefs)
-            }
+            .map { id -> profileOf(id, prefs) }
             .replay(1).refCount()
             .takeUntil(takeUntilDestroy())
 
     val apiObservable = profileObservable
-            .latest { profile -> apiOf(profile, ctx, prefs, gson, log) }
+            .map { profile -> apiOf(profile, ctx, prefs, gson, log) }
             .replay(1).refCount()
             .takeUntil(takeUntilDestroy())
 
