@@ -11,16 +11,16 @@ class PathNavigator(private val navComponent: NavComponent,
     private val component : PathNavigatorComponent = PathNavigatorComponentImpl(navComponent)
 
     interface Consumer {
-        val defaultPath : Path<*>
+        val defaultPath : Lazy<Path<*>>
         fun onSetContent(newPath: Path<*>, oldPath: Path<*>)
     }
 
     fun restorePath() {
-        setPath(component.viewModel.pop() ?: consumer.defaultPath)
+        setPath(component.viewModel.pop() ?: consumer.defaultPath.value)
     }
 
     fun setPath(path: Path<*>) {
-        val current = component.viewModel.last() ?: consumer.defaultPath
+        val current = component.viewModel.last() ?: consumer.defaultPath.value
         val currentDepth = current.depth
         val depth = path.depth
 

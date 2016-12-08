@@ -44,7 +44,7 @@ class MainNavigationActivity : AppCompatActivity(),
     lateinit private var toolbarToggle: DrawerArrowDrawable
     lateinit private var pathNavigator: PathNavigator
 
-    override val defaultPath by lazy { TorrentListPath(component) }
+    override val defaultPath = lazy { TorrentListPath(component) }
 
     private var toolbarToggleAnimatorReversed = false
     private val toolbarToggleAnimator = lazy {
