@@ -1,10 +1,9 @@
 package org.sugr.gearshift.viewmodel.databinding
 
 import android.databinding.Observable
-import io.reactivex.BackpressureStrategy
-import io.reactivex.Flowable
-import io.reactivex.FlowableOnSubscribe
+import io.reactivex.ObservableOnSubscribe
 import java.io.Serializable
+import io.reactivex.Observable as RxObservable
 
 class ObservableField<T>(t: T) : android.databinding.ObservableField<T>(), Serializable {
     var value : T
@@ -42,7 +41,7 @@ fun <T: Observable> T.observe(cb: Observable.OnPropertyChangedCallback) : T {
 }
 
 fun <T : Observable> T.observe() =
-        Flowable.create(FlowableOnSubscribe<T> { e ->
+        RxObservable.create(ObservableOnSubscribe<T> { e ->
             val cb = PropertyChangedCallback {
                 e.onNext(this)
             }
@@ -50,5 +49,5 @@ fun <T : Observable> T.observe() =
             e.setCancellable {
                 removeOnPropertyChangedCallback(cb)
             }
-        }, BackpressureStrategy.LATEST)
+        })
 

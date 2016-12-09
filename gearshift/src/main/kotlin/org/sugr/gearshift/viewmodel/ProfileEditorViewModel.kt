@@ -18,6 +18,7 @@ import org.sugr.gearshift.viewmodel.api.apiOf
 import org.sugr.gearshift.viewmodel.databinding.ObservableField
 import org.sugr.gearshift.viewmodel.databinding.PropertyChangedCallback
 import org.sugr.gearshift.viewmodel.databinding.observe
+import org.sugr.gearshift.viewmodel.rxutil.combineLatestWith
 import org.sugr.gearshift.viewmodel.rxutil.debounce
 import org.sugr.gearshift.viewmodel.rxutil.singleOf
 
@@ -74,6 +75,8 @@ class ProfileEditorViewModel(tag: String, log: Logger,
         // Unloaded profiles have default paths set
         path.set(profile.path)
 
+        setupValidation()
+
         if (!profile.loaded) {
             profile = profile.load(prefs)
         }
@@ -89,8 +92,6 @@ class ProfileEditorViewModel(tag: String, log: Logger,
             put("proxy", true)
             put("advanced", true)
         }
-
-        setupValidation()
     }
 
     override fun canLeave(): Boolean {
@@ -212,11 +213,17 @@ class ProfileEditorViewModel(tag: String, log: Logger,
             proxyHostValid.set(!proxyHostValid.get())
         }
 
-        proxyPort.observe().debounce().subscribe {
+        proxyPort.observe().combineLatestWith(proxyHost.observe()) { port, host ->
+            Pair(host, port)
+        }.debounce().subscribe {
             try {
                 val proxyPort = proxyPort.get().toInt()
-                proxyPortValid.set(!(proxyPort > 0 && proxyPort < 65535))
-                proxyPortValid.set(!proxyPortValid.get())
+                if (proxyHost.get() == "") {
+                    proxyPortValid.set(true)
+                } else {
+                    proxyPortValid.set(!(proxyPort > 0 && proxyPort < 65535))
+                    proxyPortValid.set(!proxyPortValid.get())
+                }
             } catch (e: NumberFormatException) {
                 proxyPortValid.set(false)
             }
