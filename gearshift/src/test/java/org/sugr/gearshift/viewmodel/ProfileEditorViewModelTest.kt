@@ -35,8 +35,23 @@ class ProfileEditorViewModelTest {
     }
 
     @Test
-    fun canLeave() {
+    fun canLeaveInvalid() {
+        val vmInvalid = ProfileEditorViewModel("tag", log, ctx, pref, Gson(), Profile(id = "invalid_1"))
 
+        // Wait for the validators to debounce
+        Thread.sleep(400)
+
+        assertThat("Invalid profiles can't leave", !vmInvalid.canLeave())
+    }
+
+    @Test
+    fun canLeaveValid() {
+        val vmValid = ProfileEditorViewModel("tag", log, ctx, pref, Gson(), Profile(id = "valid_1"))
+
+        // Wait for the validators to debounce
+        Thread.sleep(400)
+
+        assertThat("Valid profiles can leave", vmValid.canLeave())
     }
 
     @Test
