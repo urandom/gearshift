@@ -4,9 +4,7 @@ import android.content.Context
 import android.content.SharedPreferences
 import android.content.res.Resources
 import com.google.gson.Gson
-import com.nhaarman.mockito_kotlin.any
-import com.nhaarman.mockito_kotlin.doReturn
-import com.nhaarman.mockito_kotlin.mock
+import com.nhaarman.mockito_kotlin.*
 import io.reactivex.Single
 import org.hamcrest.CoreMatchers.`is`
 import org.hamcrest.MatcherAssert.assertThat
@@ -15,6 +13,7 @@ import org.sugr.gearshift.Logger
 import org.sugr.gearshift.R
 import org.sugr.gearshift.model.Profile
 import org.sugr.gearshift.viewmodel.ProfileEditorViewModel.Consumer
+import org.sugr.gearshift.viewmodel.api.Api
 
 class ProfileEditorViewModelTest {
     val log = mock<Logger> {
@@ -58,8 +57,74 @@ class ProfileEditorViewModelTest {
     }
 
     @Test
-    fun check() {
+    fun checkInvalid() {
+        val api = mock<Api> {}
 
+        fun factory(profile: Profile, ctx: Context,
+                        prefs: SharedPreferences,
+                        gson: Gson,
+                        log: Logger,
+                        debug: Boolean) : Api {
+
+            return api
+        }
+
+        val vm1 = ProfileEditorViewModel("tag", log, ctx, pref, Gson(), Profile(id = "invalid_1"), ::factory)
+
+        // Wait for the validators to debounce
+        Thread.sleep(400)
+
+        assertThat("Invalid vm returns a false check", !vm1.check().blockingGet())
+
+        verify(api, never()).version()
+    }
+
+    @Test
+    fun checkInvalidWithValidProfile() {
+        val api = mock<Api> {
+            on { version() } doReturn Single.just("")
+        }
+
+        fun factory(profile: Profile, ctx: Context,
+                    prefs: SharedPreferences,
+                    gson: Gson,
+                    log: Logger,
+                    debug: Boolean) : Api {
+            return api
+        }
+
+        val vm1 = ProfileEditorViewModel("tag", log, ctx, pref, Gson(), Profile(id = "valid_1"), ::factory)
+
+        // Wait for the validators to debounce
+        Thread.sleep(400)
+
+        assertThat("Valid vm with no valid connection returns a false check", !vm1.check().blockingGet())
+
+        verify(api, times(1)).version()
+    }
+
+    @Test
+    fun checkValid() {
+        val api = mock<Api> {
+            on { version() } doReturn Single.just("1.0")
+        }
+
+        fun factory(profile: Profile, ctx: Context,
+                    prefs: SharedPreferences,
+                    gson: Gson,
+                    log: Logger,
+                    debug: Boolean) : Api {
+            return api
+        }
+
+        val vm = ProfileEditorViewModel("tag", log, ctx, pref, Gson(), Profile(id = "valid_1"), ::factory)
+
+        // Wait for the validators to debounce
+        Thread.sleep(400)
+
+        assertThat("Valid vm with valid connection returns a true check", vm.check().blockingGet())
+
+        verify(api, times(1)).version()
     }
 
     @Test
@@ -107,13 +172,19 @@ class ProfileEditorViewModelTest {
     }
 
     @Test
-    fun isValidValid() {
+    fun isValid() {
         val vm1 = ProfileEditorViewModel("tag", log, ctx, pref, Gson(), Profile(id = "valid_1"))
+        val vm2 = ProfileEditorViewModel("tag", log, ctx, pref, Gson(), Profile())
+
+        vm2.profileName.set("name")
+        vm2.host.set("http://sugr.org")
+        vm2.port.set("9091")
 
         // Wait for the validators to debounce
         Thread.sleep(400)
 
         assertThat("Valid profiles are valid", vm1.isValid())
+        assertThat("Valid profiles are valid", vm2.isValid())
     }
 
     @Test
