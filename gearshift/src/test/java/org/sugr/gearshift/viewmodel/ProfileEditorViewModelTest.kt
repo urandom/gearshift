@@ -7,11 +7,14 @@ import com.google.gson.Gson
 import com.nhaarman.mockito_kotlin.any
 import com.nhaarman.mockito_kotlin.doReturn
 import com.nhaarman.mockito_kotlin.mock
+import io.reactivex.Single
+import org.hamcrest.CoreMatchers.`is`
 import org.hamcrest.MatcherAssert.assertThat
 import org.junit.Test
 import org.sugr.gearshift.Logger
 import org.sugr.gearshift.R
 import org.sugr.gearshift.model.Profile
+import org.sugr.gearshift.viewmodel.ProfileEditorViewModel.Consumer
 
 class ProfileEditorViewModelTest {
     val log = mock<Logger> {
@@ -19,8 +22,8 @@ class ProfileEditorViewModelTest {
     }
 
     var res = mock<Resources> {
-        on { getStringArray(R.array.pref_update_interval_entries) } doReturn arrayOf("1", "2")
-        on { getIntArray(R.array.pref_update_interval_values) } doReturn intArrayOf(1, 2)
+        on { getStringArray(R.array.pref_update_interval_entries) } doReturn arrayOf("1", "2", "15", "30")
+        on { getIntArray(R.array.pref_update_interval_values) } doReturn intArrayOf(1, 2, 15, 30)
     }
 
 
@@ -61,7 +64,24 @@ class ProfileEditorViewModelTest {
 
     @Test
     fun onPickUpdateInterval() {
+        val vm = ProfileEditorViewModel("tag", log, ctx, pref, Gson(), Profile())
+        val consumer = object : Consumer {
+            override fun showUpdateIntervalPicker(current: Int): Single<Int> {
+                return Single.just(current + 15)
+            }
 
+        }
+
+        vm.updateIntervalValue.set(15)
+
+        vm.bind(consumer)
+
+        vm.onPickUpdateInterval()
+
+        Thread.sleep(100)
+
+        assertThat("30", `is`(vm.updateIntervalLabel.get()))
+        assertThat(30, `is`(vm.updateIntervalValue.get()))
     }
 
     @Test
