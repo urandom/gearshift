@@ -9,6 +9,7 @@ import io.reactivex.Single
 import org.hamcrest.CoreMatchers.`is`
 import org.hamcrest.MatcherAssert.assertThat
 import org.junit.Test
+import org.sugr.gearshift.C
 import org.sugr.gearshift.Logger
 import org.sugr.gearshift.R
 import org.sugr.gearshift.model.Profile
@@ -30,10 +31,14 @@ class ProfileEditorViewModelTest {
         on { resources } doReturn res
     }
 
+    val editor = mock<SharedPreferences.Editor> {
+    }
+
     val pref = mock<SharedPreferences> {
         on { getString("profile_invalid_1", null) } doReturn """{"id": "invalid_1"}"""
         on { getString("profile_invalid_2", null) } doReturn """{"id": "invalid_2", "name":"foo", "host": "http://sugr.org", "port": 12345, "proxyHost": "http://example.com"}"""
         on { getString("profile_valid_1", null) } doReturn """{"id": "valid_1", "name":"foo", "host": "http://sugr.org", "port": 12345}"""
+        on { edit() } doReturn editor
     }
 
     @Test
@@ -188,18 +193,42 @@ class ProfileEditorViewModelTest {
     }
 
     @Test
-    fun save() {
+    fun saveInvalid() {
+        val vm1 = ProfileEditorViewModel("tag", log, ctx, pref, Gson(), Profile(id = "invalid_1"))
 
+        // Wait for the validators to debounce
+        Thread.sleep(400)
+
+        vm1.save()
+
+        verify(pref, never()).edit()
     }
 
     @Test
-    fun refreshValidity() {
+    fun saveValid() {
+        val vm1 = ProfileEditorViewModel("tag", log, ctx, pref, Gson(), Profile(id = "valid_1"))
 
+        // Wait for the validators to debounce
+        Thread.sleep(400)
+
+        vm1.save()
+
+        verify(pref, times(2)).edit()
+        verify(editor, times(1)).putString(eq("profile_valid_1"), any())
+        verify(editor, times(1)).putStringSet(eq(C.PREF_PROFILES), any())
     }
 
     @Test
     fun toggleCollapseSection() {
+        val vm = ProfileEditorViewModel("tag", log, ctx, pref, Gson(), Profile())
 
+        vm.toggleCollapseSection("updates")
+
+        assertThat("updates is collapsed", vm.sectionCollapse["updates"]!!)
+
+        vm.toggleCollapseSection("updates")
+
+        assertThat("updates is expanded", !vm.sectionCollapse["updates"]!!)
     }
 
 }
