@@ -8,6 +8,7 @@ import com.google.gson.JsonArray
 import com.google.gson.JsonElement
 import com.google.gson.JsonObject
 import io.reactivex.Observable
+import io.reactivex.Scheduler
 import io.reactivex.Single
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
@@ -42,6 +43,7 @@ class TransmissionApi(
         private val prefs: SharedPreferences,
         private val gson: Gson = Gson(),
         private val log: Logger = Log,
+        private val mainThreadScheduler: Scheduler = AndroidSchedulers.mainThread(),
         private val debug: Boolean = BuildConfig.DEBUG
 ) : Api {
     private val httpClient: OkHttpClient
@@ -235,7 +237,7 @@ class TransmissionApi(
                         else -> throw TransmissionApiException("unknown response")
                     }
                 }
-                .observeOn(AndroidSchedulers.mainThread())
+                .observeOn(mainThreadScheduler)
     }
 
 

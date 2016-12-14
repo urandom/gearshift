@@ -5,6 +5,7 @@ import android.content.SharedPreferences
 import com.google.gson.Gson
 import io.reactivex.Observable
 import io.reactivex.Single
+import io.reactivex.android.schedulers.AndroidSchedulers
 import org.sugr.gearshift.BuildConfig
 import org.sugr.gearshift.Log
 import org.sugr.gearshift.Logger
@@ -31,7 +32,7 @@ fun apiOf(profile: Profile, ctx: Context,
           log: Logger = Log,
           debug : Boolean = BuildConfig.DEBUG) : Api {
     if (profile.type == ProfileType.TRANSMISSION) {
-        return TransmissionApi(profile, ctx, prefs, gson, log, debug)
+        return TransmissionApi(profile, ctx, prefs, gson, log, AndroidSchedulers.mainThread(), debug)
     }
 
     return NoApi
