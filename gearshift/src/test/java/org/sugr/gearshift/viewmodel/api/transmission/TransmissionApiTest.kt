@@ -22,6 +22,7 @@ import org.sugr.gearshift.Logger
 import org.sugr.gearshift.R
 import org.sugr.gearshift.model.Profile
 import org.sugr.gearshift.model.Session
+import org.sugr.gearshift.model.Torrent
 import org.sugr.gearshift.viewmodel.api.Api
 import java.net.HttpURLConnection
 
@@ -103,7 +104,7 @@ class TransmissionApiTest {
     fun torrents() {
         server.enqueue(MockResponse()
                 .setResponseCode(HttpURLConnection.HTTP_OK)
-                .setBody(torrents.torrents)
+                .setBody(Torrents.data)
         )
 
         val ctx = mock<Context>{
@@ -138,6 +139,13 @@ class TransmissionApiTest {
 
         assertThat(3, `is`(torrents.size))
 
+        torrents.forEachIndexed { i, torrent ->
+            assertThat(Torrents.names[i], `is`(torrent.name))
+            assertThat(Torrents.statuses[i], `is`(torrent.statusType))
+            // Files aren't loaded on the first request
+            assertThat(0, `is`(torrent.files.size))
+        }
+
         val request = server.takeRequest()
         assertThat("/transmission/rpc", `is`(request.path))
         assertThat("POST", `is`(request.method))
@@ -151,8 +159,11 @@ class TransmissionApiTest {
 
 }
 
-private object torrents {
-    val torrents = """{
+private object Torrents {
+    val names = arrayOf("T1", "T2", "T3")
+    val statuses = arrayOf(Torrent.StatusType.STOPPED, Torrent.StatusType.DOWNLOADING, Torrent.StatusType.CHECK_WAITING)
+    val fileCount = arrayOf(2, 1, 1)
+    val data = """{
   "arguments": {
     "torrents": [
       {
@@ -179,7 +190,7 @@ private object torrents {
         "isStalled": false,
         "leftUntilDone": 0,
         "metadataPercentComplete": 1,
-        "name": "T1",
+        "name": "${names[0]}",
         "peersConnected": 0,
         "peersGettingFromUs": 0,
         "peersSendingToUs": 0,
@@ -215,7 +226,7 @@ private object torrents {
         "isStalled": false,
         "leftUntilDone": 222,
         "metadataPercentComplete": 1,
-        "name": "T2",
+        "name": "${names[1]}",
         "peersConnected": 0,
         "peersGettingFromUs": 0,
         "peersSendingToUs": 0,
@@ -251,7 +262,7 @@ private object torrents {
         "isStalled": false,
         "leftUntilDone": 0,
         "metadataPercentComplete": 1,
-        "name": "T3",
+        "name": "${names[2]}",
         "peersConnected": 0,
         "peersGettingFromUs": 0,
         "peersSendingToUs": 0,
@@ -263,7 +274,7 @@ private object torrents {
         "seedRatioLimit": 1.2,
         "seedRatioMode": 0,
         "sizeWhenDone": 33333,
-        "status": 0,
+        "status": 1,
         "totalSize": 33333,
         "uploadRatio": 1.2003,
         "uploadedEver": 1167729396
