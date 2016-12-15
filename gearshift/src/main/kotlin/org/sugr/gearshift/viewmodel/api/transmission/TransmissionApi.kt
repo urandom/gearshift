@@ -243,7 +243,7 @@ class TransmissionApi(
 
     inline private fun getTorrents(fields: Array<String>, vararg args: Pair<String, JsonElement>) : Single<JsonArray> {
         return request<JsonObject>(requestBody(
-                "torrent-get", jsonObject("fields" to jsonArray(fields), *args)
+                "torrent-get", jsonObject("fields" to jsonArray(*fields), *args)
         )).map { json -> json["torrents"].array }
     }
 

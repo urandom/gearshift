@@ -11,6 +11,7 @@ import com.google.gson.JsonParser
 import com.nhaarman.mockito_kotlin.any
 import com.nhaarman.mockito_kotlin.doReturn
 import com.nhaarman.mockito_kotlin.mock
+import io.reactivex.Observable
 import io.reactivex.schedulers.Schedulers
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
@@ -18,7 +19,9 @@ import org.hamcrest.CoreMatchers.`is`
 import org.hamcrest.MatcherAssert.assertThat
 import org.junit.Test
 import org.sugr.gearshift.Logger
+import org.sugr.gearshift.R
 import org.sugr.gearshift.model.Profile
+import org.sugr.gearshift.model.Session
 import org.sugr.gearshift.viewmodel.api.Api
 import java.net.HttpURLConnection
 
@@ -98,7 +101,176 @@ class TransmissionApiTest {
 
     @Test
     fun torrents() {
+        server.enqueue(MockResponse()
+                .setResponseCode(HttpURLConnection.HTTP_OK)
+                .setBody(torrents.torrents)
+        )
 
+        val ctx = mock<Context>{
+            on { getString(R.string.status_format) } doReturn "%1\$s %2\$s"
+            on { getString(R.string.status_state_downloading_metadata)} doReturn "d_meta"
+            on { getString(R.string.status_state_downloading) } doReturn "d"
+            on { getString(R.string.status_state_download_waiting) } doReturn "d_wait"
+            on { getString(R.string.status_more_downloading_format) } doReturn "%1\$d %2\$d %3\$s"
+            on { getString(R.string.status_more_downloading_speed_format) } doReturn "%1\$s %2\$s"
+            on { getString(R.string.status_more_idle) } doReturn "m_i"
+            on { getString(R.string.status_state_seeding) } doReturn "s"
+            on { getString(R.string.status_state_seed_waiting) } doReturn "s_wait"
+            on { getString(R.string.status_more_seeding_format) } doReturn "%1\$d %2\$d %3\$s"
+            on { getString(R.string.status_more_seeding_speed_format) } doReturn "%1\$s %2\$s"
+            on { getString(R.string.status_state_checking) } doReturn "c"
+            on { getString(R.string.status_state_check_waiting) } doReturn "c_wait"
+            on { getString(R.string.status_state_paused) } doReturn "p"
+            on { getString(R.string.status_state_finished) } doReturn "f"
+            on { getString(R.string.traffic_downloading_format) } doReturn "%1\$s %2\$s %3\$s %4\$s"
+            on { getString(R.string.traffic_downloading_percentage_format) } doReturn "%1\$s"
+            on { getString(R.string.traffic_remaining_time_unknown) } doReturn "t_u"
+            on { getString(R.string.traffic_remaining_time_format) } doReturn "%1\$s"
+            on { getString(R.string.traffic_seeding_format) } doReturn "%1\$s %2\$s %3\$s %4\$s"
+            on { getString(R.string.traffic_seeding_ratio_format) } doReturn "%1\$s %2\$s"
+            on { getString(R.string.traffic_seeding_ratio_goal_format) } doReturn "%1\$s"
+        }
+        val prefs = mock<SharedPreferences>{}
+
+        val api : Api = TransmissionApi(baseProfile, ctx, prefs, gson, log, Schedulers.trampoline())
+
+        val torrents = api.torrents(Observable.just(Session(rpcVersion = 15)), 1, setOf()).skip(1).blockingFirst()
+
+        assertThat(3, `is`(torrents.size))
+
+        val request = server.takeRequest()
+        assertThat("/transmission/rpc", `is`(request.path))
+        assertThat("POST", `is`(request.method))
+        assertThat(null, `is`(request.headers["X-Transmission-Session-Id"]))
+
+        val jp = JsonParser()
+        val obj = jp.parse(request.body.readUtf8()).obj
+        assertThat("torrent-get", `is`(obj["method"].string))
+        assertThat(null, `is`(obj["arguments"].obj["ids"].nullObj))
     }
 
+}
+
+private object torrents {
+    val torrents = """{
+  "arguments": {
+    "torrents": [
+      {
+        "addedDate": 1462710476,
+        "downloadDir": "/dir/1",
+        "error": 0,
+        "errorString": "",
+        "eta": -1,
+        "files": [
+          {
+            "bytesCompleted": 1111,
+            "length": 1111,
+            "name": "file1"
+          },
+          {
+            "bytesCompleted": 11,
+            "length": 11,
+            "name": "file2"
+          }
+        ],
+        "hashString": "1111111111111111111111111111111111111111",
+        "id": 1,
+        "isFinished": true,
+        "isStalled": false,
+        "leftUntilDone": 0,
+        "metadataPercentComplete": 1,
+        "name": "T1",
+        "peersConnected": 0,
+        "peersGettingFromUs": 0,
+        "peersSendingToUs": 0,
+        "percentDone": 1,
+        "queuePosition": 0,
+        "rateDownload": 0,
+        "rateUpload": 0,
+        "recheckProgress": 0,
+        "seedRatioLimit": 2,
+        "seedRatioMode": 0,
+        "sizeWhenDone": 1111,
+        "status": 0,
+        "totalSize": 1111,
+        "uploadRatio": 2,
+        "uploadedEver": 1229490811
+      },
+      {
+        "addedDate": 1449518691,
+        "downloadDir": "/dir/2",
+        "error": 3,
+        "errorString": "No data found! Ensure your drives are connected or use \"Set Location\". To re-download, remove the torrent and re-add it.",
+        "eta": -1,
+        "files": [
+          {
+            "bytesCompleted": 2000,
+            "length": 2222,
+            "name": "file1"
+          }
+        ],
+        "hashString": "2222222222222222222222222222222222222222",
+        "id": 2,
+        "isFinished": false,
+        "isStalled": false,
+        "leftUntilDone": 222,
+        "metadataPercentComplete": 1,
+        "name": "T2",
+        "peersConnected": 0,
+        "peersGettingFromUs": 0,
+        "peersSendingToUs": 0,
+        "percentDone": 0.9,
+        "queuePosition": 1,
+        "rateDownload": 0,
+        "rateUpload": 0,
+        "recheckProgress": 0,
+        "seedRatioLimit": 2,
+        "seedRatioMode": 0,
+        "sizeWhenDone": 22222,
+        "status": 4,
+        "totalSize": 22222,
+        "uploadRatio": 2.0002,
+        "uploadedEver": 699589356
+      },
+      {
+        "addedDate": 1478039739,
+        "downloadDir": "/dir/2",
+        "error": 3,
+        "errorString": "No data found! Ensure your drives are connected or use \"Set Location\". To re-download, remove the torrent and re-add it.",
+        "eta": -1,
+        "files": [
+          {
+            "bytesCompleted": 33,
+            "length": 33,
+            "name": "file1"
+          }
+        ],
+        "hashString": "3333333333333333333333333333333333333333",
+        "id": 3,
+        "isFinished": true,
+        "isStalled": false,
+        "leftUntilDone": 0,
+        "metadataPercentComplete": 1,
+        "name": "T3",
+        "peersConnected": 0,
+        "peersGettingFromUs": 0,
+        "peersSendingToUs": 0,
+        "percentDone": 1,
+        "queuePosition": 2,
+        "rateDownload": 0,
+        "rateUpload": 0,
+        "recheckProgress": 0,
+        "seedRatioLimit": 1.2,
+        "seedRatioMode": 0,
+        "sizeWhenDone": 33333,
+        "status": 0,
+        "totalSize": 33333,
+        "uploadRatio": 1.2003,
+        "uploadedEver": 1167729396
+      }
+    ]
+  },
+  "result": "success"
+}
+"""
 }
