@@ -21,8 +21,8 @@ data class Torrent(val hash: String, val id: Int, val name: String,
                    val pieceSize: Long = 0, val pieceCount: Int = 0,
                    val isPrivate: Boolean = false,
                    val creator: String = "", val comment: String = "",
-                   val files: List<TorrentFile> = emptyList(),
-                   val trackers: List<TorrentTracker> = emptyList()) {
+                   val files: Set<TorrentFile> = emptySet(),
+                   val trackers: Set<TorrentTracker> = emptySet()) {
 
     fun merge(other: Torrent) : Torrent {
         val default = Torrent(hash = "", id = 0, name = "")
@@ -96,9 +96,8 @@ data class Torrent(val hash: String, val id: Int, val name: String,
     }
 }
 
-data class TorrentFile(val hash: String,
-                       val path: String,
-                       val bytes: Long, val total: Long,
+data class TorrentFile(val path: String,
+                       val downloaded: Long, val total: Long,
                        val priority: Int, val wanted: Boolean) : Comparable<TorrentFile> {
 
     val name: String
@@ -114,8 +113,7 @@ data class TorrentFile(val hash: String,
     override fun compareTo(other: TorrentFile) = compareValuesBy(this, other, { it.directory }, { it.name })
 }
 
-data class TorrentTracker(val hash: String,
-                          val id: Int,
+data class TorrentTracker(val id: Int,
                           val announce: String, val scrape: String, val tier: Int,
                           val seederCount: Int, val leecherCount: Int,
                           val hasAnnounced: Boolean, val lastAnnounceTime: Long,

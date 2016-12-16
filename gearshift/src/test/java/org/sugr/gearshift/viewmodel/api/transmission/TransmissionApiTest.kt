@@ -2,10 +2,7 @@ package org.sugr.gearshift.viewmodel.api.transmission
 
 import android.content.Context
 import android.content.SharedPreferences
-import com.github.salomonbrys.kotson.jsonObject
-import com.github.salomonbrys.kotson.nullObj
-import com.github.salomonbrys.kotson.obj
-import com.github.salomonbrys.kotson.string
+import com.github.salomonbrys.kotson.*
 import com.google.gson.Gson
 import com.google.gson.JsonParser
 import com.nhaarman.mockito_kotlin.any
@@ -24,6 +21,9 @@ import org.sugr.gearshift.model.Profile
 import org.sugr.gearshift.model.Session
 import org.sugr.gearshift.model.Torrent
 import org.sugr.gearshift.viewmodel.api.Api
+import org.sugr.gearshift.viewmodel.api.transmission.TransmissionApi.Companion.NEW_STATUS_RPC_VERSION
+import org.sugr.gearshift.viewmodel.api.transmission.TransmissionApi.Companion.TORRENT_META_FIELDS
+import org.sugr.gearshift.viewmodel.api.transmission.TransmissionApi.Companion.TORRENT_STAT_FIELDS
 import java.net.HttpURLConnection
 
 class TransmissionApiTest {
@@ -33,6 +33,30 @@ class TransmissionApiTest {
     val gson = Gson()
     val log = mock<Logger> {
         on { E(any<String>(), any()) }.then { println(it.arguments[0]) }
+    }
+    val ctx = mock<Context>{
+        on { getString(R.string.status_format) } doReturn "%1\$s %2\$s"
+        on { getString(R.string.status_state_downloading_metadata)} doReturn "d_meta"
+        on { getString(R.string.status_state_downloading) } doReturn "d"
+        on { getString(R.string.status_state_download_waiting) } doReturn "d_wait"
+        on { getString(R.string.status_more_downloading_format) } doReturn "%1\$d %2\$d %3\$s"
+        on { getString(R.string.status_more_downloading_speed_format) } doReturn "%1\$s %2\$s"
+        on { getString(R.string.status_more_idle) } doReturn "m_i"
+        on { getString(R.string.status_state_seeding) } doReturn "s"
+        on { getString(R.string.status_state_seed_waiting) } doReturn "s_wait"
+        on { getString(R.string.status_more_seeding_format) } doReturn "%1\$d %2\$d %3\$s"
+        on { getString(R.string.status_more_seeding_speed_format) } doReturn "%1\$s %2\$s"
+        on { getString(R.string.status_state_checking) } doReturn "c"
+        on { getString(R.string.status_state_check_waiting) } doReturn "c_wait"
+        on { getString(R.string.status_state_paused) } doReturn "p"
+        on { getString(R.string.status_state_finished) } doReturn "f"
+        on { getString(R.string.traffic_downloading_format) } doReturn "%1\$s %2\$s %3\$s %4\$s"
+        on { getString(R.string.traffic_downloading_percentage_format) } doReturn "%1\$s"
+        on { getString(R.string.traffic_remaining_time_unknown) } doReturn "t_u"
+        on { getString(R.string.traffic_remaining_time_format) } doReturn "%1\$s"
+        on { getString(R.string.traffic_seeding_format) } doReturn "%1\$s %2\$s %3\$s %4\$s"
+        on { getString(R.string.traffic_seeding_ratio_format) } doReturn "%1\$s %2\$s"
+        on { getString(R.string.traffic_seeding_ratio_goal_format) } doReturn "%1\$s"
     }
 
     init {
@@ -52,7 +76,6 @@ class TransmissionApiTest {
                 .setBody(jsonObject("result" to "success", "arguments" to jsonObject("version" to "v1")).toString())
         )
 
-        val ctx = mock<Context>{}
         val editor = mock<SharedPreferences.Editor> {}
         val prefs = mock<SharedPreferences>{
             on { edit() } doReturn editor
@@ -81,7 +104,6 @@ class TransmissionApiTest {
                 .setBody(jsonObject("result" to "success", "arguments" to jsonObject("version" to "v1")).toString())
         )
 
-        val ctx = mock<Context>{}
         val prefs = mock<SharedPreferences>{}
 
         val api : Api = TransmissionApi(baseProfile, ctx, prefs, gson, log, Schedulers.trampoline())
@@ -104,46 +126,21 @@ class TransmissionApiTest {
     fun torrents() {
         server.enqueue(MockResponse()
                 .setResponseCode(HttpURLConnection.HTTP_OK)
-                .setBody(Torrents.data)
+                .setBody(Torrents.data3)
         )
 
-        val ctx = mock<Context>{
-            on { getString(R.string.status_format) } doReturn "%1\$s %2\$s"
-            on { getString(R.string.status_state_downloading_metadata)} doReturn "d_meta"
-            on { getString(R.string.status_state_downloading) } doReturn "d"
-            on { getString(R.string.status_state_download_waiting) } doReturn "d_wait"
-            on { getString(R.string.status_more_downloading_format) } doReturn "%1\$d %2\$d %3\$s"
-            on { getString(R.string.status_more_downloading_speed_format) } doReturn "%1\$s %2\$s"
-            on { getString(R.string.status_more_idle) } doReturn "m_i"
-            on { getString(R.string.status_state_seeding) } doReturn "s"
-            on { getString(R.string.status_state_seed_waiting) } doReturn "s_wait"
-            on { getString(R.string.status_more_seeding_format) } doReturn "%1\$d %2\$d %3\$s"
-            on { getString(R.string.status_more_seeding_speed_format) } doReturn "%1\$s %2\$s"
-            on { getString(R.string.status_state_checking) } doReturn "c"
-            on { getString(R.string.status_state_check_waiting) } doReturn "c_wait"
-            on { getString(R.string.status_state_paused) } doReturn "p"
-            on { getString(R.string.status_state_finished) } doReturn "f"
-            on { getString(R.string.traffic_downloading_format) } doReturn "%1\$s %2\$s %3\$s %4\$s"
-            on { getString(R.string.traffic_downloading_percentage_format) } doReturn "%1\$s"
-            on { getString(R.string.traffic_remaining_time_unknown) } doReturn "t_u"
-            on { getString(R.string.traffic_remaining_time_format) } doReturn "%1\$s"
-            on { getString(R.string.traffic_seeding_format) } doReturn "%1\$s %2\$s %3\$s %4\$s"
-            on { getString(R.string.traffic_seeding_ratio_format) } doReturn "%1\$s %2\$s"
-            on { getString(R.string.traffic_seeding_ratio_goal_format) } doReturn "%1\$s"
-        }
         val prefs = mock<SharedPreferences>{}
 
         val api : Api = TransmissionApi(baseProfile, ctx, prefs, gson, log, Schedulers.trampoline())
 
-        val torrents = api.torrents(Observable.just(Session(rpcVersion = 15)), 1, setOf()).skip(1).blockingFirst()
+        val torrents = api.torrents(Observable.just(Session(rpcVersion = NEW_STATUS_RPC_VERSION)), 1, setOf()).skip(1).blockingFirst()
 
         assertThat(3, `is`(torrents.size))
 
         torrents.forEachIndexed { i, torrent ->
             assertThat(Torrents.names[i], `is`(torrent.name))
             assertThat(Torrents.statuses[i], `is`(torrent.statusType))
-            // Files aren't loaded on the first request
-            assertThat(0, `is`(torrent.files.size))
+            assertThat(Torrents.fileCount[i], `is`(torrent.files.size))
         }
 
         val request = server.takeRequest()
@@ -155,6 +152,7 @@ class TransmissionApiTest {
         val obj = jp.parse(request.body.readUtf8()).obj
         assertThat("torrent-get", `is`(obj["method"].string))
         assertThat(null, `is`(obj["arguments"].obj["ids"].nullObj))
+        assertThat(jsonArray(*(TORRENT_META_FIELDS + TORRENT_STAT_FIELDS)), `is`(obj["arguments"].obj["fields"].array))
     }
 
 }
@@ -162,8 +160,8 @@ class TransmissionApiTest {
 private object Torrents {
     val names = arrayOf("T1", "T2", "T3")
     val statuses = arrayOf(Torrent.StatusType.STOPPED, Torrent.StatusType.DOWNLOADING, Torrent.StatusType.CHECK_WAITING)
-    val fileCount = arrayOf(2, 1, 1)
-    val data = """{
+    val fileCount = arrayOf(2, 1, 0)
+    val data3 = """{
   "arguments": {
     "torrents": [
       {
@@ -249,13 +247,6 @@ private object Torrents {
         "error": 3,
         "errorString": "No data found! Ensure your drives are connected or use \"Set Location\". To re-download, remove the torrent and re-add it.",
         "eta": -1,
-        "files": [
-          {
-            "bytesCompleted": 33,
-            "length": 33,
-            "name": "file1"
-          }
-        ],
         "hashString": "3333333333333333333333333333333333333333",
         "id": 3,
         "isFinished": true,
@@ -275,7 +266,7 @@ private object Torrents {
         "seedRatioMode": 0,
         "sizeWhenDone": 33333,
         "status": 1,
-        "totalSize": 33333,
+        "totalSize": 0,
         "uploadRatio": 1.2003,
         "uploadedEver": 1167729396
       }

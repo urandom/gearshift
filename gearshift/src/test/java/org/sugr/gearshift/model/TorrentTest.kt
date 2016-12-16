@@ -8,7 +8,7 @@ class TorrentTest {
     @Test
     fun merge() {
         val original = Torrent(hash = "hash", id = 1, name = "name", totalSize = 123)
-        val merging = Torrent(hash = "hash", id = 1, name = "name", files = listOf(TorrentFile(hash = "hash", path = "path", bytes = 1, total = 3, priority = 1, wanted = true)))
+        val merging = Torrent(hash = "hash", id = 1, name = "name", files = setOf(TorrentFile(path = "path", downloaded = 1, total = 3, priority = 1, wanted = true)))
 
         val merged = original.merge(merging)
 

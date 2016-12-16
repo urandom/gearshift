@@ -22,6 +22,7 @@ import org.sugr.gearshift.R
 import org.sugr.gearshift.model.Profile
 import org.sugr.gearshift.model.Session
 import org.sugr.gearshift.model.Torrent
+import org.sugr.gearshift.model.TorrentFile
 import org.sugr.gearshift.viewmodel.api.Api
 import org.sugr.gearshift.viewmodel.ext.readableFileSize
 import org.sugr.gearshift.viewmodel.ext.readablePercent
@@ -195,7 +196,7 @@ class TransmissionApi(
                 val torrents = json.filter { it.isJsonObject }.map { it.asJsonObject }
                 val removed = torrents.filter { !it.contains(FIELD_HASH) }.map { it[FIELD_ID].int }.toSet()
 
-                torrents.filter { it.contains(FIELD_HASH) }.map { torrentFrom(it, ctx, session.rpcVersion) }.forEach { torrent ->
+                torrents.filter { it.contains(FIELD_HASH) }.map { torrentFrom(it, ctx, session.rpcVersion, gson) }.forEach { torrent ->
                     accum[torrent.hash] = accum[torrent.hash]?.merge(torrent) ?: torrent
                 }
 
@@ -250,18 +251,19 @@ class TransmissionApi(
     companion object {
         val JSON = MediaType.parse("application/json; charset=utf-8");
 
-        private val NEW_STATUS_RPC_VERSION = 14
+        internal val NEW_STATUS_RPC_VERSION = 14
 
-        private val FIELD_ID = "id"
-        private val FIELD_HASH = "hashString"
-        private val FIELD_NAME = "name"
-        private val FIELD_TOTAL_SIZE = "totalSize"
-        private val FIELD_FILES = "files"
-        private val FIELD_TRACKERS = "trackers"
+        internal val FIELD_ID = "id"
+        internal val FIELD_HASH = "hashString"
+        internal val FIELD_NAME = "name"
+        internal val FIELD_TOTAL_SIZE = "totalSize"
+        internal val FIELD_FILES = "files"
+        internal val FIELD_TRACKERS = "trackers"
+        internal val FIELD_FILE_STATS = "fileStats"
 
-        private val TORRENT_META_FIELDS = arrayOf(FIELD_HASH, FIELD_NAME, "addedDate", FIELD_TOTAL_SIZE)
+        internal val TORRENT_META_FIELDS = arrayOf(FIELD_HASH, FIELD_NAME, "addedDate", FIELD_TOTAL_SIZE)
 
-        private val TORRENT_STAT_FIELDS = arrayOf(
+        internal val TORRENT_STAT_FIELDS = arrayOf(
                 FIELD_HASH, FIELD_ID, "error", "errorString", "eta",
                 "isFinished", "isStalled", "leftUntilDone", "metadataPercentComplete",
                 "peersConnected", "peersGettingFromUs", "peersSendingToUs", "percentDone",
@@ -270,7 +272,7 @@ class TransmissionApi(
                 "uploadedEver", "uploadRatio", "downloadDir"
         )
 
-        private fun torrentFrom(json: JsonObject, ctx: Context, rpcVersion: Int) : Torrent {
+        private fun torrentFrom(json: JsonObject, ctx: Context, rpcVersion: Int, gson: Gson) : Torrent {
             val metaProgress = json["metadataPercentComplete"]?.nullFloat ?: 0f
             val downloadProgress = json["percentDone"]?.nullFloat ?: 0f
             val eta = json["eta"]?.nullLong ?: 0L
@@ -412,6 +414,18 @@ class TransmissionApi(
                 else -> ""
             }
 
+            val jsonFiles = json[FIELD_FILES].nullArray ?: jsonArray()
+            val jsonFileStats = json[FIELD_FILE_STATS].nullArray ?: jsonArray()
+
+            val files = jsonFiles.mapIndexed { i, file ->
+                val stats = if (jsonFileStats.size() > i) jsonFileStats[i].obj else jsonObject()
+
+                TorrentFile(path = file["name"].string,
+                        downloaded = file["bytesCompleted"].long,
+                        total = file["length"].long,
+                        priority = stats["priority"].nullInt ?: 0,
+                        wanted = stats["wanted"].nullBool ?: false)
+            }.toSet()
 
             return Torrent(
                     hash = json[FIELD_HASH]?.nullString ?: "", id = json[FIELD_ID]?.nullInt ?: 0,
@@ -429,7 +443,8 @@ class TransmissionApi(
                     sizeLeft = leftUntilDone,
                     seedRatioLimit =  seedLimit,
                     seedRatioMode = SeedRatioMode.values().filter { it.value == seedMode }
-                            .map { it.mode }.firstOrNull() ?: Torrent.SeedRatioMode.UNKNOWN
+                            .map { it.mode }.firstOrNull() ?: Torrent.SeedRatioMode.UNKNOWN,
+                    files = files
             )
         }
     }
