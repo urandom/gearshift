@@ -150,7 +150,9 @@ class TransmissionApi(
     override fun torrents(session: Observable<Session>, interval: Long, initial: Set<Torrent>) : Observable<Set<Torrent>> {
         val initialMap = initial.associateBy { it.hash }.toMutableMap()
 
-        return session.take(1).flatMap { session ->
+        return session.take(1).map { session ->
+            (session as? TransmissionSession)?.rpcVersion ?: 0
+        }.flatMap { rpcVersion ->
             getTorrents(TORRENT_META_FIELDS + TORRENT_STAT_FIELDS).toObservable().concatWith(
                 Observable.rangeLong(1, Long.MAX_VALUE).concatMap { counter ->
                     val args = mutableListOf<Pair<String, Any?>>()
@@ -207,7 +209,7 @@ class TransmissionApi(
                 val torrents = json.filter { it.isJsonObject }.map { it.asJsonObject }
                 val removed = torrents.filter { !it.contains(FIELD_HASH) }.map { it[FIELD_ID].int }.toSet()
 
-                torrents.filter { it.contains(FIELD_HASH) }.map { torrentFrom(it, ctx, session.rpcVersion, gson) }.forEach { torrent ->
+                torrents.filter { it.contains(FIELD_HASH) }.map { torrentFrom(it, ctx, rpcVersion, gson) }.forEach { torrent ->
                     accum[torrent.hash] = accum[torrent.hash]?.merge(torrent) ?: torrent
                 }
 

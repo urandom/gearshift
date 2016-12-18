@@ -18,7 +18,6 @@ import org.junit.Test
 import org.sugr.gearshift.Logger
 import org.sugr.gearshift.R
 import org.sugr.gearshift.model.Profile
-import org.sugr.gearshift.model.Session
 import org.sugr.gearshift.model.Torrent
 import org.sugr.gearshift.viewmodel.api.Api
 import java.net.HttpURLConnection
@@ -130,7 +129,7 @@ class TransmissionApiTest {
 
         val api : Api = TransmissionApi(baseProfile, ctx, prefs, gson, log, Schedulers.trampoline())
 
-        val torrents = api.torrents(Observable.just(Session(rpcVersion = Torrents.new_status_rpc_version)), 1, setOf()).skip(1).blockingFirst()
+        val torrents = api.torrents(Observable.just(TransmissionSession(rpcVersion = Torrents.new_status_rpc_version)), 1, setOf()).skip(1).blockingFirst()
 
         assertThat(3, `is`(torrents.size))
 
@@ -167,7 +166,7 @@ class TransmissionApiTest {
 
         val api : Api = TransmissionApi(baseProfile, ctx, prefs, gson, log, Schedulers.trampoline())
 
-        val torrents = api.torrents(Observable.just(Session(rpcVersion = Torrents.new_status_rpc_version)), 1, setOf()).skip(2).take(1).blockingFirst()
+        val torrents = api.torrents(Observable.just(TransmissionSession(rpcVersion = Torrents.new_status_rpc_version)), 1, setOf()).skip(2).take(1).blockingFirst()
         assertThat(3, `is`(torrents.size))
 
         torrents.forEachIndexed { i, torrent ->
@@ -216,7 +215,7 @@ class TransmissionApiTest {
 
         val api : Api = TransmissionApi(baseProfile, ctx, prefs, gson, log, Schedulers.trampoline())
 
-        val torrents = api.torrents(Observable.just(Session(rpcVersion = Torrents.new_status_rpc_version)), 1, setOf()).skip(11).take(1).blockingFirst()
+        val torrents = api.torrents(Observable.just(TransmissionSession(rpcVersion = Torrents.new_status_rpc_version)), 1, setOf()).skip(11).take(1).blockingFirst()
         assertThat(2, `is`(torrents.size))
 
         server.takeRequest()
@@ -267,7 +266,7 @@ class TransmissionApiTest {
 
         var index = 0
         // Skip the initial and the one with meta and stat fields
-        api.torrents(Observable.just(Session(rpcVersion = Torrents.new_status_rpc_version)), 1, setOf()).skip(2).take(4).blockingForEach { torrents ->
+        api.torrents(Observable.just(TransmissionSession(rpcVersion = Torrents.new_status_rpc_version)), 1, setOf()).skip(2).take(4).blockingForEach { torrents ->
             assertThat(1, `is`(torrents.size))
 
             val torrent = torrents.first()
