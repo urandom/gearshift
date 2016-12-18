@@ -1,8 +1,15 @@
 package org.sugr.gearshift.model
 
-open class Session(
-        val downloadSpeedLimit: Long = -1,
-        val uploadSpeedLimit: Long = -1,
-        val seedRatioLimitEnabled: Boolean = false,
-        val seedRatioLimit: Float = -1f
-)
+interface Session {
+        val downloadSpeedLimit: Long
+        val uploadSpeedLimit: Long
+        val seedRatioLimitEnabled: Boolean
+        val seedRatioLimit: Float
+}
+
+data class NoSession(
+        override val downloadSpeedLimit: Long = -1,
+        override val uploadSpeedLimit: Long = -1,
+        override val seedRatioLimitEnabled: Boolean = false,
+        override val seedRatioLimit: Float = -1f
+) : Session

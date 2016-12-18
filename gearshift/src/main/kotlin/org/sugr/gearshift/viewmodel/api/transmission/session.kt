@@ -10,6 +10,10 @@ data class TransmissionSession(
         val altSpeedLimitEnabled: Boolean = false,
         val altDownloadSpeedLimit: Long = -1,
         val altUploadSpeedLimit: Long = -1,
-        val rpcVersion: Int = 0
-) : Session()
+        val rpcVersion: Int = 0,
+        override val downloadSpeedLimit: Long = -1,
+        override val uploadSpeedLimit: Long = -1,
+        override val seedRatioLimitEnabled: Boolean = false,
+        override val seedRatioLimit: Float = -1f
+) : Session
 

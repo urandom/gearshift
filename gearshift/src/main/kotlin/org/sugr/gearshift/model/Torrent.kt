@@ -72,7 +72,7 @@ data class Torrent(val hash: String, val id: Int, val name: String,
             else -> false
         }
 
-    fun seedRatioLimit(session: Session = Session()) : Float {
+    fun seedRatioLimit(session: Session = NoSession()) : Float {
         if (seedRatioMode == SeedRatioMode.NO_LIMIT || seedRatioMode == SeedRatioMode.UNKNOWN) {
             return 0f
         } else if (seedRatioMode == SeedRatioMode.GLOBAL_LIMIT) {

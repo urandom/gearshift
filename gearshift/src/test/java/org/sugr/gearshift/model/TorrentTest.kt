@@ -54,19 +54,19 @@ class TorrentTest {
     @Test
     fun seedRatioLimit() {
         assertThat(0f, `is`(Torrent(hash = "hash", id = 1, name = "name", seedRatioLimit = 1.2f)
-                .seedRatioLimit(Session())))
+                .seedRatioLimit(NoSession())))
         assertThat(0f, `is`(Torrent(hash = "hash", id = 1, name = "name",
                 seedRatioLimit = 1.2f, seedRatioMode = Torrent.SeedRatioMode.NO_LIMIT)
-                .seedRatioLimit(Session())))
+                .seedRatioLimit(NoSession())))
         assertThat(1.2f, `is`(Torrent(hash = "hash", id = 1, name = "name",
                 seedRatioLimit = 1.2f, seedRatioMode = Torrent.SeedRatioMode.LIMIT)
-                .seedRatioLimit(Session())))
+                .seedRatioLimit(NoSession())))
         assertThat(0f, `is`(Torrent(hash = "hash", id = 1, name = "name",
                 seedRatioLimit = 1.2f, seedRatioMode = Torrent.SeedRatioMode.GLOBAL_LIMIT)
-                .seedRatioLimit(Session())))
+                .seedRatioLimit(NoSession())))
         assertThat(0.5f, `is`(Torrent(hash = "hash", id = 1, name = "name",
                 seedRatioLimit = 1.2f, seedRatioMode = Torrent.SeedRatioMode.GLOBAL_LIMIT)
-                .seedRatioLimit(Session(seedRatioLimitEnabled = true, seedRatioLimit = 0.5f))))
+                .seedRatioLimit(NoSession(seedRatioLimitEnabled = true, seedRatioLimit = 0.5f))))
     }
 
 }
