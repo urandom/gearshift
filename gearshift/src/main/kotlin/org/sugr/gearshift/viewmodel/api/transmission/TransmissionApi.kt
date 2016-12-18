@@ -174,9 +174,13 @@ class TransmissionApi(
                                     (it.obj[FIELD_TOTAL_SIZE]?.nullInt ?: 0) == 0
                                 }.map { it[FIELD_HASH].string }.toTypedArray()
 
-                                val withoutFiles = torrents.filter { it.isJsonObject }.filter {
-                                    (it.obj[FIELD_FILES]?.nullArray?.size() ?: 0) == 0
-                                }.map { it[FIELD_HASH].string }.toTypedArray()
+                                val withoutFiles = torrents.filter { it.isJsonObject }
+                                        .filter {
+                                            !incomplete.contains(it.obj[FIELD_HASH].string)
+                                        }
+                                        .filter {
+                                            (it.obj[FIELD_FILES]?.nullArray?.size() ?: 0) == 0
+                                        }.map { it[FIELD_HASH].string }.toTypedArray()
 
                                 json["removed"]?.nullArray?.map { jsonObject(FIELD_ID to it) }?.forEach { t ->
                                     torrents.add(t)

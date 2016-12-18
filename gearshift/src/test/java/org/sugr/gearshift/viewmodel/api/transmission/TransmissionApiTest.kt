@@ -42,7 +42,7 @@ class TransmissionApiTest {
         on { getString(R.string.status_state_seeding) } doReturn "s"
         on { getString(R.string.status_state_seed_waiting) } doReturn "s_wait"
         on { getString(R.string.status_more_seeding_format) } doReturn "%1\$d %2\$d %3\$s"
-        on { getString(R.string.status_more_seeding_speed_format) } doReturn "%1\$s %2\$s"
+        on { getString(R.string.status_more_seeding_speed_format) } doReturn "%1\$s"
         on { getString(R.string.status_state_checking) } doReturn "c"
         on { getString(R.string.status_state_check_waiting) } doReturn "c_wait"
         on { getString(R.string.status_state_paused) } doReturn "p"
@@ -253,6 +253,84 @@ class TransmissionApiTest {
         assertThat(jsonArray(*(Torrents.stat_fields)), `is`(obj["arguments"].obj["fields"].array))
     }
 
+    @Test
+    fun torrentFetchAllFields() {
+        server.enqueue(MockResponse().setResponseCode(HttpURLConnection.HTTP_OK).setBody(Torrents.dataStarting))
+        server.enqueue(MockResponse().setResponseCode(HttpURLConnection.HTTP_OK).setBody(Torrents.dataStarting))
+        server.enqueue(MockResponse().setResponseCode(HttpURLConnection.HTTP_OK).setBody(Torrents.dataAfterMeta))
+        server.enqueue(MockResponse().setResponseCode(HttpURLConnection.HTTP_OK).setBody(Torrents.dataAfterMeta))
+        server.enqueue(MockResponse().setResponseCode(HttpURLConnection.HTTP_OK).setBody(Torrents.dataWithFiles))
+
+        val prefs = mock<SharedPreferences>{}
+
+        val api : Api = TransmissionApi(baseProfile, ctx, prefs, gson, log, Schedulers.trampoline())
+
+        var index = 0
+        // Skip the initial and the one with meta and stat fields
+        api.torrents(Observable.just(Session(rpcVersion = Torrents.new_status_rpc_version)), 1, setOf()).skip(2).take(4).blockingForEach { torrents ->
+            assertThat(1, `is`(torrents.size))
+
+            val torrent = torrents.first()
+            when (index) {
+                0 -> {
+                    assertThat(0, `is`(torrent.totalSize))
+                    assertThat(0, `is`(torrent.files.size))
+                }
+                1 -> {
+                    assertThat(1111, `is`(torrent.totalSize))
+                    assertThat(0, `is`(torrent.files.size))
+                }
+                2 -> {
+                    assertThat(1111, `is`(torrent.totalSize))
+                    assertThat(0, `is`(torrent.files.size))
+                }
+                3 -> {
+                    assertThat(1111, `is`(torrent.totalSize))
+                    assertThat(1, `is`(torrent.files.size))
+                    assertThat("file1", `is`(torrent.files.first().name))
+                }
+            }
+
+
+            index++
+
+        }
+
+        val jp = JsonParser()
+        val hash = "3333333333333333333333333333333333333333"
+
+        var request = server.takeRequest()
+        var obj = jp.parse(request.body.readUtf8()).obj
+        assertThat("torrent-get", `is`(obj["method"].string))
+        assertThat(null, `is`(obj["arguments"].obj["ids"].nullObj))
+        assertThat(jsonArray(*(Torrents.meta_fields + Torrents.stat_fields)), `is`(obj["arguments"].obj["fields"].array))
+
+        request = server.takeRequest()
+        obj = jp.parse(request.body.readUtf8()).obj
+        assertThat("torrent-get", `is`(obj["method"].string))
+        assertThat("recently-active", `is`(obj["arguments"].obj["ids"].string))
+        assertThat(jsonArray(*(Torrents.stat_fields)), `is`(obj["arguments"].obj["fields"].array))
+
+        request = server.takeRequest()
+        obj = jp.parse(request.body.readUtf8()).obj
+        assertThat("torrent-get", `is`(obj["method"].string))
+        assertThat(1, `is`(obj["arguments"].obj["ids"].array.size()))
+        assertThat(hash, `is`(obj["arguments"].obj["ids"].array.first().string))
+        assertThat(jsonArray(*(Torrents.meta_fields)), `is`(obj["arguments"].obj["fields"].array))
+
+        request = server.takeRequest()
+        obj = jp.parse(request.body.readUtf8()).obj
+        assertThat("torrent-get", `is`(obj["method"].string))
+        assertThat("recently-active", `is`(obj["arguments"].obj["ids"].string))
+        assertThat(jsonArray(*(Torrents.stat_fields)), `is`(obj["arguments"].obj["fields"].array))
+
+        request = server.takeRequest()
+        obj = jp.parse(request.body.readUtf8()).obj
+        assertThat("torrent-get", `is`(obj["method"].string))
+        assertThat(1, `is`(obj["arguments"].obj["ids"].array.size()))
+        assertThat(hash, `is`(obj["arguments"].obj["ids"].array.first().string))
+        assertThat(jsonArray(Torrents.field_hash_string, Torrents.field_files), `is`(obj["arguments"].obj["fields"].array))
+    }
 }
 
 private object Torrents {
@@ -472,4 +550,116 @@ private object Torrents {
   "result": "success"
 }
 """
+    val dataStarting = """{
+  "arguments": {
+    "torrents": [
+      {
+        "addedDate": 1478039739,
+        "downloadDir": "/dir/2",
+        "eta": -1,
+        "hashString": "3333333333333333333333333333333333333333",
+        "id": 3,
+        "isFinished": true,
+        "isStalled": false,
+        "leftUntilDone": 0,
+        "metadataPercentComplete": 1,
+        "name": "",
+        "peersConnected": 0,
+        "peersGettingFromUs": 0,
+        "peersSendingToUs": 0,
+        "percentDone": 1,
+        "queuePosition": 2,
+        "rateDownload": 0,
+        "rateUpload": 0,
+        "recheckProgress": 0,
+        "seedRatioLimit": 1.2,
+        "seedRatioMode": 0,
+        "sizeWhenDone": 33333,
+        "status": 1,
+        "uploadRatio": 1.2003,
+        "uploadedEver": 1167729396
+      }
+    ]
+  },
+  "result": "success"
+}"""
+    val dataAfterMeta = """{
+  "arguments": {
+    "torrents": [
+      {
+        "addedDate": 1478039739,
+        "downloadDir": "/dir/2",
+        "error": 0,
+        "errorString": "",
+        "eta": -1,
+        "hashString": "3333333333333333333333333333333333333333",
+        "id": 3,
+        "isFinished": true,
+        "isStalled": false,
+        "leftUntilDone": 0,
+        "metadataPercentComplete": 1,
+        "name": "${names[2]}",
+        "peersConnected": 0,
+        "peersGettingFromUs": 0,
+        "peersSendingToUs": 0,
+        "percentDone": 1,
+        "queuePosition": 2,
+        "rateDownload": 0,
+        "rateUpload": 0,
+        "recheckProgress": 0,
+        "seedRatioLimit": 1.2,
+        "seedRatioMode": 0,
+        "sizeWhenDone": 1111,
+        "status": 4,
+        "totalSize": 1111,
+        "uploadRatio": 1.2003,
+        "uploadedEver": 1167729396
+      }
+    ]
+  },
+  "result": "success"
+}"""
+    val dataWithFiles = """{
+  "arguments": {
+    "torrents": [
+      {
+        "addedDate": 1478039739,
+        "downloadDir": "/dir/2",
+        "error": 0,
+        "errorString": "",
+        "eta": -1,
+        "files": [
+          {
+            "bytesCompleted": 1100,
+            "length": 1111,
+            "name": "file1"
+          }
+        ],
+        "hashString": "3333333333333333333333333333333333333333",
+        "id": 3,
+        "isFinished": true,
+        "isStalled": false,
+        "leftUntilDone": 0,
+        "metadataPercentComplete": 1,
+        "name": "${names[2]}",
+        "peersConnected": 0,
+        "peersGettingFromUs": 0,
+        "peersSendingToUs": 0,
+        "percentDone": 1,
+        "queuePosition": 2,
+        "rateDownload": 0,
+        "rateUpload": 0,
+        "recheckProgress": 0,
+        "seedRatioLimit": 1.2,
+        "seedRatioMode": 0,
+        "sizeWhenDone": 1111,
+        "status": 6,
+        "totalSize": 1111,
+        "uploadRatio": 1.2003,
+        "uploadedEver": 1167729396
+      }
+    ]
+  },
+  "result": "success"
+}"""
 }
