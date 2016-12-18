@@ -21,9 +21,6 @@ import org.sugr.gearshift.model.Profile
 import org.sugr.gearshift.model.Session
 import org.sugr.gearshift.model.Torrent
 import org.sugr.gearshift.viewmodel.api.Api
-import org.sugr.gearshift.viewmodel.api.transmission.TransmissionApi.Companion.NEW_STATUS_RPC_VERSION
-import org.sugr.gearshift.viewmodel.api.transmission.TransmissionApi.Companion.TORRENT_META_FIELDS
-import org.sugr.gearshift.viewmodel.api.transmission.TransmissionApi.Companion.TORRENT_STAT_FIELDS
 import java.net.HttpURLConnection
 
 class TransmissionApiTest {
@@ -133,7 +130,7 @@ class TransmissionApiTest {
 
         val api : Api = TransmissionApi(baseProfile, ctx, prefs, gson, log, Schedulers.trampoline())
 
-        val torrents = api.torrents(Observable.just(Session(rpcVersion = NEW_STATUS_RPC_VERSION)), 1, setOf()).skip(1).blockingFirst()
+        val torrents = api.torrents(Observable.just(Session(rpcVersion = Torrents.new_status_rpc_version)), 1, setOf()).skip(1).blockingFirst()
 
         assertThat(3, `is`(torrents.size))
 
@@ -152,12 +149,72 @@ class TransmissionApiTest {
         val obj = jp.parse(request.body.readUtf8()).obj
         assertThat("torrent-get", `is`(obj["method"].string))
         assertThat(null, `is`(obj["arguments"].obj["ids"].nullObj))
-        assertThat(jsonArray(*(TORRENT_META_FIELDS + TORRENT_STAT_FIELDS)), `is`(obj["arguments"].obj["fields"].array))
+        assertThat(jsonArray(*(Torrents.meta_fields + Torrents.stat_fields)), `is`(obj["arguments"].obj["fields"].array))
+    }
+
+    @Test
+    fun torrentsSecondRequest() {
+        server.enqueue(MockResponse()
+                .setResponseCode(HttpURLConnection.HTTP_OK)
+                .setBody(Torrents.data3)
+        )
+        server.enqueue(MockResponse()
+                .setResponseCode(HttpURLConnection.HTTP_OK)
+                .setBody(Torrents.data3)
+        )
+
+        val prefs = mock<SharedPreferences>{}
+
+        val api : Api = TransmissionApi(baseProfile, ctx, prefs, gson, log, Schedulers.trampoline())
+
+        val torrents = api.torrents(Observable.just(Session(rpcVersion = Torrents.new_status_rpc_version)), 1, setOf()).skip(2).take(1).blockingFirst()
+        assertThat(3, `is`(torrents.size))
+
+        torrents.forEachIndexed { i, torrent ->
+            assertThat(Torrents.names[i], `is`(torrent.name))
+            assertThat(Torrents.statuses[i], `is`(torrent.statusType))
+            assertThat(Torrents.fileCount[i], `is`(torrent.files.size))
+        }
+
+        var request = server.takeRequest()
+        assertThat("/transmission/rpc", `is`(request.path))
+        assertThat("POST", `is`(request.method))
+        assertThat(null, `is`(request.headers["X-Transmission-Session-Id"]))
+
+        val jp = JsonParser()
+        var obj = jp.parse(request.body.readUtf8()).obj
+        assertThat("torrent-get", `is`(obj["method"].string))
+        assertThat(null, `is`(obj["arguments"].obj["ids"].nullObj))
+        assertThat(jsonArray(*(Torrents.meta_fields + Torrents.stat_fields)), `is`(obj["arguments"].obj["fields"].array))
+
+        request = server.takeRequest()
+        assertThat("/transmission/rpc", `is`(request.path))
+        assertThat("POST", `is`(request.method))
+        assertThat(null, `is`(request.headers["X-Transmission-Session-Id"]))
+
+        obj = jp.parse(request.body.readUtf8()).obj
+        assertThat("torrent-get", `is`(obj["method"].string))
+        assertThat("recently-active", `is`(obj["arguments"].obj["ids"].string))
+        assertThat(jsonArray(*(Torrents.stat_fields)), `is`(obj["arguments"].obj["fields"].array))
     }
 
 }
 
 private object Torrents {
+    val new_status_rpc_version = 14
+    val field_hash_string = "hashString"
+    val field_files = "files"
+
+    val meta_fields = arrayOf(field_hash_string, "name", "addedDate", "totalSize")
+    val stat_fields = arrayOf(
+            field_hash_string, "id", "error", "errorString", "eta",
+            "isFinished", "isStalled", "leftUntilDone", "metadataPercentComplete",
+            "peersConnected", "peersGettingFromUs", "peersSendingToUs", "percentDone",
+            "queuePosition", "rateDownload", "rateUpload", "recheckProgress",
+            "seedRatioMode", "seedRatioLimit", "sizeWhenDone", "status",
+            "uploadedEver", "uploadRatio", "downloadDir"
+    )
+
     val names = arrayOf("T1", "T2", "T3")
     val statuses = arrayOf(Torrent.StatusType.STOPPED, Torrent.StatusType.DOWNLOADING, Torrent.StatusType.CHECK_WAITING)
     val fileCount = arrayOf(2, 1, 0)

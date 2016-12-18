@@ -151,48 +151,55 @@ class TransmissionApi(
         val initialMap = initial.associateBy { it.hash }.toMutableMap()
 
         return session.take(1).flatMap { session ->
-            getTorrents(TORRENT_META_FIELDS + TORRENT_STAT_FIELDS).toObservable().concatWith {
-                request<JsonObject>(requestBody(
-                        "torrent-get", jsonObject("fields" to jsonArray(TORRENT_STAT_FIELDS), "ids" to "recently-active".toJson())
-                ))
-                        .toObservable()
-                        .flatMap { json ->
-                            val torrents = json["torrents"].array
+            getTorrents(TORRENT_META_FIELDS + TORRENT_STAT_FIELDS).toObservable().concatWith(
+                Observable.rangeLong(1, Long.MAX_VALUE).concatMap { counter ->
+                    val args = mutableListOf<Pair<String, Any?>>()
 
-                            var list = Observable.just(torrents)
+                    args.add("fields" to jsonArray(*TORRENT_STAT_FIELDS))
+                    if ((counter % 10L) != 0L) {
+                        args.add("ids" to "recently-active".toJson())
+                    }
 
-                            val incomplete = torrents.filter { it.isJsonObject }.filter {
-                                (it.obj[FIELD_TOTAL_SIZE]?.nullInt ?: 0) == 0
-                            }.map { it[FIELD_HASH].string }
+                    request<JsonObject>(requestBody(
+                            "torrent-get", jsonObject(*args.toTypedArray())
+                    ))
+                            .delay(interval, TimeUnit.SECONDS)
+                            .toObservable()
+                            .flatMap { json ->
+                                val torrents = json["torrents"].array
 
-                            val withoutFiles = torrents.filter { it.isJsonObject }.filter {
-                                (it.obj[FIELD_FILES]?.nullArray?.size() ?: 0) == 0
-                            }.map { it[FIELD_HASH].string }
+                                var list = Observable.just(torrents)
 
-                            json["removed"]?.nullArray?.map { jsonObject(FIELD_ID to it) }?.forEach { t ->
-                                torrents.add(t)
+                                val incomplete = torrents.filter { it.isJsonObject }.filter {
+                                    (it.obj[FIELD_TOTAL_SIZE]?.nullInt ?: 0) == 0
+                                }.map { it[FIELD_HASH].string }.toTypedArray()
+
+                                val withoutFiles = torrents.filter { it.isJsonObject }.filter {
+                                    (it.obj[FIELD_FILES]?.nullArray?.size() ?: 0) == 0
+                                }.map { it[FIELD_HASH].string }.toTypedArray()
+
+                                json["removed"]?.nullArray?.map { jsonObject(FIELD_ID to it) }?.forEach { t ->
+                                    torrents.add(t)
+                                }
+
+                                if (incomplete.isNotEmpty()) {
+                                    list = list.concatWith(
+                                            getTorrents(TORRENT_META_FIELDS, "ids" to jsonArray(*incomplete))
+                                                    .toObservable()
+                                    )
+                                }
+
+                                if (withoutFiles.isNotEmpty()) {
+                                    list = list.concatWith(
+                                            getTorrents(arrayOf(FIELD_HASH, FIELD_FILES), "ids" to jsonArray(*withoutFiles))
+                                                    .toObservable()
+                                    )
+                                }
+
+                                list
                             }
-
-                            if (incomplete.isNotEmpty()) {
-                                list = list.concatWith(
-                                        getTorrents(TORRENT_META_FIELDS, "ids" to jsonArray(incomplete))
-                                                .toObservable()
-                                )
-                            }
-
-                            if (withoutFiles.isNotEmpty()) {
-                                list = list.concatWith(
-                                        getTorrents(arrayOf(FIELD_HASH, FIELD_FILES), "ids" to jsonArray(withoutFiles))
-                                                .toObservable()
-                                )
-                            }
-
-                            list
-                        }
-                        .repeatWhen { attempts ->
-                            attempts.flatMap { Observable.timer(interval, TimeUnit.SECONDS) }
-                        }
-            }.scan(initialMap) { accum, json ->
+                }
+            ).scan(initialMap) { accum, json ->
                 val torrents = json.filter { it.isJsonObject }.map { it.asJsonObject }
                 val removed = torrents.filter { !it.contains(FIELD_HASH) }.map { it[FIELD_ID].int }.toSet()
 
@@ -251,19 +258,19 @@ class TransmissionApi(
     companion object {
         val JSON = MediaType.parse("application/json; charset=utf-8");
 
-        internal val NEW_STATUS_RPC_VERSION = 14
+        private val NEW_STATUS_RPC_VERSION = 14
 
-        internal val FIELD_ID = "id"
-        internal val FIELD_HASH = "hashString"
-        internal val FIELD_NAME = "name"
-        internal val FIELD_TOTAL_SIZE = "totalSize"
-        internal val FIELD_FILES = "files"
-        internal val FIELD_TRACKERS = "trackers"
-        internal val FIELD_FILE_STATS = "fileStats"
+        private val FIELD_ID = "id"
+        private val FIELD_HASH = "hashString"
+        private val FIELD_NAME = "name"
+        private val FIELD_TOTAL_SIZE = "totalSize"
+        private val FIELD_FILES = "files"
+        private val FIELD_TRACKERS = "trackers"
+        private val FIELD_FILE_STATS = "fileStats"
 
-        internal val TORRENT_META_FIELDS = arrayOf(FIELD_HASH, FIELD_NAME, "addedDate", FIELD_TOTAL_SIZE)
+        private val TORRENT_META_FIELDS = arrayOf(FIELD_HASH, FIELD_NAME, "addedDate", FIELD_TOTAL_SIZE)
 
-        internal val TORRENT_STAT_FIELDS = arrayOf(
+        private val TORRENT_STAT_FIELDS = arrayOf(
                 FIELD_HASH, FIELD_ID, "error", "errorString", "eta",
                 "isFinished", "isStalled", "leftUntilDone", "metadataPercentComplete",
                 "peersConnected", "peersGettingFromUs", "peersSendingToUs", "percentDone",
