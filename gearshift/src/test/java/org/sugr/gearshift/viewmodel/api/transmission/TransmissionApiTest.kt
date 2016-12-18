@@ -70,7 +70,7 @@ class TransmissionApiTest {
 
         server.enqueue(MockResponse()
                 .setResponseCode(HttpURLConnection.HTTP_OK)
-                .setBody(jsonObject("result" to "success", "arguments" to jsonObject("version" to "v1")).toString())
+                .setBody(jsonObject("result" to "success", "arguments" to jsonObject("test" to "v1")).toString())
         )
 
         val editor = mock<SharedPreferences.Editor> {}
@@ -80,8 +80,8 @@ class TransmissionApiTest {
 
         val api : Api = TransmissionApi(baseProfile, ctx, prefs, gson, log, Schedulers.trampoline())
 
-        val version = api.version().blockingGet()
-        assertThat("v1", `is`(version))
+        val version = api.test().blockingGet()
+        assertThat("has connection", version)
 
         var request = server.takeRequest()
         assertThat("/transmission/rpc", `is`(request.path))
@@ -98,15 +98,15 @@ class TransmissionApiTest {
     fun version() {
         server.enqueue(MockResponse()
                 .setResponseCode(HttpURLConnection.HTTP_OK)
-                .setBody(jsonObject("result" to "success", "arguments" to jsonObject("version" to "v1")).toString())
+                .setBody(jsonObject("result" to "success", "arguments" to jsonObject("test" to "v1")).toString())
         )
 
         val prefs = mock<SharedPreferences>{}
 
         val api : Api = TransmissionApi(baseProfile, ctx, prefs, gson, log, Schedulers.trampoline())
 
-        val version = api.version().blockingGet()
-        assertThat("v1", `is`(version))
+        val version = api.test().blockingGet()
+        assertThat("has connection", version)
 
         val request = server.takeRequest()
         assertThat("/transmission/rpc", `is`(request.path))

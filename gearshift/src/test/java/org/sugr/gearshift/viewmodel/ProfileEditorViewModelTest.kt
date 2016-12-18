@@ -81,13 +81,13 @@ class ProfileEditorViewModelTest {
 
         assertThat("Invalid vm returns a false check", !vm1.check().blockingGet())
 
-        verify(api, never()).version()
+        verify(api, never()).test()
     }
 
     @Test
     fun checkInvalidWithValidProfile() {
         val api = mock<Api> {
-            on { version() } doReturn Single.just("")
+            on { test() } doReturn Single.just(false)
         }
 
         fun factory(profile: Profile, ctx: Context,
@@ -105,13 +105,13 @@ class ProfileEditorViewModelTest {
 
         assertThat("Valid vm with no valid connection returns a false check", !vm1.check().blockingGet())
 
-        verify(api, times(1)).version()
+        verify(api, times(1)).test()
     }
 
     @Test
     fun checkValid() {
         val api = mock<Api> {
-            on { version() } doReturn Single.just("1.0")
+            on { test() } doReturn Single.just(true)
         }
 
         fun factory(profile: Profile, ctx: Context,
@@ -129,7 +129,7 @@ class ProfileEditorViewModelTest {
 
         assertThat("Valid vm with valid connection returns a true check", vm.check().blockingGet())
 
-        verify(api, times(1)).version()
+        verify(api, times(1)).test()
     }
 
     @Test

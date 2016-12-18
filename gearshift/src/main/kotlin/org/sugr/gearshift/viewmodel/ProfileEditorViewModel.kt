@@ -105,9 +105,8 @@ class ProfileEditorViewModel(tag: String, log: Logger,
 
     fun check() : Single<Boolean> {
         if (canLeave()) {
-            return apiFactory(profile.copy(temporary = true), ctx, prefs, gson, log, BuildConfig.DEBUG).version()
+            return apiFactory(profile.copy(temporary = true), ctx, prefs, gson, log, BuildConfig.DEBUG).test()
                     .takeUntil(takeUntilUnbind().toFlowable(BackpressureStrategy.LATEST))
-                    .map { version -> version.isNotEmpty() }
         } else {
             return singleOf(false)
         }

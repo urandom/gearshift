@@ -137,12 +137,12 @@ class TransmissionApi(
         requestBuilder = Request.Builder().url(url)
     }
 
-    override fun version(): Single<String> {
+    override fun test(): Single<Boolean> {
         return request<JsonObject>(requestBody("session-get")).map { json ->
-            if ("version" in json) {
-                json["version"].string
+            if ("test" in json) {
+                json["test"].string.isNotEmpty()
             } else {
-                null
+                false
             }
         }
     }
