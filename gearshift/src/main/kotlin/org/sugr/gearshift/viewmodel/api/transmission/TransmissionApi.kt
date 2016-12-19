@@ -2,6 +2,7 @@ package org.sugr.gearshift.viewmodel.api.transmission
 
 import android.content.Context
 import android.content.SharedPreferences
+import android.util.Base64
 import com.github.salomonbrys.kotson.*
 import com.google.gson.Gson
 import com.google.gson.JsonArray
@@ -14,7 +15,6 @@ import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
 import okhttp3.*
 import okhttp3.logging.HttpLoggingInterceptor
-import org.apache.commons.codec.binary.Base64
 import org.sugr.gearshift.BuildConfig
 import org.sugr.gearshift.Log
 import org.sugr.gearshift.Logger
@@ -60,7 +60,7 @@ class TransmissionApi(
 
             if (profile.username.isNotBlank() && profile.password.isNotBlank()) {
                 val credentials = profile.username + ":" + profile.password
-                val basic = "Basic " + Base64.encodeBase64(credentials.toByteArray())
+                val basic = "Basic " + Base64.encode(credentials.toByteArray(), Base64.NO_WRAP)
 
                 requestBuilder.header("Authorization", basic)
             }
