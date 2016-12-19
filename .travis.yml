@@ -6,3 +6,7 @@ android:
 branches:
   only:
     - 2.0
+git:
+  submodules: false
+env:
+  - KOTLIN_VERSION="1.1-M03"
