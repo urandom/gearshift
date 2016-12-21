@@ -1,10 +1,10 @@
 package org.sugr.gearshift.viewmodel.api.transmission
 
+import com.google.gson.annotations.SerializedName
 import org.sugr.gearshift.model.Session
 
 data class TransmissionSession(
-        val downloadDir: String = "",
-        val downloadDirFreeSpace: Long = -1,
+        @SerializedName("download-dir") val downloadDir: String = "",
         val downloadSpeedLimitEnabled: Boolean = false,
         val uploadSpeedLimitEnabled: Boolean = false,
         val altSpeedLimitEnabled: Boolean = false,

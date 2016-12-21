@@ -1,10 +1,10 @@
 apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
-apply plugin: 'kotlin-kapt'
+//apply plugin: 'kotlin-kapt'
 
 android {
     compileSdkVersion 25
-    buildToolsVersion "25.0.1"
+    buildToolsVersion "25.0.2"
 
     dataBinding {
         enabled true
@@ -60,7 +60,7 @@ dependencies {
     )
 
     kapt(
-            'com.android.databinding:compiler:2.1.0',
+            'com.android.databinding:compiler:2.3.0-beta1',
             // "com.google.dagger:dagger-compiler:$dagger_version"
     )
 
