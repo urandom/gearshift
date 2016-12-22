@@ -8,32 +8,28 @@
             type="org.sugr.gearshift.viewmodel.MainNavigationViewModel"/>
     </data>
 
-    <android.support.constraint.ConstraintLayout
-        android:layout_width="match_parent" android:layout_height="match_parent"
+    <FrameLayout
+		android:layout_width="match_parent"
+		android:layout_height="match_parent"
         app:layout_behavior="@string/appbar_scrolling_view_behavior"
-        tools:context=".ui.MainNavigationActivity" tools:showIn="@layout/main_navigation_app_bar">
+		tools:context=".ui.MainNavigationActivity"
+		tools:showIn="@layout/main_navigation_app_bar">
 
         <android.support.v4.widget.SwipeRefreshLayout
             android:id="@+id/refresh"
             android:layout_width="0dp"
             android:layout_height="0dp"
-            app:layout_constraintLeft_toLeftOf="@+id/content_torrent"
             android:layout_marginStart="16dp"
-            app:layout_constraintTop_toTopOf="@+id/content_torrent"
             android:layout_marginTop="16dp"
-            app:layout_constraintRight_toRightOf="@+id/content_torrent"
             android:layout_marginEnd="16dp"
-            app:layout_constraintBottom_toBottomOf="@+id/content_torrent"
             android:layout_marginBottom="16dp">
 
             <android.support.v7.widget.RecyclerView
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:scrollbars="vertical"
-                tools:layout_editor_absoluteX="0dp"
-                tools:layout_editor_absoluteY="0dp" />
+				android:scrollbars="vertical"/>
 
         </android.support.v4.widget.SwipeRefreshLayout>
 
-    </android.support.constraint.ConstraintLayout>
+    </FrameLayout>
 </layout>

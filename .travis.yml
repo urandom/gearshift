@@ -1,0 +1,23 @@
+language: android
+android:
+  components:
+    - platform-tools
+    - tools
+    - build-tools-25.0.1
+    - android-25
+    - extra-android-m2repository
+branches:
+  only:
+    - 2.0
+git:
+  submodules: false
+env:
+  - KOTLIN_VERSION="1.1-M03"
+  - MOCKITO_KOTLIN_DEP="com.nhaarman:mockito-kotlin:1.0.1"
+before_cache:
+  - rm -f  $HOME/.gradle/caches/modules-2/modules-2.lock
+  - rm -fr $HOME/.gradle/caches/*/plugin-resolution/
+cache:
+  directories:
+    - $HOME/.gradle/caches/
+    - $HOME/.gradle/wrapper/
