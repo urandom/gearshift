@@ -13,7 +13,7 @@ import org.sugr.gearshift.Logger
 import org.sugr.gearshift.R
 import org.sugr.gearshift.model.Profile
 import org.sugr.gearshift.model.transmissionProfile
-import org.sugr.gearshift.viewmodel.api.ApiFactory
+import org.sugr.gearshift.viewmodel.api.Api
 import org.sugr.gearshift.viewmodel.api.apiOf
 import org.sugr.gearshift.viewmodel.databinding.ObservableField
 import org.sugr.gearshift.viewmodel.databinding.PropertyChangedCallback
@@ -27,7 +27,11 @@ class ProfileEditorViewModel(tag: String, log: Logger,
                              private val prefs : SharedPreferences,
                              private val gson: Gson,
                              private var profile: Profile = transmissionProfile(),
-                             private val apiFactory : ApiFactory = ::apiOf) :
+                             private val apiFactory : (profile: Profile, ctx: Context,
+                                                       prefs: SharedPreferences,
+                                                       gson: Gson,
+                                                       log: Logger,
+                                                       debug: Boolean) -> Api = ::apiOf) :
         RetainedViewModel<ProfileEditorViewModel.Consumer>(tag, log), LeaveBlocker {
 
     val profileName = ObservableField("Default")

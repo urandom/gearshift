@@ -32,7 +32,7 @@ fun SharedPreferences.delete(key: String) {
 
 fun SharedPreferences.toObservable() =
         observable<String> { e ->
-            val listener = SharedPreferences.OnSharedPreferenceChangeListener { _, key ->
+            val listener = SharedPreferences.OnSharedPreferenceChangeListener { p, key ->
                 e.onNext(key)
             }
 

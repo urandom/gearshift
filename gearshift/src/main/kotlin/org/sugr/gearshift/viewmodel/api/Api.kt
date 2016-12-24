@@ -18,12 +18,6 @@ interface Api {
     fun torrents(session: Observable<Session>, interval: Long, initial: Set<Torrent> = setOf()): Observable<Set<Torrent>>
 }
 
-typealias ApiFactory = (profile: Profile, ctx: Context,
-                        prefs: SharedPreferences,
-                        gson: Gson,
-                        log: Logger,
-                        debug: Boolean) -> Api
-
 fun apiOf(profile: Profile, ctx: Context,
           prefs: SharedPreferences,
           gson : Gson = Gson(),

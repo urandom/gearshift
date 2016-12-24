@@ -1,19 +1,15 @@
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
 
 buildscript {
-    ext.kotlin_version = '1.1-M04'
+    ext.kotlin_version = '1.0.5-2'
     repositories {
         mavenCentral()
-        jcenter()
-        maven {
-            url "http://dl.bintray.com/kotlin/kotlin-eap-1.1"
-        }
         maven {
             url "https://oss.sonatype.org/content/repositories/snapshots"
         }
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:2.3.0-beta1'
+        classpath 'com.android.tools.build:gradle:2.2.3'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
         // classpath 'com.neenbedankt.gradle.plugins:android-apt:1.8'
     }

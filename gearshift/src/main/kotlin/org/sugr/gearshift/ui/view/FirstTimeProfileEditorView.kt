@@ -45,7 +45,7 @@ class FirstTimeProfileEditorView(context: Context?, attrs: AttributeSet?) :
             val builder = AlertDialog.Builder(context)
 
             builder.setTitle(R.string.update_interval)
-                    .setItems(R.array.pref_update_interval_entries, { _, which ->
+                    .setItems(R.array.pref_update_interval_entries, { dialog, which ->
                         e.onSuccess(resources.getIntArray(R.array.pref_update_interval_values)[which])
                     })
 

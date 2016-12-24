@@ -33,6 +33,7 @@ import java.net.InetSocketAddress
 import java.net.Proxy
 import java.security.SecureRandom
 import java.security.cert.X509Certificate
+import java.util.*
 import java.util.concurrent.TimeUnit
 import javax.net.ssl.SSLContext
 import javax.net.ssl.TrustManager
@@ -115,7 +116,7 @@ class TransmissionApi(
             }
             sc.init(null, arrayOf<TrustManager>(manager), SecureRandom())
             builder.sslSocketFactory(sc.socketFactory, manager)
-            builder.hostnameVerifier { _, _ -> true }
+            builder.hostnameVerifier { host, session -> true }
         }
 
         val timeout = if (profile.timeout > 0) profile.timeout else 10
@@ -148,15 +149,16 @@ class TransmissionApi(
     }
 
     override fun session(interval: Long, initial: Session): Observable<Session> {
-        return request<Session>(requestBody("session-get"))
+        return request<TransmissionSession>(requestBody("session-get"))
                 .toObservable()
+                .map { session -> session as Session }
                 .repeatWhen { completed ->
                     completed.delay(interval, TimeUnit.SECONDS)
                 }
     }
 
     override fun torrents(session: Observable<Session>, interval: Long, initial: Set<Torrent>) : Observable<Set<Torrent>> {
-        val initialMap = initial.associateBy { it.hash }.toMutableMap()
+        val initialMap = HashMap(initial.associateBy { it.hash })
 
         return session.take(1).map { session ->
             (session as? TransmissionSession)?.rpcVersion ?: 0
@@ -222,7 +224,7 @@ class TransmissionApi(
                 }
 
                 if (removed.isNotEmpty()) {
-                    accum.filter { !removed.contains(it.value.id) }.toMutableMap()
+                    HashMap(accum.filter { !removed.contains(it.value.id) })
                 } else {
                     accum
                 }

@@ -330,6 +330,24 @@ class TransmissionApiTest {
         assertThat(hash, `is`(obj["arguments"].obj["ids"].array.first().string))
         assertThat(jsonArray(Torrents.field_hash_string, Torrents.field_files), `is`(obj["arguments"].obj["fields"].array))
     }
+
+    @Test
+    fun sessionGet() {
+        server.enqueue(MockResponse()
+                .setResponseCode(HttpURLConnection.HTTP_OK)
+                .setBody(Torrents.session))
+
+        val prefs = mock<SharedPreferences>{}
+
+        val api : Api = TransmissionApi(baseProfile, ctx, prefs, gson, log, Schedulers.trampoline())
+
+        val session = api.session(1, TransmissionSession()).blockingFirst()
+
+        assertThat("Transmission session", session is TransmissionSession)
+
+        val transmissionSession = session as TransmissionSession
+        assertThat("/media/default/download/dir", `is`(transmissionSession.downloadDir))
+    }
 }
 
 private object Torrents {
@@ -658,6 +676,82 @@ private object Torrents {
         "uploadedEver": 1167729396
       }
     ]
+  },
+  "result": "success"
+}"""
+    val session = """{
+  "arguments": {
+    "alt-speed-down": 1500,
+    "alt-speed-enabled": false,
+    "alt-speed-time-begin": 1080,
+    "alt-speed-time-day": 127,
+    "alt-speed-time-enabled": true,
+    "alt-speed-time-end": 120,
+    "alt-speed-up": 150,
+    "blocklist-enabled": false,
+    "blocklist-size": 227851,
+    "blocklist-url": "http://example.com/blocklist",
+    "cache-size-mb": 4,
+    "config-dir": "/var/lib/transmission/.config/transmission-daemon",
+    "dht-enabled": true,
+    "download-dir": "/media/default/download/dir",
+    "download-dir-free-space": 1154653671424,
+    "download-queue-enabled": true,
+    "download-queue-size": 3,
+    "encryption": "preferred",
+    "idle-seeding-limit": 30,
+    "idle-seeding-limit-enabled": false,
+    "incomplete-dir": "/media/default/incomplete/dir",
+    "incomplete-dir-enabled": true,
+    "lpd-enabled": true,
+    "peer-limit-global": 200,
+    "peer-limit-per-torrent": 50,
+    "peer-port": 51413,
+    "peer-port-random-on-start": false,
+    "pex-enabled": true,
+    "port-forwarding-enabled": true,
+    "queue-stalled-enabled": true,
+    "queue-stalled-minutes": 30,
+    "rename-partial-files": true,
+    "rpc-version": 15,
+    "rpc-version-minimum": 1,
+    "script-torrent-done-enabled": false,
+    "script-torrent-done-filename": "",
+    "seed-queue-enabled": false,
+    "seed-queue-size": 10,
+    "seedRatioLimit": 1.2,
+    "seedRatioLimited": true,
+    "speed-limit-down": 3000,
+    "speed-limit-down-enabled": true,
+    "speed-limit-up": 700,
+    "speed-limit-up-enabled": true,
+    "start-added-torrents": true,
+    "trash-original-torrent-files": false,
+    "units": {
+      "memory-bytes": 1024,
+      "memory-units": [
+        "KiB",
+        "MiB",
+        "GiB",
+        "TiB"
+      ],
+      "size-bytes": 1000,
+      "size-units": [
+        "kB",
+        "MB",
+        "GB",
+        "TB"
+      ],
+      "speed-bytes": 1000,
+      "speed-units": [
+        "kB/s",
+        "MB/s",
+        "GB/s",
+        "TB/s"
+      ]
+    },
+    "utp-enabled": true,
+    "version": "2.92 (14714)"
   },
   "result": "success"
 }"""

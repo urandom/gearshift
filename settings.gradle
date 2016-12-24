@@ -1,2 +1,1 @@
-include ':gearshift', ':mockito-kotlin'
-project(':mockito-kotlin').projectDir = new File('mockito-kotlin/mockito-kotlin')
+include ':gearshift'

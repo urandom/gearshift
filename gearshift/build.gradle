@@ -1,6 +1,6 @@
 apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
-//apply plugin: 'kotlin-kapt'
+apply plugin: 'kotlin-kapt'
 
 android {
     compileSdkVersion 25
@@ -60,7 +60,7 @@ dependencies {
     )
 
     kapt(
-            'com.android.databinding:compiler:2.3.0-beta1',
+            'com.android.databinding:compiler:2.2.3',
             // "com.google.dagger:dagger-compiler:$dagger_version"
     )
 
@@ -71,8 +71,7 @@ dependencies {
     testCompile(
             'junit:junit:4.12',
             'com.squareup.okhttp3:mockwebserver:3.5.0',
-            System.getenv("MOCKITO_KOTLIN_DEP") ?: project(":mockito-kotlin")
-
+			"com.nhaarman:mockito-kotlin:1.0.1"
     )
 
     androidTestCompile(
@@ -80,6 +79,7 @@ dependencies {
             'com.android.support.test:runner:0.5',
             'com.android.support:support-annotations:25.0.1'
     )
+    compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
 }
 repositories {
     mavenCentral()
