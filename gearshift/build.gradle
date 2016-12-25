@@ -29,6 +29,9 @@ android {
         main.java.srcDirs += 'src/main/kotlin'
     }
     compileOptions.incremental = false
+    lintOptions {
+        abortOnError false
+    }
 }
 
 kapt {
