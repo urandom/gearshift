@@ -339,7 +339,7 @@ class TransmissionApiTest {
 
         val prefs = mock<SharedPreferences>{}
 
-        val api : Api = TransmissionApi(baseProfile, ctx, prefs, gson, log, Schedulers.trampoline())
+        val api : Api = TransmissionApi(baseProfile, ctx, prefs, gson, log, Schedulers.trampoline(), true)
 
         val session = api.session(1, TransmissionSession()).blockingFirst()
 
@@ -347,6 +347,8 @@ class TransmissionApiTest {
 
         val transmissionSession = session as TransmissionSession
         assertThat("/media/default/download/dir", `is`(transmissionSession.downloadDir))
+        assertThat(1.2f, `is`(transmissionSession.seedRatioLimit))
+        assertThat("seed limited", transmissionSession.seedRatioLimitEnabled)
     }
 }
 

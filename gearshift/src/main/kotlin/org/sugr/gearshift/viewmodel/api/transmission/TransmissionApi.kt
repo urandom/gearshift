@@ -46,7 +46,7 @@ class TransmissionApi(
         private val gson: Gson = Gson(),
         private val log: Logger = Log,
         private val mainThreadScheduler: Scheduler = AndroidSchedulers.mainThread(),
-        private val debug: Boolean = BuildConfig.DEBUG
+        debug: Boolean = BuildConfig.DEBUG
 ) : Api {
     private val httpClient: OkHttpClient
     private val requestBuilder: Request.Builder
@@ -139,7 +139,7 @@ class TransmissionApi(
     }
 
     override fun test(): Single<Boolean> {
-        return request<JsonObject>(requestBody("session-get")).map { json ->
+        return request(requestBody("session-get")).map { json ->
             if ("test" in json) {
                 json["test"].string.isNotEmpty()
             } else {
@@ -149,8 +149,9 @@ class TransmissionApi(
     }
 
     override fun session(interval: Long, initial: Session): Observable<Session> {
-        return request<TransmissionSession>(requestBody("session-get"))
+        return request(requestBody("session-get"))
                 .toObservable()
+                .map { json -> gson.fromJson<TransmissionSession>(json) }
                 .map { session -> session as Session }
                 .repeatWhen { completed ->
                     completed.delay(interval, TimeUnit.SECONDS)
@@ -172,7 +173,7 @@ class TransmissionApi(
                         args.add("ids" to "recently-active".toJson())
                     }
 
-                    request<JsonObject>(requestBody(
+                    request(requestBody(
                             "torrent-get", jsonObject(*args.toTypedArray())
                     ))
                             .delay(interval, TimeUnit.SECONDS)
@@ -241,7 +242,7 @@ class TransmissionApi(
         return RequestBody.create(JSON, obj.toString())
     }
 
-    inline private fun <reified T: Any> request(body: RequestBody): Single<T> {
+    private fun request(body: RequestBody): Single<JsonObject> {
         return ResponseSingle(httpClient, requestBuilder.post(body).build())
                 .subscribeOn(Schedulers.io())
                 .observeOn(Schedulers.computation())
@@ -250,14 +251,7 @@ class TransmissionApi(
                     when {
                         !("result" in json) -> throw TransmissionApiException("unknown response")
                         json["result"].string != "success" -> throw TransmissionApiException(json["result"].string)
-                       "arguments" in json -> {
-                            val args = json["arguments"]
-                            if (T::class == JsonObject::class && args.isJsonObject) {
-                                args.obj as T
-                            } else {
-                                gson.fromJson<T>(args)
-                            }
-                        }
+                       "arguments" in json -> json["arguments"] as? JsonObject ?: throw TransmissionApiException("unexpected response arguments")
                         else -> throw TransmissionApiException("unknown response")
                     }
                 }
@@ -265,8 +259,8 @@ class TransmissionApi(
     }
 
 
-    inline private fun getTorrents(fields: Array<String>, vararg args: Pair<String, JsonElement>) : Single<JsonArray> {
-        return request<JsonObject>(requestBody(
+    private fun getTorrents(fields: Array<String>, vararg args: Pair<String, JsonElement>) : Single<JsonArray> {
+        return request(requestBody(
                 "torrent-get", jsonObject("fields" to jsonArray(*fields), *args)
         )).map { json -> json["torrents"].array }
     }
