@@ -16,6 +16,7 @@ interface Api {
     fun test(): Single<Boolean>
     fun session(interval: Long, initial: Session = NoSession()) : Observable<Session>
     fun torrents(session: Observable<Session>, interval: Long, initial: Set<Torrent> = setOf()): Observable<Set<Torrent>>
+    fun freeSpace(dir: Observable<String>, interval: Long) : Observable<Long>
 }
 
 fun apiOf(profile: Profile, ctx: Context,
@@ -34,4 +35,5 @@ object NoApi : Api {
     override fun test() = Single.just(false)
     override fun session(interval: Long, initial: Session) = Observable.empty<Session>()
     override fun torrents(session: Observable<Session>, interval: Long, initial: Set<Torrent>) = Observable.empty<Set<Torrent>>()
+    override fun freeSpace(dir: Observable<String>, interval: Long) = Observable.just(0L)
 }

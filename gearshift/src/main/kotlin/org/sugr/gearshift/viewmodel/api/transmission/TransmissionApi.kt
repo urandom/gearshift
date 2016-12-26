@@ -233,6 +233,17 @@ class TransmissionApi(
         }
     }
 
+    override fun freeSpace(dir: Observable<String>, interval: Long): Observable<Long> {
+        return dir.switchMap { d ->
+            request(requestBody("free-space", jsonObject("path" to d)))
+                    .toObservable()
+                    .map { json -> json["size-bytes"].long }
+                    .repeatWhen { completed ->
+                        completed.delay(interval, TimeUnit.SECONDS)
+                    }
+        }
+    }
+
     private fun requestBody(method: String, arguments: JsonObject? = null): RequestBody {
         val obj = jsonObject("method" to method)
         if (arguments != null) {
