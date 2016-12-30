@@ -19,7 +19,7 @@ data class Profile(val id: String = UUID.randomUUID().toString(), val type: Prof
                    val deleteLocal: Boolean = false, val startPaused: Boolean = false,
                    val directories: List<String> = listOf(),
                    val proxyHost: String = "", val proxyPort: Int = 0,
-                   val updateInterval: Int = 1,
+                   val updateInterval: Long = 1,
                    val color: Int = 0, val sessionData: String = "",
                    val temporary: Boolean = false) {
 

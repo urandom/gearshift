@@ -12,6 +12,10 @@ fun <T1, T2, R> Observable<T1>.combineLatestWith(other: Observable<T2>, mapper: 
     return Observable.combineLatest(this, other, BiFunction { t1, t2 -> mapper(t1, t2) })
 }
 
+fun <T, U, R> Observable<T>.zipWith(other: Observable<U>, mapper: (T, U) -> R) : Observable<R> {
+    return this.zipWith(other, BiFunction { t1, t2 -> mapper(t1, t2) })
+}
+
 fun <T> Observable<T>.pauseOn(pauseObservable: Observable<Boolean>) : Observable<T> {
     val published = publish();
     val subRef = AtomicReference(Disposables.disposed())

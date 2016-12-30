@@ -129,7 +129,7 @@ class TransmissionApiTest {
 
         val api : Api = TransmissionApi(baseProfile, ctx, prefs, gson, log, Schedulers.trampoline())
 
-        val torrents = api.torrents(Observable.just(TransmissionSession(rpcVersion = Torrents.new_status_rpc_version)), 1, setOf()).skip(1).blockingFirst()
+        val torrents = api.torrents(Observable.just(TransmissionSession(rpcVersion = Torrents.new_status_rpc_version)), setOf()).skip(1).blockingFirst()
 
         assertThat(3, `is`(torrents.size))
 
@@ -166,7 +166,7 @@ class TransmissionApiTest {
 
         val api : Api = TransmissionApi(baseProfile, ctx, prefs, gson, log, Schedulers.trampoline())
 
-        val torrents = api.torrents(Observable.just(TransmissionSession(rpcVersion = Torrents.new_status_rpc_version)), 1, setOf()).skip(2).take(1).blockingFirst()
+        val torrents = api.torrents(Observable.just(TransmissionSession(rpcVersion = Torrents.new_status_rpc_version)), setOf()).skip(2).take(1).blockingFirst()
         assertThat(3, `is`(torrents.size))
 
         torrents.forEachIndexed { i, torrent ->
@@ -215,7 +215,7 @@ class TransmissionApiTest {
 
         val api : Api = TransmissionApi(baseProfile, ctx, prefs, gson, log, Schedulers.trampoline())
 
-        val torrents = api.torrents(Observable.just(TransmissionSession(rpcVersion = Torrents.new_status_rpc_version)), 1, setOf()).skip(11).take(1).blockingFirst()
+        val torrents = api.torrents(Observable.just(TransmissionSession(rpcVersion = Torrents.new_status_rpc_version)), setOf()).skip(11).take(1).blockingFirst()
         assertThat(2, `is`(torrents.size))
 
         server.takeRequest()
@@ -266,7 +266,7 @@ class TransmissionApiTest {
 
         var index = 0
         // Skip the initial and the one with meta and stat fields
-        api.torrents(Observable.just(TransmissionSession(rpcVersion = Torrents.new_status_rpc_version)), 1, setOf()).skip(2).take(4).blockingForEach { torrents ->
+        api.torrents(Observable.just(TransmissionSession(rpcVersion = Torrents.new_status_rpc_version)), setOf()).skip(2).take(4).blockingForEach { torrents ->
             assertThat(1, `is`(torrents.size))
 
             val torrent = torrents.first()
@@ -341,7 +341,7 @@ class TransmissionApiTest {
 
         val api : Api = TransmissionApi(baseProfile, ctx, prefs, gson, log, Schedulers.trampoline(), true)
 
-        val session = api.session(1, TransmissionSession()).blockingFirst()
+        val session = api.session(TransmissionSession()).blockingFirst()
 
         assertThat("Transmission session", session is TransmissionSession)
 
@@ -367,7 +367,7 @@ class TransmissionApiTest {
 
         val api : Api = TransmissionApi(baseProfile, ctx, prefs, gson, log, Schedulers.trampoline(), true)
 
-        val space = api.freeSpace(Observable.just("/path"), 1).blockingFirst()
+        val space = api.freeSpace(Observable.just("/path")).blockingFirst()
 
         assertThat(387697233920, `is`(space))
 

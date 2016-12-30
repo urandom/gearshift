@@ -41,7 +41,7 @@ fun migrateTransmissionProfiles(ctx : Context, prefs: SharedPreferences, log : L
                         startPaused = compatPrefs.getBoolean(keys.PREF_START_PAUSED + id, false),
                         proxyHost = compatPrefs.getString(keys.PREF_PROXY_HOST + id, ""),
                         proxyPort = compatPrefs.getString(keys.PREF_PROXY_PORT + id, "8080").toInt(),
-                        updateInterval = compatPrefs.getString(keys.PREF_UPDATE_INTERVAL + id, "-1").toInt(),
+                        updateInterval = compatPrefs.getString(keys.PREF_UPDATE_INTERVAL + id, "-1").toLong(),
                         color = compatPrefs.getInt(keys.PREF_COLOR + id, 0)
                 )
             }

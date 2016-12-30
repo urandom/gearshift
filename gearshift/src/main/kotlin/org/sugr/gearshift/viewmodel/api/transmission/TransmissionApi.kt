@@ -148,17 +148,17 @@ class TransmissionApi(
         }
     }
 
-    override fun session(interval: Long, initial: Session): Observable<Session> {
+    override fun session(initial: Session): Observable<Session> {
         return request(requestBody("session-get"))
                 .toObservable()
                 .map { json -> gson.fromJson<TransmissionSession>(json) }
                 .map { session -> session as Session }
                 .repeatWhen { completed ->
-                    completed.delay(interval, TimeUnit.SECONDS)
+                    completed.delay(profile.updateInterval, TimeUnit.SECONDS)
                 }
     }
 
-    override fun torrents(session: Observable<Session>, interval: Long, initial: Set<Torrent>) : Observable<Set<Torrent>> {
+    override fun torrents(session: Observable<Session>, initial: Set<Torrent>) : Observable<Set<Torrent>> {
         val initialMap = HashMap(initial.associateBy { it.hash })
 
         return session.take(1).map { session ->
@@ -176,7 +176,7 @@ class TransmissionApi(
                     request(requestBody(
                             "torrent-get", jsonObject(*args.toTypedArray())
                     ))
-                            .delay(interval, TimeUnit.SECONDS)
+                            .delay(profile.updateInterval, TimeUnit.SECONDS)
                             .toObservable()
                             .flatMap { json ->
                                 val torrents = json["torrents"].array
@@ -233,13 +233,13 @@ class TransmissionApi(
         }
     }
 
-    override fun freeSpace(dir: Observable<String>, interval: Long): Observable<Long> {
+    override fun freeSpace(dir: Observable<String>): Observable<Long> {
         return dir.switchMap { d ->
             request(requestBody("free-space", jsonObject("path" to d)))
                     .toObservable()
                     .map { json -> json["size-bytes"].long }
                     .repeatWhen { completed ->
-                        completed.delay(interval, TimeUnit.SECONDS)
+                        completed.delay(profile.updateInterval, TimeUnit.SECONDS)
                     }
         }
     }

@@ -4,7 +4,7 @@ import android.content.Context
 import android.content.SharedPreferences
 import android.databinding.ObservableArrayMap
 import android.databinding.ObservableBoolean
-import android.databinding.ObservableInt
+import android.databinding.ObservableLong
 import com.google.gson.Gson
 import io.reactivex.BackpressureStrategy
 import io.reactivex.Single
@@ -43,7 +43,7 @@ class ProfileEditorViewModel(tag: String, log: Logger,
     val useSSL = ObservableBoolean(false)
 
     val updateIntervalLabel = ObservableField("")
-    val updateIntervalValue = ObservableInt(0)
+    val updateIntervalValue = ObservableLong(0)
 
     val username = ObservableField("")
     val password = ObservableField("")
@@ -74,7 +74,7 @@ class ProfileEditorViewModel(tag: String, log: Logger,
         updateIntervalValues = resources.getIntArray(R.array.pref_update_interval_values)
 
         updateIntervalLabel.set(updateIntervalEntries[0])
-        updateIntervalValue.set(updateIntervalValues[0])
+        updateIntervalValue.set(updateIntervalValues[0].toLong())
 
         // Unloaded profiles have default paths set
         path.set(profile.path)
@@ -117,9 +117,9 @@ class ProfileEditorViewModel(tag: String, log: Logger,
     }
 
     fun onPickUpdateInterval() {
-        consumer?.showUpdateIntervalPicker(updateIntervalValue.get())
+        consumer?.showUpdateIntervalPicker(updateIntervalValue.get().toInt())
                 ?.takeUntil(takeUntilUnbind().toFlowable(BackpressureStrategy.LATEST))
-                ?.subscribe { update -> setUpdateInterval(update) }
+                ?.subscribe { update -> setUpdateInterval(update.toLong()) }
     }
 
     fun isValid() : Boolean {
@@ -179,11 +179,11 @@ class ProfileEditorViewModel(tag: String, log: Logger,
         path.set(profile.path)
     }
 
-    private fun setUpdateInterval(interval: Int) {
+    private fun setUpdateInterval(interval: Long) {
         for ((i, v) in updateIntervalValues.withIndex()) {
-            if (v == interval) {
+            if (v == interval.toInt()) {
                 updateIntervalLabel.set(updateIntervalEntries[i])
-                updateIntervalValue.set(v)
+                updateIntervalValue.set(interval)
             }
         }
     }
