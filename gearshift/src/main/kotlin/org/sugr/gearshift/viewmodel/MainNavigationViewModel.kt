@@ -49,19 +49,29 @@ class MainNavigationViewModel(tag: String, log: Logger,
     var firstTimeProfile = true
 
     interface Consumer {
+        fun restorePath()
         fun closeDrawer()
         fun createProfile()
+    }
+
+    val sessionObservable = apiObservable.switchMap { api -> api.session() }
+
+    init {
+        lifecycle.filter { it == Lifecycle.BIND }.take(1).subscribe {
+            val profiles = loadProfiles(prefs)
+
+            if (profiles.isEmpty() && firstTimeProfile) {
+                firstTimeProfile = false
+                consumer?.createProfile()
+            } else {
+                consumer?.restorePath()
+            }
+        }
     }
 
     override fun bind(consumer: Consumer) {
         super.bind(consumer)
 
-        val profiles = loadProfiles(prefs)
-
-        if (profiles.isEmpty() && firstTimeProfile) {
-            firstTimeProfile = false
-            consumer.createProfile()
-        }
     }
 }
 

@@ -84,8 +84,6 @@ class MainNavigationActivity : AppCompatActivity(),
         binding.appBar.toolbar.navigationIcon = toolbarToggle
         binding.appBar.toolbar.setNavigationOnClickListener(this)
 
-        pathNavigator.restorePath()
-
         component.navigationViewModel.bind(this)
 
         component.lifecycle.onNext(ActivityLifecycle.CREATE)
@@ -121,6 +119,10 @@ class MainNavigationActivity : AppCompatActivity(),
         if (!pathNavigator.navigateUp()) {
             onNavigateUp(true)
         }
+    }
+
+    override fun restorePath() {
+        pathNavigator.restorePath()
     }
 
     override fun closeDrawer() {
