@@ -30,7 +30,7 @@ fun SharedPreferences.delete(key: String) {
     }
 }
 
-fun SharedPreferences.toObservable() =
+fun SharedPreferences.observe() =
         observable<String> { e ->
             val listener = SharedPreferences.OnSharedPreferenceChangeListener { p, key ->
                 e.onNext(key)
@@ -42,3 +42,6 @@ fun SharedPreferences.toObservable() =
             }
         }
 
+
+fun SharedPreferences.observeKey(key: String) =
+        observe().filter { it == key }.startWith { key }

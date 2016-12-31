@@ -6,4 +6,7 @@
     <color name="colorAccentDark">#C51162</color>
 
     <color name="colorRequired">#B71C1C</color>
+    <color name="separator">#CBCBCD</color>
+
+	<color name="statusSheet">#DDDDDD</color>
 </resources>

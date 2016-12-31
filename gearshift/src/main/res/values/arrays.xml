@@ -19,4 +19,20 @@
         <item>10</item>
         <item>15</item>
     </integer-array>
+
+	<string-array name="pref_base_sort_method_values" translatable="false">
+		<item>NAME</item>
+		<item>SIZE</item>
+		<item>STATUS</item>
+		<item>RATE_DOWNLOAD</item>
+		<item>RATE_UPLOAD</item>
+		<item>AGE</item>
+		<item>PROGRESS</item>
+		<item>RATIO</item>
+		<item>ACTIVITY</item>
+		<item>LOCATION</item>
+		<item>PEERS</item>
+		<item>QUEUE</item>
+	</string-array>
+
 </resources>

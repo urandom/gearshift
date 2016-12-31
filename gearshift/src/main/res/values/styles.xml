@@ -18,15 +18,19 @@
     <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
 
     <style name="HeaderText">
+	    <item name="android:layout_width">match_parent</item>
+	    <item name="android:layout_height">wrap_content</item>
         <item name="android:textAppearance">?android:textAppearanceLarge</item>
         <item name="android:textColor">?colorAccent</item>
         <item name="android:fontFamily">sans-serif-smallcaps</item>
-        <item name="android:layout_margin">16dp</item>
+	    <item name="android:layout_marginTop">8dp</item>
+	    <item name="android:layout_marginBottom">8dp</item>
+	    <item name="android:layout_marginStart">@dimen/activity_horizontal_margin</item>
+	    <item name="android:layout_marginEnd">@dimen/activity_horizontal_margin</item>
     </style>
 
     <style name="HeaderText.Small">
         <item name="android:textAppearance">?android:textAppearanceSmall</item>
-        <item name="android:layout_margin">8dp</item>
     </style>
 
     <style name="HeaderText.Title">
@@ -38,4 +42,45 @@
         <item name="android:fontFamily">sans-serif-thin</item>
         <item name="android:textColor">?android:textColorPrimary</item>
     </style>
+
+    <style name="Separator">
+        <item name="android:background">@color/separator</item>
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">1dp</item>
+        <item name="android:layout_marginTop" >2dp</item>
+        <item name="android:layout_marginBottom" >2dp</item>
+    </style>
+
+	<style name="Form">
+		<item name="android:layout_width">match_parent</item>
+		<item name="android:layout_height">wrap_content</item>
+	</style>
+
+	<style name="Form.InputLayout">
+		<item name="android:layout_marginTop">8dp</item>
+		<item name="android:layout_marginStart">8dp</item>
+		<item name="android:layout_marginEnd">8dp</item>
+	</style>
+
+	<style name="Form.TextInput">
+		<item name="android:inputType">text</item>
+		<item name="android:ems">10</item>
+		<item name="android:maxLines">1</item>
+	</style>
+
+	<style name="Form.TextInput.Required">
+		<item name="android:drawableStart">@drawable/ic_required_small</item>
+	</style>
+
+	<style name="Form.Checkbox">
+		<item name="android:layout_marginTop">8dp</item>
+		<item name="android:layout_marginStart">@dimen/activity_horizontal_margin</item>
+		<item name="android:layout_marginEnd">@dimen/activity_horizontal_margin</item>
+	</style>
+
+	<style name="Form.Spinner">
+		<item name="android:layout_marginTop">8dp</item>
+		<item name="android:layout_marginStart">8dp</item>
+		<item name="android:layout_marginEnd">8dp</item>
+	</style>
 </resources>

@@ -99,20 +99,19 @@
 
 	<string name="torrent_list_status_speed_limit">Speed limit</string>
 
-	<string-array name="torrent_list_sort_entries">
-		<item>Name</item>
-		<item>Size</item>
-		<item>Status</item>
-		<item>Download speed</item>
-		<item>Upload speed</item>
-		<item>Age</item>
-		<item>Progress</item>
-		<item>Ratio</item>
-		<item>Activity</item>
-		<item>Location</item>
-		<item>Peers</item>
-		<item>Queue position</item>
-	</string-array>
+	<string name="torrent_list_sort_by_name">Name</string>
+	<string name="torrent_list_sort_by_size">Size</string>
+	<string name="torrent_list_sort_by_status">Status</string>
+	<string name="torrent_list_sort_by_rate_download">Download speed</string>
+	<string name="torrent_list_sort_by_rate_upload">Upload speed</string>
+	<string name="torrent_list_sort_by_age">Age</string>
+	<string name="torrent_list_sort_by_progress">Progress</string>
+	<string name="torrent_list_sort_by_ratio">Ratio</string>
+	<string name="torrent_list_sort_by_activity">Activity</string>
+	<string name="torrent_list_sort_by_location">Location</string>
+	<string name="torrent_list_sort_by_peers">Peers</string>
+	<string name="torrent_list_sort_by_queue">Queue</string>
 
 	<string name="torrent_list_sort_descending">Descending</string>
+	<string name="torrent_list_sorting_header">Sorting</string>
 </resources>

@@ -11,7 +11,7 @@ import org.sugr.gearshift.Logger
 import org.sugr.gearshift.model.loadProfiles
 import org.sugr.gearshift.model.profileOf
 import org.sugr.gearshift.viewmodel.api.apiOf
-import org.sugr.gearshift.viewmodel.rxutil.toObservable
+import org.sugr.gearshift.viewmodel.rxutil.observe
 
 class MainNavigationViewModel(tag: String, log: Logger,
                               private val ctx: Context,
@@ -33,7 +33,7 @@ class MainNavigationViewModel(tag: String, log: Logger,
 
     }
 
-    val profileObservable = prefs.toObservable()
+    val profileObservable = prefs.observe()
             .filter { key -> key == C.PREF_CURRENT_PROFILE }
             .startWith { C.PREF_CURRENT_PROFILE }
             .map { key -> prefs.getString(key, "") }

@@ -15,7 +15,8 @@
 		android:layout_height="wrap_content"
 		android:orientation="vertical"
 		android:id="@+id/torrent_list_bottom_sheet"
-		android:background="@color/colorAccentDark"
+		android:background="@color/statusSheet"
+		android:elevation="8dp"
 		app:layout_behavior="org.sugr.gearshift.ui.view.behaviors.CustomBottomSheetBehavior"
 		app:behavior_peekHeight="@dimen/torrent_list_status_height">
 
@@ -44,23 +45,22 @@
 			android:checked="@={viewModel.speedLimit}"
 			android:text="@string/torrent_list_status_speed_limit"/>
 
+		<TextView
+			style="@style/HeaderText.Small.Title"
+			android:layout_marginBottom="0dp"
+			android:text="@string/torrent_list_sorting_header"/>
+
+		<View style="@style/Separator"/>
+
 		<Spinner
-			android:layout_width="match_parent"
-			android:layout_height="wrap_content"
-			android:layout_marginStart="@dimen/activity_horizontal_margin"
-			android:layout_marginEnd="@dimen/activity_horizontal_margin"
-			android:layout_marginTop="8dp"
+			style="@style/Form.Spinner"
 			android:layout_marginBottom="8dp"
 			android:entries="@{viewModel.sortEntries}"
 			bind:selection="@{viewModel.sortListener.position}"
 			bind:onItemSelectedListener="@{viewModel.sortListener}"/>
 
 		<CheckBox
-			android:layout_width="match_parent"
-			android:layout_height="wrap_content"
-			android:layout_marginStart="@dimen/activity_horizontal_margin"
-			android:layout_marginEnd="@dimen/activity_horizontal_margin"
-			android:layout_marginTop="8dp"
+			style="@style/Form.Checkbox"
 			android:layout_marginBottom="8dp"
 			android:checked="@={viewModel.sortDescending}"
 			android:text="@string/torrent_list_sort_descending"/>
