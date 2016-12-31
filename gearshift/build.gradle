@@ -60,6 +60,7 @@ dependencies {
             "org.jetbrains.kotlin:kotlin-reflect:${kotlin_version}",
              'com.colintmiller:simplenosql:0.5.1',
             // "com.google.dagger:dagger:$dagger_version"
+            'com.github.deano2390:MaterialShowcaseView:1.1.0'
     )
 
     kapt(

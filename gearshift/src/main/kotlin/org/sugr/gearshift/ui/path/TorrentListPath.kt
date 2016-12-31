@@ -13,6 +13,7 @@ class TorrentListPath(navComponent: NavComponent,
 
     override val layout = R.layout.torrent_list_content
     override val title = R.string.app_name
+    override val extraLayouts = arrayOf(R.layout.torrent_list_bottom_sheet)
 }
 
 interface TorrentListComponent : NavComponent {
@@ -24,7 +25,7 @@ class TorrentListComponentImpl(b : NavComponent) : TorrentListComponent, NavComp
 
     override val viewModel : TorrentListViewModel by lazy {
         viewModelFrom(fragmentManager, tag) {
-            TorrentListViewModel(tag, log, apiObservable, lifecycle)
+            TorrentListViewModel(tag, log, context, apiObservable, lifecycle)
         }
     }
 }

@@ -153,23 +153,23 @@ class MainNavigationActivity : AppCompatActivity(),
 
         (view as? ViewModelConsumer<RetainedViewModel<*>>)?.setViewModel(viewModel)
 
-        view.setTag(R.id.view_content, true)
-        container.addView(view)
-
         for (layout in newPath.extraLayouts) {
             val binding = DataBindingUtil.inflate<ViewDataBinding>(inflater, layout, container, true)
             binding.root.setTag(R.id.view_content_extra, true)
             binding.setVariable(BR.viewModel, viewModel)
         }
 
-        if (newPath.menu == 0) {
-            for (item in binding.appBar.toolbar.menu.asSequence()) {
-                item.setActionView(null)
-            }
+        view.setTag(R.id.view_content, true)
+        container.addView(view)
 
-            binding.appBar.toolbar.menu.clear();
-            binding.appBar.toolbar.setOnMenuItemClickListener(null)
-        } else {
+        for (item in binding.appBar.toolbar.menu.asSequence()) {
+            item.setActionView(null)
+        }
+
+        binding.appBar.toolbar.menu.clear();
+        binding.appBar.toolbar.setOnMenuItemClickListener(null)
+
+        if (newPath.menu != 0) {
             binding.appBar.toolbar.inflateMenu(newPath.menu)
             if (view is ToolbarMenuItemClickListener) {
                 binding.appBar.toolbar.setOnMenuItemClickListener { item ->

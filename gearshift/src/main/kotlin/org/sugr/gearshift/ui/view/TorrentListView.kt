@@ -26,6 +26,7 @@ class TorrentListView(context: Context?, attrs: AttributeSet?) :
         binding.viewModel = viewModel
 
         viewModel.bind(this)
+
     }
 
     override fun onDetachedFromWindow() {

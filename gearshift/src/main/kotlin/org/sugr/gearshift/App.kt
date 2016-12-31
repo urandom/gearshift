@@ -12,6 +12,7 @@ import com.github.salomonbrys.kotson.string
 import com.github.zafarkhaja.semver.Version
 import com.google.gson.Gson
 import com.google.gson.JsonArray
+import io.reactivex.Scheduler
 import io.reactivex.schedulers.Schedulers
 import okhttp3.OkHttpClient
 import okhttp3.Request
@@ -22,7 +23,7 @@ import java.io.IOException
 import java.util.concurrent.Callable
 
 class App : Application() {
-    val component : AppComponent = AppComponentImpl(this)
+    val component : AppComponent by lazy { AppComponentImpl(this) }
 
     class Update(val title: String, val description: String, val url: String, val downloadUrl: String)
 
@@ -93,10 +94,12 @@ interface AppComponent {
     val context : Context
     val prefs : SharedPreferences
     val log : Logger
+    val ioScheduler : Scheduler
 }
 
 class AppComponentImpl(application : App, override val log: Logger = Log) : AppComponent {
     override val app : App = application
     override val context : Context = app
     override val prefs = PreferenceManager.getDefaultSharedPreferences(app)
+    override val ioScheduler = Schedulers.io()
 }

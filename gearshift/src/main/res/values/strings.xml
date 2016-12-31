@@ -94,4 +94,25 @@
 	<string name="time_minute">minute</string>
 	<string name="time_seconds">seconds</string>
 	<string name="time_second">second</string>
+
+	<string name="torrent_list_status_loading">Loading …</string>
+
+	<string name="torrent_list_status_speed_limit">Speed limit</string>
+
+	<string-array name="torrent_list_sort_entries">
+		<item>Name</item>
+		<item>Size</item>
+		<item>Status</item>
+		<item>Download speed</item>
+		<item>Upload speed</item>
+		<item>Age</item>
+		<item>Progress</item>
+		<item>Ratio</item>
+		<item>Activity</item>
+		<item>Location</item>
+		<item>Peers</item>
+		<item>Queue position</item>
+	</string-array>
+
+	<string name="torrent_list_sort_descending">Descending</string>
 </resources>

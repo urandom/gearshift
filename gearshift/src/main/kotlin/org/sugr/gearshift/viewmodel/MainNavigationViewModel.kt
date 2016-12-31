@@ -55,6 +55,7 @@ class MainNavigationViewModel(tag: String, log: Logger,
     }
 
     val sessionObservable = apiObservable.switchMap { api -> api.session() }
+            .replay(1).refCount()
 
     init {
         lifecycle.filter { it == Lifecycle.BIND }.take(1).subscribe {
