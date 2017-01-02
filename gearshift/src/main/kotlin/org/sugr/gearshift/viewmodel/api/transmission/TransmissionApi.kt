@@ -24,6 +24,8 @@ import org.sugr.gearshift.model.Session
 import org.sugr.gearshift.model.Torrent
 import org.sugr.gearshift.model.TorrentFile
 import org.sugr.gearshift.viewmodel.api.Api
+import org.sugr.gearshift.viewmodel.api.AuthException
+import org.sugr.gearshift.viewmodel.api.NetworkException
 import org.sugr.gearshift.viewmodel.ext.readableFileSize
 import org.sugr.gearshift.viewmodel.ext.readablePercent
 import org.sugr.gearshift.viewmodel.ext.readableRemainingTime
@@ -31,10 +33,12 @@ import org.sugr.gearshift.viewmodel.rxutil.ResponseSingle
 import java.net.HttpURLConnection
 import java.net.InetSocketAddress
 import java.net.Proxy
+import java.net.SocketTimeoutException
 import java.security.SecureRandom
 import java.security.cert.X509Certificate
 import java.util.*
 import java.util.concurrent.TimeUnit
+import java.util.concurrent.TimeoutException
 import javax.net.ssl.SSLContext
 import javax.net.ssl.TrustManager
 import javax.net.ssl.X509TrustManager
@@ -61,7 +65,7 @@ class TransmissionApi(
 
             if (profile.username.isNotBlank() && profile.password.isNotBlank()) {
                 val credentials = profile.username + ":" + profile.password
-                val basic = "Basic " + Base64.encode(credentials.toByteArray(), Base64.NO_WRAP)
+                val basic = "Basic " + String(Base64.encode(credentials.toByteArray(), Base64.NO_WRAP))
 
                 requestBuilder.header("Authorization", basic)
             }
@@ -89,7 +93,36 @@ class TransmissionApi(
                 }
             }
 
-            response
+            when (response.code()) {
+                HttpURLConnection.HTTP_UNAUTHORIZED, HttpURLConnection.HTTP_FORBIDDEN -> throw AuthException()
+                HttpURLConnection.HTTP_OK -> response
+                else -> throw NetworkException(response.code())
+            }
+        }
+
+        builder.addInterceptor { chain ->
+            var retries = 0
+            var response : Response? = null
+            val total = if (profile.retries < 0) 1 else profile.retries
+
+            while (true) {
+                try {
+                    response = chain.proceed(chain.request())
+                    break
+                } catch (err: SocketTimeoutException) {
+                    retries++
+
+                    if (retries < total) {
+                        log.D("Request timed out, retry count : ${retries}")
+
+                        Thread.sleep(1000L + (retries - 1L) * 500L)
+                    } else {
+                        break
+                    }
+                }
+            }
+
+            response ?: throw TimeoutException()
         }
 
         if (debug) {
@@ -476,6 +509,7 @@ class TransmissionApi(
                     totalSize = json["totalSize"]?.nullLong ?: 0,
                     sizeLeft = leftUntilDone,
                     seedRatioLimit =  seedLimit,
+                    addedTime = json["addedDate"]?.nullLong ?: 0,
                     seedRatioMode = SeedRatioMode.values().filter { it.value == seedMode }
                             .map { it.mode }.firstOrNull() ?: Torrent.SeedRatioMode.UNKNOWN,
                     files = files

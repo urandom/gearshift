@@ -13,4 +13,7 @@
     <dimen name="torrent_list_traffic_text_size">10sp</dimen>
     <dimen name="torrent_list_status_text_size">12sp</dimen>
     <dimen name="torrent_list_error_text_size">10sp</dimen>
+
+	<dimen name="torrent_list_top_space">4dp</dimen>
+	<dimen name="torrent_list_bottom_space">@dimen/torrent_list_status_height</dimen>
 </resources>

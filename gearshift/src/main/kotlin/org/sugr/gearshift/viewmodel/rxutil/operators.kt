@@ -34,4 +34,8 @@ fun <T> Observable<T>.pauseOn(pauseObservable: Observable<Boolean>) : Observable
             }
 }
 
+fun <T> Observable<T>.refresh(refresher: Observable<Any>) : Observable<T> {
+    return refresher.startWith(1).debounce(50, TimeUnit.MILLISECONDS).switchMap { this }
+}
+
 private class LifecycleException : RuntimeException()

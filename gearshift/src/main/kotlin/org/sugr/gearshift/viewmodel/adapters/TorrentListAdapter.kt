@@ -6,7 +6,6 @@ import android.support.v7.widget.util.SortedListAdapterCallback
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import io.reactivex.Observable
-import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.functions.Consumer
 import org.sugr.gearshift.Logger
 import org.sugr.gearshift.databinding.TorrentListItemBinding
@@ -57,7 +56,8 @@ class TorrentListAdapter(torrentsObservable: Observable<Set<Torrent>>,
         }
 
         override fun onChanged(position: Int, count: Int) {
-            for (i in position .. position + count) {
+            log.D("Changes from ${position} to ${position + count - 1}")
+            for (i in position .. position + count - 1) {
                 onChanged(i)
             }
         }
@@ -69,9 +69,9 @@ class TorrentListAdapter(torrentsObservable: Observable<Set<Torrent>>,
                 SortBy.STATUS -> t1.statusSortWeight().compareTo(t2.statusSortWeight())
                 SortBy.RATE_DOWNLOAD -> t2.downloadRate.compareTo(t1.downloadRate)
                 SortBy.RATE_UPLOAD -> t2.uploadRate.compareTo(t1.uploadRate)
-                SortBy.AGE -> t2.addedTime.compareTo(t1.addedTime)
+                SortBy.AGE -> t1.addedTime.compareTo(t2.addedTime)
                 SortBy.PROGRESS -> t1.downloadProgress.compareTo(t2.downloadProgress)
-                SortBy.RATIO -> t2.uploadRatio.compareTo(t1.uploadRatio)
+                SortBy.RATIO -> t1.uploadRatio.compareTo(t2.uploadRatio)
                 SortBy.ACTIVITY -> (t2.downloadRate + t2.uploadRate).compareTo(t1.downloadRate + t1.uploadRate)
                 SortBy.LOCATION -> t1.downloadDir.compareTo(t2.downloadDir, true)
                 SortBy.PEERS -> t1.connectedPeers.compareTo(t2.connectedPeers)
@@ -93,40 +93,50 @@ class TorrentListAdapter(torrentsObservable: Observable<Set<Torrent>>,
 
         sortingObservable.combineLatestWith(sessionObservable) { sorting, session ->
             Pair(sorting, session)
-        }.observeOn(AndroidSchedulers.mainThread()).subscribe {
-            sorting = it.first
-            globalLimit = it.second.seedRatioLimit
+        }.subscribe({
+            if (it.first != sorting || globalLimit != it.second.seedRatioLimit) {
+                sorting = it.first
+                globalLimit = it.second.seedRatioLimit
 
-            torrents.beginBatchedUpdates()
-            torrents.asSequence().forEach { torrent ->
-                torrents.updateItemAt(torrents.indexOf(torrent), torrent)
+                if (torrents.size() > 0) {
+                    torrents.beginBatchedUpdates()
+                    torrents.asSequence().forEach { torrent ->
+                        torrents.updateItemAt(torrents.indexOf(torrent), torrent)
+                    }
+                    torrents.endBatchedUpdates()
+                }
             }
-            torrents.endBatchedUpdates()
-        }
+        }, { err -> log.E("torrent list adapter sorting and session", err) })
 
         sortingObservable.take(1).flatMap { torrentsObservable }
-                .observeOn(AndroidSchedulers.mainThread())
                 .subscribe({ torrentSet ->
-                    torrents.beginBatchedUpdates()
+                    if (torrentSet.isEmpty()) {
+                        torrents.clear()
+                    } else {
+                        torrents.beginBatchedUpdates()
 
-                    val newHashes = torrentSet.map { it.hash }.toSet()
+                        val newHashes = torrentSet.map { it.hash }.toSet()
 
-                    torrents.asSequence().filterNot { torrent ->
-                        torrent.hash in newHashes
-                    }.mapIndexed { i, torrent -> i }.sortedDescending().forEach { i ->
-                        torrents.removeItemAt(i)
+                        torrents.asSequence().filterNot { torrent ->
+                            torrent.hash in newHashes
+                        }.mapIndexed { i, torrent -> i }.sortedDescending().forEach { i ->
+                            torrents.removeItemAt(i)
+                        }
+
+                        torrents.addAll(torrentSet)
+
+                        torrents.endBatchedUpdates()
                     }
-
-                    torrents.addAll(torrentSet)
-
-                    torrents.endBatchedUpdates()
                 }, { err ->
                     log.E("updating torrent list adapter", err)
                 })
     }
 
     override fun onBindViewHolder(holder: TorrentListViewHolder?, position: Int) {
-        holder?.bindTo(viewModelManager.getViewModel(torrents[position].hash))
+        val torrent = torrents[position]
+        val vm = viewModelManager.getViewModel(torrent.hash)
+        vm.updateTorrent(torrent)
+        holder?.bindTo(vm)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TorrentListViewHolder {

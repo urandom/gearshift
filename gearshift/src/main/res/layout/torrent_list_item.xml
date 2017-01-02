@@ -37,7 +37,6 @@
 				android:layout_height="64dp"
 				android:indeterminate="false"
 				android:progressDrawable="@drawable/circular_progress_bar"
-				android:background="?android:selectableItemBackground"
 				android:max="100"
 				android:progress="@{viewModel.uploadProgress}"
 				android:secondaryProgress="@{viewModel.downloadProgress}"/>

@@ -4,9 +4,12 @@ import android.content.Context
 import android.content.SharedPreferences
 import android.databinding.ObservableBoolean
 import android.databinding.ObservableField
+import android.support.v4.widget.SwipeRefreshLayout
 import android.view.LayoutInflater
 import io.reactivex.Observable
+import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.functions.Consumer
+import io.reactivex.subjects.PublishSubject
 import org.sugr.gearshift.C
 import org.sugr.gearshift.Logger
 import org.sugr.gearshift.R
@@ -17,6 +20,8 @@ import org.sugr.gearshift.viewmodel.adapters.TorrentViewModelManager
 import org.sugr.gearshift.viewmodel.api.Api
 import org.sugr.gearshift.viewmodel.databinding.SelectionListener
 import org.sugr.gearshift.viewmodel.rxutil.observe
+import org.sugr.gearshift.viewmodel.rxutil.refresh
+import java.util.concurrent.TimeUnit
 
 class TorrentListViewModel(tag: String, log: Logger, ctx: Context, prefs: SharedPreferences,
                            private val apiObservable: Observable<Api>,
@@ -35,10 +40,15 @@ class TorrentListViewModel(tag: String, log: Logger, ctx: Context, prefs: Shared
     val sortListener = SelectionListener()
     val sortEntries = SortBy.values().map { it.stringRes }.map { ctx.getString(it) }
     val sortDescending = ObservableBoolean(false)
+    val refreshing = ObservableBoolean(false)
+    val refreshListener = SwipeRefreshLayout.OnRefreshListener { refresher.onNext(1) }
 
-    val torrents = apiObservable.switchMap { api ->
+    private val refresher = PublishSubject.create<Any>()
+
+    val torrents = apiObservable.refresh(refresher).switchMap { api ->
         api.torrents(sessionObservable)
     }.takeUntil(takeUntilDestroy()).replay(1).refCount()
+            .observeOn(AndroidSchedulers.mainThread())
 
     val sorting = prefs.observe().filter {
         it == C.PREF_LIST_SORT_BY || it == C.PREF_LIST_SORT_DIRECTION
@@ -48,12 +58,24 @@ class TorrentListViewModel(tag: String, log: Logger, ctx: Context, prefs: Shared
     ) }
             .startWith(Sorting(SortBy.AGE, SortDirection.DESCENDING))
             .takeUntil(takeUntilDestroy()).replay(1).refCount()
+            .observeOn(AndroidSchedulers.mainThread())
 
     init {
         sorting.subscribe({ sorting ->
             sortListener.position.set(sorting.by.ordinal)
             sortDescending.set(sorting.direction == SortDirection.DESCENDING)
         }, { err -> log.D("Sorting error: ${err}") })
+
+        apiObservable.observeOn(AndroidSchedulers.mainThread()).subscribe { refreshing.set(true) }
+
+        Observable.timer(1, TimeUnit.MILLISECONDS)
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe { refreshing.set(true) }
+
+        torrents.subscribe {
+            refreshing.set(true)
+            refreshing.set(false)
+        }
     }
 
     override fun onDestroy() {
@@ -65,8 +87,9 @@ class TorrentListViewModel(tag: String, log: Logger, ctx: Context, prefs: Shared
     fun onTorrentClick(torrent: Torrent) {}
 
     fun adapter(ctx: Context) : TorrentListAdapter =
-        TorrentListAdapter(torrents, sessionObservable, sorting,
-                log, this, LayoutInflater.from(ctx), Consumer { onTorrentClick(it) })
+        TorrentListAdapter(torrents,
+                sessionObservable.observeOn(AndroidSchedulers.mainThread()),
+                sorting, log, this, LayoutInflater.from(ctx), Consumer { onTorrentClick(it) })
 }
 
 data class Sorting(val by: SortBy,

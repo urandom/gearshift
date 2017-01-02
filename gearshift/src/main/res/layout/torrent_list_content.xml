@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    xmlns:android="http://schemas.android.com/apk/res/android">
+        xmlns:tools="http://schemas.android.com/tools"
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:bind="http://schemas.android.com/apk/res-auto">
     <data>
         <variable
             name="viewModel"
@@ -16,8 +17,10 @@
 		tools:showIn="@layout/main_navigation_app_bar">
 
         <android.support.v4.widget.SwipeRefreshLayout
-            android:layout_width="0dp"
-            android:layout_height="0dp">
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            bind:onRefreshListener="@{viewModel.refreshListener}"
+	        bind:refreshing="@{viewModel.refreshing}">
 
             <android.support.v7.widget.RecyclerView
 	            android:id="@+id/list"

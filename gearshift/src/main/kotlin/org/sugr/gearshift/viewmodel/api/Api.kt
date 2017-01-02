@@ -37,3 +37,6 @@ object NoApi : Api {
     override fun torrents(session: Observable<Session>, initial: Set<Torrent>) = Observable.empty<Set<Torrent>>()
     override fun freeSpace(dir: Observable<String>) = Observable.just(0L)
 }
+
+class NetworkException(code: Int): RuntimeException("Network error")
+class AuthException: RuntimeException("Auth error")
