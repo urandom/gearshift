@@ -9,10 +9,12 @@ data class Torrent(val hash: String, val id: Int, val name: String,
                    val statusType: StatusType = Torrent.StatusType.UNKNOWN,
                    val metaProgress: Float = 0f,
                    val downloadProgress: Float = 0f, val uploadProgress: Float = 0f,
+                   val downloadRate : Long = 0, val uploadRate: Long = 0, val uploadRatio : Float = 0f,
                    val isDirectory: Boolean = false,
                    val statusText: String = "", val trafficText: String = "",
                    val error: String = "", val errorType: ErrorType = Torrent.ErrorType.UNKNOWN,
-                   val downloadDir: String = "",
+                   val downloadDir: String = "", val connectedPeers : Int = 0,
+                   val queuePosition : Int = 0,
                    val validSize: Long = 0, val totalSize: Long = 0, val sizeLeft: Long = 0,
                    val seedRatioLimit: Float = 0f, val seedRatioMode: SeedRatioMode = Torrent.SeedRatioMode.UNKNOWN,
                    val downloaded: Long = 0, val uploaded: Long = 0,
@@ -35,12 +37,17 @@ data class Torrent(val hash: String, val id: Int, val name: String,
                 metaProgress = if (other.metaProgress == default.metaProgress) metaProgress else other.metaProgress,
                 downloadProgress = if (other.downloadProgress == default.downloadProgress) downloadProgress else other.downloadProgress,
                 uploadProgress = if (other.uploadProgress == default.uploadProgress) uploadProgress else other.uploadProgress,
+                downloadRate = if (other.downloadRate == default.downloadRate) downloadRate else other.downloadRate,
+                uploadRate = if (other.uploadRate == default.uploadRate) uploadRate else other.uploadRate,
+                uploadRatio = if (other.uploadRatio == default.uploadRatio) uploadRatio else other.uploadRatio,
                 isDirectory = if (other.isDirectory == default.isDirectory) isDirectory else other.isDirectory,
                 statusText = if (other.statusText == default.statusText) statusText else other.statusText,
                 trafficText = if (other.trafficText == default.trafficText) trafficText else other.trafficText,
                 error = if (other.error == default.error) error else other.error,
                 errorType = if (other.errorType == default.errorType) errorType else other.errorType,
                 downloadDir = if (other.downloadDir == default.downloadDir) downloadDir else other.downloadDir,
+                connectedPeers = if (other.connectedPeers == default.connectedPeers) connectedPeers else other.connectedPeers,
+                queuePosition = if (other.queuePosition == default.queuePosition) queuePosition else other.queuePosition,
                 validSize = if (other.validSize == default.validSize) validSize else other.validSize,
                 totalSize = if (other.totalSize == default.totalSize) totalSize else other.totalSize,
                 sizeLeft = if (other.sizeLeft == default.sizeLeft) sizeLeft else other.sizeLeft,
@@ -72,13 +79,34 @@ data class Torrent(val hash: String, val id: Int, val name: String,
             else -> false
         }
 
-    fun seedRatioLimit(session: Session = NoSession()) : Float {
+    fun seedRatioLimit(globalLimit: Float = 0f, isGlobalLimitEnabled : Boolean = false) : Float {
         if (seedRatioMode == SeedRatioMode.NO_LIMIT || seedRatioMode == SeedRatioMode.UNKNOWN) {
             return 0f
         } else if (seedRatioMode == SeedRatioMode.GLOBAL_LIMIT) {
-            return if (session.seedRatioLimitEnabled) session.seedRatioLimit else 0f
+            return if (isGlobalLimitEnabled) globalLimit else 0f
         } else {
             return seedRatioLimit
+        }
+    }
+
+    fun statusSortWeight(globalLimit : Float = 0f) : Int {
+        return when (statusType) {
+            Torrent.StatusType.STOPPED -> {
+                if (seedRatioMode == SeedRatioMode.NO_LIMIT || (
+                        seedRatioMode == SeedRatioMode.GLOBAL_LIMIT && uploadProgress < globalLimit) ||
+                        uploadProgress < seedRatioLimit) {
+                    40
+                } else {
+                    50
+                }
+            }
+            Torrent.StatusType.CHECK_WAITING -> 100
+            Torrent.StatusType.CHECKING -> 1
+            Torrent.StatusType.DOWNLOAD_WAITING -> 10
+            Torrent.StatusType.DOWNLOADING -> 2
+            Torrent.StatusType.SEED_WAITING -> 20
+            Torrent.StatusType.SEEDING -> 3
+            Torrent.StatusType.UNKNOWN -> -1
         }
     }
 

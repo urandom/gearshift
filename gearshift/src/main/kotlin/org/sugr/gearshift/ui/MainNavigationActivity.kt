@@ -21,6 +21,7 @@ import org.sugr.gearshift.BR
 import org.sugr.gearshift.R
 import org.sugr.gearshift.databinding.MainNavigationActivityBinding
 import org.sugr.gearshift.model.Profile
+import org.sugr.gearshift.model.Session
 import org.sugr.gearshift.ui.path.FirstTimeProfileEditorPath
 import org.sugr.gearshift.ui.path.Path
 import org.sugr.gearshift.ui.path.PathNavigator
@@ -252,6 +253,7 @@ interface NavComponent : AppComponent {
     val gson : Gson
     val profileObservable : Observable<Profile>
     val apiObservable : Observable<Api>
+    val sessionObservable : Observable<Session>
 }
 
 class NavComponentImpl(override val fragmentManager: FragmentManager, b : AppComponent) :
@@ -269,4 +271,5 @@ class NavComponentImpl(override val fragmentManager: FragmentManager, b : AppCom
     override val gson = navigationViewModel.gson
     override val profileObservable = navigationViewModel.profileObservable
     override val apiObservable = navigationViewModel.apiObservable
+    override val sessionObservable = navigationViewModel.sessionObservable
 }

@@ -96,6 +96,7 @@ class TransmissionApi(
             val logger = HttpLoggingInterceptor { message ->
                 log.D("http: $message")
             }
+            logger.level = HttpLoggingInterceptor.Level.BODY
             builder.addInterceptor(logger)
         }
 
@@ -461,11 +462,16 @@ class TransmissionApi(
                     metaProgress = metaProgress,
                     downloadProgress = downloadProgress,
                     uploadProgress = uploadRatio,
+                    downloadRate = rateDownload,
+                    uploadRate = rateUpload,
+                    uploadRatio = uploadRatio,
                     isDirectory = (json[FIELD_FILES]?.nullArray?.size() ?: 0) > 1,
                     statusText = statusText, trafficText = trafficText,
                     error = json["errorString"]?.nullString ?: "",
                     errorType = ErrorType.values().filter { it.value == json["error"]?.nullInt ?: 0 }.first().type,
                     downloadDir = json["downloadDir"]?.nullString ?: "",
+                    connectedPeers = peersConnected,
+                    queuePosition = json["queuePosition"]?.nullInt ?: 0,
                     validSize = sizeWhenDone,
                     totalSize = json["totalSize"]?.nullLong ?: 0,
                     sizeLeft = leftUntilDone,

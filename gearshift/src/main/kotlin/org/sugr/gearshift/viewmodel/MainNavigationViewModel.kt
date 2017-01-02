@@ -35,16 +35,18 @@ class MainNavigationViewModel(tag: String, log: Logger,
 
     val profileObservable = prefs.observe()
             .filter { key -> key == C.PREF_CURRENT_PROFILE }
-            .startWith { C.PREF_CURRENT_PROFILE }
+            .startWith(C.PREF_CURRENT_PROFILE)
             .map { key -> prefs.getString(key, "") }
+            .map { id -> if (id == "") prefs.getStringSet(C.PREF_PROFILES, setOf()).first() else id }
             .map { id -> profileOf(id, prefs) }
-            .replay(1).refCount()
+            .filter { profile -> profile.valid }
             .takeUntil(takeUntilDestroy())
+            .replay(1).refCount()
 
     val apiObservable = profileObservable
             .map { profile -> apiOf(profile, ctx, prefs, gson, log) }
-            .replay(1).refCount()
             .takeUntil(takeUntilDestroy())
+            .replay(1).refCount()
 
     var firstTimeProfile = true
 
@@ -54,8 +56,9 @@ class MainNavigationViewModel(tag: String, log: Logger,
         fun createProfile()
     }
 
-    val sessionObservable = apiObservable.switchMap { api -> api.session() }
-            .replay(1).refCount()
+    val sessionObservable = apiObservable.switchMap { api ->
+        api.session()
+    }.replay(1).refCount()
 
     init {
         lifecycle.filter { it == Lifecycle.BIND }.take(1).subscribe {

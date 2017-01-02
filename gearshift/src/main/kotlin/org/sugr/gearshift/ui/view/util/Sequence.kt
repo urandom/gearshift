@@ -1,5 +1,6 @@
 package org.sugr.gearshift.ui.view.util
 
+import android.support.v7.util.SortedList
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
@@ -48,6 +49,32 @@ fun Menu.asSequence(): Sequence<MenuItem> = object : Sequence<MenuItem> {
         }
 
         override fun next(): MenuItem {
+            if (!hasNext()) {
+                throw NoSuchElementException()
+            }
+            val answer = nextValue
+            nextValue = null
+            return answer!!
+        }
+    }
+}
+
+fun <T> SortedList<T>.asSequence(): Sequence<T> = object: Sequence<T> {
+    override fun iterator() = object : Iterator<T> {
+        private var nextValue: T? = null
+        private var done = false
+        private var position: Int = 0
+
+        override fun hasNext(): Boolean {
+            if (nextValue == null && !done && size() > position) {
+                nextValue = get(position)
+                position++
+                if (nextValue == null) done = true
+            }
+            return nextValue != null
+        }
+
+        override fun next(): T {
             if (!hasNext()) {
                 throw NoSuchElementException()
             }

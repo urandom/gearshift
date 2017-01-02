@@ -24,14 +24,14 @@ open class RetainedViewModel<T>(val tag: String, val log: Logger) {
         lifecycle.onNext(Lifecycle.BIND)
     }
 
-    fun unbind() {
+    open fun unbind() {
         log.D("Unbinding $this view model")
         lifecycle.onNext(Lifecycle.UNBIND)
 
         consumer = null
     }
 
-    fun onDestroy() {
+    open fun onDestroy() {
         log.D("Destroying $this view model")
         lifecycle.onNext(Lifecycle.DESTROY)
     }

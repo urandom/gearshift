@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <item name="view_content" type="id" />
-    <item name="view_content_extra" type="id" />
+	<item name="view_content" type="id" />
+	<item name="view_content_extra" type="id" />
+
+	<item name="torrent_list_columns" type="integer">1</item>
 </resources>

@@ -44,4 +44,7 @@ fun SharedPreferences.observe() =
 
 
 fun SharedPreferences.observeKey(key: String) =
-        observe().filter { it == key }.startWith { key }
+        observe().filter { it == key }.startWith(key)
+
+fun SharedPreferences.observeString(key: String) =
+        observeKey(key).map { getString(key, "") }

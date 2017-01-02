@@ -6,7 +6,13 @@
     <color name="colorAccentDark">#C51162</color>
 
     <color name="colorRequired">#B71C1C</color>
+	<color name="error">#F44336</color>
     <color name="separator">#CBCBCD</color>
 
 	<color name="statusSheet">#DDDDDD</color>
+    <color name="progress_background">#B0BEC5</color> <!-- Blue grey 200 -->
+    <color name="progress_secondary">#03A9F4</color> <!-- Light blue 500 -->
+    <color name="progress_primary">#76FF03</color> <!-- Light green A400 -->
+
+    <color name="check_indicator">#757575</color> <!-- Grey 600 -->
 </resources>
