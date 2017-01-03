@@ -188,7 +188,7 @@ class TransmissionApi(
                 .map { json -> gson.fromJson<TransmissionSession>(json) }
                 .map { session -> session as Session }
                 .repeatWhen { completed ->
-                    completed.delay(profile.updateInterval, TimeUnit.SECONDS)
+                    completed.delay(profile.updateInterval * 3, TimeUnit.SECONDS)
                 }
     }
 
@@ -234,17 +234,11 @@ class TransmissionApi(
                                 }
 
                                 if (incomplete.isNotEmpty()) {
-                                    list = list.concatWith(
-                                            getTorrents(TORRENT_META_FIELDS, "ids" to jsonArray(*incomplete))
-                                                    .toObservable()
-                                    )
+                                    list = mergeTorrentJson(list, getTorrents(TORRENT_META_FIELDS, "ids" to jsonArray(*incomplete)))
                                 }
 
                                 if (withoutFiles.isNotEmpty()) {
-                                    list = list.concatWith(
-                                            getTorrents(arrayOf(FIELD_HASH, FIELD_FILES), "ids" to jsonArray(*withoutFiles))
-                                                    .toObservable()
-                                    )
+                                    list = mergeTorrentJson(list, getTorrents(arrayOf(FIELD_HASH, FIELD_FILES), "ids" to jsonArray(*withoutFiles)))
                                 }
 
                                 list
@@ -333,6 +327,25 @@ class TransmissionApi(
                 "seedRatioMode", "seedRatioLimit", "sizeWhenDone", "status",
                 "uploadedEver", "uploadRatio", "downloadDir"
         )
+
+        private fun mergeTorrentJson(original: Observable<JsonArray>, partialUpdates: Single<JsonArray>) =
+                original.concatMap { json ->
+                    partialUpdates.map { updates ->
+                        updates.filter { it.isJsonObject }.map { it.obj }
+                                .associateBy { json -> json.obj[FIELD_HASH].string }
+                    }.map { updateMap ->
+                        json.forEach { json ->
+                            val update = updateMap[json.obj[FIELD_HASH].string]
+
+                            if (update != null) {
+                                update.forEach { key, element ->
+                                    json.obj[key] = element
+                                }
+                            }
+                        }
+                        json
+                    }.toObservable()
+                }
 
         private fun torrentFrom(json: JsonObject, ctx: Context, rpcVersion: Int, gson: Gson) : Torrent {
             val metaProgress = json["metadataPercentComplete"]?.nullFloat ?: 0f

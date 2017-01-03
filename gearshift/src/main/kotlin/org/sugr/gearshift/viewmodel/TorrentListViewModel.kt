@@ -9,6 +9,7 @@ import android.view.LayoutInflater
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.functions.Consumer
+import io.reactivex.schedulers.Schedulers
 import io.reactivex.subjects.PublishSubject
 import org.sugr.gearshift.C
 import org.sugr.gearshift.Logger
@@ -21,6 +22,7 @@ import org.sugr.gearshift.viewmodel.api.Api
 import org.sugr.gearshift.viewmodel.databinding.SelectionListener
 import org.sugr.gearshift.viewmodel.rxutil.observe
 import org.sugr.gearshift.viewmodel.rxutil.refresh
+import java.util.*
 import java.util.concurrent.TimeUnit
 
 class TorrentListViewModel(tag: String, log: Logger, ctx: Context, prefs: SharedPreferences,
@@ -45,11 +47,6 @@ class TorrentListViewModel(tag: String, log: Logger, ctx: Context, prefs: Shared
 
     private val refresher = PublishSubject.create<Any>()
 
-    val torrents = apiObservable.refresh(refresher).switchMap { api ->
-        api.torrents(sessionObservable)
-    }.takeUntil(takeUntilDestroy()).replay(1).refCount()
-            .observeOn(AndroidSchedulers.mainThread())
-
     val sorting = prefs.observe().filter {
         it == C.PREF_LIST_SORT_BY || it == C.PREF_LIST_SORT_DIRECTION
     }.map { Sorting(
@@ -58,9 +55,42 @@ class TorrentListViewModel(tag: String, log: Logger, ctx: Context, prefs: Shared
     ) }
             .startWith(Sorting(SortBy.AGE, SortDirection.DESCENDING))
             .takeUntil(takeUntilDestroy()).replay(1).refCount()
+
+    val torrents = apiObservable.refresh(refresher).switchMap { api ->
+        api.torrents(sessionObservable)
+                .flatMap { torrentSet ->
+                    sorting.take(1).flatMap { sorting ->
+                        if (sorting.by == SortBy.STATUS || sorting.baseBy == SortBy.STATUS) {
+                            sessionObservable.take(1).map { session ->
+                                Pair(sorting, session.seedRatioLimit)
+                            }
+                        } else {
+                            Observable.just(Pair(sorting, 0f))
+                        }
+                    }.observeOn(Schedulers.computation()).map { pair ->
+                        val now = Date().time
+
+                        val sorted = torrentSet.sortedWith(Comparator { t1, t2 ->
+                            val ret = compareWith(t1, t2, pair.first.by, pair.first.direction, pair.second)
+
+                            if (ret == 0) {
+                                compareWith(t1, t2, pair.first.baseBy, pair.first.baseDirection, pair.second)
+                            } else {
+                                ret
+                            }
+                        })
+
+                        log.D("Time to sort ${torrentSet.size} torrents: ${Date().time - now}")
+
+                        sorted
+                    }
+                }
+    }
+            .takeUntil(takeUntilDestroy()).replay(1).refCount()
             .observeOn(AndroidSchedulers.mainThread())
 
     init {
+
         sorting.subscribe({ sorting ->
             sortListener.position.set(sorting.by.ordinal)
             sortDescending.set(sorting.direction == SortDirection.DESCENDING)
@@ -89,7 +119,30 @@ class TorrentListViewModel(tag: String, log: Logger, ctx: Context, prefs: Shared
     fun adapter(ctx: Context) : TorrentListAdapter =
         TorrentListAdapter(torrents,
                 sessionObservable.observeOn(AndroidSchedulers.mainThread()),
-                sorting, log, this, LayoutInflater.from(ctx), Consumer { onTorrentClick(it) })
+                log, this, LayoutInflater.from(ctx), Consumer { onTorrentClick(it) })
+
+    private fun compareWith(t1: Torrent, t2: Torrent, by: SortBy, direction: SortDirection, globalLimit: Float) : Int {
+        val ret = when (by) {
+            SortBy.NAME -> t1.name.compareTo(t2.name, true)
+            SortBy.SIZE -> t1.totalSize.compareTo(t2.totalSize)
+            SortBy.STATUS -> t1.statusSortWeight(globalLimit).compareTo(t2.statusSortWeight(globalLimit))
+            SortBy.RATE_DOWNLOAD -> t2.downloadRate.compareTo(t1.downloadRate)
+            SortBy.RATE_UPLOAD -> t2.uploadRate.compareTo(t1.uploadRate)
+            SortBy.AGE -> t1.addedTime.compareTo(t2.addedTime)
+            SortBy.PROGRESS -> t1.downloadProgress.compareTo(t2.downloadProgress)
+            SortBy.RATIO -> t1.uploadRatio.compareTo(t2.uploadRatio)
+            SortBy.ACTIVITY -> (t2.downloadRate + t2.uploadRate).compareTo(t1.downloadRate + t1.uploadRate)
+            SortBy.LOCATION -> t1.downloadDir.compareTo(t2.downloadDir, true)
+            SortBy.PEERS -> t1.connectedPeers.compareTo(t2.connectedPeers)
+            SortBy.QUEUE -> t1.queuePosition.compareTo(t2.queuePosition)
+        }
+
+        return when (direction) {
+            SortDirection.DESCENDING -> -ret
+            SortDirection.ASCENDING -> ret
+
+        }
+    }
 }
 
 data class Sorting(val by: SortBy,

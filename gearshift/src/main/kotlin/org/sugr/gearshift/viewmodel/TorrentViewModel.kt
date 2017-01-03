@@ -32,7 +32,11 @@ class TorrentViewModel(log: Logger, ctx: Context, prefs: SharedPreferences) {
         status.set(Html.fromHtml(torrent.statusText))
 
         downloadProgress.set((torrent.downloadProgress * 100).toInt())
-        uploadProgress.set((torrent.uploadProgress * 100).toInt())
+        if (torrent.downloadProgress.toInt() == 1) {
+            uploadProgress.set((torrent.uploadProgress * 100).toInt())
+        } else {
+            uploadProgress.set(0)
+        }
 
         hasError.set(torrent.errorType != Torrent.ErrorType.OK)
         error.set(torrent.error)
