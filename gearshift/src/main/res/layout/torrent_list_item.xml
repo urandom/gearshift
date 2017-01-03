@@ -24,11 +24,11 @@
 			android:layout_gravity="center" >
 
 			<View
-				android:alpha="0.6"
 				android:layout_width="30dp"
 				android:layout_height="30dp"
 				android:layout_gravity="center"
 				android:visibility="@{viewModel.isDirectory ? View.VISIBLE : View.GONE}"
+				android:alpha="@{viewModel.isActive ? 0.6f : 0.3f}"
 				android:background="@drawable/ic_folder_open_grey600"/>
 
 			<ProgressBar
@@ -37,6 +37,7 @@
 				android:layout_height="64dp"
 				android:indeterminate="false"
 				android:progressDrawable="@drawable/circular_progress_bar"
+				android:alpha="@{viewModel.isActive ? 1.0f : 0.5f}"
 				android:max="100"
 				android:progress="@{viewModel.uploadProgress}"
 				android:secondaryProgress="@{viewModel.downloadProgress}"/>
@@ -64,7 +65,9 @@
 				android:textAppearance="?android:attr/textAppearanceListItem"
 				android:textSize="@dimen/torrent_list_name_text_size"
 				android:textStyle="bold"
+				android:textColor="@drawable/torrent_list_item_color"
 				android:text="@{viewModel.name}"
+				android:enabled="@{viewModel.isActive}"
 				tools:text="Torrent Name"/>
 
 			<TextView
@@ -73,7 +76,9 @@
 				android:fontFamily="sans-serif-light"
 				android:textAppearance="?android:attr/textAppearanceListItemSmall"
 				android:textSize="@dimen/torrent_list_traffic_text_size"
+				android:textColor="@drawable/torrent_list_item_color"
 				android:text="@{viewModel.traffic}"
+				android:enabled="@{viewModel.isActive}"
 				tools:text="482.72MB of 1.011MB (47.7%) - 22 minutes remaining"/>
 
 			<TextView
@@ -82,7 +87,9 @@
 				android:fontFamily="sans-serif-light"
 				android:textAppearanceSmall="?android:attr/textAppearanceListItemSmall"
 				android:textSize="@dimen/torrent_list_status_text_size"
+				android:textColor="@drawable/torrent_list_item_color"
 				android:text="@{viewModel.status}"
+				android:enabled="@{viewModel.isActive}"
 				tools:text="Downloading from 20 of 60 connected peers" />
 
 			<TextView
@@ -93,9 +100,10 @@
 				android:marqueeRepeatLimit ="marquee_forever"
 				android:scrollHorizontally="true"
 				android:fontFamily="sans-serif-light"
-				android:textColor="@color/error"
+				android:textColor="@drawable/torrent_list_error_color"
 				android:textAppearanceSmall="?android:attr/textAppearanceListItemSmall"
 				android:textSize="@dimen/torrent_list_error_text_size"
+				android:enabled="@{viewModel.isActive}"
 				android:visibility="@{viewModel.hasError ? View.VISIBLE : View.GONE}"
 				android:text="@{viewModel.error}"
 				tools:text="Error fetching peers"

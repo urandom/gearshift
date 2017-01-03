@@ -9,7 +9,7 @@
             android:thickness="2dp"
             android:useLevel="false">
 
-            <solid android:color="@color/progress_background" />
+            <solid android:color="@color/progressBackground" />
 
         </shape>
     </item>
@@ -25,8 +25,8 @@
                 android:thickness="2dp">
                 <gradient
                     android:angle="0"
-                    android:endColor="@color/progress_secondary"
-                    android:startColor="@color/progress_secondary"
+                    android:endColor="@color/progressSecondary"
+                    android:startColor="@color/progressSecondary"
                     android:type="sweep"
                     android:useLevel="false" />
             </shape>
@@ -44,8 +44,8 @@
                 android:thickness="2dp">
                 <gradient
                     android:angle="0"
-                    android:endColor="@color/progress_primary"
-                    android:startColor="@color/progress_primary"
+                    android:endColor="@color/progressPrimary"
+                    android:startColor="@color/progressPrimary"
                     android:type="sweep"
                     android:useLevel="false" />
             </shape>

@@ -21,6 +21,7 @@ class TorrentViewModel(log: Logger, ctx: Context, prefs: SharedPreferences) {
     val status = ObservableField<Spanned>(SpannedString(""))
     val error = ObservableField("")
     val hasError = ObservableBoolean(false)
+    val isActive = ObservableBoolean(false)
 
     interface Consumer {
 
@@ -38,9 +39,13 @@ class TorrentViewModel(log: Logger, ctx: Context, prefs: SharedPreferences) {
             uploadProgress.set(0)
         }
 
+        isActive.set(when (torrent.statusType) {
+            Torrent.StatusType.CHECKING, Torrent.StatusType.DOWNLOADING, Torrent.StatusType.SEEDING -> true
+            else -> false
+        })
+
         hasError.set(torrent.errorType != Torrent.ErrorType.OK)
         error.set(torrent.error)
-
     }
 
     fun destroy() {
