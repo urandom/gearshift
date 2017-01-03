@@ -190,6 +190,6 @@ private class TorrentViewModelManagerImpl(private val log: Logger,
     }
 
     override fun removeAllViewModels() {
-        viewModelMap.keys.forEach { hash -> removeViewModel(hash) }
+        viewModelMap.keys.toList().forEach { hash -> removeViewModel(hash) }
     }
 }
