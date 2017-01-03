@@ -202,7 +202,11 @@ class TransmissionApi(
                 Observable.rangeLong(1, Long.MAX_VALUE).concatMap { counter ->
                     val args = mutableListOf<Pair<String, Any?>>()
 
-                    args.add("fields" to jsonArray(*TORRENT_STAT_FIELDS))
+                    var fields = TORRENT_STAT_FIELDS
+                    if (counter == 1L) {
+                        fields += arrayOf(FIELD_FILES)
+                    }
+                    args.add("fields" to jsonArray(*fields))
                     if ((counter % 10L) != 0L) {
                         args.add("ids" to "recently-active".toJson())
                     }
