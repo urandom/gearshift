@@ -62,17 +62,20 @@ class TorrentListAdapter(torrentsObservable: Observable<List<Torrent>>,
                             batch.onRemoved(index, 1)
                         }
 
-                        val currentMap = torrents.associateBy { torrent -> torrent.hash }
+                        val currentHashes = torrents.map { it.hash }.toSet()
 
                         torrentList.forEachIndexed { i, torrent ->
-                            val current = currentMap[torrent.hash]
-
-                            if (current == null) {
+                            if (torrent.hash in currentHashes) {
+                                if (torrents[i].hash == torrent.hash) {
+                                    torrents[i] = torrent
+                                    viewModelManager.getViewModel(torrent.hash).updateTorrent(torrent)
+                                } else {
+                                    torrents[i] = torrent
+                                    batch.onChanged(i, 1, null)
+                                }
+                            } else { //if (torrentChanged(current, torrent)) {
                                 torrents.add(i, torrent)
                                 batch.onInserted(i, 1)
-                            } else { //if (torrentChanged(current, torrent)) {
-                                torrents[i] = torrent
-                                viewModelManager.getViewModel(torrent.hash).updateTorrent(torrent)
                             }
                         }
 

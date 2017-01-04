@@ -20,8 +20,11 @@ import org.sugr.gearshift.viewmodel.adapters.TorrentListAdapter
 import org.sugr.gearshift.viewmodel.adapters.TorrentViewModelManager
 import org.sugr.gearshift.viewmodel.api.Api
 import org.sugr.gearshift.viewmodel.databinding.SelectionListener
+import org.sugr.gearshift.viewmodel.databinding.observe
+import org.sugr.gearshift.viewmodel.rxutil.combineLatestWith
 import org.sugr.gearshift.viewmodel.rxutil.observe
 import org.sugr.gearshift.viewmodel.rxutil.refresh
+import org.sugr.gearshift.viewmodel.rxutil.set
 import java.util.*
 import java.util.concurrent.TimeUnit
 
@@ -57,34 +60,33 @@ class TorrentListViewModel(tag: String, log: Logger, ctx: Context, prefs: Shared
             .takeUntil(takeUntilDestroy()).replay(1).refCount()
 
     val torrents = apiObservable.refresh(refresher).switchMap { api ->
-        api.torrents(sessionObservable)
-                .flatMap { torrentSet ->
-                    sorting.take(1).flatMap { sorting ->
-                        if (sorting.by == SortBy.STATUS || sorting.baseBy == SortBy.STATUS) {
-                            sessionObservable.take(1).map { session ->
-                                Pair(sorting, session.seedRatioLimit)
-                            }
-                        } else {
-                            Observable.just(Pair(sorting, 0f))
-                        }
-                    }.observeOn(Schedulers.computation()).map { pair ->
-                        val now = Date().time
+        api.torrents(sessionObservable).combineLatestWith(sorting) { set, sorting ->
+            Pair(set, sorting)
+        }.flatMap { pair ->
+            val limitObservable = if (pair.second.by == SortBy.STATUS || pair.second.baseBy == SortBy.STATUS) {
+                sessionObservable.take(1).map { session -> session.seedRatioLimit }
+            } else {
+                Observable.just(0f)
+            }
 
-                        val sorted = torrentSet.sortedWith(Comparator { t1, t2 ->
-                            val ret = compareWith(t1, t2, pair.first.by, pair.first.direction, pair.second)
+            limitObservable.observeOn(Schedulers.computation()).map { limit ->
+                val now = Date().time
 
-                            if (ret == 0) {
-                                compareWith(t1, t2, pair.first.baseBy, pair.first.baseDirection, pair.second)
-                            } else {
-                                ret
-                            }
-                        })
+                val sorted = pair.first.sortedWith(Comparator { t1, t2 ->
+                    val ret = compareWith(t1, t2, pair.second.by, pair.second.direction, limit)
 
-                        log.D("Time to sort ${torrentSet.size} torrents: ${Date().time - now}")
-
-                        sorted
+                    if (ret == 0) {
+                        compareWith(t1, t2, pair.second.baseBy, pair.second.baseDirection, limit)
+                    } else {
+                        ret
                     }
-                }
+                })
+
+                log.D("Time to sort ${pair.first.size} torrents: ${Date().time - now}")
+
+                sorted
+            }
+        }
     }
             .takeUntil(takeUntilDestroy()).replay(1).refCount()
             .observeOn(AndroidSchedulers.mainThread())
@@ -105,6 +107,22 @@ class TorrentListViewModel(tag: String, log: Logger, ctx: Context, prefs: Shared
         torrents.subscribe {
             refreshing.set(true)
             refreshing.set(false)
+        }
+
+        sortDescending.observe().debounce(250, TimeUnit.MILLISECONDS).map { o ->
+            o.get()
+        }.subscribe { descending ->
+            prefs.set(C.PREF_LIST_SORT_DIRECTION,
+                    if (descending) SortDirection.DESCENDING.name
+                    else SortDirection.ASCENDING.name)
+        }
+
+        sortListener.position.observe().debounce(250, TimeUnit.MILLISECONDS).map { o ->
+            o.get()
+        }.map { index ->
+            SortBy.values()[index].name
+        }.subscribe { value ->
+            prefs.set(C.PREF_LIST_SORT_BY, value)
         }
     }
 
