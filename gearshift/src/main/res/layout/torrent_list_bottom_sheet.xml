@@ -10,61 +10,67 @@
 	    <import type="android.view.View"/>
     </data>
 
-	<LinearLayout
+	<android.support.v4.widget.NestedScrollView
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
-		android:orientation="vertical"
 		android:id="@+id/torrent_list_bottom_sheet"
 		android:background="@color/statusSheet"
 		android:elevation="8dp"
 		app:layout_behavior="org.sugr.gearshift.ui.view.behaviors.CustomBottomSheetBehavior"
 		app:behavior_peekHeight="@dimen/torrent_list_status_height">
 
-		<TextView
-			android:layout_width="match_parent"
-			android:layout_height="@dimen/torrent_list_status_height"
-			android:layout_marginStart="@dimen/activity_horizontal_margin"
-			android:layout_marginEnd="@dimen/activity_horizontal_margin"
-			android:paddingTop="4dp"
-			android:paddingBottom="4dp"
-			android:maxLines="1"
-			android:ellipsize="end"
-			android:gravity="end"
-			android:textSize="12sp"
-			android:text="@{viewModel.statusText}"
-			tools:text="Down: 1.5 MB/s, Up: 0.23 Mb/s, Space: 1.7TB"/>
-
-		<android.support.v7.widget.SwitchCompat
+		<LinearLayout
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
-			android:layout_marginStart="@dimen/activity_horizontal_margin"
-			android:layout_marginEnd="@dimen/activity_horizontal_margin"
-			android:layout_marginTop="8dp"
-			android:layout_marginBottom="8dp"
-			android:visibility="@{viewModel.hasSpeedLimitSwitch ? View.VISIBLE : View.GONE}"
-			android:checked="@={viewModel.speedLimit}"
-			android:text="@string/torrent_list_status_speed_limit"/>
+			android:orientation="vertical">
 
-		<TextView
-			style="@style/HeaderText.Small.Title"
-			android:layout_marginBottom="0dp"
-			android:text="@string/torrent_list_sorting_header"/>
+			<TextView
+				android:layout_width="match_parent"
+				android:layout_height="@dimen/torrent_list_status_height"
+				android:layout_marginStart="@dimen/activity_horizontal_margin"
+				android:layout_marginEnd="@dimen/activity_horizontal_margin"
+				android:paddingTop="4dp"
+				android:paddingBottom="4dp"
+				android:maxLines="1"
+				android:ellipsize="end"
+				android:gravity="end"
+				android:textSize="12sp"
+				android:text="@{viewModel.statusText}"
+				tools:text="Down: 1.5 MB/s, Up: 0.23 Mb/s, Space: 1.7TB"/>
 
-		<View style="@style/Separator"/>
+			<android.support.v7.widget.SwitchCompat
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:layout_marginStart="@dimen/activity_horizontal_margin"
+				android:layout_marginEnd="@dimen/activity_horizontal_margin"
+				android:layout_marginTop="8dp"
+				android:layout_marginBottom="8dp"
+				android:visibility="@{viewModel.hasSpeedLimitSwitch ? View.VISIBLE : View.GONE}"
+				android:checked="@={viewModel.speedLimit}"
+				android:text="@string/torrent_list_status_speed_limit"/>
 
-		<Spinner
-			style="@style/Form.Spinner"
-			android:layout_marginBottom="8dp"
-			android:entries="@{viewModel.sortEntries}"
-			bind:selection="@{viewModel.sortListener.position}"
-			bind:onItemSelectedListener="@{viewModel.sortListener}"/>
+			<TextView
+				style="@style/HeaderText.Small.Title"
+				android:layout_marginBottom="0dp"
+				android:text="@string/torrent_list_sorting_header"/>
 
-		<CheckBox
-			style="@style/Form.Checkbox"
-			android:layout_marginBottom="8dp"
-			android:checked="@={viewModel.sortDescending}"
-			android:text="@string/torrent_list_sort_descending"/>
+			<View style="@style/Separator"/>
 
-	</LinearLayout>
+			<Spinner
+				style="@style/Form.Spinner"
+				android:layout_marginBottom="8dp"
+				android:entries="@{viewModel.sortEntries}"
+				bind:selection="@{viewModel.sortListener.position}"
+				bind:onItemSelectedListener="@{viewModel.sortListener}"/>
+
+			<CheckBox
+				style="@style/Form.Checkbox"
+				android:layout_marginBottom="8dp"
+				android:checked="@={viewModel.sortDescending}"
+				android:text="@string/torrent_list_sort_descending"/>
+
+		</LinearLayout>
+
+	</android.support.v4.widget.NestedScrollView>
 
 </layout>
