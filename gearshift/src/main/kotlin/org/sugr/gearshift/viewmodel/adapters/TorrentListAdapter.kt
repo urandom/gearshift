@@ -19,148 +19,148 @@ import org.sugr.gearshift.viewmodel.areTorrentsTheSame
 import java.util.*
 
 class TorrentListAdapter(torrentsObservable: Observable<List<Torrent>>,
-                         sessionObservable: Observable<Session>,
-                         log : Logger,
-                         private val viewModelManager: TorrentViewModelManager,
-                         private val inflater : LayoutInflater,
-                         private val clickListener: Consumer<Torrent>?):
-        RecyclerView.Adapter<TorrentListViewHolder>() {
+						 sessionObservable: Observable<Session>,
+						 log : Logger,
+						 private val viewModelManager: TorrentViewModelManager,
+						 private val inflater : LayoutInflater,
+						 private val clickListener: Consumer<Torrent>?):
+		RecyclerView.Adapter<TorrentListViewHolder>() {
 
-    val torrents : MutableList<Torrent> = ArrayList()
-    val batch = BatchingListUpdateCallback(object: ListUpdateCallback {
-        override fun onChanged(position: Int, count: Int, payload: Any?) {
-            notifyItemRangeChanged(position, count, payload)
-        }
+	val torrents : MutableList<Torrent> = ArrayList()
+	val batch = BatchingListUpdateCallback(object: ListUpdateCallback {
+		override fun onChanged(position: Int, count: Int, payload: Any?) {
+			notifyItemRangeChanged(position, count, payload)
+		}
 
-        override fun onMoved(fromPosition: Int, toPosition: Int) {
-            notifyItemMoved(fromPosition, toPosition)
-        }
+		override fun onMoved(fromPosition: Int, toPosition: Int) {
+			notifyItemMoved(fromPosition, toPosition)
+		}
 
-        override fun onInserted(position: Int, count: Int) {
-            notifyItemRangeInserted(position, count)
-        }
+		override fun onInserted(position: Int, count: Int) {
+			notifyItemRangeInserted(position, count)
+		}
 
-        override fun onRemoved(position: Int, count: Int) {
-            notifyItemRangeRemoved(position, count)
-        }
+		override fun onRemoved(position: Int, count: Int) {
+			notifyItemRangeRemoved(position, count)
+		}
 
-    })
+	})
 
-    init {
-        setHasStableIds(true)
+	init {
+		setHasStableIds(true)
 
-        torrentsObservable.observeOn(Schedulers.computation()).map { newList ->
-            val res = DiffUtil.calculateDiff(object: DiffUtil.Callback() {
-                override fun areItemsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
-                    return torrents[oldItemPosition].hash == newList[newItemPosition].hash
-                }
+		torrentsObservable.observeOn(Schedulers.computation()).map { newList ->
+			val res = DiffUtil.calculateDiff(object: DiffUtil.Callback() {
+				override fun areItemsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
+					return torrents[oldItemPosition].hash == newList[newItemPosition].hash
+				}
 
-                override fun getOldListSize(): Int {
-                    return torrents.size
-                }
+				override fun getOldListSize(): Int {
+					return torrents.size
+				}
 
-                override fun getNewListSize(): Int {
-                    return newList.size
-                }
+				override fun getNewListSize(): Int {
+					return newList.size
+				}
 
-                override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
-                    val oldItem = torrents[oldItemPosition]
-                    val newItem = newList[newItemPosition]
+				override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
+					val oldItem = torrents[oldItemPosition]
+					val newItem = newList[newItemPosition]
 
-                    return areTorrentsTheSame(oldItem, newItem)
-                }
-            })
+					return areTorrentsTheSame(oldItem, newItem)
+				}
+			})
 
-            torrents.clear()
-            torrents.addAll(newList)
+			torrents.clear()
+			torrents.addAll(newList)
 
-            res
-        }.observeOn(AndroidSchedulers.mainThread()).subscribe({ res ->
-            val now = Date().time
+			res
+		}.observeOn(AndroidSchedulers.mainThread()).subscribe({ res ->
+			val now = Date().time
 
-            res.dispatchUpdatesTo(object: ListUpdateCallback {
-                override fun onChanged(position: Int, count: Int, payload: Any?) {
-                    //notifyItemRangeChanged(position, count, payload)
-                    for (i in position .. count - 1) {
-                        val torrent = torrents[i]
-                        viewModelManager.getViewModel(torrent.hash).updateTorrent(torrent)
-                    }
-                }
+			res.dispatchUpdatesTo(object: ListUpdateCallback {
+				override fun onChanged(position: Int, count: Int, payload: Any?) {
+					//notifyItemRangeChanged(position, count, payload)
+					for (i in position .. count - 1) {
+						val torrent = torrents[i]
+						viewModelManager.getViewModel(torrent.hash).updateTorrent(torrent)
+					}
+				}
 
-                override fun onMoved(fromPosition: Int, toPosition: Int) {
-                    notifyItemMoved(fromPosition, toPosition)
-                }
+				override fun onMoved(fromPosition: Int, toPosition: Int) {
+					notifyItemMoved(fromPosition, toPosition)
+				}
 
-                override fun onInserted(position: Int, count: Int) {
-                    notifyItemRangeInserted(position, count)
-                }
+				override fun onInserted(position: Int, count: Int) {
+					notifyItemRangeInserted(position, count)
+				}
 
-                override fun onRemoved(position: Int, count: Int) {
-                    notifyItemRangeRemoved(position, count)
-                }
+				override fun onRemoved(position: Int, count: Int) {
+					notifyItemRangeRemoved(position, count)
+				}
 
-            })
+			})
 
-            log.D("List update took ${Date().time - now} milliseconds")
-        }, { err ->
-            log.E("updating torrent list adapter", err)
-        })
-    }
+			log.D("List update took ${Date().time - now} milliseconds")
+		}, { err ->
+			log.E("updating torrent list adapter", err)
+		})
+	}
 
-    override fun onBindViewHolder(holder: TorrentListViewHolder?, position: Int) {
-        val torrent = torrents[position]
-        val vm = viewModelManager.getViewModel(torrent.hash)
-        vm.updateTorrent(torrent)
-        holder?.bindTo(vm)
-    }
+	override fun onBindViewHolder(holder: TorrentListViewHolder?, position: Int) {
+		val torrent = torrents[position]
+		val vm = viewModelManager.getViewModel(torrent.hash)
+		vm.updateTorrent(torrent)
+		holder?.bindTo(vm)
+	}
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TorrentListViewHolder {
-        return holderOf(inflater, parent, Consumer {
-            clickListener?.accept(torrents[it])
-        })
-    }
+	override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TorrentListViewHolder {
+		return holderOf(inflater, parent, Consumer {
+			clickListener?.accept(torrents[it])
+		})
+	}
 
-    override fun getItemCount(): Int {
-        return torrents.size
-    }
+	override fun getItemCount(): Int {
+		return torrents.size
+	}
 
-    override fun getItemId(position: Int): Long {
-        return torrents[position].hash.hashCode().toLong()
-    }
+	override fun getItemId(position: Int): Long {
+		return torrents[position].hash.hashCode().toLong()
+	}
 
-    private fun torrentChanged(oldItem: Torrent, newItem: Torrent): Boolean {
-        return oldItem.isDirectory == newItem.isDirectory &&
-                oldItem.downloadProgress == newItem.downloadProgress &&
-                oldItem.uploadProgress == newItem.uploadProgress &&
-                oldItem.name == newItem.name &&
-                oldItem.trafficText == newItem.trafficText &&
-                oldItem.statusText == newItem.statusText &&
-                oldItem.error == newItem.error
-    }
+	private fun torrentChanged(oldItem: Torrent, newItem: Torrent): Boolean {
+		return oldItem.isDirectory == newItem.isDirectory &&
+				oldItem.downloadProgress == newItem.downloadProgress &&
+				oldItem.uploadProgress == newItem.uploadProgress &&
+				oldItem.name == newItem.name &&
+				oldItem.trafficText == newItem.trafficText &&
+				oldItem.statusText == newItem.statusText &&
+				oldItem.error == newItem.error
+	}
 }
 
 private fun holderOf(inflater: LayoutInflater, root: ViewGroup, listener: Consumer<Int>) : TorrentListViewHolder {
-    val binding = TorrentListItemBinding.inflate(inflater, root, false)
+	val binding = TorrentListItemBinding.inflate(inflater, root, false)
 
-    return TorrentListViewHolder(binding, listener)
+	return TorrentListViewHolder(binding, listener)
 }
 
 class TorrentListViewHolder(private val binding: TorrentListItemBinding, private val listener: Consumer<Int>): RecyclerView.ViewHolder(binding.root) {
-    init {
-        binding.root.setOnClickListener {
-            listener.accept(adapterPosition)
-        }
-    }
+	init {
+		binding.root.setOnClickListener {
+			listener.accept(adapterPosition)
+		}
+	}
 
-    fun bindTo(viewModel: TorrentViewModel) {
-        binding.viewModel = viewModel
-        binding.executePendingBindings()
-    }
+	fun bindTo(viewModel: TorrentViewModel) {
+		binding.viewModel = viewModel
+		binding.executePendingBindings()
+	}
 }
 
 
 interface TorrentViewModelManager {
-    fun getViewModel(hash: String) : TorrentViewModel
-    fun removeViewModel(hash: String)
-    fun removeAllViewModels()
+	fun getViewModel(hash: String) : TorrentViewModel
+	fun removeViewModel(hash: String)
+	fun removeAllViewModels()
 }
