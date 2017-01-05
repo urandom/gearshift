@@ -51,3 +51,14 @@ class TorrentViewModel(log: Logger, ctx: Context, prefs: SharedPreferences) {
     fun destroy() {
     }
 }
+
+fun areTorrentsTheSame(oldItem: Torrent, newItem: Torrent) : Boolean {
+    return oldItem.isDirectory == newItem.isDirectory &&
+            oldItem.downloadProgress == newItem.downloadProgress &&
+            oldItem.uploadProgress == newItem.uploadProgress &&
+            oldItem.name == newItem.name &&
+            oldItem.trafficText == newItem.trafficText &&
+            oldItem.statusText == newItem.statusText &&
+            oldItem.statusType == newItem.statusType &&
+            oldItem.error == newItem.error
+}

@@ -114,4 +114,6 @@
 
 	<string name="torrent_list_sort_descending">Descending</string>
 	<string name="torrent_list_sorting_header">Sorting</string>
+
+	<string name="status_bar_format"><![CDATA[↓ %1$s%2$s, ↑ %3$s%4$s, ⊙ %5$s]]></string>
 </resources>

@@ -19,8 +19,10 @@ import org.sugr.gearshift.model.Torrent
 import org.sugr.gearshift.viewmodel.adapters.TorrentListAdapter
 import org.sugr.gearshift.viewmodel.adapters.TorrentViewModelManager
 import org.sugr.gearshift.viewmodel.api.Api
+import org.sugr.gearshift.viewmodel.api.transmission.TransmissionSession
 import org.sugr.gearshift.viewmodel.databinding.SelectionListener
 import org.sugr.gearshift.viewmodel.databinding.observe
+import org.sugr.gearshift.viewmodel.ext.readableFileSize
 import org.sugr.gearshift.viewmodel.rxutil.combineLatestWith
 import org.sugr.gearshift.viewmodel.rxutil.observe
 import org.sugr.gearshift.viewmodel.rxutil.refresh
@@ -124,6 +126,35 @@ class TorrentListViewModel(tag: String, log: Logger, ctx: Context, prefs: Shared
         }.subscribe { value ->
             prefs.set(C.PREF_LIST_SORT_BY, value)
         }
+
+        sessionObservable
+                .map { session ->
+                    if (session is TransmissionSession) {
+                        val down = if (session.altSpeedLimitEnabled) {
+                            session.altDownloadSpeedLimit
+                        } else if (session.downloadSpeedLimitEnabled) {
+                            session.downloadSpeedLimit
+                        } else {
+                            0
+                        }
+
+                        val up = if (session.altSpeedLimitEnabled) {
+                            session.altUploadSpeedLimit
+                        } else if (session.uploadSpeedLimitEnabled) {
+                            session.uploadSpeedLimit
+                        } else {
+                            0
+                        }
+
+                        Status(down * 1024, up * 1024)
+                    } else {
+                        Status(session.downloadSpeedLimit, session.uploadSpeedLimit)
+                    }
+                }
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe { status ->
+                    statusText.set(status.download.readableFileSize() + ", " + status.upload.readableFileSize())
+                }
     }
 
     override fun onDestroy() {
@@ -162,6 +193,8 @@ class TorrentListViewModel(tag: String, log: Logger, ctx: Context, prefs: Shared
         }
     }
 }
+
+private data class Status(val download: Long, val upload: Long)
 
 data class Sorting(val by: SortBy,
                    val direction: SortDirection,

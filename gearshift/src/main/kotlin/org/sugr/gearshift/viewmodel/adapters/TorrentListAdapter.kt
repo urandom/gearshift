@@ -1,17 +1,21 @@
 package org.sugr.gearshift.viewmodel.adapters
 
 import android.support.v7.util.BatchingListUpdateCallback
+import android.support.v7.util.DiffUtil
 import android.support.v7.util.ListUpdateCallback
 import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import io.reactivex.Observable
+import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.functions.Consumer
+import io.reactivex.schedulers.Schedulers
 import org.sugr.gearshift.Logger
 import org.sugr.gearshift.databinding.TorrentListItemBinding
 import org.sugr.gearshift.model.Session
 import org.sugr.gearshift.model.Torrent
 import org.sugr.gearshift.viewmodel.TorrentViewModel
+import org.sugr.gearshift.viewmodel.areTorrentsTheSame
 import java.util.*
 
 class TorrentListAdapter(torrentsObservable: Observable<List<Torrent>>,
@@ -45,46 +49,62 @@ class TorrentListAdapter(torrentsObservable: Observable<List<Torrent>>,
     init {
         setHasStableIds(true)
 
-        torrentsObservable
-                .subscribe({ torrentList ->
-                    if (torrentList.isEmpty()) {
-                        val size = torrents.size
-                        torrents.clear()
-                        notifyItemRangeRemoved(0, size)
-                    } else {
-                        val now = Date().time
-                        val newHashes = torrentList.map { it.hash }.toSet()
+        torrentsObservable.observeOn(Schedulers.computation()).map { newList ->
+            val res = DiffUtil.calculateDiff(object: DiffUtil.Callback() {
+                override fun areItemsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
+                    return torrents[oldItemPosition].hash == newList[newItemPosition].hash
+                }
 
-                        torrents.mapIndexed { i, torrent ->
-                            if (torrent.hash in newHashes) -1 else i
-                        }.filter { it != -1 }.sortedDescending().forEach { index ->
-                            torrents.removeAt(index)
-                            batch.onRemoved(index, 1)
-                        }
+                override fun getOldListSize(): Int {
+                    return torrents.size
+                }
 
-                        val currentHashes = torrents.map { it.hash }.toSet()
+                override fun getNewListSize(): Int {
+                    return newList.size
+                }
 
-                        torrentList.forEachIndexed { i, torrent ->
-                            if (torrent.hash in currentHashes) {
-                                if (torrents[i].hash == torrent.hash) {
-                                    torrents[i] = torrent
-                                    viewModelManager.getViewModel(torrent.hash).updateTorrent(torrent)
-                                } else {
-                                    torrents[i] = torrent
-                                    batch.onChanged(i, 1, null)
-                                }
-                            } else { //if (torrentChanged(current, torrent)) {
-                                torrents.add(i, torrent)
-                                batch.onInserted(i, 1)
-                            }
-                        }
+                override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
+                    val oldItem = torrents[oldItemPosition]
+                    val newItem = newList[newItemPosition]
 
-                        batch.dispatchLastEvent()
-                        log.D("Time to merge old and new torrent list: ${Date().time - now}")
+                    return areTorrentsTheSame(oldItem, newItem)
+                }
+            })
+
+            torrents.clear()
+            torrents.addAll(newList)
+
+            res
+        }.observeOn(AndroidSchedulers.mainThread()).subscribe({ res ->
+            val now = Date().time
+
+            res.dispatchUpdatesTo(object: ListUpdateCallback {
+                override fun onChanged(position: Int, count: Int, payload: Any?) {
+                    //notifyItemRangeChanged(position, count, payload)
+                    for (i in position .. count - 1) {
+                        val torrent = torrents[i]
+                        viewModelManager.getViewModel(torrent.hash).updateTorrent(torrent)
                     }
-                }, { err ->
-                    log.E("updating torrent list adapter", err)
-                })
+                }
+
+                override fun onMoved(fromPosition: Int, toPosition: Int) {
+                    notifyItemMoved(fromPosition, toPosition)
+                }
+
+                override fun onInserted(position: Int, count: Int) {
+                    notifyItemRangeInserted(position, count)
+                }
+
+                override fun onRemoved(position: Int, count: Int) {
+                    notifyItemRangeRemoved(position, count)
+                }
+
+            })
+
+            log.D("List update took ${Date().time - now} milliseconds")
+        }, { err ->
+            log.E("updating torrent list adapter", err)
+        })
     }
 
     override fun onBindViewHolder(holder: TorrentListViewHolder?, position: Int) {

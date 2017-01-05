@@ -33,7 +33,7 @@
 				android:paddingBottom="4dp"
 				android:maxLines="1"
 				android:ellipsize="end"
-				android:gravity="end"
+				android:gravity="end|center_vertical"
 				android:textSize="12sp"
 				android:text="@{viewModel.statusText}"
 				tools:text="Down: 1.5 MB/s, Up: 0.23 Mb/s, Space: 1.7TB"/>
