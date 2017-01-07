@@ -6,10 +6,12 @@ import android.databinding.ObservableBoolean
 import android.databinding.ObservableField
 import android.support.v4.widget.SwipeRefreshLayout
 import android.view.LayoutInflater
+import io.reactivex.Completable
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.functions.Consumer
 import io.reactivex.schedulers.Schedulers
+import io.reactivex.subjects.BehaviorSubject
 import io.reactivex.subjects.PublishSubject
 import org.sugr.gearshift.C
 import org.sugr.gearshift.Logger
@@ -25,10 +27,7 @@ import org.sugr.gearshift.viewmodel.api.StatisticsApi
 import org.sugr.gearshift.viewmodel.databinding.SelectionListener
 import org.sugr.gearshift.viewmodel.databinding.observe
 import org.sugr.gearshift.viewmodel.ext.readableFileSize
-import org.sugr.gearshift.viewmodel.rxutil.combineLatestWith
-import org.sugr.gearshift.viewmodel.rxutil.observe
-import org.sugr.gearshift.viewmodel.rxutil.refresh
-import org.sugr.gearshift.viewmodel.rxutil.set
+import org.sugr.gearshift.viewmodel.rxutil.*
 import java.util.*
 import java.util.concurrent.TimeUnit
 
@@ -94,6 +93,8 @@ class TorrentListViewModel(tag: String, log: Logger, ctx: Context, prefs: Shared
 	}
 			.takeUntil(takeUntilDestroy()).replay(1).refCount()
 			.observeOn(AndroidSchedulers.mainThread())
+
+	private val speedLimitUpdateSignal = BehaviorSubject.createDefault(true)
 
 	init {
 
@@ -212,12 +213,14 @@ class TorrentListViewModel(tag: String, log: Logger, ctx: Context, prefs: Shared
 					statusText.set(arrayOf(download, upload, space).joinToString(", "))
 				}
 
-		sessionObservable.filter { session -> session is AltSpeedSession }
-				.map { session -> session as AltSpeedSession }
-				.subscribe { session ->
-					hasSpeedLimitSwitch.set(true)
-					speedLimit.set(session.altSpeedLimitEnabled)
-				}
+		sessionObservable.pauseOn(speedLimitUpdateSignal).filter { session ->
+			session is AltSpeedSession
+		}.map { session ->
+			session as AltSpeedSession
+		} .subscribe { session ->
+			hasSpeedLimitSwitch.set(true)
+			speedLimit.set(session.altSpeedLimitEnabled)
+		}
 	}
 
 	override fun onDestroy() {
@@ -227,7 +230,24 @@ class TorrentListViewModel(tag: String, log: Logger, ctx: Context, prefs: Shared
 	}
 
 	fun onSpeedLimitChecked(checked: Boolean) {
-		log.D("######## checked: ${checked}")
+		speedLimitUpdateSignal.onNext(false)
+
+		sessionObservable.take(1).flatMapCompletable { session ->
+			if (session is AltSpeedSession) {
+				session.altSpeedLimitEnabled = checked
+
+				apiObservable.take(1).flatMapCompletable { api ->
+					api.updateSession(session)
+				}
+			} else {
+				Completable.complete()
+			}
+		}.observeOn(AndroidSchedulers.mainThread())
+				.subscribe({
+					speedLimitUpdateSignal.onNext(true)
+				}, { err ->
+					log.E("torrent list set alt speed limit", err)
+				})
 	}
 
 	fun onTorrentClick(torrent: Torrent) {}

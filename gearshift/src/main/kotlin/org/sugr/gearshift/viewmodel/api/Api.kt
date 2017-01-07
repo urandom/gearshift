@@ -3,6 +3,7 @@ package org.sugr.gearshift.viewmodel.api
 import android.content.Context
 import android.content.SharedPreferences
 import com.google.gson.Gson
+import io.reactivex.Completable
 import io.reactivex.Observable
 import io.reactivex.Single
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -16,6 +17,8 @@ interface Api {
 	fun test(): Single<Boolean>
 	fun session(initial: Session = NoSession()) : Observable<Session>
 	fun torrents(session: Observable<Session>, initial: Set<Torrent> = setOf()): Observable<Set<Torrent>>
+
+	fun updateSession(session: Session): Completable
 }
 
 interface StatisticsApi {
@@ -39,6 +42,7 @@ object NoApi : Api {
 	override fun test() = Single.just(false)
 	override fun session(initial: Session) = Observable.empty<Session>()
 	override fun torrents(session: Observable<Session>, initial: Set<Torrent>) = Observable.empty<Set<Torrent>>()
+	override fun updateSession(session: Session) = Completable.complete()
 }
 
 class NetworkException(code: Int): RuntimeException("Network error")

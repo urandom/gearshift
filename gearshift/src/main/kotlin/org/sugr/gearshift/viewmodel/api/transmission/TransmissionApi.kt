@@ -8,6 +8,7 @@ import com.google.gson.Gson
 import com.google.gson.JsonArray
 import com.google.gson.JsonElement
 import com.google.gson.JsonObject
+import io.reactivex.Completable
 import io.reactivex.Observable
 import io.reactivex.Scheduler
 import io.reactivex.Single
@@ -286,6 +287,13 @@ class TransmissionApi(
 				}
 	}
 
+	override fun updateSession(session: Session): Completable {
+		if (session is TransmissionSession) {
+			return request(requestBody("session-set", gson.toJsonTree(session).obj)).toCompletable()
+		} else {
+			return Completable.error(TransmissionApiException("Session is not a transmission session"))
+		}
+	}
 
 	private fun requestBody(method: String, arguments: JsonObject? = null): RequestBody {
 		val obj = jsonObject("method" to method)

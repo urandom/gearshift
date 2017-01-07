@@ -9,25 +9,25 @@ data class TransmissionSession(
 		val rpcVersion: Int = 0,
 
 		@SerializedName("speed-limit-down")
-		override val downloadSpeedLimit: Long = -1,
+		override var downloadSpeedLimit: Long = -1,
 		@SerializedName("speed-limit-up")
-		override val uploadSpeedLimit: Long = -1,
+		override var uploadSpeedLimit: Long = -1,
 		@SerializedName("speed-limit-down-enabled")
-		override val downloadSpeedLimitEnabled: Boolean = false,
+		override var downloadSpeedLimitEnabled: Boolean = false,
 		@SerializedName("speed-limit-up-enabled")
-		override val uploadSpeedLimitEnabled: Boolean = false,
+		override var uploadSpeedLimitEnabled: Boolean = false,
 		@SerializedName("seedRatioLimited")
-		override val seedRatioLimitEnabled: Boolean = false,
+		override var seedRatioLimitEnabled: Boolean = false,
 		@SerializedName("seedRatioLimit")
-		override val seedRatioLimit: Float = -1f,
+		override var seedRatioLimit: Float = -1f,
 		@SerializedName("download-dir")
-		override val downloadDir: String = "",
+		override var downloadDir: String = "",
 
 		@SerializedName("alt-speed-enabled")
-		override val altSpeedLimitEnabled: Boolean = false,
+		override var altSpeedLimitEnabled: Boolean = false,
 		@SerializedName("alt-speed-down")
-		override val altDownloadSpeedLimit: Long = -1,
+		override var altDownloadSpeedLimit: Long = -1,
 		@SerializedName("alt-speed-up")
-		override val altUploadSpeedLimit: Long = -1
+		override var altUploadSpeedLimit: Long = -1
 ) : Session, AltSpeedSession
 

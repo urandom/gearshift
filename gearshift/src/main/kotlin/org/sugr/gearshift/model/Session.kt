@@ -1,30 +1,30 @@
 package org.sugr.gearshift.model
 
 interface Session {
-	val downloadSpeedLimit: Long
-	val downloadSpeedLimitEnabled: Boolean
-	val uploadSpeedLimit: Long
-	val uploadSpeedLimitEnabled: Boolean
-	val seedRatioLimitEnabled: Boolean
-	val seedRatioLimit: Float
-	val downloadDir: String
+	var downloadSpeedLimit: Long
+	var downloadSpeedLimitEnabled: Boolean
+	var uploadSpeedLimit: Long
+	var uploadSpeedLimitEnabled: Boolean
+	var seedRatioLimitEnabled: Boolean
+	var seedRatioLimit: Float
+	var downloadDir: String
 }
 
 interface AltSpeedSession {
-	val altSpeedLimitEnabled: Boolean
-	val altDownloadSpeedLimit: Long
-	val altUploadSpeedLimit: Long
+	var altSpeedLimitEnabled: Boolean
+	var altDownloadSpeedLimit: Long
+	var altUploadSpeedLimit: Long
 }
 
 interface
 
 
 data class NoSession(
-		override val downloadSpeedLimit: Long = -1,
-		override val uploadSpeedLimit: Long = -1,
-		override val seedRatioLimitEnabled: Boolean = false,
-		override val seedRatioLimit: Float = -1f,
-		override val downloadSpeedLimitEnabled: Boolean = false,
-		override val uploadSpeedLimitEnabled: Boolean = false,
-		override val downloadDir: String = ""
+		override var downloadSpeedLimit: Long = -1,
+		override var uploadSpeedLimit: Long = -1,
+		override var seedRatioLimitEnabled: Boolean = false,
+		override var seedRatioLimit: Float = -1f,
+		override var downloadSpeedLimitEnabled: Boolean = false,
+		override var uploadSpeedLimitEnabled: Boolean = false,
+		override var downloadDir: String = ""
 ) : Session
