@@ -47,7 +47,8 @@
 				android:layout_marginBottom="8dp"
 				android:visibility="@{viewModel.hasSpeedLimitSwitch ? View.VISIBLE : View.GONE}"
 				android:checked="@={viewModel.speedLimit}"
-				android:text="@string/torrent_list_status_speed_limit"/>
+				android:text="@string/torrent_list_status_speed_limit"
+				android:onCheckedChanged="@{(cb, checked) -> viewModel.onSpeedLimitChecked(checked)}" />
 
 			<TextView
 				style="@style/HeaderText.Small.Title"

@@ -23,9 +23,7 @@ import org.sugr.gearshift.model.Profile
 import org.sugr.gearshift.model.Session
 import org.sugr.gearshift.model.Torrent
 import org.sugr.gearshift.model.TorrentFile
-import org.sugr.gearshift.viewmodel.api.Api
-import org.sugr.gearshift.viewmodel.api.AuthException
-import org.sugr.gearshift.viewmodel.api.NetworkException
+import org.sugr.gearshift.viewmodel.api.*
 import org.sugr.gearshift.viewmodel.ext.readableFileSize
 import org.sugr.gearshift.viewmodel.ext.readablePercent
 import org.sugr.gearshift.viewmodel.ext.readableRemainingTime
@@ -51,7 +49,7 @@ class TransmissionApi(
 		private val log: Logger = Log,
 		private val mainThreadScheduler: Scheduler = AndroidSchedulers.mainThread(),
 		debug: Boolean = BuildConfig.DEBUG
-) : Api {
+) : Api, StatisticsApi {
 	private val httpClient: OkHttpClient
 	private val requestBuilder: Request.Builder
 
@@ -275,6 +273,19 @@ class TransmissionApi(
 					}
 		}
 	}
+
+	override fun currentSpeed(): Observable<CurrentSpeed> {
+		return request(requestBody("session-stats"))
+				.toObservable()
+				.map { json -> CurrentSpeed(
+						json["downloadSpeed"].nullLong ?: 0L,
+						json["uploadSpeed"].nullLong ?: 0L
+				)}
+				.repeatWhen { completed ->
+					completed.delay(profile.updateInterval, TimeUnit.SECONDS)
+				}
+	}
+
 
 	private fun requestBody(method: String, arguments: JsonObject? = null): RequestBody {
 		val obj = jsonObject("method" to method)

@@ -14,12 +14,14 @@ import io.reactivex.subjects.PublishSubject
 import org.sugr.gearshift.C
 import org.sugr.gearshift.Logger
 import org.sugr.gearshift.R
+import org.sugr.gearshift.model.AltSpeedSession
 import org.sugr.gearshift.model.Session
 import org.sugr.gearshift.model.Torrent
 import org.sugr.gearshift.viewmodel.adapters.TorrentListAdapter
 import org.sugr.gearshift.viewmodel.adapters.TorrentViewModelManager
 import org.sugr.gearshift.viewmodel.api.Api
-import org.sugr.gearshift.viewmodel.api.transmission.TransmissionSession
+import org.sugr.gearshift.viewmodel.api.CurrentSpeed
+import org.sugr.gearshift.viewmodel.api.StatisticsApi
 import org.sugr.gearshift.viewmodel.databinding.SelectionListener
 import org.sugr.gearshift.viewmodel.databinding.observe
 import org.sugr.gearshift.viewmodel.ext.readableFileSize
@@ -43,7 +45,7 @@ class TorrentListViewModel(tag: String, log: Logger, ctx: Context, prefs: Shared
 
 	val statusText = ObservableField<String>(ctx.getString(R.string.torrent_list_status_loading))
 	val hasSpeedLimitSwitch = ObservableBoolean(false)
-	val speedLimit = ObservableBoolean(false)
+	val speedLimit = ObservableBoolean()
 	val sortListener = SelectionListener()
 	val sortEntries = SortBy.values().map { it.stringRes }.map { ctx.getString(it) }
 	val sortDescending = ObservableBoolean(false)
@@ -127,33 +129,94 @@ class TorrentListViewModel(tag: String, log: Logger, ctx: Context, prefs: Shared
 			prefs.set(C.PREF_LIST_SORT_BY, value)
 		}
 
-		sessionObservable
-				.map { session ->
-					if (session is TransmissionSession) {
-						val down = if (session.altSpeedLimitEnabled) {
-							session.altDownloadSpeedLimit
-						} else if (session.downloadSpeedLimitEnabled) {
-							session.downloadSpeedLimit
-						} else {
-							0
-						}
+		val downloadDirObservable = sessionObservable.map { session -> session.downloadDir }
 
-						val up = if (session.altSpeedLimitEnabled) {
-							session.altUploadSpeedLimit
-						} else if (session.uploadSpeedLimitEnabled) {
-							session.uploadSpeedLimit
-						} else {
-							0
-						}
+		apiObservable.switchMap { api ->
+			val speedObservable = if (api is StatisticsApi) {
+				api.currentSpeed()
+			} else {
+				Observable.just(CurrentSpeed(-1, -1))
+			}
 
-						Status(down * 1024, up * 1024)
-					} else {
-						Status(session.downloadSpeedLimit, session.uploadSpeedLimit)
-					}
+			val spaceObservable = if (api is StatisticsApi) {
+				api.freeSpace(downloadDirObservable)
+			} else {
+				Observable.just(-1L)
+			}
+
+			speedObservable.combineLatestWith(spaceObservable) { t1, t2 -> Pair(t1, t2) }
+		}.combineLatestWith(sessionObservable) { speedPair, session ->
+			val speed = speedPair.first
+			val space = speedPair.second
+
+			var downLimit = -1L
+			var upLimit = -1L
+
+			if (session is AltSpeedSession) {
+				downLimit = if (session.altSpeedLimitEnabled) {
+					session.altDownloadSpeedLimit * 1024
+				} else if (session.downloadSpeedLimitEnabled) {
+					session.downloadSpeedLimit * 1024
+				} else {
+					0
 				}
+
+				upLimit = if (session.altSpeedLimitEnabled) {
+					session.altUploadSpeedLimit * 1024
+				} else if (session.uploadSpeedLimitEnabled) {
+					session.uploadSpeedLimit * 1024
+				} else {
+					0
+				}
+
+			} else {
+				downLimit = session.downloadSpeedLimit * 1024
+				upLimit = session.uploadSpeedLimit * 1024
+			}
+
+			Status(speed.download, speed.upload, downLimit, upLimit, space)
+		}
 				.observeOn(AndroidSchedulers.mainThread())
 				.subscribe { status ->
-					statusText.set(status.download.readableFileSize() + ", " + status.upload.readableFileSize())
+					val download = if (status.download == -1L) {
+						ctx.getString(R.string.status_bar_download,
+								(status.downloadLimit.readableFileSize() + "/s"),
+								""
+						)
+					} else {
+						ctx.getString(R.string.status_bar_download,
+								(status.download.readableFileSize() + "/s"),
+								" (" + (status.downloadLimit.readableFileSize() + "/s") + ")"
+						)
+					}
+
+					val upload = if (status.upload == -1L) {
+						ctx.getString(R.string.status_bar_upload,
+								(status.uploadLimit.readableFileSize() + "/s"),
+								""
+						)
+					} else {
+						ctx.getString(R.string.status_bar_upload,
+								(status.upload.readableFileSize() + "/s"),
+								" (" + (status.uploadLimit.readableFileSize() + "/s") + ")"
+						)
+					}
+
+					val space = if (status.freeSpace == -1L) {
+						""
+					} else {
+						ctx.getString(R.string.status_bar_free_space,
+								status.freeSpace.readableFileSize())
+					}
+
+					statusText.set(arrayOf(download, upload, space).joinToString(", "))
+				}
+
+		sessionObservable.filter { session -> session is AltSpeedSession }
+				.map { session -> session as AltSpeedSession }
+				.subscribe { session ->
+					hasSpeedLimitSwitch.set(true)
+					speedLimit.set(session.altSpeedLimitEnabled)
 				}
 	}
 
@@ -161,6 +224,10 @@ class TorrentListViewModel(tag: String, log: Logger, ctx: Context, prefs: Shared
 		super.onDestroy()
 
 		removeAllViewModels()
+	}
+
+	fun onSpeedLimitChecked(checked: Boolean) {
+		log.D("######## checked: ${checked}")
 	}
 
 	fun onTorrentClick(torrent: Torrent) {}
@@ -194,7 +261,9 @@ class TorrentListViewModel(tag: String, log: Logger, ctx: Context, prefs: Shared
 	}
 }
 
-private data class Status(val download: Long, val upload: Long)
+private data class Status(val download: Long, val upload: Long,
+						  val downloadLimit: Long, val uploadLimit: Long,
+						  val freeSpace: Long)
 
 data class Sorting(val by: SortBy,
 				   val direction: SortDirection,
