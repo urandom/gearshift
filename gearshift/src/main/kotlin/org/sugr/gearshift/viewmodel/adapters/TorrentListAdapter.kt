@@ -3,7 +3,10 @@ package org.sugr.gearshift.viewmodel.adapters
 import android.support.v7.util.DiffUtil
 import android.support.v7.util.ListUpdateCallback
 import android.support.v7.widget.RecyclerView
+import android.transition.AutoTransition
+import android.transition.TransitionManager
 import android.view.LayoutInflater
+import android.view.MotionEvent
 import android.view.ViewGroup
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -104,9 +107,13 @@ class TorrentListAdapter(torrentsObservable: Observable<List<Torrent>>,
 
 	override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TorrentListViewHolder {
 		return holderOf(inflater, parent, Consumer {
-			clickListener?.accept(torrents[it])
+			if (torrents.size > it) {
+				clickListener?.accept(torrents[it])
+			}
 		}, Consumer {
-			torrentSelectorManager.toggleSelection(torrents[it])
+			if (torrents.size > it) {
+				torrentSelectorManager.toggleSelection(torrents[it])
+			}
 		})
 	}
 
@@ -142,11 +149,25 @@ class TorrentListViewHolder(private val binding: TorrentListItemBinding,
 							private val listener: Consumer<Int>,
 							private val selection: Consumer<Int>): RecyclerView.ViewHolder(binding.root) {
 	init {
-		binding.selection.setOnClickListener {
-			selection.accept(adapterPosition)
+		arrayOf(binding.selection, binding.progressBar).forEach {
+			it.setOnTouchListener { v, event ->
+				binding.root.drawableHotspotChanged(event.x + v.left, event.y + v.top)
+				when (event.action) {
+					MotionEvent.ACTION_DOWN -> {
+						binding.root.isPressed = true
+					}
+					MotionEvent.ACTION_UP -> {
+						binding.root.isPressed = false
+						TransitionManager.beginDelayedTransition(binding.root as ViewGroup,
+								AutoTransition().setDuration(100))
+						selection.accept(adapterPosition)
+					}
+				}
+				false
+			}
 		}
 
-		binding.root.setOnClickListener {
+		binding.root?.setOnClickListener {
 			listener.accept(adapterPosition)
 		}
 	}

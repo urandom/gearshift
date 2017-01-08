@@ -14,7 +14,7 @@
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
 		android:orientation="horizontal"
-		android:background="?android:selectableItemBackground"
+		android:background="@drawable/torrent_list_item_background"
 		android:minHeight="?android:listPreferredItemHeightSmall"
 		bind:activated="@{viewModel.isChecked}">
 
@@ -29,28 +29,36 @@
 				android:layout_width="30dp"
 				android:layout_height="30dp"
 				android:layout_gravity="center"
-				android:visibility="@{viewModel.isDirectory ? View.VISIBLE : View.GONE}"
+				android:visibility="@{viewModel.isDirectory &amp;&amp; !viewModel.isChecked ? View.VISIBLE : View.GONE}"
 				android:alpha="@{viewModel.isActive ? 0.6f : 0.3f}"
 				android:background="@drawable/ic_folder_open_grey600"/>
 
 			<ProgressBar
 				style="?android:attr/progressBarStyleHorizontal"
-				android:id="@+id/selection"
+				android:id="@+id/progressBar"
 				android:layout_width="64dp"
 				android:layout_height="64dp"
+				android:layout_marginTop="8dp"
+				android:layout_marginBottom="8dp"
 				android:indeterminate="false"
 				android:progressDrawable="@drawable/circular_progress_bar"
-				android:background="?android:selectableItemBackgroundBorderless"
 				android:clickable="true"
-				android:alpha="@{viewModel.isActive ? 1.0f : 0.5f}"
 				android:max="100"
+				android:visibility="@{viewModel.isChecked ? View.GONE : View.VISIBLE}"
+				android:alpha="@{viewModel.isActive ? 1.0f : 0.5f}"
 				android:progress="@{viewModel.uploadProgress}"
 				android:secondaryProgress="@{viewModel.downloadProgress}"/>
 
 			<View
+				android:id="@+id/selection"
+				android:layout_width="56dp"
+				android:layout_height="56dp"
+				android:layout_marginTop="12dp"
+				android:layout_marginBottom="12dp"
+				android:layout_marginStart="4dp"
+				android:layout_marginEnd="4dp"
+				android:clickable="true"
 				android:visibility="@{viewModel.isChecked ? View.VISIBLE : View.GONE}"
-				android:layout_width="64dp"
-				android:layout_height="64dp"
 				android:background="@drawable/torrent_type_checked"/>
 
 		</FrameLayout>
@@ -61,6 +69,7 @@
 			android:paddingTop="4dp"
 			android:paddingBottom="4dp"
 			android:layout_marginEnd="@dimen/activity_horizontal_margin"
+			android:layout_gravity="center_vertical"
 			android:orientation="vertical">
 
 			<TextView
@@ -84,6 +93,7 @@
 				android:textColor="@drawable/torrent_list_item_color"
 				android:text="@{viewModel.traffic}"
 				android:enabled="@{viewModel.isActive}"
+				android:visibility="@{viewModel.isChecked ? View.GONE : View.VISIBLE}"
 				tools:text="482.72MB of 1.011MB (47.7%) - 22 minutes remaining"/>
 
 			<TextView
@@ -95,6 +105,7 @@
 				android:textColor="@drawable/torrent_list_item_color"
 				android:text="@{viewModel.status}"
 				android:enabled="@{viewModel.isActive}"
+				android:visibility="@{viewModel.isChecked ? View.GONE : View.VISIBLE}"
 				tools:text="Downloading from 20 of 60 connected peers" />
 
 			<TextView
@@ -108,7 +119,7 @@
 				android:textAppearanceSmall="?android:attr/textAppearanceListItemSmall"
 				android:textSize="@dimen/torrent_list_error_text_size"
 				android:enabled="@{viewModel.isActive}"
-				android:visibility="@{viewModel.hasError ? View.VISIBLE : View.GONE}"
+				android:visibility="@{viewModel.hasError &amp;&amp; !viewModel.isChecked ? View.VISIBLE : View.GONE}"
 				android:text="@{viewModel.error}"
 				tools:text="Error fetching peers"
 				tools:visibility="visible" />
