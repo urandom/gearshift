@@ -1,6 +1,5 @@
 package org.sugr.gearshift.viewmodel.adapters
 
-import android.support.v7.util.BatchingListUpdateCallback
 import android.support.v7.util.DiffUtil
 import android.support.v7.util.ListUpdateCallback
 import android.support.v7.widget.RecyclerView
@@ -10,6 +9,8 @@ import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.functions.Consumer
 import io.reactivex.schedulers.Schedulers
+import org.funktionale.option.Option
+import org.funktionale.option.toOption
 import org.sugr.gearshift.Logger
 import org.sugr.gearshift.databinding.TorrentListItemBinding
 import org.sugr.gearshift.model.Session
@@ -22,29 +23,12 @@ class TorrentListAdapter(torrentsObservable: Observable<List<Torrent>>,
 						 sessionObservable: Observable<Session>,
 						 log : Logger,
 						 private val viewModelManager: TorrentViewModelManager,
+						 private val torrentSelectorManager: TorrentSelectorManager,
 						 private val inflater : LayoutInflater,
 						 private val clickListener: Consumer<Torrent>?):
 		RecyclerView.Adapter<TorrentListViewHolder>() {
 
-	val torrents : MutableList<Torrent> = ArrayList()
-	val batch = BatchingListUpdateCallback(object: ListUpdateCallback {
-		override fun onChanged(position: Int, count: Int, payload: Any?) {
-			notifyItemRangeChanged(position, count, payload)
-		}
-
-		override fun onMoved(fromPosition: Int, toPosition: Int) {
-			notifyItemMoved(fromPosition, toPosition)
-		}
-
-		override fun onInserted(position: Int, count: Int) {
-			notifyItemRangeInserted(position, count)
-		}
-
-		override fun onRemoved(position: Int, count: Int) {
-			notifyItemRangeRemoved(position, count)
-		}
-
-	})
+	private val torrents : MutableList<Torrent> = ArrayList()
 
 	init {
 		setHasStableIds(true)
@@ -96,6 +80,10 @@ class TorrentListAdapter(torrentsObservable: Observable<List<Torrent>>,
 				}
 
 				override fun onRemoved(position: Int, count: Int) {
+					for (i in position .. count - 1) {
+						val torrent = torrents[i]
+						torrentSelectorManager.clearSelection(torrent.toOption())
+					}
 					notifyItemRangeRemoved(position, count)
 				}
 
@@ -117,6 +105,8 @@ class TorrentListAdapter(torrentsObservable: Observable<List<Torrent>>,
 	override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TorrentListViewHolder {
 		return holderOf(inflater, parent, Consumer {
 			clickListener?.accept(torrents[it])
+		}, Consumer {
+			torrentSelectorManager.toggleSelection(torrents[it])
 		})
 	}
 
@@ -139,14 +129,23 @@ class TorrentListAdapter(torrentsObservable: Observable<List<Torrent>>,
 	}
 }
 
-private fun holderOf(inflater: LayoutInflater, root: ViewGroup, listener: Consumer<Int>) : TorrentListViewHolder {
+private fun holderOf(inflater: LayoutInflater,
+					 root: ViewGroup,
+					 listener: Consumer<Int>,
+					 selection: Consumer<Int>) : TorrentListViewHolder {
 	val binding = TorrentListItemBinding.inflate(inflater, root, false)
 
-	return TorrentListViewHolder(binding, listener)
+	return TorrentListViewHolder(binding, listener, selection)
 }
 
-class TorrentListViewHolder(private val binding: TorrentListItemBinding, private val listener: Consumer<Int>): RecyclerView.ViewHolder(binding.root) {
+class TorrentListViewHolder(private val binding: TorrentListItemBinding,
+							private val listener: Consumer<Int>,
+							private val selection: Consumer<Int>): RecyclerView.ViewHolder(binding.root) {
 	init {
+		binding.selection.setOnClickListener {
+			selection.accept(adapterPosition)
+		}
+
 		binding.root.setOnClickListener {
 			listener.accept(adapterPosition)
 		}
@@ -163,4 +162,9 @@ interface TorrentViewModelManager {
 	fun getViewModel(hash: String) : TorrentViewModel
 	fun removeViewModel(hash: String)
 	fun removeAllViewModels()
+}
+
+interface TorrentSelectorManager {
+	fun toggleSelection(torrent: Torrent)
+	fun clearSelection(torrent: Option<Torrent> = Option.None)
 }

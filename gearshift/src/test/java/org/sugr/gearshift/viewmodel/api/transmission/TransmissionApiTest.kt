@@ -356,27 +356,6 @@ class TransmissionApiTest {
         assertThat("session-get", `is`(obj["method"].string))
         assertThat("No arguments for session", obj["arguments"]?.isJsonNull ?: true)
     }
-
-    @Test
-    fun freeSpace() {
-        server.enqueue(MockResponse()
-                .setResponseCode(HttpURLConnection.HTTP_OK)
-                .setBody(Torrents.freeSpace))
-
-        val prefs = mock<SharedPreferences>{}
-
-        val api : Api = TransmissionApi(baseProfile, ctx, prefs, gson, log, Schedulers.trampoline(), true)
-
-        val space = api.freeSpace(Observable.just("/path")).blockingFirst()
-
-        assertThat(387697233920, `is`(space))
-
-        val jp = JsonParser()
-        val request = server.takeRequest()
-        val obj = jp.parse(request.body.readUtf8()).obj
-        assertThat("free-space", `is`(obj["method"].string))
-        assertThat("/path", `is`(obj["arguments"].obj["path"].string))
-    }
 }
 
 private object Torrents {

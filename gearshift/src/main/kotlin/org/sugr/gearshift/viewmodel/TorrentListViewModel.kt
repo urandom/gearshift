@@ -13,6 +13,7 @@ import io.reactivex.functions.Consumer
 import io.reactivex.schedulers.Schedulers
 import io.reactivex.subjects.BehaviorSubject
 import io.reactivex.subjects.PublishSubject
+import org.funktionale.option.Option
 import org.sugr.gearshift.C
 import org.sugr.gearshift.Logger
 import org.sugr.gearshift.R
@@ -20,6 +21,7 @@ import org.sugr.gearshift.model.AltSpeedSession
 import org.sugr.gearshift.model.Session
 import org.sugr.gearshift.model.Torrent
 import org.sugr.gearshift.viewmodel.adapters.TorrentListAdapter
+import org.sugr.gearshift.viewmodel.adapters.TorrentSelectorManager
 import org.sugr.gearshift.viewmodel.adapters.TorrentViewModelManager
 import org.sugr.gearshift.viewmodel.api.Api
 import org.sugr.gearshift.viewmodel.api.CurrentSpeed
@@ -36,7 +38,8 @@ class TorrentListViewModel(tag: String, log: Logger, ctx: Context, prefs: Shared
 						   private val sessionObservable: Observable<Session>,
 						   private val activityLifecycle: Observable<ActivityLifecycle>):
 		RetainedViewModel<TorrentListViewModel.Consumer>(tag, log),
-		TorrentViewModelManager by TorrentViewModelManagerImpl(log, ctx, prefs) {
+		TorrentViewModelManager by TorrentViewModelManagerImpl(log, ctx, prefs),
+		TorrentSelectorManager {
 
 	interface Consumer {
 
@@ -52,6 +55,7 @@ class TorrentListViewModel(tag: String, log: Logger, ctx: Context, prefs: Shared
 	val refreshListener = SwipeRefreshLayout.OnRefreshListener { refresher.onNext(1) }
 
 	private val refresher = PublishSubject.create<Any>()
+	private val selectedTorrents = mutableMapOf<String, Torrent>()
 
 	val sorting = prefs.observe().filter {
 		it == C.PREF_LIST_SORT_BY || it == C.PREF_LIST_SORT_DIRECTION
@@ -226,7 +230,34 @@ class TorrentListViewModel(tag: String, log: Logger, ctx: Context, prefs: Shared
 	override fun onDestroy() {
 		super.onDestroy()
 
+		clearSelection()
 		removeAllViewModels()
+	}
+
+	override fun toggleSelection(torrent: Torrent) {
+		val vm = getViewModel(torrent.hash)
+		val isChecked = !vm.isChecked.get()
+
+		vm.isChecked.set(isChecked)
+
+		if (isChecked) {
+			selectedTorrents[torrent.hash] = torrent
+		} else {
+			selectedTorrents.remove(torrent.hash)
+		}
+	}
+
+	override fun clearSelection(torrent: Option<Torrent>) {
+		if (torrent.isDefined()) {
+			val t = torrent.get()
+			getViewModel(t.hash).isChecked.set(false)
+			selectedTorrents.remove(t.hash)
+		} else {
+			selectedTorrents.keys.forEach { hash ->
+				getViewModel(hash).isChecked.set(false)
+			}
+			selectedTorrents.clear()
+		}
 	}
 
 	fun onSpeedLimitChecked(checked: Boolean) {
@@ -255,7 +286,7 @@ class TorrentListViewModel(tag: String, log: Logger, ctx: Context, prefs: Shared
 	fun adapter(ctx: Context) : TorrentListAdapter =
 		TorrentListAdapter(torrents,
 				sessionObservable.observeOn(AndroidSchedulers.mainThread()),
-				log, this, LayoutInflater.from(ctx), Consumer { onTorrentClick(it) })
+				log, this, this, LayoutInflater.from(ctx), Consumer { onTorrentClick(it) })
 
 	private fun compareWith(t1: Torrent, t2: Torrent, by: SortBy, direction: SortDirection, globalLimit: Float) : Int {
 		val ret = when (by) {
