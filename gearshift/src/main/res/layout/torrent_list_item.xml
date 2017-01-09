@@ -93,7 +93,6 @@
 				android:textColor="@drawable/torrent_list_item_color"
 				android:text="@{viewModel.traffic}"
 				android:enabled="@{viewModel.isActive}"
-				android:visibility="@{viewModel.isChecked ? View.GONE : View.VISIBLE}"
 				tools:text="482.72MB of 1.011MB (47.7%) - 22 minutes remaining"/>
 
 			<TextView
@@ -105,7 +104,6 @@
 				android:textColor="@drawable/torrent_list_item_color"
 				android:text="@{viewModel.status}"
 				android:enabled="@{viewModel.isActive}"
-				android:visibility="@{viewModel.isChecked ? View.GONE : View.VISIBLE}"
 				tools:text="Downloading from 20 of 60 connected peers" />
 
 			<TextView
@@ -119,7 +117,7 @@
 				android:textAppearanceSmall="?android:attr/textAppearanceListItemSmall"
 				android:textSize="@dimen/torrent_list_error_text_size"
 				android:enabled="@{viewModel.isActive}"
-				android:visibility="@{viewModel.hasError &amp;&amp; !viewModel.isChecked ? View.VISIBLE : View.GONE}"
+				android:visibility="@{viewModel.hasError ? View.VISIBLE : View.GONE}"
 				android:text="@{viewModel.error}"
 				tools:text="Error fetching peers"
 				tools:visibility="visible" />

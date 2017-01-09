@@ -70,7 +70,8 @@ dependencies {
              'com.colintmiller:simplenosql:0.5.1',
             // "com.google.dagger:dagger:$dagger_version"
             'com.github.deano2390:MaterialShowcaseView:1.1.0',
-            'org.funktionale:funktionale-option:1.0.0-beta'
+            'org.funktionale:funktionale-option:1.0.0-beta',
+            "com.andkulikov:transitionseverywhere:1.7.0"
     )
 
     kapt(

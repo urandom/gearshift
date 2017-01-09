@@ -3,11 +3,11 @@ package org.sugr.gearshift.viewmodel.adapters
 import android.support.v7.util.DiffUtil
 import android.support.v7.util.ListUpdateCallback
 import android.support.v7.widget.RecyclerView
-import android.transition.AutoTransition
-import android.transition.TransitionManager
 import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.ViewGroup
+import com.transitionseverywhere.TransitionManager
+import com.transitionseverywhere.extra.Scale
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.functions.Consumer
@@ -158,8 +158,9 @@ class TorrentListViewHolder(private val binding: TorrentListItemBinding,
 					}
 					MotionEvent.ACTION_UP -> {
 						binding.root.isPressed = false
+
 						TransitionManager.beginDelayedTransition(binding.root as ViewGroup,
-								AutoTransition().setDuration(100))
+								Scale().setDuration(100))
 						selection.accept(adapterPosition)
 					}
 				}
