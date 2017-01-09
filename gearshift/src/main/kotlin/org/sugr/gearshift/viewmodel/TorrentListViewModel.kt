@@ -285,8 +285,8 @@ class TorrentListViewModel(tag: String, log: Logger, ctx: Context, prefs: Shared
 
 	fun adapter(ctx: Context) : TorrentListAdapter =
 		TorrentListAdapter(torrents,
-				sessionObservable.observeOn(AndroidSchedulers.mainThread()),
-				log, this, this, LayoutInflater.from(ctx), Consumer { onTorrentClick(it) })
+				log,
+				this, this, LayoutInflater.from(ctx), Consumer { onTorrentClick(it) })
 
 	private fun compareWith(t1: Torrent, t2: Torrent, by: SortBy, direction: SortDirection, globalLimit: Float) : Int {
 		val ret = when (by) {

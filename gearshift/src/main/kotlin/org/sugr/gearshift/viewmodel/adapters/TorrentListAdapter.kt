@@ -16,18 +16,16 @@ import org.funktionale.option.Option
 import org.funktionale.option.toOption
 import org.sugr.gearshift.Logger
 import org.sugr.gearshift.databinding.TorrentListItemBinding
-import org.sugr.gearshift.model.Session
 import org.sugr.gearshift.model.Torrent
 import org.sugr.gearshift.viewmodel.TorrentViewModel
 import org.sugr.gearshift.viewmodel.areTorrentsTheSame
 import java.util.*
 
 class TorrentListAdapter(torrentsObservable: Observable<List<Torrent>>,
-						 sessionObservable: Observable<Session>,
-						 log : Logger,
+						 log: Logger,
 						 private val viewModelManager: TorrentViewModelManager,
 						 private val torrentSelectorManager: TorrentSelectorManager,
-						 private val inflater : LayoutInflater,
+						 private val inflater: LayoutInflater,
 						 private val clickListener: Consumer<Torrent>?):
 		RecyclerView.Adapter<TorrentListViewHolder>() {
 
