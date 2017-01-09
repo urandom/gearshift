@@ -260,6 +260,10 @@ class TorrentListViewModel(tag: String, log: Logger, ctx: Context, prefs: Shared
 		}
 	}
 
+	override fun hasSelection(): Boolean {
+		return selectedTorrents.isNotEmpty()
+	}
+
 	fun onSpeedLimitChecked(checked: Boolean) {
 		speedLimitUpdateSignal.onNext(false)
 

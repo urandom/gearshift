@@ -106,7 +106,11 @@ class TorrentListAdapter(torrentsObservable: Observable<List<Torrent>>,
 	override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TorrentListViewHolder {
 		return holderOf(inflater, parent, Consumer {
 			if (torrents.size > it) {
-				clickListener?.accept(torrents[it])
+				if (torrentSelectorManager.hasSelection()) {
+					torrentSelectorManager.toggleSelection(torrents[it])
+				} else {
+					clickListener?.accept(torrents[it])
+				}
 			}
 		}, Consumer {
 			if (torrents.size > it) {
@@ -187,4 +191,5 @@ interface TorrentViewModelManager {
 interface TorrentSelectorManager {
 	fun toggleSelection(torrent: Torrent)
 	fun clearSelection(torrent: Option<Torrent> = Option.None)
+	fun hasSelection() : Boolean
 }
