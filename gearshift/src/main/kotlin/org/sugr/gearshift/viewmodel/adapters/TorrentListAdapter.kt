@@ -173,6 +173,13 @@ class TorrentListViewHolder(private val binding: TorrentListItemBinding,
 		binding.root?.setOnClickListener {
 			listener.accept(adapterPosition)
 		}
+
+		binding.root?.setOnLongClickListener {
+			TransitionManager.beginDelayedTransition(binding.root as ViewGroup,
+					Scale().setDuration(100))
+			selection.accept(adapterPosition)
+			true
+		}
 	}
 
 	fun bindTo(viewModel: TorrentViewModel) {
