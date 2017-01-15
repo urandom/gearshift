@@ -5,6 +5,7 @@ import android.animation.AnimatorListenerAdapter
 import android.animation.ValueAnimator
 import android.databinding.DataBindingUtil
 import android.databinding.ViewDataBinding
+import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import android.support.v4.app.FragmentManager
 import android.support.v4.view.GravityCompat
@@ -14,7 +15,9 @@ import android.support.v7.graphics.drawable.DrawerArrowDrawable
 import android.view.View
 import com.google.gson.Gson
 import com.transitionseverywhere.Explode
+import com.transitionseverywhere.Recolor
 import com.transitionseverywhere.TransitionManager
+import com.transitionseverywhere.TransitionSet
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.subjects.PublishSubject
@@ -188,13 +191,23 @@ class MainNavigationActivity : AppCompatActivity(),
 					.debounce(250, TimeUnit.MILLISECONDS)
 					.observeOn(AndroidSchedulers.mainThread())
 					.subscribe { menu ->
-						TransitionManager.beginDelayedTransition(binding.appBar.toolbar, Explode())
+						TransitionManager.beginDelayedTransition(binding.appBar.toolbar,
+								TransitionSet()
+										.addTransition(Explode())
+										.addTransition(Recolor())
+						)
 
 						binding.appBar.toolbar.menu.clear();
 
 						val menuToInflate = if (menu == 0) newPath.menu else menu
 						if (menuToInflate != 0) {
 							binding.appBar.toolbar.inflateMenu(menuToInflate)
+						}
+
+						if (menu == 0) {
+							binding.appBar.toolbar.setBackground(ColorDrawable(resources.getColor(R.color.colorPrimary)))
+						} else {
+							binding.appBar.toolbar.setBackground(ColorDrawable(resources.getColor(R.color.colorAccent)))
 						}
 					}
 		}
