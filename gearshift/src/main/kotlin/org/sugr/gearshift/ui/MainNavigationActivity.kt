@@ -204,6 +204,7 @@ class MainNavigationActivity : AppCompatActivity(),
 							binding.appBar.toolbar.inflateMenu(menuToInflate)
 						}
 
+						toggleDrawable(toArrow = menu != 0)
 						if (menu == 0) {
 							binding.appBar.toolbar.setBackground(ColorDrawable(resources.getColor(R.color.colorPrimary)))
 						} else {
