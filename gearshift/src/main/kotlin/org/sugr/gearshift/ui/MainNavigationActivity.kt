@@ -80,7 +80,7 @@ class MainNavigationActivity : AppCompatActivity(),
 		}
 	}
 
-	private var contextCloser: Callable<Boolean>? = null
+	private var contextCloser = Callable { false }
 
 	override fun onCreate(state: Bundle?) {
 		super.onCreate(state)
@@ -211,9 +211,13 @@ class MainNavigationActivity : AppCompatActivity(),
 							binding.appBar.toolbar.inflateMenu(menuToInflate)
 						}
 
-						contextCloser = Callable {
-							view.closeContextMenu()
-							true
+						if (menu == 0) {
+							contextCloser = Callable { false }
+						} else {
+							contextCloser = Callable {
+								view.closeContextMenu()
+								true
+							}
 						}
 
 						toggleDrawable(toArrow = menu != 0)
@@ -297,9 +301,7 @@ class MainNavigationActivity : AppCompatActivity(),
 		}
 	}
 
-	private fun disableContextMenu(): Boolean {
-		return contextCloser?.call() ?: false
-	}
+	private fun disableContextMenu() = contextCloser.call()
 }
 
 interface NavComponent : AppComponent {
