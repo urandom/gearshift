@@ -11,7 +11,7 @@ import io.reactivex.Completable
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.functions.Consumer
-import io.reactivex.processors.PublishProcessor
+import io.reactivex.processors.BehaviorProcessor
 import io.reactivex.schedulers.Schedulers
 import io.reactivex.subjects.BehaviorSubject
 import io.reactivex.subjects.PublishSubject
@@ -59,7 +59,7 @@ class TorrentListViewModel(tag: String, log: Logger, ctx: Context, prefs: Shared
 	private val refresher = PublishSubject.create<Any>()
 	private val selectedTorrents = mutableMapOf<String, Torrent>()
 
-	private val contextMenuProcessor = PublishProcessor.create<Int>()
+	private val contextMenuProcessor = BehaviorProcessor.create<Int>()
 
 	val sorting = prefs.observe().filter {
 		it == C.PREF_LIST_SORT_BY || it == C.PREF_LIST_SORT_DIRECTION
@@ -250,7 +250,7 @@ class TorrentListViewModel(tag: String, log: Logger, ctx: Context, prefs: Shared
 			selectedTorrents.remove(torrent.hash)
 		}
 
-		contextMenuProcessor.onNext(if (hasSelection()) R.menu.torrent_list_context else 0)
+		toggleContextMenu()
 	}
 
 	override fun clearSelection(torrent: Option<Torrent>) {
@@ -265,7 +265,26 @@ class TorrentListViewModel(tag: String, log: Logger, ctx: Context, prefs: Shared
 			selectedTorrents.clear()
 		}
 
-		contextMenuProcessor.onNext(if (hasSelection()) R.menu.torrent_list_context else 0)
+		toggleContextMenu()
+	}
+
+
+	fun onSelectAllTorrents() {
+		torrents.take(1).observeOn(AndroidSchedulers.mainThread()).subscribe { torrents ->
+			torrents.map { it.hash }.map {
+				getViewModel(it)
+			}.forEachIndexed { i, viewModel ->
+				if (!viewModel.isChecked.get()) {
+					val torrent = torrents[i]
+
+					viewModel.isChecked.set(true)
+					selectedTorrents[torrent.hash] = torrent
+				}
+			}
+
+
+			toggleContextMenu()
+		}
 	}
 
 	override fun hasSelection(): Boolean {
@@ -274,6 +293,7 @@ class TorrentListViewModel(tag: String, log: Logger, ctx: Context, prefs: Shared
 
 	fun contextToolbarFlowable() = contextMenuProcessor
 			.takeUntil(takeUntilUnbind().toFlowable(BackpressureStrategy.LATEST))
+
 
 	fun onSpeedLimitChecked(checked: Boolean) {
 		speedLimitUpdateSignal.onNext(false)
@@ -323,6 +343,14 @@ class TorrentListViewModel(tag: String, log: Logger, ctx: Context, prefs: Shared
 			SortDirection.DESCENDING -> -ret
 			SortDirection.ASCENDING -> ret
 
+		}
+	}
+
+	private fun toggleContextMenu() {
+		val menu = if (hasSelection()) R.menu.torrent_list_context else 0
+
+		if (contextMenuProcessor.value != menu) {
+			contextMenuProcessor.onNext(menu)
 		}
 	}
 }

@@ -41,6 +41,7 @@ import org.sugr.gearshift.viewmodel.MainNavigationViewModel
 import org.sugr.gearshift.viewmodel.RetainedViewModel
 import org.sugr.gearshift.viewmodel.api.Api
 import org.sugr.gearshift.viewmodel.viewModelFrom
+import java.util.concurrent.Callable
 import java.util.concurrent.TimeUnit
 
 class MainNavigationActivity : AppCompatActivity(),
@@ -78,6 +79,8 @@ class MainNavigationActivity : AppCompatActivity(),
 			startDelay = 100
 		}
 	}
+
+	private var contextCloser: Callable<Boolean>? = null
 
 	override fun onCreate(state: Bundle?) {
 		super.onCreate(state)
@@ -125,8 +128,10 @@ class MainNavigationActivity : AppCompatActivity(),
 	}
 
 	override fun onBackPressed() {
-		if (!pathNavigator.navigateUp()) {
-			onNavigateUp(true)
+		if (!disableContextMenu()) {
+			if (!pathNavigator.navigateUp()) {
+				onNavigateUp(true)
+			}
 		}
 	}
 
@@ -143,8 +148,10 @@ class MainNavigationActivity : AppCompatActivity(),
 	}
 
 	override fun onClick(v: View?) {
-		if (!pathNavigator.navigateUp()) {
-			onNavigateUp(false)
+		if (!disableContextMenu()) {
+			if (!pathNavigator.navigateUp()) {
+				onNavigateUp(false)
+			}
 		}
 	}
 
@@ -204,7 +211,13 @@ class MainNavigationActivity : AppCompatActivity(),
 							binding.appBar.toolbar.inflateMenu(menuToInflate)
 						}
 
+						contextCloser = Callable {
+							view.closeContextMenu()
+							true
+						}
+
 						toggleDrawable(toArrow = menu != 0)
+
 						if (menu == 0) {
 							binding.appBar.toolbar.setBackground(ColorDrawable(resources.getColor(R.color.colorPrimary)))
 						} else {
@@ -284,6 +297,9 @@ class MainNavigationActivity : AppCompatActivity(),
 		}
 	}
 
+	private fun disableContextMenu(): Boolean {
+		return contextCloser?.call() ?: false
+	}
 }
 
 interface NavComponent : AppComponent {

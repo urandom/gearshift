@@ -14,6 +14,7 @@ interface ToolbarMenuItemClickListener {
 
 interface ContextMenuProvider {
     fun contextMenu(): Flowable<Int>
+    fun closeContextMenu()
 }
 
 object Depth {

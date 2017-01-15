@@ -1,5 +1,6 @@
 package org.sugr.gearshift.viewmodel.rxutil
 
+import io.reactivex.Flowable
 import io.reactivex.Observable
 import io.reactivex.disposables.Disposables
 import io.reactivex.functions.BiFunction
@@ -41,6 +42,10 @@ fun <T> Observable<T>.pauseOn(pauseObservable: Observable<Boolean>) : Observable
 
 fun <T> Observable<T>.refresh(refresher: Observable<Any>) : Observable<T> {
 	return refresher.startWith(1).debounce(50, TimeUnit.MILLISECONDS).switchMap { this }
+}
+
+fun <T1, T2, R> Flowable<T1>.combineLatestWith(other: Flowable<T2>, mapper: (T1, T2) -> R) : Flowable<R> {
+	return Flowable.combineLatest(this, other, BiFunction { t1, t2 -> mapper(t1, t2) })
 }
 
 private class LifecycleException : RuntimeException()
