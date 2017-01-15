@@ -6,10 +6,12 @@ import android.databinding.ObservableBoolean
 import android.databinding.ObservableField
 import android.support.v4.widget.SwipeRefreshLayout
 import android.view.LayoutInflater
+import io.reactivex.BackpressureStrategy
 import io.reactivex.Completable
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.functions.Consumer
+import io.reactivex.processors.PublishProcessor
 import io.reactivex.schedulers.Schedulers
 import io.reactivex.subjects.BehaviorSubject
 import io.reactivex.subjects.PublishSubject
@@ -57,6 +59,8 @@ class TorrentListViewModel(tag: String, log: Logger, ctx: Context, prefs: Shared
 	private val refresher = PublishSubject.create<Any>()
 	private val selectedTorrents = mutableMapOf<String, Torrent>()
 
+	private val contextMenuProcessor = PublishProcessor.create<Int>()
+
 	val sorting = prefs.observe().filter {
 		it == C.PREF_LIST_SORT_BY || it == C.PREF_LIST_SORT_DIRECTION
 	}.map { Sorting(
@@ -91,7 +95,7 @@ class TorrentListViewModel(tag: String, log: Logger, ctx: Context, prefs: Shared
 
 				log.D("Time to sort ${pair.first.size} torrents: ${Date().time - now}")
 
-				sorted
+				sorted.filter { t -> !t.downloadDir.contains("other") }
 			}
 		}
 	}
@@ -245,6 +249,8 @@ class TorrentListViewModel(tag: String, log: Logger, ctx: Context, prefs: Shared
 		} else {
 			selectedTorrents.remove(torrent.hash)
 		}
+
+		contextMenuProcessor.onNext(if (hasSelection()) R.menu.torrent_list_context else 0)
 	}
 
 	override fun clearSelection(torrent: Option<Torrent>) {
@@ -258,11 +264,16 @@ class TorrentListViewModel(tag: String, log: Logger, ctx: Context, prefs: Shared
 			}
 			selectedTorrents.clear()
 		}
+
+		contextMenuProcessor.onNext(if (hasSelection()) R.menu.torrent_list_context else 0)
 	}
 
 	override fun hasSelection(): Boolean {
 		return selectedTorrents.isNotEmpty()
 	}
+
+	fun contextToolbarFlowable() = contextMenuProcessor
+			.takeUntil(takeUntilUnbind().toFlowable(BackpressureStrategy.LATEST))
 
 	fun onSpeedLimitChecked(checked: Boolean) {
 		speedLimitUpdateSignal.onNext(false)

@@ -10,6 +10,7 @@ import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.widget.FrameLayout
+import io.reactivex.Flowable
 import org.sugr.gearshift.R
 import org.sugr.gearshift.databinding.TorrentListContentBinding
 import org.sugr.gearshift.viewmodel.TorrentListViewModel
@@ -18,8 +19,10 @@ class TorrentListView(context: Context?, attrs: AttributeSet?) :
         FrameLayout(context, attrs),
         TorrentListViewModel.Consumer,
         ViewModelConsumer<TorrentListViewModel>,
-        ToolbarMenuItemClickListener {
-    lateinit private var viewModel : TorrentListViewModel
+        ToolbarMenuItemClickListener,
+		ContextMenuProvider {
+
+	lateinit private var viewModel : TorrentListViewModel
 
     override fun onAttachedToWindow() {
         super.onAttachedToWindow()
@@ -59,6 +62,9 @@ class TorrentListView(context: Context?, attrs: AttributeSet?) :
         return false
     }
 
+	override fun contextMenu(): Flowable<Int> {
+		return viewModel.contextToolbarFlowable()
+	}
 }
 
 class SpacerDecoration(val first: Float = 0f, val last: Float = 0f): RecyclerView.ItemDecoration() {

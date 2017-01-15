@@ -118,4 +118,9 @@
 	<string name="status_bar_download"><![CDATA[↓ %1$s%2$s]]></string>
 	<string name="status_bar_upload"><![CDATA[↑ %1$s%2$s]]></string>
 	<string name="status_bar_free_space"><![CDATA[⊙ %1$s]]></string>
+	<string name="action_select_all">Select All</string>
+	<string name="action_resume">Resume</string>
+	<string name="action_pause">Pause</string>
+	<string name="action_remove">Remove</string>
+	<string name="action_search">Search</string>
 </resources>

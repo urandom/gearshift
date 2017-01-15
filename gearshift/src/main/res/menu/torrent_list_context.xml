@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:app="http://schemas.android.com/apk/res-auto">
+
+	<item
+		android:id="@+id/select_all"
+		android:title="@string/action_select_all"
+		android:icon="@drawable/ic_select_all_white"
+		app:showAsAction="always"/>
+
+	<item
+		android:id="@+id/selection_resume"
+		android:title="@string/action_resume"
+		android:icon="@drawable/ic_play_arrow_white"
+		app:showAsAction="always"/>
+
+	<item
+		android:id="@+id/selection_pause"
+		android:title="@string/action_pause"
+		android:icon="@drawable/ic_pause_white"
+		app:showAsAction="always"/>
+
+	<item
+		android:id="@+id/selection_remove"
+		android:title="@string/action_remove"
+		android:icon="@drawable/ic_delete_white"
+		app:showAsAction="ifRoom"/>
+</menu>
