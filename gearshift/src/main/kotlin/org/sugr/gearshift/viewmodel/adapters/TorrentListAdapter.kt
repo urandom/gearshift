@@ -82,7 +82,7 @@ class TorrentListAdapter(torrentsObservable: Observable<List<Torrent>>,
 
 				override fun onRemoved(position: Int, count: Int) {
 					for (i in position .. count - 1) {
-						val torrent = torrents[i]
+						val torrent = torrents.getOrNull(i)
 						torrentSelectorManager.clearSelection(torrent.toOption())
 					}
 					notifyItemRangeRemoved(position, count)

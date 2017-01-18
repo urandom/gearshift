@@ -12,6 +12,8 @@ import org.sugr.gearshift.model.loadProfiles
 import org.sugr.gearshift.model.profileOf
 import org.sugr.gearshift.viewmodel.api.apiOf
 import org.sugr.gearshift.viewmodel.rxutil.observe
+import org.sugr.gearshift.viewmodel.rxutil.onStop
+import org.sugr.gearshift.viewmodel.rxutil.pauseOn
 
 class MainNavigationViewModel(tag: String, log: Logger,
                               private val ctx: Context,
@@ -58,7 +60,7 @@ class MainNavigationViewModel(tag: String, log: Logger,
 
     val sessionObservable = apiObservable.switchMap { api ->
         api.session()
-    }.replay(1).refCount()
+    }.pauseOn(activityLifecycle.onStop()).replay(1).refCount()
 
     init {
         lifecycle.filter { it == Lifecycle.BIND }.take(1).subscribe {

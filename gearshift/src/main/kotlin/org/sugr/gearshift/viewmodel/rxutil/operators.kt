@@ -5,6 +5,7 @@ import io.reactivex.Observable
 import io.reactivex.disposables.Disposables
 import io.reactivex.functions.BiFunction
 import io.reactivex.functions.Function3
+import org.sugr.gearshift.viewmodel.ActivityLifecycle
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicReference
 
@@ -23,7 +24,8 @@ fun <T, U, R> Observable<T>.zipWith(other: Observable<U>, mapper: (T, U) -> R) :
 }
 
 fun <T> Observable<T>.pauseOn(pauseObservable: Observable<Boolean>) : Observable<T> {
-	val published = publish();
+	// delay the original before publishing, because the connection occurs before the real subscription might occur.
+	val published = delay(1, TimeUnit.MILLISECONDS).publish();
 	val subRef = AtomicReference(Disposables.disposed())
 
 	return pauseObservable
@@ -44,8 +46,14 @@ fun <T> Observable<T>.refresh(refresher: Observable<Any>) : Observable<T> {
 	return refresher.startWith(1).debounce(50, TimeUnit.MILLISECONDS).switchMap { this }
 }
 
+fun Observable<ActivityLifecycle>.onStop() : Observable<Boolean> {
+	return filter {
+		it == ActivityLifecycle.START || it == ActivityLifecycle.STOP
+	}.map {
+		it == ActivityLifecycle.START
+	}.startWith(true)
+}
+
 fun <T1, T2, R> Flowable<T1>.combineLatestWith(other: Flowable<T2>, mapper: (T1, T2) -> R) : Flowable<R> {
 	return Flowable.combineLatest(this, other, BiFunction { t1, t2 -> mapper(t1, t2) })
 }
-
-private class LifecycleException : RuntimeException()

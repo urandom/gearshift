@@ -99,6 +99,7 @@ class TorrentListViewModel(tag: String, log: Logger, ctx: Context, prefs: Shared
 			}
 		}
 	}
+			.pauseOn(activityLifecycle.onStop())
 			.takeUntil(takeUntilDestroy()).replay(1).refCount()
 			.observeOn(AndroidSchedulers.mainThread())
 
@@ -185,6 +186,7 @@ class TorrentListViewModel(tag: String, log: Logger, ctx: Context, prefs: Shared
 
 			Status(speed.download, speed.upload, downLimit, upLimit, space)
 		}
+				.pauseOn(activityLifecycle.onStop())
 				.observeOn(AndroidSchedulers.mainThread())
 				.subscribe { status ->
 					val download = if (status.download == -1L) {
@@ -225,7 +227,7 @@ class TorrentListViewModel(tag: String, log: Logger, ctx: Context, prefs: Shared
 			session is AltSpeedSession
 		}.map { session ->
 			session as AltSpeedSession
-		} .subscribe { session ->
+		}.subscribe { session ->
 			hasSpeedLimitSwitch.set(true)
 			speedLimit.set(session.altSpeedLimitEnabled)
 		}
