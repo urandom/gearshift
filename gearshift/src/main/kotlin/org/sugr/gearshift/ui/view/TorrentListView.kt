@@ -5,11 +5,12 @@ import android.graphics.Rect
 import android.support.v7.widget.DividerItemDecoration
 import android.support.v7.widget.GridLayoutManager
 import android.support.v7.widget.RecyclerView
+import android.support.v7.widget.Toolbar
 import android.util.AttributeSet
-import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.widget.FrameLayout
+import com.transitionseverywhere.TransitionManager
 import io.reactivex.Flowable
 import org.sugr.gearshift.R
 import org.sugr.gearshift.databinding.TorrentListContentBinding
@@ -20,9 +21,12 @@ class TorrentListView(context: Context?, attrs: AttributeSet?) :
         TorrentListViewModel.Consumer,
         ViewModelConsumer<TorrentListViewModel>,
         ToolbarMenuItemClickListener,
+		ToolbarConsumer,
 		ContextMenuProvider {
 
 	lateinit private var viewModel : TorrentListViewModel
+	lateinit private var toolbar : Toolbar
+	private var selectedTorrentStatusData: SelectedTorrentStatus? = null
 
     override fun onAttachedToWindow() {
         super.onAttachedToWindow()
@@ -58,14 +62,23 @@ class TorrentListView(context: Context?, attrs: AttributeSet?) :
         this.viewModel = viewModel
     }
 
-    override fun onToolbarMenuItemClick(menu: Menu, item: MenuItem): Boolean {
+    override fun onToolbarMenuItemClick(item: MenuItem): Boolean {
         when (item.itemId) {
-            R.id.select_all -> {
-				viewModel.onSelectAllTorrents()
-            }
+            R.id.select_all -> viewModel.onSelectAllTorrents()
+            // R.id.selection_resume ->
         }
         return false
     }
+
+	override fun setToolbar(toolbar: Toolbar) {
+		this.toolbar = toolbar
+		if (selectedTorrentStatusData != null) {
+			toolbar.menu.findItem(R.id.selection_resume)?.isVisible = selectedTorrentStatusData?.paused ?: false
+			toolbar.menu.findItem(R.id.selection_pause)?.isVisible = selectedTorrentStatusData?.running ?: false
+
+			selectedTorrentStatusData = null
+		}
+	}
 
 	override fun contextMenu(): Flowable<Int> {
 		return viewModel.contextToolbarFlowable()
@@ -74,7 +87,25 @@ class TorrentListView(context: Context?, attrs: AttributeSet?) :
 	override fun closeContextMenu() {
 		viewModel.clearSelection()
 	}
+
+	override fun selectedTorrentStatus(paused: Boolean, running: Boolean, empty: Boolean) {
+		if (toolbar.menu.findItem(R.id.selection_resume) == null) {
+			selectedTorrentStatusData = SelectedTorrentStatus(paused, running)
+			return
+		}
+
+		if (empty) {
+			return
+		}
+
+		TransitionManager.beginDelayedTransition(toolbar)
+
+		toolbar.menu.findItem(R.id.selection_resume)?.isVisible = paused
+		toolbar.menu.findItem(R.id.selection_pause)?.isVisible = running
+	}
 }
+
+private data class SelectedTorrentStatus(val paused: Boolean, val running: Boolean)
 
 class SpacerDecoration(val first: Float = 0f, val last: Float = 0f): RecyclerView.ItemDecoration() {
     override fun getItemOffsets(outRect: Rect, view: View, parent: RecyclerView, state: RecyclerView.State?) {

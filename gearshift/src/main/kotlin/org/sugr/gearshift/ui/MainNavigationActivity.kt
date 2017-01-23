@@ -37,6 +37,7 @@ import org.sugr.gearshift.ui.theme.ColorScheme
 import org.sugr.gearshift.ui.theme.defaultColorScheme
 import org.sugr.gearshift.ui.theme.selectionColorScheme
 import org.sugr.gearshift.ui.view.ContextMenuProvider
+import org.sugr.gearshift.ui.view.ToolbarConsumer
 import org.sugr.gearshift.ui.view.ToolbarMenuItemClickListener
 import org.sugr.gearshift.ui.view.ViewModelConsumer
 import org.sugr.gearshift.ui.view.util.asSequence
@@ -195,6 +196,10 @@ class MainNavigationActivity : AppCompatActivity(),
 
 		if (newPath.menu != 0) {
 			binding.appBar.toolbar.inflateMenu(newPath.menu)
+
+			if (view is ToolbarConsumer) {
+				view.setToolbar(binding.appBar.toolbar)
+			}
 		}
 
 		if (view is ContextMenuProvider) {
@@ -213,6 +218,10 @@ class MainNavigationActivity : AppCompatActivity(),
 						val menuToInflate = if (menu == 0) newPath.menu else menu
 						if (menuToInflate != 0) {
 							binding.appBar.toolbar.inflateMenu(menuToInflate)
+
+							if (view is ToolbarConsumer) {
+								view.setToolbar(binding.appBar.toolbar)
+							}
 						}
 
 						if (menu == 0) {
@@ -236,7 +245,7 @@ class MainNavigationActivity : AppCompatActivity(),
 
 		if (view is ToolbarMenuItemClickListener) {
 			binding.appBar.toolbar.setOnMenuItemClickListener { item ->
-				view.onToolbarMenuItemClick(binding.appBar.toolbar.menu, item)
+				view.onToolbarMenuItemClick(item)
 			}
 		}
 

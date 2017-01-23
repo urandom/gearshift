@@ -56,7 +56,7 @@ class FirstTimeProfileEditorView(context: Context?, attrs: AttributeSet?) :
         this.viewModel = viewModel
     }
 
-    override fun onToolbarMenuItemClick(menu: Menu, item: MenuItem): Boolean {
+    override fun onToolbarMenuItemClick(item: MenuItem): Boolean {
         when (item.itemId) {
             R.id.test -> {
                 item.setActionView(R.layout.action_view_progress)

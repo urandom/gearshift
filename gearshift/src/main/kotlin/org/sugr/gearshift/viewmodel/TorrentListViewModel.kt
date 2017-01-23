@@ -44,6 +44,7 @@ class TorrentListViewModel(tag: String, log: Logger, ctx: Context, prefs: Shared
 		TorrentSelectorManager {
 
 	interface Consumer {
+		fun selectedTorrentStatus(paused: Boolean, running: Boolean, empty: Boolean)
 
 	}
 
@@ -252,6 +253,7 @@ class TorrentListViewModel(tag: String, log: Logger, ctx: Context, prefs: Shared
 			selectedTorrents.remove(torrent.hash)
 		}
 
+		toggleContextMenuItems()
 		toggleContextMenu()
 	}
 
@@ -267,6 +269,7 @@ class TorrentListViewModel(tag: String, log: Logger, ctx: Context, prefs: Shared
 			selectedTorrents.clear()
 		}
 
+		toggleContextMenuItems()
 		toggleContextMenu()
 	}
 
@@ -285,6 +288,7 @@ class TorrentListViewModel(tag: String, log: Logger, ctx: Context, prefs: Shared
 			}
 
 
+			toggleContextMenuItems()
 			toggleContextMenu()
 		}
 	}
@@ -325,6 +329,26 @@ class TorrentListViewModel(tag: String, log: Logger, ctx: Context, prefs: Shared
 				log,
 				this, this, LayoutInflater.from(ctx), Consumer { onTorrentClick(it) })
 
+	fun getTorrentStatus() {
+		val torrents = torrents.map { torrents ->
+			torrents.filter { torrent -> selectedTorrents.contains(torrent.hash) }
+		}.blockingFirst()
+
+		var paused = false
+		var running = false
+
+		for (torrent in torrents) {
+			when {
+				torrent.isActive -> running = true
+				else -> paused = true
+			}
+
+			if (paused && running) {
+				break
+			}
+		}
+	}
+
 	private fun compareWith(t1: Torrent, t2: Torrent, by: SortBy, direction: SortDirection, globalLimit: Float) : Int {
 		val ret = when (by) {
 			SortBy.NAME -> t1.name.compareTo(t2.name, true)
@@ -353,6 +377,30 @@ class TorrentListViewModel(tag: String, log: Logger, ctx: Context, prefs: Shared
 
 		if (contextMenuProcessor.value != menu) {
 			contextMenuProcessor.onNext(menu)
+		}
+	}
+
+	private fun toggleContextMenuItems() {
+		torrents.map { torrents ->
+			torrents.filter { torrent -> selectedTorrents.contains(torrent.hash) }
+		}.map {  torrents ->
+			var paused = false
+			var running = false
+
+			for (torrent in torrents) {
+				when {
+					torrent.isActive -> running = true
+					else -> paused = true
+				}
+
+				if (paused && running) {
+					break
+				}
+			}
+
+			Triple(paused, running, torrents.isEmpty())
+		}.distinctUntilChanged().observeOn(AndroidSchedulers.mainThread()).subscribe { tripple ->
+			consumer?.selectedTorrentStatus(tripple.first, tripple.second, tripple.third)
 		}
 	}
 }

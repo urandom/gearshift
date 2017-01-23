@@ -12,12 +12,14 @@
 		android:id="@+id/selection_resume"
 		android:title="@string/action_resume"
 		android:icon="@drawable/ic_play_arrow_white"
+		android:visible="false"
 		app:showAsAction="always"/>
 
 	<item
 		android:id="@+id/selection_pause"
 		android:title="@string/action_pause"
 		android:icon="@drawable/ic_pause_white"
+		android:visible="false"
 		app:showAsAction="always"/>
 
 	<item
