@@ -8,6 +8,7 @@ import android.databinding.ViewDataBinding
 import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import android.support.v4.app.FragmentManager
+import android.support.v4.content.ContextCompat
 import android.support.v4.view.GravityCompat
 import android.support.v4.widget.DrawerLayout
 import android.support.v7.app.AppCompatActivity
@@ -32,6 +33,9 @@ import org.sugr.gearshift.ui.path.FirstTimeProfileEditorPath
 import org.sugr.gearshift.ui.path.Path
 import org.sugr.gearshift.ui.path.PathNavigator
 import org.sugr.gearshift.ui.path.TorrentListPath
+import org.sugr.gearshift.ui.theme.ColorScheme
+import org.sugr.gearshift.ui.theme.defaultColorScheme
+import org.sugr.gearshift.ui.theme.selectionColorScheme
 import org.sugr.gearshift.ui.view.ContextMenuProvider
 import org.sugr.gearshift.ui.view.ToolbarMenuItemClickListener
 import org.sugr.gearshift.ui.view.ViewModelConsumer
@@ -195,7 +199,7 @@ class MainNavigationActivity : AppCompatActivity(),
 
 		if (view is ContextMenuProvider) {
 			view.contextMenu()
-					.debounce(250, TimeUnit.MILLISECONDS)
+					.debounce(350, TimeUnit.MILLISECONDS)
 					.observeOn(AndroidSchedulers.mainThread())
 					.subscribe { menu ->
 						TransitionManager.beginDelayedTransition(binding.appBar.toolbar,
@@ -223,9 +227,9 @@ class MainNavigationActivity : AppCompatActivity(),
 						toggleDrawable(toArrow = menu != 0)
 
 						if (menu == 0) {
-							binding.appBar.toolbar.setBackground(ColorDrawable(resources.getColor(R.color.colorPrimary)))
+							applyColorScheme(defaultColorScheme)
 						} else {
-							binding.appBar.toolbar.setBackground(ColorDrawable(resources.getColor(R.color.colorAccent)))
+							applyColorScheme(selectionColorScheme)
 						}
 					}
 		}
@@ -302,6 +306,10 @@ class MainNavigationActivity : AppCompatActivity(),
 	}
 
 	private fun disableContextMenu() = contextCloser.call()
+
+	private fun applyColorScheme(scheme: ColorScheme) {
+		binding.appBar.toolbar.background = ColorDrawable(ContextCompat.getColor(this, scheme.toolbarColor))
+	}
 }
 
 interface NavComponent : AppComponent {
