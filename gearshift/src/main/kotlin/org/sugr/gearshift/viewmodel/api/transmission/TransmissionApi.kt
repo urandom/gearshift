@@ -469,7 +469,7 @@ class TransmissionApi(
 						ctx.getString(R.string.status_state_checking),
 						(recheckProgress * 100).readablePercent())
 				Torrent.StatusType.STOPPED -> ctx.getString(
-						if (uploadRatio < seedLimit) R.string.status_state_paused
+						if (downloadProgress < 1 || uploadRatio < seedLimit) R.string.status_state_paused
 						else R.string.status_state_finished
 				)
 				else -> ""
