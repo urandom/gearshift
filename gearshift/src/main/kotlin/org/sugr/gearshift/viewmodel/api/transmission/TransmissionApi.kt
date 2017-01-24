@@ -51,6 +51,7 @@ class TransmissionApi(
 		private val mainThreadScheduler: Scheduler = AndroidSchedulers.mainThread(),
 		debug: Boolean = BuildConfig.DEBUG
 ) : Api, StatisticsApi {
+
 	private val httpClient: OkHttpClient
 	private val requestBuilder: Request.Builder
 
@@ -261,6 +262,36 @@ class TransmissionApi(
 					accum
 				}
 			}.map { map -> map.values.toSet() }
+		}
+	}
+
+	override fun startTorrents(stopped: Array<Torrent>, queued: Array<Torrent>): Completable {
+		val stoppedCompletable = if (stopped.isEmpty()) {
+			Completable.complete()
+		} else {
+			val hashes = stopped.map { it.hash }.toTypedArray()
+			request(requestBody("torrent-start", jsonObject("ids" to jsonArray(*hashes))))
+					.toCompletable()
+		}
+
+		val queuedCompletable = if (queued.isEmpty()) {
+			Completable.complete()
+		} else {
+			val hashes = queued.map { it.hash }.toTypedArray()
+			request(requestBody("torrent-start-now", jsonObject("ids" to jsonArray(*hashes))))
+					.toCompletable()
+		}
+
+		return stoppedCompletable.mergeWith(queuedCompletable)
+	}
+
+	override fun stopTorrents(running: Array<Torrent>): Completable {
+		return if (running.isEmpty()) {
+			Completable.complete()
+		} else {
+			val hashes = running.map { it.hash }.toTypedArray()
+			request(requestBody("torrent-stop", jsonObject("ids" to jsonArray(*hashes))))
+					.toCompletable()
 		}
 	}
 

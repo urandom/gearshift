@@ -329,43 +329,43 @@ class TorrentListViewModel(tag: String, log: Logger, ctx: Context, prefs: Shared
 				log,
 				this, this, LayoutInflater.from(ctx), Consumer { onTorrentClick(it) })
 
-	fun getTorrentStatus() {
-		val torrents = torrents.map { torrents ->
-			torrents.filter { torrent -> selectedTorrents.contains(torrent.hash) }
-		}.blockingFirst()
-
-		var paused = false
-		var running = false
-
-		for (torrent in torrents) {
-			when {
-				torrent.isActive -> running = true
-				else -> paused = true
-			}
-
-			if (paused && running) {
-				break
-			}
-		}
-	}
-
 	fun onResumeSelected() {
+		val selected = HashSet(selectedTorrents.keys)
+
 		apiObservable.combineLatestWith(
 				torrents.map { torrents ->
+					torrents.filter { selected.contains(it.hash) }
+				}.map { torrents ->
 					torrents.filter { !it.isActive }
 				}.map { torrents ->
-					val stopped = torrents.filter { it.statusType == Torrent.StatusType.STOPPED }.map { it.hash }
-					val queued = torrents.filter { it.statusType != Torrent.StatusType.STOPPED }.map { it.hash }
+					val stopped = torrents.filter { it.statusType == Torrent.StatusType.STOPPED }.toTypedArray()
+					val queued = torrents.filter { it.statusType != Torrent.StatusType.STOPPED }.toTypedArray()
 
 					Pair(stopped, queued)
 				},
 				{ api, hashes -> Triple(api, hashes.first, hashes.second) }
-		).subscribe { triple ->
-		}
+		).take(1).flatMapCompletable { triple ->
+			triple.first.startTorrents(triple.second, triple.third)
+		}.subscribe({}) { err -> log.E("resuming selected torrents", err) }
+
+		clearSelection()
 	}
 
 	fun onPauseSelected() {
-		TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+		val selected = HashSet(selectedTorrents.keys)
+
+		apiObservable.combineLatestWith(
+				torrents.map { torrents ->
+					torrents.filter { selected.contains(it.hash) }
+				}.map { torrents ->
+					torrents.filter { it.isActive }
+				}.map { torrents -> torrents.toTypedArray() },
+				{ api, torrents -> Pair(api, torrents) }
+		).take(1).flatMapCompletable { pair ->
+			pair.first.stopTorrents(pair.second)
+		}.subscribe({}) { err -> log.E("pausing selected torrents", err) }
+
+		clearSelection()
 	}
 
 	private fun compareWith(t1: Torrent, t2: Torrent, by: SortBy, direction: SortDirection, globalLimit: Float) : Int {
