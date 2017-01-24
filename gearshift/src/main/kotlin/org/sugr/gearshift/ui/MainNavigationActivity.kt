@@ -318,6 +318,16 @@ class MainNavigationActivity : AppCompatActivity(),
 
 	private fun applyColorScheme(scheme: ColorScheme) {
 		binding.appBar.toolbar.background = ColorDrawable(ContextCompat.getColor(this, scheme.toolbarColor))
+		binding.appBar.viewContainer.statusBarBackground = ColorDrawable(ContextCompat.getColor(this, scheme.statusBarColor))
+	}
+
+	private fun statusBarHeight() : Int {
+		val identifier = resources.getIdentifier("status_bar_height", "dimen", "android")
+		return if (identifier > 0) {
+			resources.getDimensionPixelSize(identifier)
+		} else {
+			0
+		}
 	}
 }
 
