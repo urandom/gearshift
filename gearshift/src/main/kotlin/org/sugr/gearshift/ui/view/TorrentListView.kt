@@ -65,7 +65,8 @@ class TorrentListView(context: Context?, attrs: AttributeSet?) :
     override fun onToolbarMenuItemClick(item: MenuItem): Boolean {
         when (item.itemId) {
             R.id.select_all -> viewModel.onSelectAllTorrents()
-            // R.id.selection_resume ->
+            R.id.selection_resume -> viewModel.onResumeSelected()
+			R.id.selection_pause -> viewModel.onPauseSelected()
         }
         return false
     }

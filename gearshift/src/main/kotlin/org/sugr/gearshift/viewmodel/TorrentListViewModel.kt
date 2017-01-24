@@ -349,6 +349,25 @@ class TorrentListViewModel(tag: String, log: Logger, ctx: Context, prefs: Shared
 		}
 	}
 
+	fun onResumeSelected() {
+		apiObservable.combineLatestWith(
+				torrents.map { torrents ->
+					torrents.filter { !it.isActive }
+				}.map { torrents ->
+					val stopped = torrents.filter { it.statusType == Torrent.StatusType.STOPPED }.map { it.hash }
+					val queued = torrents.filter { it.statusType != Torrent.StatusType.STOPPED }.map { it.hash }
+
+					Pair(stopped, queued)
+				},
+				{ api, hashes -> Triple(api, hashes.first, hashes.second) }
+		).subscribe { triple ->
+		}
+	}
+
+	fun onPauseSelected() {
+		TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+	}
+
 	private fun compareWith(t1: Torrent, t2: Torrent, by: SortBy, direction: SortDirection, globalLimit: Float) : Int {
 		val ret = when (by) {
 			SortBy.NAME -> t1.name.compareTo(t2.name, true)
