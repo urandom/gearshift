@@ -64,6 +64,7 @@ class TorrentListView(context: Context?, attrs: AttributeSet?) :
 
     override fun onToolbarMenuItemClick(item: MenuItem): Boolean {
         when (item.itemId) {
+			R.id.search -> viewModel.onSearchToggle()
             R.id.select_all -> viewModel.onSelectAllTorrents()
             R.id.selection_resume -> viewModel.onResumeSelected()
 			R.id.selection_pause -> viewModel.onPauseSelected()
@@ -73,6 +74,9 @@ class TorrentListView(context: Context?, attrs: AttributeSet?) :
 
 	override fun setToolbar(toolbar: Toolbar) {
 		this.toolbar = toolbar
+	}
+
+	override fun onToolbarMenuChanged() {
 		if (selectedTorrentStatusData != null) {
 			toolbar.menu.findItem(R.id.selection_resume)?.isVisible = selectedTorrentStatusData?.paused ?: false
 			toolbar.menu.findItem(R.id.selection_pause)?.isVisible = selectedTorrentStatusData?.running ?: false

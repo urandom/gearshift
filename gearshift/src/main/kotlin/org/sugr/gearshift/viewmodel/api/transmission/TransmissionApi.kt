@@ -199,11 +199,11 @@ class TransmissionApi(
 			(session as? TransmissionSession)?.rpcVersion ?: 0
 		}.flatMap { rpcVersion ->
 			getTorrents(TORRENT_META_FIELDS + TORRENT_STAT_FIELDS).toObservable().concatWith(
-				Observable.rangeLong(1, Long.MAX_VALUE).concatMap { counter ->
+				Observable.rangeLong(0, Long.MAX_VALUE).concatMap { counter ->
 					val args = mutableListOf<Pair<String, Any?>>()
 
 					var fields = TORRENT_STAT_FIELDS
-					if (counter == 1L) {
+					if (counter == 0L) {
 						fields += arrayOf(FIELD_FILES)
 					}
 					args.add("fields" to jsonArray(*fields))
@@ -214,7 +214,7 @@ class TransmissionApi(
 					request(requestBody(
 							"torrent-get", jsonObject(*args.toTypedArray())
 					))
-							.delay(profile.updateInterval, TimeUnit.SECONDS)
+							.delay(if (counter == 0L) 0 else profile.updateInterval, TimeUnit.SECONDS)
 							.toObservable()
 							.flatMap { json ->
 								val torrents = json["torrents"].array

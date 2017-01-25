@@ -1,7 +1,6 @@
 package org.sugr.gearshift.ui.view
 
 import android.support.v7.widget.Toolbar
-import android.view.Menu
 import android.view.MenuItem
 import io.reactivex.Flowable
 
@@ -15,6 +14,7 @@ interface ToolbarMenuItemClickListener {
 
 interface ToolbarConsumer {
     fun setToolbar(toolbar: Toolbar)
+    fun onToolbarMenuChanged()
 }
 
 interface ContextMenuProvider {

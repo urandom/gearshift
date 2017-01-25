@@ -16,6 +16,7 @@ class TorrentViewModel(log: Logger, ctx: Context, prefs: SharedPreferences) {
 	val isChecked = ObservableBoolean(false)
 	val downloadProgress = ObservableInt(0)
 	val uploadProgress = ObservableInt(0)
+	val awaitingCompletion = ObservableBoolean(false)
 	val name = ObservableField("")
 	val traffic = ObservableField<Spanned>(SpannedString(""))
 	val status = ObservableField<Spanned>(SpannedString(""))
@@ -38,6 +39,8 @@ class TorrentViewModel(log: Logger, ctx: Context, prefs: SharedPreferences) {
 		} else {
 			uploadProgress.set(0)
 		}
+
+		isDirectory.set(torrent.isDirectory)
 
 		isActive.set(when (torrent.statusType) {
 			Torrent.StatusType.CHECKING, Torrent.StatusType.DOWNLOADING, Torrent.StatusType.SEEDING -> true

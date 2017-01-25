@@ -220,7 +220,7 @@ class MainNavigationActivity : AppCompatActivity(),
 							binding.appBar.toolbar.inflateMenu(menuToInflate)
 
 							if (view is ToolbarConsumer) {
-								view.setToolbar(binding.appBar.toolbar)
+								view.onToolbarMenuChanged()
 							}
 						}
 

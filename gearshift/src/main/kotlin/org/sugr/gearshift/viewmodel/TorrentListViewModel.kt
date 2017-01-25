@@ -368,6 +368,9 @@ class TorrentListViewModel(tag: String, log: Logger, ctx: Context, prefs: Shared
 		clearSelection()
 	}
 
+	fun onSearchToggle() {
+	}
+
 	private fun compareWith(t1: Torrent, t2: Torrent, by: SortBy, direction: SortDirection, globalLimit: Float) : Int {
 		val ret = when (by) {
 			SortBy.NAME -> t1.name.compareTo(t2.name, true)
