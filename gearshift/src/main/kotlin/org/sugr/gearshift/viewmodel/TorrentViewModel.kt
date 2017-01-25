@@ -24,8 +24,15 @@ class TorrentViewModel(log: Logger, ctx: Context, prefs: SharedPreferences) {
 	val hasError = ObservableBoolean(false)
 	val isActive = ObservableBoolean(false)
 
+	private var changingStatus: Torrent.StatusType? = null
+
 	interface Consumer {
 
+	}
+
+	fun setChangingStatus(status: Torrent.StatusType) {
+		changingStatus = status
+		awaitingCompletion.set(true)
 	}
 
 	fun updateTorrent(torrent: Torrent) {
@@ -49,6 +56,11 @@ class TorrentViewModel(log: Logger, ctx: Context, prefs: SharedPreferences) {
 
 		hasError.set(torrent.errorType != Torrent.ErrorType.OK)
 		error.set(torrent.error)
+
+		if (changingStatus != null && changingStatus != torrent.statusType) {
+			awaitingCompletion.set(false)
+			changingStatus = null
+		}
 	}
 
 	fun destroy() {

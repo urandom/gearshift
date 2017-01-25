@@ -14,6 +14,7 @@ import io.reactivex.Scheduler
 import io.reactivex.Single
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
+import io.reactivex.subjects.PublishSubject
 import okhttp3.*
 import okhttp3.logging.HttpLoggingInterceptor
 import org.sugr.gearshift.BuildConfig
@@ -54,6 +55,7 @@ class TransmissionApi(
 
 	private val httpClient: OkHttpClient
 	private val requestBuilder: Request.Builder
+	private val torrentRefresher = PublishSubject.create<Any>()
 
 	init {
 		val builder = OkHttpClient.Builder()
@@ -199,55 +201,57 @@ class TransmissionApi(
 			(session as? TransmissionSession)?.rpcVersion ?: 0
 		}.flatMap { rpcVersion ->
 			getTorrents(TORRENT_META_FIELDS + TORRENT_STAT_FIELDS).toObservable().concatWith(
-				Observable.rangeLong(0, Long.MAX_VALUE).concatMap { counter ->
-					val args = mutableListOf<Pair<String, Any?>>()
+					torrentRefresher.startWith(true).switchMap {
+						Observable.rangeLong(0, Long.MAX_VALUE).concatMap { counter ->
+							val args = mutableListOf<Pair<String, Any?>>()
 
-					var fields = TORRENT_STAT_FIELDS
-					if (counter == 0L) {
-						fields += arrayOf(FIELD_FILES)
-					}
-					args.add("fields" to jsonArray(*fields))
-					if ((counter % 10L) != 0L) {
-						args.add("ids" to "recently-active".toJson())
-					}
+							var fields = TORRENT_STAT_FIELDS
+							if (counter == 0L) {
+								fields += arrayOf(FIELD_FILES)
+							}
+							args.add("fields" to jsonArray(*fields))
+							if ((counter % 10L) != 0L) {
+								args.add("ids" to "recently-active".toJson())
+							}
 
-					request(requestBody(
-							"torrent-get", jsonObject(*args.toTypedArray())
-					))
-							.delay(if (counter == 0L) 0 else profile.updateInterval, TimeUnit.SECONDS)
-							.toObservable()
-							.flatMap { json ->
-								val torrents = json["torrents"].array
+							request(requestBody(
+									"torrent-get", jsonObject(*args.toTypedArray())
+							))
+									.delay(if (counter == 0L) 0 else profile.updateInterval, TimeUnit.SECONDS)
+									.toObservable()
+									.flatMap { json ->
+										val torrents = json["torrents"].array
 
-								var list = Observable.just(torrents)
+										var list = Observable.just(torrents)
 
-								val incomplete = torrents.filter { it.isJsonObject }.filter {
-									(it.obj[FIELD_TOTAL_SIZE]?.nullInt ?: 0) == 0
-								}.map { it[FIELD_HASH].string }.toTypedArray()
-
-								val withoutFiles = torrents.filter { it.isJsonObject }
-										.filter {
-											!incomplete.contains(it.obj[FIELD_HASH].string)
-										}
-										.filter {
-											(it.obj[FIELD_FILES]?.nullArray?.size() ?: 0) == 0
+										val incomplete = torrents.filter { it.isJsonObject }.filter {
+											(it.obj[FIELD_TOTAL_SIZE]?.nullInt ?: 0) == 0
 										}.map { it[FIELD_HASH].string }.toTypedArray()
 
-								json["removed"]?.nullArray?.map { jsonObject(FIELD_ID to it) }?.forEach { t ->
-									torrents.add(t)
-								}
+										val withoutFiles = torrents.filter { it.isJsonObject }
+												.filter {
+													!incomplete.contains(it.obj[FIELD_HASH].string)
+												}
+												.filter {
+													(it.obj[FIELD_FILES]?.nullArray?.size() ?: 0) == 0
+												}.map { it[FIELD_HASH].string }.toTypedArray()
 
-								if (incomplete.isNotEmpty()) {
-									list = mergeTorrentJson(list, getTorrents(TORRENT_META_FIELDS, "ids" to jsonArray(*incomplete)))
-								}
+										json["removed"]?.nullArray?.map { jsonObject(FIELD_ID to it) }?.forEach { t ->
+											torrents.add(t)
+										}
 
-								if (withoutFiles.isNotEmpty()) {
-									list = mergeTorrentJson(list, getTorrents(arrayOf(FIELD_HASH, FIELD_FILES), "ids" to jsonArray(*withoutFiles)))
-								}
+										if (incomplete.isNotEmpty()) {
+											list = mergeTorrentJson(list, getTorrents(TORRENT_META_FIELDS, "ids" to jsonArray(*incomplete)))
+										}
 
-								list
-							}
-				}
+										if (withoutFiles.isNotEmpty()) {
+											list = mergeTorrentJson(list, getTorrents(arrayOf(FIELD_HASH, FIELD_FILES), "ids" to jsonArray(*withoutFiles)))
+										}
+
+										list
+									}
+						}
+					}
 			).scan(initialMap) { accum, json ->
 				val torrents = json.filter { it.isJsonObject }.map { it.asJsonObject }
 				val removed = torrents.filter { !it.contains(FIELD_HASH) }.map { it[FIELD_ID].int }.toSet()
@@ -282,7 +286,9 @@ class TransmissionApi(
 					.toCompletable()
 		}
 
-		return stoppedCompletable.mergeWith(queuedCompletable)
+		return stoppedCompletable.mergeWith(queuedCompletable).doOnComplete {
+			torrentRefresher.onNext(true)
+		}
 	}
 
 	override fun stopTorrents(running: Array<Torrent>): Completable {
@@ -292,7 +298,7 @@ class TransmissionApi(
 			val hashes = running.map { it.hash }.toTypedArray()
 			request(requestBody("torrent-stop", jsonObject("ids" to jsonArray(*hashes))))
 					.toCompletable()
-		}
+		}.doOnComplete { torrentRefresher.onNext(true) }
 	}
 
 	override fun freeSpace(dir: Observable<String>): Observable<Long> {

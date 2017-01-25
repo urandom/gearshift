@@ -344,9 +344,21 @@ class TorrentListViewModel(tag: String, log: Logger, ctx: Context, prefs: Shared
 					Pair(stopped, queued)
 				},
 				{ api, hashes -> Triple(api, hashes.first, hashes.second) }
-		).take(1).flatMapCompletable { triple ->
-			triple.first.startTorrents(triple.second, triple.third)
-		}.subscribe({}) { err -> log.E("resuming selected torrents", err) }
+		)
+				.take(1)
+				.observeOn(AndroidSchedulers.mainThread())
+				.map { triple ->
+					(triple.second + triple.third).forEach { torrent ->
+						getViewModel(torrent.hash).setChangingStatus(torrent.statusType)
+					}
+
+					triple
+				}
+				.observeOn(Schedulers.io())
+				.flatMapCompletable { triple ->
+					triple.first.startTorrents(triple.second, triple.third)
+				}
+				.subscribe({}) { err -> log.E("resuming selected torrents", err) }
 
 		clearSelection()
 	}
@@ -361,9 +373,20 @@ class TorrentListViewModel(tag: String, log: Logger, ctx: Context, prefs: Shared
 					torrents.filter { it.isActive }
 				}.map { torrents -> torrents.toTypedArray() },
 				{ api, torrents -> Pair(api, torrents) }
-		).take(1).flatMapCompletable { pair ->
-			pair.first.stopTorrents(pair.second)
-		}.subscribe({}) { err -> log.E("pausing selected torrents", err) }
+		)
+				.take(1)
+				.observeOn(AndroidSchedulers.mainThread())
+				.map { pair ->
+					pair.second.forEach { torrent ->
+						getViewModel(torrent.hash).setChangingStatus(torrent.statusType)
+					}
+
+					pair
+				}
+				.observeOn(Schedulers.io())
+				.flatMapCompletable { pair ->
+					pair.first.stopTorrents(pair.second)
+				}.subscribe({}) { err -> log.E("pausing selected torrents", err) }
 
 		clearSelection()
 	}

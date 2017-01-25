@@ -66,7 +66,7 @@ class TorrentListAdapter(torrentsObservable: Observable<List<Torrent>>,
 			res.dispatchUpdatesTo(object: ListUpdateCallback {
 				override fun onChanged(position: Int, count: Int, payload: Any?) {
 					//notifyItemRangeChanged(position, count, payload)
-					for (i in position .. count - 1) {
+					for (i in position .. position + count - 1) {
 						val torrent = torrents[i]
 						viewModelManager.getViewModel(torrent.hash).updateTorrent(torrent)
 					}
