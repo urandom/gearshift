@@ -16,7 +16,7 @@ import org.sugr.gearshift.viewmodel.api.transmission.TransmissionApi
 interface Api {
 	fun test(): Single<Boolean>
 	fun session(initial: Session = NoSession()) : Observable<Session>
-	fun torrents(session: Observable<Session>, initial: Set<Torrent> = setOf()): Observable<Set<Torrent>>
+	fun torrents(initial: Set<Torrent> = setOf()): Observable<Set<Torrent>>
 	fun startTorrents(stopped: Array<Torrent>, queued: Array<Torrent>): Completable
 	fun stopTorrents(running: Array<Torrent>): Completable
 
@@ -43,13 +43,13 @@ fun apiOf(profile: Profile, ctx: Context,
 object NoApi : Api {
 	override fun test() = Single.just(false)
 	override fun session(initial: Session) = Observable.empty<Session>()
-	override fun torrents(session: Observable<Session>, initial: Set<Torrent>) = Observable.empty<Set<Torrent>>()
+	override fun torrents(initial: Set<Torrent>) = Observable.empty<Set<Torrent>>()
 	override fun updateSession(session: Session) = Completable.complete()
 	override fun startTorrents(stopped: Array<Torrent>, queued: Array<Torrent>) = Completable.complete()
 	override fun stopTorrents(running: Array<Torrent>) = Completable.complete()
 }
 
-class NetworkException(code: Int): RuntimeException("Network error")
+class NetworkException(val code: Int): RuntimeException("Network error")
 class AuthException: RuntimeException("Auth error")
 
 data class CurrentSpeed(val download: Long = 0L, val upload: Long = 0L)

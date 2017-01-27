@@ -5,6 +5,7 @@ import android.content.SharedPreferences
 import android.support.design.widget.NavigationView
 import android.view.MenuItem
 import com.google.gson.Gson
+import io.reactivex.Observable
 import io.reactivex.subjects.PublishSubject
 import org.sugr.gearshift.C
 import org.sugr.gearshift.Logger
@@ -60,7 +61,13 @@ class MainNavigationViewModel(tag: String, log: Logger,
 
     val sessionObservable = apiObservable.refresh(refresher).switchToThrowableEither { api ->
         api.session()
-    }.pauseOn(activityLifecycle.onStop()).replay(1).refCount()
+    }.pauseOn(activityLifecycle.onStop()).flatMap { either ->
+		either.fold({
+			Observable.just(either)
+		}) {
+			Observable.just(either).replay(1).refCount()
+		}
+	}
 
     init {
         lifecycle.filter { it == Lifecycle.BIND }.take(1).subscribe {

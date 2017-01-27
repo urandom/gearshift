@@ -8,6 +8,7 @@ import android.support.v4.widget.SwipeRefreshLayout
 import android.view.LayoutInflater
 import io.reactivex.BackpressureStrategy
 import io.reactivex.Completable
+import io.reactivex.Flowable
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.functions.Consumer
@@ -17,6 +18,7 @@ import io.reactivex.subjects.BehaviorSubject
 import io.reactivex.subjects.PublishSubject
 import org.funktionale.either.Either
 import org.funktionale.option.Option
+import org.funktionale.option.toOption
 import org.sugr.gearshift.C
 import org.sugr.gearshift.Logger
 import org.sugr.gearshift.R
@@ -73,11 +75,11 @@ class TorrentListViewModel(tag: String, log: Logger, ctx: Context, prefs: Shared
 			.takeUntil(takeUntilDestroy()).replay(1).refCount()
 
 	val torrents = apiObservable.refresh(refresher).switchToThrowableEither { api ->
-		api.torrents(sessionObservable.filterRight()).combineLatestWith(sorting) { set, sorting ->
+		api.torrents().combineLatestWith(sorting) { set, sorting ->
 			Pair(set, sorting)
 		}.flatMap { pair ->
 			val limitObservable = if (pair.second.by == SortBy.STATUS || pair.second.baseBy == SortBy.STATUS) {
-				sessionObservable.filterRight().take(1).map { session -> session.seedRatioLimit }
+				sessionObservable.filterRightOrThrow().take(1).map { session -> session.seedRatioLimit }
 			} else {
 				Observable.just(0f)
 			}
@@ -105,6 +107,8 @@ class TorrentListViewModel(tag: String, log: Logger, ctx: Context, prefs: Shared
 			.takeUntil(takeUntilDestroy()).replay(1).refCount()
 			.observeOn(AndroidSchedulers.mainThread())
 
+	private val errorProcessor = BehaviorProcessor.create<Option<Throwable>>()
+
 	private val speedLimitUpdateSignal = BehaviorSubject.createDefault(true)
 
 	init {
@@ -116,22 +120,26 @@ class TorrentListViewModel(tag: String, log: Logger, ctx: Context, prefs: Shared
 
 		apiObservable.observeOn(AndroidSchedulers.mainThread()).subscribe { refreshing.set(true) }
 
-		Observable.timer(1, TimeUnit.MILLISECONDS)
-				.observeOn(AndroidSchedulers.mainThread())
-				.subscribe { refreshing.set(true) }
-
 		torrents.subscribe({
 			refreshing.set(true)
 			refreshing.set(false)
 
 			if (it.isLeft()) {
 				log.E("torrent list", it.left().get())
+
+				errorProcessor.onNext(it.left().get().toOption())
 				// TODO: handle error
+			} else {
+				errorProcessor.onNext(Option.None)
 			}
 		}) { err ->
 			// Quite impossible to get here
 			log.E("torrent list unsetting refresh state", err)
 		}
+
+		Observable.timer(1, TimeUnit.MILLISECONDS)
+				.observeOn(AndroidSchedulers.mainThread())
+				.subscribe { refreshing.set(true) }
 
 		sortDescending.observe().debounce(250, TimeUnit.MILLISECONDS).map { o ->
 			o.get()
@@ -407,6 +415,10 @@ class TorrentListViewModel(tag: String, log: Logger, ctx: Context, prefs: Shared
 	}
 
 	fun onSearchToggle() {
+	}
+
+	fun errorFlowable() : Flowable<Option<Throwable>> {
+		return errorProcessor.takeUntil(takeUntilUnbind().toFlowable(BackpressureStrategy.LATEST))
 	}
 
 	private fun compareWith(t1: Torrent, t2: Torrent, by: SortBy, direction: SortDirection, globalLimit: Float) : Int {

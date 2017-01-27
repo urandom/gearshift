@@ -2,6 +2,7 @@ package org.sugr.gearshift.ui.view
 
 import android.content.Context
 import android.graphics.Rect
+import android.support.design.widget.Snackbar
 import android.support.v7.widget.DividerItemDecoration
 import android.support.v7.widget.GridLayoutManager
 import android.support.v7.widget.RecyclerView
@@ -15,6 +16,9 @@ import io.reactivex.Flowable
 import org.sugr.gearshift.R
 import org.sugr.gearshift.databinding.TorrentListContentBinding
 import org.sugr.gearshift.viewmodel.TorrentListViewModel
+import org.sugr.gearshift.viewmodel.api.AuthException
+import org.sugr.gearshift.viewmodel.api.NetworkException
+import java.util.concurrent.TimeoutException
 
 class TorrentListView(context: Context?, attrs: AttributeSet?) :
         FrameLayout(context, attrs),
@@ -47,6 +51,23 @@ class TorrentListView(context: Context?, attrs: AttributeSet?) :
         ))
         binding.list.layoutManager = GridLayoutManager(context, res.getInteger(R.integer.torrent_list_columns))
         binding.list.adapter = viewModel.adapter(context)
+
+		val errorBar = Snackbar.make(parent as View, "", 0)
+
+		viewModel.errorFlowable().subscribe { option ->
+			option.fold({
+				errorBar.dismiss()
+			}) { err ->
+				val msg = when (err) {
+					is TimeoutException -> res.getString(R.string.error_timeout)
+					is AuthException -> res.getString(R.string.error_auth)
+					is NetworkException -> res.getString(R.string.error_http, err.code)
+					else -> res.getString(R.string.error_generic)
+				}
+				errorBar.setText(msg)
+				errorBar.show()
+			}
+		}
 
         viewModel.bind(this)
 

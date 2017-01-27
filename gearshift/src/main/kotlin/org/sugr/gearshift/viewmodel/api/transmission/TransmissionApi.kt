@@ -194,10 +194,10 @@ class TransmissionApi(
 				}
 	}
 
-	override fun torrents(session: Observable<Session>, initial: Set<Torrent>) : Observable<Set<Torrent>> {
+	override fun torrents(initial: Set<Torrent>) : Observable<Set<Torrent>> {
 		val initialMap = HashMap(initial.associateBy { it.hash })
 
-		return session.take(1).map { session ->
+		return session().take(1).map { session ->
 			(session as? TransmissionSession)?.rpcVersion ?: 0
 		}.flatMap { rpcVersion ->
 			getTorrents(TORRENT_META_FIELDS + TORRENT_STAT_FIELDS).toObservable().concatWith(

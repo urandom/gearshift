@@ -123,4 +123,8 @@
 	<string name="action_pause">Pause</string>
 	<string name="action_remove">Remove</string>
 	<string name="action_search">Search</string>
+	<string name="error_timeout">Connection timeout</string>
+	<string name="error_generic">Error contacting the server</string>
+	<string name="error_auth">Access denied</string>
+	<string name="error_http">HTTP error: %d</string>
 </resources>
