@@ -15,6 +15,7 @@ import io.reactivex.processors.BehaviorProcessor
 import io.reactivex.schedulers.Schedulers
 import io.reactivex.subjects.BehaviorSubject
 import io.reactivex.subjects.PublishSubject
+import org.funktionale.either.Either
 import org.funktionale.option.Option
 import org.sugr.gearshift.C
 import org.sugr.gearshift.Logger
@@ -37,8 +38,9 @@ import java.util.concurrent.TimeUnit
 
 class TorrentListViewModel(tag: String, log: Logger, ctx: Context, prefs: SharedPreferences,
 						   private val apiObservable: Observable<Api>,
-						   private val sessionObservable: Observable<Session>,
-						   private val activityLifecycle: Observable<ActivityLifecycle>):
+						   private val sessionObservable: Observable<Either<Throwable, Session>>,
+						   private val refresher: PublishSubject<Any>,
+						   private val activityLifecycle: PublishSubject<ActivityLifecycle>):
 		RetainedViewModel<TorrentListViewModel.Consumer>(tag, log),
 		TorrentViewModelManager by TorrentViewModelManagerImpl(log, ctx, prefs),
 		TorrentSelectorManager {
@@ -57,7 +59,6 @@ class TorrentListViewModel(tag: String, log: Logger, ctx: Context, prefs: Shared
 	val refreshing = ObservableBoolean(false)
 	val refreshListener = SwipeRefreshLayout.OnRefreshListener { refresher.onNext(1) }
 
-	private val refresher = PublishSubject.create<Any>()
 	private val selectedTorrents = mutableMapOf<String, Torrent>()
 
 	private val contextMenuProcessor = BehaviorProcessor.create<Int>()
@@ -71,12 +72,12 @@ class TorrentListViewModel(tag: String, log: Logger, ctx: Context, prefs: Shared
 			.startWith(Sorting(SortBy.AGE, SortDirection.DESCENDING))
 			.takeUntil(takeUntilDestroy()).replay(1).refCount()
 
-	val torrents = apiObservable.refresh(refresher).switchMap { api ->
-		api.torrents(sessionObservable).combineLatestWith(sorting) { set, sorting ->
+	val torrents = apiObservable.refresh(refresher).switchToThrowableEither { api ->
+		api.torrents(sessionObservable.filterRight()).combineLatestWith(sorting) { set, sorting ->
 			Pair(set, sorting)
 		}.flatMap { pair ->
 			val limitObservable = if (pair.second.by == SortBy.STATUS || pair.second.baseBy == SortBy.STATUS) {
-				sessionObservable.take(1).map { session -> session.seedRatioLimit }
+				sessionObservable.filterRight().take(1).map { session -> session.seedRatioLimit }
 			} else {
 				Observable.just(0f)
 			}
@@ -119,9 +120,17 @@ class TorrentListViewModel(tag: String, log: Logger, ctx: Context, prefs: Shared
 				.observeOn(AndroidSchedulers.mainThread())
 				.subscribe { refreshing.set(true) }
 
-		torrents.subscribe {
+		torrents.subscribe({
 			refreshing.set(true)
 			refreshing.set(false)
+
+			if (it.isLeft()) {
+				log.E("torrent list", it.left().get())
+				// TODO: handle error
+			}
+		}) { err ->
+			// Quite impossible to get here
+			log.E("torrent list unsetting refresh state", err)
 		}
 
 		sortDescending.observe().debounce(250, TimeUnit.MILLISECONDS).map { o ->
@@ -140,9 +149,7 @@ class TorrentListViewModel(tag: String, log: Logger, ctx: Context, prefs: Shared
 			prefs.set(C.PREF_LIST_SORT_BY, value)
 		}
 
-		val downloadDirObservable = sessionObservable.map { session -> session.downloadDir }
-
-		apiObservable.switchMap { api ->
+		apiObservable.refresh(refresher).switchToThrowableEither { api ->
 			val speedObservable = if (api is StatisticsApi) {
 				api.currentSpeed()
 			} else {
@@ -150,46 +157,49 @@ class TorrentListViewModel(tag: String, log: Logger, ctx: Context, prefs: Shared
 			}
 
 			val spaceObservable = if (api is StatisticsApi) {
-				api.freeSpace(downloadDirObservable)
+				api.freeSpace(sessionObservable.filterRightOrThrow().map { it.downloadDir })
 			} else {
 				Observable.just(-1L)
 			}
 
-			speedObservable.combineLatestWith(spaceObservable) { t1, t2 -> Pair(t1, t2) }
-		}.combineLatestWith(sessionObservable) { speedPair, session ->
-			val speed = speedPair.first
-			val space = speedPair.second
+			speedObservable.combineLatestWith(spaceObservable) { t1, t2 ->
+				Pair(t1, t2)
+			}.combineLatestWith(sessionObservable.filterRightOrThrow()) { speedPair, session ->
+				val speed = speedPair.first
+				val space = speedPair.second
 
-			var downLimit = -1L
-			var upLimit = -1L
+				var downLimit = -1L
+				var upLimit = -1L
 
-			if (session is AltSpeedSession) {
-				downLimit = if (session.altSpeedLimitEnabled) {
-					session.altDownloadSpeedLimit * 1024
-				} else if (session.downloadSpeedLimitEnabled) {
-					session.downloadSpeedLimit * 1024
+				if (session is AltSpeedSession) {
+					downLimit = if (session.altSpeedLimitEnabled) {
+						session.altDownloadSpeedLimit * 1024
+					} else if (session.downloadSpeedLimitEnabled) {
+						session.downloadSpeedLimit * 1024
+					} else {
+						0
+					}
+
+					upLimit = if (session.altSpeedLimitEnabled) {
+						session.altUploadSpeedLimit * 1024
+					} else if (session.uploadSpeedLimitEnabled) {
+						session.uploadSpeedLimit * 1024
+					} else {
+						0
+					}
+
 				} else {
-					0
+					downLimit = session.downloadSpeedLimit * 1024
+					upLimit = session.uploadSpeedLimit * 1024
 				}
 
-				upLimit = if (session.altSpeedLimitEnabled) {
-					session.altUploadSpeedLimit * 1024
-				} else if (session.uploadSpeedLimitEnabled) {
-					session.uploadSpeedLimit * 1024
-				} else {
-					0
-				}
-
-			} else {
-				downLimit = session.downloadSpeedLimit * 1024
-				upLimit = session.uploadSpeedLimit * 1024
+				Status(speed.download, speed.upload, downLimit, upLimit, space)
 			}
-
-			Status(speed.download, speed.upload, downLimit, upLimit, space)
 		}
+				.filterRight()
 				.pauseOn(activityLifecycle.onStop())
 				.observeOn(AndroidSchedulers.mainThread())
-				.subscribe { status ->
+				.subscribe({ status ->
 					val download = if (status.download == -1L) {
 						ctx.getString(R.string.status_bar_download,
 								(status.downloadLimit.readableFileSize() + "/s"),
@@ -223,15 +233,16 @@ class TorrentListViewModel(tag: String, log: Logger, ctx: Context, prefs: Shared
 
 					statusText.set(arrayOf(download, upload, space).joinToString(", "))
 				}
+				) { err -> log.E("torrent list status speeds", err) }
 
-		sessionObservable.pauseOn(speedLimitUpdateSignal).filter { session ->
+		sessionObservable.filterRight().pauseOn(speedLimitUpdateSignal).filter { session ->
 			session is AltSpeedSession
 		}.map { session ->
 			session as AltSpeedSession
-		}.subscribe { session ->
+		}.subscribe({ session ->
 			hasSpeedLimitSwitch.set(true)
 			speedLimit.set(session.altSpeedLimitEnabled)
-		}
+		}) { err -> log.E("torrent list alt speed", err) }
 	}
 
 	override fun onDestroy() {
@@ -275,7 +286,11 @@ class TorrentListViewModel(tag: String, log: Logger, ctx: Context, prefs: Shared
 
 
 	fun onSelectAllTorrents() {
-		torrents.take(1).observeOn(AndroidSchedulers.mainThread()).subscribe { torrents ->
+		torrents.filter {
+			it.isRight()
+		}.map {
+			it.right().get()
+		}.take(1).observeOn(AndroidSchedulers.mainThread()).subscribe { torrents ->
 			torrents.map { it.hash }.map {
 				getViewModel(it)
 			}.forEachIndexed { i, viewModel ->
@@ -304,7 +319,7 @@ class TorrentListViewModel(tag: String, log: Logger, ctx: Context, prefs: Shared
 	fun onSpeedLimitChecked(checked: Boolean) {
 		speedLimitUpdateSignal.onNext(false)
 
-		sessionObservable.take(1).flatMapCompletable { session ->
+		sessionObservable.filterRight().take(1).flatMapCompletable { session ->
 			if (session is AltSpeedSession) {
 				session.altSpeedLimitEnabled = checked
 
@@ -325,7 +340,7 @@ class TorrentListViewModel(tag: String, log: Logger, ctx: Context, prefs: Shared
 	fun onTorrentClick(torrent: Torrent) {}
 
 	fun adapter(ctx: Context) : TorrentListAdapter =
-		TorrentListAdapter(torrents,
+		TorrentListAdapter(torrents.filter { it.isRight() }.map { it.right().get() },
 				log,
 				this, this, LayoutInflater.from(ctx), Consumer { onTorrentClick(it) })
 
@@ -333,8 +348,8 @@ class TorrentListViewModel(tag: String, log: Logger, ctx: Context, prefs: Shared
 		val selected = HashSet(selectedTorrents.keys)
 
 		apiObservable.combineLatestWith(
-				torrents.map { torrents ->
-					torrents.filter { selected.contains(it.hash) }
+				torrents.filter { it.isRight() }.map { torrents ->
+					torrents.right().get().filter { selected.contains(it.hash) }
 				}.map { torrents ->
 					torrents.filter { !it.isActive }
 				}.map { torrents ->
@@ -367,8 +382,8 @@ class TorrentListViewModel(tag: String, log: Logger, ctx: Context, prefs: Shared
 		val selected = HashSet(selectedTorrents.keys)
 
 		apiObservable.combineLatestWith(
-				torrents.map { torrents ->
-					torrents.filter { selected.contains(it.hash) }
+				torrents.filter { it.isRight() }.map { torrents ->
+					torrents.right().get().filter { selected.contains(it.hash) }
 				}.map { torrents ->
 					torrents.filter { it.isActive }
 				}.map { torrents -> torrents.toTypedArray() },
@@ -426,8 +441,8 @@ class TorrentListViewModel(tag: String, log: Logger, ctx: Context, prefs: Shared
 	}
 
 	private fun toggleContextMenuItems() {
-		torrents.map { torrents ->
-			torrents.filter { torrent -> selectedTorrents.contains(torrent.hash) }
+		torrents.filter { it.isRight() }.map { torrents ->
+			torrents.right().get().filter { torrent -> selectedTorrents.contains(torrent.hash) }
 		}.map {  torrents ->
 			var paused = false
 			var running = false

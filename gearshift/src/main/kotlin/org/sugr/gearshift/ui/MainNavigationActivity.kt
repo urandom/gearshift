@@ -22,6 +22,7 @@ import com.transitionseverywhere.TransitionSet
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.subjects.PublishSubject
+import org.funktionale.either.Either
 import org.sugr.gearshift.App
 import org.sugr.gearshift.AppComponent
 import org.sugr.gearshift.BR
@@ -338,7 +339,8 @@ interface NavComponent : AppComponent {
 	val gson : Gson
 	val profileObservable : Observable<Profile>
 	val apiObservable : Observable<Api>
-	val sessionObservable : Observable<Session>
+	val sessionObservable : Observable<Either<Throwable, Session>>
+	val refresher : PublishSubject<Any>
 }
 
 class NavComponentImpl(override val fragmentManager: FragmentManager, b : AppComponent) :
@@ -357,4 +359,5 @@ class NavComponentImpl(override val fragmentManager: FragmentManager, b : AppCom
 	override val profileObservable = navigationViewModel.profileObservable
 	override val apiObservable = navigationViewModel.apiObservable
 	override val sessionObservable = navigationViewModel.sessionObservable
+	override val refresher = navigationViewModel.refresher
 }

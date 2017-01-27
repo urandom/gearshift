@@ -11,9 +11,7 @@ import org.sugr.gearshift.Logger
 import org.sugr.gearshift.model.loadProfiles
 import org.sugr.gearshift.model.profileOf
 import org.sugr.gearshift.viewmodel.api.apiOf
-import org.sugr.gearshift.viewmodel.rxutil.observe
-import org.sugr.gearshift.viewmodel.rxutil.onStop
-import org.sugr.gearshift.viewmodel.rxutil.pauseOn
+import org.sugr.gearshift.viewmodel.rxutil.*
 
 class MainNavigationViewModel(tag: String, log: Logger,
                               private val ctx: Context,
@@ -23,6 +21,8 @@ class MainNavigationViewModel(tag: String, log: Logger,
     val activityLifecycle = PublishSubject.create<ActivityLifecycle>()
 
     val gson = Gson()
+
+    val refresher = PublishSubject.create<Any>()
 
     val navigationListener = object : NavigationView.OnNavigationItemSelectedListener {
         override fun onNavigationItemSelected(item: MenuItem): Boolean {
@@ -58,7 +58,7 @@ class MainNavigationViewModel(tag: String, log: Logger,
         fun createProfile()
     }
 
-    val sessionObservable = apiObservable.switchMap { api ->
+    val sessionObservable = apiObservable.refresh(refresher).switchToThrowableEither { api ->
         api.session()
     }.pauseOn(activityLifecycle.onStop()).replay(1).refCount()
 

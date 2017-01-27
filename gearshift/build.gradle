@@ -50,7 +50,8 @@ configurations.all {
 dependencies {
     ext.support_version = "25.0.1"
     ext.dagger_version = "2.8"
-    ext.rx_version = "2.0.1"
+    ext.rx_version = "2.0.4"
+    ext.rx_android_version = "2.0.1"
 
     compile(
             fileTree(include: ['*.jar'], dir: 'libs'),
@@ -58,8 +59,8 @@ dependencies {
             "com.android.support:support-v4:$support_version",
             "com.android.support:design:$support_version",
             //'com.android.support.constraint:constraint-layout:1.0.0-alpha4',
+            "io.reactivex.rxjava2:rxandroid:$rx_android_version",
             "io.reactivex.rxjava2:rxjava:$rx_version",
-            "io.reactivex.rxjava2:rxandroid:$rx_version",
              'com.google.code.gson:gson:2.6.2',
              'com.github.salomonbrys.kotson:kotson:2.2.0',
              'com.squareup.okhttp3:okhttp:3.5.0',
@@ -70,6 +71,7 @@ dependencies {
              'com.colintmiller:simplenosql:0.5.1',
             // "com.google.dagger:dagger:$dagger_version"
             'com.github.deano2390:MaterialShowcaseView:1.1.0',
+            'org.funktionale:funktionale-either:1.0.0-beta',
             'org.funktionale:funktionale-option:1.0.0-beta',
             "com.andkulikov:transitionseverywhere:1.7.0"
     )

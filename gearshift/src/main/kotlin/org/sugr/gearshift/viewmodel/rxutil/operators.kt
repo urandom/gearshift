@@ -5,6 +5,7 @@ import io.reactivex.Observable
 import io.reactivex.disposables.Disposables
 import io.reactivex.functions.BiFunction
 import io.reactivex.functions.Function3
+import org.funktionale.either.Either
 import org.sugr.gearshift.viewmodel.ActivityLifecycle
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicReference
@@ -56,4 +57,22 @@ fun Observable<ActivityLifecycle>.onStop() : Observable<Boolean> {
 
 fun <T1, T2, R> Flowable<T1>.combineLatestWith(other: Flowable<T2>, mapper: (T1, T2) -> R) : Flowable<R> {
 	return Flowable.combineLatest(this, other, BiFunction { t1, t2 -> mapper(t1, t2) })
+}
+
+fun <T, R> Observable<T>.switchToThrowableEither(body: (T) -> Observable<R>): Observable<Either<Throwable, R>> {
+	return switchMap {
+		body(it).map { r ->
+			Either.right(r) as Either<Throwable, R>
+
+		}.onErrorReturn { err ->
+			Either.left(err)
+		}
+	}
+}
+
+fun <T> Observable<Either<Throwable, T>>.filterRight() : Observable<T> {
+	return filter { it.isRight() }.map { it.right().get() }
+}
+fun <T> Observable<Either<Throwable, T>>.filterRightOrThrow() : Observable<T> {
+	return map { either -> either.fold({ err -> throw err }) { it } }
 }
