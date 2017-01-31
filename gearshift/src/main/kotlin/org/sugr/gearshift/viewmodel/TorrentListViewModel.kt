@@ -61,6 +61,7 @@ class TorrentListViewModel(tag: String, log: Logger, ctx: Context, prefs: Shared
 	val sortDescending = ObservableBoolean(false)
 	val refreshing = ObservableBoolean(false)
 	val refreshListener = SwipeRefreshLayout.OnRefreshListener { refresher.onNext(1) }
+	val searchSubject = BehaviorSubject.createDefault("")
 
 	private val selectedTorrents = mutableMapOf<String, Torrent>()
 
@@ -297,6 +298,7 @@ class TorrentListViewModel(tag: String, log: Logger, ctx: Context, prefs: Shared
 
 	fun clearSearch() {
 		searchVisible.onNext(false)
+		searchSubject.onNext("")
 	}
 
 	fun onSelectAllTorrents() {

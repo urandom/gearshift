@@ -77,8 +77,24 @@ class TorrentListView(context: Context?, attrs: AttributeSet?) :
 
 		val searchView = SearchView(ContextThemeWrapper(context, R.style.AppTheme_AppBarOverlay)).apply {
 			setIconifiedByDefault(false)
+			setQuery(viewModel.searchSubject.value, true)
 			isFocusable = true
+
+			setOnQueryTextListener(object: SearchView.OnQueryTextListener {
+				override fun onQueryTextSubmit(query: String?): Boolean {
+					return false
+				}
+
+				override fun onQueryTextChange(newText: String?): Boolean {
+					if (viewModel.searchSubject.value != newText) {
+						viewModel.searchSubject.onNext(newText)
+					}
+					return true
+				}
+
+			})
 		}
+
 		viewModel.contextToolbarFlowable().filter {
 			it == SEARCH_VISIBLE || it == SEARCH_HIDDEN
 		}.map {
@@ -95,11 +111,17 @@ class TorrentListView(context: Context?, attrs: AttributeSet?) :
 			}
 		}
 
+		viewModel.searchSubject.observeOn(AndroidSchedulers.mainThread()).subscribe { text ->
+			if (text != searchView.query) {
+				searchView.setQuery(text, false)
+			}
+		}
+
         viewModel.bind(this)
 
     }
 
-    override fun onDetachedFromWindow() {
+	override fun onDetachedFromWindow() {
         super.onDetachedFromWindow()
 
         viewModel.unbind()
