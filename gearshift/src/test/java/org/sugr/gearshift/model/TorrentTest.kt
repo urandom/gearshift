@@ -7,20 +7,6 @@ import org.junit.Test
 
 class TorrentTest {
     @Test
-    fun merge() {
-        val original = Torrent(hash = "hash", id = 1, name = SpannableString(SpannableString("name")), totalSize = 123)
-        val merging = Torrent(hash = "hash", id = 1, name = SpannableString(SpannableString("name")), files = setOf(TorrentFile(path = "path", downloaded = 1, total = 3, priority = 1, wanted = true)))
-
-        val merged = original.merge(merging)
-
-        assertThat(original.hash, `is`(merged.hash))
-        assertThat(original.id, `is`(merged.id))
-        assertThat(original.name, `is`(merged.name))
-        assertThat(original.totalSize, `is`(merged.totalSize))
-        assertThat(merging.files, `is`(merged.files))
-    }
-
-    @Test
     fun hasError() {
         assertThat("OK is not an error", !Torrent(hash = "hash", id = 1, name = SpannableString("name"),
                 errorType = Torrent.ErrorType.OK).hasError)

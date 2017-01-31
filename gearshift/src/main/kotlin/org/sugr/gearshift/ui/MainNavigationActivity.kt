@@ -15,10 +15,7 @@ import android.support.v7.app.AppCompatActivity
 import android.support.v7.graphics.drawable.DrawerArrowDrawable
 import android.view.View
 import com.google.gson.Gson
-import com.transitionseverywhere.Explode
-import com.transitionseverywhere.Recolor
-import com.transitionseverywhere.TransitionManager
-import com.transitionseverywhere.TransitionSet
+import com.transitionseverywhere.*
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.subjects.PublishSubject
@@ -207,6 +204,7 @@ class MainNavigationActivity : AppCompatActivity(),
 								TransitionSet()
 										.addTransition(Explode())
 										.addTransition(Recolor())
+										.addTransition(ChangeText())
 						)
 
 						binding.appBar.toolbar.menu.clear();

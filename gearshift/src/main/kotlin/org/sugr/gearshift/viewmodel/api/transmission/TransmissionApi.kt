@@ -196,7 +196,7 @@ class TransmissionApi(
 	}
 
 	override fun torrents(initial: Set<Torrent>) : Observable<Set<Torrent>> {
-		val initialMap = HashMap(initial.associateBy { it.hash })
+		val initialMap = HashMap<String, JsonObject>()
 
 		return session().take(1).map { session ->
 			(session as? TransmissionSession)?.rpcVersion ?: 0
@@ -257,16 +257,30 @@ class TransmissionApi(
 				val torrents = json.filter { it.isJsonObject }.map { it.asJsonObject }
 				val removed = torrents.filter { !it.contains(FIELD_HASH) }.map { it[FIELD_ID].int }.toSet()
 
-				torrents.filter { it.contains(FIELD_HASH) }.map { torrentFrom(it, ctx, rpcVersion, gson) }.forEach { torrent ->
-					accum[torrent.hash] = accum[torrent.hash]?.merge(torrent) ?: torrent
+				torrents.forEach { torrent ->
+					val hash = torrent.obj[FIELD_HASH].string
+
+					if (accum.contains(hash)) {
+						val current = accum[hash]!!
+
+						torrent.forEach { key, element ->
+							current[key] = element
+						}
+					} else {
+						accum[hash] = torrent
+					}
 				}
 
 				if (removed.isNotEmpty()) {
-					HashMap(accum.filter { !removed.contains(it.value.id) })
+					HashMap(accum.filter { !removed.contains(it.value[FIELD_ID].nullInt ?: -1) })
 				} else {
 					accum
 				}
-			}.map { map -> map.values.toSet() }
+			}.map { map ->
+				map.values.toSet()
+			}.map { set ->
+				set.map { obj -> torrentFrom(obj, ctx, rpcVersion, gson) }.toSet()
+			}.startWith(initial)
 		}
 	}
 
@@ -568,6 +582,8 @@ class TransmissionApi(
 					id = json[FIELD_ID]?.nullInt ?: 0,
 					name = SpannableString(json[FIELD_NAME]?.nullString ?: ""),
 					statusType = status,
+					isStalled = isStalled,
+					isFinished = json["isStalled"]?.nullBool ?: false,
 					metaProgress = metaProgress,
 					downloadProgress = downloadProgress,
 					uploadProgress = uploadRatio,

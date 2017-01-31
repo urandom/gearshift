@@ -95,18 +95,23 @@ class TorrentListView(context: Context?, attrs: AttributeSet?) :
 			})
 		}
 
+		var title = ""
+
 		viewModel.contextToolbarFlowable().filter {
 			it == SEARCH_VISIBLE || it == SEARCH_HIDDEN
 		}.map {
 			it == SEARCH_VISIBLE
 		}.observeOn(AndroidSchedulers.mainThread()).subscribe { visible ->
 			val imm = context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-			if (visible) {
+			if (visible && searchView.parent == null) {
+				title = toolbar.title.toString()
 				toolbar.addView(searchView)
+				toolbar.title = ""
 				searchView.requestFocusFromTouch()
 				imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0)
-			} else {
+			} else if (!visible && searchView.parent != null) {
 				toolbar.removeView(searchView)
+				toolbar.title = title
 				imm.hideSoftInputFromWindow(windowToken, 0)
 			}
 		}
@@ -117,7 +122,15 @@ class TorrentListView(context: Context?, attrs: AttributeSet?) :
 			}
 		}
 
-        viewModel.bind(this)
+		viewModel.titleFlowable().subscribe({
+			if (searchView.parent == null) {
+				toolbar.title = it
+			} else {
+				title = it.toString()
+			}
+		}, Throwable::printStackTrace)
+
+		viewModel.bind(this)
 
     }
 

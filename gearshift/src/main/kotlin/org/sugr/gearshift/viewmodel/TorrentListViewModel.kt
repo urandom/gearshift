@@ -16,6 +16,7 @@ import io.reactivex.Completable
 import io.reactivex.Flowable
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.functions.BiFunction
 import io.reactivex.functions.Consumer
 import io.reactivex.processors.BehaviorProcessor
 import io.reactivex.schedulers.Schedulers
@@ -28,6 +29,7 @@ import org.sugr.gearshift.C
 import org.sugr.gearshift.Logger
 import org.sugr.gearshift.R
 import org.sugr.gearshift.model.AltSpeedSession
+import org.sugr.gearshift.model.Profile
 import org.sugr.gearshift.model.Session
 import org.sugr.gearshift.model.Torrent
 import org.sugr.gearshift.ui.view.TorrentListView
@@ -46,6 +48,7 @@ import java.util.concurrent.TimeUnit
 import java.util.regex.Pattern
 
 class TorrentListViewModel(tag: String, log: Logger, ctx: Context, prefs: SharedPreferences,
+						   private val profileObservable: Observable<Profile>,
 						   private val apiObservable: Observable<Api>,
 						   private val sessionObservable: Observable<Either<Throwable, Session>>,
 						   private val refresher: PublishSubject<Any>,
@@ -68,6 +71,7 @@ class TorrentListViewModel(tag: String, log: Logger, ctx: Context, prefs: Shared
 	val refreshing = ObservableBoolean(false)
 	val refreshListener = SwipeRefreshLayout.OnRefreshListener { refresher.onNext(1) }
 	val searchSubject = BehaviorSubject.createDefault("")
+	val filterStatusSubject = BehaviorSubject.createDefault(FilterStatus.ALL)
 
 	private val selectedTorrents = mutableMapOf<String, Torrent>()
 
@@ -82,7 +86,11 @@ class TorrentListViewModel(tag: String, log: Logger, ctx: Context, prefs: Shared
 			.startWith(Sorting(SortBy.AGE, SortDirection.DESCENDING))
 			.takeUntil(takeUntilDestroy()).replay(1).refCount()
 
-	val filtering = searchSubject.map { query -> Filtering(query = query) }
+	val filtering : Observable<Filtering> = Observable.combineLatest(
+			searchSubject,
+			filterStatusSubject,
+			BiFunction(::Filtering)
+	)
 
 	val filterStyles = arrayOf(
 			ContextCompat.getColor(ctx, R.color.filterHighlightPrimary),
@@ -446,8 +454,17 @@ class TorrentListViewModel(tag: String, log: Logger, ctx: Context, prefs: Shared
 		searchVisible.onNext(!searchVisible.value)
 	}
 
-	fun errorFlowable() : Flowable<Option<Throwable>> {
+	fun errorFlowable(): Flowable<Option<Throwable>> {
 		return errorProcessor.takeUntil(takeUntilUnbind().toFlowable(BackpressureStrategy.LATEST))
+	}
+
+	fun titleFlowable(): Flowable<CharSequence> {
+		return profileObservable
+				.map { it.name as CharSequence }
+				.takeUntil(takeUntilUnbind())
+				.observeOn(AndroidSchedulers.mainThread())
+				.toFlowable(BackpressureStrategy.LATEST)
+				.replay(1).refCount()
 	}
 
 	private fun compareWith(t1: Torrent, t2: Torrent, by: SortBy, direction: SortDirection, globalLimit: Float) : Int {
@@ -534,7 +551,11 @@ enum class SortDirection {
 	ASCENDING, DESCENDING
 }
 
-data class Filtering(val query: String)
+data class Filtering(val query: String, val status: FilterStatus)
+
+enum class FilterStatus {
+	ALL, DOWNLOADING, SEEDING, PAUSED, COMPLETE, INCOMPLETE, ACTIVE, CHECKING, ERRORS
+}
 
 private class TorrentViewModelManagerImpl(private val log: Logger,
 										  private val ctx: Context,
@@ -581,8 +602,22 @@ private fun filterTorrents(torrents: Set<Torrent>, filtering: Filtering, colors:
 	return torrents.filter { torrent ->
 		var match = true
 
+		if (match) {
+			match = when (filtering.status) {
+				FilterStatus.ALL -> true
+				FilterStatus.DOWNLOADING -> torrent.statusType == Torrent.StatusType.DOWNLOADING
+				FilterStatus.SEEDING -> torrent.statusType == Torrent.StatusType.SEEDING
+				FilterStatus.PAUSED -> torrent.statusType == Torrent.StatusType.STOPPED
+				FilterStatus.COMPLETE -> torrent.downloadProgress == 1F
+				FilterStatus.INCOMPLETE -> torrent.downloadProgress < 1F
+				FilterStatus.ACTIVE -> torrent.isActive
+				FilterStatus.CHECKING -> torrent.statusType == Torrent.StatusType.CHECKING
+				FilterStatus.ERRORS -> torrent.hasError
+			}
+		}
+
 		if (query != "") {
-			match = match && pattern.matcher(torrent.name.toString().toLowerCase(Locale.getDefault())).find()
+			match = pattern.matcher(torrent.name.toString().toLowerCase(Locale.getDefault())).find()
 		}
 
 		match
