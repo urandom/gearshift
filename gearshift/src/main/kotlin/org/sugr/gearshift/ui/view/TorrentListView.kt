@@ -107,7 +107,7 @@ class TorrentListView(context: Context?, attrs: AttributeSet?) :
 				imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0)
 			} else {
 				toolbar.removeView(searchView)
-				imm.toggleSoftInput(InputMethodManager.HIDE_IMPLICIT_ONLY, 0)
+				imm.hideSoftInputFromWindow(windowToken, 0)
 			}
 		}
 

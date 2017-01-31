@@ -1,11 +1,13 @@
 package org.sugr.gearshift.model
 
+import android.text.Spannable
+import android.text.SpannableString
 import java.io.File
 import java.net.URI
 import java.net.URISyntaxException
 import kotlin.comparisons.compareValuesBy
 
-data class Torrent(val hash: String, val id: Int, val name: String,
+data class Torrent(val hash: String, val id: Int, val name: Spannable,
                    val statusType: StatusType = Torrent.StatusType.UNKNOWN,
                    val metaProgress: Float = 0f,
                    val downloadProgress: Float = 0f, val uploadProgress: Float = 0f,
@@ -27,7 +29,7 @@ data class Torrent(val hash: String, val id: Int, val name: String,
                    val trackers: Set<TorrentTracker> = emptySet()) {
 
     fun merge(other: Torrent) : Torrent {
-        val default = Torrent(hash = "", id = 0, name = "")
+        val default = Torrent(hash = "", id = 0, name = SpannableString(""))
 
         return copy(
                 hash = if (other.hash == default.hash) hash else other.hash,

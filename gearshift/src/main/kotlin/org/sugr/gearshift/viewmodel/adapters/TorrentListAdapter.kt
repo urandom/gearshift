@@ -18,7 +18,6 @@ import org.sugr.gearshift.Logger
 import org.sugr.gearshift.databinding.TorrentListItemBinding
 import org.sugr.gearshift.model.Torrent
 import org.sugr.gearshift.viewmodel.TorrentViewModel
-import org.sugr.gearshift.viewmodel.areTorrentsTheSame
 import java.util.*
 
 class TorrentListAdapter(torrentsObservable: Observable<List<Torrent>>,
@@ -49,10 +48,7 @@ class TorrentListAdapter(torrentsObservable: Observable<List<Torrent>>,
 				}
 
 				override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
-					val oldItem = torrents[oldItemPosition]
-					val newItem = newList[newItemPosition]
-
-					return areTorrentsTheSame(oldItem, newItem)
+					return false
 				}
 			})
 
@@ -67,8 +63,10 @@ class TorrentListAdapter(torrentsObservable: Observable<List<Torrent>>,
 				override fun onChanged(position: Int, count: Int, payload: Any?) {
 					//notifyItemRangeChanged(position, count, payload)
 					for (i in position .. position + count - 1) {
-						val torrent = torrents[i]
-						viewModelManager.getViewModel(torrent.hash).updateTorrent(torrent)
+						if (i < torrents.size) {
+							val torrent = torrents[i]
+							viewModelManager.getViewModel(torrent.hash).updateTorrent(torrent)
+						}
 					}
 				}
 
@@ -125,16 +123,6 @@ class TorrentListAdapter(torrentsObservable: Observable<List<Torrent>>,
 
 	override fun getItemId(position: Int): Long {
 		return torrents[position].hash.hashCode().toLong()
-	}
-
-	private fun torrentChanged(oldItem: Torrent, newItem: Torrent): Boolean {
-		return oldItem.isDirectory == newItem.isDirectory &&
-				oldItem.downloadProgress == newItem.downloadProgress &&
-				oldItem.uploadProgress == newItem.uploadProgress &&
-				oldItem.name == newItem.name &&
-				oldItem.trafficText == newItem.trafficText &&
-				oldItem.statusText == newItem.statusText &&
-				oldItem.error == newItem.error
 	}
 }
 

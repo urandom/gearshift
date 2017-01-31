@@ -2,6 +2,7 @@ package org.sugr.gearshift.viewmodel.api.transmission
 
 import android.content.Context
 import android.content.SharedPreferences
+import android.text.SpannableString
 import android.util.Base64
 import com.github.salomonbrys.kotson.*
 import com.google.gson.Gson
@@ -563,8 +564,10 @@ class TransmissionApi(
 			}.toSet()
 
 			return Torrent(
-					hash = json[FIELD_HASH]?.nullString ?: "", id = json[FIELD_ID]?.nullInt ?: 0,
-					name = json[FIELD_NAME]?.nullString ?: "", statusType = status,
+					hash = json[FIELD_HASH]?.nullString ?: "",
+					id = json[FIELD_ID]?.nullInt ?: 0,
+					name = SpannableString(json[FIELD_NAME]?.nullString ?: ""),
+					statusType = status,
 					metaProgress = metaProgress,
 					downloadProgress = downloadProgress,
 					uploadProgress = uploadRatio,

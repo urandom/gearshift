@@ -4,7 +4,12 @@ import android.content.Context
 import android.content.SharedPreferences
 import android.databinding.ObservableBoolean
 import android.databinding.ObservableField
+import android.support.v4.content.ContextCompat
 import android.support.v4.widget.SwipeRefreshLayout
+import android.text.SpannableString
+import android.text.Spanned
+import android.text.style.CharacterStyle
+import android.text.style.ForegroundColorSpan
 import android.view.LayoutInflater
 import io.reactivex.BackpressureStrategy
 import io.reactivex.Completable
@@ -38,6 +43,7 @@ import org.sugr.gearshift.viewmodel.ext.readableFileSize
 import org.sugr.gearshift.viewmodel.rxutil.*
 import java.util.*
 import java.util.concurrent.TimeUnit
+import java.util.regex.Pattern
 
 class TorrentListViewModel(tag: String, log: Logger, ctx: Context, prefs: SharedPreferences,
 						   private val apiObservable: Observable<Api>,
@@ -76,10 +82,20 @@ class TorrentListViewModel(tag: String, log: Logger, ctx: Context, prefs: Shared
 			.startWith(Sorting(SortBy.AGE, SortDirection.DESCENDING))
 			.takeUntil(takeUntilDestroy()).replay(1).refCount()
 
+	val filtering = searchSubject.map { query -> Filtering(query = query) }
+
+	val filterStyles = arrayOf(
+			ContextCompat.getColor(ctx, R.color.filterHighlightPrimary),
+			ContextCompat.getColor(ctx, R.color.filterHighlightSecondary)
+	).map { color ->
+		ForegroundColorSpan(color) as CharacterStyle
+	}.toTypedArray()
+
 	val torrents = apiObservable.refresh(refresher).switchToThrowableEither { api ->
-		api.torrents().combineLatestWith(sorting) { set, sorting ->
-			Pair(set, sorting)
+		api.torrents().combineLatestWith(sorting, filtering) { set, sorting, filtering ->
+			Pair(filterTorrents(set, filtering, filterStyles), sorting)
 		}.flatMap { pair ->
+
 			val limitObservable = if (pair.second.by == SortBy.STATUS || pair.second.baseBy == SortBy.STATUS) {
 				sessionObservable.filterRightOrThrow().take(1).map { session -> session.seedRatioLimit }
 			} else {
@@ -436,7 +452,7 @@ class TorrentListViewModel(tag: String, log: Logger, ctx: Context, prefs: Shared
 
 	private fun compareWith(t1: Torrent, t2: Torrent, by: SortBy, direction: SortDirection, globalLimit: Float) : Int {
 		val ret = when (by) {
-			SortBy.NAME -> t1.name.compareTo(t2.name, true)
+			SortBy.NAME -> t1.name.toString().compareTo(t2.name.toString(), true)
 			SortBy.SIZE -> t1.totalSize.compareTo(t2.totalSize)
 			SortBy.STATUS -> t1.statusSortWeight(globalLimit).compareTo(t2.statusSortWeight(globalLimit))
 			SortBy.RATE_DOWNLOAD -> t2.downloadRate.compareTo(t1.downloadRate)
@@ -518,6 +534,8 @@ enum class SortDirection {
 	ASCENDING, DESCENDING
 }
 
+data class Filtering(val query: String)
+
 private class TorrentViewModelManagerImpl(private val log: Logger,
 										  private val ctx: Context,
 										  private val prefs: SharedPreferences) : TorrentViewModelManager {
@@ -541,4 +559,66 @@ private class TorrentViewModelManagerImpl(private val log: Logger,
 	override fun removeAllViewModels() {
 		viewModelMap.keys.toList().forEach { hash -> removeViewModel(hash) }
 	}
+}
+
+private fun filterTorrents(torrents: Set<Torrent>, filtering: Filtering, colors: Array<CharacterStyle>): Set<Torrent> {
+	val mappedQuery = filtering.query.toLowerCase(Locale.getDefault()).filter { char ->
+		Character.isLetterOrDigit(char)
+	}
+
+	val query = mappedQuery.foldIndexed(StringBuilder()) { i, builder, part ->
+		builder.append("\\Q").append(part).append("\\E")
+
+		if (i < mappedQuery.length - 1) {
+			builder.append(".{0,2}?")
+		}
+
+		builder
+	}.toString()
+
+	val pattern = Pattern.compile(query)
+
+	return torrents.filter { torrent ->
+		var match = true
+
+		if (query != "") {
+			match = match && pattern.matcher(torrent.name.toString().toLowerCase(Locale.getDefault())).find()
+		}
+
+		match
+	}.map { torrent ->
+		var mapped = torrent
+		if (query == "") {
+			mapped = torrent.copy(name = SpannableString(torrent.name.toString()))
+		} else {
+			val matcher = pattern.matcher(torrent.name.toString().toLowerCase(Locale.getDefault()))
+			if (matcher.find()) {
+				val spannable = SpannableString(torrent.name.toString())
+
+				spannable.setSpan(colors[0],
+						matcher.start(),
+						matcher.start() + 1,
+						Spanned.SPAN_INCLUSIVE_INCLUSIVE)
+
+				if (matcher.end() - matcher.start() > 2) {
+					spannable.setSpan(colors[1],
+							matcher.start() + 1,
+							matcher.end() - 1,
+							Spanned.SPAN_INCLUSIVE_INCLUSIVE)
+				}
+
+				if (matcher.end() - matcher.start() > 1) {
+					spannable.setSpan(colors[0],
+							matcher.end() - 1,
+							matcher.end(),
+							Spanned.SPAN_INCLUSIVE_INCLUSIVE)
+				}
+
+				mapped = torrent.copy(name = spannable)
+			}
+
+		}
+
+		mapped
+	}.toSet()
 }

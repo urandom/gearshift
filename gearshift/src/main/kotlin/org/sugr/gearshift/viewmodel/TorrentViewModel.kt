@@ -3,13 +3,13 @@ package org.sugr.gearshift.viewmodel
 import android.content.Context
 import android.content.SharedPreferences
 import android.databinding.ObservableBoolean
-import android.databinding.ObservableField
 import android.databinding.ObservableInt
 import android.text.Html
 import android.text.Spanned
 import android.text.SpannedString
 import org.sugr.gearshift.Logger
 import org.sugr.gearshift.model.Torrent
+import org.sugr.gearshift.viewmodel.databinding.ObservableField
 
 class TorrentViewModel(log: Logger, ctx: Context, prefs: SharedPreferences) {
 	val isDirectory = ObservableBoolean(false)
@@ -17,7 +17,7 @@ class TorrentViewModel(log: Logger, ctx: Context, prefs: SharedPreferences) {
 	val downloadProgress = ObservableInt(0)
 	val uploadProgress = ObservableInt(0)
 	val awaitingCompletion = ObservableBoolean(false)
-	val name = ObservableField("")
+	val name = ObservableField<Spanned>(SpannedString(""))
 	val traffic = ObservableField<Spanned>(SpannedString(""))
 	val status = ObservableField<Spanned>(SpannedString(""))
 	val error = ObservableField("")
@@ -25,6 +25,7 @@ class TorrentViewModel(log: Logger, ctx: Context, prefs: SharedPreferences) {
 	val isActive = ObservableBoolean(false)
 
 	private var changingStatus: Torrent.StatusType? = null
+	private var nameHash : Int = -1
 
 	interface Consumer {
 
@@ -37,6 +38,7 @@ class TorrentViewModel(log: Logger, ctx: Context, prefs: SharedPreferences) {
 
 	fun updateTorrent(torrent: Torrent) {
 		name.set(torrent.name)
+
 		traffic.set(Html.fromHtml(torrent.trafficText))
 		status.set(Html.fromHtml(torrent.statusText))
 

@@ -22,4 +22,8 @@
 
 	<color name="selectionToolbar">#FF5252</color>
 	<color name="selectionStatusBar">#D50000</color>
+
+	<color name="filterHighlightPrimary">#E68305</color>
+	<color name="filterHighlightSecondary">#C98733</color>
+
 </resources>
