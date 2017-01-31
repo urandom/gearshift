@@ -8,6 +8,7 @@ import android.util.AttributeSet
 import android.view.ContextThemeWrapper
 import android.view.MenuItem
 import android.view.View
+import android.view.inputmethod.InputMethodManager
 import android.widget.FrameLayout
 import com.transitionseverywhere.TransitionManager
 import io.reactivex.Flowable
@@ -76,16 +77,21 @@ class TorrentListView(context: Context?, attrs: AttributeSet?) :
 
 		val searchView = SearchView(ContextThemeWrapper(context, R.style.AppTheme_AppBarOverlay)).apply {
 			setIconifiedByDefault(false)
+			isFocusable = true
 		}
 		viewModel.contextToolbarFlowable().filter {
 			it == SEARCH_VISIBLE || it == SEARCH_HIDDEN
 		}.map {
 			it == SEARCH_VISIBLE
 		}.observeOn(AndroidSchedulers.mainThread()).subscribe { visible ->
+			val imm = context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
 			if (visible) {
 				toolbar.addView(searchView)
+				searchView.requestFocusFromTouch()
+				imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0)
 			} else {
 				toolbar.removeView(searchView)
+				imm.toggleSoftInput(InputMethodManager.HIDE_IMPLICIT_ONLY, 0)
 			}
 		}
 
