@@ -3,16 +3,15 @@ package org.sugr.gearshift.ui.view
 import android.content.Context
 import android.graphics.Rect
 import android.support.design.widget.Snackbar
-import android.support.v7.widget.DividerItemDecoration
-import android.support.v7.widget.GridLayoutManager
-import android.support.v7.widget.RecyclerView
-import android.support.v7.widget.Toolbar
+import android.support.v7.widget.*
 import android.util.AttributeSet
+import android.view.ContextThemeWrapper
 import android.view.MenuItem
 import android.view.View
 import android.widget.FrameLayout
 import com.transitionseverywhere.TransitionManager
 import io.reactivex.Flowable
+import io.reactivex.android.schedulers.AndroidSchedulers
 import org.sugr.gearshift.R
 import org.sugr.gearshift.databinding.TorrentListContentBinding
 import org.sugr.gearshift.viewmodel.TorrentListViewModel
@@ -30,7 +29,13 @@ class TorrentListView(context: Context?, attrs: AttributeSet?) :
 
 	lateinit private var viewModel : TorrentListViewModel
 	lateinit private var toolbar : Toolbar
+
 	private var selectedTorrentStatusData: SelectedTorrentStatus? = null
+
+	companion object {
+		val SEARCH_VISIBLE = -2
+		val SEARCH_HIDDEN = -3
+	}
 
     override fun onAttachedToWindow() {
         super.onAttachedToWindow()
@@ -66,6 +71,21 @@ class TorrentListView(context: Context?, attrs: AttributeSet?) :
 				}
 				errorBar.setText(msg)
 				errorBar.show()
+			}
+		}
+
+		val searchView = SearchView(ContextThemeWrapper(context, R.style.AppTheme_AppBarOverlay)).apply {
+			setIconifiedByDefault(false)
+		}
+		viewModel.contextToolbarFlowable().filter {
+			it == SEARCH_VISIBLE || it == SEARCH_HIDDEN
+		}.map {
+			it == SEARCH_VISIBLE
+		}.observeOn(AndroidSchedulers.mainThread()).subscribe { visible ->
+			if (visible) {
+				toolbar.addView(searchView)
+			} else {
+				toolbar.removeView(searchView)
 			}
 		}
 
@@ -107,11 +127,16 @@ class TorrentListView(context: Context?, attrs: AttributeSet?) :
 	}
 
 	override fun contextMenu(): Flowable<Int> {
-		return viewModel.contextToolbarFlowable()
+		return viewModel.contextToolbarFlowable().map { menu ->
+			if (menu == SEARCH_VISIBLE) 0
+			else if (menu == SEARCH_HIDDEN) -1
+			else menu
+		}
 	}
 
 	override fun closeContextMenu() {
 		viewModel.clearSelection()
+		viewModel.clearSearch()
 	}
 
 	override fun selectedTorrentStatus(paused: Boolean, running: Boolean, empty: Boolean) {

@@ -25,6 +25,7 @@ import org.sugr.gearshift.R
 import org.sugr.gearshift.model.AltSpeedSession
 import org.sugr.gearshift.model.Session
 import org.sugr.gearshift.model.Torrent
+import org.sugr.gearshift.ui.view.TorrentListView
 import org.sugr.gearshift.viewmodel.adapters.TorrentListAdapter
 import org.sugr.gearshift.viewmodel.adapters.TorrentSelectorManager
 import org.sugr.gearshift.viewmodel.adapters.TorrentViewModelManager
@@ -110,6 +111,8 @@ class TorrentListViewModel(tag: String, log: Logger, ctx: Context, prefs: Shared
 	private val errorProcessor = BehaviorProcessor.create<Option<Throwable>>()
 
 	private val speedLimitUpdateSignal = BehaviorSubject.createDefault(true)
+
+	private var searchVisible = BehaviorProcessor.createDefault(false)
 
 	init {
 
@@ -292,6 +295,9 @@ class TorrentListViewModel(tag: String, log: Logger, ctx: Context, prefs: Shared
 		toggleContextMenu()
 	}
 
+	fun clearSearch() {
+		searchVisible.onNext(false)
+	}
 
 	fun onSelectAllTorrents() {
 		torrents.filter {
@@ -320,8 +326,12 @@ class TorrentListViewModel(tag: String, log: Logger, ctx: Context, prefs: Shared
 		return selectedTorrents.isNotEmpty()
 	}
 
-	fun contextToolbarFlowable() = contextMenuProcessor
+	fun contextToolbarFlowable() = contextMenuProcessor.mergeWith(searchVisible.map { visible ->
+		if (visible) TorrentListView.SEARCH_VISIBLE
+		else TorrentListView.SEARCH_HIDDEN
+	})
 			.takeUntil(takeUntilUnbind().toFlowable(BackpressureStrategy.LATEST))
+			.debounce(350, TimeUnit.MILLISECONDS)
 
 
 	fun onSpeedLimitChecked(checked: Boolean) {
@@ -415,6 +425,7 @@ class TorrentListViewModel(tag: String, log: Logger, ctx: Context, prefs: Shared
 	}
 
 	fun onSearchToggle() {
+		searchVisible.onNext(!searchVisible.value)
 	}
 
 	fun errorFlowable() : Flowable<Option<Throwable>> {
@@ -445,7 +456,7 @@ class TorrentListViewModel(tag: String, log: Logger, ctx: Context, prefs: Shared
 	}
 
 	private fun toggleContextMenu() {
-		val menu = if (hasSelection()) R.menu.torrent_list_context else 0
+		val menu = if (hasSelection()) R.menu.torrent_list_context else -1
 
 		if (contextMenuProcessor.value != menu) {
 			contextMenuProcessor.onNext(menu)

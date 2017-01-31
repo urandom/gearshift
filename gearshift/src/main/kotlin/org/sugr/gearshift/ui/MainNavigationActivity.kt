@@ -48,7 +48,6 @@ import org.sugr.gearshift.viewmodel.RetainedViewModel
 import org.sugr.gearshift.viewmodel.api.Api
 import org.sugr.gearshift.viewmodel.viewModelFrom
 import java.util.concurrent.Callable
-import java.util.concurrent.TimeUnit
 
 class MainNavigationActivity : AppCompatActivity(),
 		MainNavigationViewModel.Consumer,
@@ -181,9 +180,6 @@ class MainNavigationActivity : AppCompatActivity(),
 			binding.setVariable(BR.viewModel, viewModel)
 		}
 
-		view.setTag(R.id.view_content, true)
-		container.addView(view)
-
 		for (item in binding.appBar.toolbar.menu.asSequence()) {
 			item.setActionView(null)
 		}
@@ -205,7 +201,6 @@ class MainNavigationActivity : AppCompatActivity(),
 
 		if (view is ContextMenuProvider) {
 			view.contextMenu()
-					.debounce(350, TimeUnit.MILLISECONDS)
 					.observeOn(AndroidSchedulers.mainThread())
 					.subscribe { menu ->
 						TransitionManager.beginDelayedTransition(binding.appBar.toolbar,
@@ -216,7 +211,7 @@ class MainNavigationActivity : AppCompatActivity(),
 
 						binding.appBar.toolbar.menu.clear();
 
-						val menuToInflate = if (menu == 0) newPath.menu else menu
+						val menuToInflate = if (menu == -1) newPath.menu else menu
 						if (menuToInflate != 0) {
 							binding.appBar.toolbar.inflateMenu(menuToInflate)
 
@@ -225,7 +220,7 @@ class MainNavigationActivity : AppCompatActivity(),
 							}
 						}
 
-						if (menu == 0) {
+						if (menu == -1) {
 							contextCloser = Callable { false }
 						} else {
 							contextCloser = Callable {
@@ -234,15 +229,18 @@ class MainNavigationActivity : AppCompatActivity(),
 							}
 						}
 
-						toggleDrawable(toArrow = menu != 0)
+						toggleDrawable(toArrow = menu != -1)
 
-						if (menu == 0) {
+						if (menu == -1) {
 							applyColorScheme(defaultColorScheme)
 						} else {
 							applyColorScheme(selectionColorScheme)
 						}
 					}
 		}
+
+		view.setTag(R.id.view_content, true)
+		container.addView(view)
 
 		if (view is ToolbarMenuItemClickListener) {
 			binding.appBar.toolbar.setOnMenuItemClickListener { item ->
