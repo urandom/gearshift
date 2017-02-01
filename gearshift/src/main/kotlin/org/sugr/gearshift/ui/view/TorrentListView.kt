@@ -97,9 +97,7 @@ class TorrentListView(context: Context?, attrs: AttributeSet?) :
 
 		var title = ""
 
-		viewModel.contextToolbarFlowable().filter {
-			it == SEARCH_VISIBLE || it == SEARCH_HIDDEN
-		}.map {
+		viewModel.contextToolbarFlowable().map {
 			it == SEARCH_VISIBLE
 		}.observeOn(AndroidSchedulers.mainThread()).subscribe { visible ->
 			val imm = context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager

@@ -492,10 +492,18 @@ class TorrentListViewModel(tag: String, log: Logger, ctx: Context, prefs: Shared
 	}
 
 	private fun toggleContextMenu() {
-		val menu = if (hasSelection()) R.menu.torrent_list_context else -1
+		val menu =
+				if (hasSelection()) R.menu.torrent_list_context
+				else if (searchVisible.value) 0
+				else -1
 
 		if (contextMenuProcessor.value != menu) {
 			contextMenuProcessor.onNext(menu)
+		}
+
+		// Make sure the search view is once again visible
+		if (!hasSelection() && searchVisible.value) {
+			searchVisible.onNext(true)
 		}
 	}
 
