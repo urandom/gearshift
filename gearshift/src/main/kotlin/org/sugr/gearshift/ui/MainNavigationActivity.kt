@@ -252,12 +252,6 @@ class MainNavigationActivity : AppCompatActivity(),
 			binding.appBar.toolbar.setTitle(newPath.title)
 		}
 
-		binding.drawer.setDrawerLockMode(
-				if (!newPath.isTopLevel()) DrawerLayout.LOCK_MODE_LOCKED_CLOSED
-				else DrawerLayout.LOCK_MODE_UNLOCKED,
-				GravityCompat.START
-		)
-
 		toggleDrawable(!newPath.isTopLevel())
 	}
 
@@ -309,6 +303,13 @@ class MainNavigationActivity : AppCompatActivity(),
 				toolbarToggleAnimator.value.reverse()
 			}
 		}
+
+		binding.drawer.setDrawerLockMode(
+				if (toArrow) DrawerLayout.LOCK_MODE_LOCKED_CLOSED
+				else DrawerLayout.LOCK_MODE_UNLOCKED,
+				GravityCompat.START
+		)
+
 	}
 
 	private fun disableContextMenu() = contextCloser.call()
@@ -316,6 +317,8 @@ class MainNavigationActivity : AppCompatActivity(),
 	private fun applyColorScheme(scheme: ColorScheme) {
 		binding.appBar.toolbar.background = ColorDrawable(ContextCompat.getColor(this, scheme.toolbarColor))
 		binding.appBar.viewContainer.statusBarBackground = ColorDrawable(ContextCompat.getColor(this, scheme.statusBarColor))
+		binding.sideNavContainer.statusBarBackground = ColorDrawable(ContextCompat.getColor(this, scheme.statusBarColor))
+		binding.sideNavHeader.header.background = ColorDrawable(ContextCompat.getColor(this, scheme.toolbarColor))
 	}
 
 	private fun statusBarHeight() : Int {

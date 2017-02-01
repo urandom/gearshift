@@ -1,29 +1,52 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:bind="http://schemas.android.com/apk/res-auto">
-    <data>
-        <variable
-            name="viewModel"
-            type="org.sugr.gearshift.viewmodel.MainNavigationViewModel"/>
-    </data>
+	<data>
+		<variable
+			name="viewModel"
+			type="org.sugr.gearshift.viewmodel.MainNavigationViewModel"/>
+	</data>
 
-    <android.support.v4.widget.DrawerLayout xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:app="http://schemas.android.com/apk/res-auto"
-        xmlns:tools="http://schemas.android.com/tools" android:id="@+id/drawer"
-        android:layout_width="match_parent" android:layout_height="match_parent"
-        android:fitsSystemWindows="true" tools:openDrawer="start">
+	<android.support.v4.widget.DrawerLayout xmlns:android="http://schemas.android.com/apk/res/android"
+		xmlns:app="http://schemas.android.com/apk/res-auto"
+		xmlns:tools="http://schemas.android.com/tools" android:id="@+id/drawer"
+		android:layout_width="match_parent" android:layout_height="match_parent"
+		android:fitsSystemWindows="true" tools:openDrawer="start">
 
-        <include layout="@layout/main_navigation_app_bar"
-            android:id="@+id/appBar"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            bind:viewModel="@{viewModel}"/>
+		<include layout="@layout/main_navigation_app_bar"
+			android:id="@+id/appBar"
+			android:layout_width="match_parent"
+			android:layout_height="match_parent"
+			bind:viewModel="@{viewModel}"/>
 
-        <android.support.design.widget.NavigationView android:id="@+id/navigation"
-            android:layout_width="wrap_content" android:layout_height="match_parent"
-            android:layout_gravity="start" android:fitsSystemWindows="true"
-            bind:navigationItemSelectedListener="@{viewModel.navigationListener}"
-            app:headerLayout="@layout/nav_header_torrent"
-            app:menu="@menu/torrent_activity_drawer" />
+		<android.support.design.widget.CoordinatorLayout
+			android:id="@+id/sideNavContainer"
+			android:layout_width="@dimen/side_bar_width"
+			android:layout_height="match_parent"
+			android:layout_gravity="start"
+			android:orientation="vertical"
+			android:fitsSystemWindows="true"
+			app:statusBarBackground="@color/colorPrimaryDark">
 
-    </android.support.v4.widget.DrawerLayout>
+			<LinearLayout
+				android:layout_width="match_parent"
+				android:layout_height="match_parent"
+				android:orientation="vertical">
+
+				<include
+					layout="@layout/nav_header_torrent"
+					android:id="@+id/sideNavHeader"
+					bind:viewModel="@{viewModel}"/>
+
+				<android.support.v7.widget.RecyclerView
+					android:id="@+id/sideNavList"
+					android:layout_width="match_parent"
+					android:layout_height="match_parent"
+					android:background="@color/navListBackground"
+					android:scrollbars="vertical"/>
+
+			</LinearLayout>
+
+		</android.support.design.widget.CoordinatorLayout>
+
+	</android.support.v4.widget.DrawerLayout>
 </layout>

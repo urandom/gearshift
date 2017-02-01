@@ -26,4 +26,6 @@
 	<color name="filterHighlightPrimary">#E68305</color>
 	<color name="filterHighlightSecondary">#C98733</color>
 
+	<color name="navListBackground">#E0E0E0</color> <!-- Grey 300 -->
+
 </resources>

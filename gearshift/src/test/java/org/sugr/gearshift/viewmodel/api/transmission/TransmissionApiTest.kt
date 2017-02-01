@@ -2,13 +2,13 @@ package org.sugr.gearshift.viewmodel.api.transmission
 
 import android.content.Context
 import android.content.SharedPreferences
+import android.text.SpannableString
 import com.github.salomonbrys.kotson.*
 import com.google.gson.Gson
 import com.google.gson.JsonParser
 import com.nhaarman.mockito_kotlin.any
 import com.nhaarman.mockito_kotlin.doReturn
 import com.nhaarman.mockito_kotlin.mock
-import io.reactivex.Observable
 import io.reactivex.schedulers.Schedulers
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
@@ -373,7 +373,7 @@ private object Torrents {
             "uploadedEver", "uploadRatio", "downloadDir"
     )
 
-    val names = arrayOf("T1", "T2", "T3")
+    val names = arrayOf(SpannableString("T1"), SpannableString("T2"), SpannableString("T3"))
     val statuses = arrayOf(Torrent.StatusType.STOPPED, Torrent.StatusType.DOWNLOADING, Torrent.StatusType.CHECK_WAITING)
     val fileCount = arrayOf(2, 1, 0)
     val data2 = """{
