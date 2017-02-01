@@ -94,7 +94,8 @@ class TorrentListViewModel(tag: String, log: Logger, ctx: Context, prefs: Shared
 
 	val filterStyles = arrayOf(
 			ContextCompat.getColor(ctx, R.color.filterHighlightPrimary),
-			ContextCompat.getColor(ctx, R.color.filterHighlightSecondary)
+			ContextCompat.getColor(ctx, R.color.filterHighlightSecondary),
+			ContextCompat.getColor(ctx, R.color.filterHighlightPrimary)
 	).map { color ->
 		ForegroundColorSpan(color) as CharacterStyle
 	}.toTypedArray()
@@ -643,7 +644,7 @@ private fun filterTorrents(torrents: Set<Torrent>, filtering: Filtering, colors:
 				}
 
 				if (matcher.end() - matcher.start() > 1) {
-					spannable.setSpan(colors[0],
+					spannable.setSpan(colors[2],
 							matcher.end() - 1,
 							matcher.end(),
 							Spanned.SPAN_INCLUSIVE_INCLUSIVE)
