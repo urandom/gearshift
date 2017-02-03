@@ -13,6 +13,7 @@ import android.support.v4.view.GravityCompat
 import android.support.v4.widget.DrawerLayout
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.graphics.drawable.DrawerArrowDrawable
+import android.support.v7.widget.LinearLayoutManager
 import android.view.View
 import com.google.gson.Gson
 import com.transitionseverywhere.*
@@ -27,6 +28,7 @@ import org.sugr.gearshift.R
 import org.sugr.gearshift.databinding.MainNavigationActivityBinding
 import org.sugr.gearshift.model.Profile
 import org.sugr.gearshift.model.Session
+import org.sugr.gearshift.model.Torrent
 import org.sugr.gearshift.ui.path.FirstTimeProfileEditorPath
 import org.sugr.gearshift.ui.path.Path
 import org.sugr.gearshift.ui.path.PathNavigator
@@ -97,6 +99,9 @@ class MainNavigationActivity : AppCompatActivity(),
 		toolbarToggle = DrawerArrowDrawable(binding.appBar.toolbar.getContext())
 		binding.appBar.toolbar.navigationIcon = toolbarToggle
 		binding.appBar.toolbar.setNavigationOnClickListener(this)
+
+		binding.sideNavList.layoutManager = LinearLayoutManager(this)
+		binding.sideNavList.adapter = component.navigationViewModel.filtersAdapter(this)
 
 		component.navigationViewModel.bind(this)
 
@@ -338,6 +343,7 @@ interface NavComponent : AppComponent {
 	val gson : Gson
 	val profileObservable : Observable<Profile>
 	val apiObservable : Observable<Api>
+	val torrentsObservable : Observable<Either<Throwable, Set<Torrent>>>
 	val sessionObservable : Observable<Either<Throwable, Session>>
 	val refresher : PublishSubject<Any>
 }
@@ -357,6 +363,7 @@ class NavComponentImpl(override val fragmentManager: FragmentManager, b : AppCom
 	override val gson = navigationViewModel.gson
 	override val profileObservable = navigationViewModel.profileObservable
 	override val apiObservable = navigationViewModel.apiObservable
+	override val torrentsObservable = navigationViewModel.torrentsObservable
 	override val sessionObservable = navigationViewModel.sessionObservable
 	override val refresher = navigationViewModel.refresher
 }

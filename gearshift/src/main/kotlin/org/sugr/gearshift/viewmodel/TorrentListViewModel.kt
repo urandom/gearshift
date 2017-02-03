@@ -50,6 +50,7 @@ import java.util.regex.Pattern
 class TorrentListViewModel(tag: String, log: Logger, ctx: Context, prefs: SharedPreferences,
 						   private val profileObservable: Observable<Profile>,
 						   private val apiObservable: Observable<Api>,
+						   private val torrentsObservable: Observable<Either<Throwable, Set<Torrent>>>,
 						   private val sessionObservable: Observable<Either<Throwable, Session>>,
 						   private val refresher: PublishSubject<Any>,
 						   private val activityLifecycle: PublishSubject<ActivityLifecycle>):
@@ -92,7 +93,7 @@ class TorrentListViewModel(tag: String, log: Logger, ctx: Context, prefs: Shared
 			BiFunction(::Filtering)
 	)
 
-	val filterStyles = arrayOf(
+	private val filterStyles = arrayOf(
 			ContextCompat.getColor(ctx, R.color.filterHighlightPrimary),
 			ContextCompat.getColor(ctx, R.color.filterHighlightSecondary),
 			ContextCompat.getColor(ctx, R.color.filterHighlightPrimary)
@@ -100,36 +101,37 @@ class TorrentListViewModel(tag: String, log: Logger, ctx: Context, prefs: Shared
 		ForegroundColorSpan(color) as CharacterStyle
 	}.toTypedArray()
 
-	val torrents = apiObservable.refresh(refresher).switchToThrowableEither { api ->
-		api.torrents().combineLatestWith(sorting, filtering) { set, sorting, filtering ->
-			Pair(filterTorrents(set, filtering, filterStyles), sorting)
-		}.flatMap { pair ->
 
-			val limitObservable = if (pair.second.by == SortBy.STATUS || pair.second.baseBy == SortBy.STATUS) {
-				sessionObservable.filterRightOrThrow().take(1).map { session -> session.seedRatioLimit }
-			} else {
-				Observable.just(0f)
+	val torrents = torrentsObservable
+			.filterRightOrThrow()
+			.combineLatestWith(sorting, filtering) { set, sorting, filtering ->
+				Pair(filterTorrents(set, filtering, filterStyles), sorting)
 			}
+			.switchToThrowableEither { pair ->
+				val limitObservable = if (pair.second.by == SortBy.STATUS || pair.second.baseBy == SortBy.STATUS) {
+					sessionObservable.filterRightOrThrow().take(1).map { session -> session.seedRatioLimit }
+				} else {
+					Observable.just(0f)
+				}
 
-			limitObservable.observeOn(Schedulers.computation()).map { limit ->
-				val now = Date().time
+				limitObservable.observeOn(Schedulers.computation()).map { limit ->
+					val now = Date().time
 
-				val sorted = pair.first.sortedWith(Comparator { t1, t2 ->
-					val ret = compareWith(t1, t2, pair.second.by, pair.second.direction, limit)
+					val sorted = pair.first.sortedWith(Comparator { t1, t2 ->
+						val ret = compareWith(t1, t2, pair.second.by, pair.second.direction, limit)
 
-					if (ret == 0) {
-						compareWith(t1, t2, pair.second.baseBy, pair.second.baseDirection, limit)
-					} else {
-						ret
-					}
-				})
+						if (ret == 0) {
+							compareWith(t1, t2, pair.second.baseBy, pair.second.baseDirection, limit)
+						} else {
+							ret
+						}
+					})
 
-				log.D("Time to sort ${pair.first.size} torrents: ${Date().time - now}")
+					log.D("Time to sort ${pair.first.size} torrents: ${Date().time - now}")
 
-				sorted.filter { t -> !t.downloadDir.contains("other") }
+					sorted.filter { t -> !t.downloadDir.contains("other") }
+				}
 			}
-		}
-	}
 			.pauseOn(activityLifecycle.onStop())
 			.takeUntil(takeUntilDestroy()).replay(1).refCount()
 			.observeOn(AndroidSchedulers.mainThread())
@@ -385,7 +387,7 @@ class TorrentListViewModel(tag: String, log: Logger, ctx: Context, prefs: Shared
 	fun onTorrentClick(torrent: Torrent) {}
 
 	fun adapter(ctx: Context) : TorrentListAdapter =
-		TorrentListAdapter(torrents.filter { it.isRight() }.map { it.right().get() },
+		TorrentListAdapter(torrents.filter { it.isRight() }.map { it.right().get() }.takeUntil(takeUntilUnbind()),
 				log,
 				this, this, LayoutInflater.from(ctx), Consumer { onTorrentClick(it) })
 
@@ -560,12 +562,6 @@ enum class SortDirection {
 	ASCENDING, DESCENDING
 }
 
-data class Filtering(val query: String, val status: FilterStatus)
-
-enum class FilterStatus {
-	ALL, DOWNLOADING, SEEDING, PAUSED, COMPLETE, INCOMPLETE, ACTIVE, CHECKING, ERRORS
-}
-
 private class TorrentViewModelManagerImpl(private val log: Logger,
 										  private val ctx: Context,
 										  private val prefs: SharedPreferences) : TorrentViewModelManager {
@@ -666,3 +662,4 @@ private fun filterTorrents(torrents: Set<Torrent>, filtering: Filtering, colors:
 		mapped
 	}.toSet()
 }
+

@@ -26,7 +26,10 @@ class TorrentListComponentImpl(b : NavComponent) : TorrentListComponent, NavComp
 
 	override val viewModel : TorrentListViewModel by lazy {
 		viewModelFrom(fragmentManager, tag) {
-			TorrentListViewModel(tag, log, context, prefs, profileObservable, apiObservable, sessionObservable, refresher, lifecycle)
+			TorrentListViewModel(tag, log, context, prefs,
+					profileObservable, apiObservable,
+					torrentsObservable, sessionObservable,
+					refresher, lifecycle)
 		}
 	}
 }

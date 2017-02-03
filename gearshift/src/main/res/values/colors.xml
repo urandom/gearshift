@@ -2,7 +2,8 @@
 <resources>
     <color name="colorPrimary">#3F51B5</color>
 	<color name="colorPrimaryDark">#303F9F</color>
-    <color name="colorAccent">#FF4081</color>
+	<color name="colorAccent">#FF4081</color> <!-- Pink 200 -->
+    <color name="colorAccentLight">#FF8A80</color> <!-- Red A100 -->
     <color name="colorAccentDark">#C51162</color>
 
     <color name="colorRequired">#B71C1C</color>

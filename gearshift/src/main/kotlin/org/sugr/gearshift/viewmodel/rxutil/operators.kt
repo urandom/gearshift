@@ -70,8 +70,19 @@ fun <T, R> Observable<T>.switchToThrowableEither(body: (T) -> Observable<R>): Ob
 	}
 }
 
+fun <T, R> Observable<T>.mapToThrowableEither(body: (T) -> R): Observable<Either<Throwable, R>> {
+	return map {
+		Either.Right<Throwable, R>(body(it)) as Either<Throwable, R>
+	}.onErrorReturn { err ->
+		Either.left(err)
+	}
+}
+
 fun <T> Observable<Either<Throwable, T>>.filterRight() : Observable<T> {
 	return filter { it.isRight() }.map { it.right().get() }
+}
+fun <T> Observable<Either<Throwable, T>>.filterRightOr(t: T) : Observable<T> {
+	return map { either -> either.fold({ err -> t}) { it } }
 }
 fun <T> Observable<Either<Throwable, T>>.filterRightOrThrow() : Observable<T> {
 	return map { either -> either.fold({ err -> throw err }) { it } }
