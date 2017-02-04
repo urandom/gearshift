@@ -8,10 +8,13 @@ enum class FilterStatus {
 	fun asFilter() = Filter.Status(this)
 }
 
-sealed class Filter {
-	class Header(val value: String) : Filter()
-	class Status(val value: FilterStatus) : Filter()
-	class Directory(val value: String): Filter()
-	class Tracker(val value: String): Filter()
+enum class FilterHeaderType {
+	STATUS, DIRECTORIES, TRACKERS
 }
 
+sealed class Filter {
+	class Header(val value: String, val forType: FilterHeaderType) : Filter()
+	class Status(val value: FilterStatus, var active: Boolean = false) : Filter()
+	class Directory(val value: String, var active: Boolean = false): Filter()
+	class Tracker(val value: String, var active: Boolean = false): Filter()
+}

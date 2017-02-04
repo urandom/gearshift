@@ -72,7 +72,6 @@ class TorrentListViewModel(tag: String, log: Logger, ctx: Context, prefs: Shared
 	val refreshing = ObservableBoolean(false)
 	val refreshListener = SwipeRefreshLayout.OnRefreshListener { refresher.onNext(1) }
 	val searchSubject = BehaviorSubject.createDefault("")
-	val filterStatusSubject = BehaviorSubject.createDefault(FilterStatus.ALL)
 
 	private val selectedTorrents = mutableMapOf<String, Torrent>()
 
@@ -87,9 +86,25 @@ class TorrentListViewModel(tag: String, log: Logger, ctx: Context, prefs: Shared
 			.startWith(Sorting(SortBy.AGE, SortDirection.DESCENDING))
 			.takeUntil(takeUntilDestroy()).replay(1).refCount()
 
+	private val filterStatus = prefs.observeKey(C.PREF_LIST_FILTER_STATUS)
+			.startWith(prefs.getString(C.PREF_LIST_FILTER_STATUS, ""))
+			.map { key -> prefs.getString(key, "") }
+			.map { status ->
+				if (status == "") {
+					FilterStatus.ALL
+				} else {
+					try {
+						FilterStatus.valueOf(status)
+					} catch (e: IllegalArgumentException) {
+						FilterStatus.ALL
+					}
+				}
+			}
+			.distinctUntilChanged()
+
 	val filtering : Observable<Filtering> = Observable.combineLatest(
 			searchSubject,
-			filterStatusSubject,
+			filterStatus,
 			BiFunction(::Filtering)
 	)
 

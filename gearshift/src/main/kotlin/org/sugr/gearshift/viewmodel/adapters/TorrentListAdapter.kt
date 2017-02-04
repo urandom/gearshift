@@ -52,14 +52,14 @@ class TorrentListAdapter(torrentsObservable: Observable<List<Torrent>>,
 				}
 			})
 
-			torrents.clear()
-			torrents.addAll(newList)
-
-			res
-		}.observeOn(AndroidSchedulers.mainThread()).subscribe({ res ->
+			Pair(newList, res)
+		}.observeOn(AndroidSchedulers.mainThread()).subscribe({ pair ->
 			val now = Date().time
 
-			res.dispatchUpdatesTo(object: ListUpdateCallback {
+			torrents.clear()
+			torrents.addAll(pair.first)
+
+			pair.second.dispatchUpdatesTo(object: ListUpdateCallback {
 				override fun onChanged(position: Int, count: Int, payload: Any?) {
 					//notifyItemRangeChanged(position, count, payload)
 					for (i in position .. position + count - 1) {

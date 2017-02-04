@@ -129,4 +129,14 @@
 	<string name="error_http">HTTP error: %d</string>
 
 	<string name="filter_header_status">Status</string>
+	<string name="filter_status_DOWNLOADING">Downloading</string>
+	<string name="filter_status_SEEDING">Seeding</string>
+	<string name="filter_status_PAUSED">Paused</string>
+	<string name="filter_status_COMPLETE">Complete</string>
+	<string name="filter_status_INCOMPLETE">Incomplete</string>
+	<string name="filter_status_ACTIVE">Active</string>
+	<string name="filter_status_CHECKING">Checking</string>
+	<string name="filter_status_ERRORS">Errors</string>
+	<string name="filter_header_directories">Directories</string>
+	<string name="filter_header_trackers">Trackers</string>
 </resources>

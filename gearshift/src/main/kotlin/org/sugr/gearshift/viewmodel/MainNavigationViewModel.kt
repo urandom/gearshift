@@ -88,25 +88,75 @@ class MainNavigationViewModel(tag: String, log: Logger,
 		set.map { it.downloadDir }.toSet()
 	}.replay(1).refCount()
 
-    private val filterList = prefs.observe().map {
-        it.startsWith("PREF_FILTER_")
+    private val filterList = prefs.observe().map { key ->
+		when (key) {
+			C.PREF_LIST_FILTER_STATUS, C.PREF_LIST_FILTER_DIRECTORY, C.PREF_LIST_FILTER_TRACKER -> true
+			else -> key.startsWith("PREF_FILTER_")
+		}
     }.filter { it }.map { prefs }.startWith(prefs).flatMap { prefs ->
         val statusFilters = getStatusFilters(prefs)
-        if (statusFilters.isNotEmpty()) {
-			statusFilters.add(0, Filter.Header(ctx.getString(R.string.filter_header_status)))
-        }
+		statusFilters.add(0, Filter.Header(
+				ctx.getString(R.string.filter_header_status),
+				forType = FilterHeaderType.STATUS)
+		)
 
         var o = Observable.just(statusFilters)
 
         if (prefs.getBoolean(C.PREF_FILTER_DIRECTORIES, false)) {
             o = o.concatWith {
                 directories.map { set ->
-                    set.sorted().map { dir -> Filter.Directory(dir) }
+                    set.sorted().map { dir -> Filter.Directory(dir) as Filter }.toMutableList().apply {
+						add(0, Filter.Header(
+								ctx.getString(R.string.filter_header_directories),
+								forType = FilterHeaderType.DIRECTORIES
+						))
+					}
                 }
             }
         }
 
-        o.map { list -> list as List<Filter> }
+		o.filter { it.isNotEmpty() }.scan(mutableListOf<Filter>()) { accum, list ->
+			val header = list[0]
+			var insertIndex = 0
+
+			if (header is Filter.Header) {
+				val iter = accum.listIterator()
+
+				while (iter.hasNext()) {
+					val index = iter.nextIndex()
+					val filter = iter.next()
+					if (filter is Filter.Header && filter.forType == header.forType) {
+						insertIndex = index
+						iter.remove()
+					} else if (filter is Filter.Status && header.forType == FilterHeaderType.STATUS) {
+						iter.remove()
+					} else if (filter is Filter.Directory && header.forType == FilterHeaderType.DIRECTORIES) {
+						iter.remove()
+					} else if (filter is Filter.Tracker && header.forType == FilterHeaderType.TRACKERS) {
+						iter.remove()
+					}
+				}
+			}
+
+			accum.addAll(insertIndex, list)
+
+			accum
+		}
+
+        o.map { list ->
+			val selectedStatus = prefs.getString(C.PREF_LIST_FILTER_STATUS, "")
+			val selectedDirectory = prefs.getString(C.PREF_LIST_FILTER_DIRECTORY, "")
+			val selectedTracker = prefs.getString(C.PREF_LIST_FILTER_TRACKER, "")
+
+			list.forEach { filter ->
+				when (filter) {
+					is Filter.Status -> filter.active = filter.value.name == selectedStatus
+					is Filter.Directory -> filter.active = filter.value == selectedDirectory
+					is Filter.Tracker -> filter.active = filter.value == selectedTracker
+				}
+			}
+			list as List<Filter>
+		}
     }
             .takeUntil(takeUntilUnbind())
             .observeOn(AndroidSchedulers.mainThread())
@@ -132,8 +182,43 @@ class MainNavigationViewModel(tag: String, log: Logger,
 
 	fun filtersAdapter(ctx: Context): FilterAdapter {
 		return FilterAdapter(
-				filterList,
-				log, LayoutInflater.from(ctx), rxConsumer { filter -> }
+				filterList, log, ctx,
+				LayoutInflater.from(ctx),
+				rxConsumer { filter ->
+					when (filter) {
+						is Filter.Status -> {
+							val current = prefs.getString(C.PREF_LIST_FILTER_STATUS, "")
+
+							val new = if (current == filter.value.name) {
+								""
+							} else {
+								filter.value.name
+							}
+							prefs.set(C.PREF_LIST_FILTER_STATUS, new)
+						}
+						is Filter.Directory -> {
+							val current = prefs.getString(C.PREF_LIST_FILTER_DIRECTORY, "")
+
+							val new = if (current == filter.value) {
+								""
+							} else {
+								filter.value
+							}
+							prefs.set(C.PREF_LIST_FILTER_DIRECTORY, new)
+						}
+						is Filter.Tracker -> {
+							val current = prefs.getString(C.PREF_LIST_FILTER_TRACKER, "")
+
+							val new = if (current == filter.value) {
+								""
+							} else {
+								filter.value
+							}
+							prefs.set(C.PREF_LIST_FILTER_TRACKER, new)
+						}
+					}
+					consumer?.closeDrawer()
+				}
 		)
 	}
 
@@ -146,10 +231,6 @@ enum class ActivityLifecycle {
 
 private fun getStatusFilters(prefs: SharedPreferences): MutableList<Filter> {
     val filters = mutableListOf<Filter>()
-
-    if (prefs.getBoolean(C.PREF_FILTER_ALL, false)) {
-        filters.add(FilterStatus.ALL.asFilter())
-    }
 
     if (prefs.getBoolean(C.PREF_FILTER_DOWNLOADING, false)) {
         filters.add(FilterStatus.DOWNLOADING.asFilter())

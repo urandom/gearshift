@@ -7,10 +7,10 @@ object C {
 
     val PREF_LIST_SORT_BY = "torrents_sort_by"
     val PREF_LIST_SORT_DIRECTION = "torrents_sort_order"
-    val PREF_LIST_FILTER = "torrents_filter"
-    val PREF_LIST_DIRECTORY = "torrents_directory"
-    val PREF_LIST_TRACKER = "torrents_tracker"
-    val PREF_LIST_SEARCH = "torrents_search"
+    val PREF_LIST_FILTER_STATUS = "torrents_filter_status"
+    val PREF_LIST_FILTER_DIRECTORY = "torrents_filter_directory"
+    val PREF_LIST_FILTER_TRACKER = "torrents_filter_tracker"
+    val PREF_LIST_FILTER_SEARCH = "torrents_filter_search"
 
     val PREF_FILTER_ALL = "filter_all"
 
