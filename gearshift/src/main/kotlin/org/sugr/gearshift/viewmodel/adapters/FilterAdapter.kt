@@ -31,11 +31,11 @@ class FilterAdapter(filtersObservable: Observable<List<Filter>>,
 
 		filtersObservable.map { list ->
 			list.filterIndexed { i, filter ->
-				if (i + 1 < list.size && filter is Filter.Header) {
+				if (filter is Filter.Header) {
 					when (filter.forType) {
-						FilterHeaderType.STATUS -> list[i+1] is Filter.Status
-						FilterHeaderType.DIRECTORIES -> list[i+1] is Filter.Directory
-						FilterHeaderType.TRACKERS -> list[i+1] is Filter.Tracker
+						FilterHeaderType.STATUS -> i + 1 < list.size && list[i+1] is Filter.Status
+						FilterHeaderType.DIRECTORIES -> i + 1 < list.size && list[i+1] is Filter.Directory
+						FilterHeaderType.TRACKERS -> i + 1 < list.size && list[i+1] is Filter.Tracker
 					}
 				} else {
 					true
@@ -165,6 +165,7 @@ class FilterViewHolder(private val root: View,
 
 	init {
 		root.setOnClickListener { listener.accept(adapterPosition) }
+		name.isSelected = true
 	}
 }
 

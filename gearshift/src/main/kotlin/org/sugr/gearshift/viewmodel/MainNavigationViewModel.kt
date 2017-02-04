@@ -100,22 +100,29 @@ class MainNavigationViewModel(tag: String, log: Logger,
 				forType = FilterHeaderType.STATUS)
 		)
 
-        var o = Observable.just(statusFilters)
+		val observables = mutableListOf(Observable.just(statusFilters))
 
-        if (prefs.getBoolean(C.PREF_FILTER_DIRECTORIES, false)) {
-            o = o.concatWith {
-                directories.map { set ->
-                    set.sorted().map { dir -> Filter.Directory(dir) as Filter }.toMutableList().apply {
-						add(0, Filter.Header(
-								ctx.getString(R.string.filter_header_directories),
-								forType = FilterHeaderType.DIRECTORIES
-						))
+        if (prefs.getBoolean(C.PREF_FILTER_DIRECTORIES, true)) {
+			observables.add(
+					directories.map { set ->
+						set.sorted().map { dir -> Filter.Directory(dir) as Filter }.toMutableList().apply {
+							add(0, Filter.Header(
+									ctx.getString(R.string.filter_header_directories),
+									forType = FilterHeaderType.DIRECTORIES
+							))
+						}
 					}
-                }
-            }
+			)
         }
 
-		o.filter { it.isNotEmpty() }.scan(mutableListOf<Filter>()) { accum, list ->
+		Observable.merge(observables).filter {
+			it.isNotEmpty()
+		}.scan(mutableListOf<Filter>(
+				// The initial list will preseve the order of the filter types
+				Filter.Header(value = "", forType = FilterHeaderType.STATUS),
+				Filter.Header(value = "", forType = FilterHeaderType.DIRECTORIES),
+				Filter.Header(value = "", forType = FilterHeaderType.TRACKERS)
+		)) { accum, list ->
 			val header = list[0]
 			var insertIndex = 0
 
@@ -141,9 +148,7 @@ class MainNavigationViewModel(tag: String, log: Logger,
 			accum.addAll(insertIndex, list)
 
 			accum
-		}
-
-        o.map { list ->
+		}.map { list ->
 			val selectedStatus = prefs.getString(C.PREF_LIST_FILTER_STATUS, "")
 			val selectedDirectory = prefs.getString(C.PREF_LIST_FILTER_DIRECTORY, "")
 			val selectedTracker = prefs.getString(C.PREF_LIST_FILTER_TRACKER, "")

@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- NOTE: without singleLine="true", the app crashes with an IndexOutOfBounds -->
 <TextView
 	xmlns:android="http://schemas.android.com/apk/res/android"
 	android:id="@android:id/text1"
@@ -12,5 +13,13 @@
 	android:textAppearance="?android:attr/textAppearance"
 	android:gravity="center_vertical"
 	android:clickable="true"
+	android:maxLines="1"
+	android:singleLine="true"
+	android:ellipsize="start"
+	android:marqueeRepeatLimit="marquee_forever"
+	android:focusable="true"
+	android:focusableInTouchMode="true"
+	android:scrollHorizontally="true"
 	android:background="@drawable/filter_list_item_background"
-	android:minHeight="?android:attr/listPreferredItemHeightSmall" />
+	android:minHeight="?android:attr/listPreferredItemHeightSmall" >
+</TextView>
