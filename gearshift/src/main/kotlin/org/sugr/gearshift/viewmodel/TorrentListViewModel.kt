@@ -16,8 +16,8 @@ import io.reactivex.Completable
 import io.reactivex.Flowable
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.functions.BiFunction
 import io.reactivex.functions.Consumer
+import io.reactivex.functions.Function4
 import io.reactivex.processors.BehaviorProcessor
 import io.reactivex.schedulers.Schedulers
 import io.reactivex.subjects.BehaviorSubject
@@ -102,10 +102,22 @@ class TorrentListViewModel(tag: String, log: Logger, ctx: Context, prefs: Shared
 			}
 			.distinctUntilChanged()
 
+	private val filterDirectory = prefs.observeKey(C.PREF_LIST_FILTER_DIRECTORY)
+			.startWith(prefs.getString(C.PREF_LIST_FILTER_DIRECTORY, ""))
+			.map { key -> prefs.getString(key, "") }
+			.distinctUntilChanged()
+
+	private val filterTracker = prefs.observeKey(C.PREF_LIST_FILTER_TRACKER)
+			.startWith(prefs.getString(C.PREF_LIST_FILTER_TRACKER, ""))
+			.map { key -> prefs.getString(key, "") }
+			.distinctUntilChanged()
+
 	val filtering : Observable<Filtering> = Observable.combineLatest(
 			searchSubject,
 			filterStatus,
-			BiFunction(::Filtering)
+			filterDirectory,
+			filterTracker,
+			Function4(::Filtering)
 	)
 
 	private val filterStyles = arrayOf(
@@ -620,23 +632,27 @@ private fun filterTorrents(torrents: Set<Torrent>, filtering: Filtering, colors:
 	val pattern = Pattern.compile(query)
 
 	return torrents.filter { torrent ->
-		var match = true
-
-		if (match) {
-			match = when (filtering.status) {
-				FilterStatus.ALL -> true
-				FilterStatus.DOWNLOADING -> torrent.statusType == Torrent.StatusType.DOWNLOADING
-				FilterStatus.SEEDING -> torrent.statusType == Torrent.StatusType.SEEDING
-				FilterStatus.PAUSED -> torrent.statusType == Torrent.StatusType.STOPPED
-				FilterStatus.COMPLETE -> torrent.downloadProgress == 1F
-				FilterStatus.INCOMPLETE -> torrent.downloadProgress < 1F
-				FilterStatus.ACTIVE -> torrent.isActive
-				FilterStatus.CHECKING -> torrent.statusType == Torrent.StatusType.CHECKING
-				FilterStatus.ERRORS -> torrent.hasError
-			}
+		var match = when (filtering.status) {
+			FilterStatus.ALL -> true
+			FilterStatus.DOWNLOADING -> torrent.statusType == Torrent.StatusType.DOWNLOADING
+			FilterStatus.SEEDING -> torrent.statusType == Torrent.StatusType.SEEDING
+			FilterStatus.PAUSED -> torrent.statusType == Torrent.StatusType.STOPPED
+			FilterStatus.COMPLETE -> torrent.downloadProgress == 1F
+			FilterStatus.INCOMPLETE -> torrent.downloadProgress < 1F
+			FilterStatus.ACTIVE -> torrent.isActive
+			FilterStatus.CHECKING -> torrent.statusType == Torrent.StatusType.CHECKING
+			FilterStatus.ERRORS -> torrent.hasError
 		}
 
-		if (query != "") {
+		if (match && filtering.directory != "") {
+			match = torrent.downloadDir == filtering.directory
+		}
+
+		if (match && filtering.tracker != "") {
+			match = torrent.trackers.filter { it.host == filtering.tracker }.isNotEmpty()
+		}
+
+		if (match && query != "") {
 			match = pattern.matcher(torrent.name.toString().toLowerCase(Locale.getDefault())).find()
 		}
 

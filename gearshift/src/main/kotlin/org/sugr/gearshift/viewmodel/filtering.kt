@@ -1,6 +1,6 @@
 package org.sugr.gearshift.viewmodel
 
-data class Filtering(val query: String, val status: FilterStatus)
+data class Filtering(val query: String, val status: FilterStatus, val directory: String, val tracker: String)
 
 enum class FilterStatus {
 	ALL, DOWNLOADING, SEEDING, PAUSED, COMPLETE, INCOMPLETE, ACTIVE, CHECKING, ERRORS;
