@@ -64,15 +64,15 @@ fun <T, R> Observable<T>.switchToThrowableEither(body: (T) -> Observable<R>): Ob
 		body(it).map { r ->
 			Either.right(r) as Either<Throwable, R>
 
-		}.onErrorReturn { err ->
-			Either.left(err)
 		}
+	}.onErrorReturn { err ->
+		Either.left(err)
 	}
 }
 
 fun <T, R> Observable<T>.mapToThrowableEither(body: (T) -> R): Observable<Either<Throwable, R>> {
 	return map {
-		Either.Right<Throwable, R>(body(it)) as Either<Throwable, R>
+		Either.right(body(it)) as Either<Throwable, R>
 	}.onErrorReturn { err ->
 		Either.left(err)
 	}
