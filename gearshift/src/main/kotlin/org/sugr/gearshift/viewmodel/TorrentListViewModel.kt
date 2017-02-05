@@ -128,37 +128,37 @@ class TorrentListViewModel(tag: String, log: Logger, ctx: Context, prefs: Shared
 		ForegroundColorSpan(color) as CharacterStyle
 	}.toTypedArray()
 
+	val torrents = torrentsObservable.combineLatestWith(sorting, filtering) { either, sorting, filtering ->
+		either.fold({ err ->
+			Either.left(err)
+		}) { set ->
+			Either.right(Pair(filterTorrents(set, filtering, filterStyles), sorting))
+		}
+	}.switchUsingThrowableEither { pair ->
+		val limitObservable = if (pair.second.by == SortBy.STATUS || pair.second.baseBy == SortBy.STATUS) {
+			sessionObservable.filterRightOrThrow().take(1).map { session -> session.seedRatioLimit }
+		} else {
+			Observable.just(0f)
+		}
 
-	val torrents = torrentsObservable
-			.filterRightOrThrow()
-			.combineLatestWith(sorting, filtering) { set, sorting, filtering ->
-				Pair(filterTorrents(set, filtering, filterStyles), sorting)
-			}
-			.switchToThrowableEither { pair ->
-				val limitObservable = if (pair.second.by == SortBy.STATUS || pair.second.baseBy == SortBy.STATUS) {
-					sessionObservable.filterRightOrThrow().take(1).map { session -> session.seedRatioLimit }
+		limitObservable.observeOn(Schedulers.computation()).map { limit ->
+			val now = Date().time
+
+			val sorted = pair.first.sortedWith(Comparator { t1, t2 ->
+				val ret = compareWith(t1, t2, pair.second.by, pair.second.direction, limit)
+
+				if (ret == 0) {
+					compareWith(t1, t2, pair.second.baseBy, pair.second.baseDirection, limit)
 				} else {
-					Observable.just(0f)
+					ret
 				}
+			})
 
-				limitObservable.observeOn(Schedulers.computation()).map { limit ->
-					val now = Date().time
+			log.D("Time to sort ${pair.first.size} torrents: ${Date().time - now}")
 
-					val sorted = pair.first.sortedWith(Comparator { t1, t2 ->
-						val ret = compareWith(t1, t2, pair.second.by, pair.second.direction, limit)
-
-						if (ret == 0) {
-							compareWith(t1, t2, pair.second.baseBy, pair.second.baseDirection, limit)
-						} else {
-							ret
-						}
-					})
-
-					log.D("Time to sort ${pair.first.size} torrents: ${Date().time - now}")
-
-					sorted.filter { t -> !t.downloadDir.contains("other") }
-				}
-			}
+			sorted.filter { t -> !t.downloadDir.contains("other") }
+		}
+	}
 			.pauseOn(activityLifecycle.onStop())
 			.takeUntil(takeUntilDestroy()).replay(1).refCount()
 			.observeOn(AndroidSchedulers.mainThread())

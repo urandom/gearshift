@@ -18,6 +18,7 @@ import org.sugr.gearshift.ui.path.Path
 import org.sugr.gearshift.viewmodel.adapters.FilterAdapter
 import org.sugr.gearshift.viewmodel.api.apiOf
 import org.sugr.gearshift.viewmodel.rxutil.*
+import java.util.concurrent.TimeUnit
 import io.reactivex.functions.Consumer as rxConsumer
 
 class MainNavigationViewModel(tag: String, log: Logger,
@@ -67,23 +68,11 @@ class MainNavigationViewModel(tag: String, log: Logger,
 
 	val sessionObservable = apiObservable.refresh(refresher).switchToThrowableEither { api ->
 		api.session()
-	}.pauseOn(activityLifecycle.onStop()).flatMap { either ->
-		either.fold({
-			Observable.just(either)
-		}) {
-			Observable.just(either).takeUntil(takeUntilDestroy()).replay(1).autoConnect()
-		}
-	}.takeUntil(takeUntilDestroy())
+	}.pauseOn(activityLifecycle.onStop()).takeUntil(takeUntilDestroy()).replay(1).refCount()
 
 	val torrentsObservable = apiObservable.refresh(refresher).switchToThrowableEither { api ->
 		api.torrents()
-	}.pauseOn(activityLifecycle.onStop()).flatMap { either ->
-		either.fold({
-			Observable.just(either)
-		}) {
-			Observable.just(either).takeUntil(takeUntilDestroy()).replay(1).autoConnect()
-		}
-	}.takeUntil(takeUntilDestroy())
+	}.pauseOn(activityLifecycle.onStop()).takeUntil(takeUntilDestroy()).replay(1).refCount()
 
 	private val directories = torrentsObservable.filterRightOr(setOf()).map { set ->
 		set.map { it.downloadDir }.toSet()
