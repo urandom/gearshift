@@ -163,6 +163,8 @@ class MainNavigationActivity : AppCompatActivity(),
 	}
 
 	override fun onSetContent(newPath: Path<*>, oldPath: Path<*>) {
+		component.navigationViewModel.onSetcontent(newPath, oldPath)
+
 		val pair = getContentViewWithIndex()
 		val container = binding.appBar.viewContainer
 		if (pair.second != -1) {

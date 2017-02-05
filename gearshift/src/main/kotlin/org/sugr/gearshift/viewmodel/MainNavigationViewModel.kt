@@ -14,6 +14,7 @@ import org.sugr.gearshift.Logger
 import org.sugr.gearshift.R
 import org.sugr.gearshift.model.loadProfiles
 import org.sugr.gearshift.model.profileOf
+import org.sugr.gearshift.ui.path.Path
 import org.sugr.gearshift.viewmodel.adapters.FilterAdapter
 import org.sugr.gearshift.viewmodel.api.apiOf
 import org.sugr.gearshift.viewmodel.rxutil.*
@@ -70,7 +71,7 @@ class MainNavigationViewModel(tag: String, log: Logger,
 		either.fold({
 			Observable.just(either)
 		}) {
-			Observable.just(either).replay(1).refCount()
+			Observable.just(either).takeUntil(takeUntilDestroy()).replay(1).autoConnect()
 		}
 	}.takeUntil(takeUntilDestroy())
 
@@ -80,7 +81,7 @@ class MainNavigationViewModel(tag: String, log: Logger,
 		either.fold({
 			Observable.just(either)
 		}) {
-			Observable.just(either).replay(1).refCount()
+			Observable.just(either).takeUntil(takeUntilDestroy()).replay(1).autoConnect()
 		}
 	}.takeUntil(takeUntilDestroy())
 
@@ -167,22 +168,17 @@ class MainNavigationViewModel(tag: String, log: Logger,
             .observeOn(AndroidSchedulers.mainThread())
             .replay(1).refCount()
 
-    init {
-        lifecycle.filter { it == Lifecycle.BIND }.take(1).subscribe {
-            val profiles = loadProfiles(prefs)
-
-            if (profiles.isEmpty() && firstTimeProfile) {
-                firstTimeProfile = false
-                consumer?.createProfile()
-            } else {
-                consumer?.restorePath()
-            }
-        }
-    }
-
     override fun bind(consumer: Consumer) {
         super.bind(consumer)
 
+		val profiles = loadProfiles(prefs)
+
+		if (profiles.isEmpty() && firstTimeProfile) {
+			firstTimeProfile = false
+			consumer.createProfile()
+		} else {
+			consumer.restorePath()
+		}
     }
 
 	fun filtersAdapter(ctx: Context): FilterAdapter {
@@ -225,6 +221,9 @@ class MainNavigationViewModel(tag: String, log: Logger,
 					consumer?.closeDrawer()
 				}
 		)
+	}
+
+	fun  onSetcontent(newPath: Path<*>, oldPath: Path<*>) {
 	}
 
 }
