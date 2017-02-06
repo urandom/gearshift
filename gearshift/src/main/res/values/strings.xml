@@ -99,6 +99,8 @@
 
 	<string name="torrent_list_status_speed_limit">Speed limit</string>
 
+	<string name="torrent_list_error_title">Error</string>
+
 	<string name="torrent_list_sort_by_name">Name</string>
 	<string name="torrent_list_sort_by_size">Size</string>
 	<string name="torrent_list_sort_by_status">Status</string>

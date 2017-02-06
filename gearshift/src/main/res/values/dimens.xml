@@ -11,6 +11,7 @@
 	<dimen name="side_bar_header_top_padding">25dp</dimen>
 
 	<dimen name="torrent_list_status_height">26dp</dimen>
+	<dimen name="torrent_list_error_height">32dp</dimen>
 
 	<dimen name="torrent_list_name_text_size">16sp</dimen>
 	<dimen name="torrent_list_traffic_text_size">10sp</dimen>

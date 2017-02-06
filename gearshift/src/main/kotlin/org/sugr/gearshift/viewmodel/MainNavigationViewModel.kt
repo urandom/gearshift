@@ -18,7 +18,6 @@ import org.sugr.gearshift.ui.path.Path
 import org.sugr.gearshift.viewmodel.adapters.FilterAdapter
 import org.sugr.gearshift.viewmodel.api.apiOf
 import org.sugr.gearshift.viewmodel.rxutil.*
-import java.util.concurrent.TimeUnit
 import io.reactivex.functions.Consumer as rxConsumer
 
 class MainNavigationViewModel(tag: String, log: Logger,

@@ -24,7 +24,6 @@ import io.reactivex.subjects.BehaviorSubject
 import io.reactivex.subjects.PublishSubject
 import org.funktionale.either.Either
 import org.funktionale.option.Option
-import org.funktionale.option.toOption
 import org.sugr.gearshift.C
 import org.sugr.gearshift.Logger
 import org.sugr.gearshift.R
@@ -36,15 +35,14 @@ import org.sugr.gearshift.ui.view.TorrentListView
 import org.sugr.gearshift.viewmodel.adapters.TorrentListAdapter
 import org.sugr.gearshift.viewmodel.adapters.TorrentSelectorManager
 import org.sugr.gearshift.viewmodel.adapters.TorrentViewModelManager
-import org.sugr.gearshift.viewmodel.api.Api
-import org.sugr.gearshift.viewmodel.api.CurrentSpeed
-import org.sugr.gearshift.viewmodel.api.StatisticsApi
+import org.sugr.gearshift.viewmodel.api.*
 import org.sugr.gearshift.viewmodel.databinding.SelectionListener
 import org.sugr.gearshift.viewmodel.databinding.observe
 import org.sugr.gearshift.viewmodel.ext.readableFileSize
 import org.sugr.gearshift.viewmodel.rxutil.*
 import java.util.*
 import java.util.concurrent.TimeUnit
+import java.util.concurrent.TimeoutException
 import java.util.regex.Pattern
 
 class TorrentListViewModel(tag: String, log: Logger, ctx: Context, prefs: SharedPreferences,
@@ -163,7 +161,8 @@ class TorrentListViewModel(tag: String, log: Logger, ctx: Context, prefs: Shared
 			.takeUntil(takeUntilDestroy()).replay(1).refCount()
 			.observeOn(AndroidSchedulers.mainThread())
 
-	private val errorProcessor = BehaviorProcessor.create<Option<Throwable>>()
+	val hasError = ObservableBoolean(false)
+	val errorMessage = ObservableField<String>("")
 
 	private val speedLimitUpdateSignal = BehaviorSubject.createDefault(true)
 
@@ -182,13 +181,19 @@ class TorrentListViewModel(tag: String, log: Logger, ctx: Context, prefs: Shared
 			refreshing.set(true)
 			refreshing.set(false)
 
+			hasError.set(it.isLeft())
 			if (it.isLeft()) {
-				log.E("torrent list", it.left().get())
+				val err = it.left().get()
+				log.E("torrent list", err)
 
-				errorProcessor.onNext(it.left().get().toOption())
-				// TODO: handle error
-			} else {
-				errorProcessor.onNext(Option.None)
+				val msg = when (err) {
+					is TimeoutException -> ctx.getString(R.string.error_timeout)
+					is AuthException -> ctx.getString(R.string.error_auth)
+					is NetworkException -> ctx.getString(R.string.error_http, err.code)
+					else -> ctx.getString(R.string.error_generic)
+				}
+
+				errorMessage.set(msg)
 			}
 		}) { err ->
 			// Quite impossible to get here
@@ -484,8 +489,13 @@ class TorrentListViewModel(tag: String, log: Logger, ctx: Context, prefs: Shared
 		searchVisible.onNext(!searchVisible.value)
 	}
 
-	fun errorFlowable(): Flowable<Option<Throwable>> {
-		return errorProcessor.takeUntil(takeUntilUnbind().toFlowable(BackpressureStrategy.LATEST))
+	fun errorFlowable(): Flowable<Boolean> {
+		return hasError.observe().map {
+			it.get()
+		}
+				.delay(10, TimeUnit.MILLISECONDS)
+				.observeOn(AndroidSchedulers.mainThread())
+				.toFlowable(BackpressureStrategy.LATEST)
 	}
 
 	fun titleFlowable(): Flowable<CharSequence> {

@@ -2,6 +2,8 @@ package org.sugr.gearshift.ui.view
 
 import android.content.Context
 import android.graphics.Rect
+import android.support.design.widget.BottomSheetBehavior
+import android.support.design.widget.CoordinatorLayout
 import android.support.design.widget.Snackbar
 import android.support.v7.widget.*
 import android.util.AttributeSet
@@ -16,9 +18,6 @@ import io.reactivex.android.schedulers.AndroidSchedulers
 import org.sugr.gearshift.R
 import org.sugr.gearshift.databinding.TorrentListContentBinding
 import org.sugr.gearshift.viewmodel.TorrentListViewModel
-import org.sugr.gearshift.viewmodel.api.AuthException
-import org.sugr.gearshift.viewmodel.api.NetworkException
-import java.util.concurrent.TimeoutException
 
 class TorrentListView(context: Context?, attrs: AttributeSet?) :
         FrameLayout(context, attrs),
@@ -58,21 +57,19 @@ class TorrentListView(context: Context?, attrs: AttributeSet?) :
         binding.list.layoutManager = GridLayoutManager(context, res.getInteger(R.integer.torrent_list_columns))
         binding.list.adapter = viewModel.adapter(context)
 
-		val errorBar = Snackbar.make(parent as View, "", 0)
-
-		viewModel.errorFlowable().subscribe { option ->
-			option.fold({
-				errorBar.dismiss()
-			}) { err ->
-				val msg = when (err) {
-					is TimeoutException -> res.getString(R.string.error_timeout)
-					is AuthException -> res.getString(R.string.error_auth)
-					is NetworkException -> res.getString(R.string.error_http, err.code)
-					else -> res.getString(R.string.error_generic)
-				}
-				errorBar.setText(msg)
-				errorBar.show()
+		val errorBar = Snackbar.make(parent as View, "", 0).apply {
+			view.layoutParams = (view.layoutParams as CoordinatorLayout.LayoutParams).apply {
+				setMargins(leftMargin, topMargin, rightMargin,
+						context.resources.getDimensionPixelSize(R.dimen.torrent_list_status_height))
 			}
+		}
+
+		val behavior = BottomSheetBehavior.from((parent as View).findViewById(R.id.torrent_list_bottom_sheet))
+
+		viewModel.errorFlowable().subscribe { hasError ->
+			behavior.state =
+					if (hasError) BottomSheetBehavior.STATE_EXPANDED
+					else BottomSheetBehavior.STATE_COLLAPSED
 		}
 
 		val searchView = SearchView(ContextThemeWrapper(context, R.style.AppTheme_AppBarOverlay)).apply {
