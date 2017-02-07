@@ -323,6 +323,7 @@ class MainNavigationActivity : AppCompatActivity(),
 
 	private fun applyColorScheme(scheme: ColorScheme) {
 		binding.appBar.toolbar.background = ColorDrawable(ContextCompat.getColor(this, scheme.toolbarColor))
+		binding.appBar.toolbarLayout.contentScrim = ColorDrawable(ContextCompat.getColor(this, scheme.statusBarColor))
 		binding.appBar.viewContainer.statusBarBackground = ColorDrawable(ContextCompat.getColor(this, scheme.statusBarColor))
 		binding.sideNavContainer.statusBarBackground = ColorDrawable(ContextCompat.getColor(this, scheme.statusBarColor))
 		binding.sideNavHeader.header.background = ColorDrawable(ContextCompat.getColor(this, scheme.toolbarColor))
