@@ -164,8 +164,7 @@ class FilterViewHolder(private val root: View,
 	val name = root.findViewById(android.R.id.text1) as TextView
 
 	init {
-		root.setOnClickListener { listener.accept(adapterPosition) }
-		name.isSelected = true
+		name.setOnClickListener { listener.accept(adapterPosition) }
 	}
 }
 

@@ -154,7 +154,7 @@ class TorrentListViewModel(tag: String, log: Logger, ctx: Context, prefs: Shared
 
 			log.D("Time to sort ${pair.first.size} torrents: ${Date().time - now}")
 
-			sorted.filter { t -> !t.downloadDir.contains("other") }
+			sorted
 		}
 	}
 			.pauseOn(activityLifecycle.onStop())
