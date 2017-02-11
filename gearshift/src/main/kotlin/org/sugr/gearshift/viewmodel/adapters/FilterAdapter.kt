@@ -108,7 +108,13 @@ class FilterAdapter(filtersObservable: Observable<List<Filter>>,
 				}
 			}
 			is Filter.Directory -> filter.value
-			is Filter.Tracker -> filter.value
+			is Filter.Tracker -> {
+				if (filter.value == "") {
+					ctx.getString(R.string.filter_tracker_untracked)
+				} else {
+					filter.value
+				}
+			}
 		}
 
 		holder?.name?.isActivated = when(filter) {

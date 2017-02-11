@@ -141,4 +141,5 @@
 	<string name="filter_status_ERRORS">Errors</string>
 	<string name="filter_header_directories">Directories</string>
 	<string name="filter_header_trackers">Trackers</string>
+	<string name="filter_tracker_untracked">Untracked</string>
 </resources>

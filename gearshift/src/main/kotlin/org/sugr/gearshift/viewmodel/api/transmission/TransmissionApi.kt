@@ -210,10 +210,14 @@ class TransmissionApi(
 							if (counter == 0L) {
 								fields += arrayOf(FIELD_FILES)
 							}
-							args.add("fields" to jsonArray(*fields))
-							if ((counter % 10L) != 0L) {
+
+							if ((counter % 10L) == 0L) {
+								fields += arrayOf(FIELD_TRACKERS)
+							} else {
 								args.add("ids" to "recently-active".toJson())
 							}
+
+							args.add("fields" to jsonArray(*fields))
 
 							request(requestBody(
 									"torrent-get", jsonObject(*args.toTypedArray())

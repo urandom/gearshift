@@ -77,6 +77,10 @@ class MainNavigationViewModel(tag: String, log: Logger,
 		set.map { it.downloadDir }.toSet()
 	}.replay(1).refCount()
 
+	private val trackers = torrentsObservable.filterRightOr(setOf()).map { set ->
+		set.map { it.trackers.map { it.host } }.flatten().toSet() + setOf("")
+	}.replay(1).refCount()
+
     private val filterList = prefs.observe().map { key ->
 		when (key) {
 			C.PREF_LIST_FILTER_STATUS, C.PREF_LIST_FILTER_DIRECTORY, C.PREF_LIST_FILTER_TRACKER -> true
@@ -103,6 +107,19 @@ class MainNavigationViewModel(tag: String, log: Logger,
 					}
 			)
         }
+
+		if (prefs.getBoolean(C.PREF_FILTER_TRACKERS, false)) {
+			observables.add(
+					trackers.map { set ->
+						set.sorted().map { host -> Filter.Tracker(host) as Filter }.toMutableList().apply {
+							add(0, Filter.Header(
+									ctx.getString(R.string.filter_header_trackers),
+									forType = FilterHeaderType.TRACKERS
+							))
+						}
+					}
+			)
+		}
 
 		Observable.merge(observables).filter {
 			it.isNotEmpty()
