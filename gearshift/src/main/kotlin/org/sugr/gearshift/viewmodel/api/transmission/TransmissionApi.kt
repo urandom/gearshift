@@ -31,6 +31,7 @@ import org.sugr.gearshift.viewmodel.ext.readableFileSize
 import org.sugr.gearshift.viewmodel.ext.readablePercent
 import org.sugr.gearshift.viewmodel.ext.readableRemainingTime
 import org.sugr.gearshift.viewmodel.rxutil.ResponseSingle
+import org.sugr.gearshift.viewmodel.rxutil.zipWith
 import java.net.HttpURLConnection
 import java.net.InetSocketAddress
 import java.net.Proxy
@@ -57,6 +58,7 @@ class TransmissionApi(
 	private val httpClient: OkHttpClient
 	private val requestBuilder: Request.Builder
 	private val torrentRefresher = PublishSubject.create<Any>()
+	private val torrentModifier = PublishSubject.create<JsonArray>()
 
 	init {
 		val builder = OkHttpClient.Builder()
@@ -177,8 +179,8 @@ class TransmissionApi(
 
 	override fun test(): Single<Boolean> {
 		return request(requestBody("session-get")).map { json ->
-			if ("test" in json) {
-				json["test"].string.isNotEmpty()
+			if ("version" in json) {
+				json["version"].string.isNotEmpty()
 			} else {
 				false
 			}
@@ -227,39 +229,54 @@ class TransmissionApi(
 									.flatMap { json ->
 										val torrents = json["torrents"].array
 
-										var list = Observable.just(torrents)
 
-										val incomplete = torrents.filter { it.isJsonObject }.filter {
-											(it.obj[FIELD_TOTAL_SIZE]?.nullInt ?: 0) == 0
-										}.map { it[FIELD_HASH].string }.toTypedArray()
+										val removed = json["removed"].nullArray?.map {
+											jsonObject(FIELD_ID to it, FIELD_REMOVED to true, FIELD_HASH to "")
+										}?.toTypedArray()
 
-										val withoutFiles = torrents.filter { it.isJsonObject }
-												.filter {
-													!incomplete.contains(it.obj[FIELD_HASH].string)
-												}
-												.filter {
-													(it.obj[FIELD_FILES]?.nullArray?.size() ?: 0) == 0
-												}.map { it[FIELD_HASH].string }.toTypedArray()
+										if (removed == null) {
+											val incomplete = torrents.filter { it.isJsonObject }.filter {
+												(it.obj[FIELD_TOTAL_SIZE]?.nullInt ?: 0) == 0
+											}.map { it[FIELD_HASH].string }.toTypedArray()
 
-										json["removed"]?.nullArray?.map { jsonObject(FIELD_ID to it) }?.forEach { t ->
-											torrents.add(t)
+											val withoutFiles = torrents.filter { it.isJsonObject }
+													.filter {
+														!incomplete.contains(it.obj[FIELD_HASH].string)
+													}
+													.filter {
+														(it.obj[FIELD_FILES]?.nullArray?.size() ?: 0) == 0
+													}.map { it[FIELD_HASH].string }.toTypedArray()
+
+											val incompleteSingle =
+													if (incomplete.isNotEmpty()) getTorrents(TORRENT_META_FIELDS, "ids" to jsonArray(*incomplete))
+													else Single.just(jsonArray())
+
+											val withoutFilesSingle =
+													if (withoutFiles.isNotEmpty()) getTorrents(arrayOf(FIELD_HASH, FIELD_FILES), "ids" to jsonArray(*withoutFiles))
+													else Single.just(jsonArray())
+
+											Single.just(torrents).zipWith(
+													incompleteSingle,
+													withoutFilesSingle,
+													{ original, l1, l2 ->
+														mergeTorrentJson(mergeTorrentJson(original, l1), l2)
+													}
+											).toObservable()
+										} else {
+											torrents.addAll(*removed)
+
+											Observable.just(torrents)
 										}
 
-										if (incomplete.isNotEmpty()) {
-											list = mergeTorrentJson(list, getTorrents(TORRENT_META_FIELDS, "ids" to jsonArray(*incomplete)))
-										}
-
-										if (withoutFiles.isNotEmpty()) {
-											list = mergeTorrentJson(list, getTorrents(arrayOf(FIELD_HASH, FIELD_FILES), "ids" to jsonArray(*withoutFiles)))
-										}
-
-										list
 									}
-						}
+						}.mergeWith(torrentModifier)
 					}
 			).scan(initialMap) { accum, json ->
-				val torrents = json.filter { it.isJsonObject }.map { it.asJsonObject }
-				val removed = torrents.filter { !it.contains(FIELD_HASH) }.map { it[FIELD_ID].int }.toSet()
+				val objArray = json.filter { it.isJsonObject }.map { it.asJsonObject }
+				val torrents = objArray.filter {
+					!it.contains(FIELD_REMOVED)
+				}
+				val removed = objArray.filter { it.contains(FIELD_REMOVED) }.map { it[FIELD_ID].int }.toSet()
 
 				torrents.forEach { torrent ->
 					val hash = torrent.obj[FIELD_HASH].string
@@ -318,6 +335,14 @@ class TransmissionApi(
 			request(requestBody("torrent-stop", jsonObject("ids" to jsonArray(*hashes))))
 					.toCompletable()
 		}.doOnComplete { torrentRefresher.onNext(true) }
+	}
+
+	override fun removeTorrents(torrents: Array<Torrent>): Completable {
+		return removeTorrents(torrents, false)
+	}
+
+	override fun deleteTorrents(torrents: Array<Torrent>): Completable {
+		return removeTorrents(torrents, true)
 	}
 
 	override fun freeSpace(dir: Observable<String>): Observable<Long> {
@@ -383,6 +408,23 @@ class TransmissionApi(
 		)).map { json -> json["torrents"].array }
 	}
 
+	private fun removeTorrents(torrents: Array<Torrent>, deleteLocalData: Boolean) : Completable {
+		return if (torrents.isEmpty()) {
+			Completable.complete()
+		} else {
+			val hashes = torrents.map { it.hash }.toTypedArray()
+			request(requestBody("torrent-remove", jsonObject("ids" to jsonArray(*hashes), "delete-local-data" to deleteLocalData)))
+					.doOnSuccess {
+						val removed = torrents.map { it.id }.map {
+							jsonObject(FIELD_ID to it, FIELD_REMOVED to true, FIELD_HASH to "")
+						}.toTypedArray()
+
+						torrentModifier.onNext(jsonArray(*removed))
+					}
+					.toCompletable()
+		}
+	}
+
 	companion object {
 		val JSON = MediaType.parse("application/json; charset=utf-8");
 
@@ -391,10 +433,12 @@ class TransmissionApi(
 		private val FIELD_ID = "id"
 		private val FIELD_HASH = "hashString"
 		private val FIELD_NAME = "name"
+		private val FIELD_STATUS = "status"
 		private val FIELD_TOTAL_SIZE = "totalSize"
 		private val FIELD_FILES = "files"
 		private val FIELD_TRACKERS = "trackers"
 		private val FIELD_FILE_STATS = "fileStats"
+		private val FIELD_REMOVED = "__removed__"
 
 		private val TORRENT_META_FIELDS = arrayOf(FIELD_HASH, FIELD_NAME, "addedDate", FIELD_TOTAL_SIZE)
 
@@ -403,28 +447,24 @@ class TransmissionApi(
 				"isFinished", "isStalled", "leftUntilDone", "metadataPercentComplete",
 				"peersConnected", "peersGettingFromUs", "peersSendingToUs", "percentDone",
 				"queuePosition", "rateDownload", "rateUpload", "recheckProgress",
-				"seedRatioMode", "seedRatioLimit", "sizeWhenDone", "status",
+				"seedRatioMode", "seedRatioLimit", "sizeWhenDone", FIELD_STATUS,
 				"uploadedEver", "uploadRatio", "downloadDir"
 		)
 
-		private fun mergeTorrentJson(original: Observable<JsonArray>, partialUpdates: Single<JsonArray>) =
-				original.concatMap { json ->
-					partialUpdates.map { updates ->
-						updates.filter { it.isJsonObject }.map { it.obj }
-								.associateBy { json -> json.obj[FIELD_HASH].string }
-					}.map { updateMap ->
-						json.forEach { json ->
-							val update = updateMap[json.obj[FIELD_HASH].string]
+		private fun mergeTorrentJson(original: JsonArray, partial: JsonArray): JsonArray {
+			val updateMap = partial.filter { it.isJsonObject }.map { it.obj }
+					.associateBy { json -> json.obj[FIELD_HASH].string }
 
-							if (update != null) {
-								update.forEach { key, element ->
-									json.obj[key] = element
-								}
-							}
-						}
-						json
-					}.toObservable()
+			original.map { json ->
+				updateMap[json.obj[FIELD_HASH].string]?.forEach { key, element ->
+					json.obj[key] = element
 				}
+
+				json
+			}
+
+			return original
+		}
 
 		private fun torrentFrom(json: JsonObject, ctx: Context, rpcVersion: Int, gson: Gson) : Torrent {
 			val metaProgress = json["metadataPercentComplete"]?.nullFloat ?: 0f
@@ -445,11 +485,11 @@ class TransmissionApi(
 			val uploadedEver = json["uploadedEver"]?.nullLong ?: 0L
 			val status = if (rpcVersion < NEW_STATUS_RPC_VERSION) {
 				LegacyStatusType.values().filter {
-					it.value == json["status"]?.nullInt ?: 0
+					it.value == json[FIELD_STATUS]?.nullInt ?: 0
 				}.getOrElse(0) { LegacyStatusType.STOPPED }.type
 			} else {
 				StatusType.values().filter {
-					it.value == json["status"]?.nullInt ?: 0
+					it.value == json[FIELD_STATUS]?.nullInt ?: 0
 				}.getOrElse(0) { StatusType.STOPPED }.type
 			}
 

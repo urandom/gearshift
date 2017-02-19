@@ -3,7 +3,6 @@ package org.sugr.gearshift.ui.path
 import org.sugr.gearshift.R
 import org.sugr.gearshift.ui.NavComponent
 import org.sugr.gearshift.viewmodel.ProfileEditorViewModel
-import org.sugr.gearshift.viewmodel.TorrentListViewModel
 import org.sugr.gearshift.viewmodel.viewModelFrom
 
 class FirstTimeProfileEditorPath(navComponent: NavComponent,
@@ -23,7 +22,7 @@ interface FirstTimeProfileEditorComponent : NavComponent {
 }
 
 class FirstTimeProfileEditorComponentImpl(b : NavComponent) : FirstTimeProfileEditorComponent, NavComponent by b {
-    private val tag = TorrentListViewModel::class.java.toString()
+    private val tag = ProfileEditorViewModel::class.java.toString()
 
     override val viewModel : ProfileEditorViewModel by lazy {
         viewModelFrom(fragmentManager, tag) {

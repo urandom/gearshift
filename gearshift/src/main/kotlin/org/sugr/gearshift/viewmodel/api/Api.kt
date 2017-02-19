@@ -19,6 +19,8 @@ interface Api {
 	fun torrents(initial: Set<Torrent> = setOf()): Observable<Set<Torrent>>
 	fun startTorrents(stopped: Array<Torrent>, queued: Array<Torrent>): Completable
 	fun stopTorrents(running: Array<Torrent>): Completable
+	fun removeTorrents(torrents: Array<Torrent>): Completable
+	fun deleteTorrents(torrents: Array<Torrent>): Completable
 
 	fun updateSession(session: Session): Completable
 }
@@ -47,6 +49,8 @@ object NoApi : Api {
 	override fun updateSession(session: Session) = Completable.complete()
 	override fun startTorrents(stopped: Array<Torrent>, queued: Array<Torrent>) = Completable.complete()
 	override fun stopTorrents(running: Array<Torrent>) = Completable.complete()
+	override fun removeTorrents(torrents: Array<Torrent>) = Completable.complete()
+	override fun deleteTorrents(torrents: Array<Torrent>) = Completable.complete()
 }
 
 class NetworkException(val code: Int): RuntimeException("Network error")

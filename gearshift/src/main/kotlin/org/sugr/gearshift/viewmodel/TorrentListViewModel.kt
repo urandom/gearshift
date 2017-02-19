@@ -11,9 +11,7 @@ import android.text.Spanned
 import android.text.style.CharacterStyle
 import android.text.style.ForegroundColorSpan
 import android.view.LayoutInflater
-import io.reactivex.BackpressureStrategy
-import io.reactivex.Completable
-import io.reactivex.Flowable
+import io.reactivex.*
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.functions.Consumer
@@ -45,7 +43,8 @@ import java.util.concurrent.TimeUnit
 import java.util.concurrent.TimeoutException
 import java.util.regex.Pattern
 
-class TorrentListViewModel(tag: String, log: Logger, ctx: Context, prefs: SharedPreferences,
+class TorrentListViewModel(tag: String, log: Logger, ctx: Context,
+						   private val prefs: SharedPreferences,
 						   private val profileObservable: Observable<Profile>,
 						   private val apiObservable: Observable<Api>,
 						   private val torrentsObservable: Observable<Either<Throwable, Set<Torrent>>>,
@@ -58,6 +57,7 @@ class TorrentListViewModel(tag: String, log: Logger, ctx: Context, prefs: Shared
 
 	interface Consumer {
 		fun selectedTorrentStatus(paused: Boolean, running: Boolean, empty: Boolean)
+		fun removeTorrentsConfirmation(default: RemoveConfirmation): Single<RemoveConfirmation>
 
 	}
 
@@ -485,6 +485,50 @@ class TorrentListViewModel(tag: String, log: Logger, ctx: Context, prefs: Shared
 		clearSelection()
 	}
 
+	fun onRemoveSelected() {
+		val selected = HashSet(selectedTorrents.keys)
+
+		val default =
+				if (prefs.getBoolean(C.PREF_DELETE_DATA, false)) RemoveConfirmation.DELETE
+				else RemoveConfirmation.REMOVE
+
+		consumer?.let { consumer ->
+			consumer.removeTorrentsConfirmation(default).filter {
+				it != RemoveConfirmation.CANCEL
+			}.flatMapCompletable { confirmation ->
+				clearSelection()
+
+				apiObservable.combineLatestWith(
+						torrents.filter { it.isRight() }.map { torrents ->
+							torrents.right().get().filter { selected.contains(it.hash) }
+						}.map { torrents -> torrents.toTypedArray() },
+						{ api, torrents -> Pair(api, torrents) }
+				)
+						.take(1)
+						.observeOn(AndroidSchedulers.mainThread())
+						.map { pair ->
+							pair.second.forEach { torrent ->
+								getViewModel(torrent.hash).setChangingStatus(torrent.statusType)
+							}
+
+							pair
+						}
+						.observeOn(Schedulers.io())
+						.flatMapCompletable { pair ->
+							prefs.set(C.PREF_DELETE_DATA, confirmation == RemoveConfirmation.DELETE)
+
+							if (confirmation == RemoveConfirmation.DELETE) {
+								pair.first.deleteTorrents(pair.second)
+							} else {
+								pair.first.removeTorrents(pair.second)
+							}
+
+						}
+			}.subscribe({
+			}) { err -> log.E("removing selected torrents", err) }
+		}
+	}
+
 	fun onSearchToggle() {
 		searchVisible.onNext(!searchVisible.value)
 	}
@@ -704,3 +748,6 @@ private fun filterTorrents(torrents: Set<Torrent>, filtering: Filtering, colors:
 	}.toSet()
 }
 
+enum class RemoveConfirmation {
+	CANCEL, REMOVE, DELETE
+}

@@ -3,21 +3,24 @@ package org.sugr.gearshift.ui.view
 import android.content.Context
 import android.graphics.Rect
 import android.support.design.widget.BottomSheetBehavior
-import android.support.design.widget.CoordinatorLayout
-import android.support.design.widget.Snackbar
+import android.support.v7.app.AlertDialog
 import android.support.v7.widget.*
 import android.util.AttributeSet
 import android.view.ContextThemeWrapper
 import android.view.MenuItem
 import android.view.View
 import android.view.inputmethod.InputMethodManager
+import android.widget.CheckBox
 import android.widget.FrameLayout
 import com.transitionseverywhere.TransitionManager
 import io.reactivex.Flowable
+import io.reactivex.Single
 import io.reactivex.android.schedulers.AndroidSchedulers
 import org.sugr.gearshift.R
 import org.sugr.gearshift.databinding.TorrentListContentBinding
+import org.sugr.gearshift.viewmodel.RemoveConfirmation
 import org.sugr.gearshift.viewmodel.TorrentListViewModel
+import java.util.concurrent.TimeUnit
 
 class TorrentListView(context: Context?, attrs: AttributeSet?) :
         FrameLayout(context, attrs),
@@ -26,7 +29,6 @@ class TorrentListView(context: Context?, attrs: AttributeSet?) :
         ToolbarMenuItemClickListener,
 		ToolbarConsumer,
 		ContextMenuProvider {
-
 	lateinit private var viewModel : TorrentListViewModel
 	lateinit private var toolbar : Toolbar
 
@@ -57,19 +59,13 @@ class TorrentListView(context: Context?, attrs: AttributeSet?) :
         binding.list.layoutManager = GridLayoutManager(context, res.getInteger(R.integer.torrent_list_columns))
         binding.list.adapter = viewModel.adapter(context)
 
-		val errorBar = Snackbar.make(parent as View, "", 0).apply {
-			view.layoutParams = (view.layoutParams as CoordinatorLayout.LayoutParams).apply {
-				setMargins(leftMargin, topMargin, rightMargin,
-						context.resources.getDimensionPixelSize(R.dimen.torrent_list_status_height))
-			}
-		}
-
 		val behavior = BottomSheetBehavior.from((parent as View).findViewById(R.id.torrent_list_bottom_sheet))
 
-		viewModel.errorFlowable().subscribe { hasError ->
+		viewModel.errorFlowable().delay(50, TimeUnit.MILLISECONDS).subscribe { hasError ->
 			behavior.state =
 					if (hasError) BottomSheetBehavior.STATE_EXPANDED
 					else BottomSheetBehavior.STATE_COLLAPSED
+			behavior.isHideable = !hasError
 		}
 
 		val searchView = SearchView(ContextThemeWrapper(context, R.style.AppTheme_AppBarOverlay)).apply {
@@ -145,6 +141,7 @@ class TorrentListView(context: Context?, attrs: AttributeSet?) :
             R.id.select_all -> viewModel.onSelectAllTorrents()
             R.id.selection_resume -> viewModel.onResumeSelected()
 			R.id.selection_pause -> viewModel.onPauseSelected()
+			R.id.selection_remove -> viewModel.onRemoveSelected()
         }
         return false
     }
@@ -190,6 +187,32 @@ class TorrentListView(context: Context?, attrs: AttributeSet?) :
 		toolbar.menu.findItem(R.id.selection_resume)?.isVisible = paused
 		toolbar.menu.findItem(R.id.selection_pause)?.isVisible = running
 	}
+
+	override fun removeTorrentsConfirmation(default: RemoveConfirmation): Single<RemoveConfirmation> {
+		return Single.create { emitter ->
+			val dialog = AlertDialog.Builder(context)
+					.setView(R.layout.remove_confirmation)
+					.setNegativeButton(android.R.string.cancel, { dialog, which ->
+						dialog.dismiss();
+						emitter.onSuccess(RemoveConfirmation.CANCEL)
+					})
+					.setPositiveButton(R.string.remove_positive, { dialog, which ->
+						val deleteData = ((dialog as AlertDialog).findViewById(R.id.delete) as? CheckBox)?.isChecked ?: false
+
+						dialog.dismiss();
+						emitter.onSuccess(
+								if (deleteData) RemoveConfirmation.DELETE
+								else RemoveConfirmation.REMOVE
+						)
+					}).show()
+
+			(dialog.findViewById(R.id.delete) as? CheckBox)?.isChecked = default == RemoveConfirmation.DELETE
+			emitter.setCancellable {
+				dialog.dismiss()
+			}
+		}
+	}
+
 }
 
 private data class SelectedTorrentStatus(val paused: Boolean, val running: Boolean)

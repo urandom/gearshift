@@ -2,6 +2,7 @@ package org.sugr.gearshift.viewmodel.rxutil
 
 import io.reactivex.Flowable
 import io.reactivex.Observable
+import io.reactivex.Single
 import io.reactivex.disposables.Disposables
 import io.reactivex.functions.BiFunction
 import io.reactivex.functions.Function3
@@ -92,4 +93,8 @@ fun <T> Observable<Either<Throwable, T>>.filterRightOr(t: T) : Observable<T> {
 }
 fun <T> Observable<Either<Throwable, T>>.filterRightOrThrow() : Observable<T> {
 	return map { either -> either.fold({ err -> throw err }) { it } }
+}
+
+fun <T1, T2, T3, R> Single<T1>.zipWith(other: Single<T2>, other2: Single<T3>, mapper: (T1, T2, T3) -> R) : Single<R> {
+	return Single.zip(this, other, other2, Function3 { t1, t2, t3 -> mapper(t1, t2, t3) })
 }

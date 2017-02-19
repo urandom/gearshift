@@ -142,4 +142,7 @@
 	<string name="filter_header_directories">Directories</string>
 	<string name="filter_header_trackers">Trackers</string>
 	<string name="filter_tracker_untracked">Untracked</string>
+	<string name="selection_remove">Are you sure you want to remove the selected torrents?</string>
+	<string name="selection_delete">Delete downloaded data</string>
+	<string name="remove_positive">Remove</string>
 </resources>
