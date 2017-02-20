@@ -63,25 +63,13 @@
 			android:id="@+id/checkBox"
 			android:layout_weight="1"/>
 
-		<Button
-			style="?android:borderlessButtonStyle"
-			android:layout_width="0dp"
-			android:layout_height="wrap_content"
-			android:layout_weight="1"
-			android:layout_marginEnd="12dp"
-			android:gravity="start"
-			android:text="@{viewModel.updateIntervalLabel}"
-			android:onClick="@{() -> viewModel.onPickUpdateInterval()}"
-			android:id="@+id/button"/>
-
 		<TextView
 			style="@style/HeaderText.Small"
+			android:drawableStart="@{(viewModel.sectionCollapse[`updates`] ?? false) ? @drawable/ic_header_collapsed : @drawable/ic_header_expanded}"
+			android:background="?android:selectableItemBackground"
 			android:clickable="true"
-			android:drawableStart="@drawable/ic_header_collapsed"
 			android:onClick="@{() -> viewModel.toggleCollapseSection(`updates`)}"
-			android:text="@string/updates"/>
-
-		<!-- android:drawableStart="@{(viewModel.sectionCollapse[`updates`] ?? false) ? @drawable/ic_header_collapsed : @drawable/ic_header_expanded}" -->
+			android:text="@string/updates" />
 
 		<LinearLayout
 			android:layout_width="match_parent"
@@ -96,16 +84,25 @@
 				android:layout_marginEnd="8dp"
 				android:text="@string/update_interval"/>
 
+			<Button
+				style="?android:borderlessButtonStyle"
+				android:layout_width="0dp"
+				android:layout_height="wrap_content"
+				android:layout_weight="1"
+				android:layout_marginEnd="12dp"
+				android:text="@{viewModel.updateIntervalLabel}"
+				android:onClick="@{() -> viewModel.onPickUpdateInterval()}"
+				tools:text="1 second"/>
 
 		</LinearLayout>
 
 		<TextView
 			style="@style/HeaderText.Small"
-			android:drawableStart="@drawable/ic_header_collapsed"
+			android:drawableStart="@{(viewModel.sectionCollapse[`auth`] ?? false) ? @drawable/ic_header_collapsed : @drawable/ic_header_expanded}"
+			android:background="?android:selectableItemBackground"
 			android:onClick="@{() -> viewModel.toggleCollapseSection(`auth`)}"
 			android:text="@string/authentication"/>
 
-		<!-- android:drawableStart="@{(viewModel.sectionCollapse[`auth`] ?? false) ? @drawable/ic_header_collapsed : @drawable/ic_header_expanded}" -->
 
 		<android.support.design.widget.TextInputLayout
 			style="@style/Form.InputLayout"
@@ -131,11 +128,10 @@
 
 		<TextView
 			style="@style/HeaderText.Small"
-			android:drawableStart="@drawable/ic_header_collapsed"
+			android:drawableStart="@{(viewModel.sectionCollapse[`proxy`] ?? false) ? @drawable/ic_header_collapsed : @drawable/ic_header_expanded}"
+			android:background="?android:selectableItemBackground"
 			android:onClick="@{() -> viewModel.toggleCollapseSection(`proxy`)}"
 			android:text="@string/proxy"/>
-
-		<!-- android:drawableStart="@{(viewModel.sectionCollapse[`proxy`] ?? false) ? @drawable/ic_header_collapsed : @drawable/ic_header_expanded}" -->
 
 		<android.support.design.widget.TextInputLayout
 			style="@style/Form.InputLayout"
@@ -164,11 +160,10 @@
 
 		<TextView
 			style="@style/HeaderText.Small"
-			android:drawableStart="@drawable/ic_header_collapsed"
+			android:drawableStart="@{(viewModel.sectionCollapse[`advanced`] ?? false) ? @drawable/ic_header_collapsed : @drawable/ic_header_expanded}"
+			android:background="?android:selectableItemBackground"
 			android:onClick="@{() -> viewModel.toggleCollapseSection(`advanced`)}"
 			android:text="@string/advanced"/>
-
-		<!-- android:drawableStart="@{(viewModel.sectionCollapse[`advanced`] ?? false) ? @drawable/ic_header_collapsed : @drawable/ic_header_expanded}" -->
 
 		<android.support.design.widget.TextInputLayout
 			style="@style/Form.InputLayout"

@@ -3,19 +3,18 @@ package org.sugr.gearshift.ui.view
 import android.content.Context
 import android.databinding.DataBindingUtil
 import android.support.design.widget.Snackbar
+import android.support.v4.widget.NestedScrollView
 import android.support.v7.app.AlertDialog
 import android.util.AttributeSet
-import android.view.Menu
 import android.view.MenuItem
 import android.view.View
-import android.widget.ScrollView
 import org.sugr.gearshift.R
 import org.sugr.gearshift.databinding.FirstTimeProfileEditorBinding
 import org.sugr.gearshift.viewmodel.ProfileEditorViewModel
 import org.sugr.gearshift.viewmodel.rxutil.single
 
 class FirstTimeProfileEditorView(context: Context?, attrs: AttributeSet?) :
-        ScrollView(context, attrs),
+        NestedScrollView(context, attrs),
         ProfileEditorViewModel.Consumer,
         ViewModelConsumer<ProfileEditorViewModel>,
         ToolbarMenuItemClickListener {

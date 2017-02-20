@@ -25,10 +25,10 @@
         <item name="android:textAppearance">?android:textAppearanceLarge</item>
         <item name="android:textColor">?colorAccent</item>
         <item name="android:fontFamily">sans-serif-smallcaps</item>
-	    <item name="android:layout_marginTop">8dp</item>
-	    <item name="android:layout_marginBottom">8dp</item>
-	    <item name="android:layout_marginStart">@dimen/activity_horizontal_margin</item>
-	    <item name="android:layout_marginEnd">@dimen/activity_horizontal_margin</item>
+	    <item name="android:paddingTop">8dp</item>
+	    <item name="android:paddingBottom">8dp</item>
+	    <item name="android:paddingStart">@dimen/activity_horizontal_margin</item>
+	    <item name="android:paddingEnd">@dimen/activity_horizontal_margin</item>
     </style>
 
     <style name="HeaderText.Small">
