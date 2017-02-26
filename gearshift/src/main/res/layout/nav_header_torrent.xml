@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layout xmlns:bind="http://schemas.android.com/apk/res-auto">
+<layout xmlns:bind="http://schemas.android.com/apk/res-auto"
+        xmlns:app="http://schemas.android.com/tools">
 	<data>
 		<variable
 			name="viewModel"
@@ -20,9 +21,13 @@
 		android:paddingTop="@dimen/activity_vertical_margin"
 		android:theme="@style/ThemeOverlay.AppCompat.Dark">
 
-		<ImageView android:id="@+id/imageView" android:layout_width="wrap_content"
-				   android:layout_height="wrap_content"
-				   android:paddingTop="@dimen/nav_header_vertical_spacing" android:src="@android:drawable/sym_def_app_icon" />
+		<de.hdodenhof.circleimageview.CircleImageView
+			android:layout_width="32dp"
+			android:layout_height="32dp"
+			android:paddingTop="@dimen/nav_header_vertical_spacing"
+		    app:civ_fill_color="@color/colorPrimary"
+			app:civ_border_color="@color/md_grey_300"
+			app:civ_border_width="@dimen/color_outline" />
 
 		<TextView android:layout_width="match_parent" android:layout_height="wrap_content"
 				  android:paddingTop="@dimen/nav_header_vertical_spacing" android:text="Android Studio"

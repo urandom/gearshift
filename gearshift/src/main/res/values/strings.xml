@@ -145,4 +145,6 @@
 	<string name="selection_remove">Are you sure you want to remove the selected torrents?</string>
 	<string name="selection_delete">Delete downloaded data</string>
 	<string name="remove_positive">Remove</string>
+	<string name="misc">Miscellaneous</string>
+	<string name="profile_color">Profile color</string>
 </resources>

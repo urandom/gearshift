@@ -27,8 +27,6 @@
 				bind:error="@{viewModel.profileNameValid ? null : @string/con_name_cannot_be_empty}"/>
 		</android.support.design.widget.TextInputLayout>
 
-		<!-- TODO: Add the color selector in this section -->
-
 		<TextView
 			style="@style/HeaderText.Small"
 			android:text="@string/connection"/>
@@ -98,11 +96,45 @@
 
 		<TextView
 			style="@style/HeaderText.Small"
+			android:drawableStart="@{(viewModel.sectionCollapse[`misc`] ?? false) ? @drawable/ic_header_collapsed : @drawable/ic_header_expanded}"
+			android:background="?android:selectableItemBackground"
+			android:onClick="@{() -> viewModel.toggleCollapseSection(`misc`)}"
+			android:text="@string/misc"/>
+
+		<LinearLayout
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:gravity="center_vertical"
+			android:orientation="horizontal"
+			android:visibility="@{(viewModel.sectionCollapse[`misc`] ?? false) ? View.GONE : View.VISIBLE}">
+
+			<TextView
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:layout_marginStart="12dp"
+				android:layout_marginEnd="8dp"
+				android:text="@string/profile_color"/>
+
+			<de.hdodenhof.circleimageview.CircleImageView
+				android:layout_width="0dp"
+				android:layout_height="48dp"
+				android:layout_weight="1"
+				android:layout_marginEnd="12dp"
+				android:background="?android:selectableItemBackgroundBorderless"
+				android:clickable="true"
+				android:onClick="@{() -> viewModel.onColorClick()}"
+				app:civ_border_color="@color/md_grey_300"
+				app:civ_border_width="2dp"
+				bind:imageResource="@{viewModel.profileColor}"/>
+
+		</LinearLayout>
+
+		<TextView
+			style="@style/HeaderText.Small"
 			android:drawableStart="@{(viewModel.sectionCollapse[`auth`] ?? false) ? @drawable/ic_header_collapsed : @drawable/ic_header_expanded}"
 			android:background="?android:selectableItemBackground"
 			android:onClick="@{() -> viewModel.toggleCollapseSection(`auth`)}"
 			android:text="@string/authentication"/>
-
 
 		<android.support.design.widget.TextInputLayout
 			style="@style/Form.InputLayout"

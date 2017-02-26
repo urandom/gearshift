@@ -9,6 +9,8 @@ import com.google.gson.Gson
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.subjects.PublishSubject
+import org.funktionale.option.firstOption
+import org.funktionale.option.toOption
 import org.sugr.gearshift.C
 import org.sugr.gearshift.Logger
 import org.sugr.gearshift.R
@@ -52,7 +54,12 @@ class MainNavigationViewModel(tag: String, log: Logger,
             .filter { key -> key == C.PREF_CURRENT_PROFILE }
             .startWith(C.PREF_CURRENT_PROFILE)
             .map { key -> prefs.getString(key, "") }
-            .map { id -> if (id == "") prefs.getStringSet(C.PREF_PROFILES, setOf()).first() else id }
+            .map { id ->
+				if (id == "") prefs.getStringSet(C.PREF_PROFILES, setOf()).firstOption()
+				else id.toOption()
+			}
+			.filter { opt -> opt.isDefined() }
+			.map { opt -> opt.get() }
             .map { id -> profileOf(id, prefs) }
             .filter { profile -> profile.valid }
             .takeUntil(takeUntilDestroy())

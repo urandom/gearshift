@@ -1,32 +1,85 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="colorPrimary">#3F51B5</color>
-	<color name="colorPrimaryDark">#303F9F</color>
-	<color name="colorAccent">#FF4081</color> <!-- Pink 200 -->
-    <color name="colorAccentLight">#FF8A80</color> <!-- Red A100 -->
-    <color name="colorAccentDark">#C51162</color>
+    <color name="colorPrimary">@color/defaultToolbar</color>
+	<color name="colorPrimaryDark">@color/defaultStatusBar</color>
+	<color name="colorAccent">@color/md_pink_a200</color>
+    <color name="colorAccentLight">@color/md_red_a100</color>
+    <color name="colorAccentDark">@color/md_red_a700</color>
 
-    <color name="colorRequired">#B71C1C</color>
-	<color name="error">#F44336</color> <!-- Red 500 -->
-    <color name="errorDisabled">#EF9A9A</color> <!-- Red 200 -->
+    <color name="colorRequired">@color/md_red_900</color>
+	<color name="error">@color/md_red_500</color>
+    <color name="errorDisabled">@color/md_red_200</color>
     <color name="separator">#CBCBCD</color>
 
 	<color name="statusSheet">#DDDDDD</color>
-    <color name="progressBackground">#B0BEC5</color> <!-- Blue grey 200 -->
-    <color name="progressSecondary">#03A9F4</color> <!-- Light blue 500 -->
-    <color name="progressPrimary">#76FF03</color> <!-- Light green A400 -->
+    <color name="progressBackground">@color/md_blue_grey_200</color>
+    <color name="progressSecondary">@color/md_light_blue_500</color>
+    <color name="progressPrimary">@color/md_light_green_a400</color>
 
-    <color name="check_indicator">#757575</color> <!-- Grey 600 -->
+    <color name="check_indicator">@color/md_grey_600</color>
 
 	<color name="primaryDark">#202020</color>
-	<color name="primaryDarkDisabled">#9E9E9E</color> <!-- Grey 500 -->
+	<color name="primaryDarkDisabled">@color/md_grey_500</color>
 
-	<color name="selectionToolbar">#FF5252</color>
-	<color name="selectionStatusBar">#D50000</color>
+	<color name="selectionToolbar">@color/md_red_a200</color>
+	<color name="selectionStatusBar">@color/md_red_a700</color>
 
 	<color name="filterHighlightPrimary">#E68305</color>
 	<color name="filterHighlightSecondary">#C98733</color>
 
-	<color name="navListBackground">#E0E0E0</color> <!-- Grey 300 -->
+	<color name="navListBackground">@color/md_grey_300</color>
 
+	<color name="defaultToolbar">#252525</color>
+	<color name="defaultStatusBar">#141414</color>
+
+	<color name="redToolbar">@color/md_red_600</color>
+	<color name="redStatusBar">@color/md_red_800</color>
+
+	<color name="pinkToolbar">@color/md_pink_600</color>
+	<color name="pinkStatusBar">@color/md_pink_800</color>
+
+	<color name="purpleToolbar">@color/md_purple_500</color>
+	<color name="purpleStatusBar">@color/md_purple_700</color>
+
+	<color name="deepPurpleToolbar">@color/md_deep_purple_500</color>
+	<color name="deepPurpleStatusBar">@color/md_deep_purple_700</color>
+
+	<color name="indigoToolbar">@color/md_indigo_500</color>
+	<color name="indigoStatusBar">@color/md_indigo_700</color>
+
+	<color name="blueToolbar">@color/md_blue_500</color>
+	<color name="blueStatusBar">@color/md_blue_700</color>
+
+	<color name="lightBlueToolbar">@color/md_light_blue_300</color>
+	<color name="lightBlueStatusBar">@color/md_light_blue_500</color>
+
+	<color name="cyanToolbar">@color/md_cyan_700</color>
+	<color name="cyanStatusBar">@color/md_cyan_900</color>
+
+	<color name="tealToolbar">@color/md_teal_500</color>
+	<color name="tealStatusBar">@color/md_teal_700</color>
+
+	<color name="greenToolbar">@color/md_green_600</color>
+	<color name="greenStatusBar">@color/md_green_800</color>
+
+	<color name="lightGreenToolbar">@color/md_light_green_500</color>
+	<color name="lightGreenStatusBar">@color/md_light_green_700</color>
+
+	<color name="limeToolbar">@color/md_lime_500</color>
+	<color name="limeStatusBar">@color/md_lime_700</color>
+
+	<color name="yellowToolbar">@color/md_yellow_400</color>
+	<color name="yellowStatusBar">@color/md_yellow_600</color>
+
+	<color name="orangeToolbar">@color/md_orange_500</color>
+	<color name="orangeStatusBar">@color/md_orange_700</color>
+
+	<color name="deepOrangeToolbar">@color/md_deep_orange_500</color>
+	<color name="deepOrangeStatusBar">@color/md_deep_orange_700</color>
+
+	<color name="brownToolbar">@color/md_brown_500</color>
+	<color name="brownStatusBar">@color/md_brown_700</color>
+
+	<color name="greyToolbar">@color/md_grey_600</color>
+	<color name="greyStatusBar">@color/md_grey_800</color>
 </resources>

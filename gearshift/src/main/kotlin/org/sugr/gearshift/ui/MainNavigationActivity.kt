@@ -15,6 +15,7 @@ import android.support.v7.app.AppCompatActivity
 import android.support.v7.graphics.drawable.DrawerArrowDrawable
 import android.support.v7.widget.LinearLayoutManager
 import android.view.View
+import android.widget.TextView
 import com.google.gson.Gson
 import com.transitionseverywhere.*
 import io.reactivex.Observable
@@ -325,8 +326,14 @@ class MainNavigationActivity : AppCompatActivity(),
 		binding.appBar.toolbar.background = ColorDrawable(ContextCompat.getColor(this, scheme.toolbarColor))
 		binding.appBar.toolbarLayout.contentScrim = ColorDrawable(ContextCompat.getColor(this, scheme.statusBarColor))
 		binding.appBar.viewContainer.statusBarBackground = ColorDrawable(ContextCompat.getColor(this, scheme.statusBarColor))
+		binding.appBar.toolbar.asSequence().filter { it is TextView }.map { it as TextView }.forEach { tv ->
+			tv.setTextColor(scheme.textColor)
+		}
 		binding.sideNavContainer.statusBarBackground = ColorDrawable(ContextCompat.getColor(this, scheme.statusBarColor))
 		binding.sideNavHeader.header.background = ColorDrawable(ContextCompat.getColor(this, scheme.toolbarColor))
+		binding.sideNavHeader.header.asSequence().filter { it is TextView }.map { it as TextView }.forEach { tv ->
+			tv.setTextColor(scheme.textColor)
+		}
 	}
 
 	private fun statusBarHeight() : Int {

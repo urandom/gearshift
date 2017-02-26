@@ -4,7 +4,10 @@ import android.content.Context
 import android.content.SharedPreferences
 import android.databinding.ObservableArrayMap
 import android.databinding.ObservableBoolean
+import android.databinding.ObservableInt
 import android.databinding.ObservableLong
+import android.support.v4.app.FragmentManager
+import android.support.v4.content.ContextCompat
 import com.google.gson.Gson
 import io.reactivex.BackpressureStrategy
 import io.reactivex.Single
@@ -13,6 +16,8 @@ import org.sugr.gearshift.Logger
 import org.sugr.gearshift.R
 import org.sugr.gearshift.model.Profile
 import org.sugr.gearshift.model.transmissionProfile
+import org.sugr.gearshift.ui.theme.colorSchemes
+import org.sugr.gearshift.ui.theme.defaultColorScheme
 import org.sugr.gearshift.viewmodel.api.Api
 import org.sugr.gearshift.viewmodel.api.apiOf
 import org.sugr.gearshift.viewmodel.databinding.ObservableField
@@ -26,6 +31,7 @@ class ProfileEditorViewModel(tag: String, log: Logger,
                              private val ctx: Context,
                              private val prefs : SharedPreferences,
                              private val gson: Gson,
+							 private val fragmentManager: FragmentManager,
                              private var profile: Profile = transmissionProfile(),
                              private val apiFactory : (profile: Profile, ctx: Context,
                                                        prefs: SharedPreferences,
@@ -41,6 +47,8 @@ class ProfileEditorViewModel(tag: String, log: Logger,
     val port = ObservableField("9091")
     val portValid = ObservableBoolean(true)
     val useSSL = ObservableBoolean(false)
+
+    val profileColor = ObservableInt(defaultColorScheme.toolbarColor)
 
     val updateIntervalLabel = ObservableField("")
     val updateIntervalValue = ObservableLong(0)
@@ -66,7 +74,8 @@ class ProfileEditorViewModel(tag: String, log: Logger,
 
     interface Consumer {
         fun showUpdateIntervalPicker(current: Int) : Single<Int>
-    }
+		fun selectColor(colors: IntArray, currentColor: Int, fragmentManager: FragmentManager): Single<Int>
+	}
 
     init {
         val resources = ctx.resources
@@ -92,6 +101,7 @@ class ProfileEditorViewModel(tag: String, log: Logger,
 
         sectionCollapse.apply {
             put("updates", false)
+            put("misc", true)
             put("auth", true)
             put("proxy", true)
             put("advanced", true)
@@ -162,6 +172,20 @@ class ProfileEditorViewModel(tag: String, log: Logger,
     fun toggleCollapseSection(section: String) {
         sectionCollapse.put(section, !(sectionCollapse.get(section) ?: true))
     }
+
+    fun onColorClick() {
+		val colors = colorSchemes.map { it.toolbarColor }.toIntArray()
+		val colorRes = colors.map { ContextCompat.getColor(ctx, it) }.toIntArray()
+
+		consumer?.selectColor(colorRes, ContextCompat.getColor(ctx, profileColor.get()), fragmentManager)
+				?.subscribe { color, err ->
+					if (err == null) {
+						profileColor.set(colors[colorRes.indexOf(color)])
+					} else {
+						log.E("profile editor color selector", err)
+					}
+				}
+	}
 
     private fun valuesFromProfile() {
         profileName.set(profile.name)

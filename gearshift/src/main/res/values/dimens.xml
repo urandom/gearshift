@@ -20,4 +20,6 @@
 
 	<dimen name="torrent_list_top_space">4dp</dimen>
 	<dimen name="torrent_list_bottom_space">@dimen/torrent_list_status_height</dimen>
+
+	<dimen name="color_outline">2dp</dimen>
 </resources>

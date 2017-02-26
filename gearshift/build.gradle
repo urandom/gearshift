@@ -73,7 +73,10 @@ dependencies {
             'com.github.deano2390:MaterialShowcaseView:1.1.0',
             'org.funktionale:funktionale-either:1.0.0-beta',
             'org.funktionale:funktionale-option:1.0.0-beta',
-            "com.andkulikov:transitionseverywhere:1.7.0"
+            "com.andkulikov:transitionseverywhere:1.7.0",
+            'de.hdodenhof:circleimageview:2.1.0',
+            'com.wada811:android-material-design-colors:3.0.0',
+            'com.thebluealliance:spectrum:0.7.1'
     )
 
     kapt(
@@ -101,6 +104,7 @@ repositories {
     mavenCentral()
     maven { url "https://jitpack.io" }
     maven { url "http://dl.bintray.com/kotlin/kotlin-eap-1.1" }
+    maven { url 'http://github.com/wada811/Android-Material-Design-Colors/raw/master/repository/' }
 }
 buildscript {
 }

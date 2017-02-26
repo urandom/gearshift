@@ -3,11 +3,14 @@ package org.sugr.gearshift.ui.view
 import android.content.Context
 import android.databinding.DataBindingUtil
 import android.support.design.widget.Snackbar
+import android.support.v4.app.FragmentManager
 import android.support.v4.widget.NestedScrollView
 import android.support.v7.app.AlertDialog
 import android.util.AttributeSet
 import android.view.MenuItem
 import android.view.View
+import com.thebluealliance.spectrum.SpectrumDialog
+import io.reactivex.Single
 import org.sugr.gearshift.R
 import org.sugr.gearshift.databinding.FirstTimeProfileEditorBinding
 import org.sugr.gearshift.viewmodel.ProfileEditorViewModel
@@ -50,6 +53,24 @@ class FirstTimeProfileEditorView(context: Context?, attrs: AttributeSet?) :
 
             builder.show()
         }
+
+    override fun selectColor(colors: IntArray, currentColor: Int, fragmentManager: FragmentManager): Single<Int> {
+		return single<Int> { e ->
+			SpectrumDialog.Builder(context)
+					.setColors(colors)
+					.setSelectedColor(currentColor)
+					.setDismissOnColorSelected(true)
+					.setNegativeButtonText(android.R.string.cancel)
+					.setOutlineWidth(context.resources.getDimensionPixelSize(R.dimen.color_outline))
+					.setOnColorSelectedListener { positiveResult, color ->
+						e.onSuccess(color)
+					}
+					.build()
+					.show(fragmentManager, "color_selector")
+
+		}
+	}
+
 
     override fun setViewModel(viewModel: ProfileEditorViewModel) {
         this.viewModel = viewModel
