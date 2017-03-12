@@ -2,13 +2,14 @@ package org.sugr.gearshift.viewmodel.api.transmission
 
 import android.content.Context
 import android.content.SharedPreferences
-import android.text.SpannableString
+import android.text.Spannable
 import com.github.salomonbrys.kotson.*
 import com.google.gson.Gson
 import com.google.gson.JsonParser
 import com.nhaarman.mockito_kotlin.any
 import com.nhaarman.mockito_kotlin.doReturn
 import com.nhaarman.mockito_kotlin.mock
+import io.reactivex.android.plugins.RxAndroidPlugins
 import io.reactivex.schedulers.Schedulers
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
@@ -20,6 +21,7 @@ import org.sugr.gearshift.R
 import org.sugr.gearshift.model.Profile
 import org.sugr.gearshift.model.Torrent
 import org.sugr.gearshift.viewmodel.api.Api
+import org.sugr.gearshift.viewmodel.api.SpannableFactory
 import java.net.HttpURLConnection
 
 class TransmissionApiTest {
@@ -58,6 +60,8 @@ class TransmissionApiTest {
     init {
         server.start()
         baseProfile = Profile(name = "default", host = server.hostName, port = server.port, path = "/transmission/rpc")
+
+		RxAndroidPlugins.setInitMainThreadSchedulerHandler { Schedulers.trampoline() }
     }
 
     @Test
@@ -69,7 +73,7 @@ class TransmissionApiTest {
 
         server.enqueue(MockResponse()
                 .setResponseCode(HttpURLConnection.HTTP_OK)
-                .setBody(jsonObject("result" to "success", "arguments" to jsonObject("test" to "v1")).toString())
+                .setBody(jsonObject("result" to "success", "arguments" to jsonObject("version" to "v1")).toString())
         )
 
         val editor = mock<SharedPreferences.Editor> {}
@@ -77,7 +81,7 @@ class TransmissionApiTest {
             on { edit() } doReturn editor
         }
 
-        val api : Api = TransmissionApi(baseProfile, ctx, prefs, gson, log, Schedulers.trampoline())
+        val api : Api = TransmissionApi(baseProfile, ctx, prefs, gson, log, true, Torrents.spannableFactory)
 
         val version = api.test().blockingGet()
         assertThat("has connection", version)
@@ -97,12 +101,12 @@ class TransmissionApiTest {
     fun version() {
         server.enqueue(MockResponse()
                 .setResponseCode(HttpURLConnection.HTTP_OK)
-                .setBody(jsonObject("result" to "success", "arguments" to jsonObject("test" to "v1")).toString())
+                .setBody(jsonObject("result" to "success", "arguments" to jsonObject("version" to "v1")).toString())
         )
 
         val prefs = mock<SharedPreferences>{}
 
-        val api : Api = TransmissionApi(baseProfile, ctx, prefs, gson, log, Schedulers.trampoline())
+        val api : Api = TransmissionApi(baseProfile, ctx, prefs, gson, log, false, Torrents.spannableFactory)
 
         val version = api.test().blockingGet()
         assertThat("has connection", version)
@@ -120,6 +124,11 @@ class TransmissionApiTest {
 
     @Test
     fun torrents() {
+		// A torrents call grabs the session one, to obtain the rpc version
+        server.enqueue(MockResponse()
+                .setResponseCode(HttpURLConnection.HTTP_OK)
+                .setBody(Torrents.session))
+
         server.enqueue(MockResponse()
                 .setResponseCode(HttpURLConnection.HTTP_OK)
                 .setBody(Torrents.data3)
@@ -127,17 +136,12 @@ class TransmissionApiTest {
 
         val prefs = mock<SharedPreferences>{}
 
-        val api : Api = TransmissionApi(baseProfile, ctx, prefs, gson, log, Schedulers.trampoline())
+        val api : Api = TransmissionApi(baseProfile, ctx, prefs, gson, log, true, Torrents.spannableFactory)
 
+		// Skip skips the initial empty set
         val torrents = api.torrents(setOf()).skip(1).blockingFirst()
 
-        assertThat(3, `is`(torrents.size))
-
-        torrents.forEachIndexed { i, torrent ->
-            assertThat(Torrents.names[i], `is`(torrent.name))
-            assertThat(Torrents.statuses[i], `is`(torrent.statusType))
-            assertThat(Torrents.fileCount[i], `is`(torrent.files.size))
-        }
+		server.takeRequest()
 
         val request = server.takeRequest()
         assertThat("/transmission/rpc", `is`(request.path))
@@ -149,31 +153,38 @@ class TransmissionApiTest {
         assertThat("torrent-get", `is`(obj["method"].string))
         assertThat(null, `is`(obj["arguments"].obj["ids"].nullObj))
         assertThat(jsonArray(*(Torrents.meta_fields + Torrents.stat_fields)), `is`(obj["arguments"].obj["fields"].array))
+
+		assertThat(3, `is`(torrents.size))
+
+		torrents.forEachIndexed { i, torrent ->
+			assertThat(Torrents.names[i].toString(), `is`(torrent.name.toString()))
+			assertThat(Torrents.statuses[i], `is`(torrent.statusType))
+			assertThat(Torrents.fileCount[i], `is`(torrent.files.size))
+		}
+
     }
 
     @Test
     fun torrentsSecondRequest() {
-        server.enqueue(MockResponse()
-                .setResponseCode(HttpURLConnection.HTTP_OK)
-                .setBody(Torrents.data3)
-        )
-        server.enqueue(MockResponse()
-                .setResponseCode(HttpURLConnection.HTTP_OK)
-                .setBody(Torrents.data3)
-        )
+		server.enqueue(MockResponse().setResponseCode(HttpURLConnection.HTTP_OK).setBody(Torrents.session))
+        server.enqueue(MockResponse().setResponseCode(HttpURLConnection.HTTP_OK).setBody(Torrents.data3))
+		server.enqueue(MockResponse().setResponseCode(HttpURLConnection.HTTP_OK).setBody(Torrents.dataAfterMeta))
+        server.enqueue(MockResponse().setResponseCode(HttpURLConnection.HTTP_OK).setBody(Torrents.data3))
 
-        val prefs = mock<SharedPreferences>{}
+		val prefs = mock<SharedPreferences>{}
 
-        val api : Api = TransmissionApi(baseProfile, ctx, prefs, gson, log, Schedulers.trampoline())
+        val api : Api = TransmissionApi(baseProfile, ctx, prefs, gson, log, true, Torrents.spannableFactory)
 
-        val torrents = api.torrents(setOf()).skip(2).take(1).blockingFirst()
+        val torrents = api.torrents(setOf()).skip(2).blockingFirst()
         assertThat(3, `is`(torrents.size))
 
         torrents.forEachIndexed { i, torrent ->
-            assertThat(Torrents.names[i], `is`(torrent.name))
-            assertThat(Torrents.statuses[i], `is`(torrent.statusType))
-            assertThat(Torrents.fileCount[i], `is`(torrent.files.size))
+            assertThat(Torrents.names[i].toString(), `is`(torrent.name.toString()))
+            assertThat(Torrents.statuses[i].toString(), `is`(torrent.statusType.toString()))
+            assertThat(Torrents.fileCount[i].toString(), `is`(torrent.files.size.toString()))
         }
+
+		server.takeRequest()
 
         var request = server.takeRequest()
         assertThat("/transmission/rpc", `is`(request.path))
@@ -192,13 +203,19 @@ class TransmissionApiTest {
         assertThat(null, `is`(request.headers["X-Transmission-Session-Id"]))
 
         obj = jp.parse(request.body.readUtf8()).obj
-        assertThat("torrent-get", `is`(obj["method"].string))
-        assertThat("recently-active", `is`(obj["arguments"].obj["ids"].string))
-        assertThat(jsonArray(*(Torrents.stat_fields)), `is`(obj["arguments"].obj["fields"].array))
-    }
+        assertThat(obj["method"].string, `is`("torrent-get"))
+		assertThat(null, `is`(obj["arguments"].obj["ids"].nullString))
+        assertThat(jsonArray(*(Torrents.stat_fields + Torrents.field_files + Torrents.field_trackers)), `is`(obj["arguments"].obj["fields"].array))
+
+		server.takeRequest()
+	}
 
     @Test
     fun torrentsRefetchAll() {
+		server.enqueue(MockResponse()
+				.setResponseCode(HttpURLConnection.HTTP_OK)
+				.setBody(Torrents.session))
+
         server.enqueue(MockResponse().setResponseCode(HttpURLConnection.HTTP_OK).setBody(Torrents.data2))
         server.enqueue(MockResponse().setResponseCode(HttpURLConnection.HTTP_OK).setBody(Torrents.data2))
         server.enqueue(MockResponse().setResponseCode(HttpURLConnection.HTTP_OK).setBody(Torrents.data2))
@@ -213,10 +230,12 @@ class TransmissionApiTest {
 
         val prefs = mock<SharedPreferences>{}
 
-        val api : Api = TransmissionApi(baseProfile, ctx, prefs, gson, log, Schedulers.trampoline())
+        val api : Api = TransmissionApi(baseProfile, ctx, prefs, gson, log, true, Torrents.spannableFactory)
 
         val torrents = api.torrents(setOf()).skip(11).take(1).blockingFirst()
         assertThat(2, `is`(torrents.size))
+
+		server.takeRequest()
 
         server.takeRequest()
 
@@ -229,8 +248,8 @@ class TransmissionApiTest {
 
         var obj = jp.parse(request.body.readUtf8()).obj
         assertThat("torrent-get", `is`(obj["method"].string))
-        assertThat("recently-active", `is`(obj["arguments"].obj["ids"].string))
-        assertThat(jsonArray(*(Torrents.stat_fields)), `is`(obj["arguments"].obj["fields"].array))
+        assertThat(null, `is`(obj["arguments"].obj["ids"].nullString))
+        assertThat(jsonArray(*(Torrents.stat_fields + Torrents.field_files + Torrents.field_trackers)), `is`(obj["arguments"].obj["fields"].array))
 
         server.takeRequest()
         server.takeRequest()
@@ -248,42 +267,37 @@ class TransmissionApiTest {
 
         obj = jp.parse(request.body.readUtf8()).obj
         assertThat("torrent-get", `is`(obj["method"].string))
-        assertThat(null, `is`(obj["arguments"].obj["ids"].nullString))
+        assertThat("recently-active", `is`(obj["arguments"].obj["ids"].nullString))
         assertThat(jsonArray(*(Torrents.stat_fields)), `is`(obj["arguments"].obj["fields"].array))
     }
 
     @Test
     fun torrentFetchAllFields() {
-        server.enqueue(MockResponse().setResponseCode(HttpURLConnection.HTTP_OK).setBody(Torrents.dataStarting))
+		server.enqueue(MockResponse()
+				.setResponseCode(HttpURLConnection.HTTP_OK)
+				.setBody(Torrents.session))
+
         server.enqueue(MockResponse().setResponseCode(HttpURLConnection.HTTP_OK).setBody(Torrents.dataStarting))
         server.enqueue(MockResponse().setResponseCode(HttpURLConnection.HTTP_OK).setBody(Torrents.dataAfterMeta))
-        server.enqueue(MockResponse().setResponseCode(HttpURLConnection.HTTP_OK).setBody(Torrents.dataAfterMeta))
-        server.enqueue(MockResponse().setResponseCode(HttpURLConnection.HTTP_OK).setBody(Torrents.dataWithFiles))
+		server.enqueue(MockResponse().setResponseCode(HttpURLConnection.HTTP_OK).setBody(Torrents.dataWithFiles))
 
         val prefs = mock<SharedPreferences>{}
 
-        val api : Api = TransmissionApi(baseProfile, ctx, prefs, gson, log, Schedulers.trampoline())
+        val api : Api = TransmissionApi(baseProfile, ctx, prefs, gson, log, true, Torrents.spannableFactory)
 
         var index = 0
         // Skip the initial and the one with meta and stat fields
-        api.torrents(setOf()).skip(2).take(4).blockingForEach { torrents ->
+        api.torrents(setOf()).skip(1).take(2).blockingForEach { torrents ->
             assertThat(1, `is`(torrents.size))
 
             val torrent = torrents.first()
+			println(torrent.files)
             when (index) {
                 0 -> {
                     assertThat(0, `is`(torrent.totalSize))
                     assertThat(0, `is`(torrent.files.size))
                 }
                 1 -> {
-                    assertThat(1111, `is`(torrent.totalSize))
-                    assertThat(0, `is`(torrent.files.size))
-                }
-                2 -> {
-                    assertThat(1111, `is`(torrent.totalSize))
-                    assertThat(0, `is`(torrent.files.size))
-                }
-                3 -> {
                     assertThat(1111, `is`(torrent.totalSize))
                     assertThat(1, `is`(torrent.files.size))
                     assertThat("file1", `is`(torrent.files.first().name))
@@ -298,6 +312,8 @@ class TransmissionApiTest {
         val jp = JsonParser()
         val hash = "3333333333333333333333333333333333333333"
 
+		server.takeRequest()
+
         var request = server.takeRequest()
         var obj = jp.parse(request.body.readUtf8()).obj
         assertThat("torrent-get", `is`(obj["method"].string))
@@ -307,21 +323,8 @@ class TransmissionApiTest {
         request = server.takeRequest()
         obj = jp.parse(request.body.readUtf8()).obj
         assertThat("torrent-get", `is`(obj["method"].string))
-        assertThat("recently-active", `is`(obj["arguments"].obj["ids"].string))
-        assertThat(jsonArray(*(Torrents.stat_fields)), `is`(obj["arguments"].obj["fields"].array))
-
-        request = server.takeRequest()
-        obj = jp.parse(request.body.readUtf8()).obj
-        assertThat("torrent-get", `is`(obj["method"].string))
-        assertThat(1, `is`(obj["arguments"].obj["ids"].array.size()))
-        assertThat(hash, `is`(obj["arguments"].obj["ids"].array.first().string))
-        assertThat(jsonArray(*(Torrents.meta_fields)), `is`(obj["arguments"].obj["fields"].array))
-
-        request = server.takeRequest()
-        obj = jp.parse(request.body.readUtf8()).obj
-        assertThat("torrent-get", `is`(obj["method"].string))
-        assertThat("recently-active", `is`(obj["arguments"].obj["ids"].string))
-        assertThat(jsonArray(*(Torrents.stat_fields)), `is`(obj["arguments"].obj["fields"].array))
+		assertThat(null, `is`(obj["arguments"].obj["ids"].nullObj))
+        assertThat(jsonArray(*(Torrents.stat_fields), Torrents.field_files, Torrents.field_trackers), `is`(obj["arguments"].obj["fields"].array))
 
         request = server.takeRequest()
         obj = jp.parse(request.body.readUtf8()).obj
@@ -339,7 +342,7 @@ class TransmissionApiTest {
 
         val prefs = mock<SharedPreferences>{}
 
-        val api : Api = TransmissionApi(baseProfile, ctx, prefs, gson, log, Schedulers.trampoline(), true)
+        val api : Api = TransmissionApi(baseProfile, ctx, prefs, gson, log, true, Torrents.spannableFactory)
 
         val session = api.session(TransmissionSession()).blockingFirst()
 
@@ -362,6 +365,7 @@ private object Torrents {
     val new_status_rpc_version = 14
     val field_hash_string = "hashString"
     val field_files = "files"
+	val field_trackers = "trackers"
 
     val meta_fields = arrayOf(field_hash_string, "name", "addedDate", "totalSize")
     val stat_fields = arrayOf(
@@ -373,7 +377,13 @@ private object Torrents {
             "uploadedEver", "uploadRatio", "downloadDir"
     )
 
-    val names = arrayOf(SpannableString("T1"), SpannableString("T2"), SpannableString("T3"))
+	val spannableFactory : SpannableFactory = { str ->
+		mock<Spannable> {
+			on { toString() } doReturn str
+		}
+	}
+
+    val names = arrayOf(spannableFactory("T1"), spannableFactory("T2"), spannableFactory("T3"))
     val statuses = arrayOf(Torrent.StatusType.STOPPED, Torrent.StatusType.DOWNLOADING, Torrent.StatusType.CHECK_WAITING)
     val fileCount = arrayOf(2, 1, 0)
     val data2 = """{

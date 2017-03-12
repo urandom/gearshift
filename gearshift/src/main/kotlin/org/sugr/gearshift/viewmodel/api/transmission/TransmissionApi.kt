@@ -11,13 +11,13 @@ import com.google.gson.JsonElement
 import com.google.gson.JsonObject
 import io.reactivex.Completable
 import io.reactivex.Observable
-import io.reactivex.Scheduler
 import io.reactivex.Single
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
 import io.reactivex.subjects.PublishSubject
 import okhttp3.*
 import okhttp3.logging.HttpLoggingInterceptor
+import okio.Buffer
 import org.sugr.gearshift.BuildConfig
 import org.sugr.gearshift.Log
 import org.sugr.gearshift.Logger
@@ -47,12 +47,12 @@ import javax.net.ssl.X509TrustManager
 
 class TransmissionApi(
 		private var profile: Profile,
-		private val ctx : Context,
+		private val ctx: Context,
 		private val prefs: SharedPreferences,
 		private val gson: Gson = Gson(),
 		private val log: Logger = Log,
-		private val mainThreadScheduler: Scheduler = AndroidSchedulers.mainThread(),
-		debug: Boolean = BuildConfig.DEBUG
+		private val debug: Boolean = BuildConfig.DEBUG,
+		private val spannableFactory: SpannableFactory = ::SpannableString
 ) : Api, StatisticsApi {
 
 	private val httpClient: OkHttpClient
@@ -226,9 +226,8 @@ class TransmissionApi(
 							))
 									.delay(if (counter == 0L) 0 else profile.updateInterval, TimeUnit.SECONDS)
 									.toObservable()
-									.flatMap { json ->
+									.concatMap { json ->
 										val torrents = json["torrents"].array
-
 
 										val removed = json["removed"].nullArray?.map {
 											jsonObject(FIELD_ID to it, FIELD_REMOVED to true, FIELD_HASH to "")
@@ -297,10 +296,11 @@ class TransmissionApi(
 				} else {
 					accum
 				}
-			}.map { map ->
+			// Skip the intial event produced by the scan's initial value
+			}.skip(1).map { map ->
 				map.values.toSet()
 			}.map { set ->
-				set.map { obj -> torrentFrom(obj, ctx, rpcVersion, gson) }.toSet()
+				set.map { obj -> torrentFrom(obj, ctx, rpcVersion, gson, spannableFactory) }.toSet()
 			}.startWith(initial)
 		}
 	}
@@ -391,6 +391,9 @@ class TransmissionApi(
 				.observeOn(Schedulers.computation())
 				.map { response ->
 					val json = gson.fromJson<JsonObject>(response.body().charStream())
+					val buffer = Buffer()
+					body.writeTo(buffer)
+					println(buffer.readUtf8())
 					when {
 						!("result" in json) -> throw TransmissionApiException("unknown response")
 						json["result"].string != "success" -> throw TransmissionApiException(json["result"].string)
@@ -398,7 +401,7 @@ class TransmissionApi(
 						else -> throw TransmissionApiException("unknown response")
 					}
 				}
-				.observeOn(mainThreadScheduler)
+				.observeOn(AndroidSchedulers.mainThread())
 	}
 
 
@@ -466,7 +469,7 @@ class TransmissionApi(
 			return original
 		}
 
-		private fun torrentFrom(json: JsonObject, ctx: Context, rpcVersion: Int, gson: Gson) : Torrent {
+		private fun torrentFrom(json: JsonObject, ctx: Context, rpcVersion: Int, gson: Gson, spannableFactory: SpannableFactory) : Torrent {
 			val metaProgress = json["metadataPercentComplete"]?.nullFloat ?: 0f
 			val downloadProgress = json["percentDone"]?.nullFloat ?: 0f
 			val eta = json["eta"]?.nullLong ?: 0L
@@ -624,7 +627,7 @@ class TransmissionApi(
 			return Torrent(
 					hash = json[FIELD_HASH]?.nullString ?: "",
 					id = json[FIELD_ID]?.nullInt ?: 0,
-					name = SpannableString(json[FIELD_NAME]?.nullString ?: ""),
+					name = spannableFactory(json[FIELD_NAME]?.nullString ?: ""),
 					statusType = status,
 					isStalled = isStalled,
 					isFinished = json["isStalled"]?.nullBool ?: false,

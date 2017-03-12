@@ -148,7 +148,8 @@ class ProfileEditorViewModel(tag: String, log: Logger,
                 proxyHost = proxyHost.get(),
                 proxyPort = proxyPort.get().toInt(),
                 timeout = timeout.get().toInt(),
-                path = path.get()
+                path = path.get(),
+				color = profileColor.get()
         )
 
         return profile.valid

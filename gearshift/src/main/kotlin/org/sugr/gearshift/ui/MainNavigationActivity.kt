@@ -35,8 +35,6 @@ import org.sugr.gearshift.ui.path.Path
 import org.sugr.gearshift.ui.path.PathNavigator
 import org.sugr.gearshift.ui.path.TorrentListPath
 import org.sugr.gearshift.ui.theme.ColorScheme
-import org.sugr.gearshift.ui.theme.defaultColorScheme
-import org.sugr.gearshift.ui.theme.selectionColorScheme
 import org.sugr.gearshift.ui.view.ContextMenuProvider
 import org.sugr.gearshift.ui.view.ToolbarConsumer
 import org.sugr.gearshift.ui.view.ToolbarMenuItemClickListener
@@ -237,11 +235,7 @@ class MainNavigationActivity : AppCompatActivity(),
 
 						toggleDrawable(toArrow = menu != -1)
 
-						if (menu == -1) {
-							applyColorScheme(defaultColorScheme)
-						} else {
-							applyColorScheme(selectionColorScheme)
-						}
+						component.navigationViewModel.contextToolbarMode.onNext(menu != -1)
 					}
 		}
 
@@ -261,6 +255,10 @@ class MainNavigationActivity : AppCompatActivity(),
 		}
 
 		toggleDrawable(!newPath.isTopLevel())
+	}
+
+	override fun setColorScheme(colorScheme: ColorScheme) {
+		applyColorScheme(colorScheme)
 	}
 
 	private fun getContentViewWithIndex(): Pair<View?, Int> {

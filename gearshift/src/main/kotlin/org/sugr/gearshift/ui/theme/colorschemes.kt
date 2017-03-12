@@ -115,3 +115,7 @@ val colorSchemes = arrayOf(
 		limeColorScheme, yellowColorScheme, orangeColorScheme, deepOrangeColorScheme,
 		brownColorScheme, greyColorScheme
 )
+
+fun colorSchemeFor(color: Int): ColorScheme {
+	return colorSchemes.filter { it.toolbarColor == color }.first()
+}

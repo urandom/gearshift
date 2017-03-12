@@ -63,8 +63,8 @@ dependencies {
             "io.reactivex.rxjava2:rxjava:$rx_version",
              'com.google.code.gson:gson:2.6.2',
              'com.github.salomonbrys.kotson:kotson:2.2.0',
-             'com.squareup.okhttp3:okhttp:3.5.0',
-             group: 'com.squareup.okhttp3', name: 'logging-interceptor', version: '3.5.0',
+             'com.squareup.okhttp3:okhttp:3.6.0',
+             group: 'com.squareup.okhttp3', name: 'logging-interceptor', version: '3.6.0',
              'com.github.zafarkhaja:java-semver:0.9.0',
             "org.jetbrains.kotlin:kotlin-stdlib:${kotlin_version}",
             "org.jetbrains.kotlin:kotlin-reflect:${kotlin_version}",
@@ -80,7 +80,7 @@ dependencies {
     )
 
     kapt(
-            'com.android.databinding:compiler:2.2.3',
+            'com.android.databinding:compiler:2.3.0',
             // "com.google.dagger:dagger-compiler:$dagger_version"
     )
 
@@ -90,7 +90,7 @@ dependencies {
 
     testCompile(
             'junit:junit:4.12',
-            'com.squareup.okhttp3:mockwebserver:3.5.0',
+            'com.squareup.okhttp3:mockwebserver:3.6.0',
 			"com.nhaarman:mockito-kotlin:1.0.1"
     )
 

@@ -6,8 +6,10 @@ import android.support.design.widget.NavigationView
 import android.view.LayoutInflater
 import android.view.MenuItem
 import com.google.gson.Gson
+import io.reactivex.BackpressureStrategy
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.subjects.BehaviorSubject
 import io.reactivex.subjects.PublishSubject
 import org.funktionale.option.firstOption
 import org.funktionale.option.toOption
@@ -17,6 +19,10 @@ import org.sugr.gearshift.R
 import org.sugr.gearshift.model.loadProfiles
 import org.sugr.gearshift.model.profileOf
 import org.sugr.gearshift.ui.path.Path
+import org.sugr.gearshift.ui.theme.ColorScheme
+import org.sugr.gearshift.ui.theme.colorSchemeFor
+import org.sugr.gearshift.ui.theme.defaultColorScheme
+import org.sugr.gearshift.ui.theme.selectionColorScheme
 import org.sugr.gearshift.viewmodel.adapters.FilterAdapter
 import org.sugr.gearshift.viewmodel.api.apiOf
 import org.sugr.gearshift.viewmodel.rxutil.*
@@ -31,6 +37,7 @@ class MainNavigationViewModel(tag: String, log: Logger,
 		fun restorePath()
 		fun closeDrawer()
 		fun createProfile()
+		fun setColorScheme(colorScheme: ColorScheme)
 	}
 
     val activityLifecycle = PublishSubject.create<ActivityLifecycle>()
@@ -69,6 +76,8 @@ class MainNavigationViewModel(tag: String, log: Logger,
             .map { profile -> apiOf(profile, ctx, prefs, gson, log) }
             .takeUntil(takeUntilDestroy())
             .replay(1).refCount()
+
+	val contextToolbarMode = BehaviorSubject.createDefault(false)
 
     var firstTimeProfile = true
 
@@ -179,6 +188,24 @@ class MainNavigationViewModel(tag: String, log: Logger,
             .takeUntil(takeUntilUnbind())
             .observeOn(AndroidSchedulers.mainThread())
             .replay(1).refCount()
+
+	init {
+		profileObservable.map {
+			colorSchemeFor(it.color)
+		}
+				.startWith(defaultColorScheme)
+				.combineLatestWith(contextToolbarMode) { profileColorScheme, isContext ->
+					if (isContext) selectionColorScheme
+					else profileColorScheme
+				}
+				.distinctUntilChanged()
+				.pauseOn(lifecycle.onUnbind())
+				.toFlowable(BackpressureStrategy.LATEST)
+				.observeOn(AndroidSchedulers.mainThread())
+				.subscribe {
+					consumer?.setColorScheme(it)
+				}
+	}
 
     override fun bind(consumer: Consumer) {
         super.bind(consumer)

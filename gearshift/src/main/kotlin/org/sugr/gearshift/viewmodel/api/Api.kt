@@ -2,6 +2,7 @@ package org.sugr.gearshift.viewmodel.api
 
 import android.content.Context
 import android.content.SharedPreferences
+import android.text.Spannable
 import com.google.gson.Gson
 import io.reactivex.Completable
 import io.reactivex.Observable
@@ -30,13 +31,16 @@ interface StatisticsApi {
 	fun currentSpeed(): Observable<CurrentSpeed>
 }
 
+typealias SpannableFactory = (String) -> Spannable
+
 fun apiOf(profile: Profile, ctx: Context,
 		  prefs: SharedPreferences,
 		  gson : Gson = Gson(),
 		  log: Logger = Log,
 		  debug : Boolean = BuildConfig.DEBUG) : Api {
+
 	if (profile.type == ProfileType.TRANSMISSION) {
-		return TransmissionApi(profile, ctx, prefs, gson, log, AndroidSchedulers.mainThread(), debug)
+		return TransmissionApi(profile, ctx, prefs, gson, log, debug)
 	}
 
 	return NoApi

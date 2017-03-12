@@ -8,6 +8,7 @@ import io.reactivex.functions.BiFunction
 import io.reactivex.functions.Function3
 import org.funktionale.either.Either
 import org.sugr.gearshift.viewmodel.ActivityLifecycle
+import org.sugr.gearshift.viewmodel.RetainedViewModel
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicReference
 
@@ -46,6 +47,14 @@ fun <T> Observable<T>.pauseOn(pauseObservable: Observable<Boolean>) : Observable
 
 fun <T> Observable<T>.refresh(refresher: Observable<Any>) : Observable<T> {
 	return refresher.startWith(1).debounce(50, TimeUnit.MILLISECONDS).switchMap { this }
+}
+
+fun Observable<RetainedViewModel.Lifecycle>.onUnbind(): Observable<Boolean> {
+	return filter {
+		it == RetainedViewModel.Lifecycle.BIND || it == RetainedViewModel.Lifecycle.UNBIND
+	}.map {
+		it == RetainedViewModel.Lifecycle.BIND
+	}.startWith(true)
 }
 
 fun Observable<ActivityLifecycle>.onStop() : Observable<Boolean> {

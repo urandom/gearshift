@@ -3,6 +3,7 @@ package org.sugr.gearshift.viewmodel
 import android.content.Context
 import android.content.SharedPreferences
 import android.content.res.Resources
+import android.support.v4.app.FragmentManager
 import com.google.gson.Gson
 import com.nhaarman.mockito_kotlin.*
 import io.reactivex.Single
@@ -34,6 +35,8 @@ class ProfileEditorViewModelTest {
     val editor = mock<SharedPreferences.Editor> {
     }
 
+    val fm = mock<FragmentManager> {}
+
     val pref = mock<SharedPreferences> {
         on { getString("profile_invalid_1", null) } doReturn """{"id": "invalid_1"}"""
         on { getString("profile_invalid_2", null) } doReturn """{"id": "invalid_2", "name":"foo", "host": "http://sugr.org", "port": 12345, "proxyHost": "http://example.com"}"""
@@ -43,7 +46,7 @@ class ProfileEditorViewModelTest {
 
     @Test
     fun canLeaveInvalid() {
-        val vmInvalid = ProfileEditorViewModel("tag", log, ctx, pref, Gson(), Profile(id = "invalid_1"))
+        val vmInvalid = ProfileEditorViewModel("tag", log, ctx, pref, Gson(), fm, Profile(id = "invalid_1"))
 
         // Wait for the validators to debounce
         Thread.sleep(400)
@@ -53,7 +56,7 @@ class ProfileEditorViewModelTest {
 
     @Test
     fun canLeaveValid() {
-        val vmValid = ProfileEditorViewModel("tag", log, ctx, pref, Gson(), Profile(id = "valid_1"))
+        val vmValid = ProfileEditorViewModel("tag", log, ctx, pref, Gson(), fm, Profile(id = "valid_1"))
 
         // Wait for the validators to debounce
         Thread.sleep(400)
@@ -74,7 +77,7 @@ class ProfileEditorViewModelTest {
             return api
         }
 
-        val vm1 = ProfileEditorViewModel("tag", log, ctx, pref, Gson(), Profile(id = "invalid_1"), ::factory)
+        val vm1 = ProfileEditorViewModel("tag", log, ctx, pref, Gson(), fm, Profile(id = "invalid_1"), ::factory)
 
         // Wait for the validators to debounce
         Thread.sleep(400)
@@ -98,7 +101,7 @@ class ProfileEditorViewModelTest {
             return api
         }
 
-        val vm1 = ProfileEditorViewModel("tag", log, ctx, pref, Gson(), Profile(id = "valid_1"), ::factory)
+        val vm1 = ProfileEditorViewModel("tag", log, ctx, pref, Gson(), fm, Profile(id = "valid_1"), ::factory)
 
         // Wait for the validators to debounce
         Thread.sleep(400)
@@ -122,7 +125,7 @@ class ProfileEditorViewModelTest {
             return api
         }
 
-        val vm = ProfileEditorViewModel("tag", log, ctx, pref, Gson(), Profile(id = "valid_1"), ::factory)
+        val vm = ProfileEditorViewModel("tag", log, ctx, pref, Gson(), fm, Profile(id = "valid_1"), ::factory)
 
         // Wait for the validators to debounce
         Thread.sleep(400)
@@ -134,9 +137,13 @@ class ProfileEditorViewModelTest {
 
     @Test
     fun onPickUpdateInterval() {
-        val vm = ProfileEditorViewModel("tag", log, ctx, pref, Gson(), Profile())
+        val vm = ProfileEditorViewModel("tag", log, ctx, pref, Gson(), fm, Profile())
         val consumer = object : Consumer {
-            override fun showUpdateIntervalPicker(current: Int): Single<Int> {
+			override fun selectColor(colors: IntArray, currentColor: Int, fragmentManager: FragmentManager): Single<Int> {
+				return Single.just(1)
+			}
+
+			override fun showUpdateIntervalPicker(current: Int): Single<Int> {
                 return Single.just(current + 15)
             }
 
@@ -156,7 +163,7 @@ class ProfileEditorViewModelTest {
 
     @Test
     fun isValidEmptyProfile() {
-        val vm = ProfileEditorViewModel("tag", log, ctx, pref, Gson(), Profile())
+        val vm = ProfileEditorViewModel("tag", log, ctx, pref, Gson(), fm, Profile())
 
         // Wait for the validators to debounce
         Thread.sleep(400)
@@ -166,8 +173,8 @@ class ProfileEditorViewModelTest {
 
     @Test
     fun isValidInvalidProfile() {
-        val vm1 = ProfileEditorViewModel("tag", log, ctx, pref, Gson(), Profile(id = "invalid_1"))
-        val vm2 = ProfileEditorViewModel("tag", log, ctx, pref, Gson(), Profile(id = "invalid_2"))
+        val vm1 = ProfileEditorViewModel("tag", log, ctx, pref, Gson(), fm, Profile(id = "invalid_1"))
+        val vm2 = ProfileEditorViewModel("tag", log, ctx, pref, Gson(), fm, Profile(id = "invalid_2"))
 
         // Wait for the validators to debounce
         Thread.sleep(400)
@@ -178,8 +185,8 @@ class ProfileEditorViewModelTest {
 
     @Test
     fun isValid() {
-        val vm1 = ProfileEditorViewModel("tag", log, ctx, pref, Gson(), Profile(id = "valid_1"))
-        val vm2 = ProfileEditorViewModel("tag", log, ctx, pref, Gson(), Profile())
+        val vm1 = ProfileEditorViewModel("tag", log, ctx, pref, Gson(), fm, Profile(id = "valid_1"))
+        val vm2 = ProfileEditorViewModel("tag", log, ctx, pref, Gson(), fm, Profile())
 
         vm2.profileName.set("name")
         vm2.host.set("http://sugr.org")
@@ -194,7 +201,7 @@ class ProfileEditorViewModelTest {
 
     @Test
     fun saveInvalid() {
-        val vm1 = ProfileEditorViewModel("tag", log, ctx, pref, Gson(), Profile(id = "invalid_1"))
+        val vm1 = ProfileEditorViewModel("tag", log, ctx, pref, Gson(), fm, Profile(id = "invalid_1"))
 
         // Wait for the validators to debounce
         Thread.sleep(400)
@@ -206,7 +213,7 @@ class ProfileEditorViewModelTest {
 
     @Test
     fun saveValid() {
-        val vm1 = ProfileEditorViewModel("tag", log, ctx, pref, Gson(), Profile(id = "valid_1"))
+        val vm1 = ProfileEditorViewModel("tag", log, ctx, pref, Gson(), fm, Profile(id = "valid_1"))
 
         // Wait for the validators to debounce
         Thread.sleep(400)
@@ -220,7 +227,7 @@ class ProfileEditorViewModelTest {
 
     @Test
     fun toggleCollapseSection() {
-        val vm = ProfileEditorViewModel("tag", log, ctx, pref, Gson(), Profile())
+        val vm = ProfileEditorViewModel("tag", log, ctx, pref, Gson(), fm, Profile())
 
         vm.toggleCollapseSection("updates")
 
