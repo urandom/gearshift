@@ -71,7 +71,7 @@ class PathNavigatorComponentImpl(b : NavComponent) : PathNavigatorComponent, Nav
 class ContentHierarchyViewModel(tag: String, log: Logger) : RetainedViewModel<Unit>(tag, log) {
     val contentHierarchy = mutableListOf<Path<*>>()
 
-    fun pop() = if (contentHierarchy.size > 0) contentHierarchy.removeAt(contentHierarchy.size - 1) else null
+    fun pop() = if (contentHierarchy.size > 1) contentHierarchy.removeAt(contentHierarchy.size - 1) else null
     fun push(path: Path<*>) = contentHierarchy.add(path)
     fun replaceLast(path: Path<*>) = contentHierarchy.set(contentHierarchy.size - 1, path)
     fun get(i: Int) = contentHierarchy.get(i)

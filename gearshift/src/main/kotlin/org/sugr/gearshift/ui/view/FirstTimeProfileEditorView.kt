@@ -13,15 +13,20 @@ import com.thebluealliance.spectrum.SpectrumDialog
 import io.reactivex.Single
 import org.sugr.gearshift.R
 import org.sugr.gearshift.databinding.FirstTimeProfileEditorBinding
+import org.sugr.gearshift.ui.path.PathNavigator
 import org.sugr.gearshift.viewmodel.ProfileEditorViewModel
+import org.sugr.gearshift.viewmodel.api.AuthException
 import org.sugr.gearshift.viewmodel.rxutil.single
 
 class FirstTimeProfileEditorView(context: Context?, attrs: AttributeSet?) :
         NestedScrollView(context, attrs),
         ProfileEditorViewModel.Consumer,
         ViewModelConsumer<ProfileEditorViewModel>,
+		PathNavigatorConsumer,
         ToolbarMenuItemClickListener {
-    lateinit private var viewModel : ProfileEditorViewModel
+
+	lateinit private var viewModel : ProfileEditorViewModel
+	lateinit private var pathNavigator : PathNavigator
 
     override fun onAttachedToWindow() {
         super.onAttachedToWindow()
@@ -34,12 +39,6 @@ class FirstTimeProfileEditorView(context: Context?, attrs: AttributeSet?) :
         binding.viewModel = viewModel
 
         viewModel.bind(this)
-    }
-
-    override fun onDetachedFromWindow() {
-        super.onDetachedFromWindow()
-
-        viewModel.save()
     }
 
     override fun showUpdateIntervalPicker(current: Int) =
@@ -71,6 +70,10 @@ class FirstTimeProfileEditorView(context: Context?, attrs: AttributeSet?) :
 		}
 	}
 
+	override fun setPathNavigator(navigator: PathNavigator) {
+		this.pathNavigator = navigator
+	}
+
 
     override fun setViewModel(viewModel: ProfileEditorViewModel) {
         this.viewModel = viewModel
@@ -78,13 +81,27 @@ class FirstTimeProfileEditorView(context: Context?, attrs: AttributeSet?) :
 
     override fun onToolbarMenuItemClick(item: MenuItem): Boolean {
         when (item.itemId) {
-            R.id.test -> {
+            R.id.save -> {
+				if (!viewModel.canLeave()) {
+					return true
+				}
+
                 item.setActionView(R.layout.action_view_progress)
                 viewModel.check().subscribe({success ->
-                    val message = if (success) R.string.profile_check_success else R.string.profile_check_failure
-                    Snackbar.make((parent as View), message, Snackbar.LENGTH_LONG).show()
                     item.setActionView(null)
+					if (success) {
+						viewModel.save();
+						pathNavigator.restorePath()
+					} else {
+						Snackbar.make((parent as View), R.string.profile_check_failure_generic, Snackbar.LENGTH_LONG).show()
+					}
                 }) { err ->
+					val message = when (err) {
+						is AuthException -> R.string.profile_check_failure_auth
+						else -> R.string.profile_check_failure_generic
+					}
+
+					Snackbar.make((parent as View), message, Snackbar.LENGTH_LONG).show()
                     viewModel.log.E("profile check", err)
                     item.setActionView(null)
                 }

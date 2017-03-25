@@ -154,6 +154,7 @@
 			<android.support.design.widget.TextInputEditText
 				style="@style/Form.TextInput"
 				android:text="@={viewModel.password}"
+				android:inputType="textPassword"
 				android:hint="@string/con_password"/>
 
 		</android.support.design.widget.TextInputLayout>

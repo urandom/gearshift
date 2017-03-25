@@ -35,10 +35,7 @@ import org.sugr.gearshift.ui.path.Path
 import org.sugr.gearshift.ui.path.PathNavigator
 import org.sugr.gearshift.ui.path.TorrentListPath
 import org.sugr.gearshift.ui.theme.ColorScheme
-import org.sugr.gearshift.ui.view.ContextMenuProvider
-import org.sugr.gearshift.ui.view.ToolbarConsumer
-import org.sugr.gearshift.ui.view.ToolbarMenuItemClickListener
-import org.sugr.gearshift.ui.view.ViewModelConsumer
+import org.sugr.gearshift.ui.view.*
 import org.sugr.gearshift.ui.view.util.asSequence
 import org.sugr.gearshift.viewmodel.ActivityLifecycle
 import org.sugr.gearshift.viewmodel.MainNavigationViewModel
@@ -175,6 +172,7 @@ class MainNavigationActivity : AppCompatActivity(),
 		val view = inflater.inflate(newPath.layout, container, false)
 		val viewModel = newPath.viewModel
 
+		(view as? PathNavigatorConsumer)?.setPathNavigator(pathNavigator)
 		(view as? ViewModelConsumer<RetainedViewModel<*>>)?.setViewModel(viewModel)
 
 		for (layout in newPath.extraLayouts) {
@@ -321,16 +319,15 @@ class MainNavigationActivity : AppCompatActivity(),
 	private fun disableContextMenu() = contextCloser.call()
 
 	private fun applyColorScheme(scheme: ColorScheme) {
+		val textColor = ContextCompat.getColor(this, scheme.textColor)
+
 		binding.appBar.toolbar.background = ColorDrawable(ContextCompat.getColor(this, scheme.toolbarColor))
 		binding.appBar.toolbarLayout.contentScrim = ColorDrawable(ContextCompat.getColor(this, scheme.statusBarColor))
 		binding.appBar.viewContainer.statusBarBackground = ColorDrawable(ContextCompat.getColor(this, scheme.statusBarColor))
-		binding.appBar.toolbar.asSequence().filter { it is TextView }.map { it as TextView }.forEach { tv ->
-			tv.setTextColor(scheme.textColor)
-		}
 		binding.sideNavContainer.statusBarBackground = ColorDrawable(ContextCompat.getColor(this, scheme.statusBarColor))
 		binding.sideNavHeader.header.background = ColorDrawable(ContextCompat.getColor(this, scheme.toolbarColor))
 		binding.sideNavHeader.header.asSequence().filter { it is TextView }.map { it as TextView }.forEach { tv ->
-			tv.setTextColor(scheme.textColor)
+			tv.setTextColor(textColor)
 		}
 	}
 
