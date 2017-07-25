@@ -923,7 +923,7 @@ public class TorrentDetailPageFragment extends Fragment {
         Spanned statusText = Html.fromHtml(Torrent.getStatusText(details.torrentCursor));
         int status = Torrent.getStatus(details.torrentCursor);
         float uploadRatio = Torrent.getUploadRatio(details.torrentCursor);
-        float seedRatioLimit = Torrent.getUploadRatio(details.torrentCursor);
+        float seedRatioLimit = Torrent.getSeedRatioLimit(details.torrentCursor);
         int queuePosition = Torrent.getQueuePosition(details.torrentCursor);
 
         if (!name.equals(views.name.getText())) {
